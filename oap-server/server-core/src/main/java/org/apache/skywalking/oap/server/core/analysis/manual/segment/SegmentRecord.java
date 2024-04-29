@@ -37,7 +37,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import java.util.List;
 
-import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
+import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
 @SuperDataset
 @Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, builder = SegmentRecord.Builder.class, processor = RecordStreamProcessor.class)

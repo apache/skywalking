@@ -54,6 +54,9 @@ public enum IndexController {
     private boolean enableCustomRouting = false;
 
     public String getTableName(Model model) {
+        if (!model.isTimeSeries()) {
+            return "management";
+        }
         if (!logicSharding) {
             return model.isMetric() ? "metrics-all" :
                 (model.isRecord() && !model.isSuperDataset() ? "records-all" : model.getName());
@@ -63,10 +66,13 @@ public enum IndexController {
     }
 
     /**
-     * Generate the index doc ID. When a model is the aggregation storage mode, the logicTableName is a part of new ID
+     * Generate the index doc ID. When a model is the merged storage mode, the logicTableName is a part of new ID
      * to avoid conflicts.
      */
     public String generateDocId(Model model, String originalID) {
+        if (!model.isTimeSeries()) {
+            return this.generateDocId(model.getName(), originalID);
+        }
         if (!logicSharding && model.isRecord() && !model.isSuperDataset()) {
             return this.generateDocId(model.getName(), originalID);
         }
@@ -111,6 +117,14 @@ public enum IndexController {
         return columns;
     }
 
+    /**
+     * All the management data would be merged in the same index, no logicSharding.
+     */
+    public Map<String, Object> appendTableColumn4ManagementData(String modelName, Map<String, Object> columns) {
+        columns.put(LogicIndicesRegister.MANAGEMENT_TABLE_NAME, modelName);
+        return columns;
+    }
+
     public static class LogicIndicesRegister {
 
         /**
@@ -132,6 +146,11 @@ public enum IndexController {
          */
         public static final String RECORD_TABLE_NAME = "record_table";
 
+        /**
+         * The management data table name in merged physical storage.
+         */
+        public static final String MANAGEMENT_TABLE_NAME = "management_table";
+
         public static String getPhysicalTableName(String logicName) {
             return Optional.ofNullable(LOGIC_INDICES_CATALOG.get(logicName)).orElse(logicName);
         }
@@ -140,7 +159,7 @@ public enum IndexController {
             LOGIC_INDICES_CATALOG.put(model.getName(), physicalName);
             Map<String, ModelColumn> columns = PHYSICAL_INDICES_COLUMNS.computeIfAbsent(
                 physicalName, v -> new HashMap<>());
-            if (!IndexController.INSTANCE.logicSharding) {
+            if (!IndexController.INSTANCE.logicSharding || !model.isTimeSeries()) {
                 model.getColumns().forEach(modelColumn -> {
                     String columnName = modelColumn.getColumnName().getName();
                     if (columns.containsKey(columnName)) {

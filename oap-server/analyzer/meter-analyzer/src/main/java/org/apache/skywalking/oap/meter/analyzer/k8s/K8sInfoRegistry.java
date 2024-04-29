@@ -18,21 +18,23 @@
 
 package org.apache.skywalking.oap.meter.analyzer.k8s;
 
-import static java.util.Objects.requireNonNull;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
+import lombok.SneakyThrows;
+import org.apache.skywalking.library.kubernetes.KubernetesPods;
+import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.ObjectID;
+
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.skywalking.library.kubernetes.KubernetesPods;
-import org.apache.skywalking.library.kubernetes.KubernetesServices;
-import org.apache.skywalking.library.kubernetes.ObjectID;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1Service;
-import lombok.SneakyThrows;
+
+import static java.util.Objects.requireNonNull;
 
 public class K8sInfoRegistry {
     private final static K8sInfoRegistry INSTANCE = new K8sInfoRegistry();
@@ -78,7 +80,7 @@ public class K8sInfoRegistry {
         podServiceMap = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(3))
             .build(CacheLoader.from(podObjectID -> {
-                final Optional<V1Pod> pod = KubernetesPods.INSTANCE
+                final Optional<Pod> pod = KubernetesPods.INSTANCE
                     .findByObjectID(
                         ObjectID
                             .builder()
@@ -92,13 +94,14 @@ public class K8sInfoRegistry {
                     return ObjectID.EMPTY;
                 }
 
-                final Optional<V1Service> service = KubernetesServices.INSTANCE
+                final Optional<Service> service = KubernetesServices.INSTANCE
                     .list()
                     .stream()
                     .filter(it -> it.getMetadata() != null)
                     .filter(it -> Objects.equals(it.getMetadata().getNamespace(), pod.get().getMetadata().getNamespace()))
                     .filter(it -> it.getSpec() != null)
                     .filter(it -> requireNonNull(it.getSpec()).getSelector() != null)
+                    .filter(it -> !it.getSpec().getSelector().isEmpty())
                     .filter(it -> {
                         final Map<String, String> labels = pod.get().getMetadata().getLabels();
                         final Map<String, String> selector = it.getSpec().getSelector();
@@ -122,23 +125,27 @@ public class K8sInfoRegistry {
 
     @SneakyThrows
     public String findServiceName(String namespace, String podName) {
+        return findService(namespace, podName).toString();
+    }
+
+    @SneakyThrows
+    public ObjectID findService(String namespace, String podName) {
         return this.podServiceMap.get(
-            ObjectID
-                .builder()
-                .name(podName)
-                .namespace(namespace)
-                .build())
-            .toString();
+                ObjectID
+                    .builder()
+                    .name(podName)
+                    .namespace(namespace)
+                    .build());
     }
 
     @SneakyThrows
-    public String findPodByIP(String ip) {
-        return this.ipPodMap.get(ip).toString();
+    public ObjectID findPodByIP(String ip) {
+        return this.ipPodMap.get(ip);
     }
 
     @SneakyThrows
-    public String findServiceByIP(String ip) {
-        return this.ipServiceMap.get(ip).toString();
+    public ObjectID findServiceByIP(String ip) {
+        return this.ipServiceMap.get(ip);
     }
 
     private boolean hasIntersection(Collection<?> o, Collection<?> c) {

@@ -105,10 +105,19 @@ dependency:
       version: 2.13.4
       license: Apache-2.0
     - name: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
-      version: 2.14.2
+      version: 2.16.1
+      license: Apache-2.0
+    - name: com.fasterxml.jackson.datatype:jackson-datatype-jdk8
+      version: 2.16.1
+      license: Apache-2.0
+    - name: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml
+      version: 2.15.2
       license: Apache-2.0
     - name: com.graphql-java:graphql-java-extended-scalars
       version: 18.1
+      license: MIT
+    - name: com.graphql-java:graphql-java
+      version: 21.0
       license: MIT
     - name: com.github.luben:zstd-jni
       version: 1.4.3-1
@@ -129,6 +138,9 @@ dependency:
       version: 0.6.13
       license: Apache-2.0
     - name: com.aayushatharva.brotli4j:service
-      version: 1.11.0
+      version: 1.15.0
       license: Apache-2.0
+    - name: io.vertx:vertx-grpc
+      version: 4.5.1
+      license: EPL-2.0
 

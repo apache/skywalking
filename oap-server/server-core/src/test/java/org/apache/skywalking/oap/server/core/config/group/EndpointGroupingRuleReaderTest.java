@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.config.group;
 
+import org.apache.skywalking.oap.server.core.config.group.uri.quickmatch.QuickUriGroupingRule;
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,14 +30,20 @@ public class EndpointGroupingRuleReaderTest {
                                                                                .getClassLoader()
                                                                                .getResourceAsStream(
                                                                                    "endpoint-name-grouping.yml"));
-        final EndpointGroupingRule rule = reader.read();
+        final QuickUriGroupingRule rule = reader.read();
 
         StringFormatGroup.FormatResult formatResult = rule.format("serviceA", "/prod/123");
         Assertions.assertTrue(formatResult.isMatch());
-        Assertions.assertEquals("/prod/{id}", formatResult.getName());
+        Assertions.assertEquals("/prod/{var}", formatResult.getReplacedName());
 
+        // This will always match, since after slicing length is 1, which goes into special handling
         formatResult = rule.format("serviceA", "/prod/");
+        Assertions.assertTrue(formatResult.isMatch());
+        Assertions.assertEquals("/prod/", formatResult.getReplacedName());
+
+        formatResult = rule.format("serviceA", "/prod/123/456");
         Assertions.assertFalse(formatResult.isMatch());
+        Assertions.assertEquals("/prod/123/456", formatResult.getReplacedName());
 
         formatResult = rule.format("serviceB", "/prod/123");
         Assertions.assertFalse(formatResult.isMatch());

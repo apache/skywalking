@@ -1,13 +1,27 @@
+# Analysis Native Streaming Traces and Service Mesh Traffic
+
+The traces in SkyWalking native format and Service Mesh Traffic(Access Log in gRPC) are able to be analyzed by OAL,
+to build metrics of services, service instances and endpoints, and to build topology/dependency of services, service 
+instances and endpoints(traces-oriented analysis only).
+
+The spans of traces relative with RPC, such as HTTP, gRPC, Dubbo, RocketMQ, Kafka, would be converted to service input/output 
+traffic, like access logs collected from service mesh. Both of those traffic would be cataloged as the defined sources
+in the `Observability Analysis Language` engine.
+
+The metrics are customizable through Observability Analysis Language(OAL) scripts, 
+and the topology/dependency is built by the SkyWalking OAP kernel automatically without
+explicit OAL scripts.
+
 # Observability Analysis Language
 OAL(Observability Analysis Language) serves to analyze incoming data in streaming mode. 
 
 OAL focuses on metrics in Service, Service Instance and Endpoint. Therefore, the language is easy to 
 learn and use.
 
-
-Since 6.3, the OAL engine is embedded in OAP server runtime as `oal-rt`(OAL Runtime).
 OAL scripts are now found in the `/config` folder, and users could simply change and reboot the server to run them.
-However, the OAL script is a compiled language, and the OAL Runtime generates java codes dynamically.
+However, the OAL script is a compiled language, and the OAL Runtime generates java codes dynamically. Don't expect to mount
+the changes of those scripts in the runtime.
+If your OAP servers are running in a cluster mode, these script defined metrics should be aligned.
 
 You can open set `SW_OAL_ENGINE_DEBUG=Y` at system env to see which classes are generated.
 
@@ -35,7 +49,7 @@ See [Scope Definitions](scope-definitions.md), where you can find all existing S
 ## Filter
 Use filter to build conditions for the value of fields by using field name and expression. 
 
-The expressions support linking by `and`, `or` and `(...)`. 
+The filter expressions run as a chain, generally connected with `logic AND`. 
 The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `in [...]` ,`like %...`, `like ...%` , `like %...%` , `contain` and `not contain`, with type detection based on field type. In the event of incompatibility, compile or code generation errors may be triggered. 
 
 ## Aggregation Function
@@ -80,9 +94,10 @@ Parameter (1) is the service name, which reflects the Apdex threshold value load
 Parameter (2) is the status of this request. The status(success/failure) reflects the Apdex calculation.
 
 - `p99`, `p95`, `p90`, `p75`, `p50`. See [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile).
-> service_percentile = from(Service.latency).percentile(10);
+> service_percentile = from(Service.latency).percentile2(10);
 
-**percentile** is the first multiple-value metric, which has been introduced since 7.0.0. As a metric with multiple values, it could be queried through the `getMultipleLinearIntValues` GraphQL query.
+**percentile (deprecated since 10.0.0)** is the first multiple-value metric, which has been introduced since 7.0.0. As a metric with multiple values, it could be queried through the `getMultipleLinearIntValues` GraphQL query.
+**percentile2** Since 10.0.0, the `percentile` function has been instead by `percentile2`. The `percentile2` function is a labeled-value metric with default label name `p` and label values `50`,`75`,`90`,`95`,`99`.
 In this case, see `p99`, `p95`, `p90`, `p75`, and `p50` of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
 
 In this case, the p99 value of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
@@ -132,7 +147,7 @@ serv_Endpoint_p99 = from(Endpoint.latency).filter(name like "serv%").summary(0.9
 endpoint_resp_time = from(Endpoint.latency).avg()
 
 // Calculate the p50, p75, p90, p95 and p99 of each Endpoint by 50 ms steps.
-endpoint_percentile = from(Endpoint.latency).percentile(10)
+endpoint_percentile = from(Endpoint.latency).percentile2(10)
 
 // Calculate the percent of response status is true, for each service.
 endpoint_success = from(Endpoint.*).filter(status == true).percent()

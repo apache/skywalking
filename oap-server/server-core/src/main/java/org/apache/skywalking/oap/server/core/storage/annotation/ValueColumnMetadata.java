@@ -24,7 +24,6 @@ import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 
 /**
  * ValueColumnMetadata holds the metadata for column values of metrics. The metadata of ValueColumn is declared through
@@ -42,10 +41,18 @@ public enum ValueColumnMetadata {
     public void putIfAbsent(String modelName,
                             String valueCName,
                             Column.ValueDataType dataType,
-                            Function function,
                             int defaultValue,
                             int scopeId) {
-        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, dataType, function, defaultValue, scopeId));
+        this.putIfAbsent(modelName, valueCName, dataType, defaultValue, scopeId, false);
+    }
+
+    public void putIfAbsent(String modelName,
+                            String valueCName,
+                            Column.ValueDataType dataType,
+                            int defaultValue,
+                            int scopeId,
+                            boolean multiIntValues) {
+        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, dataType, defaultValue, scopeId, multiIntValues));
     }
 
     public void overrideColumnName(String oldName, String newName) {
@@ -58,13 +65,6 @@ public enum ValueColumnMetadata {
     public String getValueCName(String metricsName) {
         final String valueCName = findColumn(metricsName).valueCName;
         return columnNameOverrideRule.getOrDefault(valueCName, valueCName);
-    }
-
-    /**
-     * Fetch the function for the value column of the given metrics name.
-     */
-    public Function getValueFunction(String metricsName) {
-        return findColumn(metricsName).function;
     }
 
     public int getDefaultValue(String metricsName) {
@@ -102,8 +102,10 @@ public enum ValueColumnMetadata {
     public static class ValueColumn {
         private final String valueCName;
         private final Column.ValueDataType dataType;
-        private final Function function;
         private final int defaultValue;
         private final int scopeId;
+        // Will remove this field when `MultiIntValuesHolder` is removed in the future.
+        @Deprecated
+        private final boolean multiIntValues;
     }
 }

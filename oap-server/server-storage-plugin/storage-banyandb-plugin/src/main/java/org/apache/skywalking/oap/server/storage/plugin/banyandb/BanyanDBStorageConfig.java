@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -25,8 +27,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 @Setter
 public class BanyanDBStorageConfig extends ModuleConfig {
-    private String host = "127.0.0.1";
-    private int port = 17912;
+    /**
+     * A comma-separated list of BanyanDB targets.
+     *
+     * @since 9.7.0
+     */
+    private String targets = "127.0.0.1:17912";
     /**
      * The maximum size of write entities in a single batch write call.
      */
@@ -96,4 +102,8 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * @since 9.4.0
      */
     private String specificGroupSettings;
+
+    public String[] getTargetArray() {
+        return Iterables.toArray(Splitter.on(",").omitEmptyStrings().trimResults().split(this.targets), String.class);
+    }
 }

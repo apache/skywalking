@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -41,11 +40,6 @@ public @interface Column {
      * Also check {@code legacyName()}.
      */
     String name();
-
-    /**
-     * The function is used in aggregation query.
-     */
-    Function function() default Function.None;
 
     /**
      * The default value of this column, when its {@link #dataType()} != {@link ValueDataType#NOT_VALUE}.
@@ -82,6 +76,14 @@ public @interface Column {
      * @since 8.0.0
      */
     ValueDataType dataType() default ValueDataType.NOT_VALUE;
+
+    /**
+     * Since 10.0.0, multi-value column is deprecated. Use {@link ValueDataType#LABELED_VALUE} instead.
+     * This annotation is used to mark the column is a multi-value column for compatibility.
+     * @return if this column is a multi-value column.
+     */
+    @Deprecated
+    boolean multiIntValues() default false;
 
     /**
      * ValueDataType represents the data structure of value column. The persistent way of the value column determine the

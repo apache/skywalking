@@ -28,7 +28,6 @@ import com.linecorp.armeria.server.annotation.Post;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.trace.SpanForward;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -46,8 +45,8 @@ public class ZipkinSpanHTTPHandler {
     private final CounterMetrics errorCounter;
     private final SpanForward spanForward;
 
-    public ZipkinSpanHTTPHandler(ZipkinReceiverConfig config, ModuleManager manager) {
-        this.spanForward = new SpanForward(config, manager);
+    public ZipkinSpanHTTPHandler(SpanForward forward, ModuleManager manager) {
+        this.spanForward = forward;
         MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
                                                .provider()
                                                .getService(MetricsCreator.class);
@@ -102,7 +101,7 @@ public class ZipkinSpanHTTPHandler {
             try (final HttpData httpData = request.content()) {
                 final List<Span> spanList = decoder.decodeList(httpData.byteBuf().nioBuffer());
                 spanForward.send(spanList);
-                return HttpResponse.of(HttpStatus.OK);
+                return HttpResponse.of(HttpStatus.ACCEPTED);
             }
         }));
         response.whenComplete().handle((unused, throwable) -> {

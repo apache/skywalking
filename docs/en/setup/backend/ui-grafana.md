@@ -1,5 +1,5 @@
 # Use Grafana As The UI
-Since 9.4.0, SkyWalking provide [PromQL Service](../../api/promql-service.md). You can choose [Grafana](https://grafana.com/) 
+SkyWalking provide [PromQL Service](../../api/promql-service.md) since 9.4.0 and [LogQL Service](../../api/logql-service.md) since 9.6.0. You can choose [Grafana](https://grafana.com/) 
 as the SkyWalking UI. About the installation and how to use please refer to the [official document](https://grafana.com/docs/grafana/v9.3/).
 
 Notice <1>, Gafana is [AGPL-3.0 license](https://github.com/grafana/grafana/blob/main/LICENSE), which is very different from Apache 2.0.
@@ -9,18 +9,28 @@ Notice <2>, SkyWalking always uses its native UI as first class. All visualizati
 Grafana UI is an extension on our support of PromQL APIs. We don't maintain or promise the complete Grafana UI dashboard setup.
 
 ## Configure Data Source
+### Prometheus Data Source
 In the data source config panel, chose the `Prometheus` and set the url to the OAP server address, the default port is `9090`.
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-datasource.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-datasource.jpg"/>
 
-## Configure Dashboards
+### SkyWalking Data Source
+Before you start, please install the [SkyWalking data source plugin](https://github.com/apache/skywalking-grafana-plugins).
+In the data source config panel, chose the `SkyWalking` and set the url to the OAP server `graphql` service address, the default port is `12800`.
+<img src="https://skywalking.apache.org/screenshots/9.7.0/promql/grafana-skywalking-datasource.jpg"/>
+
+### Loki Data Source
+In the data source config panel, chose the `Loki` and set the url to the OAP server address, the default port is `3100`.
+<img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-loki-datasource.jpg"/>
+
+## Configure Metric Dashboards
 
 ### Dashboards Settings
 The following steps are the example of config a `General Service` dashboard:
 1. Create a dashboard named `General Service`. A [layer](../../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) is recommended as a dashboard.
 2. Configure variables for the dashboard:
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-variables.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-variables.jpg"/>
 After configure, you can select the service/instance/endpoint on the top of the dashboard:
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-variables2.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-variables2.jpg"/>
 
 ### Add Panels
 The following contents show how to add several typical metrics panels.
@@ -37,23 +47,59 @@ General settings:
 2. Add PromQL expression, the metric scope is `Service`, so add labels `service` and `layer` for match.
 3. Set `Connect null values --> Always` and `Show points --> Always` because when the query interval > 1hour or 1day SkyWalking return 
    the hour/day step metrics values.
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-panels.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-panels.jpg"/>
 #### Labeled Value Metrics
 1. For example `service_percentile` and `Time series chart`.
 2. Add PromQL expressions, the metric scope is `Service`, add labels `service` and `layer` for match.
    And it's a labeled value metric, add `labels='0,1,2,3,4'` filter the result label, and add`relabels='P50,P75,P90,P95,P99'` rename the result label.
 3. Set `Connect null values --> Always` and `Show points --> Always` because when the query interval > 1hour or 1day SkyWalking return
    the hour/day step metrics values.
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-panels2.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-panels2.jpg"/>
 
 #### Sort Metrics
 1. For example `service_instance_cpm` and `Bar gauge chart`.
 2. Add PromQL expressions, add labels `parent_service` and `layer` for match, add `top_n='10'` and `order='DES'` filter the result.
 3. Set the `Calculation --> Latest*`.
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-panels3.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-panels3.jpg"/>
 
 #### Sampled Records
 Same as the Sort Metrics.
+
+## Configure Topology Dashboards
+
+### Dashboards Settings
+For now, SkyWalking support `General Service` and `Service Mesh` topology dashboards, the layer is `GENERAL` and `MESH` respectively.
+The following configuration can reuse the above `General Service` dashboard and add a new variable `Plugin_SkyWalking` for the dashboard:
+<img src="https://skywalking.apache.org/screenshots/9.7.0/promql/grafana-variables-plugin-sw.jpg"/>
+
+### Add Topology Panel
+1. Chose the Node Graph chart.
+2. Set `Layer` and `Service` by the variables. If you want to show all services in this layer, set `Service` empty.
+3. Set `Node Metrics` and `Edge Metrics` which you want to show on the topology.
+<img src="https://skywalking.apache.org/screenshots/9.7.0/promql/grafana-panels-topology.jpg"/>
+
+## Configure Log Dashboard
+### Dashboards Settings
+The following steps are the example of config a log dashboard:
+1. Create a dashboard named `Log`.
+2. Configure variables for the dashboard:
+<img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-loki-variables1.jpg"/>
+3. Please make sure `service_instance` and `endpoint` variable enabled `Include All` option and set `Custom all value` to * or blank (typed by space button on the keyboard):
+<img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-loki-variables2.jpg"/>
+4. `Tags` variable is a little different from others, for more details, please refer [Ad hoc filters](https://grafana.com/docs/grafana/latest/dashboards/variables/add-template-variables/#add-ad-hoc-filters):
+<img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-loki-variables3.jpg"/>
+5. After configure, you can select log query variables on the top of the dashboard:
+<img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-loki-variables4.jpg"/>
+
+### Add Log Panel
+The following steps show how to add a log panel.
+1. Choose `Logs` chart.
+2. Set the `Line limit` value (The max number of logs to return in a query) and `Order` value (Determines the sort order of logs).
+3. Add LogQL expressions, use the variables configured above for the labels and searching keyword.
+`service_instance` & `endpoint` variable ref should use raw [variable-format-options](https://grafana.com/docs/grafana/latest/dashboards/variables/variable-syntax/#advanced-variable-format-options)
+to prevent it value be escaped.
+4. Test query and save the panel.
+<img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-logs-panel.jpg"/>
 
 ## Preview on demo.skywalking.a.o
 SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.

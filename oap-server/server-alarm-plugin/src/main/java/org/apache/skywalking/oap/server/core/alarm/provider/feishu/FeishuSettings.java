@@ -21,23 +21,27 @@ package org.apache.skywalking.oap.server.core.alarm.provider.feishu;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHookSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Setter
 @Getter
 @ToString
-public class FeishuSettings {
+public class FeishuSettings extends AlarmHookSettings {
 
     private String textTemplate;
     @Builder.Default
     private List<WebHookUrl> webhooks = new ArrayList<>();
+
+    public FeishuSettings(final String name,
+                          final AlarmHooksType type,
+                          final boolean isDefault) {
+        super(name, type, isDefault);
+    }
 
     @AllArgsConstructor
     @Setter

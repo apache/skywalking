@@ -33,4 +33,6 @@ import java.util.List;
 public class ContinuousProfilingPolicyTarget {
     private ContinuousProfilingTargetType type;
     private List<ContinuousProfilingPolicyItem> checkItems;
+    private int triggeredCount;
+    private Long lastTriggerTimestamp;
 }

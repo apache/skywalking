@@ -1,0 +1,532 @@
+[
+  {
+    "id": "RabbitMQ-Node",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "8",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Ready Messages"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_queue_messages_ready)"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "10",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Incoming Messages"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_incoming_messages)"
+          ]
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "11",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Unacknowledged Messages"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_unacknowledged_messages)"
+          ]
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "12",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Outgoing Messages"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_outgoing_messages_total)"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 2,
+          "h": 6,
+          "i": "13",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Collections"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_connections_total)"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "14",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Publishers"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_publisher_total)"
+          ]
+        },
+        {
+          "x": 15,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "15",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Consumers"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_consumer_total)"
+          ]
+        },
+        {
+          "x": 20,
+          "y": 0,
+          "w": 2,
+          "h": 6,
+          "i": "16",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Channels"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_channel_total)"
+          ]
+        },
+        {
+          "x": 22,
+          "y": 0,
+          "w": 2,
+          "h": 6,
+          "i": "17",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Queues"
+          },
+          "expressions": [
+            "latest(meter_rabbitmq_node_queue_total)"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "w": 4,
+          "h": 5,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Allocated Used"
+          },
+          "metricConfig": [
+            {
+              "unit": "%"
+            }
+          ],
+          "expressions": [
+            "latest(meter_rabbitmq_node_allocated_used_percent)/100"
+          ]
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "w": 4,
+          "h": 5,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Allocated Used"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_rabbitmq_node_allocated_used_bytes)/1024/1204"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 6,
+          "w": 4,
+          "h": 5,
+          "i": "2",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Allocated Unused"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_rabbitmq_node_allocated_unused_bytes)/1024/1024"
+          ]
+        },
+        {
+          "x": 20,
+          "y": 6,
+          "w": 4,
+          "h": 5,
+          "i": "3",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Resident Set Size"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_rabbitmq_node_process_resident_memory_bytes)/1024/1024"
+          ]
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "w": 4,
+          "h": 5,
+          "i": "4",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Allocated Unused"
+          },
+          "metricConfig": [
+            {
+              "unit": "%"
+            }
+          ],
+          "expressions": [
+            "latest(meter_rabbitmq_node_allocated_unused_percent)/100"
+          ]
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "w": 4,
+          "h": 5,
+          "i": "5",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Allocated Total"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_rabbitmq_node_allocated_total_bytes)/1024/1024"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 11,
+          "w": 12,
+          "h": 14,
+          "i": "6",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Allocators (MB)"
+          },
+          "metricConfig": [
+            {
+              "label": "allocated_used"
+            },
+            {
+              "label": "allocated_unused"
+            },
+            {
+              "label": "resident_set_size"
+            }
+          ],
+          "expressions": [
+            "meter_rabbitmq_node_allocated_used_bytes/1024/1024",
+            "meter_rabbitmq_node_allocated_unused_bytes/1024/1024",
+            "meter_rabbitmq_node_process_resident_memory_bytes/1024/1024"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 11,
+          "w": 12,
+          "h": 14,
+          "i": "7",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Allocated By Type (MB)"
+          },
+          "expressions": [
+            "meter_rabbitmq_node_allocated_by_type/1024/1024"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 25,
+          "w": 8,
+          "h": 14,
+          "i": "18",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Multiblock Used （MB）"
+          },
+          "expressions": [
+            "meter_rabbitmq_node_allocated_multiblock_used/1024/1024"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 39,
+          "w": 8,
+          "h": 14,
+          "i": "19",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Multiblock Unused (MB)"
+          },
+          "expressions": [
+            "meter_rabbitmq_node_allocated_multiblock_unused/1024/1024"
+          ]
+        },
+        {
+          "x": 8,
+          "y": 25,
+          "w": 8,
+          "h": 14,
+          "i": "20",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Multiblock Pool Used (MB)"
+          },
+          "expressions": [
+            "meter_rabbitmq_node_allocated_multiblock_pool_used/1024/1024"
+          ]
+        },
+        {
+          "x": 8,
+          "y": 39,
+          "w": 8,
+          "h": 14,
+          "i": "21",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Multiblock Pool Unused (MB)"
+          },
+          "expressions": [
+            "meter_rabbitmq_node_allocated_multiblock_pool_unused/1024/1024"
+          ]
+        },
+        {
+          "x": 16,
+          "y": 25,
+          "w": 8,
+          "h": 14,
+          "i": "22",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Singleblock Used (MB)"
+          },
+          "expressions": [
+            "meter_rabbitmq_node_allocated_singleblock_used/1024/1024"
+          ]
+        },
+        {
+          "x": 16,
+          "y": 39,
+          "w": 8,
+          "h": 14,
+          "i": "23",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Singleblock Unused (MB)"
+          },
+          "expressions": [
+            "meter_rabbitmq_node_allocated_singleblock_unused/1024/1024"
+          ]
+        }
+      ],
+      "layer": "RABBITMQ",
+      "entity": "ServiceInstance",
+      "name": "RabbitMQ-Node",
+      "id": "RabbitMQ-Node"
+    }
+  }
+]

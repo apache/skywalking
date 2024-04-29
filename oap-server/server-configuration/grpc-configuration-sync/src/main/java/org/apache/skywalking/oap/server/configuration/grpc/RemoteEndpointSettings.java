@@ -30,6 +30,7 @@ public class RemoteEndpointSettings extends ModuleConfig {
     private String clusterName = "default";
     // Sync configuration per 60 seconds.
     private int period = 60;
+    private int maxInboundMessageSize = 4194304;
 
     @Override
     public String toString() {

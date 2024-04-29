@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "Mesh-Control-Plane-Root",
@@ -27,9 +10,6 @@
           "h": 51,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": ""
-          },
           "graph": {
             "type": "ServiceList",
             "dashboardName": "Mesh-Control-Plane-Service",
@@ -38,42 +18,36 @@
             "showYAxis": false,
             "showGroup": true
           },
-          "metrics": [
+          "metricConfig": [
+            {
+              "label": "CPU"
+            },
+            {
+              "label": "Goroutines"
+            },
+            {
+              "label": "Pilot xDS"
+            },
+            {
+              "label": "Pilot Services"
+            },
+            {
+              "label": "Pilot Virt Services"
+            }
+          ],
+          "expressions": [
+            "avg(meter_istio_cpu)",
+            "avg(meter_istio_go_goroutines)",
+            "avg(meter_istio_pilot_xds)",
+            "avg(meter_istio_pilot_services)",
+            "avg(meter_istio_pilot_virt_services)"
+          ],
+          "subExpressions": [
             "meter_istio_cpu",
             "meter_istio_go_goroutines",
             "meter_istio_pilot_xds",
             "meter_istio_pilot_services",
             "meter_istio_pilot_virt_services"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "label": "CPU",
-              "calculation": "average"
-            },
-            {
-              "calculation": "average",
-              "label": "Goroutines"
-            },
-            {
-              "calculation": "average",
-              "label": "Pilot xDS"
-            },
-            {
-              "calculation": "average",
-              "label": "Pilot Services"
-            },
-            {
-              "calculation": "average",
-              "label": "Pilot Virt Services"
-            }
           ]
         },
         {
@@ -83,21 +57,14 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Provide monitoring of the behavior of Istio through its self-monitoring metrics.",
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/istio/readme/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "Mesh-Control-Plane-Root",

@@ -60,7 +60,7 @@ public class TableHelper {
 
     private final LoadingCache<String, Boolean> tableExistence =
         CacheBuilder.newBuilder()
-                    .expireAfterAccess(Duration.ofMinutes(10))
+                    .expireAfterWrite(Duration.ofMinutes(10))
                     .build(new CacheLoader<>() {
                         @Override
                         public @NonNull Boolean load(@NonNull String tableName) throws Exception {
@@ -202,7 +202,7 @@ public class TableHelper {
             getConfigService().getRecordDataTTL() :
             getConfigService().getMetricsDataTTL();
         return LongStream
-            .rangeClosed(0, ttl)
+            .range(0, ttl)
             .mapToObj(it -> TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(it), DownSampling.Day))
             .distinct()
             .collect(toList());

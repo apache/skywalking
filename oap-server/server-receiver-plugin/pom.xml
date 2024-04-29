@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.5.0-SNAPSHOT</version>
+        <version>10.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,7 +41,7 @@
         <module>otel-receiver-plugin</module>
         <module>skywalking-meter-receiver-plugin</module>
         <module>skywalking-browser-receiver-plugin</module>
-        <module>skywalking-log-recevier-plugin</module>
+        <module>skywalking-log-receiver-plugin</module>
         <module>configuration-discovery-receiver-plugin</module>
         <module>skywalking-event-receiver-plugin</module>
         <module>skywalking-zabbix-receiver-plugin</module>

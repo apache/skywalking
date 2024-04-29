@@ -4,31 +4,38 @@ native visualization tool or 3rd party system, including Web UI, CLI or private 
 
 Query protocol official repository, https://github.com/apache/skywalking-query-protocol.
 
+All deprecated APIs are moved [here](./query-protocol-deprecated.md).
+
 ### Metadata  
 Metadata contains concise information on all services and their instances, endpoints, etc. under monitoring.
 You may query the metadata in different ways.
+#### V2 APIs
+Provide Metadata V2 query APIs since 9.0.0, including Layer concept.
 ```graphql
 extend type Query {
-    # Normal service related meta info 
-    getAllServices(duration: Duration!, group: String): [Service!]!
-    searchServices(duration: Duration!, keyword: String!): [Service!]!
-    searchService(serviceCode: String!): Service
+    # Read all available layers
+    # UI could use this list to determine available dashboards/panels
+    # The available layers would change with time in the runtime, because new service could be detected in any time.
+    # This list should be loaded periodically.
+    listLayers: [String!]!
 
-    # Fetch all services of Browser type
-    getAllBrowserServices(duration: Duration!): [Service!]!
-    searchBrowserServices(duration: Duration!, keyword: String!): [Service!]!
-    searchBrowserService(serviceCode: String!): Service
+    # Read the service list according to layer.
+    listServices(layer: String): [Service!]!
+    # Find service according to given ID. Return null if not existing.
+    getService(serviceId: String!): Service
+    # Search and find service according to given name. Return null if not existing.
+    findService(serviceName: String!): Service
 
-    # Service instance query
-    getServiceInstances(duration: Duration!, serviceId: ID!): [ServiceInstance!]!
+    # Read service instance list.
+    listInstances(duration: Duration!, serviceId: ID!): [ServiceInstance!]!
+    # Search and find service instance according to given ID. Return null if not existing.
+    getInstance(instanceId: String!): ServiceInstance
 
-    # Endpoint query
-    # Consider there are huge numbers of endpoint,
-    # must use endpoint owner's service id, keyword and limit filter to do query.
-    searchEndpoint(keyword: String!, serviceId: ID!, limit: Int!): [Endpoint!]!
+    # Search and find matched endpoints according to given service and keyword(optional)
+    # If no keyword, randomly choose endpoint based on `limit` value.
+    findEndpoint(keyword: String, serviceId: ID!, limit: Int!): [Endpoint!]!
     getEndpointInfo(endpointId: ID!): EndpointInfo
 
-    # Process query
     # Read process list.
     listProcesses(duration: Duration!, instanceId: ID!): [Process!]!
     # Find process according to given ID. Return null if not existing.
@@ -40,8 +47,6 @@ extend type Query {
     # The return number just gives an abstract of the scale of profiling that would be applied.
     estimateProcessScale(serviceId: ID!, labels: [String!]!): Long!
 
-    # Database related meta info.
-    getAllDatabases(duration: Duration!): [Database!]!
     getTimeInfo: TimeInfo
 }
 ```
@@ -52,7 +57,8 @@ The topology and dependency graphs among services, instances and endpoints. Incl
 ```graphql
 extend type Query {
     # Query the global topology
-    getGlobalTopology(duration: Duration!): Topology
+    # When layer is specified, the topology of this layer would be queried
+    getGlobalTopology(duration: Duration!, layer: String): Topology
     # Query the topology, based on the given service
     getServiceTopology(serviceId: ID!, duration: Duration!): Topology
     # Query the topology, based on the given services.
@@ -64,15 +70,19 @@ extend type Query {
     getEndpointTopology(endpointId: ID!, duration: Duration!): Topology
     # v2 of getEndpointTopology
     getEndpointDependencies(endpointId: ID!, duration: Duration!): EndpointTopology
+    # Query the topology, based on the given instance
+    getProcessTopology(serviceInstanceId: ID!, duration: Duration!): ProcessTopology
 }
 ```
 
 ### Metrics
-Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md). 
-You may obtain the metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
+Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md).
 
-#### V2 APIs
-Provide Metrics V2 query APIs since 8.0.0, including metadata, single/multiple values, heatmap, and sampled records metrics.
+#### V3 APIs
+Provide Metrics V3 query APIs since 9.5.0, including metadata and MQE.
+SkyWalking Metrics Query Expression(MQE) is an extension query mechanism. MQE allows users to do simple query-stage calculation like well known PromQL
+through GraphQL. The expression's syntax can refer to [here](./metrics-query-expression.md).
+
 ```graphql
 extend type Query {
     # Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
@@ -80,75 +90,36 @@ extend type Query {
     # Get the list of all available metrics in the current OAP server.
     # Param, regex, could be used to filter the metrics by name.
     listMetrics(regex: String): [MetricDefinition!]!
-
-    # Read metrics single value in the duration of required metrics
-    readMetricsValue(condition: MetricsCondition!, duration: Duration!): Long!
-    # Read time-series values in the duration of required metrics
-    readMetricsValues(condition: MetricsCondition!, duration: Duration!): MetricsValues!
-    # Read entity list of required metrics and parent entity type.
-    sortMetrics(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
-    # Read value in the given time duration, usually as a linear.
-    # labels: the labels you need to query.
-    readLabeledMetricsValues(condition: MetricsCondition!, labels: [String!]!, duration: Duration!): [MetricsValues!]!
-    # Heatmap is bucket based value statistic result.
-    readHeatMap(condition: MetricsCondition!, duration: Duration!): HeatMap
-    # Deprecated since 9.3.0, replaced by readRecords defined in record.graphqls
-    # Read the sampled records
-    # TopNCondition#scope is not required.
-    readSampledRecords(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
+    execExpression(expression: String!, entity: Entity!, duration: Duration!): ExpressionResult!
 }
 ```
 
-#### V1 APIs
-3 types of metrics can be queried. V1 APIs were introduced since 6.x. Now they are a shell to V2 APIs.
-1. Single value. Most default metrics are in single value. `getValues` and `getLinearIntValues` are suitable for this purpose.
-1. Multiple value.  A metric defined in OAL includes multiple value calculations. Use `getMultipleLinearIntValues` to obtain all values. `percentile` is a typical multiple value function in OAL.
-1. Heatmap value. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map) for details. `thermodynamic` is the only OAL function. Use `getThermodynamic` to get the values.
 ```graphql
-extend type Query {
-    getValues(metric: BatchMetricConditions!, duration: Duration!): IntValues
-    getLinearIntValues(metric: MetricCondition!, duration: Duration!): IntValues
-    # Query the type of metrics including multiple values, and format them as multiple lines.
-    # The seq of these multiple lines base on the calculation func in OAL
-    # Such as, should us this to query the result of func percentile(50,75,90,95,99) in OAL,
-    # then five lines will be responded, p50 is the first element of return value.
-    getMultipleLinearIntValues(metric: MetricCondition!, numOfLinear: Int!, duration: Duration!): [IntValues!]!
-    getThermodynamic(metric: MetricCondition!, duration: Duration!): Thermodynamic
+type ExpressionResult {
+    type: ExpressionResultType!
+    # When the type == TIME_SERIES_VALUES, the results would be a collection of MQEValues.
+    # In other legal type cases, only one MQEValues is expected in the array.
+    results: [MQEValues!]!
+    # When type == ExpressionResultType.UNKNOWN,
+    # the error message includes the expression resolving errors.
+    error: String
 }
 ```
 
-Metrics are defined in the `config/oal/*.oal` files.
-
-### Aggregation
-Aggregation query means that the metrics data need a secondary aggregation at query stage, which causes the query 
-interfaces to have some different arguments. A typical example of aggregation query is the `TopN` list of services. 
-Metrics stream aggregation simply calculates the metrics values of each service, but the expected list requires ordering metrics data
-by their values.
-
-Aggregation query is for single value metrics only.
-
 ```graphql
-# The aggregation query is different with the metric query.
-# All aggregation queries require backend or/and storage do aggregation in query time.
-extend type Query {
-    # TopN is an aggregation query.
-    getServiceTopN(name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-    getAllServiceInstanceTopN(name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-    getServiceInstanceTopN(serviceId: ID!, name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-    getAllEndpointTopN(name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-    getEndpointTopN(serviceId: ID!, name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-}
-```
-
-### Record
-Record is a general and abstract type for collected raw data.
-In the observability, traces and logs have specific and well-defined meanings, meanwhile, the general records represent other
-collected records. Such as sampled slow SQL statement, HTTP request raw data(request/response header/body)
-
-```graphql
-extend type Query {
-    # Query collected records with given metric name and parent entity conditions, and return in the requested order.
-    readRecords(condition: RecordCondition!, duration: Duration!): [Record!]!
+enum ExpressionResultType {
+    # Can't resolve the type of the given expression.
+    UNKNOWN
+    # A single value
+    SINGLE_VALUE
+    # A collection of time-series values.
+    # The value could have labels or not.
+    TIME_SERIES_VALUES
+    # A collection of aggregated values through metric sort function
+    SORTED_LIST
+    # A collection of sampled records.
+    # When the original metric type is sampled records
+    RECORD_LIST
 }
 ```
 
@@ -158,9 +129,12 @@ extend type Query {
     # Return true if the current storage implementation supports fuzzy query for logs.
     supportQueryLogsByKeywords: Boolean!
     queryLogs(condition: LogQueryCondition): Logs
-
     # Test the logs and get the results of the LAL output.
     test(requests: LogTestRequest!): LogTestResponse!
+    # Read the list of searchable keys
+    queryLogTagAutocompleteKeys(duration: Duration!):[String!]
+    # Search the available value options of the given key.
+    queryLogTagAutocompleteValues(tagKey: String! , duration: Duration!):[String!]
 }
 ```
 
@@ -172,8 +146,14 @@ full log text fuzzy queries, while others do not due to considerations related t
 ### Trace
 ```graphql
 extend type Query {
+    # Search segment list with given conditions
     queryBasicTraces(condition: TraceQueryCondition): TraceBrief
+    # Read the specific trace ID with given trace ID
     queryTrace(traceId: ID!): Trace
+    # Read the list of searchable keys
+    queryTraceTagAutocompleteKeys(duration: Duration!):[String!]
+    # Search the available value options of the given key.
+    queryTraceTagAutocompleteValues(tagKey: String! , duration: Duration!):[String!]
 }
 ```
 
@@ -214,11 +194,9 @@ extend type Query {
     # query all task logs
     getProfileTaskLogs(taskID: String): [ProfileTaskLog!]!
     # query all task profiled segment list
-    getProfileTaskSegmentList(taskID: String): [BasicTrace!]!
-    # query profiled segment
-    getProfiledSegment(segmentId: String): ProfiledSegment
-    # analyze profiled segment, start and end time use timestamp(millisecond)
-    getProfileAnalyze(segmentId: String!, timeRanges: [ProfileAnalyzeTimeRange!]!): ProfileAnalyzation!
+    getProfileTaskSegments(taskID: ID!): [ProfiledTraceSegments!]!
+    # analyze multiple profiled segments, start and end time use timestamp(millisecond)
+    getSegmentsProfileAnalyze(queries: [SegmentProfileAnalyzeQuery!]!): ProfileAnalyzation!
 }
 ```
 
@@ -238,12 +216,35 @@ extend type Query {
     # query eBPF profiling data for prepare create task
     queryPrepareCreateEBPFProfilingTaskData(serviceId: ID!): EBPFProfilingTaskPrepare!
     # query eBPF profiling task list
-    queryEBPFProfilingTasks(serviceId: ID, serviceInstanceId: ID, targets: [EBPFProfilingTargetType!]): [EBPFProfilingTask!]!
+    # query `triggerType == FIXED_TIME` when triggerType is absent
+    queryEBPFProfilingTasks(serviceId: ID, serviceInstanceId: ID, targets: [EBPFProfilingTargetType!], triggerType: EBPFProfilingTriggerType, duration: Duration): [EBPFProfilingTask!]!
     # query schedules from profiling task
     queryEBPFProfilingSchedules(taskId: ID!): [EBPFProfilingSchedule!]!
     # analyze the profiling schedule
     # aggregateType is "EBPFProfilingAnalyzeAggregateType#COUNT" as default. 
     analysisEBPFProfilingResult(scheduleIdList: [ID!]!, timeRanges: [EBPFProfilingAnalyzeTimeRange!]!, aggregateType: EBPFProfilingAnalyzeAggregateType): EBPFProfilingAnalyzation!
+}
+```
+
+### On-Demand Pod Logs
+Provide APIs to query [on-demand pod logs](../setup/backend/on-demand-pod-log.md) since 9.1.0.
+```graphql
+extend type Query {
+    listContainers(condition: OndemandContainergQueryCondition): PodContainers
+    ondemandPodLogs(condition: OndemandLogQueryCondition): Logs
+}
+```
+
+### Hierarchy
+Provide [Hierarchy](../concepts-and-designs/service-hierarchy.md) query APIs since 10.0.0, including service and instance hierarchy.
+```graphql
+extend type Query {
+    # Query the service hierarchy, based on the given service. Will recursively return all related layers services in the hierarchy.
+    getServiceHierarchy(serviceId: ID!, layer: String!): ServiceHierarchy!
+    # Query the instance hierarchy, based on the given instance. Will return all direct related layers instances in the hierarchy, no recursive.
+    getInstanceHierarchy(instanceId: ID!, layer: String!): InstanceHierarchy!
+    # List layer hierarchy levels. The layer levels are defined in the `hierarchy-definition.yml`.
+    listLayerLevels: [LayerLevel!]!
 }
 ```
 

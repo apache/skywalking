@@ -275,8 +275,8 @@ Here are some use cases:
    | Incoming Endpoint | Incoming Service | x-sw-service-name | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
    |-----|-----|-----|-----|-----|-----|-----|
    | `GET:/products` | serviceB | default | default | default | true | `GET:/products` |
-   | `GET:/products/123` | serviceB | default | default | default |  true | `GET:/products{id}` |
    | `GET:/products/asia/cn` | serviceB | default | default | default | true | `GET:/products/{region}/{country}` |
+   | `GET:/products/123` | serviceB | default | default | default |  true | `GET:/products{id}` |
    | `GET:/products/123/abc/efg` | serviceB | default | default | default |  false | `GET:/products/123/abc/efg` | 
    | `<GET>:/products/123` | serviceB | default | default | default | false | `<GET>:/products/123`|
    | `GET:/products/123` | serviceC | default | default | default | false | `GET:/products/123` |
@@ -302,7 +302,6 @@ grouping:
   # Endpoint of the service would follow the following rules
   - service-name: serviceA
     rules:
-      # Logic name when the regex expression matched.
-      - endpoint-name: /prod/{id}
-        regex: \/prod\/.+
+       # {var} represents any variable string in the URI.
+      - /prod/{var}
 ```

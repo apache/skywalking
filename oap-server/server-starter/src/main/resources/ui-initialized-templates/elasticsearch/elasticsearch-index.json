@@ -1,122 +1,126 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 [
   {
     "id": "Elasticsearch-Index",
     "configuration": {
-      "children":[
+      "children": [
         {
-          "x":0,
-          "y":6,
-          "w":12,
-          "h":13,
-          "i":"0",
-          "type":"Widget",
-          "id":"0",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 0,
+          "y": 6,
+          "w": 12,
+          "h": 13,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Indexing Rate",
+            "tips": "`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+          },
+          "metricConfig": [
+            {
+              "label": "Req Rate"
+            },
+            {
+              "label": "Proc Rate"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_elasticsearch_index_stats_indexing_index_total_req_rate",
             "meter_elasticsearch_index_stats_indexing_index_total_proc_rate"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Indexing Rate",
-            "tips":"`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
-          },
-          "metricConfig":[
-            {
-              "label":"req_rate"
-            },
-            {
-              "label":"proc_rate"
-            }
           ]
         },
         {
-          "x":12,
-          "y":6,
-          "w":12,
-          "h":13,
-          "i":"1",
-          "type":"Widget",
-          "id":"1",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 12,
+          "y": 6,
+          "w": 12,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Searching Rate",
+            "tips": "`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+          },
+          "metricConfig": [
+            {
+              "label": "Req Rate"
+            },
+            {
+              "label": "Proc Rate"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_elasticsearch_index_stats_search_query_total_req_rate",
             "meter_elasticsearch_index_stats_search_query_total_proc_rate"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Searching Rate",
-            "tips":"`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
-          },
-          "metricConfig":[
-            {
-              "label":"req_rate"
-            },
-            {
-              "label":"proc_rate"
-            }
           ]
         },
         {
-          "x":0,
-          "y":19,
-          "w":12,
-          "h":16,
-          "i":"2",
-          "type":"Widget",
-          "id":"2",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 0,
+          "y": 19,
+          "w": 12,
+          "h": 16,
+          "i": "2",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "All Operations ReqRate"
+          },
+          "metricConfig": [
+            {
+              "label": "Merge"
+            },
+            {
+              "label": "Flush"
+            },
+            {
+              "label": "Refresh"
+            },
+            {
+              "label": "Warmer"
+            },
+            {
+              "label": "Indexing Delete"
+            },
+            {
+              "label": "Search Fetch"
+            },
+            {
+              "label": "Search Query"
+            },
+            {
+              "label": "Search Scroll"
+            },
+            {
+              "label": "Search Suggest"
+            },
+            {
+              "label": "Indexing Index"
+            },
+            {
+              "label": "Get"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_elasticsearch_index_stats_merge_total_req_rate",
             "meter_elasticsearch_index_stats_flush_total_req_rate",
             "meter_elasticsearch_index_stats_refresh_total_req_rate",
@@ -128,80 +132,71 @@
             "meter_elasticsearch_index_stats_search_suggest_total_req_rate",
             "meter_elasticsearch_index_stats_indexing_index_total_req_rate",
             "meter_elasticsearch_index_stats_get_total_req_rate"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"All Operations ReqRate"
-          },
-          "metricConfig":[
-            {
-              "label":"merge"
-            },
-            {
-              "label":"flush"
-            },
-            {
-              "label":"refresh"
-            },
-            {
-              "label":"warmer"
-            },
-            {
-              "label":"indexing_delete"
-            },
-            {
-              "label":"search_fetch"
-            },
-            {
-              "label":"search_query"
-            },
-            {
-              "label":"search_scroll"
-            },
-            {
-              "label":"search_suggest"
-            },
-            {
-              "label":"indexing_index"
-            },
-            {
-              "label":"get"
-            }
           ]
         },
         {
-          "x":12,
-          "y":19,
-          "w":12,
-          "h":16,
-          "i":"3",
-          "type":"Widget",
-          "id":"3",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 12,
+          "y": 19,
+          "w": 12,
+          "h": 16,
+          "i": "3",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "All Operations Runtime (s)"
+          },
+          "metricConfig": [
+            {
+              "label": "Merge"
+            },
+            {
+              "label": "Flush"
+            },
+            {
+              "label": "Refresh"
+            },
+            {
+              "label": "Warmer"
+            },
+            {
+              "label": "Indexing Delete"
+            },
+            {
+              "label": "Search Fetch"
+            },
+            {
+              "label": "Search Query"
+            },
+            {
+              "label": "Search Scroll"
+            },
+            {
+              "label": "Search Suggest"
+            },
+            {
+              "label": "Indexing Index"
+            },
+            {
+              "label": "Get"
+            },
+            {
+              "label": "Merge Stopped"
+            },
+            {
+              "label": "Merge Throttle"
+            },
+            {
+              "label": "Indexing Throttle"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_elasticsearch_index_stats_merge_time_seconds_total",
             "meter_elasticsearch_index_stats_flush_time_seconds_total",
             "meter_elasticsearch_index_stats_refresh_time_seconds_total",
@@ -216,581 +211,430 @@
             "meter_elasticsearch_index_stats_merge_stopped_time_seconds_total",
             "meter_elasticsearch_index_stats_merge_throttle_time_seconds_total",
             "meter_elasticsearch_index_stats_indexing_throttle_time_seconds_total"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"All Operations Runtime (s)"
-          },
-          "metricConfig":[
-            {
-              "label":"merge"
-            },
-            {
-              "label":"flush"
-            },
-            {
-              "label":"refresh"
-            },
-            {
-              "label":"warmer"
-            },
-            {
-              "label":"indexing_delete"
-            },
-            {
-              "label":"search_fetch"
-            },
-            {
-              "label":"search_query"
-            },
-            {
-              "label":"search_scroll"
-            },
-            {
-              "label":"search_suggest"
-            },
-            {
-              "label":"indexing_index"
-            },
-            {
-              "label":"get"
-            },
-            {
-              "label":"merge_stopped"
-            },
-            {
-              "label":"merge_throttle"
-            },
-            {
-              "label":"indexing_throttle"
-            }
           ]
         },
         {
-          "x":0,
-          "y":35,
-          "w":8,
-          "h":13,
-          "i":"4",
-          "type":"Widget",
-          "id":"4",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 0,
+          "y": 35,
+          "w": 8,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Avg. Search Time Execute / Request (s)"
+          },
+          "metricConfig": [
+            {
+              "label": "Fetch"
+            },
+            {
+              "label": "Query"
+            },
+            {
+              "label": "Scroll"
+            },
+            {
+              "label": "Suggest"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_elasticsearch_index_search_fetch_avg_time",
             "meter_elasticsearch_index_search_query_avg_time",
             "meter_elasticsearch_index_search_scroll_avg_time",
             "meter_elasticsearch_index_search_suggest_avg_time"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Avg. Search Time Execute / Request (s)"
-          },
-          "metricConfig":[
-            {
-              "label":"search_fetch"
-            },
-            {
-              "label":"search_query"
-            },
-            {
-              "label":"search_scroll"
-            },
-            {
-              "label":"search_suggest"
-            }
           ]
         },
         {
-          "x":8,
-          "y":35,
-          "w":8,
-          "h":13,
-          "i":"5",
-          "type":"Widget",
-          "id":"5",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 8,
+          "y": 35,
+          "w": 8,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metricConfig": [
+            {
+              "label": "Fetch"
+            },
+            {
+              "label": "Query"
+            },
+            {
+              "label": "Scroll"
+            },
+            {
+              "label": "Suggest"
+            }
           ],
-          "metrics":[
+          "widget": {
+            "title": "Search Operations Rate (req/s)"
+          },
+          "expressions": [
             "meter_elasticsearch_index_stats_search_fetch_total_req_rate",
             "meter_elasticsearch_index_stats_search_query_total_req_rate",
             "meter_elasticsearch_index_stats_search_scroll_total_req_rate",
             "meter_elasticsearch_index_stats_search_suggest_total_req_rate"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "metricConfig":[
-            {
-              "label":"search_fetch"
-            },
-            {
-              "label":"search_query"
-            },
-            {
-              "label":"search_scroll"
-            },
-            {
-              "label":"search_suggest"
-            }
-          ],
-          "widget":{
-            "title":"Search Operations Rate (req/s)"
-          }
-        },
-        {
-          "x":16,
-          "y":59,
-          "w":8,
-          "h":11,
-          "i":"6",
-          "type":"Widget",
-          "id":"6",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_store_size_bytes_total"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Total Size Of Index (All Shards) (MB)"
-          },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
           ]
         },
         {
-          "x":0,
-          "y":59,
-          "w":8,
-          "h":11,
-          "i":"7",
-          "type":"Widget",
-          "id":"7",
-          "metricTypes":[
-            "readMetricsValues"
+          "x": 16,
+          "y": 59,
+          "w": 8,
+          "h": 11,
+          "i": "6",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Total Size Of Index (All Shards) (MB)"
+          },
+          "metricConfig": [
+            {
+              "label": "Indices Store Size"
+            }
           ],
-          "metrics":[
+          "expressions": [
+            "meter_elasticsearch_index_indices_store_size_bytes_total"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 59,
+          "w": 8,
+          "h": 11,
+          "i": "7",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Documents (All Shards)"
+          },
+          "metricConfig": [
+            {
+              "label": "Indices Docs"
+            }
+          ],
+          "expressions": [
             "meter_elasticsearch_index_indices_docs_total"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Documents (All Shards)"
-          }
-        },
-        {
-          "x":8,
-          "y":59,
-          "w":8,
-          "h":11,
-          "i":"8",
-          "type":"Widget",
-          "id":"8",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_docs_total_rate"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Documents Created Per Min (All Shards)"
-          }
-        },
-        {
-          "x":0,
-          "y":48,
-          "w":8,
-          "h":11,
-          "i":"9",
-          "type":"Widget",
-          "id":"9",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_docs_primary"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Documents (Primary Shards)"
-          }
-        },
-        {
-          "x":8,
-          "y":48,
-          "w":8,
-          "h":11,
-          "i":"10",
-          "type":"Widget",
-          "id":"10",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_docs_primary_rate"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Documents Created Per Min (Primary Shards)"
-          }
-        },
-        {
-          "x":16,
-          "y":48,
-          "w":8,
-          "h":11,
-          "i":"11",
-          "type":"Widget",
-          "id":"11",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_store_size_bytes_primary"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
-          ],
-          "widget":{
-            "title":"Total Size Of Index (Primary Shards) (MB)"
-          }
-        },
-        {
-          "x":0,
-          "y":0,
-          "w":3,
-          "h":6,
-          "i":"12",
-          "type":"Widget",
-          "id":"12",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_docs_primary"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
-          },
-          "widget":{
-            "title":"Documents Count (Primary Shard)"
-          }
-        },
-        {
-          "x":9,
-          "y":0,
-          "w":3,
-          "h":6,
-          "i":"14",
-          "type":"Widget",
-          "id":"14",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_store_size_bytes_total"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
-          },
-          "metricConfig":[
-            {
-              "calculation":"byteToGB"
-            }
-          ],
-          "widget":{
-            "title":"Data (GB)"
-          }
-        },
-        {
-          "x":6,
-          "y":0,
-          "w":3,
-          "h":6,
-          "i":"15",
-          "type":"Widget",
-          "id":"15",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_store_size_bytes_primary"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
-          },
-          "metricConfig":[
-            {
-              "calculation":"byteToGB"
-            }
-          ],
-          "widget":{
-            "title":"Data (Primary Shards) (GB)"
-          }
-        },
-        {
-          "x":18,
-          "y":0,
-          "w":3,
-          "h":6,
-          "i":"16",
-          "type":"Widget",
-          "id":"16",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_segment_count_total"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
-          },
-          "widget":{
-            "title":"Segments Count"
-          }
-        },
-        {
-          "x":12,
-          "y":0,
-          "w":3,
-          "h":6,
-          "i":"17",
-          "type":"Widget",
-          "id":"17",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_segment_count_primary"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
-          },
-          "widget":{
-            "title":"Segments Count (Primary Shards)"
-          }
-        },
-        {
-          "x":21,
-          "y":0,
-          "w":3,
-          "h":6,
-          "i":"18",
-          "type":"Widget",
-          "id":"18",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_segment_memory_bytes_primary"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
-          },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
-          ],
-          "widget":{
-            "title":"Segments Memory (MB)"
-          }
-        },
-        {
-          "x":3,
-          "y":0,
-          "w":3,
-          "h":6,
-          "i":"19",
-          "type":"Widget",
-          "id":"19",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_deleted_docs_primary"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
-          },
-          "widget":{
-            "title":"Deleted Documents Count (Primary Shard)"
-          }
-        },
-        {
-          "x":15,
-          "y":0,
-          "w":3,
-          "h":6,
-          "i":"20",
-          "type":"Widget",
-          "id":"20",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_segment_memory_bytes_primary"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
-          },
-          "widget":{
-            "title":"Segments Memory (Primary Shards) (MB)"
-          },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
           ]
         },
         {
-          "x":16,
-          "y":35,
-          "w":8,
-          "h":13,
-          "i":"21",
-          "type":"Widget",
-          "id":"21",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_index_indices_shards_docs"
-          ],
-          "moved":false,
-          "graph":{
-            "type":"Table",
-            "showTableValues":true,
-            "tableHeaderCol1":"",
-            "tableHeaderCol2":""
+          "x": 8,
+          "y": 59,
+          "w": 8,
+          "h": 11,
+          "i": "8",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Shards Documents"
+          "widget": {
+            "title": "Documents Created Per Min (All Shards)"
+          },
+          "metricConfig": [
+            {
+              "label": "Indices Docs"
+            }
+          ],
+          "expressions": [
+            "meter_elasticsearch_index_indices_docs_total_rate"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 48,
+          "w": 8,
+          "h": 11,
+          "i": "9",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Documents (Primary Shards)"
+          }
+        },
+        {
+          "x": 8,
+          "y": 48,
+          "w": 8,
+          "h": 11,
+          "i": "10",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Documents Created Per Min (Primary Shards)"
+          }
+        },
+        {
+          "x": 16,
+          "y": 48,
+          "w": 8,
+          "h": 11,
+          "i": "11",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Total Size Of Index (Primary Shards) (MB)"
+          },
+          "expressions": [
+            "meter_elasticsearch_index_indices_store_size_bytes_primary"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "12",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Documents Count (Primary Shard)"
+          },
+          "expressions": [
+            "latest(meter_elasticsearch_index_indices_docs_primary)"
+          ]
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "14",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Data"
+          },
+          "metricConfig": [
+            {
+              "unit": "GB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_elasticsearch_index_indices_store_size_bytes_total)/1024/1024/1024"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "15",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Data (Primary Shards)"
+          },
+          "metricConfig": [
+            {
+              "unit": "GB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_elasticsearch_index_indices_store_size_bytes_primary)/1024/1024/1024"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "16",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Segments Count"
+          },
+          "expressions": [
+            "latest(meter_elasticsearch_index_indices_segment_count_total)"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "17",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Segments Count (Primary Shards)"
+          },
+          "expressions": [
+            "latest(meter_elasticsearch_index_indices_segment_count_primary)"
+          ]
+        },
+        {
+          "x": 21,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "18",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Segments Memory"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_elasticsearch_index_indices_segment_memory_bytes_primary)/1024/1024"
+          ]
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "19",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Deleted Documents Count (Primary Shard)"
+          },
+          "expressions": [
+            "latest(meter_elasticsearch_index_indices_docs_primary)"
+          ]
+        },
+        {
+          "x": 15,
+          "y": 0,
+          "w": 3,
+          "h": 6,
+          "i": "20",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Segments Memory (Primary Shards)"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_elasticsearch_index_indices_segment_memory_bytes_primary)/1024/1024"
+          ]
+        },
+        {
+          "x": 16,
+          "y": 35,
+          "w": 8,
+          "h": 13,
+          "i": "21",
+          "type": "Widget",
+          "graph": {
+            "type": "Table",
+            "showTableValues": true,
+            "tableHeaderCol1": "",
+            "tableHeaderCol2": ""
+          },
+          "widget": {
+            "title": "Shards Documents"
           }
         }
       ],
-      "layer":"ELASTICSEARCH",
-      "entity":"Endpoint",
-      "name":"Elasticsearch-Index",
-      "id":"Elasticsearch-Index",
-      "isRoot":false
+      "layer": "ELASTICSEARCH",
+      "entity": "Endpoint",
+      "name": "Elasticsearch-Index",
+      "id": "Elasticsearch-Index",
+      "isRoot": false
     }
   }
 ]

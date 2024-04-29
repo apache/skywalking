@@ -57,7 +57,6 @@ public class UITemplateInitializer {
         Layer.VIRTUAL_CACHE.name(),
         Layer.K8S_SERVICE.name(),
         Layer.SO11Y_SATELLITE.name(),
-        Layer.FAAS.name(),
         Layer.APISIX.name(),
         Layer.VIRTUAL_MQ.name(),
         Layer.AWS_EKS.name(),
@@ -67,6 +66,15 @@ public class UITemplateInitializer {
         Layer.AWS_GATEWAY.name(),
         Layer.REDIS.name(),
         Layer.ELASTICSEARCH.name(),
+        Layer.RABBITMQ.name(),
+        Layer.MONGODB.name(),
+        Layer.KAFKA.name(),
+        Layer.PULSAR.name(),
+        Layer.BOOKKEEPER.name(),
+        Layer.NGINX.name(),
+        Layer.ROCKETMQ.name(),
+        Layer.CLICKHOUSE.name(),
+        Layer.ACTIVEMQ.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

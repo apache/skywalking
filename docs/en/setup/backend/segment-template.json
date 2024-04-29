@@ -1,123 +1,35 @@
 {
     "traceId": {
         "type": "uuid",
-        "changingFrequency": "5"
+        "changingFrequency": "1"
     },
     "serviceInstanceName": {
         "type": "randomString",
         "length": "10",
         "letters": true,
-        "numbers": true
-    },
-    "segmentId": {
-        "type": "randomString",
-        "length": "20",
-        "letters": true,
-        "numbers": true
-    },
-    "serviceName": {
-        "type": "randomString",
-        "length": "10",
-        "letters": true,
-        "numbers": true
-    },
-    "endpointName": {
-        "type": "randomString",
-        "length": "10",
-        "prefix": "test_",
-        "letters": true,
         "numbers": true,
         "domainSize": 10
     },
-    "startTime": {
-        "type": "sequence",
-        "min": "1650510807000",
-        "max": "1650512807000"
+    "serviceName": {
+        "type": "fixedString",
+        "value": "service_"
     },
-    "latency": {
-        "type": "randomInt",
-        "min": 100,
-        "max": 1000
-    },
-    "error": {
-        "type": "randomInt",
-        "min": 1,
-        "max": 1
-    },
-    "tags": {
+    "segments": {
         "type": "randomList",
         "size": 5,
         "item": {
-            "key": {
+            "endpointName": {
                 "type": "randomString",
                 "length": "10",
-                "prefix": "test_tag_",
+                "prefix": "test_",
                 "letters": true,
                 "numbers": true,
                 "domainSize": 10
             },
-            "value": {
-                "type": "randomString",
-                "length": "10",
-                "prefix": "test_value_",
-                "letters": true,
-                "numbers": true
-            }
-        }
-    },
-    "spans": {
-        "type": "randomList",
-        "size": 5,
-        "item": {
-            "spanId": {
-                "type": "sequence",
-                "min": "0",
-                "max": "5"
-            },
-            "parentSpanId": {
-                "type": "sequence",
-                "min": "-1",
-                "max": "4"
-            },
-            "startTime": {
-                "type": "randomInt",
-                "min": "1650510807000",
-                "max": "1650512807000",
-                "domainSize": 10
-            },
-            "endTime": {
-                "type": "randomInt",
-                "min": "1650510807000",
-                "max": "1650512807000",
-                "domainSize": 10
-            },
-            "operationName": {
-                "type": "randomString",
-                "length": "10",
-                "prefix": "test_endpoint_",
-                "letters": true,
-                "numbers": true
-            },
-            "peer": {
-                "type": "randomString",
-                "length": "10",
-                "prefix": "test_peer_",
-                "letters": true,
-                "numbers": true
-            },
-            "spanLayer": {
-                "type": "randomInt",
-                "min": "0",
-                "max": "4"
-            },
-            "componentId": {
-                "type": "randomInt",
-                "min": "0",
-                "max": "4"
-            },
             "error": {
-                "type": "randomBool",
-                "possibility": "0.9"
+                "type": "randomInt",
+                "min": 1,
+                "max": 1
             },
             "tags": {
                 "type": "randomList",
@@ -126,17 +38,66 @@
                     "key": {
                         "type": "randomString",
                         "length": "10",
-                        "prefix": "test_tag_key_",
+                        "prefix": "test_tag_",
                         "letters": true,
                         "numbers": true,
-                        "domainSize": 10
+                        "domainSize": 5
                     },
                     "value": {
                         "type": "randomString",
                         "length": "10",
-                        "prefix": "test_tag_val_",
+                        "prefix": "test_value_",
+                        "letters": true,
+                        "numbers": true,
+                        "domainSize": 10
+                    }
+                }
+            },
+            "spans": {
+                "type": "randomList",
+                "size": 5,
+                "item": {
+                    "latency": {
+                        "type": "randomInt",
+                        "min": 100,
+                        "max": 1000
+                    },
+                    "operationName": {
+                        "type": "randomString",
+                        "length": "10",
+                        "prefix": "test_endpoint_",
                         "letters": true,
                         "numbers": true
+                    },
+                    "componentId": {
+                        "type": "randomInt",
+                        "min": "0",
+                        "max": "4"
+                    },
+                    "error": {
+                        "type": "randomBool",
+                        "possibility": "0.2"
+                    },
+                    "tags": {
+                        "type": "randomList",
+                        "size": 5,
+                        "item": {
+                            "key": {
+                                "type": "randomString",
+                                "length": "10",
+                                "prefix": "test_tag_key_",
+                                "letters": true,
+                                "numbers": true,
+                                "domainSize": 10
+                            },
+                            "value": {
+                                "type": "randomString",
+                                "length": "10",
+                                "prefix": "test_tag_val_",
+                                "letters": true,
+                                "numbers": true
+                            }
+                        }
                     }
                 }
             }

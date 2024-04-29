@@ -26,7 +26,7 @@ services:
       - 12800
 
   zabbix-client:
-    image: zabbix/zabbix-agent:latest
+    image: zabbix/zabbix-agent:alpine-latest
     networks:
       - e2e
     volumes:

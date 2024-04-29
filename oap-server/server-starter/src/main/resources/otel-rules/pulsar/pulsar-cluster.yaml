@@ -1,0 +1,68 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+
+filter: "{ tags -> tags.job_name == 'pulsar-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'pulsar::' + tags.cluster}).service(['cluster'], Layer.PULSAR)
+metricPrefix: meter_pulsar
+
+# Metrics Rules
+metricsRules:
+
+  # Topic and Subscription Metrics
+  - name: total_topics
+    exp: pulsar_broker_topics_count.sum(['cluster', 'node'])
+  - name: total_subscriptions
+    exp: pulsar_broker_subscriptions_count.sum(['cluster', 'node'])
+
+  # Producer and Consumer Metrics
+  - name: total_producers
+    exp: pulsar_broker_producers_count.sum(['cluster', 'node'])
+  - name: total_consumers
+    exp: pulsar_broker_consumers_count.sum(['cluster', 'node'])
+
+  # Message Rate and Throughput Metrics
+  - name: message_rate_in
+    exp: pulsar_broker_rate_in.sum(['cluster', 'node'])
+  - name: message_rate_out
+    exp: pulsar_broker_rate_out.sum(['cluster', 'node'])
+  - name: throughput_in
+    exp: pulsar_broker_throughput_in.sum(['cluster', 'node'])
+  - name: throughput_out
+    exp: pulsar_broker_throughput_out.sum(['cluster', 'node'])
+
+  - name: storage_size
+    exp: pulsar_broker_storage_size.sum(['cluster', 'node'])
+  - name: storage_logical_size
+    exp: pulsar_broker_storage_logical_size.sum(['cluster', 'node'])
+  - name: storage_write_rate
+    exp: pulsar_broker_storage_write_rate.sum(['cluster', 'node'])
+  - name: storage_read_rate
+    exp: pulsar_broker_storage_read_rate.sum(['cluster', 'node'])

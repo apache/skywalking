@@ -1,4 +1,4 @@
-# Why doesn't SkyWalking involve MQ in its architecture?
+# Why does SkyWalking use RPC(gRPC and RESTful) rather than MQ as transport layer by default?
 This is often asked by those who are first introduced to SkyWalking. Many believe that MQ should have better performance and should be able to support higher throughput, like the following:
 
 <img src="MQ-involved-architecture.png"/>
@@ -23,4 +23,4 @@ Even though MQ transport is not recommended from the production perspective, Sky
 `kafka-reporter` and `kafka-fetcher` for this feature since 8.1.0. 
 
 ### How about MQ metrics data exporter?
-The answer is that the MQ metrics data exporter is already readily available. The exporter module with gRPC default mechanism is there, and you can easily provide a new implementor of this module.
+Log and trace exporters are using MQ as transport channel. And metrics exporter uses gRPC, as considering the scale.

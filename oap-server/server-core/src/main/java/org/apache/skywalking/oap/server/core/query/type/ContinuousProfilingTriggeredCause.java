@@ -29,4 +29,5 @@ public class ContinuousProfilingTriggeredCause {
     private ContinuousProfilingMonitorType type;
     private ContinuousProfilingSingleValueCause singleValue;
     private ContinuousProfilingURICause uri;
+    private String message;
 }

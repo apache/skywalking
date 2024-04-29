@@ -21,8 +21,8 @@ storage:
     namespace: ${SW_NAMESPACE:""}
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    #trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
-    #trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
+    #trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
+    #trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.

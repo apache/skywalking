@@ -20,9 +20,9 @@ package org.apache.skywalking.oap.server.core.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * NamingControl provides the service to make the names of service, instance and endpoint following the rules or
@@ -113,6 +113,6 @@ public class NamingControl implements Service {
             }
 
         }
-        return endpointNameGrouping.format(serviceName, lengthControlledName);
+        return endpointNameGrouping.format(serviceName, lengthControlledName)._1();
     }
 }

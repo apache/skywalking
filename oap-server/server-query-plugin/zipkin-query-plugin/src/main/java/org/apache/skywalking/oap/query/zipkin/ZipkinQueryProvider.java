@@ -22,6 +22,7 @@ import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
 import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -86,7 +87,9 @@ public class ZipkinQueryProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
-        httpServer.start();
+        if (!RunningMode.isInitMode()) {
+            httpServer.start();
+        }
     }
 
     @Override

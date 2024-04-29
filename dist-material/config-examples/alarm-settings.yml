@@ -18,39 +18,28 @@
 rules:
   # Rule unique name, must be ended with `_rule`.
   endpoint_percent_rule:
-    # Metrics value need to be long, double or int
-    metrics-name: endpoint_percent
-    threshold: 75
-    op: <
+    expression: sum((endpoint_sla / 100) < 75) >= 3
     # The length of time to evaluate the metrics
     period: 10
-    # How many times after the metrics match the condition, will trigger alarm
-    count: 3
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
     message: Successful rate of endpoint {name} is lower than 75%
     tags:
       level: WARNING
   service_resp_time_rule:
-    metrics-name: service_resp_time
+    expression: sum(service_resp_time > 1000) >= 1
     # [Optional] Default, match all services in this metrics
     include-names:
       - dubbox-provider
       - dubbox-consumer
-    threshold: 1000
-    op: ">"
     period: 10
-    count: 1
     tags:
       level: CRITICAL
   service_instance_resp_time_rule:
-    metrics-name: service_instance_resp_time
-    op: ">"
-    threshold: 1000
+    expression: sum(service_instance_resp_time > 1000) >= 2
     # [Optional] Default, match all services in this metrics
     include-names-regex: instance\_\d+
     period: 10
-    count: 2
     silence-period: 5
     message: Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes
 

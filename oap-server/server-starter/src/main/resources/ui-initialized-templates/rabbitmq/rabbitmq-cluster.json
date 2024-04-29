@@ -1,0 +1,558 @@
+[
+  {
+    "id": "RabbitMQ-Cluster",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 59,
+          "i": "16",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "13",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Memory Available Before Publishers Blocked (MB)"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_memory_available_before_publisher_blocked/1024/1024"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "14",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Disk Space Available Before Publishers Blocked (GB)"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_disk_space_available_before_publisher_blocked/1024/1024/1024"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 12,
+                  "h": 12,
+                  "i": "15",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Messages Ready To Be Delivered To Consumers"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_message_ready_delivered_consumers"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 12,
+                  "w": 12,
+                  "h": 12,
+                  "i": "16",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Messages Pending Consumer Acknowledgement"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_message_unacknowledged_delivered_consumers"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "17",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "File Descriptors Available",
+                    "tips": "File descriptor count and limit, as reported by the operating system. The count includes network sockets and file handles."
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_file_descriptors_available"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "18",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "TCP Sockets Available",
+                    "tips": "The network sockets count and limit managed by RabbitMQ. When the limit is exhausted RabbitMQ will stop accepting new network connections."
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_tcp_socket_available"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 8,
+                  "h": 12,
+                  "i": "19",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Messages Published"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_messages_published"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 24,
+                  "w": 8,
+                  "h": 12,
+                  "i": "20",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Messages Confirmed To Publishers"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_messages_confirmed"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "21",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Messages Routed To Queues"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_messages_routed"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 24,
+                  "w": 8,
+                  "h": 12,
+                  "i": "22",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Messages Unconfirmed To Publishers"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_messages_unconfirmed"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "23",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Unroutable Messages Dropped"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_messages_unroutable_dropped"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "24",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Unroutable Messages Returned To Publishers"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_messages_unroutable_returned"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "25",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Queues Total"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_queues"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "26",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Queues Deleted"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_queues_deleted_total"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "27",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Queues Declared"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_queues_declared_total"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "28",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Queues Created"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_queues_created_total"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 60,
+                  "w": 8,
+                  "h": 12,
+                  "i": "29",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Channels Total"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_channels"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 60,
+                  "w": 8,
+                  "h": 12,
+                  "i": "30",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Channels Opened"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_channels_opened_total"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 60,
+                  "w": 8,
+                  "h": 12,
+                  "i": "31",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Channels Closed"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_channels_closed_total"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 72,
+                  "w": 8,
+                  "h": 12,
+                  "i": "32",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Connections Closed"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_connections_closed_total"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 72,
+                  "w": 8,
+                  "h": 12,
+                  "i": "33",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Connections Total"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_connections"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 72,
+                  "w": 8,
+                  "h": 12,
+                  "i": "34",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Connections Opened"
+                  },
+                  "expressions": [
+                    "meter_rabbitmq_connections_opened_total"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Node",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "RabbitMQ-Node",
+                    "fontSize": 12
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "RABBITMQ",
+      "entity": "Service",
+      "name": "RabbitMQ-Cluster",
+      "id": "RabbitMQ-Cluster",
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "aggregate_labels(meter_rabbitmq_messages_published,sum)",
+        "aggregate_labels(meter_rabbitmq_messages_unconfirmed,sum)",
+        "aggregate_labels(meter_rabbitmq_queues,sum)",
+        "aggregate_labels(meter_rabbitmq_channels,sum)",
+        "aggregate_labels(meter_rabbitmq_connections,sum)"
+      ],
+      "expressionsConfig": [
+        {
+          "label": "messages published"
+        },
+        {
+          "label": "messages unconfirmed"
+        },
+        {
+          "label": "queues"
+        },
+        {
+          "label": "channels"
+        },
+        {
+          "label": "connections"
+        }
+      ]
+    }
+  }
+]

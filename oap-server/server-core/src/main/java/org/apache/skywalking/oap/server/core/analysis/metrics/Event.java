@@ -74,7 +74,7 @@ public class Event extends Metrics {
 
     public static final String LAYER = "layer";
 
-    private static final int PARAMETER_MAX_LENGTH = 2000;
+    private static final int PARAMETER_MAX_LENGTH = 4000;
 
     @Override
     protected StorageID id0() {

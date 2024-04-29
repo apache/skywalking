@@ -36,11 +36,14 @@ import lombok.extern.slf4j.Slf4j;
 public class Expression {
     private static final ThreadLocal<Map<String, SampleFamily>> PROPERTY_REPOSITORY = new ThreadLocal<>();
 
+    private final String metricName;
+
     private final String literal;
 
     private final DelegatingScript expression;
 
-    public Expression(final String literal, final DelegatingScript expression) {
+    public Expression(final String metricName, final String literal, final DelegatingScript expression) {
+        this.metricName = metricName;
         this.literal = literal;
         this.expression = expression;
         this.empower();
@@ -94,7 +97,7 @@ public class Expression {
     }
 
     private void empower() {
-        expression.setDelegate(new ExpressionDelegate(literal));
+        expression.setDelegate(new ExpressionDelegate(metricName, literal));
         extendNumber(Number.class);
     }
 
@@ -114,24 +117,29 @@ public class Expression {
         public static final DownsamplingType SUM = DownsamplingType.SUM;
         public static final DownsamplingType LATEST = DownsamplingType.LATEST;
         public static final DownsamplingType SUM_PER_MIN = DownsamplingType.SUM_PER_MIN;
+        public static final DownsamplingType MAX = DownsamplingType.MAX;
+        public static final DownsamplingType MIN = DownsamplingType.MIN;
 
+        private final String metricName;
         private final String literal;
 
-        public SampleFamily propertyMissing(String metricName) {
+        public SampleFamily propertyMissing(String sampleName) {
             ExpressionParsingContext.get().ifPresent(ctx -> {
-                if (!ctx.samples.contains(metricName)) {
-                    ctx.samples.add(metricName);
+                if (!ctx.samples.contains(sampleName)) {
+                    ctx.samples.add(sampleName);
                 }
             });
             Map<String, SampleFamily> sampleFamilies = PROPERTY_REPOSITORY.get();
             if (sampleFamilies == null) {
                 return SampleFamily.EMPTY;
             }
-            if (sampleFamilies.containsKey(metricName)) {
-                return sampleFamilies.get(metricName);
+            if (sampleFamilies.containsKey(sampleName)) {
+                SampleFamily sampleFamily = sampleFamilies.get(sampleName);
+                sampleFamily.context.setMetricName(this.metricName);
+                return sampleFamily;
             }
-            if (!ExpressionParsingContext.get().isPresent()) {
-                log.warn("{} referred by \"{}\" doesn't exist in {}", metricName, literal, sampleFamilies.keySet());
+            if (ExpressionParsingContext.get().isEmpty()) {
+                log.warn("{} referred by \"{}\" doesn't exist in {}", sampleName, literal, sampleFamilies.keySet());
             }
             return SampleFamily.EMPTY;
         }

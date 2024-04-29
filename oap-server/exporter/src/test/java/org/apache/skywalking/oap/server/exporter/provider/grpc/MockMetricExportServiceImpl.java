@@ -19,28 +19,65 @@
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import io.grpc.stub.StreamObserver;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.skywalking.oap.server.exporter.grpc.EventType;
+import org.apache.skywalking.oap.server.exporter.grpc.ExportMetricValue;
+import org.apache.skywalking.oap.server.exporter.grpc.ExportResponse;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionMetric;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 
 public class MockMetricExportServiceImpl extends MetricExportServiceGrpc.MetricExportServiceImplBase {
+    public final List<ExportMetricValue> exportMetricValues = new ArrayList<>();
+
     @Override
     public void subscription(SubscriptionReq request, StreamObserver<SubscriptionsResp> responseObserver) {
         SubscriptionsResp resp = SubscriptionsResp.newBuilder()
                                                   .addMetrics(
                                                       SubscriptionMetric
                                                           .newBuilder()
-                                                          .setMetricName("first")
+                                                          .setMetricName("mock-metrics")
                                                           .setEventType(EventType.INCREMENT))
                                                   .addMetrics(
                                                       SubscriptionMetric
                                                           .newBuilder()
-                                                          .setMetricName("second")
+                                                          .setMetricName("int-mock-metrics")
+                                                          .setEventType(EventType.INCREMENT))
+                                                  .addMetrics(
+                                                      SubscriptionMetric
+                                                          .newBuilder()
+                                                          .setMetricName("long-mock-metrics")
+                                                          .setEventType(EventType.INCREMENT))
+                                                  .addMetrics(
+                                                      SubscriptionMetric
+                                                          .newBuilder()
+                                                          .setMetricName("labeled-mock-metrics")
                                                           .setEventType(EventType.INCREMENT))
                                                   .build();
         responseObserver.onNext(resp);
         responseObserver.onCompleted();
+    }
+
+    @Override
+    public StreamObserver<ExportMetricValue> export(StreamObserver<ExportResponse> responseObserver) {
+        return new StreamObserver<ExportMetricValue>() {
+            @Override
+            public void onNext(ExportMetricValue value) {
+                exportMetricValues.add(value);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                responseObserver.onError(throwable);
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(ExportResponse.newBuilder().build());
+                responseObserver.onCompleted();
+            }
+        };
     }
 }

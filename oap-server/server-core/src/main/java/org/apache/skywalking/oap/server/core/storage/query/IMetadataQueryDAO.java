@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
@@ -30,27 +31,26 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IMetadataQueryDAO extends DAO {
-    /**
-     * @param layer layer name for filtering
-     * @param group group name for filtering
-     * @return list of the all available services
-     */
-    List<Service> listServices(final String layer, final String group) throws IOException;
 
     /**
-     * Service could have more than one record by a different layer and have the same serviceId.
+     * List all existing services.
      */
-    List<Service> getServices(final String serviceId) throws IOException;
+    List<Service> listServices() throws IOException;
 
     /**
-     * @param duration   The instance is required to be live in this duration.
+     * @param duration   The instance is required to be live in this duration, could be null.
      * @param serviceId      the owner of the instances.
      * @return list of instances matching the given conditions.
      */
-    List<ServiceInstance> listInstances(final Duration duration,
+    List<ServiceInstance> listInstances(@Nullable final Duration duration,
                                         final String serviceId) throws IOException;
 
     ServiceInstance getInstance(final String instanceId) throws IOException;
+
+    /**
+     * @param instanceIds instance id list
+     */
+    List<ServiceInstance> getInstances(final List<String> instanceIds) throws IOException;
 
     /**
      * @param keyword   to filter the endpoints

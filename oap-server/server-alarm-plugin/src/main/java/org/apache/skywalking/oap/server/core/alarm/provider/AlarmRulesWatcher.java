@@ -23,18 +23,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
-import org.apache.skywalking.oap.server.core.alarm.provider.expression.ExpressionContext;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -50,37 +53,62 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Getter
     private volatile Map<String, List<RunningRule>> runningContext;
     private volatile Map<AlarmRule, RunningRule> alarmRuleRunningRuleMap;
+    @Getter
+    private volatile Map<String, Set<String>> exprMetricsMap;
     private volatile Rules rules;
     private volatile String settingsString;
-    @Getter
-    private final CompositeRuleEvaluator compositeRuleEvaluator;
+    private final ReentrantLock lock;
+    private final AtomicBoolean notifiedByDynamicConfig;
 
     public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
         super(AlarmModule.NAME, provider, "alarm-settings");
         this.runningContext = new HashMap<>();
         this.alarmRuleRunningRuleMap = new HashMap<>();
+        this.exprMetricsMap = new HashMap<>();
         this.settingsString = null;
-        Expression expression = new Expression(new ExpressionContext());
-        this.compositeRuleEvaluator = new CompositeRuleEvaluator(expression);
+        this.lock = new ReentrantLock();
+        this.notifiedByDynamicConfig = new AtomicBoolean(false);
         notify(defaultRules);
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
-        if (value.getEventType().equals(EventType.DELETE)) {
-            settingsString = null;
-            notify(new Rules());
-        } else {
-            settingsString = value.getNewValue();
-            RulesReader rulesReader = new RulesReader(new StringReader(value.getNewValue()));
-            Rules rules = rulesReader.readRules();
-            notify(rules);
+        lock.lock();
+        try {
+            if (value.getEventType().equals(EventType.DELETE)) {
+                settingsString = null;
+                notify(new Rules());
+            } else {
+                settingsString = value.getNewValue();
+                RulesReader rulesReader = new RulesReader(new StringReader(value.getNewValue()));
+                Rules rules = rulesReader.readRules();
+                notify(rules);
+            }
+            notifiedByDynamicConfig.set(true);
+        } finally {
+            lock.unlock();
         }
     }
 
-    void notify(Rules newRules) {
+    public void initConfig(Rules newRules) {
+        lock.lock();
+        try {
+            if (notifiedByDynamicConfig.get()) {
+                return;
+            }
+            notify(newRules);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Don't invoke before the module finishes start
+     */
+    public void notify(Rules newRules) {
         Map<AlarmRule, RunningRule> newAlarmRuleRunningRuleMap = new HashMap<>();
         Map<String, List<RunningRule>> newRunningContext = new HashMap<>();
+        Map<String, Set<String>> newExprMetricsMap = new HashMap<>();
 
         newRules.getRules().forEach(rule -> {
             /*
@@ -91,9 +119,10 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
             newAlarmRuleRunningRuleMap.put(rule, runningRule);
 
-            String metricsName = rule.getMetricsName();
+            String expression = rule.getExpression();
+            newExprMetricsMap.put(expression, rule.getIncludeMetrics());
 
-            List<RunningRule> runningRules = newRunningContext.computeIfAbsent(metricsName, key -> new ArrayList<>());
+            List<RunningRule> runningRules = newRunningContext.computeIfAbsent(expression, key -> new ArrayList<>());
 
             runningRules.add(runningRule);
         });
@@ -101,6 +130,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         this.rules = newRules;
         this.runningContext = newRunningContext;
         this.alarmRuleRunningRuleMap = newAlarmRuleRunningRuleMap;
+        this.exprMetricsMap = newExprMetricsMap;
         log.info("Update alarm rules to {}", rules);
     }
 
@@ -113,43 +143,39 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         return this.rules.getRules();
     }
 
-    public List<CompositeAlarmRule> getCompositeRules() {
-        return this.rules.getCompositeRules();
+    public Map<String, WebhookSettings> getWebHooks() {
+        return this.rules.getWebhookSettingsMap();
     }
 
-    public List<String> getWebHooks() {
-        return this.rules.getWebhooks();
+    public Map<String, GRPCAlarmSetting> getGrpchookSetting() {
+        return this.rules.getGrpcAlarmSettingMap();
     }
 
-    public GRPCAlarmSetting getGrpchookSetting() {
-        return this.rules.getGrpchookSetting();
+    public Map<String, SlackSettings> getSlackSettings() {
+        return this.rules.getSlackSettingsMap();
     }
 
-    public SlackSettings getSlackSettings() {
-        return this.rules.getSlacks();
+    public Map<String, WechatSettings> getWechatSettings() {
+        return this.rules.getWechatSettingsMap();
     }
 
-    public WechatSettings getWechatSettings() {
-        return this.rules.getWecchats();
+    public Map<String, DingtalkSettings> getDingtalkSettings() {
+        return this.rules.getDingtalkSettingsMap();
     }
 
-    public DingtalkSettings getDingtalkSettings() {
-        return this.rules.getDingtalks();
+    public Map<String, FeishuSettings> getFeishuSettings() {
+        return this.rules.getFeishuSettingsMap();
     }
 
-    public FeishuSettings getFeishuSettings() {
-        return this.rules.getFeishus();
+    public Map<String, WeLinkSettings> getWeLinkSettings() {
+        return this.rules.getWeLinkSettingsMap();
     }
 
-    public WeLinkSettings getWeLinkSettings() {
-        return this.rules.getWelinks();
+    public Map<String, PagerDutySettings> getPagerDutySettings() {
+        return this.rules.getPagerDutySettingsMap();
     }
 
-    public PagerDutySettings getPagerDutySettings() {
-        return this.rules.getPagerDutySettings();
-    }
-
-    public DiscordSettings getDiscordSettings() {
-        return this.rules.getDiscordSettings();
+    public Map<String, DiscordSettings> getDiscordSettings() {
+        return this.rules.getDiscordSettingsMap();
     }
 }

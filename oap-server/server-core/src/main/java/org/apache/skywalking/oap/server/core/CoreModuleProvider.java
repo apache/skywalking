@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import org.apache.skywalking.oap.server.ai.pipeline.AIPipelineModule;
+import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
@@ -42,12 +44,16 @@ import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
+import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointNameGroupingRule4OpenapiWatcher;
+import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
 import org.apache.skywalking.oap.server.core.logging.LoggingConfigWatcher;
+import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuInitializer;
+import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.DisableOALDefine;
@@ -62,6 +68,7 @@ import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
+import org.apache.skywalking.oap.server.core.query.HierarchyQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
@@ -127,6 +134,8 @@ public class CoreModuleProvider extends ModuleProvider {
     private OALEngineLoaderService oalEngineLoaderService;
     private LoggingConfigWatcher loggingConfigWatcher;
     private EndpointNameGroupingRule4OpenapiWatcher endpointNameGroupingRule4OpenapiWatcher;
+    private EndpointNameGrouping endpointNameGrouping;
+    private HierarchyService hierarchyService;
 
     public CoreModuleProvider() {
         super();
@@ -165,7 +174,7 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isActiveExtraModelColumns()) {
             DefaultScopeDefine.activeExtraModelColumns();
         }
-        EndpointNameGrouping endpointNameGrouping = new EndpointNameGrouping();
+        endpointNameGrouping = new EndpointNameGrouping();
         final NamingControl namingControl = new NamingControl(
             moduleConfig.getServiceNameMaxLength(),
             moduleConfig.getInstanceNameMaxLength(),
@@ -214,14 +223,16 @@ public class CoreModuleProvider extends ModuleProvider {
         } else {
             grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());
         }
+        setBootingParameter("oap.internal.comm.host", moduleConfig.getGRPCHost());
+        setBootingParameter("oap.internal.comm.port", moduleConfig.getGRPCPort());
+        setBootingParameter("oap.external.grpc.host", moduleConfig.getGRPCHost());
+        setBootingParameter("oap.external.grpc.port", moduleConfig.getGRPCPort());
+
         if (moduleConfig.getMaxConcurrentCallsPerConnection() > 0) {
             grpcServer.setMaxConcurrentCallsPerConnection(moduleConfig.getMaxConcurrentCallsPerConnection());
         }
         if (moduleConfig.getMaxMessageSize() > 0) {
             grpcServer.setMaxMessageSize(moduleConfig.getMaxMessageSize());
-        }
-        if (moduleConfig.getGRPCThreadPoolQueueSize() > 0) {
-            grpcServer.setThreadPoolQueueSize(moduleConfig.getGRPCThreadPoolQueueSize());
         }
         if (moduleConfig.getGRPCThreadPoolSize() > 0) {
             grpcServer.setThreadPoolSize(moduleConfig.getGRPCThreadPoolSize());
@@ -239,11 +250,16 @@ public class CoreModuleProvider extends ModuleProvider {
                                                             .maxRequestHeaderSize(
                                                                 moduleConfig.getHttpMaxRequestHeaderSize())
                                                             .build();
+        setBootingParameter("oap.external.http.host", moduleConfig.getRestHost());
+        setBootingParameter("oap.external.http.port", moduleConfig.getRestPort());
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
-        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager()));
+        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager(), moduleConfig));
+        this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
+        hierarchyService = new HierarchyService(getManager(), moduleConfig);
+        this.registerServiceImplementation(HierarchyService.class, hierarchyService);
         this.registerServiceImplementation(
             DownSamplingConfigService.class, new DownSamplingConfigService(moduleConfig.getDownsampling()));
 
@@ -276,7 +292,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
         this.registerServiceImplementation(BrowserLogQueryService.class, new BrowserLogQueryService(getManager()));
         this.registerServiceImplementation(LogQueryService.class, new LogQueryService(getManager()));
-        this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager()));
+        this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager(), moduleConfig));
         this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
@@ -284,6 +300,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager(), moduleConfig));
         this.registerServiceImplementation(RecordQueryService.class, new RecordQueryService(getManager()));
+        this.registerServiceImplementation(HierarchyQueryService.class, new HierarchyQueryService(getManager(), moduleConfig));
 
         // add profile service implementations
         this.registerServiceImplementation(
@@ -323,15 +340,19 @@ public class CoreModuleProvider extends ModuleProvider {
         // Management
         this.registerServiceImplementation(
             UITemplateManagementService.class, new UITemplateManagementService(getManager()));
+        this.registerServiceImplementation(
+            UIMenuManagementService.class, new UIMenuManagementService(getManager(), moduleConfig));
 
         if (moduleConfig.getMetricsDataTTL() < 2) {
             throw new ModuleStartException(
                 "Metric TTL should be at least 2 days, current value is " + moduleConfig.getMetricsDataTTL());
         }
+        setBootingParameter("TTL.metrics", moduleConfig.getMetricsDataTTL());
         if (moduleConfig.getRecordDataTTL() < 2) {
             throw new ModuleStartException(
                 "Record TTL should be at least 2 days, current value is " + moduleConfig.getRecordDataTTL());
         }
+        setBootingParameter("TTL.record", moduleConfig.getRecordDataTTL());
 
         final MetricsStreamProcessor metricsStreamProcessor = MetricsStreamProcessor.getInstance();
         metricsStreamProcessor.setL1FlushPeriod(moduleConfig.getL1FlushPeriod());
@@ -347,6 +368,17 @@ public class CoreModuleProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
+
+        endpointNameGrouping.startHttpUriRecognitionSvr(
+            getManager()
+                .find(AIPipelineModule.NAME)
+                .provider()
+                .getService(HttpUriRecognition.class),
+            getService(MetadataQueryService.class),
+            moduleConfig.getSyncPeriodHttpUriRecognitionPattern(),
+            moduleConfig.getTrainingPeriodHttpUriRecognitionPattern(),
+            moduleConfig.getMaxHttpUrisNumberPerService()
+        );
 
         // Disable OAL script has higher priority
         oalEngineLoaderService.load(DisableOALDefine.INSTANCE);
@@ -394,12 +426,14 @@ public class CoreModuleProvider extends ModuleProvider {
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
         try {
-            grpcServer.start();
-            httpServer.start();
+            if (!RunningMode.isInitMode()) {
+                grpcServer.start();
+                httpServer.start();
+                remoteClientManager.start();
+            }
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        remoteClientManager.start();
         PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 
         if (moduleConfig.isEnableDataKeeperExecutor()) {
@@ -413,13 +447,21 @@ public class CoreModuleProvider extends ModuleProvider {
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+
+        try {
+            new UIMenuInitializer(getManager()).init();
+        } catch (IOException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
+        hierarchyService.startAutoMatchingServiceHierarchy();
     }
 
     @Override
     public String[] requiredModules() {
         return new String[] {
             TelemetryModule.NAME,
-            ConfigurationModule.NAME
+            ConfigurationModule.NAME,
+            AIPipelineModule.NAME
         };
     }
 }

@@ -15,8 +15,8 @@
 
 spans:
   {{- contains .spans }}
-  - traceid: {{ .traceid }}
-    segmentid: {{ .segmentid }}
+  - traceid: "{{ .traceid }}"
+    segmentid: "{{ .segmentid }}"
     spanid: {{ .spanid }}
     parentspanid: {{ .parentspanid }}
     refs: []
@@ -24,9 +24,9 @@ spans:
     serviceinstancename: {{ notEmpty .serviceinstancename }}
     starttime: {{ gt .starttime 0 }}
     endtime: {{ gt .endtime 0 }}
-    endpointname: /php/info
+    endpointname: POST:/php/info
     type: Entry
-    peer: {{ notEmpty .peer }}
+    peer: ""
     component: PHP
     iserror: false
     layer: Http
@@ -34,11 +34,15 @@ spans:
       {{- contains .tags }}
       - key: url
         value: {{ notEmpty .value }}
+      - key: http.method
+        value: POST
+      - key: http.status_code
+        value: "200"
       {{- end }}
     logs: []
     attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ .segmentid }}
+  - traceid: "{{ notEmpty .traceid }}"
+    segmentid: "{{ .segmentid }}"
     spanid: {{ .spanid }}
     parentspanid: {{ .parentspanid }}
     refs: []
@@ -55,18 +59,20 @@ spans:
     tags:
       {{- contains .tags }}
       - key: url
-        value: {{ notEmpty .value }}
+        value: http://provider:9090/info
+      - key: status_code
+        value: "200"
       {{- end }}
     logs: []
     attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
+  - traceid: "{{ notEmpty .traceid }}"
     segmentid: {{ .segmentid }}
     spanid: {{ .spanid }}
     parentspanid: {{ .parentspanid }}
     refs:
       {{- contains .refs }}
-      - traceid: {{ notEmpty .traceid }}
-        parentsegmentid: {{ .parentsegmentid }}
+      - traceid: "{{ notEmpty .traceid }}"
+        parentsegmentid: "{{ .parentsegmentid }}"
         parentspanid: 1
         type: CROSS_PROCESS
       {{- end }}
@@ -82,12 +88,14 @@ spans:
     layer: Http
     tags:
       {{- contains .tags }}
+      - key: url
+        value: http://provider:9090/info
       - key: http.method
         value: GET
-      - key: url
-        value: {{ notEmpty .value }}
+      - key: http.status_code
+        value: "200"
       {{- end }}
     logs: []
     attachedevents: []
-  {{- end }}
+{{- end }}
 

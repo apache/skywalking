@@ -25,8 +25,6 @@ import lombok.SneakyThrows;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
-import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
 import org.apache.skywalking.oap.query.promql.entity.TimeValuePair;
 import org.apache.skywalking.oap.query.promql.handler.PromQLApiHandler;
 import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
@@ -34,12 +32,14 @@ import org.apache.skywalking.oap.query.promql.rt.result.MetricsRangeResult;
 import org.apache.skywalking.oap.query.promql.rt.result.ParseResult;
 import org.apache.skywalking.oap.query.promql.rt.PromQLExprQueryVisitor;
 import org.apache.skywalking.oap.query.promql.rt.result.ScalarResult;
+import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
+import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
+import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -57,8 +57,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 public class PromQLExprQueryVisitorTest {
-    private MetricsQuery metricsQuery;
-    private RecordsQuery recordsQuery;
+    private MetricsQueryService metricsQueryService;
+    private RecordQueryService recordQueryService;
+    private AggregationQueryService aggregationQueryService;
     private Duration duration;
     private static final long TIME_2023022010 = DurationUtils.INSTANCE.parseToDateTime(
                                                            Step.HOUR, 2023022010)
@@ -124,17 +125,18 @@ public class PromQLExprQueryVisitorTest {
     @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent("service_cpm", "value", Column.ValueDataType.COMMON_VALUE,
-                                                 Function.Avg, 0,
+                                                 0,
                                                  DefaultScopeDefine.SERVICE
         );
-        metricsQuery = mock(MetricsQuery.class);
-        recordsQuery = mock(RecordsQuery.class);
+        metricsQueryService = mock(MetricsQueryService.class);
+        recordQueryService = mock(RecordQueryService.class);
+        aggregationQueryService = mock(AggregationQueryService.class);
         duration = new Duration();
         duration.setStep(Step.HOUR);
         duration.setStart("2023-02-20 10");
         duration.setEnd("2023-02-20 12");
         Mockito.doReturn(mockMetricsValues())
-               .when(metricsQuery)
+               .when(metricsQueryService)
                .readMetricsValues(any(MetricsCondition.class), any(Duration.class));
     }
 
@@ -161,7 +163,7 @@ public class PromQLExprQueryVisitorTest {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PromQLParser parser = new PromQLParser(tokens);
         ParseTree tree = parser.expression();
-        PromQLExprQueryVisitor visitor = new PromQLExprQueryVisitor(metricsQuery, recordsQuery, duration, queryType);
+        PromQLExprQueryVisitor visitor = new PromQLExprQueryVisitor(metricsQueryService, recordQueryService, aggregationQueryService, duration, queryType);
         ParseResult parseResult = visitor.visit(tree);
         Assertions.assertEquals(wantType, parseResult.getResultType());
         switch (parseResult.getResultType()) {

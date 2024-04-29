@@ -20,7 +20,7 @@ PRGDIR=$(dirname "$PRG")
 [ -z "$OAP_HOME" ] && OAP_HOME=$(cd "$PRGDIR/.." > /dev/null || exit 1; pwd)
 
 OAP_LOG_DIR="${OAP_HOME}/logs"
-JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx512M}"
+JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx4096M}"
 
 if [ ! -d "${OAP_HOME}/logs" ]; then
     mkdir -p "${OAP_LOG_DIR}"
@@ -29,7 +29,12 @@ fi
 _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java
 
-CLASSPATH="$OAP_HOME/config:$CLASSPATH"
+if [ -z "$CLASSPATH" ]; then
+  CLASSPATH="$OAP_HOME/config"
+else
+  CLASSPATH="$OAP_HOME/config:$CLASSPATH"
+fi
+
 for i in "$OAP_HOME"/oap-libs/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
@@ -38,12 +43,4 @@ done
 OAP_OPTIONS=" -Doap.logDir=${OAP_LOG_DIR}"
 
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${OAP_OPTIONS} -classpath $CLASSPATH -Dmode=init org.apache.skywalking.oap.server.starter.OAPServerStartUp \
-        2>${OAP_LOG_DIR}/oap.log 1> /dev/null &"
-
-if [ $? -eq 0 ]; then
-    sleep 1
-	echo "SkyWalking OAP started successfully!"
-else
-	echo "SkyWalking OAP started failure!"
-	exit 1
-fi
+        2>${OAP_LOG_DIR}/oap.log 1> /dev/null"

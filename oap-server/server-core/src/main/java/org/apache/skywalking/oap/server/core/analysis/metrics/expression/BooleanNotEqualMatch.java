@@ -23,7 +23,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Boolean
 @BooleanValueFilterMatcher
 public class BooleanNotEqualMatch {
     public boolean match(Boolean left, Boolean right) {
-        return left != right;
+        return !left.equals(right);
     }
 
     public boolean match(boolean left, boolean right) {

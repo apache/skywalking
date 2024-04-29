@@ -24,8 +24,8 @@ Continuous profiling can be configured on a service entity, with the following f
    2. **Check Items**: Detection conditions, only one of the multiple condition rules needs to be met to start the task.
        1. **Type**: Monitoring type, currently supporting "System Load", "Process CPU", "Process Thread Count", "HTTP Error Rate", "HTTP Avg Response Time". 
        2. **Threshold**: Check if the monitoring value meets the specified expectations. 
-       3. **Period**: The time period for monitoring data, which can also be understood as the most recent duration. 
-       4. **Count**: The number of times the threshold is triggered within the detection period, which can also be understood as the total number of times the specified threshold rule is triggered in the most recent duration. Once the count check is met, the specified Profiling task will be started.
+       3. **Period**: The time period(seconds) for monitoring data, which can also be understood as the most recent duration. 
+       4. **Count**: The number of times(seconds) the threshold is triggered within the detection period, which can also be understood as the total number of times the specified threshold rule is triggered in the most recent duration(seconds). Once the count check is met, the specified Profiling task will be started.
        5. **URI**: For HTTP-related monitoring types, used to filter specific URIs.
 
 ## Monitoring

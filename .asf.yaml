@@ -38,6 +38,7 @@ github:
     squash:  true
     merge:   false
     rebase:  false
+  dependabot_updates: false
   protected_branches:
     master:
       required_status_checks:
@@ -57,4 +58,6 @@ github:
     website-docs/8.5.0:
       whatever: Just a placehold to make it take effects
     website-docs/8.6.0:
+      whatever: Just a placehold to make it take effects
+    website-docs/9.7.0:
       whatever: Just a placehold to make it take effects

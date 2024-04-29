@@ -122,7 +122,7 @@ class JDBCHistoryDeleteDAOIT {
         var jdbcHistoryDeleteDAO = new JDBCHistoryDeleteDAO(jdbcClient, tableHelper, tableInstaller, clock);
         jdbcHistoryDeleteDAO.deleteHistory(model, "time_bucket", 3);
         try (final var conn = jdbcClient.getConnection();
-             final var rs = conn.getMetaData().getTables(null, null, "service_traffic_20230317", null)) {
+             final var rs = conn.getMetaData().getTables(conn.getCatalog(), conn.getSchema(), "service_traffic_20230317", null)) {
             assertThat(rs.next()).isTrue();
         }
 
@@ -131,12 +131,12 @@ class JDBCHistoryDeleteDAOIT {
         jdbcHistoryDeleteDAO = new JDBCHistoryDeleteDAO(jdbcClient, tableHelper, tableInstaller, clock);
         jdbcHistoryDeleteDAO.deleteHistory(model, "time_bucket", 3);
         try (final var conn = jdbcClient.getConnection();
-             final var rs = conn.getMetaData().getTables(null, null, "service_traffic_20230317", null)) {
+             final var rs = conn.getMetaData().getTables(conn.getCatalog(), conn.getSchema(), "service_traffic_20230317", null)) {
             assertThat(rs.next()).isFalse();
         }
         // ... and should create the new table
         try (final var conn = jdbcClient.getConnection();
-             final var rs = conn.getMetaData().getTables(null, null, "service_traffic_20230322", null)) {
+             final var rs = conn.getMetaData().getTables(conn.getCatalog(), conn.getSchema(), "service_traffic_20230322", null)) {
             assertThat(rs.next()).isTrue();
         }
     }

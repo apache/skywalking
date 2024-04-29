@@ -26,9 +26,6 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 
-/**
- * Extend H2TableInstaller but match MySQL SQL syntax.
- */
 @Slf4j
 public class MySQLTableInstaller extends JDBCTableInstaller {
     public MySQLTableInstaller(Client client, ModuleManager moduleManager) {

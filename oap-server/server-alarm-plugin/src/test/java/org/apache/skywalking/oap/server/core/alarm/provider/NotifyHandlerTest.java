@@ -109,7 +109,6 @@ public class NotifyHandlerTest {
         assertTrue(metaInAlarm instanceof EndpointMetaInAlarm);
         assertEquals("c2VydmljZS1pbnZlbnRvcnktbmFtZQ==.1_ZW5kcG9pbnQtaW52ZW50b3J5LW5hbWU=", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.ENDPOINT_CATALOG_NAME, metaInAlarm.getScope());
-        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals(endpointInventoryName + " in " + serviceInventoryName, metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.ENDPOINT, metaInAlarm.getScopeId());
 
@@ -135,7 +134,6 @@ public class NotifyHandlerTest {
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof ServiceInstanceMetaInAlarm);
-        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals("c2VydmljZQ==.1_aW5zdGFuY2UtaW52ZW50b3J5LW5hbWU=", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals("instance-inventory-name of service", metaInAlarm.getName());
@@ -158,7 +156,6 @@ public class NotifyHandlerTest {
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof ServiceMetaInAlarm);
-        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals("c2VydmljZQ==.1", metaInAlarm.getId0());
         assertEquals(DefaultScopeDefine.SERVICE_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals("service", metaInAlarm.getName());
@@ -184,7 +181,6 @@ public class NotifyHandlerTest {
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof ServiceRelationMetaInAlarm);
-        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals("ZnJvbS1zZXJ2aWNl.1", metaInAlarm.getId0());
         assertEquals("ZGVzdC1zZXJ2aWNl.1", metaInAlarm.getId1());
         assertEquals(DefaultScopeDefine.SERVICE_RELATION_CATALOG_NAME, metaInAlarm.getScope());
@@ -211,7 +207,6 @@ public class NotifyHandlerTest {
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof ServiceInstanceRelationMetaInAlarm);
-        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals("ZnJvbS1zZXJ2aWNl.1_ZnJvbS1zZXJ2aWNlLWluc3RhbmNl", metaInAlarm.getId0());
         assertEquals("ZGVzdC1zZXJ2aWNl.1_ZGVzdC1zZXJ2aWNlLWluc3RhbmNl", metaInAlarm.getId1());
         assertEquals(DefaultScopeDefine.SERVICE_INSTANCE_RELATION_CATALOG_NAME, metaInAlarm.getScope());
@@ -238,7 +233,6 @@ public class NotifyHandlerTest {
         MetaInAlarm metaInAlarm = metaCaptor.getValue();
 
         assertTrue(metaInAlarm instanceof EndpointRelationMetaInAlarm);
-        assertEquals(metricsName, metaInAlarm.getMetricsName());
         assertEquals("ZnJvbS1zZXJ2aWNl.1_L3NvdXJjZS1wYXRo", metaInAlarm.getId0());
         assertEquals("ZGVzdC1zZXJ2aWNl.1_L2Rlc3QtcGF0aA==", metaInAlarm.getId1());
         assertEquals(DefaultScopeDefine.ENDPOINT_RELATION_CATALOG_NAME, metaInAlarm.getScope());
@@ -284,7 +278,7 @@ public class NotifyHandlerTest {
         Whitebox.setInternalState(notifyHandler, "core", core);
     }
 
-    private abstract static class MockMetrics extends Metrics implements WithMetadata {
+    public abstract static class MockMetrics extends Metrics implements WithMetadata {
 
     }
 }

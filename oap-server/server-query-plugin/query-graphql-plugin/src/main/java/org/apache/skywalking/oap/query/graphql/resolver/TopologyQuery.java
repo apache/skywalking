@@ -47,8 +47,8 @@ public class TopologyQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
-    public Topology getGlobalTopology(final Duration duration) throws IOException {
-        return getQueryService().getGlobalTopology(duration);
+    public Topology getGlobalTopology(final Duration duration, final String layer) throws IOException {
+        return getQueryService().getGlobalTopology(duration, layer);
     }
 
     public Topology getServiceTopology(final String serviceId, final Duration duration) throws IOException {

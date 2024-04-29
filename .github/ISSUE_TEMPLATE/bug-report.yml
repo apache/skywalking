@@ -61,11 +61,12 @@ body:
         - "NodeJS Client Side Agent (apache/skywalking-client-js)"
         - "Nginx Lua Agent (apache/skywalking-nginx-lua)"
         - "Kong Agent (apache/skywalking-kong)"
+        - "Go Agent (apache/skywalking-go)"
         - "PHP (apache/skywalking-php)"
         - "Rust (apache/skywalking-rust)"
         - "Satellite (apache/skywalking-satellite)"
         - "CLI (apache/skywalking-cli)"
-        - "Helm Chart (apache/skywalking-kubernetes)"
+        - "Helm Chart (apache/skywalking-helm)"
         - "SWCK (apache/skywalking-swck)"
         - "License Tools (apache/skywalking-eyes)"
         - "Infra E2E (apache/skywalking-infra-e2e)"
@@ -123,14 +124,14 @@ body:
 
   - type: checkboxes
     attributes:
-      label: Are you willing to submit PR?
+      label: Are you willing to submit a pull request to fix on your own?
       description: >
         This is absolutely not required, but we are happy to guide you in the contribution process
         especially if you already have a good understanding of how to implement the fix.
         SkyWalking is a totally community-driven project and we love to bring new contributors in.
         Find us in #skywalking on Slack!
       options:
-        - label: Yes I am willing to submit a PR!
+        - label: Yes I am willing to submit a pull request on my own!
 
   - type: checkboxes
     attributes:

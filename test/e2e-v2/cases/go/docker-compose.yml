@@ -31,22 +31,25 @@ services:
       oap:
         condition: service_healthy
 
-  go2sky:
+  go-service:
     build:
-      context: .
-      dockerfile: Dockerfile.go
+      context: ./service
+      dockerfile: Dockerfile
       args:
         - SW_AGENT_GO_COMMIT=${SW_AGENT_GO_COMMIT}
     networks:
       - e2e
     expose:
       - 8080
+    environment:
+      SW_AGENT_NAME: go-service
+      SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE: oap:11800
+      UPSTREAM_URL: http://provider:9090/correlation
     depends_on:
       oap:
         condition: service_healthy
       provider:
         condition: service_healthy
-    command: ['--grpc', '--oap-server', 'oap:11800', '--upstream-url', 'http://provider:9090/correlation']
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 8080"]
       interval: 5s
@@ -58,11 +61,11 @@ services:
       file: ../../script/docker-compose/base-compose.yml
       service: consumer
     environment:
-      PROVIDER_URL: http://go2sky:8080
+      PROVIDER_URL: http://go-service:8080
     depends_on:
       oap:
         condition: service_healthy
-      go2sky:
+      go-service:
         condition: service_healthy
     ports:
       - 9092

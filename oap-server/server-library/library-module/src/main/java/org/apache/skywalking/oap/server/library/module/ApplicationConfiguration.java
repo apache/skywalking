@@ -20,9 +20,10 @@ package org.apache.skywalking.oap.server.library.module;
 
 import java.util.HashMap;
 import java.util.Properties;
+import lombok.Getter;
 
 /**
- * Modulization configurations. The {@link ModuleManager} is going to start, lookup, start modules based on this.
+ * Modularization configurations. The {@link ModuleManager} is going to start, lookup, start modules based on this.
  */
 public class ApplicationConfiguration {
     private HashMap<String, ModuleConfiguration> modules = new HashMap<>();
@@ -32,7 +33,7 @@ public class ApplicationConfiguration {
     }
 
     public ModuleConfiguration addModule(String moduleName) {
-        ModuleConfiguration newModule = new ModuleConfiguration();
+        ModuleConfiguration newModule = new ModuleConfiguration(moduleName);
         modules.put(moduleName, newModule);
         return newModule;
     }
@@ -49,9 +50,13 @@ public class ApplicationConfiguration {
      * The configurations about a certain module.
      */
     public static class ModuleConfiguration {
+        @Getter
+        private final String moduleName;
+        @Getter
         private HashMap<String, ProviderConfiguration> providers = new HashMap<>();
 
-        private ModuleConfiguration() {
+        private ModuleConfiguration(String moduleName) {
+            this.moduleName = moduleName;
         }
 
         public Properties getProviderConfiguration(String name) {
@@ -73,14 +78,11 @@ public class ApplicationConfiguration {
      * The configuration about a certain provider of a module.
      */
     public static class ProviderConfiguration {
+        @Getter
         private Properties properties;
 
         ProviderConfiguration(Properties properties) {
             this.properties = properties;
-        }
-
-        private Properties getProperties() {
-            return properties;
         }
     }
 }

@@ -1,23 +1,6 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
-    "id": "apisix-service",
+    "id": "APISIX-Service",
     "configuration": {
       "children": [
         {
@@ -38,14 +21,10 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_http_requests"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "expressions": [
+            "aggregate_labels(meter_apisix_sv_http_requests,sum(service_instance_id))"
           ]
         },
-
         {
           "x": 6,
           "y": 0,
@@ -64,11 +43,8 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_http_status_matched"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "expressions": [
+            "aggregate_labels(meter_apisix_sv_http_status_matched,sum(code))"
           ],
           "associate": [
             {
@@ -112,11 +88,8 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_http_latency_matched"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "expressions": [
+            "aggregate_labels(meter_apisix_sv_http_latency_matched,avg(type,p))"
           ],
           "associate": [
             {
@@ -142,7 +115,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 0,
@@ -161,11 +133,8 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_bandwidth_matched"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "expressions": [
+            "aggregate_labels(meter_apisix_sv_bandwidth_matched/1024,sum(type))"
           ],
           "associate": [
             {
@@ -189,11 +158,6 @@
             {
               "widgetId": "8"
             }
-          ],
-          "metricConfig": [
-            {
-              "calculation": "byteToKB"
-            }
           ]
         },
         {
@@ -203,11 +167,8 @@
           "h": 13,
           "i": "5",
           "type": "Widget",
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metrics": [
-            "meter_apisix_sv_http_connections"
+          "expressions": [
+            "aggregate_labels(meter_apisix_sv_http_connections,sum(state))"
           ],
           "graph": {
             "type": "Line",
@@ -244,7 +205,6 @@
             }
           ]
         },
-
         {
           "x": 6,
           "y": 13,
@@ -263,11 +223,8 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_http_status_unmatched"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "expressions": [
+            "aggregate_labels(meter_apisix_sv_http_status_unmatched,sum(code))"
           ],
           "associate": [
             {
@@ -311,11 +268,8 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_http_latency_unmatched"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "expressions": [
+            "aggregate_labels(meter_apisix_sv_http_latency_unmatched,avg(type,p))"
           ],
           "associate": [
             {
@@ -341,7 +295,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 13,
@@ -360,11 +313,8 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_bandwidth_unmatched"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "expressions": [
+            "aggregate_labels(meter_apisix_sv_bandwidth_unmatched/1024,sum(type))"
           ],
           "associate": [
             {
@@ -387,11 +337,6 @@
             },
             {
               "widgetId": "8"
-            }
-          ],
-          "metricConfig": [
-            {
-              "calculation": "byteToKB"
             }
           ]
         },
@@ -431,8 +376,37 @@
       "layer": "APISIX",
       "entity": "Service",
       "name": "APISIX-Service",
-      "id": "apisix-service",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='200'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='304'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='404'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='499'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='503'},sum(code)))"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 200"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 304"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 404"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 499"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 503"
+        }
+      ]
     }
   }
 ]

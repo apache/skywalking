@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider.welink;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -26,6 +27,7 @@ import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -51,18 +53,15 @@ public class WeLinkHookCallbackTest {
                     final String content = r.content().toStringUtf8();
                     final JsonObject jsonObject = new Gson().fromJson(content, JsonObject.class);
 
-                    if (COUNT.get() == 0) {
-                        String clientId = jsonObject.get("client_id").getAsString();
-                        if (clientId != null) {
-                            COUNT.incrementAndGet();
-                        }
-                    } else if (COUNT.get() >= 1) {
-                        String appMsgId = jsonObject.get("app_msg_id").getAsString();
-                        if (appMsgId != null) {
-                            COUNT.incrementAndGet();
-                        }
+                    JsonElement clientId = jsonObject.get("client_id");
+                    if (clientId != null) {
+                        COUNT.incrementAndGet();
                     }
-                    if (COUNT.get() == 2) {
+                    JsonElement appMsgId = jsonObject.get("app_msg_id");
+                    if (appMsgId != null) {
+                        COUNT.incrementAndGet();
+                    }
+                    if (COUNT.get() == 4) {
                         IS_SUCCESS.set(true);
                     }
 
@@ -81,7 +80,14 @@ public class WeLinkHookCallbackTest {
         ));
         Rules rules = new Rules();
         String template = "Apache SkyWalking Alarm: \n %s.";
-        rules.setWelinks(WeLinkSettings.builder().webhooks(webHooks).textTemplate(template).build());
+        WeLinkSettings setting1 = new WeLinkSettings("setting1", AlarmHooksType.welink, true);
+        setting1.setWebhooks(webHooks);
+        setting1.setTextTemplate(template);
+        WeLinkSettings setting2 = new WeLinkSettings("setting2", AlarmHooksType.welink, false);
+        setting2.setWebhooks(webHooks);
+        setting2.setTextTemplate(template);
+        rules.getWeLinkSettingsMap().put(setting1.getFormattedName(), setting1);
+        rules.getWeLinkSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
         WeLinkHookCallback welinkHookCallback = new WeLinkHookCallback(alarmRulesWatcher);
@@ -90,11 +96,13 @@ public class WeLinkHookCallbackTest {
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
+        alarmMessage.getHooks().add(setting1.getFormattedName());
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
         anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
         anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
+        anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         welinkHookCallback.doAlarm(alarmMessages);
         Assertions.assertTrue(IS_SUCCESS.get());

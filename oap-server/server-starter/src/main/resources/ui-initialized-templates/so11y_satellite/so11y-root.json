@@ -1,255 +1,189 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
-    "id":"Self-Observability-Satellite-Root",
-    "configuration":{
-      "children":[
+    "id": "Self-Observability-Satellite-Root",
+    "configuration": {
+      "children": [
         {
-          "x":8,
-          "y":2,
-          "w":8,
-          "h":14,
-          "i":"1",
-          "type":"Widget",
-          "widget":{
-            "title":"Connection Count"
+          "x": 8,
+          "y": 2,
+          "w": 8,
+          "h": 14,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "Connection Count"
           },
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metrics":[
+          "expressions": [
             "satellite_service_grpc_connect_count"
-          ],
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "moved":false
+          ]
         },
         {
-          "x":0,
-          "y":2,
-          "w":8,
-          "h":14,
-          "i":"0",
-          "type":"Widget",
-          "widget":{
-            "title":"CPU (%)"
+          "x": 0,
+          "y": 2,
+          "w": 8,
+          "h": 14,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "CPU (%)"
           },
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metrics":[
+          "expressions": [
             "satellite_service_server_cpu_utilization"
-          ],
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "moved":false
+          ]
         },
         {
-          "x":16,
-          "y":2,
-          "w":8,
-          "h":14,
-          "i":"2",
-          "type":"Widget",
-          "widget":{
-            "title":"Queue Used Count",
-            "tips":"The used count of queue of pipeline"
+          "x": 16,
+          "y": 2,
+          "w": 8,
+          "h": 14,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Queue Used Count",
+            "tips": "The used count of queue of pipeline"
           },
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metrics":[
+          "expressions": [
             "satellite_service_queue_used_count"
-          ],
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig":[
-
-          ],
-          "moved":false
+          ]
         },
         {
-          "x":0,
-          "y":16,
-          "w":12,
-          "h":14,
-          "i":"3",
-          "type":"Widget",
-          "widget":{
-            "title":"Receive Event Count",
-            "tips":"Receive count of event from downstream"
+          "x": 0,
+          "y": 16,
+          "w": 12,
+          "h": 14,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "Receive Event Count",
+            "tips": "Receive count of event from downstream"
           },
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metrics":[
+          "expressions": [
             "satellite_service_receive_event_count"
-          ],
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig":[
-
-          ],
-          "moved":false
+          ]
         },
         {
-          "x":12,
-          "y":16,
-          "w":12,
-          "h":14,
-          "i":"4",
-          "type":"Widget",
-          "widget":{
-            "title":"Fetch Event Count",
-            "tips":"Fetch count of event from downstream"
+          "x": 12,
+          "y": 16,
+          "w": 12,
+          "h": 14,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Fetch Event Count",
+            "tips": "Fetch count of event from downstream"
           },
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metrics":[
+          "expressions": [
             "satellite_service_fetch_event_count"
-          ],
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig":[
-
-          ],
-          "moved":false
+          ]
         },
         {
-          "x":0,
-          "y":30,
-          "w":12,
-          "h":15,
-          "i":"5",
-          "type":"Widget",
-          "widget":{
-            "title":"Queue Input Count",
-            "tips":"The event count of push to the queue"
+          "x": 0,
+          "y": 30,
+          "w": 12,
+          "h": 15,
+          "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "Queue Input Count",
+            "tips": "The event count of push to the queue"
           },
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metrics":[
+          "expressions": [
             "satellite_service_queue_input_count"
-          ],
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig":[
-
-          ],
-          "moved":false
+          ]
         },
         {
-          "x":12,
-          "y":30,
-          "w":12,
-          "h":15,
-          "i":"6",
-          "type":"Widget",
-          "widget":{
-            "title":"Queue Output Count",
-            "tips":"The event count of push data to the upstream"
+          "x": 12,
+          "y": 30,
+          "w": 12,
+          "h": 15,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "Queue Output Count",
+            "tips": "The event count of push data to the upstream"
           },
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metrics":[
+          "expressions": [
             "satellite_service_send_event_count"
-          ],
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig":[
-
-          ],
-          "moved":false
+          ]
         },
         {
-          "x":0,
-          "y":0,
-          "w":24,
-          "h":2,
-          "i":"8",
-          "type":"Text",
-          "metricTypes":[
-            ""
-          ],
-          "metrics":[
-            ""
-          ],
-          "graph":{
-            "fontColor":"blue",
-            "backgroundColor":"white",
-            "content":"Satellite: an open-source agent designed for the cloud-native infrastructures, which provides a low-cost, high-efficient, and more secure way to collect telemetry data. It is the recommended load balancer for telemetry collecting.",
-            "fontSize":14,
-            "textAlign":"left",
-            "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-load-balancer/"
-          },
-          "moved":false
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "8",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Satellite: an open-source agent designed for the cloud-native infrastructures, which provides a low-cost, high-efficient, and more secure way to collect telemetry data. It is the recommended load balancer for telemetry collecting.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-load-balancer/"
+          }
         }
       ],
-      "layer":"SO11Y_SATELLITE",
-      "entity":"Service",
-      "name":"Self-Observability-Satellite-Root",
-      "isRoot":true
+      "id": "Self-Observability-Satellite-Root",
+      "layer": "SO11Y_SATELLITE",
+      "entity": "Service",
+      "name": "Self-Observability-Satellite-Root",
+      "isRoot": true
     }
   }
 ]

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.NotGraphQLField;
@@ -35,6 +37,9 @@ public class Node {
     @Getter
     @Setter
     private boolean isReal;
+    @Getter
+    @Setter
+    private Set<String> layers = new HashSet<>();
 
     /**
      * A flag indicate whether the {@link #type} has been set from the call detected from service side.

@@ -18,19 +18,23 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
+import java.util.List;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.library.module.TerminalFriendlyTable;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
-import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
-import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Initialize collector settings with following sources. Use application.yml as primary setting, and fix missing setting
@@ -43,7 +47,16 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
     private static final String DISABLE_SELECTOR = "-";
     private static final String SELECTOR = "selector";
 
-    private final Yaml yaml = new Yaml();
+    private final TerminalFriendlyTable bootingParameters;
+    private final Yaml yaml;
+    @Getter
+    private final List<ApplicationConfiguration.ModuleConfiguration> resolvedConfigurations;
+
+    public ApplicationConfigLoader(final TerminalFriendlyTable bootingParameters) {
+        this.bootingParameters = bootingParameters;
+        this.yaml = new Yaml();
+        this.resolvedConfigurations = new ArrayList<>();
+    }
 
     @Override
     public ApplicationConfiguration load() throws ConfigFileNotFoundException {
@@ -70,13 +83,14 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                                 "Get a provider define belong to {} module, provider name: {}", moduleName,
                                 providerName
                             );
+                            bootingParameters.addRow(new TerminalFriendlyTable.Row("module." + moduleName + ".provider", providerName));
                             final Map<String, ?> propertiesConfig = (Map<String, ?>) config;
                             final Properties properties = new Properties();
                             if (propertiesConfig != null) {
                                 propertiesConfig.forEach((propertyName, propertyValue) -> {
                                     if (propertyValue instanceof Map) {
                                         Properties subProperties = new Properties();
-                                        ((Map) propertyValue).forEach((key, value) -> {
+                                        ((Map<String, ?>) propertyValue).forEach((key, value) -> {
                                             subProperties.put(key, value);
                                             replacePropertyAndLog(key, value, subProperties, providerName);
                                         });
@@ -88,6 +102,7 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                                 });
                             }
                             moduleConfiguration.addProviderConfiguration(providerName, properties);
+                            resolvedConfigurations.add(moduleConfiguration);
                         });
                     } else {
                         log.warn(
@@ -102,26 +117,18 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
         }
     }
 
-    private void replacePropertyAndLog(final Object propertyName, final Object propertyValue, final Properties target,
+    private void replacePropertyAndLog(final String propertyName, final Object propertyValue, final Properties target,
                                        final Object providerName) {
         final String valueString = PropertyPlaceholderHelper.INSTANCE
-            .replacePlaceholders(propertyValue + "", target);
-        if (valueString != null) {
-            if (valueString.trim().length() == 0) {
-                target.replace(propertyName, valueString);
-                log.info("Provider={} config={} has been set as an empty string", providerName, propertyName);
-            } else {
-                // Use YAML to do data type conversion.
-                final Object replaceValue = convertValueString(valueString);
-                if (replaceValue != null) {
-                    target.replace(propertyName, replaceValue);
-                    log.info(
-                        "Provider={} config={} has been set as {}",
-                        providerName,
-                        propertyName,
-                        replaceValue.toString()
-                    );
-                }
+            .replacePlaceholders(String.valueOf(propertyValue), target);
+        if (valueString.trim().length() == 0) {
+            target.replace(propertyName, valueString);
+            log.info("Provider={} config={} has been set as an empty string", providerName, propertyName);
+        } else {
+            // Use YAML to do data type conversion.
+            final Object replaceValue = convertValueString(valueString);
+            if (replaceValue != null) {
+                target.replace(propertyName, replaceValue);
             }
         }
     }

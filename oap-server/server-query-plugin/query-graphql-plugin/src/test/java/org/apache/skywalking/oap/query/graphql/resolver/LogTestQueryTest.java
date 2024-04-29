@@ -135,4 +135,34 @@ public class LogTestQueryTest {
         assertEquals(1, response.getMetrics().iterator().next().getValue());
         assertEquals(12312313, response.getMetrics().iterator().next().getTimestamp());
     }
+
+    @Test
+    public void testExtractPatternedTimestamp() throws Exception {
+        when(config.isEnableLogTestTool()).thenReturn(true);
+        final LogTestQuery query = new LogTestQuery(moduleManager, config);
+        final LogTestRequest request = new LogTestRequest();
+        request.setLog("" +
+                           "{" +
+                           "  body: {" +
+                           "    json: {" +
+                           "      json: '{\"request\": \"GET /l HTTP/1.1\",\"time\": \"2023-11-02T12:39:36+00:00\",\"status\": \"404\",\"request_time\":\"0.000\"}'" +
+                           "    }" +
+                           "  }," +
+                           "  type: JSON," +
+                           "  timestamp: 12312313," +
+                           "  service: 'test'" +
+                           "}");
+        request.setDsl("" +
+                           "filter {\n" +
+                           "  json {" +
+                           "  }\n" +
+                           "  extractor {\n" +
+                           "    timestamp parsed.time as String, \"yyyy-MM-dd'T'HH:mm:ssXXX\"\n" +
+                           "  }\n" +
+                           "  sink {\n" +
+                           "  }\n" +
+                           "}");
+        final LogTestResponse response = query.test(request);
+        assertEquals(1698928776000L, response.getLog().getTimestamp());
+    }
 }

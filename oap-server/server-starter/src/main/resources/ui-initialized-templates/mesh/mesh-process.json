@@ -1,0 +1,167 @@
+[
+  {
+    "id": "Mesh-Process",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 44,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Task",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "TaskTimeline",
+                  "linkDashboard": "Mesh-Process-Relation-Metrics"
+                }
+              ]
+            },
+            {
+              "name": "Metrics",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 14,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "continuous_profiling_process_cpu/10000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Process CPU Usage (%)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "%"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 14,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "continuous_profiling_process_thread_count"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Process Thread Count"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 14,
+                  "i": "2",
+                  "type": "Widget",
+                  "expressions": [
+                    "continuous_profiling_system_load"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "System Load"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 14,
+                  "w": 12,
+                  "h": 17,
+                  "i": "3",
+                  "type": "Widget",
+                  "expressions": [
+                    "continuous_profiling_http_error_rate/100"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Process HTTP Error Rate (%)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "%"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 14,
+                  "w": 12,
+                  "h": 17,
+                  "i": "4",
+                  "type": "Widget",
+                  "expressions": [
+                    "continuous_profiling_http_avg_response_time"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Process Avg Response Time (ms)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "ms"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "MESH",
+      "entity": "Process",
+      "name": "Mesh-Process",
+      "id": "Mesh-Process"
+    }
+  }
+]

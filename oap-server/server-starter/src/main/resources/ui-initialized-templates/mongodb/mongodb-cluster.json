@@ -1,0 +1,339 @@
+[
+  {
+    "id": "MongoDB-Cluster",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 47,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 7,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_mongodb_cluster_uptime,max))/3600/24"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 30,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "day"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Uptime"
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 7,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_mongodb_cluster_data_size,sum))/1024/1024/1024"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 30,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "GB"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Data Size"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 7,
+                  "i": "2",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_mongodb_cluster_collection_count,sum))"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 30,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "title": "Collection Count"
+                  }
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 7,
+                  "i": "3",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_mongodb_cluster_object_count,sum))"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 30,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "title": "Object Count"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 7,
+                  "w": 12,
+                  "h": 12,
+                  "i": "4",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_mongodb_cluster_document_avg_qps, sum(doc_op_type))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Document Total QPS"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 7,
+                  "w": 12,
+                  "h": 12,
+                  "i": "5",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_mongodb_cluster_operation_avg_qps, sum(legacy_op_type))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Operation Total QPS"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 19,
+                  "w": 8,
+                  "h": 12,
+                  "i": "6",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_mongodb_cluster_connections,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "connections"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Total Connections"
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 19,
+                  "w": 8,
+                  "h": 12,
+                  "i": "7",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_mongodb_cluster_cursor_avg, sum(csr_type))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Cursor Total"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 19,
+                  "w": 8,
+                  "h": 12,
+                  "i": "8",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Replication Lag (ms)"
+                  },
+                  "expressions": [
+                    "meter_mongodb_cluster_repl_lag"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 31,
+                  "w": 6,
+                  "h": 11,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "DB Total Data Size (GB)",
+                    "tips": "Summation according to database primary node"
+                  },
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": true,
+                    "tableHeaderCol1": "",
+                    "tableHeaderCol2": ""
+                  },
+                  "expressions": [
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_data_size, sum(database)))/1024/1024/1024"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 31,
+                  "w": 6,
+                  "h": 11,
+                  "i": "10",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "DB Total Index Size (GB)",
+                    "tips": "Summation according to database primary node"
+                  },
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": true,
+                    "tableHeaderCol1": "",
+                    "tableHeaderCol2": ""
+                  },
+                  "expressions": [
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_index_size, sum(database)))/1024/1024/1024"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 31,
+                  "w": 6,
+                  "h": 11,
+                  "i": "11",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "DB Total Collection Count",
+                    "tips": "Summation according to database primary node"
+                  },
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": true,
+                    "tableHeaderCol1": "",
+                    "tableHeaderCol2": ""
+                  },
+                  "expressions": [
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_collection_count, sum(database)))"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 31,
+                  "w": 6,
+                  "h": 11,
+                  "i": "12",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "DB Total Index Count",
+                    "tips": "Summation according to database primary node"
+                  },
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": true,
+                    "tableHeaderCol1": "",
+                    "tableHeaderCol2": ""
+                  },
+                  "expressions": [
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_index_count, sum(database)))"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Node",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 28,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    ""
+                  ],
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "MongoDB-Node",
+                    "fontSize": 12
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "MONGODB",
+      "entity": "Service",
+      "name": "MongoDB-Cluster",
+      "id": "MongoDB-Cluster",
+      "isRoot": false
+    }
+  }
+]

@@ -43,11 +43,6 @@ public class KafkaFetcherConfig extends ModuleConfig {
     private String groupId = "skywalking-consumer";
 
     /**
-     * If true, create the Kafka topic when it does not exist.
-     */
-    private boolean createTopicIfNotExist = true;
-
-    /**
      * The number of partitions for the topic being created.
      */
     private int partitions = 3;

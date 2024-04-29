@@ -20,58 +20,58 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected:  expected/service.yml
   # service metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_cache_hit_rate --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_fetched_rows_rate --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_inserted_rows_rate --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_updated_rows_rate --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_returned_rows_rate --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_deleted_rows_rate --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_cache_hit_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_fetched_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_inserted_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_updated_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_returned_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_deleted_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
 
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_active_sessions --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_active_sessions,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
   # instance metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_shared_buffers --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_shared_buffers --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
     expected:  expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_effective_cache --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_effective_cache --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
     expected:  expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_maintenance_work_mem --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_maintenance_work_mem --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
     expected:  expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_work_mem --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
-    expected:  expected/metrics-has-value.yml
-
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_seq_page_cost --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
-    expected:  expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_random_page_cost --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
-    expected:  expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_max_wal_size --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
-    expected:  expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_max_parallel_workers --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
-    expected:  expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_pg_instance_max_worker_processes --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_work_mem --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
     expected:  expected/metrics-has-value.yml
 
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_seq_page_cost --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_random_page_cost --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_max_wal_size --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_max_parallel_workers --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected:  expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_max_worker_processes --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected:  expected/metrics-has-value.yml
 
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_instance_cache_hit_rate --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_instance_fetched_rows_rate --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_instance_inserted_rows_rate --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_instance_updated_rows_rate  --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_instance_returned_rows_rate  --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_instance_deleted_rows_rate --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
 
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_instance_active_sessions --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_cache_hit_rate --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected: expected/metrics-has-value-label-datname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_fetched_rows_rate --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected: expected/metrics-has-value-label-datname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_inserted_rows_rate --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected: expected/metrics-has-value-label-datname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_updated_rows_rate  --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected: expected/metrics-has-value-label-datname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_returned_rows_rate  --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected: expected/metrics-has-value-label-datname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_deleted_rows_rate --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected: expected/metrics-has-value-label-datname.yml
+
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_active_sessions --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
+    expected: expected/metrics-has-value-label-datname.yml
   # slow sql
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_database_statement --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
     expected:  expected/db-has-value.yml

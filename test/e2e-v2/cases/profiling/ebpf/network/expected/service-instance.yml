@@ -14,8 +14,8 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "service" }}.1_{{ b64enc "test" }}
-  name: test
+- id: {{ b64enc "service" }}.1_{{ b64enc "test-instance" }}
+  name: test-instance
   attributes: []
   language: UNKNOWN
   instanceuuid: {{ notEmpty .instanceuuid }}

@@ -29,7 +29,7 @@ instance_trace_count{region="asia-north",az="az-1"} 33
 
 ### Tag filter
 
-MAL supports four type operations to filter samples in a sample family:
+MAL supports four type operations to filter samples in a sample family by tag:
 
  - tagEqual: Filter tags exactly equal to the string provided.
  - tagNotEqual: Filter tags not equal to the string provided.
@@ -154,6 +154,7 @@ resulting in a new sample family having fewer samples (sometimes having just a s
  - min (select minimum over dimensions)
  - max (select maximum over dimensions)
  - avg (calculate the average over dimensions)
+ - count (calculate the count over dimensions, the last tag will be counted)
 
 These operations can be used to aggregate overall label dimensions or preserve distinct dimensions by inputting `by` parameter( the keyword `by` could be omitted)
 
@@ -173,6 +174,14 @@ will output the following result:
 instance_trace_count{az="az-1"} 133 // 100 + 33
 instance_trace_count{az="az-3"} 20
 ```
+
+___
+**Note, aggregation operations affect the samples from one bulk only. If the metrics are reported parallel from multiple instances/nodes
+through different SampleFamily, this aggregation would NOT work.**
+
+In the best practice for this scenario, build the metric with labels that represent each instance/node. Then use the 
+[AggregateLabels Operation in MQE](../api/metrics-query-expression.md#aggregatelabels-operation) to aggregate the metrics.
+___
 
 ### Function
 
@@ -206,7 +215,7 @@ Examples:
 `le` parameter represents the tag name of the bucket.
 
 #### histogram_percentile
-`histogram_percentile([<p scalar>])`. Represents the meter-system to calculate the p-percentile (0 ≤ p ≤ 100) from the buckets.
+`histogram_percentile([<p scalar>])`: Represents the meter-system to calculate the p-percentile (0 ≤ p ≤ 100) from the buckets.
 
 #### time
 `time()`: Returns the number of seconds since January 1, 1970 UTC.
@@ -226,8 +235,8 @@ Down sampling function is called `downsampling` in MAL, and it accepts the follo
  - SUM
  - LATEST
  - SUM_PER_MIN
- - MIN (TODO)
- - MAX (TODO)
+ - MIN
+ - MAX
  - MEAN (TODO)
  - COUNT (TODO)
 

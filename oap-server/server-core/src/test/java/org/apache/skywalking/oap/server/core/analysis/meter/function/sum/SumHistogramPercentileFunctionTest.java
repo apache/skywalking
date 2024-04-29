@@ -99,20 +99,17 @@ public class SumHistogramPercentileFunctionTest {
         );
 
         inst.calculate();
-        final int[] values = inst.getValues();
+        final DataTable values = inst.getValue();
         /**
          * Expected percentile dataset
          * <pre>
          *     0  , 20
          *     50 , 40
-         *     100, 50 <- P50
+         *     100, 60 <- P50
          *     250, 80 <- P90
          * </pre>
          */
-        Assertions.assertArrayEquals(new int[] {
-            100,
-            250
-        }, values);
+        Assertions.assertEquals(new DataTable("{p=50},100|{p=90},250"), values);
     }
 
     @Test
@@ -191,7 +188,7 @@ public class SumHistogramPercentileFunctionTest {
     }
 
     @Test
-    public void testFunctionWhenGroupContainsColon() {
+    public void testFunctionWithLabel() {
         BucketedValues valuesA = new BucketedValues(
             BUCKETS,
             new long[] {
@@ -201,8 +198,8 @@ public class SumHistogramPercentileFunctionTest {
                 40
             }
         );
-        valuesA.setGroup("localhost:3306/swtest");
-
+        valuesA.getLabels().put("url", "localhost:3306/swtestA");
+        valuesA.getLabels().put("instance", "instance1");
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test", Layer.GENERAL),
@@ -214,14 +211,14 @@ public class SumHistogramPercentileFunctionTest {
         BucketedValues valuesB = new BucketedValues(
             BUCKETS,
             new long[] {
-                10,
-                20,
                 30,
-                40
+                40,
+                20,
+                10
             }
         );
-        valuesB.setGroup("localhost:3306/swtest");
-
+        valuesB.getLabels().put("url", "localhost:3306/swtestB");
+        valuesB.getLabels().put("instance", "instance2");
         inst.accept(
             MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
@@ -241,8 +238,11 @@ public class SumHistogramPercentileFunctionTest {
          *     250, 80 <- P90
          * </pre>
          */
-        assertEquals(new Long(100), values.get("localhost:3306/swtest:50"));
-        assertEquals(new Long(250), values.get("localhost:3306/swtest:90"));
+        assertEquals(
+            new DataTable(
+                "{url=localhost:3306/swtestB,instance=instance2,p=50},50|{url=localhost:3306/swtestA,instance=instance1,p=50},100|{url=localhost:3306/swtestB,instance=instance2,p=90},100|{url=localhost:3306/swtestA,instance=instance1,p=90},250"),
+            values
+        );
     }
 
     private static class PercentileFunctionInst extends SumHistogramPercentileFunction {

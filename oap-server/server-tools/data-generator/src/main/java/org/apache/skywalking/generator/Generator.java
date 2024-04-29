@@ -36,8 +36,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @Type(value = SequenceGenerator.class, name = "sequence"),
     @Type(value = UUIDGenerator.class, name = "uuid"),
 })
-public interface Generator<T> {
-    public T next();
+public interface Generator<I, T> {
+    public T next(I input);
 
     default public void reset() {
     }

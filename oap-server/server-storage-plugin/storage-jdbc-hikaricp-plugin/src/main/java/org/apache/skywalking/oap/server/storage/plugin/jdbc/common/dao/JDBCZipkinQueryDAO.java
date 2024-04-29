@@ -253,7 +253,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
                     }
                 }
             }
-            sql.append(" group by ").append(ZipkinSpanRecord.TRACE_ID);
+            sql.append(" group by ").append(table).append(".").append(ZipkinSpanRecord.TRACE_ID);
             sql.append(" order by min(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(") desc");
             sql.append(" limit ").append(request.limit());
             h2Client.executeQuery(sql.toString(), resultSet -> {

@@ -35,5 +35,8 @@ verify:
   cases:
     - includes:
         - ../vm-cases.yaml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_vm_vfs_fs_size --labels=/-total --service-name=vm-service |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected:  ../expected/metrics-has-value-label.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_vfs_fs_size --service-name=vm-service
+      expected:  ../expected/metrics-has-vfs-value-label.yml
+    # multiple-linear metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_cpu_average_used --service-name=vm-service
+      expected:  ../expected/metrics-has-average-value-label-zabbix.yml

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.tcp.k8s;
 
+import com.google.common.base.Strings;
 import io.envoyproxy.envoy.config.core.v3.Address;
 import io.envoyproxy.envoy.config.core.v3.SocketAddress;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
@@ -25,16 +26,17 @@ import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetrics;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactory;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.istio.IstioServiceEntryRegistry;
 import org.apache.skywalking.oap.server.receiver.envoy.als.k8s.K8SServiceRegistry;
 import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.AbstractTCPAccessLogAnalyzer;
+
+import java.util.Objects;
 
 import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
 
@@ -43,7 +45,8 @@ import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
  */
 @Slf4j
 public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
-    protected K8SServiceRegistry serviceRegistry;
+    protected K8SServiceRegistry k8sServiceRegistry;
+    protected IstioServiceEntryRegistry istioServiceRegistry;
 
     private EnvoyMetricReceiverConfig config;
 
@@ -56,7 +59,8 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     @SneakyThrows
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
         this.config = config;
-        serviceRegistry = new K8SServiceRegistry(config);
+        k8sServiceRegistry = new K8SServiceRegistry(config);
+        istioServiceRegistry = new IstioServiceEntryRegistry(config);
     }
 
     @Override
@@ -66,13 +70,13 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
         final TCPAccessLogEntry entry,
         final Role role
     ) {
-        if (previousResult.getMetrics() != null && previousResult.getMetrics().hasTcpMetrics()) {
-            return previousResult;
-        }
         switch (role) {
             case PROXY:
                 return analyzeProxy(previousResult, entry);
             case SIDECAR:
+                if (previousResult.hasResult()) {
+                    return previousResult;
+                }
                 return analyzeSideCar(previousResult, entry);
         }
 
@@ -80,16 +84,18 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     }
 
     protected Result analyzeSideCar(final Result previousResult, final TCPAccessLogEntry entry) {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        if (properties == null) {
+        if (!entry.hasCommonProperties()) {
             return previousResult;
         }
+        final AccessLogCommon properties = entry.getCommonProperties();
         final String cluster = properties.getUpstreamCluster();
-        if (cluster == null) {
+        if (Strings.isNullOrEmpty(cluster)) {
             return previousResult;
         }
 
-        final TCPServiceMeshMetrics.Builder sources = TCPServiceMeshMetrics.newBuilder();
+        final var newResult = previousResult.toBuilder();
+        final var previousMetrics = previousResult.getMetrics();
+        final var sources = previousMetrics.getTcpMetricsBuilder();
 
         final Address downstreamRemoteAddress =
             properties.hasDownstreamDirectRemoteAddress()
@@ -115,6 +121,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
                 log.debug("Transformed sidecar->sidecar(server side) inbound mesh metrics {}", metrics);
             }
             sources.addMetrics(metrics);
+            newResult.hasDownstreamMetrics(true);
         } else if (cluster.startsWith("outbound|")) {
             // sidecar(client side) -> sidecar
             final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
@@ -124,56 +131,74 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
 
             log.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
             sources.addMetrics(metric);
+            newResult.hasUpstreamMetrics(true);
         }
 
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setTcpMetrics(sources)).service(localService).build();
+        return newResult.metrics(previousMetrics.setTcpMetrics(sources)).service(localService).build();
     }
 
     protected Result analyzeProxy(final Result previousResult, final TCPAccessLogEntry entry) {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        if (properties == null) {
+        if (!entry.hasCommonProperties()) {
             return previousResult;
         }
+        if (previousResult.hasUpstreamMetrics() && previousResult.hasDownstreamMetrics()) {
+            return previousResult;
+        }
+
+        final AccessLogCommon properties = entry.getCommonProperties();
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         final Address downstreamRemoteAddress = properties.hasDownstreamDirectRemoteAddress() ?
             properties.getDownstreamDirectRemoteAddress() : properties.getDownstreamRemoteAddress();
         final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
-        if (downstreamLocalAddress == null || downstreamRemoteAddress == null || upstreamRemoteAddress == null) {
+        if (!properties.hasDownstreamLocalAddress() || !properties.hasDownstreamRemoteAddress() || !properties.hasUpstreamRemoteAddress()) {
             return previousResult;
         }
 
-        final TCPServiceMeshMetrics.Builder metrics = TCPServiceMeshMetrics.newBuilder();
-        final SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
-        final ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
+        final var downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
+        final var ingress = find(downstreamLocalAddressSocketAddress.getAddress());
 
-        final SocketAddress downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
-        final ServiceMetaInfo ingress = find(downstreamLocalAddressSocketAddress.getAddress());
+        final var newResult = previousResult.toBuilder();
+        final var previousMetrics = previousResult.getMetrics();
+        final var metrics = previousMetrics.getTcpMetricsBuilder();
 
-        final TCPServiceMeshMetric.Builder metric = newAdapter(entry, outside, ingress).adaptToDownstreamMetrics();
+        if (!previousResult.hasDownstreamMetrics()) {
+            final SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
+            final ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
 
-        log.debug("Transformed ingress inbound mesh metric {}", metric);
-        metrics.addMetrics(metric);
+            final TCPServiceMeshMetric.Builder metric = newAdapter(entry, outside, ingress).adaptToDownstreamMetrics();
 
-        final SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
-        final ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
+            log.debug("Transformed ingress inbound mesh metric {}", metric);
+            metrics.addMetrics(metric);
+            newResult.hasDownstreamMetrics(true);
+        }
 
-        final TCPServiceMeshMetric.Builder outboundMetric =
-            newAdapter(entry, ingress, targetService)
-                .adaptToUpstreamMetrics()
-                // Can't parse it from tls properties, leave it to Server side.
-                .setTlsMode(NON_TLS);
+        if (!previousResult.hasUpstreamMetrics()) {
+            final SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
+            final ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
 
-        log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
-        metrics.addMetrics(outboundMetric);
+            final TCPServiceMeshMetric.Builder outboundMetric =
+                newAdapter(entry, ingress, targetService)
+                    .adaptToUpstreamMetrics()
+                    // Can't parse it from tls properties, leave it to Server side.
+                    .setTlsMode(NON_TLS);
 
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setTcpMetrics(metrics)).service(ingress).build();
+            log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
+            metrics.addMetrics(outboundMetric);
+            newResult.hasUpstreamMetrics(true);
+        }
+
+        return newResult.metrics(previousMetrics.setTcpMetrics(metrics)).service(ingress).build();
     }
 
     /**
      * @return found service info, or {@link ServiceMetaInfoFactory#unknown()} to represent not found.
      */
     protected ServiceMetaInfo find(String ip) {
-        return serviceRegistry.findService(ip);
-    }
+        final var istioService = istioServiceRegistry.findService(ip);
+        if (!Objects.equals(config.serviceMetaInfoFactory().unknown(), istioService)) {
+            return istioService;
+        }
 
+        return k8sServiceRegistry.findService(ip);
+    }
 }

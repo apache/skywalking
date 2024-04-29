@@ -20,23 +20,24 @@ package org.apache.skywalking.oap.server.core.alarm.provider.slack;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHookSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Setter
 @Getter
 @ToString
-public class SlackSettings {
+public class SlackSettings extends AlarmHookSettings {
 
     private String textTemplate;
 
-    @Builder.Default
     private List<String> webhooks = new ArrayList<>();
+
+    public SlackSettings(final String name,
+                         final AlarmHooksType type,
+                         final boolean isDefault) {
+        super(name, type, isDefault);
+    }
 }

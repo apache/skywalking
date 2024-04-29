@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
+import java.sql.Statement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -84,7 +85,7 @@ public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
         final var executeBatchResults = preparedStatement.executeBatch();
         final var isInsert = bulkRequest.get(0) instanceof InsertRequest;
         for (int i = 0; i < executeBatchResults.length; i++) {
-            if (executeBatchResults[i] == 1 && isInsert) {
+            if ((executeBatchResults[i] == 1 || executeBatchResults[i] == Statement.SUCCESS_NO_INFO) && isInsert) {
                 // Insert successfully.
                 ((InsertRequest) bulkRequest.get(i)).onInsertCompleted();
             } else if (executeBatchResults[i] == 0 && !isInsert) {

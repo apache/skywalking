@@ -23,11 +23,11 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.FetchingConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 
 @Slf4j
-public class ConfigmapConfigurationWatcherRegister extends ConfigWatcherRegister {
+public class ConfigmapConfigurationWatcherRegister extends FetchingConfigWatcherRegister {
 
     private final ConfigurationConfigmapInformer informer;
 

@@ -19,14 +19,6 @@
 
 package org.apache.skywalking.restapi;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.function.IntConsumer;
-import java.util.stream.IntStream;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
@@ -38,28 +30,39 @@ import com.linecorp.armeria.server.annotation.Param;
 import com.linecorp.armeria.server.annotation.Post;
 import com.linecorp.armeria.server.annotation.ProducesJson;
 import com.linecorp.armeria.server.annotation.RequestObject;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.source.Segment;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class SegmentGeneratorHandler {
-    private final SourceReceiver sourceReceiver;
     private final Map<String, Future<?>> futures = new ConcurrentHashMap<>();
     private final EventLoopGroup eventLoopGroup = EventLoopGroups.newEventLoopGroup(10);
+    private final ISegmentParserService segmentParserService;
 
     public SegmentGeneratorHandler(ModuleManager manager) {
-        sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        segmentParserService = manager.find(AnalyzerModule.NAME).provider().getService(ISegmentParserService.class);
     }
 
     @Post("/mock-data/segments/tasks")
     public HttpResponse generateMockSegments(
         @Default("0") @Param("size") int size,
         @Default("0") @Param("qps") int qps,
+        @Default("0") @Param("duration") int duration,
+        @Default("") @Param("group") String group,
         @RequestObject SegmentRequest request) {
 
         if (size > 0 && qps > 0) {
@@ -70,10 +73,13 @@ public class SegmentGeneratorHandler {
         }
         log.info("Generate {} mock segments, qps: {}, template: {}", size, qps, request);
 
+        request.init(group);
         final IntConsumer generator = unused -> {
-            final Segment segment = request.next();
-            log.debug("Generating segment: {}", segment);
-            sourceReceiver.receive(segment);
+            final List<SegmentGenerator.SegmentResult> segments = request.next(group);
+            log.debug("Generating segment: {}", (Object) segments);
+            segments.forEach(s -> {
+                segmentParserService.send(s.segmentObject);
+            });
         };
         final String requestId = UUID.randomUUID().toString();
         final Future<?> future;
@@ -97,6 +103,16 @@ public class SegmentGeneratorHandler {
             }
             if (f.cause() != null && !(f.cause() instanceof CancellationException)) {
                 log.error("Exception in future: ", f.cause());
+            }
+        });
+        final int durationSeconds = duration > 0 ? duration : Integer.MAX_VALUE;
+        future.addListener(f -> {
+            try {
+                Thread.sleep(durationSeconds * 1000L);
+                future.cancel(true);
+                log.info("Generate mock segments is canceled: requestId: {}", requestId);
+            } catch (InterruptedException e) {
+                log.error("Interrupted", e);
             }
         });
 

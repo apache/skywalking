@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
  * Layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer), Kubernetes(k8s
@@ -55,7 +56,10 @@ public enum Layer {
 
     /**
      * Function as a Service
+     *
+     * Deprecated since 9.7.0. OpenFunction relative features are not maintained anymore.
      */
+    @Deprecated
     FAAS(5, true),
 
     /**
@@ -166,17 +170,65 @@ public enum Layer {
      */
     AWS_GATEWAY(26, true),
 
-    /*
+    /**
      * Redis is an open source (BSD licensed), in-memory data structure store,
      * used as a database, cache, and message broker.
      */
     REDIS(27, true),
 
-    /*
+    /**
      * Elasticsearch is a distributed, open source search and analytics engine for all types of data,
      * including textual, numerical, geospatial, structured, and unstructured.
      */
-    ELASTICSEARCH(28, true);
+    ELASTICSEARCH(28, true),
+
+    /**
+     * RabbitMQ is one of the most popular open source message brokers. RabbitMQ is lightweight and easy to deploy
+     * on premises and in the cloud. It supports multiple messaging protocols.
+     */
+    RABBITMQ(29, true),
+
+    /**
+     * MongoDB is a document database. It stores data in a type of JSON format called BSON.
+     */
+    MONGODB(30, true),
+
+    /**
+     * Kafka is a distributed streaming platform that is used publish and subscribe to streams of records.
+     */
+    KAFKA(31, true),
+
+    /**
+     * Pulsar is a distributed pub-sub messaging platform that provides high-performance, durable messaging.
+     * It is used to publish and subscribe to streams of records.
+     * Pulsar supports scalable and fault-tolerant messaging, making it suitable for use in distributed systems.
+     */
+    PULSAR(32, true),
+
+    /**
+     * A scalable, fault-tolerant, and low-latency storage service optimized for real-time workloads.
+     */
+    BOOKKEEPER(33, true),
+
+    /**
+     * Nginx is an HTTP and reverse proxy server, a mail proxy server, and a generic TCP/UDP proxy server.
+     */
+    NGINX(34, true),
+
+    /**
+     * A cloud native messaging and streaming platform, making it simple to build event-driven applications.
+     */
+    ROCKETMQ(35, true),
+
+    /**
+     * A high-performance, column-oriented SQL database management system (DBMS) for online analytical processing (OLAP).
+     */
+    CLICKHOUSE(36, true),
+
+    /**
+     *  ActiveMQ is a popular open source, multi-protocol, Java-based message broker.
+     */
+    ACTIVEMQ(37, true);
 
     private final int value;
     /**
@@ -214,7 +266,7 @@ public enum Layer {
     public static Layer nameOf(String name) {
         Layer layer = DICTIONARY_NAME.get(name);
         if (layer == null) {
-            throw new UnexpectedException("Unknown Layer name");
+            return UNDEFINED;
         }
         return layer;
     }

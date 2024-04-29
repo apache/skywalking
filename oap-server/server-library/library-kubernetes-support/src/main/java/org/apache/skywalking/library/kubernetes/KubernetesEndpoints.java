@@ -19,39 +19,37 @@
 
 package org.apache.skywalking.library.kubernetes;
 
-import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import org.slf4j.LoggerFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Endpoints;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
+import org.slf4j.LoggerFactory;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
 
 public enum KubernetesEndpoints {
     INSTANCE;
 
-    private final LoadingCache<KubernetesEndpoints, List<V1Endpoints>> endpoints;
+    private final LoadingCache<KubernetesEndpoints, List<Endpoints>> endpoints;
 
     @SneakyThrows
-    private KubernetesEndpoints() {
-        KubernetesClient.setDefault();
-
-        final CoreV1Api coreV1Api = new CoreV1Api();
+    KubernetesEndpoints() {
         final CacheBuilder<Object, Object> cacheBuilder =
             CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(3));
+                        .expireAfterWrite(Duration.ofMinutes(3));
 
         endpoints = cacheBuilder.build(CacheLoader.from(() -> {
-            try {
-                return coreV1Api
-                    .listEndpointsForAllNamespaces(null, null, null, null, null, null, null,
-                        null, null, null)
-                    .getItems();
-            } catch (ApiException e) {
+            try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
+                return kubernetesClient
+                        .endpoints()
+                        .inAnyNamespace()
+                        .list()
+                        .getItems();
+            } catch (Exception e) {
                 LoggerFactory.getLogger(getClass()).error("Failed to list Endpoints.", e);
                 return Collections.emptyList();
             }
@@ -59,7 +57,7 @@ public enum KubernetesEndpoints {
     }
 
     @SneakyThrows
-    public List<V1Endpoints> list() {
+    public List<Endpoints> list() {
         return endpoints.get(this);
     }
 }

@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * SelectedRecord is an abtract data element, including id, name, value and a reference id.
+ * SelectedRecord is an abstract data element, including id, name, value and a reference id.
  */
 @Setter
 @Getter

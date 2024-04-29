@@ -22,12 +22,12 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>9.5.0-SNAPSHOT</version>
+    <version>10.0.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>29</version>
+        <version>30</version>
         <relativePath />
     </parent>
 
@@ -44,7 +44,7 @@
         <url>https://github.com/apache/skywalking</url>
         <connection>scm:git:https://github.com/apache/skywalking.git</connection>
         <developerConnection>scm:git:https://github.com/apache/skywalking.git</developerConnection>
-        <tag>v9.4.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
@@ -150,16 +150,21 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- `project.build.outputTimestamp` is required for reproducible builds: https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
+        <project.build.outputTimestamp>1701205589</project.build.outputTimestamp>
 
+        <!-- Compiling and test stages tools. -->
         <powermock.version>2.0.9</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>5.9.2</junit.version>
         <mockito-core.version>4.11.0</mockito-core.version>
-        <lombok.version>1.18.22</lombok.version>
+        <system-stubs.version>2.1.4</system-stubs.version>
+        <lombok.version>1.18.30</lombok.version>
+        <byte-buddy.version>1.14.9</byte-buddy.version>
 
         <!-- core lib dependency -->
-        <grpc.version>1.49.0</grpc.version>
-        <netty.version>4.1.86.Final</netty.version>
+        <grpc.version>1.62.2</grpc.version>
+        <netty.version>4.1.108.Final</netty.version>
         <netty-tcnative-boringssl-static.version>2.0.52.Final</netty-tcnative-boringssl-static.version>
         <gson.version>2.9.0</gson.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
@@ -190,8 +195,7 @@
         <assertj-core.version>3.20.2</assertj-core.version>
 
         <skipUTs>false</skipUTs>
-
-        <system-stubs.version>2.0.2</system-stubs.version>
+        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 
         <delombok.output.dir>${project.build.directory}/delombok</delombok.output.dir>
     </properties>
@@ -281,6 +285,28 @@
                 <artifactId>mockito-junit-jupiter</artifactId>
                 <version>${mockito-core.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy-agent</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${byte-buddy.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -300,6 +326,16 @@
                 <artifactId>system-stubs-jupiter</artifactId>
                 <version>${system-stubs.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy-agent</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -336,7 +372,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
-                        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                        <argLine>${argLine}</argLine>
                     </configuration>
                     <executions>
                         <execution>
@@ -363,7 +399,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
                         <skip>${skipUTs}</skip>
-                        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                        <argLine>${argLine}</argLine>
                     </configuration>
                 </plugin>
 
@@ -372,7 +408,7 @@
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${antlr.version}</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -419,18 +455,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

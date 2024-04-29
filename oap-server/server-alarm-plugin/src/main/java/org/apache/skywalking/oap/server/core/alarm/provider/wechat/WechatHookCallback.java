@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * Use SkyWalking alarm wechat webhook API.
@@ -38,15 +39,31 @@ public class WechatHookCallback extends HttpAlarmCallback {
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
-        if (alarmRulesWatcher.getWechatSettings() == null || alarmRulesWatcher.getWechatSettings().getWebhooks().isEmpty()) {
+        Map<String, WechatSettings> settingsMap = alarmRulesWatcher.getWechatSettings();
+        if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
-        for (final var url : alarmRulesWatcher.getWechatSettings().getWebhooks()) {
-            for (final var alarmMessage : alarmMessages) {
-                final var requestBody = String.format(
-                        alarmRulesWatcher.getWechatSettings().getTextTemplate(), alarmMessage.getAlarmMessage()
-                );
-                post(URI.create(url), requestBody, Map.of());
+
+        Map<String, List<AlarmMessage>> groupedMessages = groupMessagesByHook(alarmMessages);
+        for (Map.Entry<String, List<AlarmMessage>> entry : groupedMessages.entrySet()) {
+            var hookName = entry.getKey();
+            var messages = entry.getValue();
+            var setting = settingsMap.get(hookName);
+            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
+                messages)) {
+                continue;
+            }
+            for (final var url : setting.getWebhooks()) {
+                for (final var alarmMessage : messages) {
+                    final var requestBody = String.format(
+                        setting.getTextTemplate(), alarmMessage.getAlarmMessage()
+                    );
+                    try {
+                        post(URI.create(url), requestBody, Map.of());
+                    } catch (Exception e) {
+                        log.error("Failed to send alarm message to Wechat webhook: {}", url, e);
+                    }
+                }
             }
         }
     }

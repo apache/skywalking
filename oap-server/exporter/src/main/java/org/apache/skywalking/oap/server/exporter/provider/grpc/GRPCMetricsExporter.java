@@ -26,12 +26,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.exporter.ExportData;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
@@ -39,16 +40,18 @@ import org.apache.skywalking.oap.server.core.exporter.MetricValuesExportService;
 import org.apache.skywalking.oap.server.exporter.grpc.EventType;
 import org.apache.skywalking.oap.server.exporter.grpc.ExportMetricValue;
 import org.apache.skywalking.oap.server.exporter.grpc.ExportResponse;
+import org.apache.skywalking.oap.server.exporter.grpc.KeyValue;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
+import org.apache.skywalking.oap.server.exporter.grpc.MetricValue;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionMetric;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
-import org.apache.skywalking.oap.server.exporter.grpc.ValueType;
 import org.apache.skywalking.oap.server.exporter.provider.ExporterSetting;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 
 @Slf4j
@@ -132,99 +135,115 @@ public class GRPCMetricsExporter extends MetricFormatter implements MetricValues
 
     @Override
     public void consume(List<ExportData> data) {
-        GRPCStreamStatus status = new GRPCStreamStatus();
-        StreamObserver<ExportMetricValue> streamObserver =
-            exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS)
-                                   .export(
-                                       new StreamObserver<ExportResponse>() {
-                                           @Override
-                                           public void onNext(
-                                               ExportResponse response) {
+        if (CollectionUtils.isNotEmpty(data)) {
+            GRPCStreamStatus status = new GRPCStreamStatus();
+            StreamObserver<ExportMetricValue> streamObserver =
+                exportServiceFutureStub.withDeadlineAfter(10, TimeUnit.SECONDS)
+                                       .export(
+                                           new StreamObserver<ExportResponse>() {
+                                               @Override
+                                               public void onNext(
+                                                   ExportResponse response) {
 
-                                           }
+                                               }
 
-                                           @Override
-                                           public void onError(
-                                               Throwable throwable) {
-                                               status.done();
-                                           }
+                                               @Override
+                                               public void onError(
+                                                   Throwable throwable) {
+                                                   log.error("Export metrics to {}:{} fails.",
+                                                             setting.getGRPCTargetHost(),
+                                                             setting.getGRPCTargetPort(), throwable
+                                                   );
+                                                   status.done();
+                                               }
 
-                                           @Override
-                                           public void onCompleted() {
-                                               status.done();
-                                           }
-                                       });
-        AtomicInteger exportNum = new AtomicInteger();
-        data.forEach(row -> {
-            ExportMetricValue.Builder builder = ExportMetricValue.newBuilder();
+                                               @Override
+                                               public void onCompleted() {
+                                                   status.done();
+                                               }
+                                           });
+            AtomicInteger exportNum = new AtomicInteger();
 
-            Metrics metrics = row.getMetrics();
-            if (metrics instanceof LongValueHolder) {
-                long value = ((LongValueHolder) metrics).getValue();
-                builder.setLongValue(value);
-                builder.setType(ValueType.LONG);
-            } else if (metrics instanceof IntValueHolder) {
-                long value = ((IntValueHolder) metrics).getValue();
-                builder.setLongValue(value);
-                builder.setType(ValueType.LONG);
-            } else if (metrics instanceof DoubleValueHolder) {
-                double value = ((DoubleValueHolder) metrics).getValue();
-                builder.setDoubleValue(value);
-                builder.setType(ValueType.DOUBLE);
-            } else if (metrics instanceof MultiIntValuesHolder) {
-                int[] values = ((MultiIntValuesHolder) metrics).getValues();
-                for (int value : values) {
-                    builder.addLongValues(value);
+            data.forEach(row -> {
+                ExportMetricValue.Builder builder = ExportMetricValue.newBuilder();
+
+                Metrics metrics = row.getMetrics();
+                if (metrics instanceof LongValueHolder) {
+                    long value = ((LongValueHolder) metrics).getValue();
+                    MetricValue.Builder valueBuilder = MetricValue.newBuilder();
+                    valueBuilder.setLongValue(value);
+                    builder.addMetricValues(valueBuilder);
+                } else if (metrics instanceof IntValueHolder) {
+                    long value = ((IntValueHolder) metrics).getValue();
+                    MetricValue.Builder valueBuilder = MetricValue.newBuilder();
+                    valueBuilder.setLongValue(value);
+                    builder.addMetricValues(valueBuilder);
+                } else if (metrics instanceof LabeledValueHolder) {
+                    DataTable values = ((LabeledValueHolder) metrics).getValue();
+                    values.keys().forEach(key -> {
+                        MetricValue.Builder valueBuilder = MetricValue.newBuilder();
+                        valueBuilder.setLongValue(values.get(key));
+                        DataLabel labels = new DataLabel();
+                        labels.put(key);
+                        labels.forEach((labelName, LabelValue) -> {
+                            KeyValue.Builder kvBuilder = KeyValue.newBuilder();
+                            kvBuilder.setKey(labelName);
+                            kvBuilder.setValue(LabelValue);
+                            valueBuilder.addLabels(kvBuilder);
+                        });
+                        builder.addMetricValues(valueBuilder);
+                    });
+                } else {
+                    return;
                 }
-                builder.setType(ValueType.MULTI_LONG);
-            } else {
-                return;
+
+                MetricsMetaInfo meta = row.getMeta();
+                builder.setMetricName(meta.getMetricsName());
+                builder.setEventType(
+                    ExportEvent.EventType.INCREMENT.equals(row.getEventType()) ? EventType.INCREMENT : EventType.TOTAL);
+                String entityName = getEntityName(meta);
+                if (entityName == null) {
+                    return;
+                }
+                builder.setEntityName(entityName);
+                builder.setEntityId(meta.getId());
+
+                builder.setTimeBucket(metrics.getTimeBucket());
+
+                streamObserver.onNext(builder.build());
+                exportNum.getAndIncrement();
+            });
+
+            streamObserver.onCompleted();
+
+            long sleepTime = 0;
+            long cycle = 100L;
+
+            //For memory safe of oap, we must wait for the peer confirmation.
+            while (!status.isDone()) {
+                try {
+                    sleepTime += cycle;
+                    Thread.sleep(cycle);
+                } catch (InterruptedException e) {
+                }
+
+                if (sleepTime > 2000L) {
+                    log.warn(
+                        "Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(),
+                        setting.getGRPCTargetHost(),
+                        setting
+                            .getGRPCTargetPort(), sleepTime
+                    );
+                    cycle = 2000L;
+                }
             }
 
-            MetricsMetaInfo meta = row.getMeta();
-            builder.setMetricName(meta.getMetricsName());
-            builder.setEventType(
-                ExportEvent.EventType.INCREMENT.equals(row.getEventType()) ? EventType.INCREMENT : EventType.TOTAL);
-            String entityName = getEntityName(meta);
-            if (entityName == null) {
-                return;
-            }
-            builder.setEntityName(entityName);
-            builder.setEntityId(meta.getId());
-
-            builder.setTimeBucket(metrics.getTimeBucket());
-
-            streamObserver.onNext(builder.build());
-            exportNum.getAndIncrement();
-        });
-
-        streamObserver.onCompleted();
-
-        long sleepTime = 0;
-        long cycle = 100L;
-
-        //For memory safe of oap, we must wait for the peer confirmation.
-        while (!status.isDone()) {
-            try {
-                sleepTime += cycle;
-                Thread.sleep(cycle);
-            } catch (InterruptedException e) {
-            }
-
-            if (sleepTime > 2000L) {
-                log.warn(
-                    "Export {} metrics to {}:{}, wait {} milliseconds.", exportNum.get(), setting.getGRPCTargetHost(),
-                    setting
-                        .getGRPCTargetPort(), sleepTime
-                );
-                cycle = 2000L;
-            }
+            log.debug(
+                "Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getGRPCTargetHost(),
+                setting
+                    .getGRPCTargetPort(), sleepTime
+            );
         }
-
-        log.debug(
-            "Exported {} metrics to {}:{} in {} milliseconds.", exportNum.get(), setting.getGRPCTargetHost(), setting
-                .getGRPCTargetPort(), sleepTime);
-
         fetchSubscriptionList();
     }
 

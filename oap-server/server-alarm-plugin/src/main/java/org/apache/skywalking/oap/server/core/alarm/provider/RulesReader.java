@@ -23,13 +23,16 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
-
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
@@ -47,6 +50,8 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  */
 public class RulesReader {
     private Map yamlData;
+    private final Set<String> defaultHooks = new HashSet<>();
+    private final Set<String> allHooks = new HashSet<>();
 
     public RulesReader(InputStream inputStream) {
         Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
@@ -65,17 +70,9 @@ public class RulesReader {
         Rules rules = new Rules();
 
         if (Objects.nonNull(yamlData)) {
+            // Should read hooks config first.
+            readHooksConfig(rules);
             readRulesConfig(rules);
-            readWebHookConfig(rules);
-            readGrpcConfig(rules);
-            readSlackConfig(rules);
-            readWechatConfig(rules);
-            readCompositeRuleConfig(rules);
-            readDingtalkConfig(rules);
-            readFeishuConfig(rules);
-            readWeLinkConfig(rules);
-            readPagerDutyConfig(rules);
-            readDiscordConfig(rules);
         }
         return rules;
     }
@@ -94,240 +91,337 @@ public class RulesReader {
                 AlarmRule alarmRule = new AlarmRule();
                 alarmRule.setAlarmRuleName((String) k);
                 Map settings = (Map) v;
-                Object metricsName = settings.get("metrics-name");
-                if (metricsName == null) {
-                    throw new IllegalArgumentException("metrics-name can't be null");
+                Object expression = settings.get("expression");
+                if (StringUtil.isEmpty((String) expression)) {
+                    throw new IllegalArgumentException("expression can't be empty");
                 }
-
-                alarmRule.setMetricsName((String) metricsName);
+                try {
+                    alarmRule.setExpression(expression.toString());
+                } catch (IllegalExpressionException e) {
+                    throw new IllegalArgumentException(e);
+                }
                 alarmRule.setIncludeNames((ArrayList) settings.getOrDefault("include-names", new ArrayList(0)));
                 alarmRule.setExcludeNames((ArrayList) settings.getOrDefault("exclude-names", new ArrayList(0)));
                 alarmRule.setIncludeNamesRegex((String) settings.getOrDefault("include-names-regex", ""));
                 alarmRule.setExcludeNamesRegex((String) settings.getOrDefault("exclude-names-regex", ""));
-                alarmRule.setIncludeLabels(
-                        (ArrayList) settings.getOrDefault("include-labels", new ArrayList(0)));
-                alarmRule.setExcludeLabels(
-                        (ArrayList) settings.getOrDefault("exclude-labels", new ArrayList(0)));
-                alarmRule.setIncludeLabelsRegex((String) settings.getOrDefault("include-labels-regex", ""));
-                alarmRule.setExcludeLabelsRegex((String) settings.getOrDefault("exclude-labels-regex", ""));
-                alarmRule.setThreshold(settings.get("threshold").toString());
-                alarmRule.setOp((String) settings.get("op"));
                 alarmRule.setPeriod((Integer) settings.getOrDefault("period", 1));
-                alarmRule.setCount((Integer) settings.getOrDefault("count", 1));
                 // How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
                 alarmRule.setSilencePeriod((Integer) settings.getOrDefault("silence-period", alarmRule.getPeriod()));
-                alarmRule.setOnlyAsCondition((Boolean) settings.getOrDefault("only-as-condition", false));
                 alarmRule.setMessage(
                         (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
                                 .getAlarmRuleName()));
                 alarmRule.setTags((Map) settings.getOrDefault("tags", new HashMap<String, String>()));
+
+                Set<String> specificHooks = new HashSet<>((ArrayList) settings.getOrDefault("hooks", new ArrayList<>()));
+                checkSpecificHooks(alarmRule.getAlarmRuleName(), specificHooks);
+                alarmRule.setHooks(specificHooks);
+                // If no specific hooks, use global hooks.
+                if (alarmRule.getHooks().isEmpty()) {
+                    alarmRule.getHooks().addAll(defaultHooks);
+                }
                 rules.getRules().add(alarmRule);
             }
         });
     }
 
+    private void readHooksConfig(Rules rules) {
+        Map hooks = (Map) yamlData.getOrDefault("hooks", Collections.EMPTY_MAP);
+        if (CollectionUtils.isEmpty(hooks)) {
+            return;
+        }
+        readWebHookConfig(hooks, rules);
+        readGrpcConfig(hooks, rules);
+        readSlackConfig(hooks, rules);
+        readWechatConfig(hooks, rules);
+        readDingtalkConfig(hooks, rules);
+        readFeishuConfig(hooks, rules);
+        readWeLinkConfig(hooks, rules);
+        readPagerDutyConfig(hooks, rules);
+        readDiscordConfig(hooks, rules);
+    }
+
     /**
      * Read web hook config
      */
-    private void readWebHookConfig(Rules rules) {
-        List webhooks = (List) yamlData.get("webhooks");
-        if (webhooks != null) {
-            rules.setWebhooks(new ArrayList<>());
-            webhooks.forEach(url -> {
-                rules.getWebhooks().add((String) url);
-            });
+    @SuppressWarnings("unchecked")
+    private void readWebHookConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.webhook.name());
+        if (configs == null) {
+            return;
         }
+        configs.forEach((k, v) -> {
+            Map<String, Object> config = (Map<String, Object>) v;
+            WebhookSettings settings = new WebhookSettings(
+                k.toString(), AlarmHooksType.webhook, (Boolean) config.getOrDefault("is-default", false));
+
+            List<String> urls = (List<String>) config.get("urls");
+            if (urls != null) {
+                settings.getUrls().addAll(urls);
+            }
+            rules.getWebhookSettingsMap().put(settings.getFormattedName(), settings);
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
+            }
+            this.allHooks.add(settings.getFormattedName());
+        });
     }
 
     /**
      * Read grpc hook config into {@link GRPCAlarmSetting}
      */
-    private void readGrpcConfig(Rules rules) {
-        Map grpchooks = (Map) yamlData.get("gRPCHook");
-        if (grpchooks != null) {
-            GRPCAlarmSetting grpcAlarmSetting = new GRPCAlarmSetting();
-            Object targetHost = grpchooks.get("target_host");
-            if (targetHost != null) {
-                grpcAlarmSetting.setTargetHost((String) targetHost);
-            }
-
-            Object targetPort = grpchooks.get("target_port");
-            if (targetPort != null) {
-                grpcAlarmSetting.setTargetPort((Integer) targetPort);
-            }
-
-            rules.setGrpchookSetting(grpcAlarmSetting);
+    @SuppressWarnings("unchecked")
+    private void readGrpcConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.gRPC.name());
+        if (configs == null) {
+            return;
         }
+        configs.forEach((k, v) -> {
+            Map config = (Map) v;
+            GRPCAlarmSetting setting = new GRPCAlarmSetting(
+                k.toString(), AlarmHooksType.gRPC, (Boolean) config.getOrDefault("is-default", false));
+
+            Object targetHost = config.get("target-host");
+            if (targetHost != null) {
+                setting.setTargetHost((String) targetHost);
+            }
+
+            Object targetPort = config.get("target-port");
+            if (targetPort != null) {
+                setting.setTargetPort((Integer) targetPort);
+            }
+
+            rules.getGrpcAlarmSettingMap().put(setting.getFormattedName(), setting);
+
+            if (setting.isDefault()) {
+                this.defaultHooks.add(setting.getFormattedName());
+            }
+            this.allHooks.add(setting.getFormattedName());
+        });
     }
 
     /**
      * Read slack hook config into {@link SlackSettings}
      */
-    private void readSlackConfig(Rules rules) {
-        Map slacks = (Map) yamlData.get("slackHooks");
-        if (slacks != null) {
-            SlackSettings slackSettings = new SlackSettings();
-            Object textTemplate = slacks.getOrDefault("textTemplate", "");
-            slackSettings.setTextTemplate((String) textTemplate);
-
-            List<String> slackWebhooks = (List<String>) slacks.get("webhooks");
-            if (slackWebhooks != null) {
-                slackSettings.getWebhooks().addAll(slackWebhooks);
-            }
-            rules.setSlacks(slackSettings);
+    @SuppressWarnings("unchecked")
+    private void readSlackConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.slack.name());
+        if (configs == null) {
+            return;
         }
+        configs.forEach((k, v) -> {
+            Map<String, Object> config = (Map<String, Object>) v;
+            SlackSettings settings = new SlackSettings(
+                k.toString(), AlarmHooksType.slack, (Boolean) config.getOrDefault("is-default", false));
+
+            Object textTemplate = config.getOrDefault("text-template", "");
+            settings.setTextTemplate((String) textTemplate);
+
+            List<String> webhooks = (List<String>) config.get("webhooks");
+            if (webhooks != null) {
+                settings.getWebhooks().addAll(webhooks);
+            }
+            rules.getSlackSettingsMap().put(settings.getFormattedName(), settings);
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
+            }
+            this.allHooks.add(settings.getFormattedName());
+        });
     }
 
     /**
      * Read wechat hook config into {@link WechatSettings}
      */
-    private void readWechatConfig(Rules rules) {
-        Map wechatConfig = (Map) yamlData.get("wechatHooks");
-        if (wechatConfig != null) {
-            WechatSettings wechatSettings = new WechatSettings();
-            Object textTemplate = wechatConfig.getOrDefault("textTemplate", "");
-            wechatSettings.setTextTemplate((String) textTemplate);
-            List<String> wechatWebhooks = (List<String>) wechatConfig.get("webhooks");
-            if (wechatWebhooks != null) {
-                wechatSettings.getWebhooks().addAll(wechatWebhooks);
-            }
-            rules.setWecchats(wechatSettings);
-        }
-    }
-
-    /**
-     * Read composite rule config into {@link CompositeAlarmRule}
-     */
-    private void readCompositeRuleConfig(Rules rules) {
-        Map compositeRulesData = (Map) yamlData.get("composite-rules");
-        if (compositeRulesData == null) {
+    @SuppressWarnings("unchecked")
+    private void readWechatConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.wechat.name());
+        if (configs == null) {
             return;
         }
-        compositeRulesData.forEach((k, v) -> {
-            String ruleName = (String) k;
-            if (ruleName.endsWith("_rule")) {
-                Map settings = (Map) v;
-                CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule();
-                compositeAlarmRule.setAlarmRuleName(ruleName);
-                String expression = (String) settings.get("expression");
-                if (expression == null) {
-                    throw new IllegalArgumentException("expression can't be null");
-                }
-                compositeAlarmRule.setExpression(expression);
-                compositeAlarmRule.setMessage(
-                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
-                compositeAlarmRule.setTags((Map) settings.getOrDefault("tags", new HashMap<String, String>(0)));
-                rules.getCompositeRules().add(compositeAlarmRule);
+        configs.forEach((k, v) -> {
+            Map<String, Object> config = (Map<String, Object>) v;
+            WechatSettings settings = new WechatSettings(
+                k.toString(), AlarmHooksType.wechat, (Boolean) config.getOrDefault("is-default", false));
+
+            Object textTemplate = config.getOrDefault("text-template", "");
+            settings.setTextTemplate((String) textTemplate);
+
+            List<String> webhooks = (List<String>) config.get("webhooks");
+            if (webhooks != null) {
+                settings.getWebhooks().addAll(webhooks);
             }
+            rules.getWechatSettingsMap().put(settings.getFormattedName(), settings);
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
+            }
+            this.allHooks.add(settings.getFormattedName());
         });
     }
 
     /**
      * Read dingtalk hook config into {@link DingtalkSettings}
      */
-    private void readDingtalkConfig(Rules rules) {
-        Map dingtalkConfig = (Map) yamlData.get("dingtalkHooks");
-        if (dingtalkConfig != null) {
-            DingtalkSettings dingtalkSettings = new DingtalkSettings();
-            Object textTemplate = dingtalkConfig.getOrDefault("textTemplate", "");
-            dingtalkSettings.setTextTemplate((String) textTemplate);
-            List<Map<String, Object>> wechatWebhooks = (List<Map<String, Object>>) dingtalkConfig.get("webhooks");
-            if (wechatWebhooks != null) {
-                wechatWebhooks.forEach(wechatWebhook -> {
-                    Object secret = wechatWebhook.getOrDefault("secret", "");
-                    Object url = wechatWebhook.getOrDefault("url", "");
-                    dingtalkSettings.getWebhooks().add(new DingtalkSettings.WebHookUrl((String) secret, (String) url));
+    @SuppressWarnings("unchecked")
+    private void readDingtalkConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.dingtalk.name());
+        if (configs == null) {
+            return;
+        }
+        configs.forEach((k, v) -> {
+            Map<String, Object> config = (Map<String, Object>) v;
+            DingtalkSettings settings = new DingtalkSettings(
+                k.toString(), AlarmHooksType.dingtalk, (Boolean) config.getOrDefault("is-default", false));
+
+            Object textTemplate = config.getOrDefault("text-template", "");
+            settings.setTextTemplate((String) textTemplate);
+
+            List<Map<String, Object>> webhooks = (List<Map<String, Object>>) config.get("webhooks");
+            if (webhooks != null) {
+                webhooks.forEach(webhook -> {
+                    Object secret = webhook.getOrDefault("secret", "");
+                    Object url = webhook.getOrDefault("url", "");
+                    settings.getWebhooks().add(new DingtalkSettings.WebHookUrl((String) secret, (String) url));
                 });
             }
-            rules.setDingtalks(dingtalkSettings);
-        }
+            rules.getDingtalkSettingsMap().put(settings.getFormattedName(), settings);
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
+            }
+            this.allHooks.add(settings.getFormattedName());
+        });
     }
 
     /**
      * Read feishu hook config into {@link FeishuSettings}
      */
-    private void readFeishuConfig(Rules rules) {
-        Map feishuConfig = (Map) yamlData.get("feishuHooks");
-        if (feishuConfig != null) {
-            FeishuSettings feishuSettings = new FeishuSettings();
-            Object textTemplate = feishuConfig.getOrDefault("textTemplate", "");
-            feishuSettings.setTextTemplate((String) textTemplate);
-            List<Map<String, Object>> wechatWebhooks = (List<Map<String, Object>>) feishuConfig.get("webhooks");
-            if (wechatWebhooks != null) {
-                wechatWebhooks.forEach(wechatWebhook -> {
-                    Object secret = wechatWebhook.getOrDefault("secret", "");
-                    Object url = wechatWebhook.getOrDefault("url", "");
-                    feishuSettings.getWebhooks().add(new FeishuSettings.WebHookUrl((String) secret, (String) url));
+    @SuppressWarnings("unchecked")
+    private void readFeishuConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.feishu.name());
+        if (configs == null) {
+            return;
+        }
+        configs.forEach((k, v) -> {
+            Map<String, Object> config = (Map<String, Object>) v;
+            FeishuSettings settings = new FeishuSettings(
+                k.toString(), AlarmHooksType.feishu, (Boolean) config.getOrDefault("is-default", false));
+
+            Object textTemplate = config.getOrDefault("text-template", "");
+            settings.setTextTemplate((String) textTemplate);
+
+            List<Map<String, Object>> webhooks = (List<Map<String, Object>>) config.get("webhooks");
+            if (webhooks != null) {
+                webhooks.forEach(webhook -> {
+                    Object secret = webhook.getOrDefault("secret", "");
+                    Object url = webhook.getOrDefault("url", "");
+                    settings.getWebhooks().add(new FeishuSettings.WebHookUrl((String) secret, (String) url));
                 });
             }
-            rules.setFeishus(feishuSettings);
-        }
+            rules.getFeishuSettingsMap().put(settings.getFormattedName(), settings);
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
+            }
+            this.allHooks.add(settings.getFormattedName());
+        });
     }
 
     /**
      * Read WeLink hook config into {@link WeLinkSettings}
      */
     @SuppressWarnings("unchecked")
-    private void readWeLinkConfig(Rules rules) {
-        Map<String, Object> welinkConfig = (Map<String, Object>) yamlData.getOrDefault(
-            "welinkHooks",
-            Collections.EMPTY_MAP
-        );
-        String textTemplate = (String) welinkConfig.get("textTemplate");
-        List<Map<String, String>> welinkWebHooks = (List<Map<String, String>>) welinkConfig.get("webhooks");
-        if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(welinkWebHooks)) {
+    private void readWeLinkConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.welink.name());
+        if (configs == null) {
             return;
         }
-        List<WeLinkSettings.WebHookUrl> webHookUrls = welinkWebHooks.stream().map(
-            WeLinkSettings.WebHookUrl::generateFromMap
-        ).collect(Collectors.toList());
+        configs.forEach((k, v) -> {
+            Map<String, Object> config = (Map<String, Object>) v;
+            String textTemplate = (String) config.get("text-template");
+            List<Map<String, String>> webhooks = (List<Map<String, String>>) config.get("webhooks");
+            if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(webhooks)) {
+                return;
+            }
+            List<WeLinkSettings.WebHookUrl> webHookUrls = webhooks.stream().map(
+                WeLinkSettings.WebHookUrl::generateFromMap
+            ).collect(Collectors.toList());
 
-        WeLinkSettings welinkSettings = new WeLinkSettings();
-        welinkSettings.setTextTemplate(textTemplate);
-        welinkSettings.setWebhooks(webHookUrls);
-        rules.setWelinks(welinkSettings);
+            WeLinkSettings settings = new WeLinkSettings(
+                k.toString(), AlarmHooksType.welink, (Boolean) config.getOrDefault("is-default", false));
+            settings.setTextTemplate(textTemplate);
+            settings.setWebhooks(webHookUrls);
+
+            rules.getWeLinkSettingsMap().put(settings.getFormattedName(), settings);
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
+            }
+            this.allHooks.add(settings.getFormattedName());
+        });
     }
 
     /**
      * Read PagerDuty hook config into {@link PagerDutySettings}
      */
-    private void readPagerDutyConfig(Rules rules) {
-        Map<String, Object> pagerDutyConfig = (Map<String, Object>) yamlData.get("pagerDutyHooks");
-        if (pagerDutyConfig != null) {
-            PagerDutySettings pagerDutySettings = new PagerDutySettings();
-            String textTemplate = (String) pagerDutyConfig.getOrDefault("textTemplate", "");
-            pagerDutySettings.setTextTemplate(textTemplate);
+    @SuppressWarnings("unchecked")
+    private void readPagerDutyConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.pagerduty.name());
+        if (configs == null) {
+            return;
+        }
+        configs.forEach((k, v) -> {
+            Map<String, Object> config = (Map<String, Object>) v;
+            PagerDutySettings settings = new PagerDutySettings(
+                k.toString(), AlarmHooksType.pagerduty, (Boolean) config.getOrDefault("is-default", false));
+            Object textTemplate = config.getOrDefault("text-template", "");
+            settings.setTextTemplate((String) textTemplate);
 
-            List<String> integrationKeys = (List<String>) pagerDutyConfig.get("integrationKeys");
+            List<String> integrationKeys = (List<String>) config.get("integration-keys");
             if (integrationKeys != null) {
-                pagerDutySettings.getIntegrationKeys().addAll(integrationKeys);
+                settings.getIntegrationKeys().addAll(integrationKeys);
             }
 
-            rules.setPagerDutySettings(pagerDutySettings);
-        }
+            rules.getPagerDutySettingsMap().put(settings.getFormattedName(), settings);
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
+            }
+            this.allHooks.add(settings.getFormattedName());
+        });
     }
 
     /**
      * Read Discord hook config into {@link DiscordSettings}
      */
     @SuppressWarnings("unchecked")
-    private void readDiscordConfig(Rules rules) {
-        Map<String, Object> discordConfig = (Map<String, Object>) yamlData.getOrDefault(
-                "discordHooks",
-                Collections.EMPTY_MAP
-        );
-        String textTemplate = (String) discordConfig.get("textTemplate");
-        List<Map<String, String>> discordWebHooks = (List<Map<String, String>>) discordConfig.get("webhooks");
-        if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(discordWebHooks)) {
+    private void readDiscordConfig(Map hooks, Rules rules) {
+        Map configs = (Map) hooks.get(AlarmHooksType.discord.name());
+        if (configs == null) {
             return;
         }
-        List<DiscordSettings.WebHookUrl> webHookUrls = discordWebHooks.stream().map(
+        configs.forEach((k, v) -> {
+            Map<String, Object> config = (Map<String, Object>) v;
+            String textTemplate = (String) config.get("text-template");
+            List<Map<String, String>> webhooks = (List<Map<String, String>>) config.get("webhooks");
+            if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(webhooks)) {
+                return;
+            }
+            List<DiscordSettings.WebHookUrl> webHookUrls = webhooks.stream().map(
                 DiscordSettings.WebHookUrl::generateFromMap
-        ).collect(Collectors.toList());
+            ).collect(Collectors.toList());
 
-        DiscordSettings discordSettings = new DiscordSettings();
-        discordSettings.setTextTemplate(textTemplate);
-        discordSettings.setWebhooks(webHookUrls);
-        rules.setDiscordSettings(discordSettings);
+            DiscordSettings settings = new DiscordSettings(
+                k.toString(), AlarmHooksType.discord, (Boolean) config.getOrDefault("is-default", false));
+            settings.setTextTemplate(textTemplate);
+            settings.setWebhooks(webHookUrls);
+
+            rules.getDiscordSettingsMap().put(settings.getFormattedName(), settings);
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
+            }
+            this.allHooks.add(settings.getFormattedName());
+        });
+    }
+
+    private void checkSpecificHooks(String ruleName, Set<String> hooks) {
+        if (!this.allHooks.containsAll(hooks)) {
+            throw new IllegalArgumentException("rule: [" + ruleName + "] contains invalid hooks." +
+                                                   " Please check the hook is exist and name format is {hookType}.{hookName}");
+        }
     }
 }

@@ -125,6 +125,18 @@ public class DefaultScopeDefine {
 
     public static final int CONTINUOUS_PROFILING_POLICY = 68;
 
+    public static final int UI_MENU = 69;
+
+    public static final int SERVICE_HIERARCHY_RELATION = 70;
+    public static final int INSTANCE_HIERARCHY_RELATION = 71;
+
+    public static final int K8S_SERVICE = 72;
+    public static final int K8S_SERVICE_INSTANCE = 73;
+    public static final int K8S_SERVICE_RELATION = 74;
+    public static final int K8S_SERVICE_INSTANCE_RELATION = 75;
+    public static final int K8S_ENDPOINT = 76;
+    public static final int K8S_ENDPOINT_REALATION = 77;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */

@@ -33,7 +33,7 @@ public final class SequenceGeneratorTest {
                 .build();
 
         for (int i = 0; i < 10; i++) {
-            assertEquals(i + 1, generator.next().intValue());
+            assertEquals(i + 1, generator.next(null).intValue());
         }
     }
 
@@ -47,7 +47,7 @@ public final class SequenceGeneratorTest {
                 .build();
 
         for (int i = 1; i < 10; i++) {
-            Long next = generator.next();
+            Long next = generator.next(null);
             assertTrue(i <= next.intValue());
             assertTrue(i * 2 >= next.intValue());
         }

@@ -1,0 +1,191 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - "12800:12800"
+    networks:
+      - e2e
+  rmq0: &rabbitmq
+    image: rabbitmq:3.11.14-management
+    networks:
+      - "e2e"
+    ports:
+      - "15673:15672"
+      - "15693:15692"
+    cap_add:
+      - ALL
+    hostname: rmq0
+    environment:
+      RABBITMQ_ERLANG_COOKIE: rabbitmq-prometheus
+    volumes:
+      - ./rabbitmq-overview.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq-overview-definitions.json:/etc/rabbitmq/rabbitmq-definitions.json:ro
+    ulimits:
+      nofile:
+        soft: 2000
+        hard: 2000
+  rmq1:
+    << : *rabbitmq
+    hostname: rmq1
+    ports:
+      - "15674:15672"
+      - "15694:15692"
+  rmq2:
+    << : *rabbitmq
+    hostname: rmq2
+    ports:
+      - "15675:15672"
+      - "15695:15692"
+
+  # The following services are used for mocking test data
+  basic-get:
+    image: &perf-test-image pivotalrabbitmq/perf-test:2.15.0-ubuntu
+    networks:
+      - "e2e"
+    environment:
+      URI: "amqp://guest:guest@rmq0:5672/%2f"
+      QUEUE: basic-get
+      ROUTING_KEY: basic-get
+      VARIABLE_RATE: "1:1,0:30"
+      POLLING: "true"
+      POLLING_INTERVAL: 5000
+      AUTOACK: "false"
+      SERVERS_STARTUP_TIMEOUT: &startup_timeout 60
+      METRICS_PROMETHEUS: "true"
+  basic-get-auto:
+    image: *perf-test-image
+    networks:
+      - "e2e"
+    environment:
+      URI: "amqp://guest:guest@rmq0:5672/%2f"
+      QUEUE: basic-get
+      ROUTING_KEY: basic-get
+      PRODUCERS: 0
+      POLLING: "true"
+      POLLING_INTERVAL: 5000
+      AUTOACK: "true"
+      SERVERS_STARTUP_TIMEOUT: *startup_timeout
+      METRICS_PROMETHEUS: "true"
+  greedy-consumer:
+    image: *perf-test-image
+    networks:
+      - "e2e"
+    environment:
+      URI: "amqp://guest:guest@rmq0:5672/%2f"
+      QUEUE: greedy-consumer
+      ROUTING_KEY: greedy-consumer
+      VARIABLE_RATE: "100:20,0:20"
+      CONSUMER_RATE: 50
+      QOS: 2000
+      AUTOACK: "false"
+      SERVERS_STARTUP_TIMEOUT: *startup_timeout
+      METRICS_PROMETHEUS: "true"
+  publisher-confirms:
+    image: *perf-test-image
+    networks:
+      - "e2e"
+    environment:
+      URI: "amqp://guest:guest@rmq1:5672/%2f"
+      QUEUE: publisher-confirms
+      ROUTING_KEY: publisher-confirms
+      AUTOACK: "true"
+      VARIABLE_RATE: "12:30,25:30,50:30,100:30"
+      CONFIRM: 1
+      CONFIRM_TIMEOUT: 1
+      SERVERS_STARTUP_TIMEOUT: *startup_timeout
+      METRICS_PROMETHEUS: "true"
+  slow-consumer-persistent:
+    image: *perf-test-image
+    networks:
+      - "e2e"
+    environment:
+      URI: "amqp://guest:guest@rmq1:5672/%2f"
+      QUEUE: ha3-slow-consumer-persistent
+      ROUTING_KEY: slow-consumer-persistent
+      QUEUE_ARGS: x-max-length=10000
+      FLAG: persistent
+      AUTO_DELETE: "false"
+      SIZE: 51200
+      VARIABLE_RATE: "100:20,0:20"
+      CONSUMER_RATE: 50
+      QOS: 50
+      AUTOACK: "false"
+      SERVERS_STARTUP_TIMEOUT: *startup_timeout
+      METRICS_PROMETHEUS: "true"
+  nack:
+    image: *perf-test-image
+    networks:
+      - "e2e"
+    entrypoint: []
+    command: /bin/bash -c "while true; do bin/runjava com.rabbitmq.perf.PerfTest; sleep 10; done"
+    environment:
+      TIME: 60
+      URI: "amqp://guest:guest@rmq2:5672/%2f"
+      VARIABLE_RATE: "1:10,0:20"
+      QUEUE: nack
+      QUEUE_ARGS: x-max-length=100
+      ROUTING_KEY: nack
+      AUTOACK: "false"
+      NACK: "true"
+      QOS: 5
+      CONSUMER_LATENCY: 3000000
+      SERVERS_STARTUP_TIMEOUT: *startup_timeout
+      METRICS_PROMETHEUS: "true"
+  unroutable-return:
+    image: *perf-test-image
+    networks:
+      - "e2e"
+    environment:
+      URI: "amqp://guest:guest@rmq2:5672/%2f"
+      VARIABLE_RATE: "2:30,4:30,10:30"
+      VARIABLE_SIZE: "100:30,200:30"
+      CONSUMERS: 0
+      FLAG: mandatory
+      SERVERS_STARTUP_TIMEOUT: *startup_timeout
+      METRICS_PROMETHEUS: "true"
+  unroutable-drop:
+    image: *perf-test-image
+    networks:
+      - "e2e"
+    environment:
+      URI: "amqp://guest:guest@rmq2:5672/%2f"
+      VARIABLE_RATE: "5:30,10:30,20:30"
+      VARIABLE_SIZE: "100:30,200:30"
+      CONSUMERS: 0
+      SERVERS_STARTUP_TIMEOUT: *startup_timeout
+      METRICS_PROMETHEUS: "true"
+
+  otel-collector:
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

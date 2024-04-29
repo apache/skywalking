@@ -57,12 +57,6 @@ public class ElasticSearchIT {
         // noinspection resource
         return Arrays.asList(new Object[][] {
             {
-                "ElasticSearch 6.3.2",
-                new ElasticsearchContainer(
-                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
-                                   .withTag("6.3.2"))
-            },
-            {
                 "ElasticSearch 7.4.2",
                 new ElasticsearchContainer(
                     DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
@@ -90,6 +84,13 @@ public class ElasticSearchIT {
                                 .withEnv("xpack.security.enabled", "false")
             },
             {
+                "ElasticSearch 8.9.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
+                                   .withTag("8.9.0"))
+                    .withEnv("xpack.security.enabled", "false")
+            },
+            {
                 "OpenSearch 1.0.0",
                 new ElasticsearchContainer(
                     DockerImageName.parse("opensearchproject/opensearch")
@@ -104,6 +105,16 @@ public class ElasticSearchIT {
                 new ElasticsearchContainer(
                     DockerImageName.parse("opensearchproject/opensearch")
                                    .withTag("2.4.0")
+                                   .asCompatibleSubstituteFor(
+                                       "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+                    .withEnv("plugins.security.disabled", "true")
+                    .withStartupTimeout(java.time.Duration.ofMinutes(5))
+            },
+            {
+                "OpenSearch 2.8.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("opensearchproject/opensearch")
+                                   .withTag("2.8.0")
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
                     .withEnv("plugins.security.disabled", "true")
@@ -376,6 +387,39 @@ public class ElasticSearchIT {
                    assertEquals(2, result.get("id2").size());
                });
 
+        server.close();
+    }
+
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testDocDeleteById(final String ignored,
+                                  final ElasticsearchContainer server) {
+        server.start();
+
+        final ElasticSearch client =
+            ElasticSearch.builder()
+                         .endpoints(server.getHttpHostAddress())
+                         .build();
+        client.connect();
+
+        final String index = "test-index-delete";
+        assertTrue(client.index().create(index, null, null));
+
+        final ImmutableMap<String, Object> doc = ImmutableMap.of("key", "val");
+        final String idWithSpace = "an id"; // UI management templates' IDs contains spaces
+        final String type = "type";
+
+        client.documents().index(
+            IndexRequest.builder()
+                        .index(index)
+                        .type(type)
+                        .id(idWithSpace)
+                        .doc(doc)
+                        .build(), null);
+
+        assertTrue(client.documents().exists(index, type, idWithSpace));
+        client.documents().deleteById(index, type, idWithSpace, ImmutableMap.of("refresh", "true"));
+        assertFalse(client.documents().exists(index, type, idWithSpace));
         server.close();
     }
 }

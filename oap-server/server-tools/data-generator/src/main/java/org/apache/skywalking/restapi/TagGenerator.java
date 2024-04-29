@@ -28,13 +28,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-public final class TagGenerator implements Generator<Tag> {
-    private Generator<String> key;
-    private Generator<String> value;
+public final class TagGenerator implements Generator<Object, Tag> {
+    private Generator<String, String> key;
+    private Generator<String, String> value;
 
     @Override
-    public Tag next() {
-        return new Tag(key.next(), value.next());
+    public Tag next(Object ignored) {
+        return new Tag(key.next(null), value.next(null));
     }
 
     @Override

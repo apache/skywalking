@@ -101,12 +101,17 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
                 tags.stream().map(Tag::getKey).filter(not(searchableTagKeys::contains)).collect(toSet()));
             return new Logs();
         }
+        List<String> tables;
+        if (nonNull(duration)) {
+            tables = tableHelper.getTablesForRead(
+                LogRecord.INDEX_NAME,
+                duration.getStartTimeBucket(),
+                duration.getEndTimeBucket()
+            );
+        } else {
+            tables = tableHelper.getTablesWithinTTL(LogRecord.INDEX_NAME);
+        }
 
-        final var tables = tableHelper.getTablesForRead(
-            LogRecord.INDEX_NAME,
-            duration.getStartTimeBucket(),
-            duration.getEndTimeBucket()
-        );
         final var logs = new ArrayList<Log>();
 
         for (final var table : tables) {
@@ -122,7 +127,7 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
                 )
             );
         }
-        final var comparator = Order.DES.equals(queryOrder) ?
+        final var comparator = Order.ASC.equals(queryOrder) ?
             comparing(Log::getTimestamp) :
             comparing(Log::getTimestamp).reversed();
 

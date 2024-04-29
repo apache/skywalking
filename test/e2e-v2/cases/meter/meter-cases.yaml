@@ -21,31 +21,31 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
       expected: expected/service-instance.yml
     # service instance metrics linear
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_jvm_memory_max --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_jvm_memory_max --instance-name=provider1 --service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_jvm_threads_live --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_jvm_threads_live --instance-name=provider1 --service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_process_files_max --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_process_files_max --instance-name=provider1 --service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
     - query: |
         curl -s -XPOST http://${sender_host}:${sender_9093}/sendBatchMetrics > /dev/null;
         sleep 10;
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=batch_test --instance-name=test-instance --service-name=test-service |yq e 'to_entries' -
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=batch_test --instance-name=test-instance --service-name=test-service
       expected: expected/metrics-has-value.yml
     # virtual cache
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=cache_read_resp_time  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0  | yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=cache_read_resp_time  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0
+      expected: expected/virtual_cache_has_metrics.yml
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=cache_write_sla  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0  | yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=cache_write_sla  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0
+      expected: expected/virtual_cache_has_metrics.yml
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=cache_access_cpm  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0  | yq e 'to_entries' -
-      expected: expected/metrics-has-value.yml
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=cache_access_cpm  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0
+      expected: expected/virtual_cache_has_metrics.yml
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_cache_write_command    --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0 |  yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected: expected/record-has-value.yml
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(top_n_cache_write_command,10,des)" --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0
+      expected: expected/virtual_cache_has_topN_records.yml
       # virtual database
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=database_access_resp_time  --service-id=bG9jYWxob3N0Oi0x.0  | yq e 'to_entries' -
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=database_access_resp_time  --service-id=bG9jYWxob3N0Oi0x.0
       expected: expected/metrics-has-value.yml

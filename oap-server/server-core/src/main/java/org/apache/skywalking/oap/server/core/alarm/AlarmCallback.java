@@ -18,11 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Alarm call back will be called by alarm implementor, after it decided alarm should be sent.
  */
 public interface AlarmCallback {
-    void doAlarm(List<AlarmMessage> alarmMessage) throws Exception;
+    default Map<String, List<AlarmMessage>> groupMessagesByHook(List<AlarmMessage> alarmMessages) {
+        Map<String, List<AlarmMessage>> result = new HashMap<>();
+        alarmMessages.forEach(message -> {
+            Set<String> hooks = message.getHooks();
+            hooks.forEach(hook -> {
+                List<AlarmMessage> messages = result.computeIfAbsent(hook, v -> new ArrayList<>());
+                messages.add(message);
+            });
+        });
+        return result;
+    }
+
+    void doAlarm(List<AlarmMessage> alarmMessages) throws Exception;
 }

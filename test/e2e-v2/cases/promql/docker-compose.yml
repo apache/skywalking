@@ -23,6 +23,8 @@ services:
     environment:
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
+    volumes:
+      - ./oal/core.oal:/skywalking/config/oal/core.oal
     ports:
       - 9090
     depends_on:
@@ -58,7 +60,7 @@ services:
   es:
     image: elastic/elasticsearch:7.10.2
     ports:
-      - 9200
+      - 9200:9200
     networks:
       - e2e
     environment:

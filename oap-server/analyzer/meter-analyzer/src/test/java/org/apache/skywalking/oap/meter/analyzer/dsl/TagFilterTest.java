@@ -120,7 +120,7 @@ public class TagFilterTest {
                      String expression,
                      Result want,
                      boolean isThrow) {
-        Expression e = DSL.parse(expression);
+        Expression e = DSL.parse(name, expression);
         Result r = null;
         try {
             r = e.run(input);

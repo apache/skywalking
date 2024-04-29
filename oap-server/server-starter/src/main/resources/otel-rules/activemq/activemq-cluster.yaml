@@ -1,0 +1,95 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+
+filter: "{ tags -> tags.job_name == 'activemq-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'activemq::' + tags.cluster}).service(['cluster'], Layer.ACTIVEMQ)
+metricPrefix: meter_activemq_cluster
+metricsRules:
+  # The average system load, range:[0,10000].
+  - name: system_load_average
+    exp: java_lang_OperatingSystem_SystemLoadAverage.avg(['cluster','service_instance_id'])*10000
+  # Threads currently used by the JVM.
+  - name: thread_count
+    exp: java_lang_Threading_ThreadCount.sum(['cluster','service_instance_id'])
+  # The initial amount of heap memory available.
+  - name: heap_memory_usage_init
+    exp: java_lang_Memory_HeapMemoryUsage_init.sum(['cluster','service_instance_id'])
+  # The memory is guaranteed to be available for the JVM to use.
+  - name: heap_memory_usage_committed
+    exp: java_lang_Memory_HeapMemoryUsage_committed.sum(['cluster','service_instance_id'])
+  # The amount of JVM heap memory currently in use.
+  - name: heap_memory_usage_used
+    exp: java_lang_Memory_HeapMemoryUsage_used.sum(['cluster','service_instance_id'])
+  # The maximum possible size of the heap memory.
+  - name: heap_memory_usage_max
+    exp: java_lang_Memory_HeapMemoryUsage_max.sum(['cluster','service_instance_id'])
+  # The gc count of G1 Old Generation(JDK[9,17]).
+  - name: gc_g1_old_collection_count
+    exp: java_lang_G1_Old_Generation_CollectionCount.tagEqual('type','GarbageCollector').sum(['cluster','service_instance_id']).increase("PT1M")
+  # The gc count of G1 Young Generation(JDK[9,17]).
+  - name: gc_g1_young_collection_count
+    exp: java_lang_G1_Young_Generation_CollectionCount.tagEqual('type','GarbageCollector').sum(['cluster','service_instance_id']).increase("PT1M")
+  # The gc time spent in G1 Old Generation in milliseconds(JDK[9,17]).
+  - name: gc_g1_old_collection_time
+    exp:  java_lang_G1_Old_Generation_CollectionTime.tagEqual('type','GarbageCollector').sum(['cluster','service_instance_id']).increase("PT1M")
+  # The gc time spent in G1 Young Generation in milliseconds(JDK[9,17]).
+  - name: gc_g1_young_collection_time
+    exp: java_lang_G1_Young_Generation_CollectionTime.tagEqual('type','GarbageCollector').sum(['cluster','service_instance_id']).increase("PT1M")
+  # The gc count of PS MarkSweep(JDK[6,8]).
+  - name: gc_parallel_old_collection_count
+    exp: java_lang_GarbageCollector_CollectionCount.tagEqual('name','PS MarkSweep').sum(['cluster','service_instance_id']).increase("PT1M")
+  # The gc count of PS Scavenge(JDK[6,8]).
+  - name: gc_parallel_young_collection_count
+    exp: java_lang_GarbageCollector_CollectionCount.tagEqual('name','PS Scavenge').sum(['cluster','service_instance_id']).increase("PT1M")
+  # The gc time spent in PS MarkSweep in milliseconds(JDK[6,8]).
+  - name: gc_parallel_old_collection_time
+    exp:  java_lang_GarbageCollector_CollectionTime.tagEqual('name','PS MarkSweep').sum(['cluster','service_instance_id']).increase("PT1M")
+  # The gc time spent in PS Scavenge in milliseconds(JDK[6,8]).
+  - name: gc_parallel_young_collection_time
+    exp: java_lang_GarbageCollector_CollectionTime.tagEqual('name','PS Scavenge').sum(['cluster','service_instance_id']).increase("PT1M")
+  # Number of messages that have been sent to the broker per second.
+  - name: enqueue_rate
+    exp: org_apache_activemq_Broker_TotalEnqueueCount.sum((['cluster'])).rate("PT1M")
+  # Number of messages that have been acknowledged or discarded on the broker per second.
+  - name: dequeue_rate
+    exp: org_apache_activemq_Broker_TotalDequeueCount.sum(['cluster']).rate("PT1M")
+  # Number of messages that has been delivered to consumers per second.
+  - name: dispatch_rate
+    exp: org_apache_activemq_Broker_DispatchCount.sum(['cluster']).rate("PT1M")
+  # Number of messages that have been expired per second.
+  - name: expired_rate
+    exp: org_apache_activemq_Broker_ExpiredCount.sum(['cluster']).rate("PT1M")
+  # The average time a message was held on this cluster.
+  - name: average_enqueue_time
+    exp: org_apache_activemq_Broker_AverageEnqueueTime.avg(['cluster'])
+  # The max time a message was held on this cluster.
+  - name: max_enqueue_time
+    exp: org_apache_activemq_Broker_MaxEnqueueTime.max(['cluster'])

@@ -1,0 +1,665 @@
+[
+  {
+    "id": "clickhouse-service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 45,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Inspections",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 9,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_clickhouse_file_open,sum))"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "File Open",
+                      "unit": "/min"
+                    }
+                  ],
+                  "widget": {
+                    "title": "File Open",
+                    "name": "FileOpen",
+                    "tips": "Number of files opened in a minute"
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 9,
+                  "i": "2",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_query,sum)",
+                    "aggregate_labels(meter_clickhouse_query_select,sum)",
+                    "aggregate_labels(meter_clickhouse_query_insert,sum)"
+                  ],
+                  "graph": {
+                    "type": "Area",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Query",
+                    "name": "Query",
+                    "tips": "Number of executing queries"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Query"
+                    },
+                    {
+                      "label": "Select Query"
+                    },
+                    {
+                      "label": "Insert Query"
+                    }
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 9,
+                  "i": "3",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_querytime_microseconds,sum)/aggregate_labels(meter_clickhouse_query,sum)/1000",
+                    "aggregate_labels(meter_clickhouse_querytime_select_microseconds,sum)/aggregate_labels(meter_clickhouse_query_select,sum)/1000",
+                    "aggregate_labels(meter_clickhouse_querytime_insert_microseconds,sum)/aggregate_labels(meter_clickhouse_query_insert,sum)/1000"
+                  ],
+                  "graph": {
+                    "type": "Area",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "QueryTime(ms)",
+                    "name": "QueryTime",
+                    "tips": "The avg query time of each query in milliseconds"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "QueryTime"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "QueryTime(select)"
+                    },
+                    {
+                      "unit": "ms",
+                      "label": "QueryTime(insert)"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 9,
+                  "w": 8,
+                  "h": 9,
+                  "i": "4",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_tcp_connections,sum)",
+                    "aggregate_labels(meter_clickhouse_http_connections,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "HTTP/TCP Connections",
+                    "name": "HTTPTCPConnections",
+                    "tips": "Number of connections to HTTP/TCP server"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "TCP Connections"
+                    },
+                    {
+                      "label": "HTTP Connections"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 9,
+                  "w": 8,
+                  "h": 9,
+                  "i": "5",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_query_select_rate,sum)",
+                    "aggregate_labels(meter_clickhouse_query_insert_rate,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "QPS",
+                    "name": "QPS",
+                    "tips": "Queries per seconds"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "QPS(select)"
+                    },
+                    {
+                      "label": "QPS(insert)"
+                    }
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 9,
+                  "w": 8,
+                  "h": 9,
+                  "i": "6",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_query_slow,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "File SlowRead",
+                    "name": "FileSlowRead",
+                    "tips": "Number of reads from a file that were slow"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "File SlowRead"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 18,
+                  "w": 12,
+                  "h": 9,
+                  "i": "7",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_background_merge,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Merge",
+                    "name": "Merge",
+                    "tips": "Number of executing background merges"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Merge"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 18,
+                  "w": 12,
+                  "h": 9,
+                  "i": "8",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_mutations,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Mutations",
+                    "name": "Mutations",
+                    "tips": "Number of mutations (ALTER DELETE/UPDATE)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Mutations"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 27,
+                  "w": 6,
+                  "h": 9,
+                  "i": "9",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_query_insert,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Insert Query(s)",
+                    "name": "InsertQuery",
+                    "tips": "Insert queries executing per second"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Insert Query(s)"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 27,
+                  "w": 6,
+                  "h": 9,
+                  "i": "10",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_inserted_bytes,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Inserted bytes(s)",
+                    "name": "InsertedBytes",
+                    "tips": "Number of bytes inserted to all tables per second"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Inserted bytes(s)"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 27,
+                  "w": 6,
+                  "h": 9,
+                  "i": "11",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_inserted_rows,sum)"
+                  ],
+                  "widget": {
+                    "title": "Inserted rows(s)",
+                    "name": "InsertedRows",
+                    "tips": "Number of rows inserted to all tables per second"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Inserted rows(s)"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 27,
+                  "w": 6,
+                  "h": 9,
+                  "i": "12",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_delayed_inserts,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Delayed Inserts(s)",
+                    "name": "DelayedInserts",
+                    "tips": "Number of times the insert of a block to a MergeTree table was throttled due to high number of active data parts for partition"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Delayed Inserts(s)"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 36,
+                  "w": 8,
+                  "h": 9,
+                  "i": "13",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_replicated_checks,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Data Parts Consistency",
+                    "name": "DataPartsConsistency",
+                    "tips": "Number of data parts checking for consistency"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Data Parts Consistency"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 36,
+                  "w": 8,
+                  "h": 9,
+                  "i": "14",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_replicated_fetch,sum)",
+                    "aggregate_labels(meter_clickhouse_replicated_send,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "ReplicatedFetch & Send",
+                    "name": "ReplicatedFetchSend",
+                    "tips": "Number of data parts being fetched from replica, and number of data parts being sent to replicas"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Replicated Fetch"
+                    },
+                    {
+                      "label": "Replicated Send"
+                    }
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 36,
+                  "w": 8,
+                  "h": 9,
+                  "i": "15",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_parts_active,sum)"
+                  ],
+                  "widget": {
+                    "title": "Data Parts Active",
+                    "name": "DataPartsActive",
+                    "tips": "Active data part, used by current and upcoming SELECTs"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Data Parts Active"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 45,
+                  "w": 3,
+                  "h": 9,
+                  "i": "16",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_clickhouse_zookeeper_session,sum))"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Zookeeper Sessions"
+                    }
+                  ],
+                  "widget": {
+                    "name": "ZookeeperSessions",
+                    "title": "Zookeeper Sessions",
+                    "tips": "Number of sessions (connections) to ZooKeeper"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  }
+                },
+                {
+                  "x": 3,
+                  "y": 45,
+                  "w": 3,
+                  "h": 9,
+                  "i": "17",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_clickhouse_zookeeper_watch,sum))"
+                  ],
+                  "widget": {
+                    "name": "ZookeeperWatches",
+                    "title": "Zookeeper Watches",
+                    "tips": "Number of watches (event subscriptions) in ZooKeeper"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 45,
+                  "w": 6,
+                  "h": 9,
+                  "i": "18",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_clickhouse_zookeeper_bytes_sent,sum)",
+                    "aggregate_labels(meter_clickhouse_zookeeper_bytes_received,sum)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Sent Bytes",
+                      "unit": "Bytes"
+                    },
+                    {
+                      "unit": "Bytes",
+                      "label": "Receive Bytes"
+                    }
+                  ],
+                  "widget": {
+                    "name": "ZookeeperBytesReceivedSend",
+                    "title": "Zookeeper Bytes Received & Send(b/s)",
+                    "tips": "Number of bytes received and send over network while communicating with ZooKeeper"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 45,
+                  "w": 6,
+                  "h": 9,
+                  "i": "19",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_clickhouse_keeper_connections_alive,sum))"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center"
+                  },
+                  "widget": {
+                    "title": "Keeper Alive Connections",
+                    "name": "KeeperAliveConnections",
+                    "tips": "Number of alive connections for embedded ClickHouse Keeper"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Keeper Alive Connections"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 45,
+                  "w": 6,
+                  "h": 9,
+                  "i": "20",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_clickhouse_keeper_outstanding_requests,sum))"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center"
+                  },
+                  "widget": {
+                    "title": "Keeper Outstanding Requests",
+                    "name": "KeeperOutstandingRequests",
+                    "tips": "Number of outstanding requests for embedded ClickHouse Keeper"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Keeper Outstanding Requests"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Instances",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 17,
+                  "type": "Widget",
+                  "expressions": [
+                    ""
+                  ],
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "ClickHouse-Instance",
+                    "fontSize": 12
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "CLICKHOUSE",
+      "entity": "Service",
+      "name": "ClickHouse-Service",
+      "id": "clickhouse-service",
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "aggregate_labels(meter_clickhouse_query_select_rate,sum)",
+        "aggregate_labels(meter_clickhouse_query_insert_rate,sum)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "rows / s",
+          "label": "Select"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Insert"
+        }
+      ]
+    }
+  }
+]

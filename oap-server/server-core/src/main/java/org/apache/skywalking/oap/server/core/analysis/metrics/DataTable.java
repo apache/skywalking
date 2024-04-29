@@ -20,13 +20,18 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import static org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel.GENERAL_LABEL_NAME;
 
 /**
  * DataTable includes a hashmap to store string key and long value. It enhanced the serialization capability.
@@ -55,6 +60,10 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
 
     public void put(String key, Long value) {
         data.put(key, value);
+    }
+
+    public void put(DataLabel labels, Long value) {
+        data.put(labels.toString(), value);
     }
 
     /**
@@ -129,9 +138,13 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
     public void toObject(String data) {
         String[] keyValues = data.split(Const.ARRAY_PARSER_SPLIT);
         for (String keyValue : keyValues) {
-            final String[] keyValuePair = keyValue.split(Const.KEY_VALUE_SPLIT);
-            if (keyValuePair.length == 2) {
-                this.data.put(keyValuePair[0], Long.parseLong(keyValuePair[1]));
+            int i = keyValue.lastIndexOf(Const.KEY_VALUE_SPLIT);
+            if (i > 0) {
+                String key = keyValue.substring(0, i);
+                String value = keyValue.substring(i + 1);
+                if (StringUtil.isNotEmpty(key) && StringUtil.isNotEmpty(value)) {
+                    this.data.put(key, Long.parseLong(value));
+                }
             }
         }
     }
@@ -152,5 +165,53 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
             this.data.put(key, current);
         });
         return this;
+    }
+
+    public DataTable setMaxValue(DataTable dataTable) {
+        dataTable.data.forEach((key, value) -> {
+            Long current = this.data.get(key);
+            if (current == null) {
+                current = value;
+            } else {
+                if (current < value) {
+                    current = value;
+                }
+            }
+            this.data.put(key, current);
+        });
+        return this;
+    }
+
+    public DataTable setMinValue(DataTable dataTable) {
+        dataTable.data.forEach((key, value) -> {
+            Long current = this.data.get(key);
+            if (current == null) {
+                current = value;
+            } else {
+                if (current > value) {
+                    current = value;
+                }
+            }
+            this.data.put(key, current);
+        });
+        return this;
+    }
+
+    public Map<String, Set<String>> buildLabelIndex() {
+        Map<String, Set<String>> labelIndex = new HashMap<>();
+        for (String key : data.keySet()) {
+            if (key.startsWith(Const.LEFT_BRACE)) {
+                String labels = key.substring(1, key.length() - 1);
+                if (StringUtil.isNotEmpty(labels)) {
+                    String[] labelsArr = labels.split(Const.COMMA);
+                    for (String label : labelsArr) {
+                        labelIndex.computeIfAbsent(label, keys -> new HashSet<>()).add(key);
+                    }
+                }
+            } else {
+                labelIndex.computeIfAbsent(GENERAL_LABEL_NAME + Const.EQUAL + key, keys -> new HashSet<>()).add(key);
+            }
+        }
+        return labelIndex;
     }
 }

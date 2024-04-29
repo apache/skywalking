@@ -19,67 +19,66 @@
 
 package org.apache.skywalking.library.kubernetes;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import lombok.SneakyThrows;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.LoggerFactory;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Service;
-import lombok.SneakyThrows;
 
 public enum KubernetesServices {
     INSTANCE;
 
-    private final LoadingCache<KubernetesServices, List<V1Service>> services;
-    private final LoadingCache<ObjectID, Optional<V1Service>> serviceByID;
+    private final LoadingCache<KubernetesServices, List<Service>> services;
+    private final LoadingCache<ObjectID, Optional<Service>> serviceByID;
 
     @SneakyThrows
-    private KubernetesServices() {
-        KubernetesClient.setDefault();
-
-        final CoreV1Api coreV1Api = new CoreV1Api();
-
+    KubernetesServices() {
         final CacheBuilder<Object, Object> cacheBuilder =
             CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(3));
+                        .expireAfterWrite(Duration.ofMinutes(3));
 
         services = cacheBuilder.build(CacheLoader.from(() -> {
-            try {
-                return coreV1Api
-                    .listServiceForAllNamespaces(null, null, null, null, null, null, null, null,
-                        null, null)
-                    .getItems();
-            } catch (ApiException e) {
+            try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
+                return kubernetesClient
+                        .services()
+                        .inAnyNamespace()
+                        .list()
+                        .getItems();
+            } catch (Exception e) {
                 LoggerFactory.getLogger(getClass()).error("Failed to list Services.", e);
                 return Collections.emptyList();
             }
         }));
 
-        serviceByID = cacheBuilder.build(new CacheLoader<ObjectID, Optional<V1Service>>() {
+        serviceByID = cacheBuilder.build(new CacheLoader<>() {
             @Override
-            public Optional<V1Service> load(ObjectID id) throws Exception {
-                return Optional.ofNullable(
-                    coreV1Api
-                        .readNamespacedService(
-                            id.name(),
-                            id.namespace(),
-                            null));
+            public Optional<Service> load(ObjectID id) {
+                try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
+                    return Optional.ofNullable(
+                        kubernetesClient
+                            .services()
+                            .inNamespace(id.namespace())
+                            .withName(id.name())
+                            .get());
+                }
             }
         });
     }
 
     @SneakyThrows
-    public List<V1Service> list() {
+    public List<Service> list() {
         return services.get(this);
     }
 
     @SneakyThrows
-    public Optional<V1Service> findByID(final ObjectID id) {
+    public Optional<Service> findByID(final ObjectID id) {
         return serviceByID.get(id);
     }
 }

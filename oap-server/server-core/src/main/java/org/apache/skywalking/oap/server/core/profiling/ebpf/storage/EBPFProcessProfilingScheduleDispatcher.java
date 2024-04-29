@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.profiling.ebpf.storage;
 
+import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
-import com.linecorp.armeria.internal.shaded.guava.base.Charsets;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -34,9 +34,15 @@ public class EBPFProcessProfilingScheduleDispatcher implements SourceDispatcher<
         traffic.setStartTime(source.getStartTime());
         traffic.setEndTime(source.getCurrentTime());
         traffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(source.getCurrentTime()));
-        traffic.setScheduleId(Hashing.sha256().newHasher()
-                                     .putString(String.format("%s_%s_%d", source.getTaskId(), source.getProcessId(), source.getStartTime()), Charsets.UTF_8)
-                                     .hash().toString());
+        traffic.setScheduleId(
+            Hashing
+                .sha256()
+                .newHasher()
+                .putString(
+                    String.format("%s_%s_%d", source.getTaskId(), source.getProcessId(), source.getStartTime()),
+                    Charsets.UTF_8
+                )
+                .hash().toString());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }

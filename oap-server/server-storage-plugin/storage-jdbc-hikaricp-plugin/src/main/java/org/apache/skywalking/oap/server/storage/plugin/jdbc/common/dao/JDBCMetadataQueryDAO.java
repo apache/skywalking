@@ -22,10 +22,11 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.linecorp.armeria.common.annotation.Nullable;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -49,6 +50,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -73,12 +75,12 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<Service> listServices(final String layer, final String group) {
+    public List<Service> listServices() {
         final var results = new ArrayList<Service>();
         final var tables = tableHelper.getTablesWithinTTL(ServiceTraffic.INDEX_NAME);
 
         for (final var table : tables) {
-            final var sqlAndParameters = buildSQLForListServices(layer, group, table);
+            final var sqlAndParameters = buildSQLForListServices(table);
             results.addAll(jdbcClient.executeQuery(
                 sqlAndParameters.sql(),
                 this::buildServices,
@@ -91,22 +93,13 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             .collect(toList());
     }
 
-    protected SQLAndParameters buildSQLForListServices(String layer, String group, String table) {
+    protected SQLAndParameters buildSQLForListServices(String table) {
         final var sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
         sql.append("select * from ").append(table)
            .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
         parameters.add(ServiceTraffic.INDEX_NAME);
 
-        if (StringUtil.isNotEmpty(layer)) {
-            sql.append(" and ").append(ServiceTraffic.LAYER).append(" = ?");
-            parameters.add(Layer.valueOf(layer).value());
-        }
-        if (StringUtil.isNotEmpty(group)) {
-            sql.append(" and ").append(ServiceTraffic.GROUP).append(" = ?");
-            parameters.add(group);
-        }
-
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         return new SQLAndParameters(sql.toString(), parameters);
@@ -114,55 +107,12 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<Service> getServices(final String serviceId) {
-        final var tables = tableHelper.getTablesWithinTTL(ServiceTraffic.INDEX_NAME);
-        final var results = new ArrayList<Service>();
-
-        for (String table : tables) {
-            final SQLAndParameters sqlAndParameters = buildSQLForGetServices(serviceId, table);
-            results.addAll(
-                jdbcClient.executeQuery(
-                    sqlAndParameters.sql(),
-                    this::buildServices,
-                    sqlAndParameters.parameters()
-                )
-            );
-        }
-        return results
-            .stream()
-            .limit(metadataQueryMaxSize)
-            .collect(toList());
-    }
-
-    protected SQLAndParameters buildSQLForGetServices(String serviceId, String table) {
-        final var sql = new StringBuilder();
-        final var parameters = new ArrayList<>(5);
-        sql.append("select * from ").append(table)
-           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
-           .append(" and ").append(ServiceTraffic.SERVICE_ID).append(" = ?");
-        parameters.add(ServiceTraffic.INDEX_NAME);
-        parameters.add(serviceId);
-        sql.append(" limit ").append(metadataQueryMaxSize);
-
-        return new SQLAndParameters(sql.toString(), parameters);
-    }
-
-    @Override
-    @SneakyThrows
-    public List<ServiceInstance> listInstances(Duration duration,
+    public List<ServiceInstance> listInstances(@Nullable Duration duration,
                                                String serviceId) {
         final var results = new ArrayList<ServiceInstance>();
-
-        final var minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-
-        final var tables = tableHelper.getTablesForRead(
-            InstanceTraffic.INDEX_NAME,
-            duration.getStartTimeBucket(),
-            duration.getEndTimeBucket()
-        );
-
+        final var tables = tableHelper.getTablesWithinTTL(InstanceTraffic.INDEX_NAME);
         for (String table : tables) {
-            final var sqlAndParameters = buildSQLForListInstances(serviceId, minuteTimeBucket, table);
+            final var sqlAndParameters = buildSQLForListInstances(serviceId, duration, table);
             results.addAll(
                 jdbcClient.executeQuery(
                     sqlAndParameters.sql(),
@@ -178,14 +128,20 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             .collect(toList());
     }
 
-    protected SQLAndParameters buildSQLForListInstances(String serviceId, long minuteTimeBucket, String table) {
+    protected SQLAndParameters buildSQLForListInstances(String serviceId, Duration duration, String table) {
         final var  sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
         sql.append("select * from ").append(table).append(" where ")
             .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
         parameters.add(InstanceTraffic.INDEX_NAME);
-        sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
-        parameters.add(minuteTimeBucket);
+        if (duration != null) {
+            final var startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+            final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+            sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+            parameters.add(startMinuteTimeBucket);
+            sql.append(" and ").append(InstanceTraffic.TIME_BUCKET).append(" < ?");
+            parameters.add(endMinuteTimeBucket);
+        }
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
         parameters.add(serviceId);
         sql.append(" limit ").append(metadataQueryMaxSize);
@@ -212,6 +168,33 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
                 final List<ServiceInstance> instances = buildInstances(resultSet);
                 return instances.size() > 0 ? instances.get(0) : null;
             }, condition.toArray(new Object[0]));
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    @SneakyThrows
+    @Override
+    public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
+        final var tables = tableHelper.getTablesWithinTTL(InstanceTraffic.INDEX_NAME);
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(5);
+            sql.append("select * from ").append(table).append(" where ")
+                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(InstanceTraffic.INDEX_NAME);
+            sql.append(" and ").append(JDBCTableInstaller.ID_COLUMN).append(" in ")
+               .append(
+                   instanceIds.stream().map(instanceId -> "?").collect(Collectors.joining(",", "(", ")"))
+               );
+            condition.addAll(instanceIds);
+            sql.append(" limit ").append(instanceIds.size());
+
+            final var result = jdbcClient.executeQuery(sql.toString(), resultSet -> buildInstances(resultSet), condition.toArray(new Object[0]));
             if (result != null) {
                 return result;
             }
@@ -264,11 +247,16 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
-        final var tables = tableHelper.getTablesForRead(
-            ProcessTraffic.INDEX_NAME,
-            lastPingStartTimeBucket,
-            lastPingEndTimeBucket
-        );
+        List<String> tables;
+        if (lastPingStartTimeBucket > 0 && lastPingEndTimeBucket > 0) {
+            tables = tableHelper.getTablesForRead(
+                ProcessTraffic.INDEX_NAME,
+                lastPingStartTimeBucket,
+                lastPingEndTimeBucket
+            );
+        } else {
+            tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
+        }
         final var results = new ArrayList<Process>();
 
         for (String table : tables) {

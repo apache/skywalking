@@ -21,8 +21,12 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import org.apache.skywalking.apm.network.event.v3.Event;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerService;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerServiceImpl;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
@@ -52,6 +56,8 @@ public class EventHookCallbackTest {
 
     private EventAnalyzerService eventAnalyzerService = mock(EventAnalyzerServiceImpl.class);
 
+    private MetadataQueryService metadataQueryService = mock(MetadataQueryService.class);
+
     @Test
     public void testEventCallbackHasRightFlow() throws Exception {
         List<AlarmMessage> msgs = mockAlarmMessagesHasSingleElement();
@@ -59,7 +65,10 @@ public class EventHookCallbackTest {
         when(moduleManager.find("event-analyzer")).thenReturn(moduleProviderHolder);
         when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
         when(moduleServiceHolder.getService(EventAnalyzerService.class)).thenReturn(mockEventAnalyzerService);
-
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
+        when(moduleServiceHolder.getService(MetadataQueryService.class)).thenReturn(metadataQueryService);
+        Service service = mockService();
+        when(metadataQueryService.getService(service.getId())).thenReturn(service);
         //make sure current service be called.
         callback.doAlarm(msgs);
         verify(mockEventAnalyzerService).analyze(any(Event.class));
@@ -75,16 +84,21 @@ public class EventHookCallbackTest {
         assertEquals("Alarm", value.getName());
         assertEquals(msg.getAlarmMessage(), value.getMessage());
         assertEquals(msg.getPeriod(), (value.getEndTime() - value.getStartTime()) / 1000 / 60);
+        assertEquals(service.getLayers().iterator().next(), value.getLayer());
 
     }
 
     @Test
-    public void testRelationEventBeProperlyConstructed() {
+    public void testRelationEventBeProperlyConstructed() throws Exception {
         List<AlarmMessage> msgs = mockAlarmMessagesHasSourceAndDest();
         EventHookCallback callback = new EventHookCallback(this.moduleManager);
         when(moduleManager.find("event-analyzer")).thenReturn(moduleProviderHolder);
         when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
         when(moduleServiceHolder.getService(EventAnalyzerService.class)).thenReturn(eventAnalyzerService);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
+        when(moduleServiceHolder.getService(MetadataQueryService.class)).thenReturn(metadataQueryService);
+        Service service = mockService();
+        when(metadataQueryService.getService(service.getId())).thenReturn(service);
         callback.doAlarm(msgs);
 
         ArgumentCaptor<Event> argument = ArgumentCaptor.forClass(Event.class);
@@ -98,6 +112,8 @@ public class EventHookCallbackTest {
         assertEquals((sourceEvent.getEndTime() - sourceEvent.getStartTime()) / 1000 / 60, msg.getPeriod());
         assertEquals(destEvent.getSource().getService(), IDManager.ServiceID.analysisId(msg.getId1()).getName());
         assertEquals((destEvent.getEndTime() - destEvent.getStartTime()) / 1000 / 60, msg.getPeriod());
+        assertEquals(service.getLayers().iterator().next(), sourceEvent.getLayer());
+        assertEquals(Layer.UNDEFINED.name(), destEvent.getLayer());
     }
 
     private List<AlarmMessage> mockAlarmMessagesHasSingleElement() {
@@ -116,11 +132,19 @@ public class EventHookCallbackTest {
         msg.setScopeId(DefaultScopeDefine.SERVICE_RELATION);
         msg.setScope("");
         msg.setName("test-skywalking");
-        msg.setId0(IDManager.ServiceID.buildId("sourceIdStr", true));
+        msg.setId0(IDManager.ServiceID.buildId("test-skywalking", true));
         msg.setId1(IDManager.ServiceID.buildId("destIdStr", true));
         msg.setAlarmMessage("Alarm caused by Rule service_resp_time_rule");
         msg.setPeriod(5);
         return Arrays.asList(msg);
+    }
+
+    private Service mockService() {
+        Service service = new Service();
+        service.setName("test-skywalking");
+        service.setId(IDManager.ServiceID.buildId(service.getName(), true));
+        service.getLayers().add(Layer.GENERAL.name());
+        return service;
     }
 
     class MockEventAnalyzerService implements EventAnalyzerService {

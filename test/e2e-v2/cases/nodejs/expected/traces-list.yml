@@ -17,7 +17,7 @@ traces:
 {{- contains .traces }}
 - segmentid: {{ notEmpty .segmentid }}
   endpointnames:
-    - /users
+    - POST:/users
   duration: {{ ge .duration 0 }}
   start: "{{ notEmpty .start}}"
   iserror: false

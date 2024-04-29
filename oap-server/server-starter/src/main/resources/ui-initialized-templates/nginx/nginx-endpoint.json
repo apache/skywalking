@@ -1,0 +1,156 @@
+[
+  {
+    "id": "Nginx-Endpoint",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 8,
+          "h": 13,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Request Trend (requests per second)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_nginx_endpoint_http_requests"
+          ],
+          "metricConfig": [
+            {
+              "label": "HTTP request trend"
+            }
+          ]
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "w": 8,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Latency (ms)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_nginx_endpoint_http_latency"
+          ]
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "w": 8,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "expressions": [
+            "meter_nginx_endpoint_http_bandwidth/1024"
+          ],
+          "widget": {
+            "title": "HTTP Bandwidth (KB)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 8,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Status Trend (requests per second)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_nginx_endpoint_http_status"
+          ]
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "w": 8,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "expressions": [
+            "(meter_nginx_endpoint_http_4xx_requests_increment/meter_nginx_endpoint_http_requests_increment)*100"
+          ],
+          "metricConfig": [
+            {
+              "label": "HTTP 4xx percent"
+            }
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "HTTP Status 4xx Percent Per Minute (%)"
+          }
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "w": 8,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "expressions": [
+            "(meter_nginx_endpoint_http_5xx_requests_increment/meter_nginx_endpoint_http_requests_increment)*100"
+          ],
+          "metricConfig": [
+            {
+              "label": "HTTP 5xx percent"
+            }
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "HTTP Status 5xx Percent Per Minute (%)"
+          }
+        }
+      ],
+      "layer": "NGINX",
+      "entity": "Endpoint",
+      "name": "Nginx-Endpoint",
+      "isRoot": false
+    }
+  }
+]

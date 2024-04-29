@@ -48,7 +48,7 @@ setup:
     - name: Install SkyWalking
       command: |
         helm -n istio-system install skywalking \
-          oci://ghcr.io/apache/skywalking-kubernetes/skywalking-helm \
+          oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
           --set fullnameOverride=skywalking \
           --set elasticsearch.replicas=1 \
@@ -58,7 +58,8 @@ setup:
           --set ui.image.tag=latest \
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
-          --set oap.storageType=elasticsearch
+          --set oap.storageType=elasticsearch \
+          -f test/e2e-v2/cases/rover/process/istio/values.yaml
       wait:
         - namespace: istio-system
           resource: deployments/skywalking-oap
@@ -91,11 +92,11 @@ verify:
     - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
       expected: expected/service.yml
     # service instance list
-    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=default::productpage
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=productpage.default
       expected: expected/service-instance.yml
     # process list
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql process list --service-name=default::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=default::productpage |yq e '.[0].name' - \
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql process list --service-name=productpage.default --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=productpage.default |yq e '.[0].name' - \
         )
       expected: expected/process.yml

@@ -17,39 +17,43 @@
 
 cases:
   # metadata
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml service ls
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml service ls
     expected: expected/service.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml instance ls --service-name sqrt
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml instance ls --service-name sqrt
     expected: expected/instance.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt --instance-name test-instance
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml process ls --service-name sqrt --instance-name test-instance
     expected: expected/process.yml
 
   # policy setting
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous set --service-name sqrt --config test/e2e-v2/cases/profiling/ebpf/continuous/policy.yaml
+      swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling continuous set --service-name sqrt --config test/e2e-v2/cases/profiling/ebpf/continuous/policy.yaml
     expected: expected/policy-set.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous ls --service-name sqrt
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling continuous ls --service-name sqrt
     expected: expected/query-policy.yml
 
   # check profiling metrics
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml metrics linear \
-        --service-name sqrt --instance-name test-instance --process-name sqrt --name continuous_profiling_process_cpu |yq e 'to_entries' -
+      swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml metrics exec \
+        --service-name sqrt --instance-name test-instance --process-name sqrt --expression=continuous_profiling_process_cpu
     expected: expected/metrics-has-value.yml
 
   # check triggered profiling task
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING
+      swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING
     expected: expected/trigger-task.yml
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$( \
-        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING|yq e '.[0].taskid' -
+      swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf schedules --task-id=$( \
+        swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING|yq e '.[0].taskid' -
       )
     expected: expected/profiling-schedule-list.yml
   - query: |
-      taskid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING|yq e '.[0].taskid' -)
-      scheduleid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid |yq e '.[0].scheduleid' -);
-      start=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].starttime' -)
-      end=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].endtime' -)
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf analysis --schedule-id=$scheduleid --time-ranges=$start-$end
+      taskid=$(swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf list --service-name sqrt --trigger CONTINUOUS_PROFILING|yq e '.[0].taskid' -)
+      scheduleid=$(swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf schedules --task-id=$taskid |yq e '.[0].scheduleid' -);
+      start=$(swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].starttime' -)
+      end=$(swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].endtime' -)
+      swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf analysis --schedule-id=$scheduleid --time-ranges=$start-$end
     expected: expected/profiling-analysis.yml
+
+  # check monitoring status
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling continuous monitoring --service-name sqrt --target On_CPU
+    expected: expected/query-monitoring.yml

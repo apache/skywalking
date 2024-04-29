@@ -1,0 +1,3906 @@
+[
+  {
+    "id": "K8S-Service-Relation",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "TCP",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_connect_cpm",
+                    "kubernetes_service_relation_connect_success_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "count",
+                      "label": "Total"
+                    },
+                    {
+                      "label": "Success",
+                      "unit": "count"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Client Connect CPM",
+                    "name": "Client-Connect-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_connect_duration/1000000"
+                  ],
+                  "metricConfig": [
+                    {
+                      "unit": "nanoseconds",
+                      "label": "Connect"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Connect Duration(milliseconds)",
+                    "name": "Client-Connect-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "2",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_accept_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Accept CPM",
+                    "name": "Server-Accept-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "3",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_accept_duration/1000000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Accept Duration(milliseconds)",
+                    "name": "Server-Accept-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Accept"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "4",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_write_package_cpm",
+                    "kubernetes_service_relation_server_write_retrains_package_cpm"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Total"
+                    },
+                    {
+                      "label": "Retrains"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Write Package Count",
+                    "name": "Server-Write-Package-Count"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "5",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_write_package_size/1024",
+                    "kubernetes_service_relation_server_write_package_size/kubernetes_service_relation_server_write_package_cpm/1024"
+                  ],
+                  "metricConfig": [
+                    {
+                      "unit": "KB",
+                      "label": "Total Size"
+                    },
+                    {
+                      "label": "Avg Size",
+                      "unit": "KB"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Write Package Size(KB)",
+                    "name": "Server-Write-Package-Size"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "6",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_write_package_cpm",
+                    "kubernetes_service_relation_client_write_retrains_package_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Write Package Count",
+                    "name": "Client-Write-Package-Count"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Total"
+                    },
+                    {
+                      "label": "Retrains"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "7",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_write_package_size/1024",
+                    "kubernetes_service_relation_client_write_package_size/kubernetes_service_relation_client_write_package_cpm/1024"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Total Size"
+                    },
+                    {
+                      "label": "Avg Size"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Write Package Size(KB)",
+                    "name": "Client-Write-Package-Size"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 24,
+                  "w": 6,
+                  "h": 12,
+                  "i": "8",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_read_package_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Read Package Count",
+                    "name": "Server-Read-Package-Count"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 24,
+                  "w": 6,
+                  "h": 12,
+                  "i": "9",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_read_package_size/1024",
+                    "kubernetes_service_relation_server_read_package_size/kubernetes_service_relation_server_read_package_cpm/1024"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Read Package Size(KB)",
+                    "name": "Server-Read-Package-Size"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Total Size"
+                    },
+                    {
+                      "label": "Avg Size"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 6,
+                  "h": 12,
+                  "i": "10",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_read_package_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Read Package Count",
+                    "name": "Client-Read-Package-Count"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 24,
+                  "w": 6,
+                  "h": 12,
+                  "i": "11",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_read_package_size/1024",
+                    "kubernetes_service_relation_client_read_package_size/kubernetes_service_relation_client_read_package_cpm/1024"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Read Package Size(KB)",
+                    "name": "Client-Read-Package-Size"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Total Size"
+                    },
+                    {
+                      "label": "Avg Size"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 36,
+                  "w": 6,
+                  "h": 12,
+                  "i": "12",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_write_package_duration/kubernetes_service_relation_server_write_package_cpm/1000000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Avg Write Package Duration(milliseconds)",
+                    "name": "Server-Avg-Write-Package-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Avg Write Package"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 36,
+                  "w": 6,
+                  "h": 12,
+                  "i": "13",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_read_package_duration/kubernetes_service_relation_server_read_package_cpm/1000000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Avg Read Package Duration(milliseconds)",
+                    "name": "Server-Avg-Read-Package-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Avg Read Package"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 36,
+                  "w": 6,
+                  "h": 12,
+                  "i": "14",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_write_package_duration/kubernetes_service_relation_client_write_cpm/1000000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Avg Write Duration(milliseconds)",
+                    "name": "Client-Avg-Write-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Avg Write"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 36,
+                  "w": 6,
+                  "h": 12,
+                  "i": "15",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_read_package_duration/kubernetes_service_relation_client_read_package_cpm/1000000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Avg Read Package Duration(milliseconds)",
+                    "name": "Client-Avg-Read-Package-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Avg Read Package"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "16",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_write_l4_duration/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_client_write_l3_duration/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_client_write_l3_local_duration/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_client_write_l3_output_duration/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_client_write_l2_duration/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_client_write_l2_ready_send_duration/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_client_write_l2_net_dev_send_duration/kubernetes_service_relation_client_write_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "L4"
+                    },
+                    {
+                      "label": "L3"
+                    },
+                    {
+                      "label": "L3 Local"
+                    },
+                    {
+                      "label": "L3 Output"
+                    },
+                    {
+                      "label": "L2"
+                    },
+                    {
+                      "label": "L2 Ready Send To Device"
+                    },
+                    {
+                      "label": "L2 Send Device"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Client Avg Write L2-L4 Duration(nanoseconds)",
+                    "name": "Client-Avg-Write-L2-L4-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "17",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_read_l4_duration/kubernetes_service_relation_client_read_cpm",
+                    "kubernetes_service_relation_client_read_l3_duration/kubernetes_service_relation_client_read_cpm",
+                    "kubernetes_service_relation_client_read_l3_rcv_duration/kubernetes_service_relation_client_read_cpm",
+                    "kubernetes_service_relation_client_read_l3_local_duration/kubernetes_service_relation_client_read_cpm",
+                    "kubernetes_service_relation_client_read_l2_package_to_queue_duration/kubernetes_service_relation_client_read_cpm"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "L4 Total"
+                    },
+                    {
+                      "label": "L3 Total"
+                    },
+                    {
+                      "label": "L3 Recv"
+                    },
+                    {
+                      "label": "L3 Local"
+                    },
+                    {
+                      "label": "Package To Queue"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Avg Read L2-L4 Duration",
+                    "name": "Client-Avg-Read-L2-L4-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "18",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_write_l4_duration/kubernetes_service_relation_server_write_cpm",
+                    "kubernetes_service_relation_server_write_l3_duration/kubernetes_service_relation_server_write_cpm",
+                    "kubernetes_service_relation_server_write_l3_local_duration/kubernetes_service_relation_server_write_cpm",
+                    "kubernetes_service_relation_server_write_l3_output_duration/kubernetes_service_relation_server_write_cpm",
+                    "kubernetes_service_relation_server_write_l2_duration/kubernetes_service_relation_server_write_cpm",
+                    "kubernetes_service_relation_server_write_l2_ready_send_duration/kubernetes_service_relation_server_write_cpm",
+                    "kubernetes_service_relation_server_write_l2_net_dev_send_duration/kubernetes_service_relation_server_write_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "L4 Total"
+                    },
+                    {
+                      "label": "L3 Total"
+                    },
+                    {
+                      "label": "L3 Local"
+                    },
+                    {
+                      "label": "L3 Output"
+                    },
+                    {
+                      "label": "L2 Total"
+                    },
+                    {
+                      "label": "L2 Ready Send To Device"
+                    },
+                    {
+                      "label": "L2 Send Device"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Server Avg Write L2-L4 Duration(nanoseconds)",
+                    "name": "Server-Avg-Write-L2-L4-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "19",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_read_l4_duration/kubernetes_service_relation_server_read_cpm",
+                    "kubernetes_service_relation_server_read_l3_duration/kubernetes_service_relation_server_read_cpm",
+                    "kubernetes_service_relation_server_read_l3_rcv_duration/kubernetes_service_relation_server_read_cpm",
+                    "kubernetes_service_relation_server_read_l3_local_duration/kubernetes_service_relation_server_read_cpm",
+                    "kubernetes_service_relation_server_read_l2_package_to_queue_duration/kubernetes_service_relation_server_read_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "L4 Total"
+                    },
+                    {
+                      "label": "L3 Total"
+                    },
+                    {
+                      "label": "L3 Recv"
+                    },
+                    {
+                      "label": "L3 Local"
+                    },
+                    {
+                      "label": "Package To Queue"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Server Avg Read L2-L4 Duration(nanoseconds)",
+                    "name": "Server-Avg-Read-L2-L4-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 60,
+                  "w": 6,
+                  "h": 12,
+                  "i": "20",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_write_netfilter_cpm/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_client_read_netfilter_cpm/kubernetes_service_relation_client_read_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Write"
+                    },
+                    {
+                      "label": "Read"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Client Avg NetFilter Count",
+                    "name": "Client-Avg-NetFilter-Count"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 60,
+                  "w": 6,
+                  "h": 12,
+                  "i": "21",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_write_netfilter_duration/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_client_read_netfilter_duration/kubernetes_service_relation_client_write_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Avg NetFilter Use Duration(nanoseconds)",
+                    "name": "Client-Avg-NetFilter-Use-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Write"
+                    },
+                    {
+                      "label": "Read"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 60,
+                  "w": 6,
+                  "h": 12,
+                  "i": "22",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_write_netfilter_cpm/kubernetes_service_relation_client_write_cpm",
+                    "kubernetes_service_relation_server_read_netfilter_cpm/kubernetes_service_relation_client_read_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Avg NetFilter Count",
+                    "name": "Server-Avg-NetFilter-Count"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Write"
+                    },
+                    {
+                      "label": "Read"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 60,
+                  "w": 6,
+                  "h": 12,
+                  "i": "23",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_write_netfilter_duration/kubernetes_service_relation_server_write_cpm",
+                    "kubernetes_service_relation_server_read_netfilter_duration/kubernetes_service_relation_server_read_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Write"
+                    },
+                    {
+                      "label": "Read"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Server Avg NerFilter Use Duration(nanoseconds)",
+                    "name": "Server-Avg-NerFilter-Use-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 72,
+                  "w": 6,
+                  "h": 12,
+                  "i": "24",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_write_resolve_mac_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Resolve Mac Address CPM",
+                    "name": "Client-Resolve-Mac-Address-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 72,
+                  "w": 6,
+                  "h": 12,
+                  "i": "25",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_write_resolve_mac_duration/kubernetes_service_relation_client_write_resolve_mac_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Avg Resolve Mac Address Duration(nanoseconds)",
+                    "name": "Client-Avg-Resolve-Mac-Address-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 72,
+                  "w": 6,
+                  "h": 12,
+                  "i": "26",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_write_resolve_mac_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Resolve Mac Address CPM",
+                    "name": "Server-Resolve-Mac-Address-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-27"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 72,
+                  "w": 6,
+                  "h": 12,
+                  "i": "27",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_write_resolve_mac_duration/kubernetes_service_relation_server_write_resolve_mac_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Avg Resolve Mac Address Duration(nanoseconds)",
+                    "name": "Server-Avg-Resolve-Mac-Address-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    },
+                    {
+                      "widgetId": "0-0-14"
+                    },
+                    {
+                      "widgetId": "0-0-15"
+                    },
+                    {
+                      "widgetId": "0-0-16"
+                    },
+                    {
+                      "widgetId": "0-0-17"
+                    },
+                    {
+                      "widgetId": "0-0-18"
+                    },
+                    {
+                      "widgetId": "0-0-19"
+                    },
+                    {
+                      "widgetId": "0-0-20"
+                    },
+                    {
+                      "widgetId": "0-0-21"
+                    },
+                    {
+                      "widgetId": "0-0-22"
+                    },
+                    {
+                      "widgetId": "0-0-23"
+                    },
+                    {
+                      "widgetId": "0-0-24"
+                    },
+                    {
+                      "widgetId": "0-0-25"
+                    },
+                    {
+                      "widgetId": "0-0-26"
+                    },
+                    {
+                      "widgetId": "0-0-0"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "HTTP",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_http_call_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Count"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Client Send Request CPM",
+                    "name": "HTTP-Client-Send-Request-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm/1000000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Avg Response Duration(milliseconds)",
+                    "name": "HTTP-Client-Avg-Response-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Duration"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-2-0"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "2",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_http_call_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Recv Request CPM",
+                    "name": "HTTP-Server-Recv-Request-CPM"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Count"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-0"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "3",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm/1000000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Server Avg Response Duration(milliseconds)",
+                    "name": "HTTP-Server-Avg-Response-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Duration"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-0"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "4",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_http_req_header_size/kubernetes_service_relation_server_http_call_cpm/1024",
+                    "kubernetes_service_relation_server_http_req_body_size/kubernetes_service_relation_server_http_call_cpm/1024"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Header Size"
+                    },
+                    {
+                      "label": "Body Size"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Server Recv Request Size(KB)",
+                    "name": "HTTP-Server-Recv-Request-Size"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-0"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "5",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_http_resp_header_size/kubernetes_service_relation_server_http_call_cpm/1024",
+                    "kubernetes_service_relation_server_http_resp_body_size/kubernetes_service_relation_server_http_call_cpm/1024"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Header Size"
+                    },
+                    {
+                      "label": "Body Size"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Server Send Response Size(KB)",
+                    "name": "HTTP-Server-Send-Response-Size"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-0"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "6",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_http_req_header_size/kubernetes_service_relation_client_http_call_cpm/1024",
+                    "kubernetes_service_relation_client_http_req_body_size/kubernetes_service_relation_client_http_call_cpm/1024"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Client Send Request Size(KB)",
+                    "name": "HTTP-Client-Send-Request-Size"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Header Size"
+                    },
+                    {
+                      "label": "Body Size"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-0"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "7",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_http_resp_header_size/kubernetes_service_relation_server_http_call_cpm/1024",
+                    "kubernetes_service_relation_server_http_resp_body_size/kubernetes_service_relation_server_http_call_cpm/1024"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Header Size"
+                    },
+                    {
+                      "label": "Body Size"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Client Recv Response Size(KB)",
+                    "name": "HTTP-Client-Recv-Response-Size"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-0"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 12,
+                  "h": 12,
+                  "i": "8",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_client_http_status_1xx_cpm",
+                    "kubernetes_service_relation_client_http_status_2xx_cpm",
+                    "kubernetes_service_relation_client_http_status_3xx_cpm",
+                    "kubernetes_service_relation_client_http_status_4xx_cpm",
+                    "kubernetes_service_relation_client_http_status_5xx_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "1xx"
+                    },
+                    {
+                      "label": "2xx"
+                    },
+                    {
+                      "label": "3xx"
+                    },
+                    {
+                      "label": "4xx"
+                    },
+                    {
+                      "label": "5xx"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Client Recv Response Status CPM",
+                    "name": "HTTP-Client-Recv-Response-Status-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-0"
+                    },
+                    {
+                      "widgetId": "0-2-9"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 24,
+                  "w": 12,
+                  "h": 12,
+                  "i": "9",
+                  "type": "Widget",
+                  "expressions": [
+                    "kubernetes_service_relation_server_http_status_1xx_cpm",
+                    "kubernetes_service_relation_server_http_status_2xx_cpm",
+                    "kubernetes_service_relation_server_http_status_3xx_cpm",
+                    "kubernetes_service_relation_server_http_status_4xx_cpm",
+                    "kubernetes_service_relation_server_http_status_5xx_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "1xx"
+                    },
+                    {
+                      "label": "2xx"
+                    },
+                    {
+                      "label": "3xx"
+                    },
+                    {
+                      "label": "4xx"
+                    },
+                    {
+                      "label": "5xx"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Server Send Response Status Code CPM",
+                    "name": "HTTP-Server-Send-Response-Status-Code-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-2-1"
+                    },
+                    {
+                      "widgetId": "0-2-2"
+                    },
+                    {
+                      "widgetId": "0-2-3"
+                    },
+                    {
+                      "widgetId": "0-2-4"
+                    },
+                    {
+                      "widgetId": "0-2-5"
+                    },
+                    {
+                      "widgetId": "0-2-6"
+                    },
+                    {
+                      "widgetId": "0-2-7"
+                    },
+                    {
+                      "widgetId": "0-2-8"
+                    },
+                    {
+                      "widgetId": "0-2-0"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Topology",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 52,
+                  "i": "0",
+                  "type": "Topology",
+                  "graph": {
+                    "showDepth": true
+                  },
+                  "linkDashboard": "K8S-Service-Instance-Relation",
+                  "nodeDashboard": [],
+                  "nodeMetrics": [],
+                  "linkServerExpressions": [
+                    "avg(kubernetes_service_instance_relation_server_write_package_size)/60",
+                    "avg(kubernetes_service_instance_relation_server_read_package_size)/60"
+                  ],
+                  "linkClientExpressions": [
+                    "avg(kubernetes_service_instance_relation_client_write_package_size)/60",
+                    "avg(kubernetes_service_instance_relation_client_read_package_size)/60"
+                  ],
+                  "nodeExpressions": [],
+                  "legendMQE": {
+                    "expression": ""
+                  },
+                  "description": {},
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "bytes",
+                      "label": "Server Write Per Seconds"
+                    },
+                    {
+                      "unit": "bytes",
+                      "label": "Server Read Per Seconds"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "bytes",
+                      "label": "Client Write Per Seconds"
+                    },
+                    {
+                      "unit": "bytes",
+                      "label": "Client Read Per Seconds"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "K8S_SERVICE",
+      "entity": "ServiceRelation",
+      "name": "K8S-Service-Relation",
+      "id": "K8S-Service-Relation",
+      "isRoot": false
+    }
+  }
+]

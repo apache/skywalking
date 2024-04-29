@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.module;
 
 import java.util.HashMap;
 import java.util.Map;
+import lombok.AccessLevel;
 import lombok.Setter;
 
 /**
@@ -30,8 +31,10 @@ import lombok.Setter;
 public abstract class ModuleProvider implements ModuleServiceHolder {
     @Setter
     private ModuleManager manager;
-    @Setter
+    @Setter(AccessLevel.PACKAGE)
     private ModuleDefine moduleDefine;
+    @Setter(AccessLevel.PACKAGE)
+    private TerminalFriendlyTable bootingParameters;
     private final Map<Class<? extends Service>, Service> services = new HashMap<>();
 
     public ModuleProvider() {
@@ -146,5 +149,13 @@ public abstract class ModuleProvider implements ModuleServiceHolder {
 
     String getModuleName() {
         return moduleDefine.name();
+    }
+
+    protected void setBootingParameter(String name, String value) {
+        bootingParameters.addRow(new TerminalFriendlyTable.Row(name, value));
+    }
+
+    protected void setBootingParameter(String name, long value) {
+        bootingParameters.addRow(new TerminalFriendlyTable.Row(name, String.valueOf(value)));
     }
 }

@@ -1,320 +1,346 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
-    "id":"mysql-instance                                                                                                            ",
-    "configuration":{
-      "children":[
+    "id": "MySQL-Instance",
+    "configuration": {
+      "children": [
         {
-          "x":0,
-          "y":0,
-          "w":6,
-          "h":9,
-          "i":"0",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_mysql_instance_uptime"
-          ],
-          "graph":{
-            "type":"Card",
-            "fontSize":40,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 9,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "metricConfig":[
+          "widget": {
+            "title": "MySQL Uptime"
+          },
+          "metricConfig": [
             {
-              "calculation":"secondToDay"
+              "unit": "day"
             }
           ],
-          "widget":{
-            "title":"MySQL Uptime (day)"
-          }
+          "expressions": [
+            "latest(meter_mysql_instance_uptime)/3600/24"
+          ]
         },
         {
-          "x":0,
-          "y":9,
-          "w":6,
-          "h":10,
-          "i":"1",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_qps"
-          ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 9,
+          "w": 6,
+          "h": 10,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Current QPS"
-          }
-        },
-        {
-          "x":12,
-          "y":0,
-          "w":6,
-          "h":9,
-          "i":"2",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_mysql_instance_innodb_buffer_pool_size"
-          ],
-          "graph":{
-            "type":"Card",
-            "fontSize":40,
-            "textAlign":"center",
-            "showUnit":true
+          "widget": {
+            "title": "Current QPS"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "calculation":"byteToMB"
+              "label": "QPS"
             }
           ],
-          "widget":{
-            "title":"Innodb Buffer Pool Size (MB)"
-          }
+          "expressions": [
+            "avg(meter_mysql_instance_qps)"
+          ]
         },
         {
-          "x":6,
-          "y":0,
-          "w":6,
-          "h":9,
-          "i":"3",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_mysql_instance_max_connections"
-          ],
-          "graph":{
-            "type":"Card",
-            "fontSize":40,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 9,
+          "i": "2",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Max Connections"
-          }
-        },
-        {
-          "x":18,
-          "y":0,
-          "w":6,
-          "h":9,
-          "i":"4",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_mysql_instance_thread_cache_size"
-          ],
-          "graph":{
-            "type":"Card",
-            "fontSize":40,
-            "textAlign":"center",
-            "showUnit":true
+          "widget": {
+            "title": "Innodb Buffer Pool Size"
           },
-          "widget":{
-            "title":"Thread Cache Size"
-          }
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_mysql_instance_innodb_buffer_pool_size)/1024/1024"
+          ]
         },
         {
-          "x":6,
-          "y":9,
-          "w":6,
-          "h":10,
-          "i":"5",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 9,
+          "i": "3",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Max Connections"
+          },
+          "expressions": [
+            "latest(meter_mysql_instance_max_connections)"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 9,
+          "i": "4",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Thread Cache Size"
+          },
+          "expressions": [
+            "latest(meter_mysql_instance_thread_cache_size)"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "w": 6,
+          "h": 10,
+          "i": "5",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Current TPS"
+          },
+          "metricConfig": [
+            {
+              "label": "TPS"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_mysql_instance_tps"
-          ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Current TPS"
-          }
+          ]
         },
         {
-          "x":12,
-          "y":9,
-          "w":6,
-          "h":10,
-          "i":"6",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 12,
+          "y": 9,
+          "w": 6,
+          "h": 10,
+          "i": "6",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Commands Trend (rows per second)"
+          },
+          "metricConfig": [
+            {
+              "label": "Insert Rate"
+            },
+            {
+              "label": "Select Rate"
+            },
+            {
+              "label": "Delete Rate"
+            },
+            {
+              "label": "Update Rate"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_mysql_instance_commands_insert_rate",
             "meter_mysql_instance_commands_select_rate",
             "meter_mysql_instance_commands_delete_rate",
             "meter_mysql_instance_commands_update_rate"
-          ],
-          "graph":{
-            "type":"Area",
-            "opacity":0.4,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Commands Trend (rows per second)"
-          }
+          ]
         },
         {
-          "x":6,
-          "y":19,
-          "w":6,
-          "h":10,
-          "i":"7",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 6,
+          "y": 19,
+          "w": 6,
+          "h": 10,
+          "i": "7",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Threads"
+          },
+          "metricConfig": [
+            {
+              "label": "Cached Threads"
+            },
+            {
+              "label": "Running Threads"
+            },
+            {
+              "label": "Created Threads"
+            },
+            {
+              "label": "Connected Threads"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_mysql_instance_threads_cached",
             "meter_mysql_instance_threads_running",
             "meter_mysql_instance_threads_created",
             "meter_mysql_instance_threads_connected"
-          ],
-          "graph":{
-            "type":"Area",
-            "opacity":0.4,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Threads"
-          }
+          ]
         },
         {
-          "x":0,
-          "y":19,
-          "w":6,
-          "h":10,
-          "i":"8",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 0,
+          "y": 19,
+          "w": 6,
+          "h": 10,
+          "i": "8",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Connects"
+          },
+          "metricConfig": [
+            {
+              "label": "Available Connects"
+            },
+            {
+              "label": "Aborted Connects"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_mysql_instance_connects_available",
             "meter_mysql_instance_connects_aborted"
-          ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Connects"
-          }
+          ]
         },
         {
-          "x":18,
-          "y":9,
-          "w":6,
-          "h":10,
-          "i":"10",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_slow_queries_rate"
-          ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 18,
+          "y": 9,
+          "w": 6,
+          "h": 10,
+          "i": "10",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Slow Queries Trend (queries per second)"
-          }
+          "widget": {
+            "title": "Slow Queries Trend (queries per second)"
+          },
+          "metricConfig": [
+            {
+              "label": "Slow Queries Rate"
+            }
+          ],
+          "expressions": [
+            "meter_mysql_slow_queries_rate"
+          ]
         },
         {
-          "x":12,
-          "y":19,
-          "w":6,
-          "h":10,
-          "i":"11",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
+          "x": 12,
+          "y": 19,
+          "w": 6,
+          "h": 10,
+          "i": "11",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Connection Errors"
+          },
+          "metricConfig": [
+            {
+              "label": "Internal Errors"
+            },
+            {
+              "label": "Max Connection Errors"
+            }
           ],
-          "metrics":[
+          "expressions": [
             "meter_mysql_instance_connection_errors_internal",
             "meter_mysql_instance_connection_errors_max_connections"
-          ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Connection Errors"
-          }
+          ]
         }
       ],
-      "layer":"MYSQL",
-      "entity":"ServiceInstance",
-      "name":"MySQL-Instance",
-      "id":"mysql-instance",
-      "isRoot":false
+      "layer": "MYSQL",
+      "entity": "ServiceInstance",
+      "name": "MySQL-Instance",
+      "id": "mysql-instance",
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_mysql_instance_commands_select_rate)",
+        "avg(meter_mysql_instance_commands_insert_rate)",
+        "avg(meter_mysql_instance_commands_update_rate)",
+        "avg(meter_mysql_instance_commands_delete_rate)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "rows / s",
+          "label": "Fetch"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Insert"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Update"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Delete"
+        }
+      ]
     }
   }
 ]

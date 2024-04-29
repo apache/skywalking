@@ -1,8 +1,14 @@
 # Meter receiver
-The meter receiver accepts the metrics of [meter protocol](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto) into the [meter system](./../../concepts-and-designs/meter.md).
+
+The meter receiver accepts the metrics
+of [meter protocol](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto)
+into the [meter system](./../../concepts-and-designs/meter.md).
 
 ## Module definition
-Module definition is defined in `application.yml`, typically located at `$SKYWALKING_BASE_DIR/config/application.yml` by default.
+
+Module definition is defined in `application.yml`, typically located at `$SKYWALKING_BASE_DIR/config/application.yml` by
+default.
+
 ```yaml
 receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
@@ -10,7 +16,8 @@ receiver-meter:
 
 ```
 
-In Kafka Fetcher, follow these configurations to enable it.  
+In Kafka Fetcher, follow these configurations to enable it.
+
 ```yaml
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:default}
@@ -23,39 +30,43 @@ kafka-fetcher:
 ### Manual Meter API
 
 Custom metrics may be collected by the Manual Meter API.
-Custom metrics collected cannot be used directly; they should be configured in the `meter-analyzer-config` configuration files described in the next part.
+Custom metrics collected cannot be used directly; they should be configured in the `meter-analyzer-config` configuration
+files described in the next part.
 
 The receiver adds labels with `key = service` and `key = instance` to the collected data samples,
 and values from service and service instance name defined in SkyWalking Agent,
 for identification of the metric data.
 
-A typical manual meter API set is [Spring MicroMeter Observations APIs](micrometer-observations.md)
+There are following known API libs to report meter telemetry data:
 
-### OpenTelemetry Exporter
+- [SkyWalking Java Meter toolkit APIs](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/application-toolkit-meter/)
+- [Spring MicroMeter Observations APIs](https://skywalking.apache.org/docs/skywalking-java/latest/en/setup/service-agent/java-agent/application-toolkit-micrometer-1.10/)
+  works with [OAP MicroMeter Observations setup](micrometer-observations.md)
 
-You can use OpenTelemetry Collector to transport the metrics to SkyWalking OAP.
-Read the doc on [Skywalking Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/skywalkingexporter/README.md) for a detailed guide.
+### Agents Bundled Meters
 
-The following is the correspondence between the OpenTelemetry Metric Data Type and the Skywalking Data Collect Protocol: 
-
-| OpenTelemetry Metric Data Type | Skywalking Data Collect Protocol |
-|-----|-----|
-|MetricDataTypeGauge| MeterSingleValue |
-|MetricDataTypeSum| MeterSingleValue |
-|MetricDataTypeHistogram| MeterHistogram and two MeterSingleValues containing `$name_sum` and `$name_count` metrics. |
-|MetricDataTypeSummary| A series of MeterSingleValue containing tag `quantile` and two MeterSingleValues containing `$name_sum` and `$name_count` metrics. |
-|MetricDataTypeExponentialHistogram| Not Supported|
-
-Note: `$name` is the original metric name.
+All following agents and components have built-in meters reporting to the OAP through Meter APIs.
+1. Go agent for Go VM metrics
+2. Python agent for PVM metrics
+3. Java agent with Spring micrometer toolkit 
+4. Java agent for datasource metrics
+5. Java agent for thread-pool metrics
+6. Rover(eBPF) agent for metrics used continues profiling
+7. Satellite proxy self-observability metrics
 
 ## Configuration file
-The meter receiver is configured via a configuration file. The configuration file defines everything related to receiving 
- from agents, as well as which rule files to load.
 
-The OAP can load the configuration at bootstrap. If the new configuration is not well-formed, the OAP may fail to start up. The files
+The meter receiver is configured via a configuration file. The configuration file defines everything related to
+receiving
+from agents, as well as which rule files to load.
+
+The OAP can load the configuration at bootstrap. If the new configuration is not well-formed, the OAP may fail to start
+up. The files
 are located at `$CLASSPATH/meter-analyzer-config`.
 
-New meter-analyzer-config files is **NOT** enabled by default, you should make meter configuration take effect through section `agent-analyzer` in `application.yml` of skywalking backend.
+New meter-analyzer-config files is **NOT** enabled by default, you should make meter configuration take effect through
+section `agent-analyzer` in `application.yml` of skywalking backend.
+
 ```yaml
  agent-analyzer:
    selector: ${SW_AGENT_ANALYZER:default}
@@ -64,19 +75,8 @@ New meter-analyzer-config files is **NOT** enabled by default, you should make m
      meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:your-custom-meter-conf-without-ext-name} # The multiple files should be separated by ","
 ```
 
-Meter-analyzer-config file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
-
-All available meter analysis scripts could be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/).
-
-| Rule Name | Description | Configuration File | Data Source |
-|-----|-----|-----|-----|
-|satellite| Metrics of SkyWalking Satellite self-observability(so11y)| meter-analyzer-config/satellite.yaml| SkyWalking Satellite --meter format-->SkyWalking OAP Server|
-|threadpool| Metrics of Thread Pool | meter-analyzer-config/threadpool.yaml | Thread Pool --meter format--> SkyWalking OAP Server |
-|datasource| Metrics of DataSource metrics | meter-analyzer-config/datasource.yaml | Datasource --meter format--> SkyWalking OAP Server |
-|spring-micrometer| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-micrometer.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
-
-An example can be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-micrometer.yaml).
-If you're using Spring MicroMeter Observations, see [Spring MicroMeter Observations APIs](micrometer-observations.md).
+Meter-analyzer-config file is written in YAML format, defined by the scheme described below. Brackets indicate that a
+parameter is optional.
 
 ### Meters configuration
 
@@ -104,6 +104,9 @@ For more information on MAL, please refer to [mal.md](../../concepts-and-designs
 
 #### `rate`, `irate`, and `increase`
 
-Although we support the `rate`, `irate`, `increase` functions in the backend, we still recommend users to consider using client-side APIs to run these functions. The reasons are as follows:
+Although we support the `rate`, `irate`, `increase` functions in the backend, we still recommend users to consider using
+client-side APIs to run these functions. The reasons are as follows:
+
 1. The OAP has to set up caches to calculate the values.
-1. Once the agent reconnects to another OAP instance, the time windows of rate calculation break. This leads to inaccurate results.
+1. Once the agent reconnects to another OAP instance, the time windows of rate calculation break. This leads to
+   inaccurate results.

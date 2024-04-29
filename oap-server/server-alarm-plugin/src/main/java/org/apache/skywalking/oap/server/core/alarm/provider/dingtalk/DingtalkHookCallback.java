@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import javax.crypto.Mac;
@@ -50,17 +51,27 @@ public class DingtalkHookCallback extends HttpAlarmCallback {
      */
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
-        if (alarmRulesWatcher.getDingtalkSettings() == null || alarmRulesWatcher.getDingtalkSettings().getWebhooks().isEmpty()) {
+        Map<String, DingtalkSettings> settingsMap = alarmRulesWatcher.getDingtalkSettings();
+        if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
-        final var dingtalkSettings = alarmRulesWatcher.getDingtalkSettings();
-        for (final var webHookUrl : dingtalkSettings.getWebhooks()) {
-            final var url = getUrl(webHookUrl);
-            for (final var alarmMessage : alarmMessages) {
-                final var requestBody = String.format(
-                        alarmRulesWatcher.getDingtalkSettings().getTextTemplate(), alarmMessage.getAlarmMessage()
-                );
-                post(URI.create(url), requestBody, Map.of());
+        Map<String, List<AlarmMessage>> groupedMessages = groupMessagesByHook(alarmMessages);
+        for (Map.Entry<String, List<AlarmMessage>> entry : groupedMessages.entrySet()) {
+            var hookName = entry.getKey();
+            var messages = entry.getValue();
+            var setting = settingsMap.get(hookName);
+            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
+                messages)) {
+                continue;
+            }
+            for (final var webHookUrl : setting.getWebhooks()) {
+                final var url = getUrl(webHookUrl);
+                for (final var alarmMessage : messages) {
+                    final var requestBody = String.format(
+                        setting.getTextTemplate(), alarmMessage.getAlarmMessage()
+                    );
+                    post(URI.create(url), requestBody, Map.of());
+                }
             }
         }
     }

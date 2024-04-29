@@ -18,24 +18,24 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import java.util.ArrayList;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
-import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,74 +44,6 @@ import java.util.stream.Collectors;
 public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQueryDAO {
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
-
-    @Override
-    @SneakyThrows
-    public NullableValue readMetricsValue(final MetricsCondition condition,
-                                          String valueColumnName,
-                                          final Duration duration) {
-        final var tables = tableHelper.getTablesForRead(
-            condition.getName(),
-            duration.getStartTimeBucket(),
-            duration.getEndTimeBucket()
-        );
-
-        final var pointOfTimes = duration.assembleDurationPoints();
-        final var entityId = condition.getEntity().buildId();
-        final var ids =
-            pointOfTimes
-                .stream()
-                .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
-                .collect(Collectors.toList());
-        final var defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-        final var function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
-        if (function == Function.Latest) {
-            return readMetricsValues(condition, valueColumnName, duration).getValues().latestValue(defaultValue);
-        }
-        String op;
-        switch (function) {
-            case Avg:
-                op = "avg";
-                break;
-            default:
-                op = "sum";
-        }
-
-        final var results = new ArrayList<Long>();
-        for (String table : tables) {
-            final var sql = buildMetricsValueSql(op, valueColumnName, table);
-            final var parameters = new ArrayList<>();
-            if (entityId != null) {
-                sql.append(Metrics.ENTITY_ID + " = ? and ");
-                parameters.add(entityId);
-            }
-            sql.append("id in ");
-            sql.append(ids.stream().map(it -> "?").collect(Collectors.joining(", ", "(", ")")));
-            parameters.addAll(ids);
-            sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
-            parameters.add(condition.getName());
-            sql.append(" group by " + Metrics.ENTITY_ID);
-
-            jdbcClient.executeQuery(
-                sql.toString(),
-                resultSet -> {
-                    if (resultSet.next()) {
-                        results.add(resultSet.getLong("result"));
-                    }
-                    return null;
-                },
-                parameters.toArray(new Object[0])
-            );
-        }
-
-        if (results.size() == 0) {
-            return new NullableValue(defaultValue, true);
-        }
-        if (op.equals("avg")) {
-            return new NullableValue(results.stream().mapToLong(it -> it).sum() / results.size(), false);
-        }
-        return new NullableValue(results.stream().mapToLong(it -> it).sum(), false);
-    }
 
     protected StringBuilder buildMetricsValueSql(String op, String valueColumnName, String conditionName) {
         return new StringBuilder(
@@ -150,8 +82,6 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                        .collect(Collectors.joining(", ", "(", ")"))
                 );
 
-            buildShardingCondition(sql, ids, entityId);
-
             jdbcClient.executeQuery(
                 sql.toString(),
                 resultSet -> {
@@ -176,7 +106,7 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     @SneakyThrows
     public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
                                                         final String valueColumnName,
-                                                        final List<String> labels,
+                                                        final List<KeyValue> labels,
                                                         final Duration duration) {
         final var idMap = new HashMap<String, DataTable>();
         final var tables = tableHelper.getTablesForRead(
@@ -201,8 +131,6 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                        .collect(Collectors.joining(", ", "(", ")"))
                 );
 
-            buildShardingCondition(sql, ids, entityId);
-
             jdbcClient.executeQuery(
                 sql.toString(),
                 resultSet -> {
@@ -218,11 +146,56 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                 },
                 ids.toArray(new Object[0]));
         }
-
         return Util.sortValues(
-            Util.composeLabelValue(condition, labels, idMap),
+            Util.composeLabelValue(condition.getName(), labels, ids, idMap),
             ids,
             ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
+    }
+
+    @SneakyThrows
+    public List<MetricsValues> readLabeledMetricsValuesWithoutEntity(final String metricName,
+                                                    final String valueColumnName,
+                                                    final List<KeyValue> labels,
+                                                    final Duration duration) {
+        final var idMap = new HashMap<String, DataTable>();
+        final var tables = tableHelper.getTablesForRead(
+            metricName,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+
+        for (final var table : tables) {
+            final var sql = new StringBuilder("select id, " + valueColumnName + " from " + table)
+                .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ")
+                .append(" and ")
+                .append(Metrics.TIME_BUCKET).append(" >= ? ")
+                .append(" and ")
+                .append(Metrics.TIME_BUCKET).append(" <= ?")
+                // Limit the number of results to avoid OOM
+                .append(" limit ").append(METRICS_VALUES_WITHOUT_ENTITY_LIMIT);
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        String id = resultSet.getString("id");
+                        DataTable multipleValues = new DataTable(resultSet.getString(valueColumnName));
+                        idMap.put(id, multipleValues);
+                    }
+                    return null;
+                },
+                metricName, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        }
+        final var result = idMap.entrySet()
+                                .stream()
+                                .limit(METRICS_VALUES_WITHOUT_ENTITY_LIMIT)
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        final var ids = new ArrayList<>(result.keySet());
+        return Util.sortValues(
+            Util.composeLabelValue(metricName, labels, ids, result),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(metricName)
         );
     }
 
@@ -255,8 +228,6 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                        .collect(Collectors.joining(", ", "(", ")"))
                 );
 
-            buildShardingCondition(sql, ids, entityId);
-
             final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
 
             jdbcClient.executeQuery(
@@ -274,8 +245,5 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
         }
 
         return heatMap;
-    }
-
-    protected void buildShardingCondition(StringBuilder sql, List<String> parameters, String entityId) {
     }
 }

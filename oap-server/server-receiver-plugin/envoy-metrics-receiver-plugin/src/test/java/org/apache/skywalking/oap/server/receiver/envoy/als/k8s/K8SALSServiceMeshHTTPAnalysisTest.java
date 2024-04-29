@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactoryImp
 import org.apache.skywalking.oap.server.receiver.envoy.als.AccessLogAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.istio.IstioServiceEntryRegistry;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -156,12 +157,14 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
         @Override
         public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
             this.config = config;
-            serviceRegistry = mock(K8SServiceRegistry.class);
-            when(serviceRegistry.findService(anyString())).thenReturn(config.serviceMetaInfoFactory().unknown());
-            when(serviceRegistry.findService("10.44.2.56")).thenReturn(new ServiceMetaInfo("ingress", "ingress-Inst"));
-            when(serviceRegistry.findService("10.44.2.54")).thenReturn(new ServiceMetaInfo("productpage", "productpage-Inst"));
-            when(serviceRegistry.findService("10.44.6.66")).thenReturn(new ServiceMetaInfo("detail", "detail-Inst"));
-            when(serviceRegistry.findService("10.44.2.55")).thenReturn(new ServiceMetaInfo("review", "review-Inst"));
+            k8sServiceRegistry = mock(K8SServiceRegistry.class);
+            istioServiceRegistry = mock(IstioServiceEntryRegistry.class);
+            when(istioServiceRegistry.findService(anyString())).thenReturn(config.serviceMetaInfoFactory().unknown());
+            when(k8sServiceRegistry.findService(anyString())).thenReturn(config.serviceMetaInfoFactory().unknown());
+            when(k8sServiceRegistry.findService("10.44.2.56")).thenReturn(new ServiceMetaInfo("ingress", "ingress-Inst"));
+            when(k8sServiceRegistry.findService("10.44.2.54")).thenReturn(new ServiceMetaInfo("productpage", "productpage-Inst"));
+            when(k8sServiceRegistry.findService("10.44.6.66")).thenReturn(new ServiceMetaInfo("detail", "detail-Inst"));
+            when(k8sServiceRegistry.findService("10.44.2.55")).thenReturn(new ServiceMetaInfo("review", "review-Inst"));
         }
 
     }

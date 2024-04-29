@@ -45,9 +45,6 @@ services:
 
   mariadb-load:
     image: mysql:8.0.13
-    depends_on:
-      oap:
-        condition: service_healthy
     networks:
       - e2e
     entrypoint: bash
@@ -57,14 +54,13 @@ services:
       - -c
       - "mysql -h mariadb -uroot -ppassword < /docker/mock.sql"
     depends_on:
+      oap:
+        condition: service_healthy
       mariadb:
         condition: service_healthy
       
   mariadb-load_2:
     image: mysql:8.0.13
-    depends_on:
-      oap:
-        condition: service_healthy
     networks:
       - e2e
     entrypoint: bash
@@ -72,6 +68,8 @@ services:
       - -c
       - "mysql -h mariadb -uroot -pwrong-password"
     depends_on:
+      oap:
+        condition: service_healthy
       mariadb:
         condition: service_healthy
 
@@ -106,7 +104,7 @@ services:
         condition: service_healthy
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.50.0
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]

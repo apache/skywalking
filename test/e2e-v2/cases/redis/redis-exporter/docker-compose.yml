@@ -24,6 +24,9 @@ services:
       - 12800
     networks:
       - e2e
+    environment:
+      - TZ=Asia/Shanghai
+      - SW_CORE_TOPN_REPORT_PERIOD=2
   redis_1: &redis
     image: redis:6.0
     networks:
@@ -77,7 +80,7 @@ services:
     environment:
       - REDIS_ADDR=redis_3:6379
   otel-collector:
-    image: otel/opentelemetry-collector:0.50.0
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
@@ -88,6 +91,26 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+  fluentbit:
+    image: fluent/fluent-bit:1.9
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./scripts:/scripts
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluent-bit-parser.conf:/fluent-bit/etc/fluent-bit-parser.conf
+      - ./fluent-bit-script.lua:/fluent-bit/etc/fluent-bit-script.lua
+    networks:
+      - e2e
+    depends_on:
+      - slowlog
+  slowlog:
+    image: redis:6.0
+    volumes:
+      - ./scripts:/scripts
+    networks:
+      - e2e
+    command: sh -c "chmod 777 /scripts/start.sh /scripts/slowlog.sh /scripts/slowlog.log && /scripts/start.sh"
 
 networks:
   e2e:

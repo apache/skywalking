@@ -68,16 +68,15 @@ public class CoreModuleConfig extends ModuleConfig {
      * The time to live of all metrics data. Unit is day.
      */
 
-    private int metricsDataTTL = 3;
+    private int metricsDataTTL = 7;
     /**
      * The time to live of all record data, including tracing. Unit is Day.
      */
 
-    private int recordDataTTL = 7;
+    private int recordDataTTL = 3;
 
     private int gRPCThreadPoolSize;
 
-    private int gRPCThreadPoolQueueSize;
     /**
      * Timeout for cluster internal communication, in seconds.
      */
@@ -193,6 +192,44 @@ public class CoreModuleConfig extends ModuleConfig {
      * Use -1 to disable it.
      */
     private int httpMaxRequestHeaderSize = 8192;
+
+    /**
+     * The period of HTTP URI pattern recognition. Unit is second.
+     * @since 9.5.0
+     */
+    private int syncPeriodHttpUriRecognitionPattern = 10;
+
+    /**
+     * The training period of HTTP URI pattern recognition. Unit is second.
+     * @since 9.5.0
+     */
+    private int trainingPeriodHttpUriRecognitionPattern = 60;
+
+    /**
+     * The max number of HTTP URIs per service for further URI pattern recognition.
+     * @since 9.5.0
+     */
+    private int maxHttpUrisNumberPerService = 3000;
+
+    /**
+     * The UI menu should activate fetch interval, default 20s
+     */
+    private int uiMenuRefreshInterval = 20;
+
+    /**
+     * The service cache refresh interval, default 10s
+     */
+    @Setter
+    @Getter
+    private int serviceCacheRefreshInterval = 10;
+
+    /**
+     * If disable the hierarchy, the service and instance hierarchy relation will not be built.
+     * And the query of hierarchy will return empty result.
+     */
+    @Setter
+    @Getter
+    private boolean enableHierarchy = true;
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

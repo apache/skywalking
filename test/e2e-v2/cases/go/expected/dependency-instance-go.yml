@@ -17,8 +17,8 @@ nodes:
 {{- contains .nodes }}
 - id: {{ notEmpty .id }}
   name: {{ notEmpty .name }}
-  serviceid: {{ b64enc "go2sky" }}.1
-  servicename: go2sky
+  serviceid: {{ b64enc "go-service" }}.1
+  servicename: go-service
   type: ""
   isreal: true
 - id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}

@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.FetchingConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationRequest;
 import org.apache.skywalking.oap.server.configuration.service.ConfigurationResponse;
@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.configuration.service.ConfigurationServi
 import org.apache.skywalking.oap.server.configuration.service.GroupConfigurationResponse;
 
 @Slf4j
-public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
+public class GRPCConfigWatcherRegister extends FetchingConfigWatcherRegister {
     private RemoteEndpointSettings settings;
     private ConfigurationServiceGrpc.ConfigurationServiceBlockingStub stub;
     private String uuid = null;
@@ -44,6 +44,7 @@ public class GRPCConfigWatcherRegister extends ConfigWatcherRegister {
         stub = ConfigurationServiceGrpc.newBlockingStub(
             NettyChannelBuilder.forAddress(settings.getHost(), settings.getPort())
                                .usePlaintext()
+                               .maxInboundMessageSize(settings.getMaxInboundMessageSize())
                                .build());
     }
 

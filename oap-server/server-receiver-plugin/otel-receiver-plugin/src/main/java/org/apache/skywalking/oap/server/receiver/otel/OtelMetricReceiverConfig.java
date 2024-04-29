@@ -18,55 +18,25 @@
 
 package org.apache.skywalking.oap.server.receiver.otel;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+
+import java.util.List;
 
 @Slf4j
 public class OtelMetricReceiverConfig extends ModuleConfig {
 
+    @Setter
     private String enabledHandlers;
 
     @Getter
-    private String enabledOtelRules;
+    private String enabledOtelMetricsRules;
 
     public List<String> getEnabledHandlers() {
-        return split(enabledHandlers);
+        return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(enabledHandlers));
     }
-
-    List<String> getEnabledRulesFrom(String handler) {
-        Field f;
-        try {
-            f = this.getClass().getDeclaredField(String.format("enabled%sRules", StringUtils.capitalize(handler)));
-        } catch (NoSuchFieldException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("failed to get disabled rule field of {}", handler, e);
-            }
-            return Collections.emptyList();
-        }
-        f.setAccessible(true);
-        try {
-            return split(f.get(this));
-        } catch (IllegalAccessException e) {
-            log.warn("failed to access disabled rule list of {}", handler, e);
-            return Collections.emptyList();
-        }
-    }
-
-    private List<String> split(Object str) {
-        return Arrays.stream(Optional.ofNullable(str).orElse("").toString()
-            .split(","))
-            .map(String::trim)
-            .filter(StringUtil::isNotEmpty)
-            .collect(Collectors.toList());
-    }
-
 }

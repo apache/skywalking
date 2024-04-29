@@ -51,7 +51,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
     @SneakyThrows
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) {
         final var endTimeBucket = TimeBucket.getTimeBucket(clock.millis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
-        final var startTimeBucket = TimeBucket.getTimeBucket(clock.millis() - TimeUnit.DAYS.toMillis(ttl), DownSampling.Day);
+        final var startTimeBucket = TimeBucket.getTimeBucket(clock.millis() - TimeUnit.DAYS.toMillis(ttl - 1), DownSampling.Day);
         log.info(
             "Deleting history data, ttl: {}, now: {}. Keep [{}, {}]",
             ttl,
@@ -78,7 +78,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
         final var tableName = TableHelper.getTableName(model);
 
         try (final var conn = jdbcClient.getConnection();
-             final var result = conn.getMetaData().getTables(null, null, tableName + "%", new String[]{"TABLE"})) {
+             final var result = conn.getMetaData().getTables(conn.getCatalog(), conn.getSchema(), tableName + "%", new String[]{"TABLE"})) {
             while (result.next()) {
                 tablesToDrop.add(result.getString("TABLE_NAME"));
             }

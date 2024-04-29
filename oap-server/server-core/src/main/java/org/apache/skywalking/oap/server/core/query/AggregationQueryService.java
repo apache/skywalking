@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
@@ -53,11 +54,17 @@ public class AggregationQueryService implements Service {
     }
 
     public List<SelectedRecord> sortMetrics(TopNCondition condition, Duration duration) throws IOException {
+        if (!condition.senseScope()) {
+            return Collections.emptyList();
+        }
         final String valueCName = ValueColumnMetadata.INSTANCE.getValueCName(condition.getName());
         List<KeyValue> additionalConditions = null;
         if (StringUtil.isNotEmpty(condition.getParentService())) {
+            if (condition.getNormal() == null) {
+                return Collections.emptyList();
+            }
             additionalConditions = new ArrayList<>(1);
-            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
+            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.getNormal());
             additionalConditions.add(new KeyValue(InstanceTraffic.SERVICE_ID, serviceId));
         }
         final List<SelectedRecord> selectedRecords = getAggregationQueryDAO().sortMetrics(

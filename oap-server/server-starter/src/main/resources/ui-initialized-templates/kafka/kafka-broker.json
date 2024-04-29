@@ -1,0 +1,627 @@
+[
+  {
+    "id": "Kafka-Broker",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 5,
+          "w": 6,
+          "h": 10,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "CPU Usage (%)",
+            "tips": "CPU usage in percentage ",
+            "name": "cpu_time_total"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_kafka_broker_cpu_time_total"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 47,
+          "w": 6,
+          "h": 10,
+          "i": "19",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Incoming Messages (Msg/sec)",
+            "tips": "Rate of incoming messages",
+            "name": "messages_per_second"
+          },
+          "expressions": [
+            "meter_kafka_broker_messages_per_second"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 27,
+          "w": 6,
+          "h": 10,
+          "i": "20",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "bytes_in_per_second",
+            "title": "Bytes In (Bytes/sec)",
+            "tips": "Rate of incoming bytes"
+          },
+          "expressions": [
+            "meter_kafka_broker_bytes_in_per_second"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 37,
+          "w": 6,
+          "h": 10,
+          "i": "21",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Bytes Out (Bytes/sec)",
+            "tips": "Rate of outgoing bytes",
+            "name": "bytes_out_per_second"
+          },
+          "expressions": [
+            "meter_kafka_broker_bytes_out_per_second"
+          ]
+        },
+        {
+          "x": 15,
+          "y": 0,
+          "w": 5,
+          "h": 5,
+          "i": "22",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Under-Replicated Partitions",
+            "tips": "Number of under-replicated partitions",
+            "name": "under_replicated_partitions"
+          },
+          "expressions": [
+            "latest(meter_kafka_broker_under_replicated_partitions)"
+          ]
+        },
+        {
+          "x": 10,
+          "y": 0,
+          "w": 5,
+          "h": 5,
+          "i": "23",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Under Min ISR Partition Count",
+            "tips": "Number of partitions below the minimum ISR (In-Sync Replicas)",
+            "name": "under_min_isr_partition_count"
+          },
+          "expressions": [
+            "latest(meter_kafka_broker_under_min_isr_partition_count)"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 5,
+          "w": 6,
+          "h": 10,
+          "i": "24",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Partition Count",
+            "tips": "Total number of partitions",
+            "name": "partition_count"
+          },
+          "expressions": [
+            "meter_kafka_broker_partition_count"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 37,
+          "w": 6,
+          "h": 10,
+          "i": "25",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Replication Bytes Out (Bytes/sec)",
+            "tips": "Rate of outgoing bytes for replication",
+            "name": "replication_bytes_out_per_second"
+          },
+          "expressions": [
+            "meter_kafka_broker_replication_bytes_out_per_second"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 27,
+          "w": 6,
+          "h": 10,
+          "i": "26",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Replication Bytes In (Bytes/sec)",
+            "tips": "Rate of incoming bytes for replication",
+            "name": "replication_bytes_in_per_second"
+          },
+          "expressions": [
+            "meter_kafka_broker_replication_bytes_in_per_second"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 47,
+          "w": 6,
+          "h": 10,
+          "i": "27",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Leader Count",
+            "tips": "Number of partitions for which this broker is the leader",
+            "name": "leader_count"
+          },
+          "expressions": [
+            "meter_kafka_broker_leader_count"
+          ]
+        },
+        {
+          "x": 20,
+          "y": 0,
+          "w": 4,
+          "h": 5,
+          "i": "28",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Max Lag",
+            "tips": "Maximum lag between the leader and follower for a partition",
+            "name": "max_lag"
+          },
+          "expressions": [
+            "sum(meter_kafka_broker_max_lag)"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 5,
+          "h": 5,
+          "i": "29",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "ISR Shrinks",
+            "tips": "Rate of ISR (In-Sync Replicas) shrinking ",
+            "name": "isr_shrinks_per_second"
+          },
+          "expressions": [
+            "latest(meter_kafka_broker_isr_shrinks_per_second)"
+          ]
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "w": 5,
+          "h": 5,
+          "i": "30",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "ISR Expands",
+            "tips": "Rate of ISR (In-Sync Replicas) expanding",
+            "name": "isr_expands_per_second"
+          },
+          "expressions": [
+            "latest(meter_kafka_broker_isr_expands_per_second)"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 47,
+          "w": 6,
+          "h": 10,
+          "i": "31",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Purgatory Size",
+            "tips": "Size of purgatory for Produce and Fetch operations",
+            "name": "purgatory_size"
+          },
+          "expressions": [
+            "meter_kafka_broker_purgatory_size"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "w": 6,
+          "h": 10,
+          "i": "33",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "garbage_collector_count",
+            "tips": "garbage collection cycles",
+            "name": "garbage_collector_count"
+          },
+          "expressions": [
+            "meter_kafka_broker_garbage_collector_count"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 27,
+          "w": 6,
+          "h": 10,
+          "i": "34",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Request Queue Time (ms)",
+            "tips": "Average time a request spends in the request queue",
+            "name": "request_queue_time_ms"
+          },
+          "expressions": [
+            "meter_kafka_broker_request_queue_time_ms"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 47,
+          "w": 6,
+          "h": 10,
+          "i": "35",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Remote Time (ms)",
+            "tips": "Average time taken for a remote operation",
+            "name": "remote_time_ms"
+          },
+          "expressions": [
+            "meter_kafka_broker_remote_time_ms"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 37,
+          "w": 6,
+          "h": 10,
+          "i": "36",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Response Queue Time (ms)",
+            "tips": "Average time a response spends in the response queue",
+            "name": "response_queue_time_ms"
+          },
+          "expressions": [
+            "meter_kafka_broker_response_queue_time_ms"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 37,
+          "w": 6,
+          "h": 10,
+          "i": "37",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Response Send Time (ms)",
+            "tips": "Average time taken to send a response",
+            "name": "response_send_time_ms"
+          },
+          "expressions": [
+            "meter_kafka_broker_response_send_time_ms"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 27,
+          "w": 6,
+          "h": 10,
+          "i": "38",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Requests Per Second (Req/sec)",
+            "tips": "Rate of requests to the broker",
+            "name": "requests_per_second"
+          },
+          "expressions": [
+            "meter_kafka_broker_requests_per_second"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "w": 6,
+          "h": 10,
+          "i": "39",
+          "type": "Widget",
+          "expressions": [
+            "meter_kafka_broker_memory_usage_percentage"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "memory_usage_percentage",
+            "title": "memory_usage_percentage (%)",
+            "tips": "JVM heap memory usage in percentage"
+          }
+        },
+        {
+          "x": 19,
+          "y": 15,
+          "w": 5,
+          "h": 12,
+          "i": "40",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "topic_produce_requests_per_second",
+            "title": "Topic Produce Requests Per Second (Req/sec)",
+            "tips": "Rate of produce requests per topic"
+          },
+          "expressions": [
+            "meter_kafka_broker_topic_produce_requests_per_second"
+          ]
+        },
+        {
+          "x": 15,
+          "y": 15,
+          "w": 4,
+          "h": 12,
+          "i": "41",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "topic_fetch_requests_per_second",
+            "title": "Topic Fetch Requests Per Second (Req/sec)",
+            "tips": "Rate of fetch requests per topic"
+          },
+          "expressions": [
+            "meter_kafka_broker_topic_fetch_requests_per_second"
+          ]
+        },
+        {
+          "x": 5,
+          "y": 15,
+          "w": 5,
+          "h": 12,
+          "i": "42",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "topic_bytesin_per_second",
+            "title": "Topic Bytes In Per Second (Bytes/sec)",
+            "tips": "Rate of incoming bytes per topic"
+          },
+          "expressions": [
+            "meter_kafka_broker_topic_bytesin_per_second"
+          ]
+        },
+        {
+          "x": 10,
+          "y": 15,
+          "w": 5,
+          "h": 12,
+          "i": "43",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "topic_bytesout_per_second",
+            "title": "Topic Bytes Out Per Second (Bytes/sec)",
+            "tips": "Rate of outgoing bytes per topic"
+          },
+          "expressions": [
+            "meter_kafka_broker_topic_bytesout_per_second"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 15,
+          "w": 5,
+          "h": 12,
+          "i": "44",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "topic_messages_in_total",
+            "title": "Topic Messages In Total",
+            "tips": "Total number of messages per topic"
+          },
+          "expressions": [
+            "meter_kafka_broker_topic_messages_in_total"
+          ]
+        }
+      ],
+      "layer": "KAFKA",
+      "entity": "ServiceInstance",
+      "name": "Kafka-Broker",
+      "id": "Kafka-Broker"
+    }
+  }
+]

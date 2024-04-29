@@ -18,3 +18,15 @@ oap:
     metadata-service-mapping.yaml: |
       serviceName: e2e::${LABELS."service.istio.io/canonical-name"}
       serviceInstanceName: ${NAME}
+
+elasticsearch:
+  esConfig:
+    elasticsearch.yml: |
+      cluster.routing.allocation.disk.threshold_enabled: false
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    resources:
+      requests:
+        storage: 2Gi
+  persistence:
+    enabled: true

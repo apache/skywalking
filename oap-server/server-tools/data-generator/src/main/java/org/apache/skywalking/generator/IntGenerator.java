@@ -27,7 +27,7 @@ import com.google.common.base.Preconditions;
 import lombok.Data;
 
 @JsonDeserialize(builder = IntGenerator.Builder.class)
-public final class IntGenerator implements Generator<Long> {
+public final class IntGenerator implements Generator<Object, Long> {
     private final boolean limitedDomain;
     private final Long min;
     private final Long max;
@@ -45,7 +45,7 @@ public final class IntGenerator implements Generator<Long> {
     }
 
     @Override
-    public Long next() {
+    public Long next(Object ignored) {
         if (!limitedDomain) {
             return next0();
         }
@@ -79,7 +79,7 @@ public final class IntGenerator implements Generator<Long> {
 
     @Override
     public String toString() {
-        return String.valueOf(next());
+        return String.valueOf(next(null));
     }
 
     @Data

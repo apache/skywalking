@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "General-Service-Relation",
@@ -50,12 +33,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-4"
@@ -79,10 +56,14 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  }
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ],
+                  "expressions": [
+                    "service_relation_server_cpm"
+                  ]
                 },
                 {
                   "x": 12,
@@ -103,15 +84,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_call_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "percentage"
+                      "label": "success_rate"
                     }
                   ],
                   "associate": [
@@ -137,14 +112,13 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "status": "ERROR"
-                  }
+                  },
+                  "expressions": [
+                    "service_relation_server_call_sla/100"
+                  ]
                 },
                 {
                   "x": 12,
@@ -165,19 +139,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -201,14 +162,13 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "expressions": [
+                    "relabels(service_relation_server_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                  ]
                 },
                 {
                   "x": 12,
@@ -229,12 +189,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -258,14 +212,18 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "service_relation_server_resp_time"
+                  ]
                 },
                 {
                   "x": 0,
@@ -286,12 +244,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -315,14 +267,18 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 19,
-                    "sourceId": "0-0-3"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "service_relation_client_resp_time"
+                  ]
                 },
                 {
                   "x": 0,
@@ -343,19 +299,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -379,14 +322,13 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "expressions": [
+                    "relabels(service_relation_client_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                  ]
                 },
                 {
                   "x": 0,
@@ -407,15 +349,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_call_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "percentage"
+                      "label": "success_rate"
                     }
                   ],
                   "associate": [
@@ -441,14 +377,13 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "status": "ERROR"
-                  }
+                  },
+                  "expressions": [
+                    "service_relation_client_call_sla/100"
+                  ]
                 },
                 {
                   "x": 0,
@@ -469,12 +404,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -498,10 +427,14 @@
                       "widgetId": "0-0-4"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  }
+                  "expressions": [
+                    "service_relation_client_cpm"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ]
                 }
               ]
             },
@@ -520,56 +453,58 @@
                   },
                   "linkDashboard": "General-Instance-Relation",
                   "nodeDashboard": "General-Instance",
-                  "linkServerMetrics": [
-                    "service_instance_relation_server_resp_time",
-                    "service_instance_relation_server_cpm"
-                  ],
-                  "linkClientMetrics": [
-                    "service_instance_relation_client_resp_time",
-                    "service_instance_relation_client_cpm"
-                  ],
-                  "nodeMetrics": [
-                    "service_instance_sla",
-                    "service_instance_cpm",
-                    "service_instance_resp_time"
-                  ],
-                  "legend": [],
+                  "nodeMetrics": [],
                   "description": {},
                   "nodeMetricConfig": [
                     {
-                      "unit": "%",
-                      "calculation": "percentage",
-                      "label": "Success Rate"
+                      "label": "Success Rate",
+                      "unit": "%"
                     },
                     {
-                      "unit": "calls / min",
-                      "label": "Load"
+                      "label": "Load",
+                      "unit": "calls / min"
                     },
                     {
-                      "unit": "ms",
-                      "label": "Latency"
+                      "label": "Latency",
+                      "unit": "ms"
                     }
                   ],
                   "linkServerMetricConfig": [
                     {
-                      "unit": "ms",
-                      "label": "Server Latency"
+                      "label": "Server Latency",
+                      "unit": "ms"
                     },
                     {
-                      "unit": "calls / min ",
-                      "label": "Server Load"
+                      "label": "Server Load",
+                      "unit": "calls / min"
                     }
                   ],
                   "linkClientMetricConfig": [
                     {
-                      "unit": "ms",
-                      "label": "Client Latency"
+                      "label": "Client Latency",
+                      "unit": "ms"
                     },
                     {
-                      "unit": "calls / min",
-                      "label": "Client Load"
+                      "label": "Client Load",
+                      "unit": "calls / min"
                     }
-                  ]
+                  ],
+                  "linkServerExpressions": [
+                    "avg(service_instance_relation_server_resp_time)",
+                    "avg(service_instance_relation_server_cpm)"
+                  ],
+                  "linkClientExpressions": [
+                    "avg(service_instance_relation_client_resp_time)",
+                    "avg(service_instance_relation_client_cpm)"
+                  ],
+                  "nodeExpressions": [
+                    "avg(service_instance_sla/100)",
+                    "avg(service_instance_cpm)",
+                    "avg(service_instance_resp_time)"
+                  ],
+                  "legendMQE": {
+                    "expression": ""
+                  }
                 }
               ]
             }

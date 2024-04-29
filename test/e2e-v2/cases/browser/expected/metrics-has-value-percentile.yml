@@ -13,65 +13,60 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- key: 0
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value:
-      value: 0
-      isemptyvalue: true
-  - key: {{ notEmpty .key }}
-    value:
-      value: {{ ge .value.value 1 }}
-      isemptyvalue: false
-  {{- end }}
-- key: 1
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value:
-      value: 0
-      isemptyvalue: true
-  - key: {{ notEmpty .key }}
-    value:
-      value: {{ ge .value.value 1 }}
-      isemptyvalue: false
-  {{- end }}
-- key: 2
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value:
-      value: 0
-      isemptyvalue: true
-  - key: {{ notEmpty .key }}
-    value:
-      value: {{ ge .value.value 1 }}
-      isemptyvalue: false
-  {{- end }}
-- key: 3
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value:
-      value: 0
-      isemptyvalue: true
-  - key: {{ notEmpty .key }}
-    value:
-      value: {{ ge .value.value 1 }}
-      isemptyvalue: false
-  {{- end }}
-- key: 4
-  value:
-  {{- contains .value }}
-  - key: {{ notEmpty .key }}
-    value:
-      value: 0
-      isemptyvalue: true
-  - key: {{ notEmpty .key }}
-    value:
-      value: {{ ge .value.value 1 }}
-      isemptyvalue: false
-  {{- end }}
-{{- end }}
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+- metric:
+    labels:
+      - key: p
+        value: "50"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: p
+        value: "75"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: p
+        value: "90"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: p
+        value: "99"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+  {{- end}}
+error: null

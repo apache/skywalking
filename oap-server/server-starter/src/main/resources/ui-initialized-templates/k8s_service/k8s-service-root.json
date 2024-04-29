@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "K8S-Service-Root",
@@ -22,76 +5,197 @@
       "children": [
         {
           "x": 0,
-          "y": 2,
-          "w": 24,
-          "h": 50,
-          "i": "0",
-          "type": "Widget",
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_pod_total",
-            "k8s_service_cpu_cores_requests",
-            "k8s_service_cpu_cores_limits"
-          ],
-          "moved": false,
-          "graph": {
-            "type": "ServiceList",
-            "dashboardName": "K8S-Service-Service",
-            "fontSize": 12,
-            "showXAxis": false,
-            "showYAxis": false,
-            "showGroup": true
-          },
-          "metricConfig": [
-            {
-              "calculation": "average",
-              "label": "Pod"
-            },
-            {
-              "label": "CPU Requests",
-              "calculation": "average",
-              "unit": "m"
-            },
-            {
-              "label": "CPU Limits",
-              "unit": "m",
-              "calculation": "average"
-            }
-          ]
-        },
-        {
-          "x": 0,
           "y": 0,
           "w": 24,
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
+          "expressions": [
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Observe Service status and resources from Kubernetes.",
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-k8s-monitoring/"
-          },
-          "moved": false
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "w": 24,
+          "h": 50,
+          "i": "101",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Services",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 50,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(k8s_service_pod_total)",
+                    "latest(k8s_service_cpu_cores_requests)",
+                    "latest(k8s_service_cpu_cores_limits)",
+                    "latest(kubernetes_service_http_call_cpm)",
+                    "latest(kubernetes_service_http_call_success_count/kubernetes_service_http_call_cpm*100)"
+                  ],
+                  "graph": {
+                    "type": "ServiceList",
+                    "dashboardName": "K8S-Service-Service",
+                    "fontSize": 12,
+                    "showXAxis": false,
+                    "showYAxis": false,
+                    "showGroup": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Pod"
+                    },
+                    {
+                      "label": "CPU Requests",
+                      "unit": "m"
+                    },
+                    {
+                      "label": "CPU Limits",
+                      "unit": "m"
+                    },
+                    {
+                      "label": "HTTP Load",
+                      "unit": "calls / min"
+                    },
+                    {
+                      "label": "HTTP Success Rate",
+                      "unit": "%"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Topology",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 50,
+                  "i": "0",
+                  "type": "Topology",
+                  "graph": {
+                    "showDepth": true
+                  },
+                  "linkDashboard": "K8S-Service-Relation",
+                  "nodeDashboard": [
+                    {
+                      "scope": "Endpoint",
+                      "dashboard": "K8S-Endpoint"
+                    }
+                  ],
+                  "nodeMetrics": [],
+                  "linkServerExpressions": [
+                    "avg(kubernetes_service_relation_server_write_package_size)/60",
+                    "avg(kubernetes_service_relation_server_read_package_size)/60",
+                    "avg(kubernetes_service_relation_client_http_call_cpm)/60",
+                    "avg(kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm)/1000000"
+                  ],
+                  "linkClientExpressions": [
+                    "avg(kubernetes_service_relation_client_write_package_size)/60",
+                    "avg(kubernetes_service_relation_client_read_package_size)/60",
+                    "avg(kubernetes_service_relation_server_http_call_cpm)/60",
+                    "avg(kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm)/1000000"
+                  ],
+                  "nodeExpressions": [
+                    "avg(kubernetes_service_write_package_size)/60",
+                    "avg(kubernetes_service_read_package_size)/60",
+                    "avg(kubernetes_service_http_call_cpm)",
+                    "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)/1000000",
+                    "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
+                  ],
+                  "legendMQE": {
+                    "expression": "(avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100) < 95) * (avg(kubernetes_service_http_call_cpm) > 1) == 1"
+                  },
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "HTTP Success Rate < 95% and HTTP Traffic > 1 calls / min"
+                  },
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "bytes / s",
+                      "label": "Server Write"
+                    },
+                    {
+                      "unit": "bytes / s",
+                      "label": "Server Read"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Client HTTP Load"
+                    },
+                    {
+                      "label": "Client HTTP Latency",
+                      "unit": "ms"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "bytes / s",
+                      "label": "Client Write"
+                    },
+                    {
+                      "label": "Client Read",
+                      "unit": "bytes / s"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Server HTTP Load"
+                    },
+                    {
+                      "label": "Server HTTP Latency",
+                      "unit": "ms"
+                    }
+                  ],
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "bytes / s",
+                      "label": "Write"
+                    },
+                    {
+                      "unit": "bytes / s",
+                      "label": "Read"
+                    },
+                    {
+                      "label": "HTTP Load",
+                      "unit": "calls / min"
+                    },
+                    {
+                      "label": "HTTP Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "HTTP Success Rate",
+                      "unit": "%"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ],
       "id": "K8S-Service-Root",
       "layer": "K8S_SERVICE",
       "entity": "All",
       "name": "K8S-Service-Root",
-      "isRoot": true
+      "isRoot": true,
+      "path": "/Kubernetes/Service"
     }
   }
 ]

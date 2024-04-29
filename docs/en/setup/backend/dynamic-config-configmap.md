@@ -19,7 +19,7 @@ configuration:
 
 e.g. These 2 configmaps would be selected by the above config:
 ```
-apiversion: v1
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: skywalking-dynamic-config
@@ -33,7 +33,7 @@ data:
   ...
 ```
 ```
-apiversion: v1
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: skywalking-dynamic-config2
@@ -59,7 +59,7 @@ e.g. The config is:
 ```
 The config in configmap is:
 ```
-apiversion: v1
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: skywalking-dynamic-config
@@ -85,7 +85,7 @@ e.g. The config is:
 ```
 The config can separate into 2 configmaps is:
 ```
-apiversion: v1
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: skywalking-dynamic-config
@@ -98,7 +98,7 @@ data:
   core.default.endpoint-name-grouping-openapi.productAPI-v1: value of productAPI-v1
 ```
 ```
-apiversion: v1
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: skywalking-dynamic-config2

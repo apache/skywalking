@@ -218,7 +218,7 @@ public class IncreaseTest {
                      String expression,
                      List<Result> want,
                      boolean isThrow) {
-        Expression e = DSL.parse(expression);
+        Expression e = DSL.parse(name, expression);
         CounterWindow.INSTANCE.reset();
         for (int i = 0; i < input.size(); i++) {
             Result r = null;

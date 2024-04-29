@@ -18,16 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
-import org.apache.skywalking.library.elasticsearch.response.Document;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
@@ -35,36 +34,24 @@ import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ManagementCRUDEsDAO;
 
 @Slf4j
-public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManagementDAO {
-    public UITemplateManagementEsDAO(ElasticSearchClient client) {
-        super(client);
+public class UITemplateManagementEsDAO extends ManagementCRUDEsDAO implements UITemplateManagementDAO {
+    public UITemplateManagementEsDAO(ElasticSearchClient client, StorageBuilder storageBuilder) {
+        super(client, storageBuilder);
     }
 
     @Override
-    public DashboardConfiguration getTemplate(final String id) {
-        if (StringUtil.isEmpty(id)) {
-            return null;
-        }
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(UITemplate.INDEX_NAME);
-        final SearchBuilder search =
-            Search.builder().query(Query.ids(id))
-                  .size(1);
-        final SearchResponse response = getClient().search(index, search.build());
-
-        if (response.getHits().getHits().size() > 0) {
-            UITemplate.Builder builder = new UITemplate.Builder();
-            SearchHit data = response.getHits().getHits().get(0);
-            return new DashboardConfiguration().fromEntity(
-                builder.storage2Entity(new ElasticSearchConverter.ToEntity(UITemplate.INDEX_NAME, data.getSource())));
+    public DashboardConfiguration getTemplate(final String id) throws IOException {
+        UITemplate uiTemplate = (UITemplate) super.getById(UITemplate.INDEX_NAME, id);
+        if (uiTemplate != null) {
+            return new DashboardConfiguration().fromEntity(uiTemplate);
         }
         return null;
     }
@@ -72,6 +59,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
     @Override
     public List<DashboardConfiguration> getAllTemplates(final Boolean includingDisabled) {
         final BoolQueryBuilder boolQuery = Query.bool();
+        boolQuery.must(Query.term(IndexController.LogicIndicesRegister.MANAGEMENT_TABLE_NAME, UITemplate.INDEX_NAME));
         if (!includingDisabled) {
             boolQuery.must(Query.term(
                 UITemplate.DISABLED,
@@ -93,74 +81,42 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
         for (SearchHit searchHit : response.getHits()) {
             Map<String, Object> sourceAsMap = searchHit.getSource();
 
-            final UITemplate uiTemplate = builder.storage2Entity(new ElasticSearchConverter.ToEntity(UITemplate.INDEX_NAME, sourceAsMap));
+            final UITemplate uiTemplate = builder.storage2Entity(
+                new ElasticSearchConverter.ToEntity(UITemplate.INDEX_NAME, sourceAsMap));
             configs.add(new DashboardConfiguration().fromEntity(uiTemplate));
         }
         return configs;
     }
 
     @Override
-    public TemplateChangeStatus addTemplate(final DashboardSetting setting) {
-        try {
-            final UITemplate.Builder builder = new UITemplate.Builder();
-            final UITemplate uiTemplate = setting.toEntity();
-
-            final boolean exist = getClient().existDoc(UITemplate.INDEX_NAME, uiTemplate.id().build());
-            if (exist) {
-                return TemplateChangeStatus.builder().status(false).id(setting.getId()).message("Template exists")
-                                           .build();
-            }
-
-            final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(UITemplate.INDEX_NAME);
-            builder.entity2Storage(uiTemplate, toStorage);
-            getClient().forceInsert(UITemplate.INDEX_NAME, uiTemplate.id().build(), toStorage.obtain());
+    public TemplateChangeStatus addTemplate(final DashboardSetting setting) throws IOException {
+        final UITemplate uiTemplate = setting.toEntity();
+        if (super.create(UITemplate.INDEX_NAME, uiTemplate)) {
             return TemplateChangeStatus.builder().status(true).id(uiTemplate.getTemplateId()).build();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return TemplateChangeStatus.builder().status(false).id(setting.getId()).message("Can't add a new template")
-                                       .build();
         }
+        return TemplateChangeStatus.builder().status(false).id(uiTemplate.getTemplateId())
+                                   .message("Template already exists").build();
     }
 
     @Override
-    public TemplateChangeStatus changeTemplate(final DashboardSetting setting) {
-        try {
-            final UITemplate.Builder builder = new UITemplate.Builder();
-            final UITemplate uiTemplate = setting.toEntity();
-
-            final boolean exist = getClient().existDoc(UITemplate.INDEX_NAME, uiTemplate.id().build());
-            if (!exist) {
-                return TemplateChangeStatus.builder().status(false).id(setting.getId())
-                                           .message("Can't find the template").build();
-            }
-
-            final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(UITemplate.INDEX_NAME);
-            builder.entity2Storage(uiTemplate, toStorage);
-            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id().build(), toStorage.obtain());
-            return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return TemplateChangeStatus.builder().status(false).id(setting.getId()).message("Can't find the template")
-                                       .build();
+    public TemplateChangeStatus changeTemplate(final DashboardSetting setting) throws IOException {
+        final UITemplate uiTemplate = setting.toEntity();
+        if (super.update(UITemplate.INDEX_NAME, uiTemplate)) {
+            return TemplateChangeStatus.builder().status(true).id(uiTemplate.getTemplateId()).build();
         }
+        return TemplateChangeStatus.builder().status(false).id(uiTemplate.getTemplateId())
+                                   .message("Can't find the template").build();
     }
 
     @Override
-    public TemplateChangeStatus disableTemplate(final String id) {
-        final Optional<Document> response = getClient().get(UITemplate.INDEX_NAME, id);
-        if (response.isPresent()) {
-            final UITemplate.Builder builder = new UITemplate.Builder();
-            final UITemplate uiTemplate = builder.storage2Entity(
-                new ElasticSearchConverter.ToEntity(UITemplate.INDEX_NAME, response.get().getSource()));
+    public TemplateChangeStatus disableTemplate(final String id) throws IOException {
+        UITemplate uiTemplate = (UITemplate) super.getById(UITemplate.INDEX_NAME, id);
+        if (uiTemplate != null) {
             uiTemplate.setDisabled(BooleanUtils.TRUE);
-
-            final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(UITemplate.INDEX_NAME);
-            builder.entity2Storage(uiTemplate, toStorage);
-            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id().build(), toStorage.obtain());
+            super.update(UITemplate.INDEX_NAME, uiTemplate);
             return TemplateChangeStatus.builder().status(true).id(id).build();
-        } else {
-            return TemplateChangeStatus.builder().status(false).id(id).message("Can't find the template")
-                                       .build();
         }
+        return TemplateChangeStatus.builder().status(false).id(id).message("Can't find the template")
+                                   .build();
     }
 }

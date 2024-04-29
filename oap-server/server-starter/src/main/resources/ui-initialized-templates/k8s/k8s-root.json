@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "K8S-Root",
@@ -27,9 +10,6 @@
           "h": 52,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": ""
-          },
           "graph": {
             "type": "ServiceList",
             "dashboardName": "K8S-Cluster",
@@ -38,40 +18,34 @@
             "showYAxis": false,
             "showGroup": false
           },
-          "metrics": [
+          "expressions": [
+            "avg(k8s_cluster_node_total)",
+            "avg(k8s_cluster_namespace_total)",
+            "avg(k8s_cluster_deployment_total)",
+            "avg(k8s_cluster_service_total)",
+            "avg(k8s_cluster_pod_total)"
+          ],
+          "subExpressions": [
             "k8s_cluster_node_total",
             "k8s_cluster_namespace_total",
             "k8s_cluster_deployment_total",
             "k8s_cluster_service_total",
             "k8s_cluster_pod_total"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "average",
               "label": "Node"
             },
             {
-              "calculation": "average",
               "label": "Namespace"
             },
             {
-              "calculation": "average",
               "label": "Deployment"
             },
             {
-              "calculation": "average",
               "label": "Service"
             },
             {
-              "calculation": "average",
               "label": "Pod"
             }
           ]
@@ -83,21 +57,14 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Provide monitoring of the status and resources of the K8S Cluster.",
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-k8s-monitoring/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "K8S-Root",

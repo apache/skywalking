@@ -1,0 +1,46 @@
+[
+  {
+    "id": "RabbitMQ-Root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 3,
+          "w": 24,
+          "h": 29,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "RabbitMQ-Cluster",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          }
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 3,
+          "i": "1",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Provide RabbitMQ monitoring through OpenTelemetry's Prometheus Receiver",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-rabbitmq-monitoring/"
+          }
+        }
+      ],
+      "id": "RabbitMQ-Root",
+      "layer": "RABBITMQ",
+      "entity": "All",
+      "name": "RabbitMQ-Root",
+      "isRoot": true
+    }
+  }
+]

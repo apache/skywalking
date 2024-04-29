@@ -41,7 +41,7 @@ public class OpenTelemetryMetricHandler
 
     @Override
     public String type() {
-        return "otlp";
+        return "otlp-metrics";
     }
 
     @Override

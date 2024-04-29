@@ -494,7 +494,7 @@ public class ScopeTest {
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newServiceRelation("productpage", "details", DetectPoint.CLIENT, Layer.GENERAL),
+                            MeterEntity.newServiceRelation("productpage", "details", DetectPoint.CLIENT, Layer.GENERAL, 0),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of())
@@ -503,12 +503,51 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newServiceRelation("productpage", "reviews", DetectPoint.CLIENT, Layer.GENERAL),
+                            MeterEntity.newServiceRelation("productpage", "reviews", DetectPoint.CLIENT, Layer.GENERAL, 0),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of())
                                       .value(16)
                                       .name("envoy_cluster_metrics_up_cx_active").build()
+                            }
+                        );
+                    }
+                }
+            },
+            {
+                "sum_service_relation_with_component",
+                of("envoy_cluster_metrics_up_cx_active", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                        .labels(of("app", "productpage", "cluster_name", "details", "env", "test", "component", "10"))
+                        .value(11)
+                        .name("envoy_cluster_metrics_up_cx_active")
+                        .build(),
+                    Sample.builder()
+                        .labels(of("app", "productpage", "cluster_name", "reviews", "env", "test", "component", "10"))
+                        .value(16)
+                        .name("envoy_cluster_metrics_up_cx_active")
+                        .build()
+                ).build()),
+                "envoy_cluster_metrics_up_cx_active.sum(['app' ,'cluster_name', 'env', 'component']).serviceRelation(DetectPoint.CLIENT, ['app', 'env'], ['cluster_name'], '-', Layer.GENERAL, 'component')",
+                false,
+                new HashMap<MeterEntity, Sample[]>() {
+                    {
+                        put(
+                            MeterEntity.newServiceRelation("productpage-test", "details", DetectPoint.CLIENT, Layer.GENERAL, 10),
+                            new Sample[] {
+                                Sample.builder()
+                                    .labels(of())
+                                    .value(11)
+                                    .name("envoy_cluster_metrics_up_cx_active").build()
+                            }
+                        );
+                        put(
+                            MeterEntity.newServiceRelation("productpage-test", "reviews", DetectPoint.CLIENT, Layer.GENERAL, 10),
+                            new Sample[] {
+                                Sample.builder()
+                                    .labels(of())
+                                    .value(16)
+                                    .name("envoy_cluster_metrics_up_cx_active").build()
                             }
                         );
                     }
@@ -575,7 +614,7 @@ public class ScopeTest {
                      final String expression,
                      final boolean isThrow,
                      final Map<MeterEntity, Sample[]> want) {
-        Expression e = DSL.parse(expression);
+        Expression e = DSL.parse(name, expression);
         Result r = null;
         try {
             r = e.run(input);

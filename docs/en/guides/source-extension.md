@@ -1,5 +1,5 @@
 # Source and scope extension for new metrics
-From the [OAL scope introduction](../concepts-and-designs/oal.md#scope), you should already have understood what a scope is.
+From the [OAL scope introduction](../concepts-and-designs/oal.md#from), you should already have understood what a scope is.
 If you would like to create more extensions, you need to have a deeper understanding of what a **source** is. 
 
 **Source** and **scope** are interrelated concepts. **Scope** declares the ID (int) and name, while **source** declares the attributes.

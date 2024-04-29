@@ -22,11 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.skywalking.oap.query.promql.entity.LabelName;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class MatcherSetResult extends ParseResult {
     private String metricName;
-    private Map<LabelName, String> labelMap = new HashMap<>();
+    private Map<String, String> labelMap = new HashMap<>();
 }

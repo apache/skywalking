@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "General-Service",
@@ -46,16 +29,8 @@
                     "fontSize": 14,
                     "textAlign": "center"
                   },
-                  "metrics": [
-                    "service_apdex"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValue"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "apdex"
-                    }
+                  "expressions": [
+                    "avg(service_apdex)/10000"
                   ]
                 },
                 {
@@ -74,17 +49,13 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "metrics": [
-                    "service_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValue"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "percentage",
                       "unit": "%"
                     }
+                  ],
+                  "expressions": [
+                    "avg(service_sla)/100"
                   ]
                 },
                 {
@@ -95,7 +66,7 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Load (calls / min)",
+                    "title": "Service Load",
                     "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min)"
                   },
                   "graph": {
@@ -104,16 +75,13 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "metrics": [
-                    "service_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValue"
-                  ],
                   "metricConfig": [
                     {
                       "unit": "calls / min"
                     }
+                  ],
+                  "expressions": [
+                    "avg(service_cpm)"
                   ]
                 },
                 {
@@ -135,12 +103,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "4-0-10"
@@ -164,7 +126,16 @@
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "service_resp_time"
+                  ]
                 },
                 {
                   "x": 6,
@@ -185,15 +156,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_apdex"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "apdex"
+                      "label": "apdex"
                     }
                   ],
                   "associate": [
@@ -216,15 +181,14 @@
                       "widgetId": "4-0-9"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 12,
-                    "sourceId": "4-0-3"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "queryOrder": "BY_DURATION",
                     "status": "ERROR"
-                  }
+                  },
+                  "expressions": [
+                    "service_apdex/10000"
+                  ]
                 },
                 {
                   "x": 12,
@@ -245,18 +209,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0, 1, 2, 3, 4"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -277,14 +229,13 @@
                       "widgetId": "4-0-9"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 12,
-                    "sourceId": "4-0-3"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "expressions": [
+                    "relabels(service_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+                  ]
                 },
                 {
                   "x": 0,
@@ -305,15 +256,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "percentage"
+                      "label": "success_rate"
                     }
                   ],
                   "associate": [
@@ -336,14 +281,13 @@
                       "widgetId": "4-0-9"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 12,
-                    "sourceId": "4-0-3"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "status": "ERROR"
-                  }
+                  },
+                  "expressions": [
+                    "service_sla/100"
+                  ]
                 },
                 {
                   "x": 18,
@@ -365,12 +309,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -391,10 +329,14 @@
                       "widgetId": "4-0-9"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 12,
-                    "sourceId": "4-0-3"
-                  }
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ],
+                  "expressions": [
+                    "service_cpm"
+                  ]
                 },
                 {
                   "x": 8,
@@ -415,12 +357,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_mq_consume_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -441,10 +377,14 @@
                       "widgetId": "4-0-10"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 12,
-                    "sourceId": "4-0-3"
-                  }
+                  "metricConfig": [
+                    {
+                      "label": "consuming_count"
+                    }
+                  ],
+                  "expressions": [
+                    "service_mq_consume_count"
+                  ]
                 },
                 {
                   "x": 16,
@@ -466,12 +406,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_mq_consume_latency"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -492,10 +426,14 @@
                       "widgetId": "4-0-9"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 12,
-                    "sourceId": "4-0-3"
-                  }
+                  "metricConfig": [
+                    {
+                      "label": "avg_consuming_latency"
+                    }
+                  ],
+                  "expressions": [
+                    "service_mq_consume_latency"
+                  ]
                 },
                 {
                   "x": 0,
@@ -511,11 +449,8 @@
                   "graph": {
                     "type": "TopList"
                   },
-                  "metrics": [
-                    "service_instance_cpm"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
+                  "expressions": [
+                    "top_n(service_instance_cpm,10,des)"
                   ]
                 },
                 {
@@ -532,11 +467,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "service_instance_resp_time"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
+                  "expressions": [
+                    "top_n(service_instance_resp_time,10,des)"
                   ]
                 },
                 {
@@ -553,17 +485,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "service_instance_sla"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "ASC",
-                      "calculation": "percentage"
-                    }
+                  "expressions": [
+                    "top_n(service_instance_sla,10,asc)/100"
                   ]
                 },
                 {
@@ -574,23 +497,14 @@
                   "i": "20",
                   "type": "Widget",
                   "widget": {
-                    "title": "Success Rate in Current Service (%)"
+                    "title": "Endpoint Success Rate in Current Service (%)"
                   },
                   "graph": {
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "endpoint_sla"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "ASC",
-                      "calculation": "percentage"
-                    }
+                  "expressions": [
+                    "top_n(endpoint_sla,10,asc)/100"
                   ]
                 },
                 {
@@ -607,11 +521,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "endpoint_resp_time"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
+                  "expressions": [
+                    "top_n(endpoint_resp_time,10,des)"
                   ]
                 },
                 {
@@ -629,11 +540,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "endpoint_cpm"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
+                  "expressions": [
+                    "top_n(endpoint_cpm,10,des)"
                   ]
                 }
               ]
@@ -653,32 +561,32 @@
                     "dashboardName": "General-Instance",
                     "fontSize": 12
                   },
-                  "metrics": [
-                    "service_instance_cpm",
-                    "service_instance_sla",
-                    "service_instance_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min",
-                      "calculation": "average"
+                      "detailLabel": "load",
+                      "unit": "calls / min"
                     },
                     {
-                      "calculation": "percentageAvg",
-                      "unit": "%",
-                      "label": "Success Rate"
+                      "detailLabel": "success_rate",
+                      "label": "Success Rate",
+                      "unit": "%"
                     },
                     {
-                      "calculation": "average",
                       "label": "Latency",
+                      "detailLabel": "latency",
                       "unit": "ms"
                     }
+                  ],
+                  "expressions": [
+                    "avg(service_instance_cpm)",
+                    "avg(service_instance_sla)/100",
+                    "avg(service_instance_resp_time)"
+                  ],
+                  "subExpressions": [
+                    "service_instance_cpm",
+                    "service_instance_sla/100",
+                    "service_instance_resp_time"
                   ]
                 }
               ]
@@ -700,32 +608,32 @@
                     "showXAxis": false,
                     "showYAxis": false
                   },
-                  "metrics": [
-                    "endpoint_cpm",
-                    "endpoint_sla",
-                    "endpoint_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min",
-                      "calculation": "average"
+                      "detailLabel": "load",
+                      "unit": "calls / min"
                     },
                     {
-                      "calculation": "percentageAvg",
-                      "unit": "%",
-                      "label": "Success Rate"
+                      "label": "Success Rate",
+                      "detailLabel": "success_rate",
+                      "unit": "%"
                     },
                     {
-                      "calculation": "average",
                       "label": "Latency",
+                      "detailLabel": "latency",
                       "unit": "ms"
                     }
+                  ],
+                  "expressions": [
+                    "avg(endpoint_cpm)",
+                    "avg(endpoint_sla)/100",
+                    "avg(endpoint_resp_time)"
+                  ],
+                  "subExpressions": [
+                    "endpoint_cpm",
+                    "endpoint_sla/100",
+                    "endpoint_resp_time"
                   ]
                 }
               ]
@@ -758,31 +666,22 @@
                       "dashboard": "General-Endpoint"
                     }
                   ],
-                  "linkServerMetrics": [
-                    "service_relation_server_resp_time",
-                    "service_relation_server_cpm"
+                  "linkServerExpressions": [
+                    "avg(service_relation_server_resp_time)",
+                    "avg(service_relation_server_cpm)"
                   ],
-                  "linkClientMetrics": [
-                    "service_relation_client_cpm",
-                    "service_relation_client_resp_time"
+                  "linkClientExpressions": [
+                    "avg(service_relation_client_resp_time)",
+                    "avg(service_relation_client_cpm)"
                   ],
-                  "nodeMetrics": [
-                    "service_cpm",
-                    "service_sla",
-                    "service_resp_time"
+                  "nodeExpressions": [
+                    "avg(service_cpm)",
+                    "avg(service_sla/100)",
+                    "avg(service_resp_time)"
                   ],
-                  "legend": [
-                    {
-                      "name": "service_sla",
-                      "condition": "<",
-                      "value": "9500"
-                    },
-                    {
-                      "name": "service_cpm",
-                      "condition": ">",
-                      "value": "1"
-                    }
-                  ],
+                  "legendMQE": {
+                    "expression": "(avg(service_sla) < 9500) * (avg(service_cpm) > 1)  == 1"
+                  },
                   "description": {
                     "healthy": "Healthy",
                     "unhealthy": "Success Rate < 95% and Traffic > 1 call/min"
@@ -857,8 +756,8 @@
                   "i": "2",
                   "type": "Text",
                   "graph": {
-                    "fontColor": "white",
-                    "backgroundColor": "blue",
+                    "fontColor": "theme",
+                    "backgroundColor": "theme",
                     "content": "Trace Profiling supported services written in Java or Python with SkyWalking native agents installed.",
                     "fontSize": 14,
                     "textAlign": "left",
@@ -878,8 +777,8 @@
                   "i": "3",
                   "type": "Text",
                   "graph": {
-                    "fontColor": "white",
-                    "backgroundColor": "blue",
+                    "fontColor": "theme",
+                    "backgroundColor": "theme",
                     "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
                     "fontSize": 14,
                     "textAlign": "left",
@@ -921,10 +820,29 @@
           "eventAssociate": true
         }
       ],
+      "name": "General-Service",
       "layer": "GENERAL",
       "entity": "Service",
-      "name": "General-Service",
-      "id": "General-Service"
+      "isDefault": true,
+      "expressions": [
+        "avg(service_cpm)",
+        "avg(service_sla/100)",
+        "avg(service_resp_time)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "calls / min",
+          "label": "Load"
+        },
+        {
+          "unit": "%",
+          "label": "Success Rate"
+        },
+        {
+          "unit": "ms",
+          "label": "Latency"
+        }
+      ]
     }
   }
 ]

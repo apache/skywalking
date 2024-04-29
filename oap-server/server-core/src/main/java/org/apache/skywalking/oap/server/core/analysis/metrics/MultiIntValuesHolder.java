@@ -20,7 +20,9 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 /**
  * MultiIntValuesHolder always holds a set of int(s).
+ * Deprecated @since 10.0.0, use {@link LabeledValueHolder} instead.
  */
+@Deprecated
 public interface MultiIntValuesHolder {
     int[] getValues();
 }

@@ -1,0 +1,434 @@
+[
+  {
+    "id": "RocketMQ-Cluster",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 48,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 6,
+                  "i": "8",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "title": "Messages Produced Today",
+                    "tips": "The number of the cluster messages produced today",
+                    "name": "messages produced today"
+                  },
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_messages_produced_today)"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 6,
+                  "i": "9",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "title": "Messages Consumed Today",
+                    "tips": "The number of the cluster messages consumed today",
+                    "name": "messages consumed today"
+                  },
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_messages_consumed_today)"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 20,
+                  "w": 12,
+                  "h": 14,
+                  "i": "10",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Total Producer Tps",
+                    "tips": "The number of messages produced per second",
+                    "name": "total producer TPS"
+                  },
+                  "expressions": [
+                    "meter_rocketmq_cluster_total_producer_tps"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 20,
+                  "w": 12,
+                  "h": 14,
+                  "i": "11",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Total Consume Tps",
+                    "tips": "The number of messages consumed per second",
+                    "name": "total consumer TPS"
+                  },
+                  "expressions": [
+                    "meter_rocketmq_cluster_total_consumer_tps"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 48,
+                  "w": 12,
+                  "h": 14,
+                  "i": "12",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_rocketmq_cluster_producer_message_size/1024/1024"
+                  ],
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "name": "producer message size",
+                    "title": "Producer Message Size(MB)",
+                    "tips": "The size of a message produced per second"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 48,
+                  "w": 12,
+                  "h": 14,
+                  "i": "13",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_rocketmq_cluster_consumer_message_size/1024/1024"
+                  ],
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "name": "consumer message size",
+                    "title": "Consumer Message Size(MB)",
+                    "tips": "The size of the consumed message per second"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 6,
+                  "i": "16",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_messages_produced_until_yesterday)"
+                  ],
+                  "widget": {
+                    "name": "messages produced until yesterday",
+                    "title": "Messages Produced Until Yesterday",
+                    "tips": "The total number of messages put until 12 o'clock last night"
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 6,
+                  "i": "17",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_messages_consumed_until_yesterday)"
+                  ],
+                  "widget": {
+                    "name": "messages consumed until yesterday",
+                    "title": "Messages Consumed Until Yesterday",
+                    "tips": "The total number of messages read until 12 o'clock last night"
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 6,
+                  "w": 6,
+                  "h": 7,
+                  "i": "18",
+                  "type": "Widget",
+                  "metricConfig": [
+                    {
+                      "unit": "ms"
+                    }
+                  ],
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_max_consumer_latency)"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "name": "max consumer latency",
+                    "title": "Max Consumer Latency",
+                    "tips": "The max number of consumer latency"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 6,
+                  "w": 6,
+                  "h": 7,
+                  "i": "19",
+                  "type": "Widget",
+                  "metricConfig": [
+                    {
+                      "unit": "%"
+                    }
+                  ],
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_max_commitLog_disk_ratio)"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "name": "max commitLog disk ratio",
+                    "title": "Max CommitLog Disk Ratio",
+                    "tips": "The max utilization ratio of the commit log disk"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 6,
+                  "w": 12,
+                  "h": 14,
+                  "i": "21",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_rocketmq_cluster_commitLog_disk_ratio"
+                  ],
+                  "widget": {
+                    "name": "commitLog disk ratio",
+                    "title": "CommitLog Disk Ratio(%)",
+                    "tips": "The utilization ratio of commit log disk per brokerIp"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 34,
+                  "w": 12,
+                  "h": 14,
+                  "i": "22",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_rocketmq_cluster_pull_threadPool_queue_head_wait_time"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "pull threadPool queue head wait time",
+                    "title": "Pull ThreadPool Queue Head Wait Time(ms)",
+                    "tips": "The wait time in milliseconds for pulling threadPool queue"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 34,
+                  "w": 12,
+                  "h": 14,
+                  "i": "23",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_rocketmq_cluster_send_threadPool_queue_head_wait_time"
+                  ],
+                  "widget": {
+                    "name": "send threadPool queue head wait time",
+                    "title": "Send ThreadPool Queue Head Wait Time(ms)",
+                    "tips": "The wait time in milliseconds for sending threadPool queue"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 6,
+                  "h": 7,
+                  "i": "24",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_topic_count)"
+                  ],
+                  "widget": {
+                    "name": "topic count",
+                    "title": "Topic Count",
+                    "tips": "The number of topics that received messages from the producer"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 7,
+                  "i": "25",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_broker_count)"
+                  ],
+                  "widget": {
+                    "name": "broker count",
+                    "title": "Broker Count",
+                    "tips": "The number of brokers that received messages from the producer"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Broker",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 30,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "RocketMQ-Broker",
+                    "fontSize": 12
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Topic",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 16,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "EndpointList",
+                    "dashboardName": "RocketMQ-Topic",
+                    "fontSize": 12
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "ROCKETMQ",
+      "entity": "Service",
+      "name": "RocketMQ-Cluster",
+      "id": "RocketMQ-Cluster",
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_rocketmq_cluster_total_producer_tps)",
+        "avg(meter_rocketmq_cluster_total_consumer_tps)",
+        "avg(meter_rocketmq_cluster_consumer_message_size)/1024/1024",
+        "avg(meter_rocketmq_cluster_producer_message_size)/1024/1024"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "messages / s",
+          "label": "Producer TPS"
+        },
+        {
+          "unit": "messages / s",
+          "label": "Consumer TPS"
+        },
+        {
+          "unit": "MB / s",
+          "label": "Producer Message Size"
+        },
+        {
+          "unit": "MB / s",
+          "label": "Consumer Message Size"
+        }
+      ]
+    }
+  }
+]

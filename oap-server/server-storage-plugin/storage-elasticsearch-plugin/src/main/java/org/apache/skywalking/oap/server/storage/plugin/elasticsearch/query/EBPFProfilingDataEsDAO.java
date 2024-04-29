@@ -22,23 +22,16 @@ import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuil
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
-import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
-import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
-import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchScroller;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataDAO {
     private final int scrollingBatchSize;
@@ -49,7 +42,7 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
     }
 
     @Override
-    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
+    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) {
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingDataRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
@@ -60,39 +53,17 @@ public class EBPFProfilingDataEsDAO extends EsDAO implements IEBPFProfilingDataD
         query.must(Query.terms(EBPFProfilingDataRecord.SCHEDULE_ID, scheduleIdList));
         query.must(Query.range(EBPFProfilingDataRecord.UPLOAD_TIME).gte(beginTime).lt(endTime));
 
-        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
-        final List<EBPFProfilingDataRecord> records = new ArrayList<>();
-
-        SearchResponse results = getClient().search(index, search.build(), params);
-        final Set<String> scrollIds = new HashSet<>();
-        try {
-            while (true) {
-                final String scrollId = results.getScrollId();
-                scrollIds.add(scrollId);
-                if (results.getHits().getTotal() == 0) {
-                    break;
-                }
-                final List<EBPFProfilingDataRecord> batch = buildDataList(results);
-                records.addAll(batch);
-                // The last iterate, there is no more data
-                if (batch.size() < scrollingBatchSize) {
-                    break;
-                }
-                results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-            }
-        } finally {
-            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
-        }
-        return records;
-    }
-
-    private List<EBPFProfilingDataRecord> buildDataList(SearchResponse response) {
-        List<EBPFProfilingDataRecord> records = new ArrayList<>();
-        for (SearchHit hit : response.getHits()) {
-            final Map<String, Object> sourceAsMap = hit.getSource();
-            final EBPFProfilingDataRecord.Builder builder = new EBPFProfilingDataRecord.Builder();
-            records.add(builder.storage2Entity(new ElasticSearchConverter.ToEntity(EBPFProfilingDataRecord.INDEX_NAME, sourceAsMap)));
-        }
-        return records;
+        final var scroller = ElasticSearchScroller
+            .<EBPFProfilingDataRecord>builder()
+            .client(getClient())
+            .search(search.build())
+            .index(index)
+            .resultConverter(hit -> {
+                final var sourceAsMap = hit.getSource();
+                final var builder = new EBPFProfilingDataRecord.Builder();
+                return builder.storage2Entity(new ElasticSearchConverter.ToEntity(EBPFProfilingDataRecord.INDEX_NAME, sourceAsMap));
+            })
+            .build();
+        return scroller.scroll();
     }
 }

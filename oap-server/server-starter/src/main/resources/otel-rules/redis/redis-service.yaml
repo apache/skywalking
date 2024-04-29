@@ -33,34 +33,38 @@ expSuffix:  tag({tags -> tags.host_name = 'redis::' + tags.host_name}).service([
 metricPrefix: meter_redis
 metricsRules:
   - name: uptime
-    exp: redis_uptime_in_seconds.max(['host_name'])
+    exp: redis_uptime_in_seconds.max(['host_name','service_instance_id'])
   - name: connected_clients
-    exp: redis_connected_clients.sum(['host_name'])
+    exp: redis_connected_clients.sum(['host_name','service_instance_id'])
   - name: blocked_clients
-    exp: redis_blocked_clients.sum(['host_name'])
-  - name: memory_usage
-    exp: redis_memory_used_bytes.sum(['host_name']) * 100 / redis_memory_max_bytes.sum(['host_name'])
+    exp: redis_blocked_clients.sum(['host_name','service_instance_id'])
+  - name: memory_used_bytes
+    exp: redis_memory_used_bytes.sum(['host_name','service_instance_id'])
+  - name: memory_max_bytes
+    exp: redis_memory_max_bytes.sum(['host_name','service_instance_id'])
   - name: total_commands_rate
-    exp: redis_commands_total.sum(['cmd','host_name']).rate('PT1M')
+    exp: redis_commands_total.sum(['cmd','host_name','service_instance_id']).rate('PT1M')
   - name: hit_rate
-    exp: redis_keyspace_hits_total * 100 / (redis_keyspace_misses_total + redis_keyspace_hits_total)
+    exp: (redis_keyspace_hits_total * 100 / (redis_keyspace_misses_total + redis_keyspace_hits_total)).sum(['service_instance_id','host_name'])
 
   - name: net_input_bytes_total
-    exp: redis_net_input_bytes_total.sum(['host_name']).rate('PT5M')
+    exp: redis_net_input_bytes_total.sum(['host_name','service_instance_id']).rate('PT5M')
   - name: net_output_bytes_total
-    exp: redis_net_output_bytes_total.sum(['host_name']).rate('PT5M')
+    exp: redis_net_output_bytes_total.sum(['host_name','service_instance_id']).rate('PT5M')
 
   - name: db_keys
-    exp: redis_db_keys.sum(['host_name'])
+    exp: redis_db_keys.sum(['host_name','service_instance_id'])
   - name: expired_keys_total
-    exp: redis_expired_keys_total.sum(['host_name'])
+    exp: redis_expired_keys_total.sum(['host_name','service_instance_id'])
   - name: evicted_keys_total
-    exp: redis_evicted_keys_total.sum(['host_name'])
+    exp: redis_evicted_keys_total.sum(['host_name','service_instance_id'])
 
-  - name: average_time_spent_by_command
-    exp: (redis_commands_duration_seconds_total.sum(['host_name','cmd']) / redis_commands_total.sum(['host_name','cmd'])).rate('PT1M')
+  - name: commands_duration
+    exp: redis_commands_duration_seconds_total.sum(['host_name','cmd','service_instance_id'])
+  - name: commands_total
+    exp: redis_commands_total.sum(['host_name','cmd','service_instance_id'])
   - name: commands_duration_seconds_total_rate
-    exp: redis_commands_duration_seconds_total.sum(['host_name','cmd']).rate('PT1M')
+    exp: redis_commands_duration_seconds_total.sum(['host_name','cmd','service_instance_id']).rate('PT1M')
 
 
 

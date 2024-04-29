@@ -25,6 +25,7 @@ import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -80,7 +81,14 @@ public class DingtalkHookCallbackTest {
         webHooks.add(new DingtalkSettings.WebHookUrl("", "http://127.0.0.1:" + SERVER.httpPort() + "/dingtalkhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msgtype\":\"text\",\"text\":{\"content\":\"Skywaling alarm: %s\"}}";
-        rules.setDingtalks(DingtalkSettings.builder().webhooks(webHooks).textTemplate(template).build());
+        DingtalkSettings setting1 = new DingtalkSettings("setting1", AlarmHooksType.dingtalk, true);
+        setting1.setWebhooks(webHooks);
+        setting1.setTextTemplate(template);
+        DingtalkSettings setting2 = new DingtalkSettings("setting2", AlarmHooksType.dingtalk, false);
+        setting2.setWebhooks(webHooks);
+        setting2.setTextTemplate(template);
+        rules.getDingtalkSettingsMap().put(setting1.getFormattedName(), setting1);
+        rules.getDingtalkSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
         DingtalkHookCallback dingtalkCallBack = new DingtalkHookCallback(alarmRulesWatcher);
@@ -89,11 +97,13 @@ public class DingtalkHookCallbackTest {
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
+        alarmMessage.getHooks().add(setting1.getFormattedName());
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
         anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
         anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
+        anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         dingtalkCallBack.doAlarm(alarmMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
@@ -106,7 +116,14 @@ public class DingtalkHookCallbackTest {
         webHooks.add(new DingtalkSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/dingtalkhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msgtype\":\"text\",\"text\":{\"content\":\"Skywaling alarm: %s\"}}";
-        rules.setDingtalks(DingtalkSettings.builder().webhooks(webHooks).textTemplate(template).build());
+        DingtalkSettings setting1 = new DingtalkSettings("setting1", AlarmHooksType.dingtalk, true);
+        setting1.setWebhooks(webHooks);
+        setting1.setTextTemplate(template);
+        DingtalkSettings setting2 = new DingtalkSettings("setting2", AlarmHooksType.dingtalk, false);
+        setting2.setWebhooks(webHooks);
+        setting2.setTextTemplate(template);
+        rules.getDingtalkSettingsMap().put(setting1.getFormattedName(), setting1);
+        rules.getDingtalkSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
         DingtalkHookCallback dingtalkCallBack = new DingtalkHookCallback(alarmRulesWatcher);
@@ -115,11 +132,13 @@ public class DingtalkHookCallbackTest {
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
+        alarmMessage.getHooks().add(setting1.getFormattedName());
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
         anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
         anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
+        anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         dingtalkCallBack.doAlarm(alarmMessages);
         Assertions.assertTrue(IS_SUCCESS.get());

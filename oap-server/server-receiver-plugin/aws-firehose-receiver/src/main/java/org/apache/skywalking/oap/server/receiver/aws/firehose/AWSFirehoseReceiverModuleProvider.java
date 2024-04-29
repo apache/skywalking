@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.aws.firehose;
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -98,7 +99,9 @@ public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        httpServer.start();
+        if (!RunningMode.isInitMode()) {
+            httpServer.start();
+        }
     }
 
     @Override

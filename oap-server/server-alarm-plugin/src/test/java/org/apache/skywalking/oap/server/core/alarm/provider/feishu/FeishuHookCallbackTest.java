@@ -25,6 +25,7 @@ import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -78,7 +79,14 @@ public class FeishuHookCallbackTest {
         webHooks.add(new FeishuSettings.WebHookUrl("", "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"}}";
-        rules.setFeishus(FeishuSettings.builder().webhooks(webHooks).textTemplate(template).build());
+        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishu, true);
+        setting1.setWebhooks(webHooks);
+        setting1.setTextTemplate(template);
+        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishu, false);
+        setting2.setWebhooks(webHooks);
+        setting2.setTextTemplate(template);
+        rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);
+        rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
@@ -87,11 +95,13 @@ public class FeishuHookCallbackTest {
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
+        alarmMessage.getHooks().add(setting1.getFormattedName());
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
         anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
         anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
+        anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         feishuHookCallback.doAlarm(alarmMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
@@ -104,7 +114,14 @@ public class FeishuHookCallbackTest {
         webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"}}";
-        rules.setFeishus(FeishuSettings.builder().webhooks(webHooks).textTemplate(template).build());
+        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishu, true);
+        setting1.setWebhooks(webHooks);
+        setting1.setTextTemplate(template);
+        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishu, false);
+        setting2.setWebhooks(webHooks);
+        setting2.setTextTemplate(template);
+        rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);
+        rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
@@ -113,11 +130,13 @@ public class FeishuHookCallbackTest {
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
+        alarmMessage.getHooks().add(setting1.getFormattedName());
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
         anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
         anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
+        anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         feishuHookCallback.doAlarm(alarmMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
@@ -130,7 +149,14 @@ public class FeishuHookCallbackTest {
         webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"},\"ats\":\"123\"}";
-        rules.setFeishus(FeishuSettings.builder().webhooks(webHooks).textTemplate(template).build());
+        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishu, true);
+        setting1.setWebhooks(webHooks);
+        setting1.setTextTemplate(template);
+        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishu, false);
+        setting2.setWebhooks(webHooks);
+        setting2.setTextTemplate(template);
+        rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);
+        rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
@@ -139,11 +165,13 @@ public class FeishuHookCallbackTest {
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
+        alarmMessage.getHooks().add(setting1.getFormattedName());
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
         anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
         anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
+        anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         feishuHookCallback.doAlarm(alarmMessages);
         Assertions.assertTrue(IS_SUCCESS.get());

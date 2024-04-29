@@ -65,7 +65,7 @@ public class ConsulConfigurationIT {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
-        final ModuleManager moduleManager = new ModuleManager();
+        final ModuleManager moduleManager = new ModuleManager("Test");
         moduleManager.init(applicationConfiguration);
 
         provider = (ConsulConfigurationTestProvider) moduleManager.find(ConsulConfigurationTestModule.NAME).provider();

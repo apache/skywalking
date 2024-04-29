@@ -20,16 +20,19 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.query.graphql.GraphQLQueryConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.input.NewDashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
+import org.apache.skywalking.oap.server.core.query.type.MenuItem;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -43,6 +46,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLMutationResolver {
     private final ModuleManager manager;
     private UITemplateManagementService uiTemplateManagementService;
+    private UIMenuManagementService uiMenuManagementService;
     private final GraphQLQueryConfig config;
 
     private UITemplateManagementService getUITemplateManagementService() {
@@ -54,12 +58,25 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
         return uiTemplateManagementService;
     }
 
+    private UIMenuManagementService getUiMenuManagementService() {
+        if (uiMenuManagementService == null) {
+            this.uiMenuManagementService = manager.find(CoreModule.NAME)
+                    .provider()
+                    .getService(UIMenuManagementService.class);
+        }
+        return uiMenuManagementService;
+    }
+
     public DashboardConfiguration getTemplate(String id) throws IOException {
         return getUITemplateManagementService().getTemplate(id);
     }
 
     public List<DashboardConfiguration> getAllTemplates() throws IOException {
         return getUITemplateManagementService().getAllTemplates(false);
+    }
+
+    public List<MenuItem> getMenuItems() throws IOException {
+        return getUiMenuManagementService().getMenuItems();
     }
 
     public TemplateChangeStatus addTemplate(NewDashboardSetting setting) throws IOException {

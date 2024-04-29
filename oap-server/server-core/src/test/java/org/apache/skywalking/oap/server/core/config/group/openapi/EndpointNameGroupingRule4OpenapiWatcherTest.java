@@ -73,7 +73,7 @@ public class EndpointNameGroupingRule4OpenapiWatcherTest {
                     return new String[0];
                 }
             }, endpointNameGrouping);
-        Assertions.assertEquals("GET:/products/{id}", endpointNameGrouping.format("serviceA", "GET:/products/123"));
+        Assertions.assertEquals("GET:/products/{id}", endpointNameGrouping.format("serviceA", "GET:/products/123")._1());
 
         Map<String, ConfigChangeWatcher.ConfigChangeEvent> groupItems = new HashMap<>();
         groupItems.put(
@@ -250,12 +250,12 @@ public class EndpointNameGroupingRule4OpenapiWatcherTest {
         );
 
         watcher.notifyGroup(groupItems);
-        Assertions.assertEquals("GET:/products/{order-id}", endpointNameGrouping.format("serviceA", "GET:/products/123"));
+        Assertions.assertEquals("GET:/products/{order-id}", endpointNameGrouping.format("serviceA", "GET:/products/123")._1());
 
         groupItems.put("serviceA.productAPI-v1", new ConfigChangeWatcher.ConfigChangeEvent("", ConfigChangeWatcher.EventType.DELETE));
         watcher.notifyGroup(groupItems);
 
-        Assertions.assertEquals("GET:/products/123", endpointNameGrouping.format("serviceA", "GET:/products/123"));
+        Assertions.assertEquals("GET:/products/123", endpointNameGrouping.format("serviceA", "GET:/products/123")._1());
 
     }
 }

@@ -82,7 +82,6 @@ core:
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_CORE_GRPC_MAX_MESSAGE_SIZE:0}
-    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:-1}
     gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:-1}
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_CORE_GRPC_SSL_KEY_PATH:""}
@@ -109,6 +108,8 @@ core:
     activeExtraModelColumns: ${SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS:false}
     # The max length of service + instance names should be less than 200
     serviceNameMaxLength: ${SW_SERVICE_NAME_MAX_LENGTH:70}
+    # The period(in seconds) of refreshing the service cache. Default value is 10s.
+    serviceCacheRefreshInterval: ${SW_SERVICE_CACHE_REFRESH_INTERVAL:10}
     instanceNameMaxLength: ${SW_INSTANCE_NAME_MAX_LENGTH:70}
     # The max length of service + endpoint names should be less than 240
     endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}
@@ -117,7 +118,7 @@ core:
     searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
     # Define the set of log tag keys, which should be searchable through the GraphQL.
     # The max length of key=value should be less than 256 or will be dropped.
-    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
+    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level,http.status_code}
     # Define the set of alarm tag keys, which should be searchable through the GraphQL.
     # The max length of key=value should be less than 256 or will be dropped.
     searchableAlarmTags: ${SW_SEARCHABLE_ALARM_TAG_KEYS:level}
@@ -129,6 +130,16 @@ core:
     prepareThreads: ${SW_CORE_PREPARE_THREADS:2}
     # Turn it on then automatically grouping endpoint by the given OpenAPI definitions.
     enableEndpointNameGroupingByOpenapi: ${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI:true}
+    # The period of HTTP URI pattern recognition. Unit is second.
+    syncPeriodHttpUriRecognitionPattern: ${SW_CORE_SYNC_PERIOD_HTTP_URI_RECOGNITION_PATTERN:10}
+    # The training period of HTTP URI pattern recognition. Unit is second.
+    trainingPeriodHttpUriRecognitionPattern: ${SW_CORE_TRAINING_PERIOD_HTTP_URI_RECOGNITION_PATTERN:60}
+    # The max number of HTTP URIs per service for further URI pattern recognition.
+    maxHttpUrisNumberPerService: ${SW_CORE_MAX_HTTP_URIS_NUMBER_PER_SVR:3000}
+    # If disable the hierarchy, the service and instance hierarchy relation will not be built. And the query of hierarchy will return empty result.
+    # All the hierarchy relations are defined in the `hierarchy-definition.yml`.
+    # Notice: some of the configurations only available for kubernetes environments.
+    enableHierarchy: ${SW_CORE_ENABLE_HIERARCHY:true}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -205,8 +216,7 @@ storage:
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
   banyandb:
-    host: ${SW_STORAGE_BANYANDB_HOST:127.0.0.1}
-    port: ${SW_STORAGE_BANYANDB_PORT:17912}
+    targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
     maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
     flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
     metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
@@ -232,14 +242,14 @@ agent-analyzer:
     # Exit spans with the component in the list would not generate the client-side instance relation metrics.
     noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
     meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling} # Which files could be meter analyzed, files split by ","
-    slowCacheReadThreshold: ${SW_SLOW_CACHE_SLOW_READ_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
+    slowCacheReadThreshold: ${SW_SLOW_CACHE_SLOW_READ_THRESHOLD:default:20,redis:10} # The slow cache read operation thresholds. Unit ms.
     slowCacheWriteThreshold: ${SW_SLOW_CACHE_SLOW_WRITE_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
 
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
-    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,k8s-service,default}
-    malFiles: ${SW_LOG_MAL_FILES:""}
+    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,nginx,default}
+    malFiles: ${SW_LOG_MAL_FILES:"nginx"}
 
 event-analyzer:
   selector: ${SW_EVENT_ANALYZER:default}
@@ -261,7 +271,6 @@ receiver-sharing-server:
     gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
     maxConcurrentCallsPerConnection: ${SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_RECEIVER_GRPC_MAX_MESSAGE_SIZE:0}
-    gRPCThreadPoolQueueSize: ${SW_RECEIVER_GRPC_POOL_QUEUE_SIZE:0}
     gRPCThreadPoolSize: ${SW_RECEIVER_GRPC_THREAD_POOL_SIZE:0}
     gRPCSslEnabled: ${SW_RECEIVER_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_RECEIVER_GRPC_SSL_KEY_PATH:""}
@@ -309,7 +318,23 @@ envoy-metric:
     # the available variables are `pod`, `service`, f.e., you can use `${service.metadata.name}-${pod.metadata.labels.version}`
     # to append the version number to the service name.
     # Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell.
-    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}"}
+    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}.${pod.metadata.namespace}"}
+    istioServiceNameRule: ${ISTIO_SERVICE_NAME_RULE:"${serviceEntry.metadata.name}.${serviceEntry.metadata.namespace}"}
+    # When looking up service informations from the Istio ServiceEntries, some
+    # of the ServiceEntries might be created in several namespaces automatically
+    # by some components, and OAP will randomly pick one of them to build the
+    # service name, users can use this config to exclude ServiceEntries that
+    # they don't want to be used. Comma separated.
+    istioServiceEntryIgnoredNamespaces: ${SW_ISTIO_SERVICE_ENTRY_IGNORED_NAMESPACES:""}
+    gRPCHost: ${SW_ALS_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_ALS_GRPC_PORT:0}
+    maxConcurrentCallsPerConnection: ${SW_ALS_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_ALS_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolSize: ${SW_ALS_GRPC_THREAD_POOL_SIZE:0}
+    gRPCSslEnabled: ${SW_ALS_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_ALS_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_ALS_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAsPath: ${SW_ALS_GRPC_SSL_TRUSTED_CAS_PATH:""}
 
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}
@@ -331,8 +356,8 @@ receiver-meter:
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
-    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp"}
-    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*"}
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-metrics,otlp-logs"}
+    enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES:"apisix,nginx/*,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
@@ -382,7 +407,7 @@ query:
     enableLogTestTool: ${SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL:false}
     # Maximum complexity allowed for the GraphQL query that can be used to
     # abort a query if the total number of data fields queried exceeds the defined threshold.
-    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:1000}
+    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:3000}
     # Allow user add, disable and update UI template
     enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
     # "On demand log" allows users to fetch Pod containers' log in real time,
@@ -422,6 +447,25 @@ promql:
     restMaxThreads: ${SW_PROMQL_REST_MAX_THREADS:200}
     restIdleTimeOut: ${SW_PROMQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_PROMQL_REST_QUEUE_SIZE:0}
+    # The below config is for the API buildInfo, set the value to mock the build info.
+    buildInfoVersion: ${SW_PROMQL_BUILD_INFO_VERSION:"2.45.0"}
+    buildInfoRevision: ${SW_PROMQL_BUILD_INFO_REVISION:""}
+    buildInfoBranch: ${SW_PROMQL_BUILD_INFO_BRANCH:""}
+    buildInfoBuildUser: ${SW_PROMQL_BUILD_INFO_BUILD_USER:""}
+    buildInfoBuildDate: ${SW_PROMQL_BUILD_INFO_BUILD_DATE:""}
+    buildInfoGoVersion: ${SW_PROMQL_BUILD_INFO_GO_VERSION:""}
+
+#This module is for LogQL API.
+logql:
+  selector: ${SW_LOGQL:default}
+  default:
+    # For HTTP server
+    restHost: ${SW_LOGQL_REST_HOST:0.0.0.0}
+    restPort: ${SW_LOGQL_REST_PORT:3100}
+    restContextPath: ${SW_LOGQL_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_LOGQL_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_LOGQL_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_LOGQL_REST_QUEUE_SIZE:0}
 
 alarm:
   selector: ${SW_ALARM:default}
@@ -445,12 +489,12 @@ configuration:
     port: ${SW_DCS_SERVER_PORT:80}
     clusterName: ${SW_DCS_CLUSTER_NAME:SkyWalking}
     period: ${SW_DCS_PERIOD:20}
+    maxInboundMessageSize: ${SW_DCS_MAX_INBOUND_MESSAGE_SIZE:4194304}
   apollo:
     apolloMeta: ${SW_CONFIG_APOLLO:http://localhost:8080}
     apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
     apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
-    period: ${SW_CONFIG_APOLLO_PERIOD:60}
   zookeeper:
     period: ${SW_CONFIG_ZK_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
     namespace: ${SW_CONFIG_ZK_NAMESPACE:/default}
@@ -516,6 +560,12 @@ health-checker:
   default:
     checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
 
+debugging-query:
+  selector: ${SW_DEBUGGING_QUERY:default}
+  default:
+    # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
+    keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
+
 configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}
   default:
@@ -530,6 +580,15 @@ receiver-ebpf:
   default:
     # The continuous profiling policy cache time, Unit is second.
     continuousPolicyCacheTimeout: ${SW_CONTINUOUS_POLICY_CACHE_TIMEOUT:60}
+    gRPCHost: ${SW_EBPF_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_EBPF_GRPC_PORT:0}
+    maxConcurrentCallsPerConnection: ${SW_EBPF_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_EBPF_ALS_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolSize: ${SW_EBPF_GRPC_THREAD_POOL_SIZE:0}
+    gRPCSslEnabled: ${SW_EBPF_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_EBPF_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_EBPF_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAsPath: ${SW_EBPF_GRPC_SSL_TRUSTED_CAS_PATH:""}
 
 receiver-telegraf:
   selector: ${SW_RECEIVER_TELEGRAF:default}
@@ -550,3 +609,9 @@ aws-firehose:
     enableTLS: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ENABLE_TLS:false}
     tlsKeyPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_KEY_PATH:}
     tlsCertChainPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_CERT_CHAIN_PATH:}
+
+ai-pipeline:
+  selector: ${SW_AI_PIPELINE:default}
+  default:
+    uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:}
+    uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}

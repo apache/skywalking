@@ -26,9 +26,10 @@ service MetricExportService {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER_ENABLE_GRPC_METRICS:true}` and config the target gRPC server address.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_GRPC_METRICS:true}`, configure the target gRPC server address.
 ```yaml
 exporter:
+ selector:${SW_EXPORTER:default}
   default:
     # gRPC exporter
     enableGRPCMetrics: ${SW_EXPORTER_ENABLE_GRPC_METRICS:true}
@@ -47,11 +48,11 @@ Return empty list, if you want to export all metrics in the incremental event ty
 
 2. Export implementation.
 Stream service. All subscribed metrics will be sent here based on the OAP core schedule. Also, if the OAP is deployed as a cluster,
-this method will be called concurrently. For metrics value, you need to follow `#type` to choose `#longValue` or `#doubleValue`.
+this method will be called concurrently.
 
 ## Kafka Exporter
 ### Trace Kafka Exporter
-Trace kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-trace` to export the trace. Here is the message:
+Trace kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-export-trace` to export the trace. Here is the message:
 ```
 ProducerRecord<String, Bytes>
 Key: TraceSegmentId
@@ -72,16 +73,17 @@ message SegmentObject {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}` and config the Kafka server.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}`, configure the Kafka server addresses.
 ```yaml
 exporter:
+  selector:${SW_EXPORTER:default}
   default:
     # Kafka exporter
     enableKafkaTrace: ${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}
     kafkaBootstrapServers: ${SW_EXPORTER_KAFKA_SERVERS:localhost:9092}
     # Kafka producer config, JSON format as Properties.
     kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
-    kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-trace}
+    kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-export-trace}
     exportErrorStatusTraceOnly: ${SW_EXPORTER_KAFKA_TRACE_FILTER_ERROR:false}
     ...
 ```
@@ -89,7 +91,7 @@ exporter:
 - `exportErrorStatusTraceOnly=true` represents that only export the error status trace segments through the Kafka channel.
 
 ### Log Kafka Exporter
-Log kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-log` to export the log. Here is the message:
+Log kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-export-log` to export the log. Here is the message:
 ```
 ProducerRecord<String, Bytes>
 Key: LogRecordId
@@ -111,15 +113,16 @@ message LogData {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER_ENABLE_KAFKA_LOG:true}` and config the Kafka server.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_KAFKA_LOG:true}`, configure the Kafka server addresses.
 ```yaml
 exporter:
+  selector:${SW_EXPORTER:default}
   default:
     # Kafka exporter
     enableKafkaLog: ${SW_EXPORTER_ENABLE_KAFKA_LOG:true}
     kafkaBootstrapServers: ${SW_EXPORTER_KAFKA_SERVERS:localhost:9092}
     # Kafka producer config, JSON format as Properties.
     kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
-    kafkaTopicLog: ${SW_EXPORTER_KAFKA_TOPIC_LOG:skywalking-log}
+    kafkaTopicLog: ${SW_EXPORTER_KAFKA_TOPIC_LOG:skywalking-export-log}
     ...
 ```

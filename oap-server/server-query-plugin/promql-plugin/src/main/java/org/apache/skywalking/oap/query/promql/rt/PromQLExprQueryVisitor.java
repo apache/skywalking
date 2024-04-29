@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.query.promql.rt;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
-import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
 import org.apache.skywalking.oap.query.promql.entity.ErrorType;
 import org.apache.skywalking.oap.query.promql.entity.LabelName;
 import org.apache.skywalking.oap.query.promql.entity.LabelValuePair;
@@ -41,6 +40,11 @@ import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
 import org.apache.skywalking.oap.query.promql.rt.result.ScalarResult;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
+import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
+import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
+import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -48,6 +52,7 @@ import org.apache.skywalking.oap.server.core.query.input.Entity;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
@@ -65,21 +70,24 @@ import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixScalar
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixScalarCompareOp;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.scalarBinaryOp;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.scalarCompareOp;
-import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.timestamp2Duration;
+import static org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel.GENERAL_LABEL_NAME;
 
 @Slf4j
 public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult> {
-    private final MetricsQuery metricsQuery;
-    private final RecordsQuery recordsQuery;
     private final PromQLApiHandler.QueryType queryType;
+    private final MetricsQueryService metricsQueryService;
+    private final RecordQueryService recordQueryService;
+    private final AggregationQueryService aggregationQueryService;
     private Duration duration;
 
-    public PromQLExprQueryVisitor(final MetricsQuery metricsQuery,
-                                  final RecordsQuery recordsQuery,
+    public PromQLExprQueryVisitor(final MetricsQueryService metricsQueryService,
+                                  final RecordQueryService recordQueryService,
+                                  final AggregationQueryService aggregationQueryService,
                                   final Duration duration,
                                   final PromQLApiHandler.QueryType queryType) {
-        this.metricsQuery = metricsQuery;
-        this.recordsQuery = recordsQuery;
+        this.metricsQueryService = metricsQueryService;
+        this.recordQueryService = recordQueryService;
+        this.aggregationQueryService = aggregationQueryService;
         this.duration = duration;
         this.queryType = queryType;
     }
@@ -189,41 +197,48 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                 result.setErrorInfo("No labels found in the expression.");
                 return result;
             }
-            Map<LabelName, String> labelMap = new HashMap<>();
+            Map<LabelName, String> generalLabelMap = new HashMap<>();
+            Map<String, String> queryLabel = new HashMap<>();
             for (PromQLParser.LabelContext labelCtx : ctx.labelList().label()) {
                 String labelName = labelCtx.labelName().getText();
                 String labelValue = labelCtx.labelValue().getText();
                 String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
                 try {
-                    labelMap.put(LabelName.labelOf(labelName), labelValueTrim);
+                    if (LabelName.isLabelName(labelName)) {
+                        generalLabelMap.put(LabelName.labelOf(labelName), labelValueTrim);
+                    } else {
+                        queryLabel.put(labelName, labelValueTrim);
+                    }
                 } catch (IllegalArgumentException e) {
                     throw new IllegalExpressionException("Label:[" + labelName + "] is illegal.");
                 }
             }
             final Layer layer;
-            checkLabels(labelMap, LabelName.LAYER);
+            checkLabels(generalLabelMap, LabelName.LAYER);
             try {
-                layer = Layer.valueOf(labelMap.get(LabelName.LAYER));
+                layer = Layer.valueOf(generalLabelMap.get(LabelName.LAYER));
             } catch (IllegalArgumentException e) {
                 throw new IllegalExpressionException(
-                    "Layer:[" + labelMap.get(LabelName.LAYER) + "] is missing or illegal.");
+                    "Layer:[" + generalLabelMap.get(LabelName.LAYER) + "] is missing or illegal.");
             }
             ValueColumnMetadata.ValueColumn metaData = valueColumn.get();
             Scope scope = Scope.Finder.valueOf(metaData.getScopeId());
             Column.ValueDataType dataType = metaData.getDataType();
             MetricsRangeResult matrixResult = new MetricsRangeResult();
             matrixResult.setResultType(ParseResultType.METRICS_RANGE);
-            if (StringUtil.isNotBlank(labelMap.get(LabelName.TOP_N))) {
+            if (StringUtil.isNotBlank(generalLabelMap.get(LabelName.TOP_N))) {
                 if (Column.ValueDataType.SAMPLED_RECORD == dataType) {
-                    queryRecords(metricName, layer, scope, labelMap, matrixResult);
+                    queryRecords(metricName, layer, scope, generalLabelMap, matrixResult);
                 } else {
-                    queryTopN(metricName, layer, scope, labelMap, matrixResult);
+                    queryTopN(metricName, layer, scope, generalLabelMap, matrixResult);
                 }
             } else {
                 if (Column.ValueDataType.COMMON_VALUE == dataType) {
-                    metricsValuesQuery(metricName, layer, scope, labelMap, matrixResult);
+                    metricsValuesQuery(metricName, layer, scope, generalLabelMap, matrixResult);
                 } else if (Column.ValueDataType.LABELED_VALUE == dataType) {
-                    labeledMetricsValuesQuery(metricName, layer, scope, labelMap, matrixResult);
+                    //compatible with old version query, if true support use `labels` as the query label.
+                    boolean isMultiIntValues = valueColumn.get().isMultiIntValues();
+                    labeledMetricsValuesQuery(metricName, layer, scope, generalLabelMap, queryLabel, matrixResult, isMultiIntValues);
                 }
             }
             return matrixResult;
@@ -251,7 +266,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         String timeRange = ctx.DURATION().getText().toUpperCase();
         long endTS = System.currentTimeMillis();
         long startTS = endTS - formatDuration(timeRange).getMillis();
-        duration = timestamp2Duration(startTS, endTS);
+        duration = DurationUtils.timestamp2Duration(startTS, endTS);
         ParseResult result = visit(ctx.metricInstant());
         result.setRangeExpression(true);
         return result;
@@ -279,12 +294,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                            Map<LabelName, String> labelMap,
                            MetricsRangeResult matrixResult) throws IOException, IllegalExpressionException {
         TopNCondition topNCondition = buildTopNCondition(metricName, layer, scope, labelMap);
-        List<SelectedRecord> selectedRecords = metricsQuery.sortMetrics(topNCondition, duration);
+        List<SelectedRecord> selectedRecords = aggregationQueryService.sortMetrics(topNCondition, duration);
         for (SelectedRecord selectedRecord : selectedRecords) {
             MetricRangeData metricData = new MetricRangeData();
             MetricInfo metricInfo = buildMetricInfo(metricName, layer, scope, labelMap,
                                                     Optional.empty(),
-                                                    Optional.ofNullable(selectedRecord.getName()), Optional.empty()
+                                                    Optional.ofNullable(selectedRecord.getName()), Optional.empty(), false
             );
             metricData.setMetric(metricInfo);
             metricData.setValues(buildMatrixValues(duration, String.valueOf(selectedRecord.getValue())));
@@ -298,12 +313,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                               Map<LabelName, String> labelMap,
                               MetricsRangeResult matrixResult) throws IOException, IllegalExpressionException {
         RecordCondition recordCondition = buildRecordCondition(metricName, layer, scope, labelMap);
-        List<Record> records = recordsQuery.readRecords(recordCondition, duration);
+        List<Record> records = recordQueryService.readRecords(recordCondition, duration);
         for (Record record : records) {
             MetricRangeData metricData = new MetricRangeData();
             MetricInfo metricInfo = buildMetricInfo(metricName, layer, scope, labelMap,
                                                     Optional.empty(), Optional.empty(),
-                                                    Optional.ofNullable(record.getName())
+                                                    Optional.ofNullable(record.getName()), false
             );
             metricData.setMetric(metricInfo);
             metricData.setValues(buildMatrixValues(duration, String.valueOf(record.getValue())));
@@ -317,11 +332,11 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                     Map<LabelName, String> labelMap,
                                     MetricsRangeResult matrixResult) throws IOException, IllegalExpressionException {
         MetricsCondition metricsCondition = buildMetricsCondition(metricName, layer, scope, labelMap);
-        MetricsValues metricsValues = metricsQuery.readMetricsValues(
+        MetricsValues metricsValues = metricsQueryService.readMetricsValues(
             metricsCondition, duration);
         MetricRangeData metricData = new MetricRangeData();
         MetricInfo metricInfo = buildMetricInfo(
-            metricName, layer, scope, labelMap, Optional.empty(), Optional.empty(), Optional.empty());
+            metricName, layer, scope, labelMap, Optional.empty(), Optional.empty(), Optional.empty(), false);
         metricData.setMetric(metricInfo);
         metricData.setValues(buildMatrixValues(duration, metricsValues));
         matrixResult.getMetricDataList().add(metricData);
@@ -330,41 +345,51 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
     private void labeledMetricsValuesQuery(String metricName,
                                            Layer layer,
                                            Scope scope,
-                                           Map<LabelName, String> labelMap,
-                                           MetricsRangeResult matrixResult) throws IOException, IllegalExpressionException {
-        MetricsCondition metricsCondition = buildMetricsCondition(metricName, layer, scope, labelMap);
+                                           Map<LabelName, String> sysLabelMap,
+                                           Map<String, String> queryLabel,
+                                           MetricsRangeResult matrixResult,
+                                           boolean isMultiIntValues) throws IOException, IllegalExpressionException {
+        MetricsCondition metricsCondition = buildMetricsCondition(metricName, layer, scope, sysLabelMap);
         Map<String, String> relabelMap = new HashMap<>();
-        String queryLabels = labelMap.get(LabelName.LABELS);
-        List<String> queryLabelList = Collections.emptyList();
-        if (StringUtil.isNotBlank(queryLabels)) {
-            queryLabelList = Arrays.asList(queryLabels.split(Const.COMMA));
 
-            String relabels = labelMap.get(LabelName.RELABELS);
+        List<KeyValue> queryLabelList = new ArrayList<>();
+        if (isMultiIntValues) {
+            // compatible with old version query.
+            queryLabelList.add(new KeyValue(GENERAL_LABEL_NAME, sysLabelMap.get(LabelName.LABELS)));
+            String relabels = sysLabelMap.get(LabelName.RELABELS);
             List<String> relabelList = Collections.emptyList();
             if (StringUtil.isNotBlank(relabels)) {
                 relabelList = Arrays.asList(relabels.split(Const.COMMA));
             }
-            for (int i = 0; i < queryLabelList.size(); i++) {
+            List<String> labelValues = Arrays.asList(sysLabelMap.get(LabelName.LABELS).split(Const.COMMA));
+            for (int i = 0; i < labelValues.size(); i++) {
                 if (relabelList.size() > i) {
-                    relabelMap.put(queryLabelList.get(i), relabelList.get(i));
-                    continue;
+                    relabelMap.put(labelValues.get(i), relabelList.get(i));
                 }
-                relabelMap.put(queryLabelList.get(i), queryLabelList.get(i));
             }
+        } else {
+            for (Map.Entry<String, String> entry : queryLabel.entrySet()) {
+                queryLabelList.add(new KeyValue(entry.getKey(), entry.getValue()));
+            }
+            // as the percentile metric values changed from `0,1,2,3,4` to `50,75,90,95,99`,
+            // we don't need to relabel it for now.
+            // we should implement `label_replace()` function in the future.
         }
-        List<MetricsValues> metricsValuesList = metricsQuery.readLabeledMetricsValues(
+
+        List<MetricsValues> metricsValuesList = metricsQueryService.readLabeledMetricsValues(
             metricsCondition, queryLabelList, duration);
 
         for (MetricsValues metricsValues : metricsValuesList) {
             MetricRangeData metricData = new MetricRangeData();
             MetricInfo metricInfo = buildMetricInfo(
-                metricName, layer, scope, labelMap,
+                metricName, layer, scope, sysLabelMap,
                 Optional.ofNullable(relabelMap.getOrDefault(
                     metricsValues.getLabel(),
                     metricsValues.getLabel()
                 )),
                 Optional.empty(),
-                Optional.empty()
+                Optional.empty(),
+                isMultiIntValues
             );
             metricData.setMetric(metricInfo);
             metricData.setValues(buildMatrixValues(duration, metricsValues));
@@ -464,56 +489,68 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
     private MetricInfo buildMetricInfo(String metricName,
                                        Layer layer,
                                        Scope scope,
-                                       Map<LabelName, String> labelMap,
+                                       Map<LabelName, String> sysLabelMap,
                                        Optional<String> valueLabel,
                                        Optional<String> topNEntityName,
-                                       Optional<String> recordName) throws IllegalExpressionException {
+                                       Optional<String> recordName,
+                                       boolean isMultiIntValues) throws IllegalExpressionException {
 
         MetricInfo metricInfo = new MetricInfo(metricName);
-        valueLabel.ifPresent(s -> metricInfo.getLabels().add(new LabelValuePair(LabelName.LABEL, s)));
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.LAYER, layer.name()));
+        valueLabel.ifPresent(s ->
+                             {
+                                 if (isMultiIntValues) {
+                                     metricInfo.getLabels().add(new LabelValuePair(LabelName.LABELS.getLabel(), s));
+                                 } else {
+                                     DataLabel dataLabel = new DataLabel();
+                                     dataLabel.put(s);
+                                     for (Map.Entry<String, String> label : dataLabel.entrySet()) {
+                                         metricInfo.getLabels().add(new LabelValuePair(label.getKey(), label.getValue()));
+                                     }
+                                 }
+                             });
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.LAYER.getLabel(), layer.name()));
         switch (scope) {
             case Service:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Service.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE.getLabel(), Scope.Service.name()));
                 if (topNEntityName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE, topNEntityName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE.getLabel(), topNEntityName.get()));
                 } else if (recordName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD.getLabel(), recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.SERVICE);
+                    checkLabels(sysLabelMap, LabelName.SERVICE);
                     metricInfo.getLabels()
-                              .add(new LabelValuePair(LabelName.SERVICE, labelMap.get(LabelName.SERVICE)));
+                              .add(new LabelValuePair(LabelName.SERVICE.getLabel(), sysLabelMap.get(LabelName.SERVICE)));
                 }
                 break;
             case ServiceInstance:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.ServiceInstance.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE.getLabel(), Scope.ServiceInstance.name()));
                 if (topNEntityName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE_INSTANCE, topNEntityName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE_INSTANCE.getLabel(), topNEntityName.get()));
                 } else if (recordName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD.getLabel(), recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.SERVICE, LabelName.SERVICE_INSTANCE);
+                    checkLabels(sysLabelMap, LabelName.SERVICE, LabelName.SERVICE_INSTANCE);
                     metricInfo.getLabels()
-                              .add(new LabelValuePair(LabelName.SERVICE, labelMap.get(LabelName.SERVICE)));
+                              .add(new LabelValuePair(LabelName.SERVICE.getLabel(), sysLabelMap.get(LabelName.SERVICE)));
                     metricInfo.getLabels()
                               .add(new LabelValuePair(
-                                  LabelName.SERVICE_INSTANCE,
-                                  labelMap.get(LabelName.SERVICE_INSTANCE)
+                                  LabelName.SERVICE_INSTANCE.getLabel(),
+                                  sysLabelMap.get(LabelName.SERVICE_INSTANCE)
                               ));
                 }
                 break;
             case Endpoint:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Endpoint.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE.getLabel(), Scope.Endpoint.name()));
                 if (topNEntityName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.ENDPOINT, topNEntityName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.ENDPOINT.getLabel(), topNEntityName.get()));
                 } else if (recordName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD.getLabel(), recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.SERVICE, LabelName.ENDPOINT);
+                    checkLabels(sysLabelMap, LabelName.SERVICE, LabelName.ENDPOINT);
                     metricInfo.getLabels()
-                              .add(new LabelValuePair(LabelName.SERVICE, labelMap.get(LabelName.SERVICE)));
+                              .add(new LabelValuePair(LabelName.SERVICE.getLabel(), sysLabelMap.get(LabelName.SERVICE)));
                     metricInfo.getLabels()
-                              .add(new LabelValuePair(LabelName.ENDPOINT, labelMap.get(LabelName.ENDPOINT)));
+                              .add(new LabelValuePair(LabelName.ENDPOINT.getLabel(), sysLabelMap.get(LabelName.ENDPOINT)));
                 }
                 break;
         }

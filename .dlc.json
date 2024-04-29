@@ -11,6 +11,9 @@
     },
     {
       "pattern": "^https://dist.apache.org/repos/dist/dev/skywalking/x.y.z$"
+    },
+    {
+      "pattern": "^https://twitter.com*"
     }
   ],
   "timeout": "10s",

@@ -24,24 +24,26 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=oap-server
       expected: expected/service-instance.yml
     # service instance metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_cpu_percentage --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_cpu_percentage --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name meter_oap_instance_jvm_memory_bytes_used --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_jvm_memory_bytes_used --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_trace_count --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_trace_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_oap_instance_metrics_aggregation --labels="L1 aggregation" --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_metrics_aggregation{level='L1 aggregation'}" --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_prepare_count --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_persistence_prepare_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_instance_persistence_execute_count --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_persistence_execute_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_live_count --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_jvm_thread_live_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_thread_runnable_count --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_jvm_thread_runnable_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_loaded_count --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_jvm_class_loaded_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_oap_jvm_class_total_loaded_count --instance-name=http://localhost:1234 --service-name=oap-server |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_jvm_class_total_loaded_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_trace_latency_percentile{p='90,99'}" --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value-percentile.yml
 

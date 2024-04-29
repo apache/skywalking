@@ -1,0 +1,328 @@
+[
+  {
+    "id": "Pulsar-Broker",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 11,
+          "i": "9",
+          "type": "Widget",
+          "widget": {
+            "title": "Active Connections",
+            "tips": "Number of active connections",
+            "name": "active_connections"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_pulsar_broker_active_connections"
+          ],
+          "associate": [],
+          "metricConfig": [
+            {
+              "label": "active_connections"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 11,
+          "i": "10",
+          "type": "Widget",
+          "widget": {
+            "title": "Total Connections",
+            "tips": "Total number of connections",
+            "name": "total_connections"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_pulsar_broker_total_connections"
+          ],
+          "metricConfig": [
+            {
+              "label": "total_connections"
+            }
+          ]
+        },
+        {
+          "x": 8,
+          "y": 11,
+          "w": 8,
+          "h": 11,
+          "i": "22",
+          "type": "Widget",
+          "widget": {
+            "title": "Connection Create Fail Count",
+            "name": "connection_create_fail_count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_pulsar_broker_connection_create_fail_count.sum(['cluster','broker'])"
+          ],
+          "metricConfig": [
+            {
+              "label": "connection_create_fail"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 11,
+          "w": 8,
+          "h": 11,
+          "i": "25",
+          "type": "Widget",
+          "widget": {
+            "title": "Connection Create Success Count",
+            "tips": "Peak JVM threads",
+            "name": "connection_create_success_count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "asTable": false,
+              "show": true
+            }
+          },
+          "expressions": [
+            "meter_pulsar_broker_connection_create_success_count"
+          ],
+          "associate": [],
+          "metricConfig": [
+            {
+              "label": "connection_create_success"
+            }
+          ]
+        },
+        {
+          "x": 16,
+          "y": 11,
+          "w": 8,
+          "h": 11,
+          "i": "26",
+          "type": "Widget",
+          "widget": {
+            "title": "Connection Closed Total Count",
+            "tips": "connection_closed_total_count",
+            "name": "connection_closed_total_count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_pulsar_broker_connection_closed_total_count"
+          ],
+          "metricConfig": [
+            {
+              "label": "connection_closed"
+            }
+          ]
+        },
+        {
+          "x": 16,
+          "y": 22,
+          "w": 8,
+          "h": 11,
+          "i": "27",
+          "type": "Widget",
+          "expressions": [
+            "meter_pulsar_broker_jvm_buffer_pool_used_bytes/1024/1024"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "jvm_buffer_pool_used_bytes",
+            "title": "JVM Buffer Pool Used (MB)"
+          }
+        },
+        {
+          "x": 8,
+          "y": 22,
+          "w": 8,
+          "h": 11,
+          "i": "28",
+          "type": "Widget",
+          "expressions": [
+            "meter_pulsar_broker_jvm_memory_pool_used/1024/1024"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "jvm_memory_pool_used",
+            "title": "JVM Memory Pool Used (MB)"
+          }
+        },
+        {
+          "x": 0,
+          "y": 22,
+          "w": 8,
+          "h": 11,
+          "i": "29",
+          "type": "Widget",
+          "expressions": [
+            "meter_pulsar_broker_jvm_memory_used/1024/1024",
+            "meter_pulsar_broker_jvm_memory_committed/1024/1024",
+            "meter_pulsar_broker_jvm_memory_init/1024/1024"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metricConfig": [
+            {
+              "label": "used",
+              "unit": "MB"
+            },
+            {
+              "label": "committed",
+              "unit": "MB"
+            },
+            {
+              "unit": "MB",
+              "label": "init"
+            }
+          ],
+          "widget": {
+            "name": "jvm_memory",
+            "title": "JVM Memory (MB)"
+          }
+        },
+        {
+          "x": 16,
+          "y": 33,
+          "w": 8,
+          "h": 11,
+          "i": "30",
+          "type": "Widget",
+          "expressions": [
+            "meter_pulsar_broker_jvm_threads_current",
+            "meter_pulsar_broker_jvm_threads_daemon",
+            "meter_pulsar_broker_jvm_threads_peak",
+            "meter_pulsar_broker_jvm_threads_deadlocked"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metricConfig": [
+            {
+              "label": "current threads"
+            },
+            {
+              "label": "daemon threads"
+            },
+            {
+              "label": "peak threads"
+            },
+            {
+              "label": "deadlocked threads"
+            }
+          ],
+          "widget": {
+            "name": "meter_pulsar_broker_jvm_threads",
+            "title": "JVM Threads"
+          }
+        },
+        {
+          "x": 8,
+          "y": 33,
+          "w": 8,
+          "h": 11,
+          "i": "31",
+          "type": "Widget",
+          "expressions": [
+            "meter_pulsar_broker_jvm_gc_collection_seconds_sum"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "jvm_gc_collection_seconds_sum",
+            "title": "GC Time (ms/min)"
+          }
+        },
+        {
+          "x": 0,
+          "y": 33,
+          "w": 8,
+          "h": 11,
+          "i": "32",
+          "type": "Widget",
+          "expressions": [
+            "meter_pulsar_broker_jvm_gc_collection_seconds_count"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "jvm_gc_collection_seconds_count",
+            "title": "GC Count"
+          }
+        }
+      ],
+      "layer": "PULSAR",
+      "entity": "ServiceInstance",
+      "name": "Pulsar-Broker",
+      "id": "Pulsar-Broker"
+    }
+  }
+]

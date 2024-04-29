@@ -1,450 +1,464 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
-    "id":"AWS-DynamoDB-Service",
-    "configuration":{
-      "children":[
+    "id": "AWS-DynamoDB-Service",
+    "configuration": {
+      "children": [
         {
-          "x":0,
-          "y":0,
-          "w":24,
-          "h":36,
-          "i":"2",
-          "type":"Tab",
-          "children":[
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 36,
+          "i": "2",
+          "type": "Tab",
+          "children": [
             {
-              "name":"Inspections",
-              "children":[
+              "name": "Inspections",
+              "children": [
                 {
-                  "x":6,
-                  "y":21,
-                  "w":6,
-                  "h":11,
-                  "i":"0",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 6,
+                  "y": 21,
+                  "w": 6,
+                  "h": 11,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Throttled Requests"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Read Throttled Requests"
+                    },
+                    {
+                      "label": "Write Throttled Requests"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_read_throttled_requests",
                     "aws_dynamodb_write_throttled_requests"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Throttled Requests"
-                  }
+                  ]
                 },
                 {
-                  "x":0,
-                  "y":21,
-                  "w":6,
-                  "h":11,
-                  "i":"1",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 0,
+                  "y": 21,
+                  "w": 6,
+                  "h": 11,
+                  "i": "1",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Throttle Events"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Read Throttle Events"
+                    },
+                    {
+                      "label": "Write Throttle Events"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_read_throttle_events",
                     "aws_dynamodb_write_throttle_events"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Throttle Events"
-                  }
+                  ]
                 },
                 {
-                  "x":0,
-                  "y":32,
-                  "w":6,
-                  "h":11,
-                  "i":"2",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 0,
+                  "y": 32,
+                  "w": 6,
+                  "h": 11,
+                  "i": "2",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "System Errors"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Read System Errors"
+                    },
+                    {
+                      "label": "Write System Errors"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_read_system_errors",
                     "aws_dynamodb_write_system_errors"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"System Errors"
-                  }
+                  ]
                 },
                 {
-                  "x":6,
-                  "y":32,
-                  "w":6,
-                  "h":11,
-                  "i":"3",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "x": 6,
+                  "y": 32,
+                  "w": 6,
+                  "h": 11,
+                  "i": "3",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "User Error"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "User Errors"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_user_errors"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"User Error"
-                  }
+                  ]
                 },
                 {
-                  "x":12,
-                  "y":32,
-                  "w":6,
-                  "h":11,
-                  "i":"4",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "x": 12,
+                  "y": 32,
+                  "w": 6,
+                  "h": 11,
+                  "i": "4",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Conditional Check Failed Requests"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Conditional Check Failed Requests"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_conditional_check_failed_requests"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Conditional Check Failed Requests"
-                  }
+                  ]
                 },
                 {
-                  "x":18,
-                  "y":32,
-                  "w":6,
-                  "h":11,
-                  "i":"5",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "x": 18,
+                  "y": 32,
+                  "w": 6,
+                  "h": 11,
+                  "i": "5",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Transaction Conflict"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Transaction Conflict"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_transaction_conflict"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Transaction Conflict"
-                  }
+                  ]
                 },
                 {
-                  "x":0,
-                  "y":11,
-                  "w":6,
-                  "h":10,
-                  "i":"6",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 0,
+                  "y": 11,
+                  "w": 6,
+                  "h": 10,
+                  "i": "6",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "title": "Read Usage (unit/s)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Provisioned Read Capacity Units"
+                    },
+                    {
+                      "label": "Provisioned Write Capacity Units"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_provisioned_read_capacity_units",
-                    "aws_dynamodb_consumed_read_capacity_units"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Read Usage (unit/s)"
-                  }
+                    "aws_dynamodb_provisioned_write_capacity_units"
+                  ]
                 },
                 {
-                  "x":6,
-                  "y":11,
-                  "w":6,
-                  "h":10,
-                  "i":"7",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 6,
+                  "y": 11,
+                  "w": 6,
+                  "h": 10,
+                  "i": "7",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "title": "Write Usage (unit/s)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Consumed Write Capacity Units"
+                    },
+                    {
+                      "label": "Provisioned Write Capacity Units"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_consumed_write_capacity_units",
                     "aws_dynamodb_provisioned_write_capacity_units"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Write Usage (unit/s)"
-                  }
+                  ]
                 },
                 {
-                  "x":12,
-                  "y":11,
-                  "w":6,
-                  "h":10,
-                  "i":"8",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 12,
+                  "y": 11,
+                  "w": 6,
+                  "h": 10,
+                  "i": "8",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Successful Request Latency (ms)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Get"
+                    },
+                    {
+                      "label": "Put"
+                    },
+                    {
+                      "label": "Query"
+                    },
+                    {
+                      "label": "Scan"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_get_successful_request_latency",
                     "aws_dynamodb_put_successful_request_latency",
                     "aws_dynamodb_query_successful_request_latency",
                     "aws_dynamodb_scan_successful_request_latency"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Successful Request Latency (ms)"
-                  }
+                  ]
                 },
                 {
-                  "x":18,
-                  "y":11,
-                  "w":6,
-                  "h":10,
-                  "i":"9",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "x": 18,
+                  "y": 11,
+                  "w": 6,
+                  "h": 10,
+                  "i": "9",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "TTL Deleted Item Count"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "TTL Deleted Item Count"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_time_to_live_deleted_item_count"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"TTL Deleted Item Count"
-                  }
+                  ]
                 },
                 {
-                  "x":12,
-                  "y":21,
-                  "w":6,
-                  "h":11,
-                  "i":"11",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "x": 12,
+                  "y": 21,
+                  "w": 6,
+                  "h": 11,
+                  "i": "11",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Scan Operation Returned Item Count"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Scan Returned Item Count"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_scan_returned_item_count"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Scan Operation Returned Item Count"
-                  }
+                  ]
                 },
                 {
-                  "x":18,
-                  "y":21,
-                  "w":6,
-                  "h":11,
-                  "i":"12",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "x": 18,
+                  "y": 21,
+                  "w": 6,
+                  "h": 11,
+                  "i": "12",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Query Operation Returned Item Count"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Query Returned Item Count"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_query_returned_item_count"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Query Operation Returned Item Count"
-                  }
+                  ]
                 },
                 {
-                  "x":8,
-                  "y":0,
-                  "w":8,
-                  "h":11,
-                  "i":"13",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 11,
+                  "i": "13",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "title": "Account Max Table Level Writes / Reads"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Account Max Table Level Writes"
+                    },
+                    {
+                      "label": "Account Max Table Level Reads"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_account_max_table_level_writes",
                     "aws_dynamodb_account_max_table_level_reads"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Account Max Table Level Writes / Reads"
-                  }
+                  ]
                 },
                 {
-                  "x":16,
-                  "y":0,
-                  "w":8,
-                  "h":11,
-                  "i":"14",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 11,
+                  "i": "14",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "title": "Account Provisioned Read / Write Capacity Utilization"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Account Provisioned Read Capacity Utilization"
+                    },
+                    {
+                      "label": "Account Provisioned Write Capacity Utilization"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_account_provisioned_read_capacity_utilization",
                     "aws_dynamodb_account_provisioned_write_capacity_utilization"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Account Provisioned Read / Write Capacity Utilization"
-                  }
+                  ]
                 },
                 {
-                  "x":0,
-                  "y":0,
-                  "w":8,
-                  "h":11,
-                  "i":"15",
-                  "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 11,
+                  "i": "15",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "title": "Account Max Reads / Writes"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Account Max Writes"
+                    },
+                    {
+                      "label": "Account Max Reads"
+                    }
                   ],
-                  "metrics":[
+                  "expressions": [
                     "aws_dynamodb_account_max_writes",
                     "aws_dynamodb_account_max_reads"
-                  ],
-                  "graph":{
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
-                  },
-                  "widget":{
-                    "title":"Account Max Reads / Writes"
-                  }
+                  ]
                 }
               ]
             },
             {
-              "name":"Tables",
-              "children":[
+              "name": "Tables",
+              "children": [
                 {
-                  "x":0,
-                  "y":0,
-                  "w":24,
-                  "h":29,
-                  "i":"0",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"EndpointList",
-                    "dashboardName":"AWS-DynamoDB-Endpoint",
-                    "fontSize":12
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 29,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "EndpointList",
+                    "dashboardName": "AWS-DynamoDB-Endpoint",
+                    "fontSize": 12
                   }
                 }
               ]
@@ -452,11 +466,11 @@
           ]
         }
       ],
-      "layer":"AWS_DYNAMODB",
-      "entity":"Service",
-      "name":"AWS-DynamoDB-Service",
-      "id":"AWS-DynamoDB-Service",
-      "isRoot":false
+      "layer": "AWS_DYNAMODB",
+      "entity": "Service",
+      "name": "AWS-DynamoDB-Service",
+      "id": "AWS-DynamoDB-Service",
+      "isRoot": false
     }
   }
 ]

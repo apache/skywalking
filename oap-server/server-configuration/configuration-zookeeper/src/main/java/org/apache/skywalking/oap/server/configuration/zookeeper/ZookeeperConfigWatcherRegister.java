@@ -29,11 +29,11 @@ import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.FetchingConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 
 @Slf4j
-public class ZookeeperConfigWatcherRegister extends ConfigWatcherRegister {
+public class ZookeeperConfigWatcherRegister extends FetchingConfigWatcherRegister {
     private final CuratorFramework client;
     private final PathChildrenCache childrenCache;
     private final String prefix;

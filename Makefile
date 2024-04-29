@@ -20,12 +20,11 @@ SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 CONTEXT ?= ${SW_ROOT}/dist
 SKIP_TEST ?= false
 DIST ?= apache-skywalking-apm-bin.tar.gz
-CLI_VERSION ?= 0.11.0 # CLI version inside OAP image should always use an Apache released artifact.
 
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
 
-.PHONY: build.all build.backend build.ui build.docker
+.PHONY: build.all build.backend build.ui
 
 build.all:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
@@ -54,7 +53,7 @@ ifneq ($(SW_OAP_BASE_IMAGE),)
   BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)
 endif
 
-BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_VERSION=$(CLI_VERSION)
+BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST)
 
 %.ui: NAME = $(UI_NAME)
 %.oap: NAME = $(OAP_NAME)

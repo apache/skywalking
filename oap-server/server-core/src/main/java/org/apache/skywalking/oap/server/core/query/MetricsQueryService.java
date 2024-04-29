@@ -19,11 +19,15 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.OptionalDouble;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
+import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -49,17 +53,32 @@ public class MetricsQueryService implements Service {
     }
 
     /**
-     * Read metrics single value in the duration of required metrics
+     * Read metrics average value in the duration of required metrics
      */
     public NullableValue readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
-        return getMetricQueryDAO().readMetricsValue(
-            condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
+        long defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        if (!condition.senseScope() || !condition.getEntity().isValid()) {
+            return new NullableValue(defaultValue, true);
+        }
+        MetricsValues metricsValues = readMetricsValues(condition, duration);
+        if (!metricsValues.getValues().getValues().isEmpty()) {
+           OptionalDouble avgValue = metricsValues.getValues().getValues().stream().filter(v -> !v.isEmptyValue()).mapToLong(
+               KVInt::getValue).average();
+           if (avgValue.isPresent()) {
+               return new NullableValue((long) avgValue.getAsDouble(), false);
+           }
+        }
+
+        return new NullableValue(defaultValue, true);
     }
 
     /**
      * Read time-series values in the duration of required metrics
      */
     public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
+        if (!condition.senseScope() || !condition.getEntity().isValid()) {
+            return new MetricsValues();
+        }
         return getMetricQueryDAO().readMetricsValues(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }
@@ -70,16 +89,28 @@ public class MetricsQueryService implements Service {
      * @param labels the labels you need to query.
      */
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
-                                                        List<String> labels,
+                                                        List<KeyValue> labels,
                                                         Duration duration) throws IOException {
+        if (!condition.senseScope() || !condition.getEntity().isValid()) {
+            return Collections.emptyList();
+        }
         return getMetricQueryDAO().readLabeledMetricsValues(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), labels, duration);
+    }
+
+    public List<MetricsValues> readLabeledMetricsValuesWithoutEntity(String metricsName,
+                                         List<KeyValue> labels,
+                                         Duration duration) throws IOException {
+        return getMetricQueryDAO().readLabeledMetricsValuesWithoutEntity(metricsName, ValueColumnMetadata.INSTANCE.getValueCName(metricsName), labels, duration);
     }
 
     /**
      * Heatmap is bucket based value statistic result.
      */
     public HeatMap readHeatMap(MetricsCondition condition, Duration duration) throws IOException {
+        if (!condition.senseScope() || !condition.getEntity().isValid()) {
+            return new HeatMap();
+        }
         return getMetricQueryDAO().readHeatMap(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }

@@ -31,32 +31,51 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Slf4j
 @RequiredArgsConstructor
 public class PagerDutyHookCallback extends HttpAlarmCallback {
-    private static final String PAGER_DUTY_EVENTS_API_V2_URL = "https://events.pagerduty.com/v2/enqueue";
+    private static final String PAGER_DUTY_EVENTS_API_V2_URL = "http://events.pagerduty.com/v2/enqueue";
     private static final Gson GSON = new Gson();
 
     private final AlarmRulesWatcher alarmRulesWatcher;
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
-        if (alarmRulesWatcher.getPagerDutySettings() == null || alarmRulesWatcher.getPagerDutySettings().getIntegrationKeys().isEmpty()) {
+        Map<String, PagerDutySettings> settingsMap = alarmRulesWatcher.getPagerDutySettings();
+        if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
 
-        for (final var integrationKey : alarmRulesWatcher.getPagerDutySettings().getIntegrationKeys()) {
-            for (final var alarmMessage : alarmMessages) {
-                post(URI.create(PAGER_DUTY_EVENTS_API_V2_URL), getMessageBody(alarmMessage, integrationKey), Map.of());
+        Map<String, List<AlarmMessage>> groupedMessages = groupMessagesByHook(alarmMessages);
+        for (Map.Entry<String, List<AlarmMessage>> entry : groupedMessages.entrySet()) {
+            var hookName = entry.getKey();
+            var messages = entry.getValue();
+            var setting = settingsMap.get(hookName);
+            if (setting == null || CollectionUtils.isEmpty(setting.getIntegrationKeys()) || CollectionUtils.isEmpty(
+                messages)) {
+                continue;
+            }
+            for (final var integrationKey : setting.getIntegrationKeys()) {
+                for (final var alarmMessage : messages) {
+                    try {
+                        post(
+                            URI.create(PAGER_DUTY_EVENTS_API_V2_URL),
+                            getMessageBody(alarmMessage, integrationKey, setting.getTextTemplate()), Map.of()
+                        );
+                    } catch (Exception e) {
+                        log.error("Failed to send alarm message to PagerDuty: {}", integrationKey, e);
+                    }
+                }
             }
         }
     }
 
-    private String getMessageBody(AlarmMessage alarmMessage, String integrationKey) {
+    private String getMessageBody(AlarmMessage alarmMessage, String integrationKey, String textTemplate) {
         final var body = new JsonObject();
         final var payload = new JsonObject();
-        payload.add("summary", new JsonPrimitive(getFormattedMessage(alarmMessage)));
+        payload.add("summary", new JsonPrimitive(getFormattedMessage(alarmMessage, textTemplate)));
         payload.add("severity", new JsonPrimitive("warning"));
         payload.add("source", new JsonPrimitive("Skywalking"));
         body.add("payload", payload);
@@ -67,9 +86,8 @@ public class PagerDutyHookCallback extends HttpAlarmCallback {
         return GSON.toJson(body);
     }
 
-    private String getFormattedMessage(AlarmMessage alarmMessage) {
-        return String.format(
-                alarmRulesWatcher.getPagerDutySettings().getTextTemplate(), alarmMessage.getAlarmMessage()
+    private String getFormattedMessage(AlarmMessage alarmMessage, String textTemplate) {
+        return String.format(textTemplate, alarmMessage.getAlarmMessage()
         );
     }
 }

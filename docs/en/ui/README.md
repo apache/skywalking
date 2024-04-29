@@ -8,6 +8,41 @@ The left side menu lists all available supported stacks with default dashboards.
 
 Follow the `Official Dashboards` menu to explore all default dashboards on their ways to monitor different tech stacks.
 
+## Sidebar Menu and Marketplace
+
+All available feature menu items are only listed in the marketplace(since 9.6.0). They are only visible on the Sidebar Menu when there are relative services
+being observed by various supported observation agents, such as installed language agents, service mesh platform, OTEL integration.
+
+The menu items defined in `ui-initialized-templates/menu.yaml` are the universal marketplace for all default-supported integration.
+The menu definition supports one and two levels items. The leaf menu item should have the `layer` for navigation.
+
+```yaml
+menus:
+  - name: GeneralService
+    icon: general_service
+    menus:
+      - name: Services
+        layer: GENERAL
+      - name: VisualDatabase
+        layer: VIRTUAL_DATABASE
+      - name: VisualCache
+        layer: VIRTUAL_CACHE
+      - name: VisualMQ
+        layer: VIRTUAL_MQ
+....
+- name: SelfObservability
+  icon: self_observability
+  menus:
+    - name: SkyWalkingServer
+      layer: SO11Y_OAP
+    - name: Satellite
+      layer: SO11Y_SATELLITE
+```
+
+
+The menu items would automatically pop up on the left after short period of time that at least one service was observed.
+For more details, please refer to the "uiMenuRefreshInterval" configuration item in the [backend settings](../setup/backend/configuration-vocabulary.md)
+
 ## Custom Dashboard
 
 Besides official dashboards, **Dashboards** provide customization capabilities to end-users to add new tabs/pages/widgets, and

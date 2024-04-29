@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "Mesh-Instance",
@@ -50,12 +33,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1-0-2"
@@ -66,6 +43,9 @@
                     {
                       "widgetId": "1-0-3"
                     }
+                  ],
+                  "expressions": [
+                    "service_instance_resp_time"
                   ]
                 },
                 {
@@ -87,12 +67,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1-0-0"
@@ -103,6 +77,9 @@
                     {
                       "widgetId": "1-0-3"
                     }
+                  ],
+                  "expressions": [
+                    "service_instance_sla/100"
                   ]
                 },
                 {
@@ -115,7 +92,7 @@
                   "widget": {
                     "title": "Service Instance Throughput (Bytes)",
                     "name": "Instance_Throughput",
-                    "tips": "This metrics is only avaible for TCP services"
+                    "tips": "This metrics is only available for TCP services"
                   },
                   "graph": {
                     "type": "Line",
@@ -125,14 +102,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_throughput_received",
-                    "service_instance_throughput_sent"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1-0-0"
@@ -144,13 +113,9 @@
                       "widgetId": "1-0-3"
                     }
                   ],
-                  "metricConfig": [
-                    {
-                      "label": "received"
-                    },
-                    {
-                      "label": "sent"
-                    }
+                  "expressions": [
+                    "service_instance_throughput_received",
+                    "service_instance_throughput_sent"
                   ]
                 },
                 {
@@ -172,12 +137,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1-0-0"
@@ -188,6 +147,9 @@
                     {
                       "widgetId": "1-0-2"
                     }
+                  ],
+                  "expressions": [
+                    "service_instance_cpm"
                   ]
                 }
               ]
@@ -213,11 +175,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "envoy_cluster_up_rq_active"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
                   ]
                 },
                 {
@@ -238,14 +197,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "envoy_total_connections_used",
-                    "envoy_parent_connections_used"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "total"
@@ -253,6 +204,10 @@
                     {
                       "label": "parent"
                     }
+                  ],
+                  "expressions": [
+                    "envoy_total_connections_used",
+                    "envoy_parent_connections_used"
                   ]
                 },
                 {
@@ -273,11 +228,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "envoy_cluster_membership_healthy"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
                   ]
                 },
                 {
@@ -298,11 +250,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "envoy_cluster_up_cx_incr"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
                   ]
                 },
                 {
@@ -323,11 +272,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "envoy_cluster_up_rq_pending_active"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
                   ]
                 },
                 {
@@ -348,47 +294,39 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "envoy_memory_allocated_max",
-                    "envoy_heap_memory_used",
-                    "envoy_memory_allocated",
-                    "envoy_memory_physical_size",
-                    "envoy_memory_physical_size_max",
-                    "envoy_heap_memory_max_used"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB",
-                      "label": "allocated_max"
+                      "label": "allocated_max",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "heap_memory_used"
+                      "label": "heap_memory_used",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "allocated"
+                      "label": "allocated",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "physical_size"
+                      "label": "physical_size",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "physical_size_max"
+                      "label": "physical_size_max",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "max_used"
+                      "label": "max_used",
+                      "unit": "MB"
                     }
+                  ],
+                  "expressions": [
+                    "envoy_memory_allocated_max/1024/1024",
+                    "envoy_heap_memory_used/1024/1024",
+                    "envoy_memory_allocated/1024/1024",
+                    "envoy_memory_physical_size/1024/1024",
+                    "envoy_memory_physical_size_max/1024/1024",
+                    "envoy_heap_memory_max_used/1024/1024"
                   ]
                 },
                 {
@@ -409,11 +347,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "envoy_bug_failures"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
                   ]
                 },
                 {
@@ -434,21 +369,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "envoy_worker_threads_max",
                     "envoy_worker_threads"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "threads_max"
-                    },
-                    {
-                      "label": "threads"
-                    }
                   ]
                 },
                 {
@@ -469,11 +392,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "envoy_cluster_up_cx_active"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
                   ]
                 },
                 {
@@ -494,11 +414,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "envoy_cluster_up_rq_incr"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
                   ]
                 },
                 {
@@ -508,12 +425,6 @@
                   "h": 13,
                   "i": "20",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_instance_sidecar_internal_req_latency_nanos"
-                  ],
                   "widget": {
                     "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
@@ -525,7 +436,10 @@
                     "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
-                  }
+                  },
+                  "expressions": [
+                    "service_instance_sidecar_internal_req_latency_nanos"
+                  ]
                 },
                 {
                   "x": 18,
@@ -534,12 +448,6 @@
                   "h": 13,
                   "i": "21",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_instance_sidecar_internal_resp_latency_nanos"
-                  ],
                   "widget": {
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
                     "title": "Proxy Sidecar Internal Latency in Nanoseconds (Response)"
@@ -551,7 +459,10 @@
                     "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
-                  }
+                  },
+                  "expressions": [
+                    "service_instance_sidecar_internal_resp_latency_nanos"
+                  ]
                 }
               ]
             },
@@ -596,7 +507,27 @@
       "layer": "MESH",
       "entity": "ServiceInstance",
       "name": "Mesh-Instance",
-      "id": "Mesh-Instance"
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(service_instance_cpm)",
+        "avg(service_instance_sla/100)",
+        "avg(service_instance_resp_time)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "calls / min",
+          "label": "Load"
+        },
+        {
+          "label": "Success Rate",
+          "unit": "%"
+        },
+        {
+          "label": "Latency",
+          "unit": "ms"
+        }
+      ]
     }
   }
 ]

@@ -95,7 +95,7 @@ public class ApolloConfigurationIT {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
-        final ModuleManager moduleManager = new ModuleManager();
+        final ModuleManager moduleManager = new ModuleManager("Test");
         moduleManager.init(applicationConfiguration);
 
         provider = (ApolloConfigurationTestProvider) moduleManager.find(ApolloConfigurationTestModule.NAME).provider();

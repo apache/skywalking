@@ -21,6 +21,6 @@ PRGDIR=`dirname "$PRG"`
 OAP_EXE=oapService.sh
 WEBAPP_EXE=webappService.sh
 
-"$PRGDIR"/"$OAP_EXE"
+"$PRGDIR"/"$OAP_EXE" 1> /dev/null &
 
-"$PRGDIR"/"$WEBAPP_EXE"
+"$PRGDIR"/"$WEBAPP_EXE" 1> /dev/null &

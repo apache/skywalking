@@ -19,62 +19,88 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.util.Set;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
 import lombok.ToString;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
+import org.apache.skywalking.mqe.rt.exception.ParseErrorListener;
+import org.apache.skywalking.mqe.rt.grammar.MQELexer;
+import org.apache.skywalking.mqe.rt.grammar.MQEParser;
+import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVerifyVisitor;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Setter
-@Getter
+@Data
 @ToString
+@EqualsAndHashCode
 public class AlarmRule {
     private String alarmRuleName;
-    private String metricsName;
+    private String expression;
+    @Setter(AccessLevel.NONE)
+    private Set<String> includeMetrics;
     private ArrayList<String> includeNames;
     private String includeNamesRegex;
     private ArrayList<String> excludeNames;
     private String excludeNamesRegex;
-    private ArrayList<String> includeLabels;
-    private String includeLabelsRegex;
-    private ArrayList<String> excludeLabels;
-    private String excludeLabelsRegex;
-    private String threshold;
-    private String op;
     private int period;
-    private int count;
     private int silencePeriod;
     private String message;
-    private boolean onlyAsCondition;
     private Map<String, String> tags;
+    private Set<String> hooks;
+    private int maxTrendRange;
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
+    /**
+     * Init includeMetrics and verify the expression.
+     * ValueColumnMetadata need init metrics info, don't invoke before the module finishes start.
+     */
+    public void setExpression(final String expression) throws IllegalExpressionException {
+        MQELexer lexer = new MQELexer(CharStreams.fromString(expression));
+        lexer.addErrorListener(new ParseErrorListener());
+        MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
+        parser.addErrorListener(new ParseErrorListener());
+        ParseTree tree;
+        try {
+            tree = parser.expression();
+        } catch (ParseCancellationException e) {
+            throw new IllegalExpressionException("Expression: " + expression + " error: " + e.getMessage());
+        }
+        AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor();
+        ExpressionResult parseResult = visitor.visit(tree);
+        if (StringUtil.isNotBlank(parseResult.getError())) {
+            throw new IllegalExpressionException("Expression: " + expression + " error: " + parseResult.getError());
+        }
+        if (!parseResult.isBoolResult()) {
+            throw new IllegalExpressionException("Expression: " + expression + " root operation is not a Compare Operation.");
+        }
+        if (ExpressionResultType.SINGLE_VALUE != parseResult.getType()) {
+            throw new IllegalExpressionException("Expression: " + expression + " is not a SINGLE_VALUE result expression.");
         }
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final AlarmRule alarmRule = (AlarmRule) o;
-
-        return period == alarmRule.period && count == alarmRule.count && silencePeriod == alarmRule.silencePeriod && Objects
-            .equals(alarmRuleName, alarmRule.alarmRuleName) && Objects.equals(metricsName, alarmRule.metricsName) && Objects
-            .equals(includeNames, alarmRule.includeNames) && Objects.equals(excludeNames, alarmRule.excludeNames) && Objects
-            .equals(threshold, alarmRule.threshold) && Objects.equals(op, alarmRule.op) && Objects.equals(message, alarmRule.message)
-            && Objects.equals(includeNamesRegex, alarmRule.includeNamesRegex) && Objects.equals(excludeNamesRegex, alarmRule.excludeNamesRegex);
+        verifyIncludeMetrics(visitor.getIncludeMetrics(), expression);
+        this.expression = expression;
+        this.includeMetrics = visitor.getIncludeMetrics();
+        this.maxTrendRange = visitor.getMaxTrendRange();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(alarmRuleName, metricsName, includeNames, excludeNames, threshold, op, period, count, silencePeriod, message);
+    private void verifyIncludeMetrics(Set<String> includeMetrics, String expression) throws IllegalExpressionException {
+        Set<String> scopeSet = new HashSet<>();
+        for (String metricName : includeMetrics) {
+            scopeSet.add(ValueColumnMetadata.INSTANCE.getScope(metricName).name());
+        }
+        if (scopeSet.size() != 1) {
+            throw new IllegalExpressionException(
+                "The metrics in expression: " + expression + " must have the same scope level, but got: " + scopeSet + ".");
+        }
     }
 }

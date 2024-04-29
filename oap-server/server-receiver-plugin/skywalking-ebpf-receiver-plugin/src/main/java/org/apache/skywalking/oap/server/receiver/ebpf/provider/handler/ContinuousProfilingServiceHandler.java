@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import io.grpc.stub.StreamObserver;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.ContinuousProfilingCause;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.ContinuousProfilingPolicyQuery;
@@ -33,6 +34,7 @@ import org.apache.skywalking.apm.network.ebpf.profiling.v3.ContinuousProfilingSe
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingMonitorType;
@@ -56,6 +58,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicyCommand;
 import org.apache.skywalking.oap.server.receiver.ebpf.provider.EBPFReceiverModuleConfig;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -178,6 +181,7 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
         task.setFixedTriggerDuration(request.getDuration());
         task.setCreateTime(currentTime);
         task.setLastUpdateTime(currentTime);
+        task.setTimeBucket(TimeBucket.getRecordTimeBucket(currentTime));
 
         final EBPFProfilingTaskContinuousProfiling continuousProfiling = new EBPFProfilingTaskContinuousProfiling();
         continuousProfiling.setProcessId(processId);
@@ -227,21 +231,27 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
 
     private ContinuousProfilingTriggeredCause parseTaskCause(ContinuousProfilingCause cause) {
         final ContinuousProfilingTriggeredCause result = new ContinuousProfilingTriggeredCause();
-        result.setType(ContinuousProfilingMonitorType.valueOf(cause.getType()));
+        final ContinuousProfilingMonitorType type = ContinuousProfilingMonitorType.valueOf(cause.getType());
+        result.setType(type);
+        String caseFormat = "";
         switch (cause.getCauseCase()) {
             case SINGLEVALUE:
                 final ContinuousProfilingSingleValueCause singleValue = new ContinuousProfilingSingleValueCause();
                 singleValue.setThreshold(thresholdToLong(cause.getSingleValue().getThreshold()));
                 singleValue.setCurrent(thresholdToLong(cause.getSingleValue().getCurrent()));
                 result.setSingleValue(singleValue);
+                caseFormat = generateCauseString(type, cause.getSingleValue().getThreshold(), cause.getSingleValue().getCurrent());
                 break;
             case URI:
                 final ContinuousProfilingURICause uriCause = new ContinuousProfilingURICause();
+                String urlCause;
                 switch (cause.getUri().getUriCase()) {
                     case PATH:
+                        urlCause = cause.getUri().getPath();
                         uriCause.setUriPath(cause.getUri().getPath());
                         break;
                     case REGEX:
+                        urlCause = cause.getUri().getRegex();
                         uriCause.setUriRegex(cause.getUri().getRegex());
                         break;
                     default:
@@ -250,9 +260,30 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
                 uriCause.setThreshold(thresholdToLong(cause.getUri().getThreshold()));
                 uriCause.setCurrent(thresholdToLong(cause.getUri().getCurrent()));
                 result.setUri(uriCause);
+                caseFormat = generateCauseString(type, cause.getUri().getThreshold(), cause.getUri().getCurrent());
+                if (StringUtils.isNotEmpty(urlCause)) {
+                    caseFormat += " on " + urlCause;
+                }
                 break;
         }
+        result.setMessage(result.getType().name() + ": " + caseFormat);
         return result;
+    }
+
+    private String generateCauseString(ContinuousProfilingMonitorType type, double threshold, double current) {
+        NumberFormat percentInstance = NumberFormat.getPercentInstance();
+        percentInstance.setMinimumFractionDigits(2);
+        switch (type) {
+            case HTTP_ERROR_RATE:
+            case PROCESS_CPU:
+                return String.format("current %s >= threshold %s", percentInstance.format(current / 100), percentInstance.format(threshold / 100));
+            case PROCESS_THREAD_COUNT:
+            case SYSTEM_LOAD:
+                return String.format("current %d >= threshold %d", (int) current, (int) threshold);
+            case HTTP_AVG_RESPONSE_TIME:
+                return String.format("current %.2fms >= threshold %.2fms", current, threshold);
+        }
+        return "";
     }
 
     private long thresholdToLong(double val) {

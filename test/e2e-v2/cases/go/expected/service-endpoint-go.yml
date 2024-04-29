@@ -14,6 +14,6 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "go2sky" }}.1_{{ b64enc "/POST/correlation" }}
-  name: /POST/correlation
+- id: {{ b64enc "go-service" }}.1_{{ b64enc "POST:/correlation" }}
+  name: POST:/correlation
 {{- end}}

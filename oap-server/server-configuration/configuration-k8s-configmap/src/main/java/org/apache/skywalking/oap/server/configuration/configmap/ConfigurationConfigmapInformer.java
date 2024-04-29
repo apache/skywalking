@@ -18,77 +18,39 @@
 
 package org.apache.skywalking.oap.server.configuration.configmap;
 
-import io.kubernetes.client.informer.SharedIndexInformer;
-import io.kubernetes.client.informer.SharedInformerFactory;
-import io.kubernetes.client.informer.cache.Lister;
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1ConfigMap;
-import io.kubernetes.client.openapi.models.V1ConfigMapList;
-import io.kubernetes.client.util.Config;
-import java.io.IOException;
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.informers.cache.Lister;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConfigurationConfigmapInformer {
-    private Lister<V1ConfigMap> configMapLister;
-
-    private SharedInformerFactory factory;
-
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor(r -> {
-        Thread thread = new Thread(r, "SKYWALKING_KUBERNETES_CONFIGURATION_INFORMER");
-        thread.setDaemon(true);
-        return thread;
-    });
+    private final Lister<ConfigMap> configMapLister;
 
     public ConfigurationConfigmapInformer(ConfigmapConfigurationSettings settings) {
-        try {
-            doStartConfigMapInformer(settings);
-            doAddShutdownHook();
-        } catch (IOException e) {
-            log.error("cannot connect with api server in kubernetes", e);
-        }
-    }
+        final var client = new KubernetesClientBuilder().build();
+        final var informer = client
+            .configMaps()
+            .inNamespace(settings.getNamespace())
+            .withLabelSelector(settings.getLabelSelector())
+            .inform();
 
-    private void doAddShutdownHook() {
+        configMapLister = new Lister<>(informer.getIndexer());
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (Objects.nonNull(factory)) {
-                factory.stopAllRegisteredInformers();
-            }
+            informer.stop();
+            client.close();
         }));
-    }
-
-    private void doStartConfigMapInformer(final ConfigmapConfigurationSettings settings) throws IOException {
-        ApiClient apiClient = Config.defaultClient();
-        apiClient.setHttpClient(apiClient.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
-        Configuration.setDefaultApiClient(apiClient);
-        CoreV1Api coreV1Api = new CoreV1Api(apiClient);
-        factory = new SharedInformerFactory(executorService);
-
-        SharedIndexInformer<V1ConfigMap> configMapSharedIndexInformer = factory.sharedIndexInformerFor(
-            params -> coreV1Api.listNamespacedConfigMapCall(
-                settings.getNamespace(), null, null, null, null, settings.getLabelSelector()
-                , 1, null, null, params.timeoutSeconds, params.watch, null
-            ),
-            V1ConfigMap.class, V1ConfigMapList.class
-        );
-
-        factory.startAllRegisteredInformers();
-        configMapLister = new Lister<>(configMapSharedIndexInformer.getIndexer());
     }
 
     public Map<String, String> configMapData() {
         Map<String, String> configMapData = new HashMap<>();
         if (configMapLister != null) {
-            final List<V1ConfigMap> list = configMapLister.list();
+            final List<ConfigMap> list = configMapLister.list();
             if (list != null) {
                 list.forEach(cf -> {
                     Map<String, String> data = cf.getData();

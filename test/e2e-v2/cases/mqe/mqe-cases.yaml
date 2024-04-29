@@ -1,0 +1,83 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# E2E is mainly used to test expressions and query, specific calculations tests please refer to the
+# oap-server/server-query-plugin/query-graphql-plugin/src/test/java/org/apache/skywalking/oap/query/graphql/mqe
+cases:
+  # service metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_sla --service-name=e2e-service-provider
+    expected: expected/no-OP.yml
+
+  # binary-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="service_sla * 2 /100 + 500 - 50" --service-name=e2e-service-provider
+    expected: expected/binary-OP.yml
+
+  # compare-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="(service_cpm + 1) > 2" --service-name=e2e-service-provider
+    expected: expected/compare-OP.yml
+
+  # aggregation-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="avg(service_sla/100)" --service-name=e2e-service-provider
+    expected: expected/aggregation-OP.yml
+
+  # func-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="abs(service_sla-10300)" --service-name=e2e-service-provider
+    expected: expected/func-OP.yml
+
+  # topN-OP-service
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des)/100"
+    expected: expected/topN-OP-service.yml
+
+  # topN-OP-service
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_instance_sla,3,des)/100" --service-name=e2e-service-provider
+    expected: expected/topN-OP-instance.yml
+
+  # select labels and relabels
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="relabels(relabels(service_percentile{p='50,75,90'},p='50,75',p='P50,P75'),p='90',p='P90')" --service-name=e2e-service-provider
+    expected: expected/relabels-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="service_percentile_old{_='0,1,2'}" --service-name=e2e-service-provider
+    expected: expected/labels-old.yml
+
+  # relabels and calculate
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="relabels(service_percentile{p='50,75,90'},p='50',p='P50')/relabels(service_percentile{p='50,75,90'},p='50',p='P50')" --service-name=e2e-service-provider
+    expected: expected/relabels-binary-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="relabels(service_percentile{p='50,75,90'}/service_percentile{p='50,75,90'},p='50',p='P50')" --service-name=e2e-service-provider
+    expected: expected/relabels-binary-OP.yml
+
+  # aggregateLabels-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,avg)" --service-name=e2e-service-provider
+    expected: expected/aggregateLabels-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,sum)" --service-name=e2e-service-provider
+    expected: expected/aggregateLabels-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,max)" --service-name=e2e-service-provider
+    expected: expected/aggregateLabels-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,min)" --service-name=e2e-service-provider
+    expected: expected/aggregateLabels-OP.yml
+
+  # viewAsSeq-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="view_as_seq(mq_service_consume_sla,service_sla)" --service-name=e2e-service-provider
+    expected: expected/viewAsSeq-OP.yml
+
+  # isPresent-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="is_present(service_sla)" --service-name=e2e-service-provider
+    expected: expected/isPresent-OP-true.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="is_present(not_exist_meter,mq_service_consume_cpm)" --service-name=e2e-service-provider
+    expected: expected/isPresent-OP-false.yml
+
+  # trend-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="increase(service_resp_time,2)" --service-name=e2e-service-provider
+    expected: expected/trend-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="rate(service_resp_time,2)" --service-name=e2e-service-provider
+    expected: expected/trend-OP.yml

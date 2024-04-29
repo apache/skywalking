@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "Virtual-Database-Service",
@@ -34,14 +17,9 @@
             "type": "TopList",
             "color": "purple"
           },
-          "metrics": [
-            "top_n_database_statement"
-          ],
-          "metricTypes": [
-            "readRecords"
-          ],
-          "value": "2",
-          "label": "2"
+          "expressions": [
+            "top_n(top_n_database_statement,10,des)"
+          ]
         },
         {
           "x": 6,
@@ -62,19 +40,11 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "database_access_sla"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "label": "success_rate"
             }
           ],
-          "value": "3",
-          "label": "Successful_Rate",
           "associate": [
             {
               "widgetId": "5"
@@ -86,10 +56,9 @@
               "widgetId": "6"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          "expressions": [
+            "database_access_sla/100"
+          ]
         },
         {
           "x": 12,
@@ -110,14 +79,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "database_access_cpm"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "value": "4",
-          "label": "Database_Traffic",
           "associate": [
             {
               "widgetId": "3"
@@ -128,6 +89,14 @@
             {
               "widgetId": "6"
             }
+          ],
+          "metricConfig": [
+            {
+              "label": "traffic"
+            }
+          ],
+          "expressions": [
+            "database_access_cpm"
           ]
         },
         {
@@ -149,20 +118,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "database_access_percentile"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
-            }
-          ],
-          "value": "5",
-          "label": "5",
           "associate": [
             {
               "widgetId": "3"
@@ -174,10 +129,9 @@
               "widgetId": "6"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          "expressions": [
+            "relabels(database_access_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+          ]
         },
         {
           "x": 0,
@@ -198,14 +152,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "database_access_resp_time"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "value": "6",
-          "label": "Database_Avg_Response",
           "associate": [
             {
               "widgetId": "3"
@@ -217,17 +163,40 @@
               "widgetId": "5"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          "metricConfig": [
+            {
+              "label": "latency"
+            }
+          ],
+          "expressions": [
+            "database_access_resp_time"
+          ]
         }
       ],
       "layer": "VIRTUAL_DATABASE",
       "entity": "Service",
       "name": "Virtual-Database-Service",
-      "id": "Virtual-Database-Service",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(database_access_resp_time)",
+        "avg(database_access_sla)/100",
+        "avg(database_access_cpm)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "ms",
+          "label": "Latency"
+        },
+        {
+          "unit": "%",
+          "label": "Successful Rate"
+        },
+        {
+          "unit": "calls / min",
+          "label": "Traffic"
+        }
+      ]
     }
   }
 ]

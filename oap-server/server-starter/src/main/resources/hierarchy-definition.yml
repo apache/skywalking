@@ -1,0 +1,114 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Define the hierarchy of service layers, the layers under the specific layer are related lower of the layer.
+# The relation could have a matching rule for auto matching, which are defined in the `auto-matching-rules` section.
+# All the layers are defined in the file `org.apache.skywalking.oap.server.core.analysis.Layers.java`.
+# Notice: some hierarchy relations and auto matching rules are only works on k8s env.
+
+hierarchy:
+  MESH:
+    MESH_DP: name
+    K8S_SERVICE: short-name
+
+  MESH_DP:
+    K8S_SERVICE: short-name
+
+  GENERAL:
+    APISIX: lower-short-name-remove-ns
+    K8S_SERVICE: lower-short-name-remove-ns
+
+  MYSQL:
+    K8S_SERVICE: short-name
+
+  POSTGRESQL:
+    K8S_SERVICE: short-name
+
+  APISIX:
+    K8S_SERVICE: short-name
+
+  NGINX:
+    K8S_SERVICE: short-name
+
+  SO11Y_OAP:
+    K8S_SERVICE: short-name
+
+  ROCKETMQ:
+    K8S_SERVICE: short-name
+
+  RABBITMQ:
+    K8S_SERVICE: short-name
+
+  KAFKA:
+    K8S_SERVICE: short-name
+
+  CLICKHOUSE:
+    K8S_SERVICE: short-name
+  
+  PULSAR:
+    K8S_SERVICE: short-name
+
+  ACTIVEMQ:
+    K8S_SERVICE: short-name
+
+  VIRTUAL_DATABASE:
+    MYSQL: lower-short-name-with-fqdn
+    POSTGRESQL: lower-short-name-with-fqdn
+    CLICKHOUSE: lower-short-name-with-fqdn
+
+  VIRTUAL_MQ:
+    ROCKETMQ: lower-short-name-with-fqdn
+    RABBITMQ: lower-short-name-with-fqdn
+    KAFKA: lower-short-name-with-fqdn
+    PULSAR: lower-short-name-with-fqdn
+
+# Use Groovy script to define the matching rules, the input parameters are the upper service(u) and the lower service(l) and the return value is a boolean,
+# which are used to match the relation between the upper service(u) and the lower service(l) on the different layers.
+auto-matching-rules:
+  # the name of the upper service is equal to the name of the lower service
+  name: "{ (u, l) -> u.name == l.name }"
+  # the short name of the upper service is equal to the short name of the lower service
+  short-name: "{ (u, l) -> u.shortName == l.shortName }"
+  # remove the k8s namespace from the lower service short name
+  # this rule is only works on k8s env.
+  lower-short-name-remove-ns: "{ (u, l) -> { if(l.shortName.lastIndexOf('.') > 0) return u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')); return false; } }"
+  # the short name of the upper remove port is equal to the short name of the lower service with fqdn suffix
+  # this rule is only works on k8s env.
+  lower-short-name-with-fqdn: "{ (u, l) -> { if(u.shortName.lastIndexOf(':') > 0) return u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local'); return false; } }"
+
+# The hierarchy level of the service layer, the level is used to define the order of the service layer for UI presentation.
+# The level of the upper service should greater than the level of the lower service in `hierarchy` section.
+layer-levels:
+  MESH: 3
+  GENERAL: 3
+  SO11Y_OAP: 3
+  VIRTUAL_DATABASE: 3
+  VIRTUAL_MQ: 3
+
+  MYSQL: 2
+  POSTGRESQL: 2
+  APISIX: 2
+  NGINX: 2
+  ROCKETMQ: 2
+  CLICKHOUSE: 2
+  RABBITMQ: 2
+  KAFKA: 2
+  PULSAR: 2
+  ACTIVEMQ: 2
+
+  MESH_DP: 1
+
+  K8S_SERVICE: 0
+

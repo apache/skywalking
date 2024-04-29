@@ -1,0 +1,343 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// Kubernetes Service
+kubernetes_service_connect_cpm = from(K8SService.*).filter(type == "connect").cpm();
+kubernetes_service_connect_duration = from(K8SService.connect.duration).filter(type == "connect").sum();
+kubernetes_service_connect_success_cpm = from(K8SService.*).filter(type == "connect").filter(connect.success == true).cpm();
+kubernetes_service_accept_cpm = from(K8SService.*).filter(type == "accept").cpm();
+kubernetes_service_accept_duration = from(K8SService.accept.duration).filter(type == "accept").sum();
+kubernetes_service_close_cpm = from(K8SService.*).filter(type == "close").cpm();
+kubernetes_service_close_duration = from(K8SService.close.duration).filter(type == "close").sum();
+
+kubernetes_service_write_cpm = from(K8SService.*).filter(type == "write").cpm();
+kubernetes_service_write_duration = from(K8SService.write.duration).filter(type == "write").sum();
+kubernetes_service_write_l4_duration = from(K8SService.write.l4.duration).filter(type == "write").sum();
+kubernetes_service_write_package_cpm = from(K8SService.write.l4.transmitPackageCount).filter(type == "write").sum();
+kubernetes_service_write_retrains_package_cpm = from(K8SService.write.l4.retransmitPackageCount).filter(type == "write").sum();
+kubernetes_service_write_package_size = from(K8SService.write.l4.totalPackageSize).filter(type == "write").sum();
+kubernetes_service_write_l3_duration = from(K8SService.write.l3.duration).filter(type == "write").sum();
+kubernetes_service_write_l3_local_duration = from(K8SService.write.l3.localDuration).filter(type == "write").sum();
+kubernetes_service_write_l3_output_duration = from(K8SService.write.l3.outputDuration).filter(type == "write").sum();
+kubernetes_service_write_l2_duration = from(K8SService.write.l2.duration).filter(type == "write").sum();
+kubernetes_service_write_l2_enter_queue_count = from(K8SService.write.l2.enterQueueBufferCount).filter(type == "write").sum();
+kubernetes_service_write_l2_ready_send_duration = from(K8SService.write.l2.readySendDuration).filter(type == "write").sum();
+kubernetes_service_write_l2_net_device_send_duration = from(K8SService.write.l2.networkDeviceSendDuration).filter(type == "write").sum();
+
+kubernetes_service_read_cpm = from(K8SService.*).filter(type == "read").cpm();
+kubernetes_service_read_duration = from(K8SService.read.duration).filter(type == "read").sum();
+kubernetes_service_read_l4_duration = from(K8SService.read.l4.duration).filter(type == "read").sum();
+kubernetes_service_read_l3_duration = from(K8SService.read.l3.duration).filter(type == "read").sum();
+kubernetes_service_read_l3_rcv_duration = from(K8SService.read.l3.rcvDuration).filter(type == "read").sum();
+kubernetes_service_read_l3_local_duration = from(K8SService.read.l3.localDuration).filter(type == "read").sum();
+kubernetes_service_read_package_cpm = from(K8SService.read.l2.packageCount).filter(type == "read").sum();
+kubernetes_service_read_package_size = from(K8SService.read.l2.totalPackageSize).filter(type == "read").sum();
+kubernetes_service_read_package_to_queue_duration = from(K8SService.read.l2.packageToQueueDuration).filter(type == "read").sum();
+kubernetes_service_read_rcv_package_from_queue_duration = from(K8SService.read.l2.packageToQueueDuration).filter(type == "read").sum();
+
+kubernetes_service_resolve_mac_cpm = from(K8SService.write.l3.resolveMACCount).filter(type == "write").sum();
+kubernetes_service_resolve_mac_duration = from(K8SService.write.l3.resolveMACDuration).filter(type == "write").sum();
+kubernetes_service_write_netfilter_cpm = from(K8SService.write.l3.netFilterCount).filter(type == "write").sum();
+kubernetes_service_write_netfilter_duration = from(K8SService.write.l3.netFilterDuration).filter(type == "write").sum();
+kubernetes_service_read_netfilter_cpm = from(K8SService.read.l3.netFilterCount).filter(type == "read").sum();
+kubernetes_service_read_netfilter_duration = from(K8SService.read.l3.netFilterDuration).filter(type == "read").sum();
+
+kubernetes_service_http_call_cpm = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").cpm();
+kubernetes_service_http_call_duration = from(K8SService.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_http_call_success_count = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.success == true).cpm();
+kubernetes_service_http_req_header_size = from(K8SService.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_http_req_body_size = from(K8SService.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_http_resp_header_size = from(K8SService.protocol.http.sizeOfResponseHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_http_resp_body_size = from(K8SService.protocol.http.sizeOfResponseBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+
+kubernetes_service_http_status_1xx_cpm = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 100).filter(protocol.http.statusCode < 200).cpm();
+kubernetes_service_http_status_2xx_cpm = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 200).filter(protocol.http.statusCode < 300).cpm();
+kubernetes_service_http_status_3xx_cpm = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 300).filter(protocol.http.statusCode < 400).cpm();
+kubernetes_service_http_status_4xx_cpm = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 400).filter(protocol.http.statusCode < 500).cpm();
+kubernetes_service_http_status_5xx_cpm = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 500).filter(protocol.http.statusCode < 600).cpm();
+
+
+// Kubernetes Service Instance
+kubernetes_service_instance_connect_cpm = from(K8SServiceInstance.*).filter(type == "connect").cpm();
+kubernetes_service_instance_connect_duration = from(K8SServiceInstance.connect.duration).filter(type == "connect").sum();
+kubernetes_service_instance_connect_success_cpm = from(K8SServiceInstance.*).filter(type == "connect").filter(connect.success == true).cpm();
+kubernetes_service_instance_accept_cpm = from(K8SServiceInstance.*).filter(type == "accept").cpm();
+kubernetes_service_instance_accept_duration = from(K8SServiceInstance.accept.duration).filter(type == "accept").sum();
+kubernetes_service_instance_close_cpm = from(K8SServiceInstance.*).filter(type == "close").cpm();
+kubernetes_service_instance_close_duration = from(K8SServiceInstance.close.duration).filter(type == "close").sum();
+
+kubernetes_service_instance_write_cpm = from(K8SServiceInstance.*).filter(type == "write").cpm();
+kubernetes_service_instance_write_duration = from(K8SServiceInstance.write.duration).filter(type == "write").sum();
+kubernetes_service_instance_write_l4_duration = from(K8SServiceInstance.write.l4.duration).filter(type == "write").sum();
+kubernetes_service_instance_write_package_cpm = from(K8SServiceInstance.write.l4.transmitPackageCount).filter(type == "write").sum();
+kubernetes_service_instance_write_retrains_package_cpm = from(K8SServiceInstance.write.l4.retransmitPackageCount).filter(type == "write").sum();
+kubernetes_service_instance_write_package_size = from(K8SServiceInstance.write.l4.totalPackageSize).filter(type == "write").sum();
+kubernetes_service_instance_write_l3_duration = from(K8SServiceInstance.write.l3.duration).filter(type == "write").sum();
+kubernetes_service_instance_write_l3_local_duration = from(K8SServiceInstance.write.l3.localDuration).filter(type == "write").sum();
+kubernetes_service_instance_write_l3_output_duration = from(K8SServiceInstance.write.l3.outputDuration).filter(type == "write").sum();
+kubernetes_service_instance_write_l2_duration = from(K8SServiceInstance.write.l2.duration).filter(type == "write").sum();
+kubernetes_service_instance_write_l2_enter_queue_count = from(K8SServiceInstance.write.l2.enterQueueBufferCount).filter(type == "write").sum();
+kubernetes_service_instance_write_l2_ready_send_duration = from(K8SServiceInstance.write.l2.readySendDuration).filter(type == "write").sum();
+kubernetes_service_instance_write_l2_net_device_send_duration = from(K8SServiceInstance.write.l2.networkDeviceSendDuration).filter(type == "write").sum();
+
+kubernetes_service_instance_read_cpm = from(K8SServiceInstance.*).filter(type == "read").cpm();
+kubernetes_service_instance_read_duration = from(K8SServiceInstance.read.duration).filter(type == "read").sum();
+kubernetes_service_instance_read_l4_duration = from(K8SServiceInstance.read.l4.duration).filter(type == "read").sum();
+kubernetes_service_instance_read_l3_duration = from(K8SServiceInstance.read.l3.duration).filter(type == "read").sum();
+kubernetes_service_instance_read_l3_rcv_duration = from(K8SServiceInstance.read.l3.rcvDuration).filter(type == "read").sum();
+kubernetes_service_instance_read_l3_local_duration = from(K8SServiceInstance.read.l3.localDuration).filter(type == "read").sum();
+kubernetes_service_instance_read_package_cpm = from(K8SServiceInstance.read.l2.packageCount).filter(type == "read").sum();
+kubernetes_service_instance_read_package_size = from(K8SServiceInstance.read.l2.totalPackageSize).filter(type == "read").sum();
+kubernetes_service_instance_read_package_to_queue_duration = from(K8SServiceInstance.read.l2.packageToQueueDuration).filter(type == "read").sum();
+kubernetes_service_instance_read_rcv_package_from_queue_duration = from(K8SServiceInstance.read.l2.packageToQueueDuration).filter(type == "read").sum();
+
+kubernetes_service_instance_resolve_mac_cpm = from(K8SServiceInstance.write.l3.resolveMACCount).filter(type == "write").sum();
+kubernetes_service_instance_resolve_mac_duration = from(K8SServiceInstance.write.l3.resolveMACDuration).filter(type == "write").sum();
+kubernetes_service_instance_write_netfilter_cpm = from(K8SServiceInstance.write.l3.netFilterCount).filter(type == "write").sum();
+kubernetes_service_instance_write_netfilter_duration = from(K8SServiceInstance.write.l3.netFilterDuration).filter(type == "write").sum();
+kubernetes_service_instance_read_netfilter_cpm = from(K8SServiceInstance.read.l3.netFilterCount).filter(type == "read").sum();
+kubernetes_service_instance_read_netfilter_duration = from(K8SServiceInstance.read.l3.netFilterDuration).filter(type == "read").sum();
+
+kubernetes_service_instance_http_call_cpm = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").cpm();
+kubernetes_service_instance_http_call_duration = from(K8SServiceInstance.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_http_call_success_count = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.success == true).cpm();
+kubernetes_service_instance_http_req_header_size = from(K8SServiceInstance.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_http_req_body_size = from(K8SServiceInstance.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_http_resp_header_size = from(K8SServiceInstance.protocol.http.sizeOfResponseHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_http_resp_body_size = from(K8SServiceInstance.protocol.http.sizeOfResponseBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+
+kubernetes_service_instance_http_status_1xx_cpm = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 100).filter(protocol.http.statusCode < 200).cpm();
+kubernetes_service_instance_http_status_2xx_cpm = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 200).filter(protocol.http.statusCode < 300).cpm();
+kubernetes_service_instance_http_status_3xx_cpm = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 300).filter(protocol.http.statusCode < 400).cpm();
+kubernetes_service_instance_http_status_4xx_cpm = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 400).filter(protocol.http.statusCode < 500).cpm();
+kubernetes_service_instance_http_status_5xx_cpm = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 500).filter(protocol.http.statusCode < 600).cpm();
+
+// Kubernetes Service Endpoint
+kubernetes_service_endpoint_call_cpm = from(K8SEndpoint.*).cpm();
+kubernetes_service_endpoint_call_success_cpm = from(K8SEndpoint.*).filter(success == true).cpm();
+kubernetes_service_endpoint_call_duration = from(K8SEndpoint.duration).filter(success == true).sum();
+
+kubernetes_service_endpoint_http_call_cpm = from(K8SEndpoint.*).filter(type == "http").cpm();
+kubernetes_service_endpoint_http_call_success_cpm = from(K8SEndpoint.*).filter(type == "http").filter(success == true).cpm();
+kubernetes_service_endpoint_http_call_duration = from(K8SEndpoint.http.latency).filter(type == "http").sum();
+kubernetes_service_endpoint_http_req_header_size = from(K8SEndpoint.http.sizeOfRequestHeader).filter(type == "http").sum();
+kubernetes_service_endpoint_http_req_body_size = from(K8SEndpoint.http.sizeOfRequestBody).filter(type == "http").sum();
+kubernetes_service_endpoint_http_resp_header_size = from(K8SEndpoint.http.sizeOfResponseHeader).filter(type == "http").sum();
+kubernetes_service_endpoint_http_resp_body_size = from(K8SEndpoint.http.sizeOfResponseBody).filter(type == "http").sum();
+
+kubernetes_service_endpoint_http_status_1xx_cpm = from(K8SEndpoint.*).filter(type == "http").filter(http.statusCode >= 100).filter(http.statusCode < 200).cpm();
+kubernetes_service_endpoint_http_status_2xx_cpm = from(K8SEndpoint.*).filter(type == "http").filter(http.statusCode >= 200).filter(http.statusCode < 300).cpm();
+kubernetes_service_endpoint_http_status_3xx_cpm = from(K8SEndpoint.*).filter(type == "http").filter(http.statusCode >= 300).filter(http.statusCode < 400).cpm();
+kubernetes_service_endpoint_http_status_4xx_cpm = from(K8SEndpoint.*).filter(type == "http").filter(http.statusCode >= 400).filter(http.statusCode < 500).cpm();
+kubernetes_service_endpoint_http_status_5xx_cpm = from(K8SEndpoint.*).filter(type == "http").filter(http.statusCode >= 500).filter(http.statusCode < 600).cpm();
+
+// Kubernetes Service Relation
+kubernetes_service_relation_connect_cpm = from(K8SServiceRelation.*).filter(type == "connect").cpm();
+kubernetes_service_relation_connect_duration = from(K8SServiceRelation.connect.duration).filter(type == "connect").sum();
+kubernetes_service_relation_connect_success_cpm = from(K8SServiceRelation.*).filter(type == "connect").filter(connect.success == true).cpm();
+kubernetes_service_relation_accept_cpm = from(K8SServiceRelation.*).filter(type == "accept").cpm();
+kubernetes_service_relation_accept_duration = from(K8SServiceRelation.accept.duration).filter(type == "accept").sum();
+kubernetes_service_relation_close_cpm = from(K8SServiceRelation.*).filter(type == "close").cpm();
+kubernetes_service_relation_close_duration = from(K8SServiceRelation.close.duration).filter(type == "close").sum();
+
+kubernetes_service_relation_server_write_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").cpm();
+kubernetes_service_relation_server_write_package_cpm = from(K8SServiceRelation.write.l4.transmitPackageCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_retrains_package_cpm = from(K8SServiceRelation.write.l4.retransmitPackageCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_package_size = from(K8SServiceRelation.write.l4.totalPackageSize).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_package_duration = from(K8SServiceRelation.write.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_read_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").cpm();
+kubernetes_service_relation_server_read_package_cpm = from(K8SServiceRelation.read.l2.packageCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_relation_server_read_package_size = from(K8SServiceRelation.read.l2.totalPackageSize).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_relation_server_read_package_duration = from(K8SServiceRelation.read.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+
+kubernetes_service_relation_client_write_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").cpm();
+kubernetes_service_relation_client_write_package_cpm = from(K8SServiceRelation.write.l4.transmitPackageCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_retrains_package_cpm = from(K8SServiceRelation.write.l4.retransmitPackageCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_package_size = from(K8SServiceRelation.write.l4.totalPackageSize).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_package_duration = from(K8SServiceRelation.write.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_read_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").cpm();
+kubernetes_service_relation_client_read_package_cpm = from(K8SServiceRelation.read.l2.packageCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_relation_client_read_package_size = from(K8SServiceRelation.read.l2.totalPackageSize).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_relation_client_read_package_duration = from(K8SServiceRelation.read.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+
+kubernetes_service_relation_server_write_l4_duration = from(K8SServiceRelation.write.l4.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_l3_duration = from(K8SServiceRelation.write.l3.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_l3_local_duration = from(K8SServiceRelation.write.l3.localDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_l3_output_duration = from(K8SServiceRelation.write.l3.outputDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_l2_duration = from(K8SServiceRelation.write.l2.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_l2_ready_send_duration = from(K8SServiceRelation.write.l2.readySendDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_l2_net_dev_send_duration = from(K8SServiceRelation.write.l2.networkDeviceSendDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_read_l4_duration = from(K8SServiceRelation.read.l4.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_relation_server_read_l3_duration = from(K8SServiceRelation.read.l3.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_relation_server_read_l3_rcv_duration = from(K8SServiceRelation.read.l3.rcvDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_relation_server_read_l3_local_duration = from(K8SServiceRelation.read.l3.localDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_relation_server_read_l2_package_to_queue_duration = from(K8SServiceRelation.read.l2.packageToQueueDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_relation_server_read_l2_rcv_package_from_queue_duration = from(K8SServiceRelation.read.l2.rcvPackageFromQueueDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+
+kubernetes_service_relation_client_write_l4_duration = from(K8SServiceRelation.write.l4.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_l3_duration = from(K8SServiceRelation.write.l3.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_l3_local_duration = from(K8SServiceRelation.write.l3.localDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_l3_output_duration = from(K8SServiceRelation.write.l3.outputDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_l2_duration = from(K8SServiceRelation.write.l2.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_l2_ready_send_duration = from(K8SServiceRelation.write.l2.readySendDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_l2_net_dev_send_duration = from(K8SServiceRelation.write.l2.networkDeviceSendDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_read_l4_duration = from(K8SServiceRelation.read.l4.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_relation_client_read_l3_duration = from(K8SServiceRelation.read.l3.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_relation_client_read_l3_rcv_duration = from(K8SServiceRelation.read.l3.rcvDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_relation_client_read_l3_local_duration = from(K8SServiceRelation.read.l3.localDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_relation_client_read_l2_package_to_queue_duration = from(K8SServiceRelation.read.l2.packageToQueueDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_relation_client_read_l2_rcv_package_from_queue_duration = from(K8SServiceRelation.read.l2.rcvPackageFromQueueDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+
+kubernetes_service_relation_server_write_resolve_mac_cpm = from(K8SServiceRelation.write.l3.resolveMACCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_resolve_mac_duration = from(K8SServiceRelation.write.l3.resolveMACDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_netfilter_cpm = from(K8SServiceRelation.write.l3.netFilterCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_write_netfilter_duration = from(K8SServiceRelation.write.l3.netFilterDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_relation_server_read_netfilter_cpm = from(K8SServiceRelation.read.l3.netFilterCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_relation_server_read_netfilter_duration = from(K8SServiceRelation.read.l3.netFilterDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+
+kubernetes_service_relation_client_write_resolve_mac_cpm = from(K8SServiceRelation.write.l3.resolveMACCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_resolve_mac_duration = from(K8SServiceRelation.write.l3.resolveMACDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_netfilter_cpm = from(K8SServiceRelation.write.l3.netFilterCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_write_netfilter_duration = from(K8SServiceRelation.write.l3.netFilterDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_relation_client_read_netfilter_cpm = from(K8SServiceRelation.read.l3.netFilterCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_relation_client_read_netfilter_duration = from(K8SServiceRelation.read.l3.netFilterDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+
+kubernetes_service_relation_server_http_call_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").cpm();
+kubernetes_service_relation_server_http_success_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.success == true).cpm();
+kubernetes_service_relation_server_http_call_duration = from(K8SServiceRelation.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_relation_server_http_req_header_size = from(K8SServiceRelation.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_relation_server_http_req_body_size = from(K8SServiceRelation.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_relation_server_http_resp_header_size = from(K8SServiceRelation.protocol.http.sizeOfResponseHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_relation_server_http_resp_body_size = from(K8SServiceRelation.protocol.http.sizeOfResponseBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+
+kubernetes_service_relation_client_http_call_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").cpm();
+kubernetes_service_relation_client_http_success_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.success == true).cpm();
+kubernetes_service_relation_client_http_call_duration = from(K8SServiceRelation.protocol.http.latency).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_relation_client_http_req_header_size = from(K8SServiceRelation.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_relation_client_http_req_body_size = from(K8SServiceRelation.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_relation_client_http_resp_header_size = from(K8SServiceRelation.protocol.http.sizeOfResponseHeader).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_relation_client_http_resp_body_size = from(K8SServiceRelation.protocol.http.sizeOfResponseBody).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+
+kubernetes_service_relation_server_http_status_1xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 100).filter(protocol.http.statusCode < 200).cpm();
+kubernetes_service_relation_server_http_status_2xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 200).filter(protocol.http.statusCode < 300).cpm();
+kubernetes_service_relation_server_http_status_3xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 300).filter(protocol.http.statusCode < 400).cpm();
+kubernetes_service_relation_server_http_status_4xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 400).filter(protocol.http.statusCode < 500).cpm();
+kubernetes_service_relation_server_http_status_5xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 500).filter(protocol.http.statusCode < 600).cpm();
+
+kubernetes_service_relation_client_http_status_1xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 100).filter(protocol.http.statusCode < 200).cpm();
+kubernetes_service_relation_client_http_status_2xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 200).filter(protocol.http.statusCode < 300).cpm();
+kubernetes_service_relation_client_http_status_3xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 300).filter(protocol.http.statusCode < 400).cpm();
+kubernetes_service_relation_client_http_status_4xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 400).filter(protocol.http.statusCode < 500).cpm();
+kubernetes_service_relation_client_http_status_5xx_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 500).filter(protocol.http.statusCode < 600).cpm();
+
+// Kubernetes Service Instance Relation
+kubernetes_service_instance_relation_connect_cpm = from(K8SServiceInstanceRelation.*).filter(type == "connect").cpm();
+kubernetes_service_instance_relation_connect_duration = from(K8SServiceInstanceRelation.connect.duration).filter(type == "connect").sum();
+kubernetes_service_instance_relation_connect_success_cpm = from(K8SServiceInstanceRelation.*).filter(type == "connect").filter(connect.success == true).cpm();
+kubernetes_service_instance_relation_accept_cpm = from(K8SServiceInstanceRelation.*).filter(type == "accept").cpm();
+kubernetes_service_instance_relation_accept_duration = from(K8SServiceInstanceRelation.accept.duration).filter(type == "accept").sum();
+kubernetes_service_instance_relation_close_cpm = from(K8SServiceInstanceRelation.*).filter(type == "close").cpm();
+kubernetes_service_instance_relation_close_duration = from(K8SServiceInstanceRelation.close.duration).filter(type == "close").sum();
+
+kubernetes_service_instance_relation_server_write_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").cpm();
+kubernetes_service_instance_relation_server_write_package_cpm = from(K8SServiceInstanceRelation.write.l4.transmitPackageCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_retrains_package_cpm = from(K8SServiceInstanceRelation.write.l4.retransmitPackageCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_package_size = from(K8SServiceInstanceRelation.write.l4.totalPackageSize).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_package_duration = from(K8SServiceInstanceRelation.write.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_read_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").cpm();
+kubernetes_service_instance_relation_server_read_package_cpm = from(K8SServiceInstanceRelation.read.l2.packageCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_instance_relation_server_read_package_size = from(K8SServiceInstanceRelation.read.l2.totalPackageSize).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_instance_relation_server_read_package_duration = from(K8SServiceInstanceRelation.read.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+
+kubernetes_service_instance_relation_client_write_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").cpm();
+kubernetes_service_instance_relation_client_write_package_cpm = from(K8SServiceInstanceRelation.write.l4.transmitPackageCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_retrains_package_cpm = from(K8SServiceInstanceRelation.write.l4.retransmitPackageCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_package_size = from(K8SServiceInstanceRelation.write.l4.totalPackageSize).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_package_duration = from(K8SServiceInstanceRelation.write.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_read_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").cpm();
+kubernetes_service_instance_relation_client_read_package_cpm = from(K8SServiceInstanceRelation.read.l2.packageCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_instance_relation_client_read_package_size = from(K8SServiceInstanceRelation.read.l2.totalPackageSize).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_instance_relation_client_read_package_duration = from(K8SServiceInstanceRelation.read.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+
+kubernetes_service_instance_relation_server_write_l4_duration = from(K8SServiceInstanceRelation.write.l4.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_l3_duration = from(K8SServiceInstanceRelation.write.l3.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_l3_local_duration = from(K8SServiceInstanceRelation.write.l3.localDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_l3_output_duration = from(K8SServiceInstanceRelation.write.l3.outputDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_l2_duration = from(K8SServiceInstanceRelation.write.l2.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_l2_ready_send_duration = from(K8SServiceInstanceRelation.write.l2.readySendDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_l2_net_dev_send_duration = from(K8SServiceInstanceRelation.write.l2.networkDeviceSendDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_read_l4_duration = from(K8SServiceInstanceRelation.read.l4.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_instance_relation_server_read_l3_duration = from(K8SServiceInstanceRelation.read.l3.duration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_instance_relation_server_read_l3_rcv_duration = from(K8SServiceInstanceRelation.read.l3.rcvDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_instance_relation_server_read_l3_local_duration = from(K8SServiceInstanceRelation.read.l3.localDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_instance_relation_server_read_l2_package_to_queue_duration = from(K8SServiceInstanceRelation.read.l2.packageToQueueDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_instance_relation_server_read_l2_rcv_package_from_queue_duration = from(K8SServiceInstanceRelation.read.l2.rcvPackageFromQueueDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+
+kubernetes_service_instance_relation_client_write_l4_duration = from(K8SServiceInstanceRelation.write.l4.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_l3_duration = from(K8SServiceInstanceRelation.write.l3.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_l3_local_duration = from(K8SServiceInstanceRelation.write.l3.localDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_l3_output_duration = from(K8SServiceInstanceRelation.write.l3.outputDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_l2_duration = from(K8SServiceInstanceRelation.write.l2.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_l2_ready_send_duration = from(K8SServiceInstanceRelation.write.l2.readySendDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_l2_net_dev_send_duration = from(K8SServiceInstanceRelation.write.l2.networkDeviceSendDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_read_l4_duration = from(K8SServiceInstanceRelation.read.l4.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_instance_relation_client_read_l3_duration = from(K8SServiceInstanceRelation.read.l3.duration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_instance_relation_client_read_l3_rcv_duration = from(K8SServiceInstanceRelation.read.l3.rcvDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_instance_relation_client_read_l3_local_duration = from(K8SServiceInstanceRelation.read.l3.localDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_instance_relation_client_read_l2_package_to_queue_duration = from(K8SServiceInstanceRelation.read.l2.packageToQueueDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_instance_relation_client_read_l2_rcv_package_from_queue_duration = from(K8SServiceInstanceRelation.read.l2.rcvPackageFromQueueDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+
+kubernetes_service_instance_relation_server_write_resolve_mac_cpm = from(K8SServiceInstanceRelation.write.l3.resolveMACCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_resolve_mac_duration = from(K8SServiceInstanceRelation.write.l3.resolveMACDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_netfilter_cpm = from(K8SServiceInstanceRelation.write.l3.netFilterCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_write_netfilter_duration = from(K8SServiceInstanceRelation.write.l3.netFilterDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "write").sum();
+kubernetes_service_instance_relation_server_read_netfilter_cpm = from(K8SServiceInstanceRelation.read.l3.netFilterCount).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+kubernetes_service_instance_relation_server_read_netfilter_duration = from(K8SServiceInstanceRelation.read.l3.netFilterDuration).filter(detectPoint == DetectPoint.SERVER).filter(type == "read").sum();
+
+kubernetes_service_instance_relation_client_write_resolve_mac_cpm = from(K8SServiceInstanceRelation.write.l3.resolveMACCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_resolve_mac_duration = from(K8SServiceInstanceRelation.write.l3.resolveMACDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_netfilter_cpm = from(K8SServiceInstanceRelation.write.l3.netFilterCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_write_netfilter_duration = from(K8SServiceInstanceRelation.write.l3.netFilterDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "write").sum();
+kubernetes_service_instance_relation_client_read_netfilter_cpm = from(K8SServiceInstanceRelation.read.l3.netFilterCount).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+kubernetes_service_instance_relation_client_read_netfilter_duration = from(K8SServiceInstanceRelation.read.l3.netFilterDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
+
+kubernetes_service_instance_relation_server_http_call_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").cpm();
+kubernetes_service_instance_relation_server_http_call_duration = from(K8SServiceInstanceRelation.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_relation_server_http_req_header_size = from(K8SServiceInstanceRelation.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_relation_server_http_req_body_size = from(K8SServiceInstanceRelation.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_relation_server_http_resp_header_size = from(K8SServiceInstanceRelation.protocol.http.sizeOfResponseHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_relation_server_http_resp_body_size = from(K8SServiceInstanceRelation.protocol.http.sizeOfResponseBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+
+kubernetes_service_instance_relation_client_http_call_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").cpm();
+kubernetes_service_instance_relation_client_http_call_duration = from(K8SServiceInstanceRelation.protocol.http.latency).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_relation_client_http_req_header_size = from(K8SServiceInstanceRelation.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_relation_client_http_req_body_size = from(K8SServiceInstanceRelation.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_relation_client_http_resp_header_size = from(K8SServiceInstanceRelation.protocol.http.sizeOfResponseHeader).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_relation_client_http_resp_body_size = from(K8SServiceInstanceRelation.protocol.http.sizeOfResponseBody).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
+
+kubernetes_service_instance_relation_server_http_status_1xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 100).filter(protocol.http.statusCode < 200).cpm();
+kubernetes_service_instance_relation_server_http_status_2xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 200).filter(protocol.http.statusCode < 300).cpm();
+kubernetes_service_instance_relation_server_http_status_3xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 300).filter(protocol.http.statusCode < 400).cpm();
+kubernetes_service_instance_relation_server_http_status_4xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 400).filter(protocol.http.statusCode < 500).cpm();
+kubernetes_service_instance_relation_server_http_status_5xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 500).filter(protocol.http.statusCode < 600).cpm();
+
+kubernetes_service_instance_relation_client_http_status_1xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 100).filter(protocol.http.statusCode < 200).cpm();
+kubernetes_service_instance_relation_client_http_status_2xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 200).filter(protocol.http.statusCode < 300).cpm();
+kubernetes_service_instance_relation_client_http_status_3xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 300).filter(protocol.http.statusCode < 400).cpm();
+kubernetes_service_instance_relation_client_http_status_4xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 400).filter(protocol.http.statusCode < 500).cpm();
+kubernetes_service_instance_relation_client_http_status_5xx_cpm = from(K8SServiceInstanceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.http.statusCode >= 500).filter(protocol.http.statusCode < 600).cpm();

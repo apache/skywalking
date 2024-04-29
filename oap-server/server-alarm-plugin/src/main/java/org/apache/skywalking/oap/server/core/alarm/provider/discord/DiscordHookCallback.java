@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * Use SkyWalking alarm Discord webhook API.
@@ -43,17 +44,28 @@ public class DiscordHookCallback extends HttpAlarmCallback {
      */
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
-        final var discordSettings = alarmRulesWatcher.getDiscordSettings();
-        if (discordSettings == null || discordSettings.getWebhooks().isEmpty()) {
+        Map<String, DiscordSettings> settingsMap = alarmRulesWatcher.getDiscordSettings();
+        if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
-        for (final var webHookUrl : discordSettings.getWebhooks()) {
-            for (final var alarmMessage : alarmMessages) {
-                final var content = String.format(
-                        discordSettings.getTextTemplate(),
+
+        Map<String, List<AlarmMessage>> groupedMessages = groupMessagesByHook(alarmMessages);
+        for (Map.Entry<String, List<AlarmMessage>> entry : groupedMessages.entrySet()) {
+            var hookName = entry.getKey();
+            var messages = entry.getValue();
+            var setting = settingsMap.get(hookName);
+            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
+                messages)) {
+                continue;
+            }
+            for (final var webHookUrl : setting.getWebhooks()) {
+                for (final var alarmMessage : messages) {
+                    final var content = String.format(
+                        setting.getTextTemplate(),
                         alarmMessage.getAlarmMessage()
-                );
-                sendAlarmMessage(webHookUrl, content);
+                    );
+                    sendAlarmMessage(webHookUrl, content);
+                }
             }
         }
     }

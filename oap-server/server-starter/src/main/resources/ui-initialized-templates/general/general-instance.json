@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "General-Instance",
@@ -50,12 +33,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-16"
@@ -73,7 +50,15 @@
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "service_instance_resp_time"
+                  ]
                 },
                 {
                   "x": 12,
@@ -94,15 +79,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "percentage"
+                      "label": "success_rate"
                     }
                   ],
                   "associate": [
@@ -122,7 +101,10 @@
                   "relatedTrace": {
                     "enableRelate": true,
                     "status": "ERROR"
-                  }
+                  },
+                  "expressions": [
+                    "service_instance_sla/100"
+                  ]
                 },
                 {
                   "x": 0,
@@ -143,12 +125,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -162,6 +138,14 @@
                     {
                       "widgetId": "0-0-10"
                     }
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ],
+                  "expressions": [
+                    "service_instance_cpm"
                   ]
                 },
                 {
@@ -183,12 +167,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_datasource"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -202,6 +180,9 @@
                     {
                       "widgetId": "0-0-16"
                     }
+                  ],
+                  "expressions": [
+                    "meter_datasource"
                   ]
                 },
                 {
@@ -223,12 +204,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_thread_pool"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -242,6 +217,14 @@
                     {
                       "widgetId": "0-0-10"
                     }
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "thread_pool"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_thread_pool"
                   ]
                 }
               ]
@@ -280,7 +263,7 @@
                   "y": 0,
                   "w": 8,
                   "h": 13,
-                  "i": "5",
+                  "i": "4",
                   "type": "Widget",
                   "widget": {
                     "title": "JVM Memory (MB)"
@@ -293,39 +276,96 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_memory_noheap_max",
-                    "instance_jvm_memory_noheap",
-                    "instance_jvm_memory_heap",
-                    "instance_jvm_memory_heap_max"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB",
                       "label": "noheap_max"
                     },
                     {
-                      "calculation": "byteToMB",
                       "label": "noheap"
                     },
                     {
-                      "calculation": "byteToMB",
                       "label": "heap"
                     },
                     {
-                      "calculation": "byteToMB",
                       "label": "heap_max"
                     }
+                  ],
+                  "expressions": [
+                    "instance_jvm_memory_noheap_max/1048576",
+                    "instance_jvm_memory_noheap/1048576",
+                    "instance_jvm_memory_heap/1048576",
+                    "instance_jvm_memory_heap_max/1048576"
                   ]
                 },
                 {
-                  "x": 8,
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM Memory Detail (MB)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "CodeCache"
+                    },
+                    {
+                      "label": "NewGen"
+                    },
+                    {
+                      "label": "OldGen"
+                    },
+                    {
+                      "label": "Survivor"
+                    },
+                    {
+                      "label": "PermGen"
+                    },
+                    {
+                      "label": "Metaspace"
+                    },
+                    {
+                      "label": "ZHeap"
+                    },
+                    {
+                      "label": "Compressed Class Space"
+                    },
+                    {
+                      "label": "CodeHeap 'non-nmethods'"
+                    },
+                    {
+                      "label": "CodeHeap 'profiled nmethods'"
+                    },
+                    {
+                      "label": "CodeHeap 'non-profiled nmethods'"
+                    }
+                  ],
+                  "expressions": [
+                    "instance_jvm_memory_pool_code_cache/1048576",
+                    "instance_jvm_memory_pool_newgen/1048576",
+                    "instance_jvm_memory_pool_oldgen/1048576",
+                    "instance_jvm_memory_pool_survivor/1048576",
+                    "instance_jvm_memory_pool_permgen/1048576",
+                    "instance_jvm_memory_pool_metaspace/1048576",
+                    "instance_jvm_memory_pool_zheap/1048576",
+                    "instance_jvm_memory_pool_compressed_class_space/1048576",
+                    "instance_jvm_memory_pool_codeheap_non_nmethods/1048576",
+                    "instance_jvm_memory_pool_codeheap_profiled_nmethods/1048576",
+                    "instance_jvm_memory_pool_codeheap_non_profiled_nmethods/1048576"
+                  ]
+                },
+                {
+                  "x": 16,
                   "y": 13,
                   "w": 8,
                   "h": 13,
@@ -342,16 +382,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_thread_live_count",
-                    "instance_jvm_thread_daemon_count",
-                    "instance_jvm_thread_peak_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "live"
@@ -362,11 +392,16 @@
                     {
                       "label": "peak"
                     }
+                  ],
+                  "expressions": [
+                    "instance_jvm_thread_live_count",
+                    "instance_jvm_thread_daemon_count",
+                    "instance_jvm_thread_peak_count"
                   ]
                 },
                 {
-                  "x": 16,
-                  "y": 13,
+                  "x": 0,
+                  "y": 26,
                   "w": 8,
                   "h": 13,
                   "i": "13",
@@ -378,18 +413,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "instance_jvm_thread_timed_waiting_state_thread_count",
-                    "instance_jvm_thread_blocked_state_thread_count",
-                    "instance_jvm_thread_waiting_state_thread_count",
-                    "instance_jvm_thread_runnable_state_thread_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "timed_waiting"
@@ -403,6 +426,12 @@
                     {
                       "label": "runnable"
                     }
+                  ],
+                  "expressions": [
+                    "instance_jvm_thread_timed_waiting_state_thread_count",
+                    "instance_jvm_thread_blocked_state_thread_count",
+                    "instance_jvm_thread_waiting_state_thread_count",
+                    "instance_jvm_thread_runnable_state_thread_count"
                   ]
                 },
                 {
@@ -423,18 +452,20 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_cpu"
+                  "metricConfig": [
+                    {
+                      "label": "jvm_cpu"
+                    }
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "expressions": [
+                    "instance_jvm_cpu"
                   ]
                 },
                 {
-                  "x": 0,
+                  "x": 8,
                   "y": 26,
                   "w": 8,
-                  "h": 12,
+                  "h": 13,
                   "i": "15",
                   "type": "Widget",
                   "widget": {
@@ -446,16 +477,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_class_loaded_class_count",
-                    "instance_jvm_class_total_loaded_class_count",
-                    "instance_jvm_class_total_unloaded_class_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "loaded"
@@ -466,11 +487,16 @@
                     {
                       "label": "total_unloaded"
                     }
+                  ],
+                  "expressions": [
+                    "instance_jvm_class_loaded_class_count",
+                    "instance_jvm_class_total_loaded_class_count",
+                    "instance_jvm_class_total_unloaded_class_count"
                   ]
                 },
                 {
-                  "x": 16,
-                  "y": 0,
+                  "x": 0,
+                  "y": 13,
                   "w": 8,
                   "h": 13,
                   "i": "6",
@@ -486,16 +512,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_young_gc_time",
-                    "instance_jvm_old_gc_time",
-                    "instance_jvm_normal_gc_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "young_gc"
@@ -506,10 +522,15 @@
                     {
                       "label": "normal_gc"
                     }
+                  ],
+                  "expressions": [
+                    "instance_jvm_young_gc_time",
+                    "instance_jvm_old_gc_time",
+                    "instance_jvm_normal_gc_time"
                   ]
                 },
                 {
-                  "x": 0,
+                  "x": 8,
                   "y": 13,
                   "w": 8,
                   "h": 13,
@@ -522,16 +543,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "instance_jvm_young_gc_count",
-                    "instance_jvm_old_gc_count",
-                    "instance_jvm_normal_gc_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "young_gc"
@@ -542,6 +553,11 @@
                     {
                       "label": "normal_gc"
                     }
+                  ],
+                  "expressions": [
+                    "instance_jvm_young_gc_count",
+                    "instance_jvm_old_gc_count",
+                    "instance_jvm_normal_gc_count"
                   ]
                 }
               ]
@@ -567,16 +583,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_clr_available_worker_threads",
-                    "instance_clr_available_completion_port_threads",
-                    "instance_clr_max_completion_port_threads"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "available_worker"
@@ -587,6 +593,11 @@
                     {
                       "label": "max_completion_port"
                     }
+                  ],
+                  "expressions": [
+                    "instance_clr_available_worker_threads",
+                    "instance_clr_available_completion_port_threads",
+                    "instance_clr_max_completion_port_threads"
                   ]
                 },
                 {
@@ -607,16 +618,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_clr_heap_memory"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToMB"
-                    }
+                  "expressions": [
+                    "instance_clr_heap_memory/1048576"
                   ]
                 },
                 {
@@ -633,16 +636,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "instance_clr_gen0_collect_count",
-                    "instance_clr_gen1_collect_count",
-                    "instance_clr_gen2_collect_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "gen0"
@@ -653,6 +646,11 @@
                     {
                       "label": "gen2"
                     }
+                  ],
+                  "expressions": [
+                    "instance_clr_gen0_collect_count",
+                    "instance_clr_gen1_collect_count",
+                    "instance_clr_gen2_collect_count"
                   ]
                 },
                 {
@@ -673,11 +671,13 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_clr_cpu"
+                  "metricConfig": [
+                    {
+                      "label": "clr_cpu"
+                    }
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "expressions": [
+                    "instance_clr_cpu"
                   ]
                 }
               ]
@@ -692,12 +692,6 @@
                   "h": 12,
                   "i": "0",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_http_server_requests_count"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -708,7 +702,15 @@
                   },
                   "widget": {
                     "title": "HTTP Request (Count)"
-                  }
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "count"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_http_server_requests_count"
+                  ]
                 },
                 {
                   "x": 6,
@@ -717,12 +719,6 @@
                   "h": 12,
                   "i": "1",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_http_server_requests_duration"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -734,7 +730,15 @@
                   "widget": {
                     "title": "HTTP Request Duration (ms)"
                   },
-                  "associate": []
+                  "associate": [],
+                  "metricConfig": [
+                    {
+                      "label": "duration"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_http_server_requests_duration"
+                  ]
                 },
                 {
                   "x": 6,
@@ -743,12 +747,6 @@
                   "h": 12,
                   "i": "2",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_process_cpu_usage"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -759,7 +757,10 @@
                   },
                   "widget": {
                     "title": "Instance CPU Usage (%)"
-                  }
+                  },
+                  "expressions": [
+                    "meter_process_cpu_usage"
+                  ]
                 },
                 {
                   "x": 0,
@@ -768,12 +769,6 @@
                   "h": 12,
                   "i": "3",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_system_cpu_usage"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -784,7 +779,15 @@
                   },
                   "widget": {
                     "title": "OS CPU Usage (%)"
-                  }
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "usage"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_system_cpu_usage"
+                  ]
                 },
                 {
                   "x": 12,
@@ -793,16 +796,6 @@
                   "h": 12,
                   "i": "4",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jdbc_connections_max",
-                    "meter_jdbc_connections_active",
-                    "meter_jdbc_connections_idle"
-                  ],
                   "metricConfig": [
                     {
                       "label": "max"
@@ -824,7 +817,12 @@
                   },
                   "widget": {
                     "title": "JDBC Connections (Count)"
-                  }
+                  },
+                  "expressions": [
+                    "meter_jdbc_connections_max",
+                    "meter_jdbc_connections_active",
+                    "meter_jdbc_connections_idle"
+                  ]
                 },
                 {
                   "x": 18,
@@ -833,17 +831,6 @@
                   "h": 12,
                   "i": "5",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_tomcat_sessions_active_max",
-                    "meter_tomcat_sessions_active_current",
-                    "meter_tomcat_sessions_rejected"
-                  ],
                   "metricConfig": [
                     {
                       "label": "active_max"
@@ -865,7 +852,12 @@
                   },
                   "widget": {
                     "title": "Tomcat Session (Count)"
-                  }
+                  },
+                  "expressions": [
+                    "meter_tomcat_sessions_active_max",
+                    "meter_tomcat_sessions_active_current",
+                    "meter_tomcat_sessions_rejected"
+                  ]
                 },
                 {
                   "x": 12,
@@ -874,12 +866,6 @@
                   "h": 12,
                   "i": "6",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_system_load_average_1m"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -891,7 +877,15 @@
                   "widget": {
                     "title": "OS System Load"
                   },
-                  "associate": []
+                  "associate": [],
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_system_load_average_1m"
+                  ]
                 },
                 {
                   "x": 18,
@@ -900,14 +894,6 @@
                   "h": 12,
                   "i": "7",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_process_files_max",
-                    "meter_process_files_open"
-                  ],
                   "metricConfig": [
                     {
                       "label": "max"
@@ -927,7 +913,11 @@
                   "widget": {
                     "title": "OS Process File (Count)"
                   },
-                  "associate": []
+                  "associate": [],
+                  "expressions": [
+                    "meter_process_files_max",
+                    "meter_process_files_open"
+                  ]
                 },
                 {
                   "x": 0,
@@ -936,12 +926,6 @@
                   "h": 12,
                   "i": "8",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jvm_gc_pause_duration"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -952,7 +936,15 @@
                   },
                   "widget": {
                     "title": "JVM GC Pause Duration (ms)"
-                  }
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "duration"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_jvm_gc_pause_duration"
+                  ]
                 },
                 {
                   "x": 6,
@@ -961,16 +953,6 @@
                   "h": 12,
                   "i": "9",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jvm_memory_max",
-                    "meter_jvm_memory_used",
-                    "meter_jvm_memory_committed"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -982,24 +964,16 @@
                   "associate": [],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB",
-                      "label": "max",
-                      "unit": "MB"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "used",
-                      "unit": "MB"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "committed",
-                      "unit": "MB"
+                      "label": "max"
                     }
                   ],
                   "widget": {
                     "title": "JVM Memory (MB)"
-                  }
+                  },
+                  "expressions": [
+                    "meter_jvm_memory_max/1048576",
+                    "meter_jvm_memory_used/1048576"
+                  ]
                 },
                 {
                   "x": 12,
@@ -1008,16 +982,6 @@
                   "h": 12,
                   "i": "10",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jvm_threads_peak",
-                    "meter_jvm_threads_live",
-                    "meter_jvm_threads_daemon"
-                  ],
                   "metricConfig": [
                     {
                       "label": "peak"
@@ -1039,7 +1003,12 @@
                   },
                   "widget": {
                     "title": "JVM Thread (Count)"
-                  }
+                  },
+                  "expressions": [
+                    "meter_jvm_threads_peak",
+                    "meter_jvm_threads_live",
+                    "meter_jvm_threads_daemon"
+                  ]
                 },
                 {
                   "x": 18,
@@ -1048,14 +1017,6 @@
                   "h": 12,
                   "i": "11",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jvm_classes_loaded",
-                    "meter_jvm_classes_unloaded"
-                  ],
                   "metricConfig": [
                     {
                       "label": "loaded"
@@ -1074,7 +1035,11 @@
                   },
                   "widget": {
                     "title": "JVM classes (Count)"
-                  }
+                  },
+                  "expressions": [
+                    "meter_jvm_classes_loaded",
+                    "meter_jvm_classes_unloaded"
+                  ]
                 }
               ]
             },
@@ -1082,210 +1047,333 @@
               "name": "Golang",
               "children": [
                 {
-                  "x": 0,
-                  "y": 0,
-                  "w": 8,
-                  "h": 13,
-                  "i": "24",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Heap Alloc (MB)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "meter_instance_golang_heap_alloc"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToMB"
-                    }
-                  ]
-                },
-                {
                   "x": 8,
-                  "y": 0,
+                  "y": 12,
                   "w": 8,
-                  "h": 13,
-                  "i": "16",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Stack Used (MB)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "meter_instance_golang_stack_used"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToMB"
-                    }
-                  ]
-                },
-                {
-                  "x": 16,
-                  "y": 0,
-                  "w": 8,
-                  "h": 13,
+                  "h": 12,
                   "i": "17",
                   "type": "Widget",
                   "widget": {
-                    "title": "Golang GC Pause Time Per Minute (ms)"
+                    "title": "GC Pause Time Per Minute (milliseconds)"
                   },
                   "graph": {
-                    "type": "Bar",
-                    "showBackground": true
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_golang_gc_pause_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "calculation": "nanosecondToMillisecond"
                     }
+                  ],
+                  "expressions": [
+                    "meter_instance_golang_gc_pauses/1000000"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 12,
+                  "i": "19",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Live Threads Num"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "OS Thread Count"
+                    },
+                    {
+                      "label": "GoRoutine Count"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_golang_live_goroutines_num",
+                    "meter_instance_golang_os_threads_num"
                   ]
                 },
                 {
                   "x": 0,
-                  "y": 13,
+                  "y": 48,
                   "w": 8,
-                  "h": 13,
-                  "i": "18",
+                  "h": 12,
+                  "i": "22",
                   "type": "Widget",
                   "widget": {
-                    "title": "Golang GC Count Per Minute"
+                    "title": "Metadata Mspan (MB)"
                   },
                   "graph": {
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "meter_instance_golang_gc_count"
+                  "metricConfig": [
+                    {
+                      "label": "host_mem_used_rate",
+                      "calculation": "byteToMB"
+                    }
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ]
-                },
-                {
-                  "x": 8,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
-                  "i": "19",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Live Goroutines Num"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "meter_instance_golang_live_goroutines_num"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ]
-                },
-                {
-                  "x": 16,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
-                  "i": "20",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Golang OS Threads Num"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "meter_instance_golang_os_threads_num"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "expressions": [
+                    "meter_instance_golang_metadata_mspan_labeled"
                   ]
                 },
                 {
                   "x": 0,
-                  "y": 26,
+                  "y": 12,
                   "w": 8,
-                  "h": 13,
-                  "i": "21",
+                  "h": 12,
+                  "i": "25",
                   "type": "Widget",
-                  "widget": {
-                    "title": "Host CPU Used Rate (%)"
-                  },
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": true,
+                    "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_host_cpu_used_rate"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "widget": {
+                    "title": "GC Count Per Minute"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_gc_count_labeled"
                   ]
                 },
                 {
                   "x": 8,
-                  "y": 26,
+                  "y": 24,
                   "w": 8,
-                  "h": 13,
-                  "i": "22",
+                  "h": 12,
+                  "i": "26",
                   "type": "Widget",
-                  "widget": {
-                    "title": "Host Memory Used Rate (%)"
-                  },
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": true,
+                    "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_host_mem_used_rate"
+                  "widget": {
+                    "title": "Heap Alloc Size Per Minutes (MB)"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_heap_alloc_rate/1024/1024"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 12,
+                  "i": "27",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "GoRoutine Schedule Time (millisecond)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "Millisecond"
+                    }
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "expressions": [
+                    "meter_instance_golang_sched_latencies/1000000"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 8,
+                  "h": 12,
+                  "i": "28",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "GC Free Size Per Minute (MB)"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_heap_frees/1024/1024"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "29",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Alloc Size Per Minute (KB)"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_gc_heap_allocs_by_size/1024"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "30",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Free Size Per Minute (KB)"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_gc_heap_frees_by_size/1024"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 24,
+                  "w": 8,
+                  "h": 12,
+                  "i": "31",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Heap Object Count"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_gc_heap_objects"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 48,
+                  "w": 8,
+                  "h": 12,
+                  "i": "32",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "title": "Metadata Mcache (MB)"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_metadata_mcache_labeled"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 12,
+                  "i": "33",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "MB"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Memory Heap Size (MB)"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_memory_heap_labeled/1024/1024"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "34",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "CGO Calls Per Minute"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_cgo_calls"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 12,
+                  "w": 8,
+                  "h": 12,
+                  "i": "35",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "GC Goal Size (MB)"
+                  },
+                  "expressions": [
+                    "meter_instance_golang_gc_heap_goal/1024/1024"
                   ]
                 }
               ]
@@ -1309,14 +1397,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_pvm_total_cpu_utilization",
-                    "meter_instance_pvm_process_cpu_utilization"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "total_cpu_utilization"
@@ -1324,6 +1404,10 @@
                     {
                       "label": "process_cpu_utilization"
                     }
+                  ],
+                  "expressions": [
+                    "meter_instance_pvm_total_cpu_utilization",
+                    "meter_instance_pvm_process_cpu_utilization"
                   ]
                 },
                 {
@@ -1344,11 +1428,13 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_pvm_thread_active_count"
+                  "metricConfig": [
+                    {
+                      "label": "thread_active_count"
+                    }
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "expressions": [
+                    "meter_instance_pvm_thread_active_count"
                   ]
                 },
                 {
@@ -1365,26 +1451,21 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
+                  "metricConfig": [
+                    {
+                      "label": "g0"
+                    },
+                    {
+                      "label": "g1"
+                    },
+                    {
+                      "label": "g2"
+                    }
+                  ],
+                  "expressions": [
                     "meter_instance_pvm_gc_g0",
                     "meter_instance_pvm_gc_g1",
                     "meter_instance_pvm_gc_g2"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "gc_g0"
-                    },
-                    {
-                      "label": "gc_g1"
-                    },
-                    {
-                      "label": "gc_g2"
-                    }
                   ]
                 },
                 {
@@ -1403,14 +1484,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_pvm_total_mem_utilization",
-                    "meter_instance_pvm_process_mem_utilization"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "total_mem_utilization"
@@ -1418,6 +1491,10 @@
                     {
                       "label": "process_mem_utilization"
                     }
+                  ],
+                  "expressions": [
+                    "meter_instance_pvm_total_mem_utilization",
+                    "meter_instance_pvm_process_mem_utilization"
                   ]
                 },
                 {
@@ -1438,11 +1515,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "meter_instance_pvm_gc_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
                   ]
                 }
               ]
@@ -1462,8 +1536,27 @@
       "layer": "GENERAL",
       "entity": "ServiceInstance",
       "name": "General-Instance",
-      "id": "General-Instance",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(service_instance_cpm)",
+        "avg(service_instance_sla/100)",
+        "avg(service_instance_resp_time)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "calls / min",
+          "label": "Load"
+        },
+        {
+          "label": "Success Rate",
+          "unit": "%"
+        },
+        {
+          "label": "Latency",
+          "unit": "ms"
+        }
+      ]
     }
   }
 ]
