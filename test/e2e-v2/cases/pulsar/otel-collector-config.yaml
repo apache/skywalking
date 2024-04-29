@@ -44,15 +44,18 @@ processors:
 
 exporters:
   otlp:
-    # The OAP Server address
-    endpoint: "oap:11800"
+    endpoint: oap:11800
     tls:
       insecure: true
-  debug:
-    verbosity: detailed
+  logging:
+    loglevel: debug
 service:
   pipelines:
     metrics:
-      receivers: [prometheus]
-      processors: [batch]
-      exporters: [debug,otlp]
+      receivers:
+        - prometheus
+      processors:
+        - batch
+      exporters:
+        - otlp
+        - logging

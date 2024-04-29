@@ -34,7 +34,7 @@
                     "name": "bookie_ledgers_count"
                   },
                   "expressions": [
-                    "meter_bookkeeper_bookie_ledgers_count"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_ledgers_count,sum))"
                   ]
                 },
                 {
@@ -57,7 +57,7 @@
                     "name": "bookie_ledger_writable_dirs"
                   },
                   "expressions": [
-                    "meter_bookkeeper_bookie_ledger_writable_dirs"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_ledger_writable_dirs,sum))"
                   ]
                 },
                 {
@@ -80,7 +80,7 @@
                     "name": "bookie_ledger_dir_data_bookkeeper_ledgers_usage"
                   },
                   "expressions": [
-                    "meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage,sum))"
                   ]
                 },
                 {
@@ -103,7 +103,7 @@
                     "name": "bookie_entries_count"
                   },
                   "expressions": [
-                    "meter_bookkeeper_bookie_entries_count"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_entries_count,sum))"
                   ]
                 },
                 {
@@ -126,7 +126,7 @@
                     "name": "bookie_write_cache_size"
                   },
                   "expressions": [
-                    "meter_bookkeeper_bookie_write_cache_size/1024/1024"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_write_cache_size,sum))/1024/1024"
                   ],
                   "metricConfig": [
                     {
@@ -154,7 +154,7 @@
                     "name": "bookie_write_cache_count"
                   },
                   "expressions": [
-                    "meter_bookkeeper_bookie_write_cache_count"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_write_cache_count,sum))"
                   ],
                   "metricConfig": [
                     {
@@ -182,7 +182,7 @@
                     "name": "_bookie_read_cache_size"
                   },
                   "expressions": [
-                    "meter_bookkeeper_bookie_read_cache_size/1024/1024"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_read_cache_size,sum))/1024/1024"
                   ]
                 },
                 {
@@ -205,7 +205,7 @@
                     "name": "throughput_out"
                   },
                   "expressions": [
-                    "meter_bookkeeper_bookie_read_cache_count"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_read_cache_count,sum))"
                   ]
                 },
                 {
@@ -216,7 +216,7 @@
                   "i": "16",
                   "type": "Widget",
                   "expressions": [
-                    "meter_bookkeeper_bookie_read_rate"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_read_rate,sum))"
                   ],
                   "graph": {
                     "type": "Line",
@@ -239,7 +239,7 @@
                   "i": "18",
                   "type": "Widget",
                   "expressions": [
-                    "meter_bookkeeper_bookie_write_rate"
+                    "latest(aggregate_labels(meter_bookkeeper_bookie_write_rate,sum))"
                   ],
                   "graph": {
                     "type": "Line",

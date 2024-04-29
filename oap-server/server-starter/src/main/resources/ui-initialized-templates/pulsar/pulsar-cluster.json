@@ -331,11 +331,11 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_pulsar_total_topics)",
-        "avg(meter_pulsar_total_subscriptions)",
-        "avg(meter_pulsar_message_rate_in)",
-        "avg(meter_pulsar_message_rate_out)",
-        "avg(meter_pulsar_storage_size)"
+        "aggregate_labels(meter_pulsar_total_topics,sum)",
+        "aggregate_labels(meter_pulsar_total_subscriptions,sum)",
+        "avg(aggregate_labels(meter_pulsar_message_rate_in,sum))",
+        "avg(aggregate_labels(meter_pulsar_message_rate_out,sum))",
+        "aggregate_labels(meter_pulsar_storage_size,sum)"
       ],
       "expressionsConfig": [
         {
@@ -345,13 +345,13 @@
           "label": "total subscriptions"
         },
         {
-          "label": "message rate in"
+          "label": "avg message rate in"
         },
         {
-          "label": "message rate out"
+          "label": "avg message rate out"
         },
         {
-          "label": "storage size"
+          "label": "total storage size"
         }
       ]
     }

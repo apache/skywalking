@@ -24,7 +24,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_pulsar_broker_active_connections"
+            "latest(meter_pulsar_broker_active_connections)"
           ],
           "associate": [],
           "metricConfig": [
@@ -54,7 +54,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_pulsar_broker_total_connections"
+            "latest(meter_pulsar_broker_total_connections)"
           ],
           "metricConfig": [
             {
@@ -115,7 +115,7 @@
             }
           },
           "expressions": [
-            "meter_pulsar_broker_connection_create_success_count"
+            "latest(meter_pulsar_broker_connection_create_success_count)"
           ],
           "associate": [],
           "metricConfig": [
@@ -145,7 +145,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_pulsar_broker_connection_closed_total_count"
+            "latest(meter_pulsar_broker_connection_closed_total_count)"
           ],
           "metricConfig": [
             {
@@ -161,7 +161,7 @@
           "i": "27",
           "type": "Widget",
           "expressions": [
-            "meter_pulsar_broker_jvm_buffer_pool_used_bytes/1024/1024"
+            "latest(meter_pulsar_broker_jvm_buffer_pool_used_bytes)/1024/1024"
           ],
           "graph": {
             "type": "Area",
@@ -182,7 +182,7 @@
           "i": "28",
           "type": "Widget",
           "expressions": [
-            "meter_pulsar_broker_jvm_memory_pool_used/1024/1024"
+            "latest(meter_pulsar_broker_jvm_memory_pool_used)/1024/1024"
           ],
           "graph": {
             "type": "Area",

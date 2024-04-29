@@ -74,25 +74,25 @@ cases:
     expected: expected/metrics-has-value.yml
 
   # service cases for the bookkeeper cluster
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_ledgers_count --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_ledgers_count,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_ledger_writable_dirs --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_ledger_writable_dirs,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_entries_count --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_entries_count,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_cache_size --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_write_cache_size,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_cache_count --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_write_cache_count,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_cache_size --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_read_cache_size,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_cache_count --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_read_cache_count,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_rate --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_write_rate,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_rate --service-name=bookkeeper::pulsar-cluster
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=aggregate_labels(meter_bookkeeper_bookie_read_rate,sum)) --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-bookie-label.yml
 
 
