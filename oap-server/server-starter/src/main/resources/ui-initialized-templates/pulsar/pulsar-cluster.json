@@ -214,7 +214,7 @@
                   "i": "15",
                   "type": "Widget",
                   "expressions": [
-                    "meter_pulsar_storage_read_rate.sum(['cluster','node'])"
+                    "meter_pulsar_storage_read_rate"
                   ],
                   "graph": {
                     "type": "Line",
@@ -237,7 +237,7 @@
                   "i": "16",
                   "type": "Widget",
                   "expressions": [
-                    "meter_pulsar_storage_logical_size.sum(['cluster','node'])/1024/1024"
+                    "meter_pulsar_storage_logical_size/1024/1024"
                   ],
                   "graph": {
                     "type": "Line",
@@ -260,7 +260,7 @@
                   "i": "17",
                   "type": "Widget",
                   "expressions": [
-                    "meter_pulsar_storage_write_rate.sum(['cluster','node'])"
+                    "meter_pulsar_storage_write_rate"
                   ],
                   "graph": {
                     "type": "Line",

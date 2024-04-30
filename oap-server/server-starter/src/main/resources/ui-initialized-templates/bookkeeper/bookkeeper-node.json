@@ -155,7 +155,7 @@
           "i": "33",
           "type": "Widget",
           "expressions": [
-            "meter_bookkeeper_node_thread_executor_completed.sum(['cluster','node'])"
+            "meter_bookkeeper_node_thread_executor_completed"
           ],
           "graph": {
             "type": "Line",
