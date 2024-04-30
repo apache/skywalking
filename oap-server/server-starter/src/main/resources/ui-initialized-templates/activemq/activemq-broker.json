@@ -60,7 +60,7 @@
                     "i": "2",
                     "type": "Widget",
                     "expressions": [
-                        "meter_activemq_broker_current_connentions"
+                        "meter_activemq_broker_current_connections"
                     ],
                     "graph": {
                         "type": "Area",
