@@ -39,7 +39,7 @@ metricsRules:
   - name: state
     exp: org_apache_activemq_Broker_Slave.sum(['cluster','brokerName','service_instance_id'])
   # The number of clients connected to the broker currently.
-  - name: current_connentions
+  - name: current_connections
     exp: org_apache_activemq_Broker_CurrentConnectionsCount.sum(['cluster','brokerName','service_instance_id'])
   # The number of producers currently attached to the broker.
   - name: current_producer_count

@@ -59,7 +59,7 @@ cases:
     expected: expected/metrics-has-value-label-serviceinstanceid.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_activemq_broker_state --service-name=activemq::activemq-cluster --instance-name=activemq-broker
     expected: expected/metrics-has-value-label-serviceinstanceid.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_activemq_broker_current_connentions --service-name=activemq::activemq-cluster --instance-name=activemq-broker
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_activemq_broker_current_connections --service-name=activemq::activemq-cluster --instance-name=activemq-broker
     expected: expected/metrics-has-value-label-serviceinstanceid.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_activemq_broker_current_producer_count --service-name=activemq::activemq-cluster --instance-name=activemq-broker
     expected: expected/metrics-has-value-label-serviceinstanceid.yml
