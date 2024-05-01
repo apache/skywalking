@@ -22,30 +22,30 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=bookkeeper::pulsar-cluster
     expected: expected/bookie_instance.yml
   # service cases for pulsar-cluster
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_total_topics --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_total_subscriptions --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_total_producers --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_total_consumers --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_message_rate_in --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_message_rate_out --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_throughput_in --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_throughput_out --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_storage_size --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_storage_logical_size --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_storage_write_rate --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_storage_read_rate --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-broker-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_total_topics,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_total_subscriptions,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_total_producers,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_total_consumers,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_message_rate_in,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_message_rate_out,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_throughput_in,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_throughput_out,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_storage_size,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_storage_logical_size,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_storage_write_rate,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_pulsar_storage_read_rate,sum)' --service-name=pulsar::pulsar-cluster
+    expected: expected/metrics-has-value.yml
 
   # service cases for pulsar-broker
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_active_connections --service-name=pulsar::pulsar-cluster

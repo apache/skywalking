@@ -35,6 +35,11 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_bookkeeper_bookie_ledgers_count,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Ledgers Count"
+                    }
                   ]
                 },
                 {
@@ -58,6 +63,11 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_bookkeeper_bookie_ledger_writable_dirs,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Ledger Writable Dirs"
+                    }
                   ]
                 },
                 {
@@ -81,6 +91,11 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Ledger Dir Usage"
+                    }
                   ]
                 },
                 {
@@ -104,6 +119,11 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_bookkeeper_bookie_entries_count,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Entries Count"
+                    }
                   ]
                 },
                 {
@@ -130,7 +150,8 @@
                   ],
                   "metricConfig": [
                     {
-                      "label": "read cache size"
+                      "unit": "MB",
+                      "label": "Write Cache Size"
                     }
                   ]
                 },
@@ -158,7 +179,7 @@
                   ],
                   "metricConfig": [
                     {
-                      "label": "read cache count"
+                      "label": "Write Cache Entry Count"
                     }
                   ]
                 },
@@ -178,11 +199,17 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Bookie Read Cache  (MB)",
+                    "title": "Bookie Read Cache Size (MB)",
                     "name": "_bookie_read_cache_size"
                   },
                   "expressions": [
                     "aggregate_labels(meter_bookkeeper_bookie_read_cache_size,sum)/1024/1024"
+                  ],
+                  "metricConfig": [
+                    {
+                      "unit": "MB",
+                      "label": "Read Cache Size"
+                    }
                   ]
                 },
                 {
@@ -206,6 +233,11 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_bookkeeper_bookie_read_cache_count,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Read Cache Entry Count"
+                    }
                   ]
                 },
                 {
@@ -217,6 +249,11 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_bookkeeper_bookie_read_rate,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Read Rate"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -240,6 +277,11 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_bookkeeper_bookie_write_rate,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Write Rate"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
