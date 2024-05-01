@@ -82,7 +82,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_pulsar_broker_connection_create_fail_count.sum(['cluster','broker'])"
+            "meter_pulsar_broker_connection_create_fail_count"
           ],
           "metricConfig": [
             {

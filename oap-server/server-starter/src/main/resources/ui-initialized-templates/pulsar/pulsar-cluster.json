@@ -35,7 +35,12 @@
                     "name": "total_topics"
                   },
                   "expressions": [
-                    "meter_pulsar_total_topics"
+                    "aggregate_labels(meter_pulsar_total_topics,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Total Topics"
+                    }
                   ]
                 },
                 {
@@ -59,7 +64,12 @@
                     "name": "total_subscriptions"
                   },
                   "expressions": [
-                    "meter_pulsar_total_subscriptions"
+                    "aggregate_labels(meter_pulsar_total_subscriptions,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Total Subscriptions"
+                    }
                   ]
                 },
                 {
@@ -83,7 +93,12 @@
                     "name": "total_producers"
                   },
                   "expressions": [
-                    "meter_pulsar_total_producers"
+                    "aggregate_labels(meter_pulsar_total_producers,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Total Producers"
+                    }
                   ]
                 },
                 {
@@ -107,7 +122,12 @@
                     "name": "total_consumers"
                   },
                   "expressions": [
-                    "meter_pulsar_total_consumers"
+                    "aggregate_labels(meter_pulsar_total_consumers,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Total Consumers"
+                    }
                   ]
                 },
                 {
@@ -131,7 +151,12 @@
                     "name": "message_rate_in"
                   },
                   "expressions": [
-                    "meter_pulsar_message_rate_in"
+                    "aggregate_labels(meter_pulsar_message_rate_in,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Message Rate In"
+                    }
                   ]
                 },
                 {
@@ -155,7 +180,12 @@
                     "name": "message_rate_out"
                   },
                   "expressions": [
-                    "meter_pulsar_message_rate_in"
+                    "aggregate_labels(meter_pulsar_message_rate_out,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Message Rate Out"
+                    }
                   ]
                 },
                 {
@@ -179,7 +209,12 @@
                     "name": "throughput_in"
                   },
                   "expressions": [
-                    "meter_pulsar_throughput_in"
+                    "aggregate_labels(meter_pulsar_throughput_in,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Throughput In"
+                    }
                   ]
                 },
                 {
@@ -203,7 +238,12 @@
                     "name": "throughput_out"
                   },
                   "expressions": [
-                    "meter_pulsar_throughput_in"
+                    "aggregate_labels(meter_pulsar_throughput_out,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Throughput Out"
+                    }
                   ]
                 },
                 {
@@ -214,7 +254,12 @@
                   "i": "15",
                   "type": "Widget",
                   "expressions": [
-                    "meter_pulsar_storage_read_rate.sum(['cluster','node'])"
+                    "aggregate_labels(meter_pulsar_storage_read_rate,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Storage Read Rate"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -237,7 +282,12 @@
                   "i": "16",
                   "type": "Widget",
                   "expressions": [
-                    "meter_pulsar_storage_logical_size.sum(['cluster','node'])/1024/1024"
+                    "aggregate_labels(meter_pulsar_storage_logical_size,sum)/1024/1024"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Storage Logical Size"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -260,7 +310,12 @@
                   "i": "17",
                   "type": "Widget",
                   "expressions": [
-                    "meter_pulsar_storage_write_rate.sum(['cluster','node'])"
+                    "aggregate_labels(meter_pulsar_storage_write_rate,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Storage Write Rate"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -283,7 +338,12 @@
                   "i": "18",
                   "type": "Widget",
                   "expressions": [
-                    "meter_pulsar_storage_size/1024/1024"
+                    "aggregate_labels(meter_pulsar_storage_size,sum)/1024/1024"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Storage Size"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -331,11 +391,11 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_pulsar_total_topics)",
-        "avg(meter_pulsar_total_subscriptions)",
-        "avg(meter_pulsar_message_rate_in)",
-        "avg(meter_pulsar_message_rate_out)",
-        "avg(meter_pulsar_storage_size)"
+        "aggregate_labels(meter_pulsar_total_topics,sum)",
+        "aggregate_labels(meter_pulsar_total_subscriptions,sum)",
+        "avg(aggregate_labels(meter_pulsar_message_rate_in,sum))",
+        "avg(aggregate_labels(meter_pulsar_message_rate_out,sum))",
+        "aggregate_labels(meter_pulsar_storage_size,sum)"
       ],
       "expressionsConfig": [
         {
@@ -345,13 +405,13 @@
           "label": "total subscriptions"
         },
         {
-          "label": "message rate in"
+          "label": "avg message rate in"
         },
         {
-          "label": "message rate out"
+          "label": "avg message rate out"
         },
         {
-          "label": "storage size"
+          "label": "total storage size"
         }
       ]
     }
