@@ -217,7 +217,15 @@ round(service_cpm / 60 , 2)
 The different operators could impact the `ExpressionResultType`, please refer to the above table.
 
 ## TopN Operation
-TopN Operation takes an expression and performs TopN calculation on its results.
+TopN Operation takes an expression and performs calculation to get the TopN of Services/Instances/Endpoints.
+The result depends on the `entity` condition in the query.
+- Global TopN: 
+  - The `entity` is empty.
+  - The result is the topN Services/Instances/Endpoints in the whole traffics. 
+  - **Notice**: If query the Endpoints metric, the global candidate set could be huge, please use it carefully. 
+- Service's Instances/Endpoints TopN: 
+  - The `serviceName` in the `entity` is not empty.
+  - The result is the topN Instances/Endpoints of the service.
 
 Expression:
 ```text
@@ -229,7 +237,8 @@ top_n(<metric_name>, <top_number>, <order>)
 `order` is the order of the top results. The value of `order` can be `asc` or `des`.
 
 For example:
-If we want to query the top 10 services with the highest `service_cpm` metric value, we can use the following expression:
+If we want to query the current service's top 10 instances with the highest `service_instance_cpm` metric value, we can use the following expression
+under specific service:
 
 ```text
 top_n(service_instance_cpm, 10, des)

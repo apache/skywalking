@@ -60,8 +60,11 @@ public class AggregationQueryService implements Service {
         final String valueCName = ValueColumnMetadata.INSTANCE.getValueCName(condition.getName());
         List<KeyValue> additionalConditions = null;
         if (StringUtil.isNotEmpty(condition.getParentService())) {
+            if (condition.getNormal() == null) {
+                return Collections.emptyList();
+            }
             additionalConditions = new ArrayList<>(1);
-            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.isNormal());
+            final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.getNormal());
             additionalConditions.add(new KeyValue(InstanceTraffic.SERVICE_ID, serviceId));
         }
         final List<SelectedRecord> selectedRecords = getAggregationQueryDAO().sortMetrics(
