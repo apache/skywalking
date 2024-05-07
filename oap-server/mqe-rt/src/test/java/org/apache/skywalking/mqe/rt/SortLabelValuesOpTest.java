@@ -55,23 +55,23 @@ public class SortLabelValuesOpTest {
 
     private void assertDes(ExpressionResult des) {
         //label
-        Assertions.assertEquals("2", des.getResults().get(0).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("2", des.getResults().get(1).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("2", des.getResults().get(2).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("2", des.getResults().get(3).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("1", des.getResults().get(4).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("1", des.getResults().get(5).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("1", des.getResults().get(6).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("1", des.getResults().get(7).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("b", des.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("b", des.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("b", des.getResults().get(2).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("b", des.getResults().get(3).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("a", des.getResults().get(4).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("a", des.getResults().get(5).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("a", des.getResults().get(6).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("a", des.getResults().get(7).getMetric().getLabels().get(0).getValue());
         // label2
-        Assertions.assertEquals("22", des.getResults().get(0).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("22", des.getResults().get(1).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("21", des.getResults().get(2).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("21", des.getResults().get(3).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("22", des.getResults().get(4).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("22", des.getResults().get(5).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("21", des.getResults().get(6).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("21", des.getResults().get(7).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2b", des.getResults().get(0).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2b", des.getResults().get(1).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2a", des.getResults().get(2).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2a", des.getResults().get(3).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2b", des.getResults().get(4).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2b", des.getResults().get(5).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2a", des.getResults().get(6).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2a", des.getResults().get(7).getMetric().getLabels().get(1).getValue());
         // label3
         Assertions.assertEquals("32", des.getResults().get(0).getMetric().getLabels().get(2).getValue());
         Assertions.assertEquals("31", des.getResults().get(1).getMetric().getLabels().get(2).getValue());
@@ -85,23 +85,23 @@ public class SortLabelValuesOpTest {
 
     private void assertAsc(ExpressionResult asc) {
         //label
-        Assertions.assertEquals("1", asc.getResults().get(0).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("1", asc.getResults().get(1).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("1", asc.getResults().get(2).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("1", asc.getResults().get(3).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("2", asc.getResults().get(4).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("2", asc.getResults().get(5).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("2", asc.getResults().get(6).getMetric().getLabels().get(0).getValue());
-        Assertions.assertEquals("2", asc.getResults().get(7).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("a", asc.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("a", asc.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("a", asc.getResults().get(2).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("a", asc.getResults().get(3).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("b", asc.getResults().get(4).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("b", asc.getResults().get(5).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("b", asc.getResults().get(6).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("b", asc.getResults().get(7).getMetric().getLabels().get(0).getValue());
         // label2
-        Assertions.assertEquals("21", asc.getResults().get(0).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("21", asc.getResults().get(1).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("22", asc.getResults().get(2).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("22", asc.getResults().get(3).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("21", asc.getResults().get(4).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("21", asc.getResults().get(5).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("22", asc.getResults().get(6).getMetric().getLabels().get(1).getValue());
-        Assertions.assertEquals("22", asc.getResults().get(7).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2a", asc.getResults().get(0).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2a", asc.getResults().get(1).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2b", asc.getResults().get(2).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2b", asc.getResults().get(3).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2a", asc.getResults().get(4).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2a", asc.getResults().get(5).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2b", asc.getResults().get(6).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals("2b", asc.getResults().get(7).getMetric().getLabels().get(1).getValue());
         // label3
         Assertions.assertEquals("31", asc.getResults().get(0).getMetric().getLabels().get(2).getValue());
         Assertions.assertEquals("32", asc.getResults().get(1).getMetric().getLabels().get(2).getValue());
