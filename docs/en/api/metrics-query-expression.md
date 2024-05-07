@@ -417,10 +417,10 @@ sort_label_values(service_percentile{p='50,75,90,95,99'}, des, p)
 
 For multiple labels, assume the metric has 2 labels：
 ```text
-metric{label1='1', label2='21'} 
-metric{label1='1', label2='22'}
-metric{label1='2', label2='21'}
-metric{label1='2', label2='22'}
+metric{label1='a', label2='2a'} 
+metric{label1='a', label2='2c'}
+metric{label1='b', label2='2a'}
+metric{label1='b', label2='2c'}
 ```
 If we want to sort the `metric` metric label values in descending order by the `label1` and `label2` labels, we can use the following expression:
 ```text
@@ -428,10 +428,10 @@ sort_label_values(metric, des, label1, label2)
 ```
 And the result will be:
 ```text
-metric{label1='2', label2='22'}
-metric{label1='2', label2='21'}
-metric{label1='1', label2='22'}
-metric{label1='1', label2='21'}
+metric{label1='b', label2='2c'}
+metric{label1='b', label2='2a'}
+metric{label1='a', label2='2c'}
+metric{label1='a', label2='2a'}
 ```
 
 ## Expression Query Example
