@@ -65,6 +65,61 @@ public class MockData {
         return seriesLabeled;
     }
 
+    public ExpressionResult newSeriesComplexLabeledResult() {
+        ExpressionResult seriesLabeled = new ExpressionResult();
+        seriesLabeled.setLabeledResult(true);
+        seriesLabeled.setType(ExpressionResultType.TIME_SERIES_VALUES);
+        MQEValues mqeValues111 = new MQEValues();
+        mqeValues111.setMetric(newMetadata("label", "1"));
+        mqeValues111.getMetric().getLabels().add(new KeyValue("label2", "21"));
+        mqeValues111.getMetric().getLabels().add(new KeyValue("label3", "31"));
+        mqeValues111.getValues().add(newMQEValue("100", 100));
+        MQEValues mqeValues112 = new MQEValues();
+        mqeValues112.setMetric(newMetadata("label", "1"));
+        mqeValues112.getMetric().getLabels().add(new KeyValue("label2", "21"));
+        mqeValues112.getMetric().getLabels().add(new KeyValue("label3", "32"));
+        mqeValues112.getValues().add(newMQEValue("100", 101));
+        MQEValues mqeValues121 = new MQEValues();
+        mqeValues121.setMetric(newMetadata("label", "1"));
+        mqeValues121.getMetric().getLabels().add(new KeyValue("label2", "22"));
+        mqeValues121.getMetric().getLabels().add(new KeyValue("label3", "31"));
+        mqeValues121.getValues().add(newMQEValue("100", 102));
+        MQEValues mqeValues122 = new MQEValues();
+        mqeValues122.setMetric(newMetadata("label", "1"));
+        mqeValues122.getMetric().getLabels().add(new KeyValue("label2", "22"));
+        mqeValues122.getMetric().getLabels().add(new KeyValue("label3", "32"));
+        mqeValues122.getValues().add(newMQEValue("100", 103));
+        MQEValues mqeValues211 = new MQEValues();
+        mqeValues211.setMetric(newMetadata("label", "2"));
+        mqeValues211.getMetric().getLabels().add(new KeyValue("label2", "21"));
+        mqeValues211.getMetric().getLabels().add(new KeyValue("label3", "31"));
+        mqeValues211.getValues().add(newMQEValue("100", 104));
+        MQEValues mqeValues212 = new MQEValues();
+        mqeValues212.setMetric(newMetadata("label", "2"));
+        mqeValues212.getMetric().getLabels().add(new KeyValue("label2", "21"));
+        mqeValues212.getMetric().getLabels().add(new KeyValue("label3", "32"));
+        mqeValues212.getValues().add(newMQEValue("100", 105));
+        MQEValues mqeValues221 = new MQEValues();
+        mqeValues221.setMetric(newMetadata("label", "2"));
+        mqeValues221.getMetric().getLabels().add(new KeyValue("label2", "22"));
+        mqeValues221.getMetric().getLabels().add(new KeyValue("label3", "31"));
+        mqeValues221.getValues().add(newMQEValue("100", 106));
+        MQEValues mqeValues222 = new MQEValues();
+        mqeValues222.setMetric(newMetadata("label", "2"));
+        mqeValues222.getMetric().getLabels().add(new KeyValue("label2", "22"));
+        mqeValues222.getMetric().getLabels().add(new KeyValue("label3", "32"));
+        mqeValues222.getValues().add(newMQEValue("100", 107));
+        seriesLabeled.getResults().add(mqeValues111);
+        seriesLabeled.getResults().add(mqeValues112);
+        seriesLabeled.getResults().add(mqeValues121);
+        seriesLabeled.getResults().add(mqeValues122);
+        seriesLabeled.getResults().add(mqeValues211);
+        seriesLabeled.getResults().add(mqeValues212);
+        seriesLabeled.getResults().add(mqeValues221);
+        seriesLabeled.getResults().add(mqeValues222);
+        return seriesLabeled;
+    }
+
     public ExpressionResult newSeriesLabeledResult(double id1001, double id3001, double id1002, double id3002) {
         ExpressionResult seriesLabeled = new ExpressionResult();
         seriesLabeled.setLabeledResult(true);

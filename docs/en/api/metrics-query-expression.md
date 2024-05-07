@@ -232,9 +232,8 @@ Expression:
 top_n(<metric_name>, <top_number>, <order>)
 ```
 
-`top_number` is the number of the top results, should be a positive integer.
-
-`order` is the order of the top results. The value of `order` can be `asc` or `des`.
+- `top_number` is the number of the top results, should be a positive integer.
+- `order` is the order of the top results. The value of `order` can be `asc` or `des`.
 
 For example:
 If we want to query the current service's top 10 instances with the highest `service_instance_cpm` metric value, we can use the following expression
@@ -273,11 +272,11 @@ AggregateLabels Operation takes an expression and performs an aggregate calculat
 
 Expression:
 ```text
-aggregate_labels(Expression, AggregateType<Optional>(<label1_name>,<label2_name>...))
+aggregate_labels(Expression, <AggregateType>(<label1_name>,<label2_name>...))
 ```
 
 - `AggregateType` is the type of the aggregation operation.
-- `<label1_name>,<label2_name>...` is the label names that need to be aggregated. If not specified, all labels will be aggregated.
+- `<label1_name>,<label2_name>...` is the label names that need to be aggregated. If not specified, all labels will be aggregated. Optional.
 
 | AggregateType | Definition                                         | ExpressionResultType |
 |---------------|----------------------------------------------------|----------------------|
@@ -378,6 +377,62 @@ V(T1)-V(T1-2), V(T2)-V(T1-1), V(T3)-V(T1)
 
 ### Result Type
 TIME_SERIES_VALUES.
+
+## Sort Operation
+### SortValues Operation
+SortValues Operation takes an expression and sorts the values of the input expression result.
+
+Expression:
+```text
+sort_values(Expression, <limit>, <order>)
+```
+- `limit` is the number of the sort results, should be a positive integer, if not specified, will return all results. Optional.
+- `order` is the order of the sort results. The value of `order` can be `asc` or `des`.
+
+For example:
+If we want to sort the `service_resp_time` metric values in descending order and get the top 10 values, we can use the following expression:
+```text
+sort_values(service_resp_time, 10, des)
+```
+
+#### Result Type
+The result type follows the input expression.
+
+### SortLabelValues Operation
+SortLabelValues Operation takes an expression and sorts the label values of the input expression result. This function uses `natural sort order`.
+
+Expression:
+```text
+sort_label_values(Expression, <order>, <label1_name>, <label2_name> ...)
+```
+- `order` is the order of the sort results. The value of `order` can be `asc` or `des`.
+- `<label1_name>, <label2_name> ...` is the label names that need to be sorted by their values. At least one label name should be specified.
+The labels in the head of the list will be sorted first, and if the label not be included in the expression result will be ignored.
+
+For example:
+If we want to sort the `service_percentile` metric label values in descending order by the `p` label, we can use the following expression:
+```text
+sort_label_values(service_percentile{p='50,75,90,95,99'}, des, p)
+```
+
+For multiple labels, assume the metric has 2 labels：
+```text
+metric{label1='1', label2='21'} 
+metric{label1='1', label2='22'}
+metric{label1='2', label2='21'}
+metric{label1='2', label2='22'}
+```
+If we want to sort the `metric` metric label values in descending order by the `label1` and `label2` labels, we can use the following expression:
+```text
+sort_label_values(metric, des, label1, label2)
+```
+And the result will be:
+```text
+metric{label1='2', label2='22'}
+metric{label1='2', label2='21'}
+metric{label1='1', label2='22'}
+metric{label1='1', label2='21'}
+```
 
 ## Expression Query Example
 ### Labeled Value Metrics
