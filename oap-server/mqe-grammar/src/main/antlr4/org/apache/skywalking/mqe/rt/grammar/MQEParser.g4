@@ -36,6 +36,8 @@ expression
     | topN L_PAREN metric COMMA INTEGER COMMA order R_PAREN  #topNOP
     | relabels L_PAREN expression COMMA label COMMA replaceLabel R_PAREN #relablesOP
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
+    | sort_values L_PAREN expression (COMMA INTEGER)? COMMA order R_PAREN #sortValuesOP
+    | sort_label_values L_PAREN expression COMMA order COMMA labelNameList R_PAREN #sortLabelValuesOP
     ;
 
 expressionList
@@ -91,3 +93,9 @@ aggregateLabelsFunc: aggregateLabelsFuncName (L_PAREN labelNameList R_PAREN)?;
 
 aggregateLabelsFuncName:
     AVG | SUM | MAX | MIN;
+
+sort_values:
+    SORT_VALUES;
+
+sort_label_values:
+    SORT_LABEL_VALUES;

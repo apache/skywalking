@@ -81,6 +81,10 @@ DES options { caseInsensitive=true; }: 'des';
 // AGGREGATE_LABELS
 AGGREGATE_LABELS:   'aggregate_labels';
 
+// Sort
+SORT_VALUES: 'sort_values';
+SORT_LABEL_VALUES: 'sort_label_values';
+
 // Literals
 INTEGER: Digit+;
 DECIMAL: Digit+ DOT Digit+;

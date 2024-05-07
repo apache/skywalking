@@ -120,6 +120,7 @@
 * Add component definition(ID=152) for `c3p0`(JDBC3 Connection and Statement Pooling).
 * Fix MQE `top_n` global query. 
 * Fix inaccurate Pulsar and Bookkeeper metrics.
+* MQE support `sort_values` and `sort_label_values` functions.
 
 #### UI
 
