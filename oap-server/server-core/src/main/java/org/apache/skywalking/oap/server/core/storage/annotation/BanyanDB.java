@@ -77,8 +77,7 @@ public @interface BanyanDB {
 
     /**
      * Force disabling indexing declare through {@link Column}.
-     * In BanyanDB, {@link GlobalIndex} provides the high performance capability to filter trace/log from super large
-     * dataset, some additional conditions could be done in server memory, no indexing required in this case.
+     * In BanyanDB, some additional conditions could be done in server memory, no indexing required in this case.
      *
      * @since 9.1.0
      */
