@@ -43,7 +43,7 @@ services:
   banyandb:
     profiles:
       - "banyandb"
-    image: ${BANYANDB_IMAGE:-ghcr.io/apache/skywalking-banyandb:84f32b3969cdcc676aaee428383b34b3b67dbdf5}
+    image: ${BANYANDB_IMAGE:-ghcr.io/apache/skywalking-banyandb:acd2f4ca39de4a3ca8e27c72f0d4fa7e15c5667a}
     container_name: banyandb
     networks:
       - demo
