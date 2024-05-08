@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.grammar.MQEParserBaseVisitor;
@@ -31,6 +32,8 @@ import org.apache.skywalking.mqe.rt.operation.BinaryOp;
 import org.apache.skywalking.mqe.rt.operation.CompareOp;
 import org.apache.skywalking.mqe.rt.operation.LogicalFunctionOp;
 import org.apache.skywalking.mqe.rt.operation.MathematicalFunctionOp;
+import org.apache.skywalking.mqe.rt.operation.SortLabelValuesOp;
+import org.apache.skywalking.mqe.rt.operation.SortValuesOp;
 import org.apache.skywalking.mqe.rt.operation.TrendOp;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
@@ -308,6 +311,42 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
             result.setType(ExpressionResultType.UNKNOWN);
             result.setError(e.getMessage());
             return result;
+        }
+    }
+
+    @Override
+    public ExpressionResult visitSortValuesOP(MQEParser.SortValuesOPContext ctx) {
+        ExpressionResult result = visit(ctx.expression());
+        int order = ctx.order().getStart().getType();
+        Optional<Integer> limit = Optional.empty();
+        if (ctx.INTEGER() != null) {
+            limit = Optional.of(Integer.valueOf(ctx.INTEGER().getText()));
+        }
+        try {
+            return SortValuesOp.doSortValuesOp(result, limit, order);
+        } catch (IllegalExpressionException e) {
+            ExpressionResult errorResult = new ExpressionResult();
+            errorResult.setType(ExpressionResultType.UNKNOWN);
+            errorResult.setError(e.getMessage());
+            return errorResult;
+        }
+    }
+
+    @Override
+    public ExpressionResult visitSortLabelValuesOP(MQEParser.SortLabelValuesOPContext ctx) {
+        ExpressionResult result = visit(ctx.expression());
+        int order = ctx.order().getStart().getType();
+        List<String> labelNames = new ArrayList<>();
+        for (MQEParser.LabelNameContext labelNameContext : ctx.labelNameList().labelName()) {
+            labelNames.add(labelNameContext.getText());
+        }
+        try {
+            return SortLabelValuesOp.doSortLabelValuesOp(result, order, labelNames);
+        } catch (IllegalExpressionException e) {
+            ExpressionResult errorResult = new ExpressionResult();
+            errorResult.setType(ExpressionResultType.UNKNOWN);
+            errorResult.setError(e.getMessage());
+            return errorResult;
         }
     }
 
