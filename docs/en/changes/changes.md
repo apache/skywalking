@@ -10,6 +10,7 @@
 * Remove CLI_VERSION variable from Makefile build.
 * Add BanyanDB to docker-compose quickstart.
 * Bump up Armeria, jackson, netty, jetcd and grpc to fix CVEs.
+* Bump up BanyanDB Java Client to 0.6.0.
 
 #### OAP Server
 
