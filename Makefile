@@ -47,7 +47,7 @@ TAG ?= latest
 
 docker: init build.all docker.all
 
-DOCKER_TARGETS:=docker.oap docker.data-generator docker.ui
+DOCKER_TARGETS:=docker.oap docker.ui
 
 ifneq ($(SW_OAP_BASE_IMAGE),)
   BUILD_ARGS := $(BUILD_ARGS) --build-arg BASE_IMAGE=$(SW_OAP_BASE_IMAGE)
