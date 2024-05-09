@@ -696,7 +696,6 @@ public enum MetadataRegistry {
     @Setter
     @NoArgsConstructor
     public static class GroupSetting {
-        private int blockIntervalHours;
         private int segmentIntervalDays;
     }
 }
