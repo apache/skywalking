@@ -53,5 +53,5 @@ BanyanDB Server supports two installation modes: standalone and cluster. The sta
 * Standalone mode: `targets` is the IP address/host name and port of the BanyanDB server.
 * Cluster mode: `targets` is the IP address/host name and port of the `liaison` nodes, separated by commas. `liaison` nodes are the entry points of the BanyanDB cluster.
 
-For more details, please refer to the documents of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/)
+For more details, please refer to the documents of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/)
 and [BanyanDB Java Client](https://github.com/apache/skywalking-banyandb-java-client) subprojects.
