@@ -22,7 +22,7 @@
 
     <groupId>org.apache.skywalking</groupId>
     <artifactId>apm</artifactId>
-    <version>10.0.0-SNAPSHOT</version>
+    <version>10.0.0</version>
 
     <parent>
         <groupId>org.apache</groupId>
@@ -44,7 +44,7 @@
         <url>https://github.com/apache/skywalking</url>
         <connection>scm:git:https://github.com/apache/skywalking.git</connection>
         <developerConnection>scm:git:https://github.com/apache/skywalking.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v10.0.0</tag>
     </scm>
 
     <issueManagement>
@@ -151,7 +151,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- `project.build.outputTimestamp` is required for reproducible builds: https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
-        <project.build.outputTimestamp>1701205589</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1715262873</project.build.outputTimestamp>
 
         <!-- Compiling and test stages tools. -->
         <powermock.version>2.0.9</powermock.version>
