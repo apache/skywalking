@@ -182,5 +182,6 @@
 * Add doc of one-line quick start script for different storage types.
 * Add FAQ for `Why is Clickhouse or Loki or xxx not supported as a storage option?`.
 * Add `SWIP-8 Support ActiveMQ Monitoring`.
+* Move BanyanDB storage to the recommended storage.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)

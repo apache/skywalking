@@ -8,18 +8,30 @@ storage:
 ```
 
 Natively supported storage:
+
+## BanyanDB - Native APM Database
+- [BanyanDB](storages/banyandb.md)
+
+This is recommended to use for medium scale deployments from 0.6 until 1.0.
+BanyanDB is going to be our next generation storage solution. It has shown high potential performance
+improvement. Less than 50% CPU usage and 50% memory usage with 40% disk volume compared to Elasticsearch in the same scale.
+We are looking for early adoption. Please contact us through slack channels if you are interested in using BanyanDB.
+
+## SQL database
 - [H2](storages/h2.md)
-- [OpenSearch](storages/elasticsearch.md#opensearch)
-- [ElasticSearch 7 and 8](storages/elasticsearch.md#elasticsearch). 
-- [MySQL and its compatible databases](storages/mysql.md)
-- [PostgreSQL and its compatible databases](storages/postgresql.md)
-- [BanyanDB(alpha stage)](storages/banyandb.md)
 
 H2 is the default storage option in the distribution package. It is recommended to use H2 for testing and development ONLY.
-Elasticsearch and OpenSearch are recommended for production environments, specially for large scale deployments.
+
+- [MySQL and its compatible databases](storages/mysql.md)
+- [PostgreSQL and its compatible databases](storages/postgresql.md)
+
 MySQL and PostgreSQL are recommended for production environments for medium scale deployments, especially for low trace
 and log sampling rate. Some of their compatible databases may support larger scale better, such as TiDB and AWS Aurora.
 
-BanyanDB is going to be our next generation storage solution. It is still in alpha stage. It has shown high potential performance
-improvement. Less than 50% CPU usage and 50% memory usage with 40% disk volume compared to Elasticsearch in the same scale with 100% sampling.
-We are looking for early adoption, and it would be our first-class recommended storage option since 2024.
+## Elasticsearch+
+
+- [OpenSearch](storages/elasticsearch.md#opensearch)
+- [ElasticSearch 7 and 8](storages/elasticsearch.md#elasticsearch)
+
+Elasticsearch and OpenSearch are recommended for production environments, specially for large scale deployments.
+OpenSearch derived from Elasticsearch 7.10.2 and iterate by its own roadmap.
