@@ -41,8 +41,8 @@
         <zookeeper.version>3.5.7</zookeeper.version>
         <guava.version>32.0.1-jre</guava.version>
         <snakeyaml.version>2.0</snakeyaml.version>
-        <protobuf-java.version>3.21.8</protobuf-java.version>
-        <protobuf-java-util.version>3.21.8</protobuf-java-util.version>
+        <protobuf-java.version>3.25.1</protobuf-java.version>
+        <protobuf-java-util.version>3.25.1</protobuf-java-util.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-io.version>2.7</commons-io.version>
@@ -72,7 +72,7 @@
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
-        <banyandb-java-client.version>0.5.0</banyandb-java-client.version>
+        <banyandb-java-client.version>0.6.0</banyandb-java-client.version>
         <kafka-clients.version>3.4.0</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
         <consul.client.version>1.5.3</consul.client.version>

@@ -69,7 +69,6 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -156,7 +155,7 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
 
         if (model.getBanyanDBModelExtension().isStoreIDTag()) {
-            indexRules.add(IndexRule.create(BanyanDBConverter.ID, IndexRule.IndexType.TREE, IndexRule.IndexLocation.SERIES));
+            indexRules.add(IndexRule.create(BanyanDBConverter.ID, IndexRule.IndexType.INVERTED));
         }
 
         final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
@@ -285,25 +284,8 @@ public enum MetadataRegistry {
         }
     }
 
-    IndexRule parseIndexRule(String tagName, ModelColumn modelColumn) {
-        // TODO: we need to add support index type in the OAP core
-        // Currently, we only register INVERTED type
-        // if it is null, it must be a user-defined tag
-        if (modelColumn == null) {
-            return IndexRule.create(tagName, IndexRule.IndexType.INVERTED, IndexRule.IndexLocation.SERIES);
-        }
-        if (modelColumn.getBanyanDBExtension().isGlobalIndexing()) {
-            return IndexRule.create(tagName, parseIndexType(modelColumn.getBanyanDBExtension().getIndexType()), IndexRule.IndexLocation.GLOBAL);
-        } else {
-            return IndexRule.create(tagName, parseIndexType(modelColumn.getBanyanDBExtension().getIndexType()), IndexRule.IndexLocation.SERIES);
-        }
-    }
-
-    private static IndexRule.IndexType parseIndexType(BanyanDB.IndexRule.IndexType indexType) {
-        if (indexType == BanyanDB.IndexRule.IndexType.INVERTED) {
-            return IndexRule.IndexType.INVERTED;
-        }
-        return IndexRule.IndexType.TREE;
+    IndexRule indexRule(String tagName) {
+        return IndexRule.create(tagName, IndexRule.IndexType.INVERTED);
     }
 
     /**
@@ -343,9 +325,7 @@ public enum MetadataRegistry {
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
             if (!shardingColumns.contains(colName) && col.getBanyanDBExtension().shouldIndex()) {
-                // build indexRule
-                IndexRule indexRule = parseIndexRule(tagSpec.getTagName(), col);
-                tagMetadataList.add(new TagMetadata(indexRule, tagSpec));
+                tagMetadataList.add(new TagMetadata(indexRule(tagSpec.getTagName()), tagSpec));
             } else {
                 tagMetadataList.add(new TagMetadata(null, tagSpec));
             }
@@ -385,7 +365,7 @@ public enum MetadataRegistry {
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
-            result.tag(new TagMetadata(!shardingColumns.contains(colName) && col.getBanyanDBExtension().shouldIndex() ? parseIndexRule(tagSpec.getTagName(), col) : null, tagSpec));
+            result.tag(new TagMetadata(!shardingColumns.contains(colName) && col.getBanyanDBExtension().shouldIndex() ? indexRule(tagSpec.getTagName()) : null, tagSpec));
         }
 
         return result.build();
@@ -443,10 +423,8 @@ public enum MetadataRegistry {
     }
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, ConfigService configService) {
-        int blockIntervalHrs = config.getBlockIntervalHours();
         int segmentIntervalDays = config.getSegmentIntervalDays();
         if (model.isSuperDataset()) {
-            blockIntervalHrs = config.getSuperDatasetBlockIntervalHours();
             segmentIntervalDays = config.getSuperDatasetSegmentIntervalDays();
         }
         String group;
@@ -460,7 +438,6 @@ public enum MetadataRegistry {
         } else if (model.getDownsampling() == DownSampling.Minute && model.isTimeRelativeID()) { // measure
             group = "measure-minute";
             // apply super dataset's settings to measure-minute
-            blockIntervalHrs = config.getSuperDatasetBlockIntervalHours();
             segmentIntervalDays = config.getSuperDatasetSegmentIntervalDays();
             metricShardNum = metricShardNum * config.getSuperDatasetShardsFactor();
         } else {
@@ -471,14 +448,12 @@ public enum MetadataRegistry {
             return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
                     model.getDownsampling(),
                     config.getMetricsShardsNumber(),
-                    intervalDays * 24,
                     intervalDays, // use 10-day/240-hour strategy
                     configService.getMetricsDataTTL());
         }
 
         GroupSetting groupSetting = this.specificGroupSettings.get(group);
         if (groupSetting != null) {
-            blockIntervalHrs = groupSetting.getBlockIntervalHours();
             segmentIntervalDays = groupSetting.getSegmentIntervalDays();
         }
         if (model.isRecord()) {
@@ -488,7 +463,6 @@ public enum MetadataRegistry {
                     model.getDownsampling(),
                     config.getRecordShardsNumber() *
                             (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1),
-                    blockIntervalHrs,
                     segmentIntervalDays,
                     configService.getRecordDataTTL()
             );
@@ -497,7 +471,6 @@ public enum MetadataRegistry {
         return new SchemaMetadata(group, model.getName(), Kind.MEASURE,
                 model.getDownsampling(),
                 metricShardNum,
-                blockIntervalHrs,
                 segmentIntervalDays,
                 configService.getMetricsDataTTL());
     }
@@ -517,7 +490,6 @@ public enum MetadataRegistry {
          */
         private final DownSampling downSampling;
         private final int shard;
-        private final int blockIntervalHrs;
         private final int segmentIntervalDays;
         private final int ttlDays;
 
@@ -580,7 +552,6 @@ public enum MetadataRegistry {
                     resourceExist = client.existStream(this.group, this.name());
                     if (!resourceExist.hasGroup()) {
                         Group g = client.define(Group.create(this.group, Catalog.STREAM, this.shard,
-                                IntervalRule.create(IntervalRule.Unit.HOUR, this.blockIntervalHrs),
                                 IntervalRule.create(IntervalRule.Unit.DAY, this.segmentIntervalDays),
                                 IntervalRule.create(IntervalRule.Unit.DAY, this.ttlDays)));
                         if (g != null) {
@@ -592,7 +563,6 @@ public enum MetadataRegistry {
                     resourceExist = client.existMeasure(this.group, this.name());
                     if (!resourceExist.hasGroup()) {
                         Group g = client.define(Group.create(this.group, Catalog.MEASURE, this.shard,
-                                IntervalRule.create(IntervalRule.Unit.HOUR, this.blockIntervalHrs),
                                 IntervalRule.create(IntervalRule.Unit.DAY, this.segmentIntervalDays),
                                 IntervalRule.create(IntervalRule.Unit.DAY, this.ttlDays)));
                         if (g != null) {
@@ -726,7 +696,6 @@ public enum MetadataRegistry {
     @Setter
     @NoArgsConstructor
     public static class GroupSetting {
-        private int blockIntervalHours;
         private int segmentIntervalDays;
     }
 }

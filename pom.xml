@@ -163,7 +163,7 @@
         <byte-buddy.version>1.14.9</byte-buddy.version>
 
         <!-- core lib dependency -->
-        <grpc.version>1.62.2</grpc.version>
+        <grpc.version>1.63.0</grpc.version>
         <netty.version>4.1.108.Final</netty.version>
         <netty-tcnative-boringssl-static.version>2.0.52.Final</netty-tcnative-boringssl-static.version>
         <gson.version>2.9.0</gson.version>

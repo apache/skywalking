@@ -65,7 +65,6 @@ public class SegmentRecord extends Record {
     @Setter
     @Getter
     @Column(name = TRACE_ID, length = 150)
-    @BanyanDB.GlobalIndex
     @ElasticSearch.Routing
     private String traceId;
     @Setter

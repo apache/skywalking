@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
@@ -42,6 +43,7 @@ import java.util.stream.IntStream;
 @Getter
 @Setter
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+@Slf4j
 public class SegmentGenerator implements Generator<SegmentGenerator.SegmentContext, SegmentGenerator.SegmentResult> {
 
     private Generator<String, String> segmentId;
@@ -49,10 +51,11 @@ public class SegmentGenerator implements Generator<SegmentGenerator.SegmentConte
     private Generator<Object, Long> error;
     private Generator<Object, List<TagGenerator>> tags;
     private Generator<Object, List<SpanGenerator>> spans;
+    private Generator<Object, Long> now;
 
     @Override
     public SegmentResult next(SegmentContext ctx) {
-        long now = System.currentTimeMillis();
+        long n = now.next(null);
         final String serviceName = ctx.serviceName;
         final String serviceInstanceName = ctx.serviceInstanceName;
         final String endpointName = getEndpointName().next(null);
@@ -89,7 +92,7 @@ public class SegmentGenerator implements Generator<SegmentGenerator.SegmentConte
                         IntStream.range(0, size)
                                 .mapToObj(i -> {
                                     SpanGenerator sg = spanGenerators.get(i);
-                                    return sg.next(new SpanGenerator.SpanGeneratorContext(i, size, sr, ctx.peer));
+                                    return sg.next(new SpanGenerator.SpanGeneratorContext(i, size, sr, ctx.peer, n));
                                 })
                                 .collect(Collectors.<SpanObject>toList()))
                 .setService(serviceName)
@@ -114,7 +117,7 @@ public class SegmentGenerator implements Generator<SegmentGenerator.SegmentConte
                 IDManager.EndpointID.buildId(
                         segment.getServiceId(),
                         endpointName));
-        segment.setStartTime(now - latency);
+        segment.setStartTime(n - latency);
         segment.setLatency(latency.intValue());
         segment.setIsError(getError().next(null).intValue());
         segment.setTimeBucket(TimeBucket.getRecordTimeBucket(segment.getStartTime()));

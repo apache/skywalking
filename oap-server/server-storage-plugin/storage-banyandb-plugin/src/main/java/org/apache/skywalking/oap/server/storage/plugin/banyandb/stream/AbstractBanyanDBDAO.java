@@ -65,9 +65,9 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         }
         final StreamQuery query;
         if (timestampRange == null) {
-            query = new StreamQuery(schema.getMetadata().getGroup(), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags);
+            query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags);
         } else {
-            query = new StreamQuery(schema.getMetadata().getGroup(), schema.getMetadata().name(), timestampRange, tags);
+            query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tags);
         }
 
         builder.apply(query);
@@ -92,7 +92,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
 
     private TopNQueryResponse topNQuery(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number,
                                         AbstractQuery.Sort sort, List<KeyValue> additionalConditions) throws IOException {
-        final TopNQuery q = new TopNQuery(schema.getMetadata().getGroup(), schema.getTopNSpec().getName(),
+        final TopNQuery q = new TopNQuery(List.of(schema.getMetadata().getGroup()), schema.getTopNSpec().getName(),
                 timestampRange,
                 number, sort);
         q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
@@ -119,9 +119,9 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                                          TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
         final MeasureQuery query;
         if (timestampRange == null) {
-            query = new MeasureQuery(schema.getMetadata().getGroup(), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags, fields);
+            query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags, fields);
         } else {
-            query = new MeasureQuery(schema.getMetadata().getGroup(), schema.getMetadata().name(), timestampRange, tags, fields);
+            query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tags, fields);
         }
 
         builder.apply(query);

@@ -155,9 +155,9 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
 
         event.setUuid(dataPoint.getTagValue(Event.UUID));
 
-        String service = dataPoint.getTagValue(Event.SERVICE);
-        String serviceInstance = dataPoint.getTagValue(Event.SERVICE_INSTANCE);
-        String endpoint = dataPoint.getTagValue(Event.ENDPOINT);
+        String service = getValueOrDefault(dataPoint, Event.SERVICE, "");
+        String serviceInstance = getValueOrDefault(dataPoint, Event.SERVICE_INSTANCE, "");
+        String endpoint = getValueOrDefault(dataPoint, Event.ENDPOINT, "");
         event.setSource(new Source(service, serviceInstance, endpoint));
 
         event.setName(dataPoint.getTagValue(Event.NAME));
@@ -171,4 +171,9 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
 
         return event;
     }
+
+    private <T> T getValueOrDefault(DataPoint dataPoint, String tagName, T defaultValue) {
+        T v = dataPoint.getTagValue(tagName);
+        return v == null ? defaultValue : v;
+    } 
 }

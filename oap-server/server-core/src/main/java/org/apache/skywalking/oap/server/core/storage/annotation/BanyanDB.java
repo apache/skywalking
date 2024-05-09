@@ -33,21 +33,6 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
  */
 public @interface BanyanDB {
     /**
-     * GlobalIndex declares advanced global index, which are only available in BanyanDB.
-     * <p>
-     * Global index should only be considered if a column value has a huge value candidates, but we will need a direct
-     * equal
-     * query without timestamp.
-     * The typical global index is designed for huge candidate of indexed values, such as `trace ID` or `segment ID`.
-     * <p>
-     * Only work with {@link Column}
-     */
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface GlobalIndex {
-    }
-
-    /**
      * Series key is used to group time series data per metric of one entity in one place.
      * <p>
      * For example,
@@ -92,8 +77,7 @@ public @interface BanyanDB {
 
     /**
      * Force disabling indexing declare through {@link Column}.
-     * In BanyanDB, {@link GlobalIndex} provides the high performance capability to filter trace/log from super large
-     * dataset, some additional conditions could be done in server memory, no indexing required in this case.
+     * In BanyanDB, some additional conditions could be done in server memory, no indexing required in this case.
      *
      * @since 9.1.0
      */

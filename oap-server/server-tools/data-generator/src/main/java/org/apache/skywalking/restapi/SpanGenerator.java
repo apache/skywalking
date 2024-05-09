@@ -47,7 +47,7 @@ public final class SpanGenerator implements Generator<SpanGenerator.SpanGenerato
     public SpanObject next(SpanGenerator.SpanGeneratorContext ctx) {
         long now;
         if (endTime == null) {
-            now = System.currentTimeMillis();
+            now = ctx.now;
         } else {
             now = endTime.next(null);
         }
@@ -101,5 +101,6 @@ public final class SpanGenerator implements Generator<SpanGenerator.SpanGenerato
         final int length;
         final SegmentReference ref;
         final String peer;
+        final long now;
     }
 }

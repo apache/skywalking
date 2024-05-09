@@ -67,7 +67,6 @@ public class SpanAttachedEventRecord extends Record {
     @Column(name = TRACE_REF_TYPE)
     private int traceRefType;
     @Column(name = RELATED_TRACE_ID)
-    @BanyanDB.GlobalIndex
     private String relatedTraceId;
     @Column(name = TRACE_SEGMENT_ID)
     private String traceSegmentId;
