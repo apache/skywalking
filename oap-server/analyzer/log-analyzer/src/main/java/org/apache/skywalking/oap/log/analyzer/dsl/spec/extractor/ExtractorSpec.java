@@ -162,7 +162,6 @@ public class ExtractorSpec extends AbstractSpec {
                          .collect(Collectors.toList())
                    )
         );
-        BINDING.get().log(logData);
     }
 
     @SuppressWarnings("unused")
