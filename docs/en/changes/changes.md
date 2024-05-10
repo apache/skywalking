@@ -5,6 +5,7 @@
 
 #### OAP Server
 
+* Fix LAL test query api.
 
 #### UI
 

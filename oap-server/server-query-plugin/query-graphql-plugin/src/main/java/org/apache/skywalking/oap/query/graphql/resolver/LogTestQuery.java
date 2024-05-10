@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
@@ -88,7 +90,7 @@ public class LogTestQuery implements GraphQLQueryResolver {
             }
             l.setServiceId(it.getServiceId());
             if (isNotBlank(it.getServiceInstanceId())) {
-                String name = IDManager.ServiceInstanceID.analysisId(it.getServiceId()).getName();
+                String name = IDManager.ServiceInstanceID.analysisId(it.getServiceInstanceId()).getName();
                 l.setServiceInstanceName(name);
             }
             l.setServiceInstanceId(it.getServiceInstanceId());
@@ -101,11 +103,18 @@ public class LogTestQuery implements GraphQLQueryResolver {
             l.setTimestamp(it.getTimestamp());
             l.setContentType(it.getContentType());
             l.setContent(it.getContent());
-            final List<KeyValue> tags = it.getTags()
-                                          .stream()
-                                          .map(tag -> new KeyValue(tag.getKey(), tag.getValue()))
-                                          .collect(Collectors.toList());
-            l.getTags().addAll(tags);
+            if (it.getTagsRawData() != null) {
+                try {
+                    final List<KeyValue> tags = LogTags.parseFrom(it.getTagsRawData())
+                                                       .getDataList()
+                                                       .stream()
+                                                       .map(tag -> new KeyValue(tag.getKey(), tag.getValue()))
+                                                       .collect(Collectors.toList());
+                    l.getTags().addAll(tags);
+                } catch (InvalidProtocolBufferException e) {
+                    // ignore
+                }
+            }
 
             builder.log(l);
         });
