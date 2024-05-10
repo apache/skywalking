@@ -390,8 +390,14 @@ catalog:
     catalog:
       - name: "Current Version"
         path: "/en/changes/changes"
+      - name: "10.x Releases"
+        catalog:
+        - name: "10.0.0"
+          path: "/en/changes/changes-10.0.0"
       - name: "9.x Releases"
         catalog:
+        - name: "9.7.0"
+          path: "/en/changes/changes-9.7.0"
         - name: "9.6.0"
           path: "/en/changes/changes-9.6.0"
         - name: "9.5.0"
