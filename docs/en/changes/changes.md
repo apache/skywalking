@@ -6,6 +6,7 @@
 #### OAP Server
 
 * Fix LAL test query api.
+* Add component libraries of `Derby`/`Sybase`/`SQLite`/`DB2`/`OceanBase` jdbc driver.
 
 #### UI
 

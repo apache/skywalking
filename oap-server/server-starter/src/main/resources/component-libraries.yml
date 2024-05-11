@@ -508,6 +508,21 @@ Netty-http:
 c3p0:
   id: 152
   languages: Java
+Derby-jdbc-driver:
+  id: 153
+  languages: Java
+Sqlite-jdbc-driver:
+  id: 154
+  languages: Java
+Db2-jdbc-driver:
+  id: 155
+  languages: Java
+Sybase-jdbc-driver:
+  id: 156
+  languages: Java
+OceanBase-jdbc-driver:
+  id: 157
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
