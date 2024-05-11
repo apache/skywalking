@@ -510,19 +510,19 @@ c3p0:
   languages: Java
 Derby-jdbc-driver:
   id: 153
-  languages: Java,Scala,Kotlin,Groovy
+  languages: Java
 Sqlite-jdbc-driver:
   id: 154
-  languages: Java,Scala,Kotlin,Groovy
+  languages: Java
 Db2-jdbc-driver:
   id: 155
-  languages: Java,Scala,Kotlin,Groovy
+  languages: Java
 Sybase-jdbc-driver:
   id: 156
-  languages: Java,Scala,Kotlin,Groovy
+  languages: Java
 OceanBase-jdbc-driver:
   id: 157
-  languages: Java,Scala,Kotlin,Groovy
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
