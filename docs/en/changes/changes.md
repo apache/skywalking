@@ -2,6 +2,7 @@
 
 #### Project
 
+* Add SBOM (Software Bill of Materials) to the project.
 
 #### OAP Server
 
