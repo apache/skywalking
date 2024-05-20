@@ -11,6 +11,8 @@
 
 #### UI
 
+* Fix widget title and tips
+* Fix statistics span data
 
 #### Documentation
 
