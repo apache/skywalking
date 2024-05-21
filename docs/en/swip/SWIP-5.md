@@ -98,7 +98,7 @@ Kafka lets you:
 | KafkaMessagesRead | count | meter_clickhouse_instance_kafka_messages_read<br/>meter_clickhouse_kafka_messages_read | Number of Kafka messages already processed by ClickHouse. | ClickHouse  |
 | KafkaWrites       | count | meter_clickhouse_instance_kafka_writes<br/>meter_clickhouse_kafka_writes               | Number of writes (inserts) to Kafka tables.               | ClickHouse  |
 | KafkaConsumers    | count | meter_clickhouse_instance_kafka_consumers<br/>meter_clickhouse_kafka_consumers         | Number of active Kafka consumers.                         | ClickHouse  |
-| KafkProducers     | count | meter_clickhouse_instance_kafka_producers<br/>meter_clickhouse_kafka_producers         | Number of active Kafka producer created.                  | ClickHouse  |
+| KafkaProducers     | count | meter_clickhouse_instance_kafka_producers<br/>meter_clickhouse_kafka_producers         | Number of active Kafka producer created.                  | ClickHouse  |
 
 ### ClickHouse ZooKeeper Supported Metrics
 
