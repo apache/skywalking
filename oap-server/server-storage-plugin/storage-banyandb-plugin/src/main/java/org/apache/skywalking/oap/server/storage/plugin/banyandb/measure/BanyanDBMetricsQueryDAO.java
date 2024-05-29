@@ -227,8 +227,9 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         });
         for (final DataPoint dp : resp.getDataPoints()) {
             long timeBucket = TimeBucket.getTimeBucket(dp.getTimestamp(), schema.getMetadata().getDownSampling());
-            if (map.putIfAbsent(timeBucket, dp) != null) {
-                log.warn("duplicated data point at " + timeBucket);
+            DataPoint preDp = map.putIfAbsent(timeBucket, dp);
+            if (preDp != null) {
+                log.warn("{}:{} returns duplicated data point at {}, pre:{}, current:{}", entityID, schema.getMetadata(), timeBucket, preDp.getFields(), dp.getFields());
             }
         }
 

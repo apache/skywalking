@@ -8,6 +8,7 @@
 
 * Fix LAL test query api.
 * Add component libraries of `Derby`/`Sybase`/`SQLite`/`DB2`/`OceanBase` jdbc driver.
+* Fix setting the wrong interval to day level measure schema in BanyanDB installation process.
 
 #### UI
 

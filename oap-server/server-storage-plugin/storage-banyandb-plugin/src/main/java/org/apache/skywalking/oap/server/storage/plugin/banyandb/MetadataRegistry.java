@@ -278,7 +278,7 @@ public enum MetadataRegistry {
             case Minute:
                 return Duration.ofMinutes(1);
             case Day:
-                return Duration.ofDays(1);
+                return Duration.ofHours(24);
             default:
                 throw new UnsupportedOperationException("unsupported downSampling interval");
         }
