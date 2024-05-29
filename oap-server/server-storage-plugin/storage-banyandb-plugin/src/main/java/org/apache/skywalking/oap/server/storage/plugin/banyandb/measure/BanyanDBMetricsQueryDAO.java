@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -229,7 +230,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
             long timeBucket = TimeBucket.getTimeBucket(dp.getTimestamp(), schema.getMetadata().getDownSampling());
             DataPoint preDp = map.putIfAbsent(timeBucket, dp);
             if (preDp != null) {
-                log.warn("{}:{} returns duplicated data point at {}, pre:{}, current:{}", entityID, schema.getMetadata(), timeBucket, preDp.getFields(), dp.getFields());
+                log.warn("{}:{} returns duplicated data point at {}, pre:{}, current:{} \n Stack Trace: {}", entityID, schema.getMetadata(), timeBucket, preDp.getFields(), dp.getFields(), Arrays.toString(Thread.currentThread().getStackTrace()));
             }
         }
 
