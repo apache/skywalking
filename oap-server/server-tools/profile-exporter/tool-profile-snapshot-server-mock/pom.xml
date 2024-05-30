@@ -21,12 +21,12 @@
     <parent>
         <artifactId>profile-exporter</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>10.0.1</version>
+        <version>10.0.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tool-profile-snapshot-server-mock</artifactId>
-    <version>10.0.1</version>
+    <version>10.0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
