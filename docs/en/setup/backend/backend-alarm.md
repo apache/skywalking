@@ -87,16 +87,15 @@ rules:
     silence-period: 5
     message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
   meter_service_status_code_rule:
-    expression: sum(aggregate_labels(meter_status_code{_='4xx,5xx'},sum) > 10) > 3
+    expression: sum(aggregate_labels(meter_status_code{status='4xx,5xx'},sum) > 10) > 3
     period: 10
-    count: 3
     silence-period: 5
     message: The request number of entity {name} 4xx and 5xx status is more than expected.
     hooks:
       - "slack.custom1"
       - "pagerduty.custom1"
   comp_rule:
-    expression: (avg(service_sla / 100) > 80) * (avg(service_percentile{_='0'}) > 1000) == 1
+    expression: (avg(service_sla / 100) > 80) * (avg(service_percentile{p='0'}) > 1000) == 1
     period: 10
     message: Service {name} avg successful rate is less than 80% and P50 of avg response time is over 1000ms in last 10 minutes.
     tags:
