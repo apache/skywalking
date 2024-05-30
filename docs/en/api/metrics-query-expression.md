@@ -247,7 +247,7 @@ top_n(service_instance_cpm, 10, des)
 According to the type of the metric, the `ExpressionResultType` of the expression will be `SORTED_LIST` or `RECORD_LIST`.
 
 ## Relabel Operation
-Relabel Operation takes an expression and replaces the label values with new label values on its results.
+Relabel Operation takes an expression and replaces the label with new label on its results.
 Since v10.0.0, SkyWalking supports relabel multiple labels.
 
 Expression:
