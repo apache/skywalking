@@ -13,9 +13,9 @@ Natively supported storage:
 - [BanyanDB](storages/banyandb.md)
 
 This is recommended to use for medium scale deployments from 0.6 until 1.0.
-BanyanDB is going to be our next generation storage solution. It has shown high potential performance
-improvement. Less than 50% CPU usage and 50% memory usage with 40% disk volume compared to Elasticsearch in the same scale.
-We are looking for early adoption. Please contact us through slack channels if you are interested in using BanyanDB.
+It has demonstrated significant potential in performance improvement. As of version 0.6.1, it achieves 5x less memory usage, 
+1/5 disk IOPS, 1/4 disk throughput, and 30% less disk space, albeit with a slightly higher CPU trade-off, compared to Elasticsearch.
+We are looking for early adoption. Please contact us through Slack channels if you are interested in using BanyanDB.
 
 ## SQL database
 - [H2](storages/h2.md)
