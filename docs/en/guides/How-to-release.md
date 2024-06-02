@@ -251,3 +251,11 @@ make docker.push
 Once the latest release has been published, you should clean up the old releases from the mirror system.
 1. Update the download links (source, dist, asc, and sha512) on the website to the archive repo (https://archive.apache.org/dist/skywalking).
 2. Remove previous releases from https://dist.apache.org/repos/dist/release/skywalking/.
+
+## Update the Quick Start Versions
+
+We hosted the [SkyWalking Quick Start script](https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-docker/#start-the-storage-oap-and-booster-ui-with-docker-compose), 
+which is a shell script that helps users to download and start SkyWalking quickly.
+The versions of OAP and BanyanDB are hard-coded in the script, so you need to update the versions in the script.
+
+Update the versions [here](https://github.com/apache/skywalking-website/blob/master/content/quickstart-docker.sh#L23-L24)
