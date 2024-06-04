@@ -61,7 +61,7 @@ BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST)
 
 docker.%: PLATFORMS =
 docker.%: LOAD_OR_PUSH = --load
-push.%: PLATFORMS = --platform linux/amd64,linux/arm64
+push.%: PLATFORMS = --platform linux/amd64
 push.%: LOAD_OR_PUSH = --push
 
 docker.% push.docker.%: $(CONTEXT)/$(DIST) $(SW_ROOT)/docker/%/*
