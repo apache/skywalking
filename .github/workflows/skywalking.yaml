@@ -531,6 +531,14 @@ jobs:
               file: Dockerfile.sqrt
               name: test/continuous:test
 
+          # eBPF Access Log
+          - name: eBPF Access Log BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/access_log/banyandb/e2e.yaml
+          - name: eBPF Access Log ES
+            config: test/e2e-v2/cases/profiling/ebpf/access_log/es/e2e.yaml
+          - name: eBPF Access Log ES Sharding
+            config: test/e2e-v2/cases/profiling/ebpf/access_log/es/es-sharding/e2e.yaml
+
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
           - name: Kafka Profiling

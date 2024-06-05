@@ -128,10 +128,12 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                         connection = new ConnectionInfo(namingControl, node, logMessage.getConnection());
                     }
 
-                    log.warn(
-                        "messaged is identified from eBPF node[{}], connection[{}]. Received msg {}", node,
-                            connection,
-                            logMessage);
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                            "messaged is identified from eBPF node[{}], connection[{}]. Received msg {}", node,
+                                connection,
+                                logMessage);
+                    }
 
                     if (connection == null || !connection.isValid()) {
                         dropCounter.inc(logMessage.getKernelLogsCount() + (logMessage.hasProtocolLog() ? 1 : 0));
@@ -354,11 +356,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                     EBPFAccessLogNodeNetInterface::getIndex, EBPFAccessLogNodeNetInterface::getName, (a, b) -> a));
             this.bootTime = node.getBootTime();
             this.clusterName = node.getClusterName();
-            if (node.hasPolicy() && node.getPolicy().getExcludeNamespacesCount() > 0) {
-                this.excludeNamespaces = node.getPolicy().getExcludeNamespacesList();
-            } else {
-                this.excludeNamespaces = Collections.emptyList();
-            }
+            this.excludeNamespaces = buildExcludeNamespaces(node);
         }
 
         public String getNetInterfaceName(int index) {
@@ -371,13 +369,20 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public boolean shouldExcludeNamespace(String namespace) {
-            log.warn("should exclude namespace: {}, namespaces: {}, contains: {}", namespace, excludeNamespaces, excludeNamespaces.contains(namespace));
             return excludeNamespaces.contains(namespace);
         }
 
         public String toString() {
             return String.format("name: %s, clusterName: %s, network interfaces: %s",
                 nodeName, clusterName, netInterfaces);
+        }
+
+        private List<String> buildExcludeNamespaces(EBPFAccessLogNodeInfo node) {
+            if (node.hasPolicy() && node.getPolicy().getExcludeNamespacesCount() > 0) {
+                return node.getPolicy().getExcludeNamespacesList().stream()
+                    .filter(StringUtil::isNotEmpty).collect(Collectors.toList());
+            }
+            return Collections.emptyList();
         }
     }
 
@@ -462,6 +467,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             return null;
         }
         if (nodeInfo.shouldExcludeNamespace(pod.namespace())) {
+            log.debug("Should exclude the namespace[{}] traffic, pod: {}", pod.namespace(), pod.name());
             return null;
         }
         final ObjectID serviceName = K8sInfoRegistry.getInstance().findService(pod.namespace(), pod.name());

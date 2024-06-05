@@ -1,0 +1,110 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: skywalking-rover
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: skywalking-rover
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: skywalking-rover
+subjects:
+  - kind: ServiceAccount
+    name: skywalking-rover
+    namespace: default
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: skywalking-rover
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "nodes", "services"]
+    verbs: ["get", "watch", "list"]
+---
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: skywalking-rover
+spec:
+  selector:
+    matchLabels:
+      name: skywalking-rover
+  template:
+    metadata:
+      labels:
+        name: skywalking-rover
+    spec:
+      serviceAccountName: skywalking-rover
+      serviceAccount: skywalking-rover
+      containers:
+        - name: skywalking-rover
+          # SkyWalking Rover image path
+          image: ghcr.io/apache/skywalking-rover/skywalking-rover:29ef115f29d5597f64d3745e7b191d57cc853848
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            capabilities:
+              add:
+                - SYS_PTRACE
+                - SYS_ADMIN
+            privileged: true
+          volumeMounts:
+            - name: host
+              mountPath: /host
+              readOnly: true
+            - name: host-sys
+              mountPath: /sys
+              readOnly: true
+          env:
+            - name: ROVER_PROCESS_DISCOVERY_KUBERNETES_ACTIVE
+              value: "true"
+            - name: ROVER_LOGGER_LEVEL
+              value: "DEBUG"
+            - name: ROVER_PROCESS_DISCOVERY_KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: ROVER_BACKEND_ADDR
+              # backend OAP address
+              value: skywalking-oap.istio-system:11800
+            - name: ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_ACTIVE
+              value: "false"
+            - name: ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_ACTIVE
+              value: "false"
+            - name: ROVER_HOST_MAPPING
+              value: /host
+            - name: ROVER_ACCESS_LOG_ACTIVE
+              value: "true"
+            - name: ROVER_ACCESS_LOG_FLUSH_PERIOD
+              value: 1s
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      volumes:
+        - name: host
+          hostPath:
+            path: /host
+            type: Directory
+        - name: host-sys
+          hostPath:
+            path: /host/sys
+            type: Directory
