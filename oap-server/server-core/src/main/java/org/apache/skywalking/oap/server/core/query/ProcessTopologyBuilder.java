@@ -69,7 +69,7 @@ public class ProcessTopologyBuilder {
 
     ProcessTopology build(List<Call.CallDetail> clientCalls,
                           List<Call.CallDetail> serverCalls) throws Exception {
-        log.info("building process topology, total found client calls: {}, total found server calls: {}",
+        log.debug("building process topology, total found client calls: {}, total found server calls: {}",
             clientCalls.size(), serverCalls.size());
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
@@ -126,7 +126,7 @@ public class ProcessTopologyBuilder {
         ProcessTopology topology = new ProcessTopology();
         topology.getCalls().addAll(calls);
         topology.getNodes().addAll(nodes.values());
-        log.info("process topology built, total calls: {}, total nodes: {}", appendCallCount, nodes.size());
+        log.debug("process topology built, total calls: {}, total nodes: {}", appendCallCount, nodes.size());
         return topology;
     }
 
