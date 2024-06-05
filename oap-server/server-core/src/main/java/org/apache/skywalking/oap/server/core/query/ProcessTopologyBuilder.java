@@ -69,6 +69,8 @@ public class ProcessTopologyBuilder {
 
     ProcessTopology build(List<Call.CallDetail> clientCalls,
                           List<Call.CallDetail> serverCalls) throws Exception {
+        log.debug("building process topology, total found client calls: {}, total found server calls: {}",
+            clientCalls.size(), serverCalls.size());
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
 
@@ -88,6 +90,7 @@ public class ProcessTopologyBuilder {
             .map(t -> (ProcessTraffic) t)
             .collect(Collectors.toMap(m -> m.id().build(), this::buildNode));
 
+        int appendCallCount = 0;
         for (Call.CallDetail clientCall : clientCalls) {
             if (!callMap.containsKey(clientCall.getId())) {
                 Call call = new Call();
@@ -99,6 +102,7 @@ public class ProcessTopologyBuilder {
                 call.addDetectPoint(DetectPoint.CLIENT);
                 call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
                 calls.add(call);
+                appendCallCount++;
             }
         }
 
@@ -113,6 +117,7 @@ public class ProcessTopologyBuilder {
                 call.setTarget(serverCall.getTarget());
                 call.setId(serverCall.getId());
                 calls.add(call);
+                appendCallCount++;
             }
             call.addDetectPoint(DetectPoint.SERVER);
             call.addTargetComponent(componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
@@ -121,6 +126,7 @@ public class ProcessTopologyBuilder {
         ProcessTopology topology = new ProcessTopology();
         topology.getCalls().addAll(calls);
         topology.getNodes().addAll(nodes.values());
+        log.debug("process topology built, total calls: {}, total nodes: {}", appendCallCount, nodes.size());
         return topology;
     }
 
