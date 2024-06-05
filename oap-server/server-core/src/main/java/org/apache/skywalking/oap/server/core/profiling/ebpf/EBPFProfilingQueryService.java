@@ -190,7 +190,7 @@ public class EBPFProfilingQueryService implements Service {
         final List<EBPFProfilingTaskRecord> tasks = getTaskDAO().queryTasksByTargets(serviceId, serviceInstanceId, targets, triggerType, startTime, endTime);
         // combine same id tasks
         final Map<String, EBPFProfilingTaskRecord> records = tasks.stream().collect(Collectors.toMap(EBPFProfilingTaskRecord::getLogicalId, Function.identity(), EBPFProfilingTaskRecord::combine));
-        return records.values().stream().map(this::parseTask).collect(Collectors.toList());
+        return records.values().stream().map(this::parseTask).sorted((o1, o2) -> -Long.compare(o1.getCreateTime(), o2.getCreateTime())).collect(Collectors.toList());
     }
 
     private EBPFProfilingTask parseTask(EBPFProfilingTaskRecord record) {
