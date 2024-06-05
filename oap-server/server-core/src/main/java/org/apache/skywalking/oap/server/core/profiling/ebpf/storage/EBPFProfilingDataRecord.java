@@ -51,8 +51,8 @@ public class EBPFProfilingDataRecord extends Record {
     public static final String UPLOAD_TIME = "upload_time";
 
     @Column(name = TASK_ID)
-    @BanyanDB.SeriesID(index = 0)
     private String taskId;
+    @BanyanDB.SeriesID(index = 0)
     @Column(name = SCHEDULE_ID)
     private String scheduleId;
     @Column(name = STACK_ID_LIST)

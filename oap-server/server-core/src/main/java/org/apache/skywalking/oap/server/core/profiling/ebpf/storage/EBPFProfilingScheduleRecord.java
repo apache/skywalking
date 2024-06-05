@@ -60,6 +60,7 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     public static final String EBPF_PROFILING_SCHEDULE_ID = "ebpf_profiling_schedule_id";
 
     @Column(name = TASK_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String taskId;
     @Column(name = PROCESS_ID, length = 600)
     private String processId;
@@ -68,7 +69,7 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     @Column(name = END_TIME)
     private long endTime;
     @Column(name = EBPF_PROFILING_SCHEDULE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.SeriesID(index = 1)
     private String scheduleId;
 
     @Override
@@ -96,7 +97,7 @@ public class EBPFProfilingScheduleRecord extends Metrics {
 
     @Override
     protected StorageID id0() {
-        return new StorageID().append(EBPF_PROFILING_SCHEDULE_ID, scheduleId);
+        return new StorageID().append(TASK_ID, taskId).append(EBPF_PROFILING_SCHEDULE_ID, scheduleId);
     }
 
     @Override
