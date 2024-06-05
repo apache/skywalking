@@ -4,7 +4,7 @@
 
 
 #### OAP Server
-* Fix wrong banyanDB indexes in the eBPF Profiling related models.
+* Fix wrong indices in the eBPF Profiling related models.
 
 
 #### UI
