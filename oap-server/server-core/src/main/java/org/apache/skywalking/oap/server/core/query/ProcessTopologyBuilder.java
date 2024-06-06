@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -71,6 +72,9 @@ public class ProcessTopologyBuilder {
                           List<Call.CallDetail> serverCalls) throws Exception {
         log.debug("building process topology, total found client calls: {}, total found server calls: {}",
             clientCalls.size(), serverCalls.size());
+        if (CollectionUtils.isEmpty(clientCalls) && CollectionUtils.isEmpty(serverCalls)) {
+            return new ProcessTopology();
+        }
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
 
@@ -88,7 +92,7 @@ public class ProcessTopologyBuilder {
                     return p;
                 }).collect(Collectors.toList())).stream()
             .map(t -> (ProcessTraffic) t)
-            .collect(Collectors.toMap(m -> m.id().build(), this::buildNode));
+            .collect(Collectors.toMap(m -> m.id().build(), this::buildNode, (t1, t2) -> t1));
 
         int appendCallCount = 0;
         for (Call.CallDetail clientCall : clientCalls) {

@@ -67,6 +67,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -346,6 +347,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         @Getter
         private final String clusterName;
         private final String nodeName;
+        private final List<String> excludeNamespaces;
 
         public NodeInfo(EBPFAccessLogNodeInfo node) {
             this.nodeName = node.getName();
@@ -354,6 +356,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                     EBPFAccessLogNodeNetInterface::getIndex, EBPFAccessLogNodeNetInterface::getName, (a, b) -> a));
             this.bootTime = node.getBootTime();
             this.clusterName = node.getClusterName();
+            this.excludeNamespaces = buildExcludeNamespaces(node);
         }
 
         public String getNetInterfaceName(int index) {
@@ -365,9 +368,21 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             return TimeBucket.getMinuteTimeBucket(seconds * 1000);
         }
 
+        public boolean shouldExcludeNamespace(String namespace) {
+            return excludeNamespaces.contains(namespace);
+        }
+
         public String toString() {
             return String.format("name: %s, clusterName: %s, network interfaces: %s",
                 nodeName, clusterName, netInterfaces);
+        }
+
+        private List<String> buildExcludeNamespaces(EBPFAccessLogNodeInfo node) {
+            if (node.hasPolicy() && node.getPolicy().getExcludeNamespacesCount() > 0) {
+                return node.getPolicy().getExcludeNamespacesList().stream()
+                    .filter(StringUtil::isNotEmpty).collect(Collectors.toList());
+            }
+            return Collections.emptyList();
         }
     }
 
@@ -449,6 +464,10 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     protected KubernetesProcessAddress buildKubernetesAddressByIP(NodeInfo nodeInfo, IPAddress ipAddress) {
         final ObjectID pod = K8sInfoRegistry.getInstance().findPodByIP(ipAddress.getHost());
         if (pod == ObjectID.EMPTY) {
+            return null;
+        }
+        if (nodeInfo.shouldExcludeNamespace(pod.namespace())) {
+            log.debug("Should exclude the namespace[{}] traffic, pod: {}", pod.namespace(), pod.name());
             return null;
         }
         final ObjectID serviceName = K8sInfoRegistry.getInstance().findService(pod.namespace(), pod.name());
@@ -661,9 +680,9 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public String toString() {
-            return String.format("local: %s, remote: %s, role: %s, tlsMode: %s, protocolType: %s",
+            return String.format("local: %s, remote: %s, role: %s, tlsMode: %s, protocolType: %s, valid: %b",
                 buildConnectionAddressString(originalConnection.getLocal()),
-                buildConnectionAddressString(originalConnection.getRemote()), role, tlsMode, protocolType);
+                buildConnectionAddressString(originalConnection.getRemote()), role, tlsMode, protocolType, isValid());
         }
 
     }
