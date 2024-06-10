@@ -92,3 +92,12 @@ cases:
     expected: expected/endpoint-metric-labeled-matrix.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=endpoint_cpm{parent_service="e2e-service-consumer", layer="GENERAL",top_n="10", order="DES"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/endpoint-metric-sort-matrix.yml
+  ## ServiceRelation
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_relation_client_cpm{service="e2e-service-consumer", dest_service="e2e-service-provider",layer="GENERAL", dest_layer="GENERAL"}'
+    expected: expected/relation-metric-vector.yml
+  ## ServiceInstanceRelation
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_instance_relation_client_cpm{service="e2e-service-consumer", dest_service="e2e-service-provider",layer="GENERAL", dest_layer="GENERAL",dest_service_instance="provider1",service_instance="consumer1"}'
+    expected: expected/relation-metric-vector.yml
+  ## EndPointRelation
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=endpoint_relation_cpm{service="e2e-service-consumer", dest_service="e2e-service-provider",layer="GENERAL", dest_layer="GENERAL",dest_endpoint="POST:/users",endpoint="POST:/users"}'
+    expected: expected/relation-metric-vector.yml
