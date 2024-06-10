@@ -391,6 +391,7 @@ Not all scopes are supported for now, please check the following table:
 | Endpoint                | yes     |
 | ServiceRelation         | yes     |
 | ServiceInstanceRelation | yes     |
+| EndpointRelation        | yes     |
 | Process                 | no      |
 | ProcessRelation         | no      |
 
