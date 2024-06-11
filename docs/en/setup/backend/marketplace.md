@@ -8,5 +8,5 @@ Once SkyWalking detects the services of those layers, the relative menu will sho
 If you prefer to have a custom dashboard to visualize your metrics, logs, and traces in your private setup, you need to 
 1. Follow Tracing, Logging, and Metrics documentation to set up codes.
 2. Follow Customization documentation to add analysis pipeline.
-3. Follow [UI Customization Setup documentation](../../ui/readme) to set up new UI dashboards.
+3. Follow [UI Customization Setup documentation](../../ui/README.md) to set up new UI dashboards.
 
