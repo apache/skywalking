@@ -295,7 +295,7 @@ receiver-sharing-server:
     gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
     maxConcurrentCallsPerConnection: ${SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL:0}
-    maxMessageSize: ${SW_RECEIVER_GRPC_MAX_MESSAGE_SIZE:0}
+    maxMessageSize: ${SW_RECEIVER_GRPC_MAX_MESSAGE_SIZE:52428800} #50MB
     gRPCThreadPoolSize: ${SW_RECEIVER_GRPC_THREAD_POOL_SIZE:0}
     gRPCSslEnabled: ${SW_RECEIVER_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_RECEIVER_GRPC_SSL_KEY_PATH:""}
