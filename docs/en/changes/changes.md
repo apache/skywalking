@@ -9,6 +9,7 @@
 * Support exclude the specific namespaces traffic in the eBPF Access Log receiver.
 * Add Golang as a supported language for Elasticsearch.
 * Remove unnecessary BanyanDB flushing logs(info).
+* Increase `SW_CORE_GRPC_MAX_MESSAGE_SIZE` to 50MB.
 
 #### UI
 
