@@ -185,7 +185,7 @@ activemq-consumer:
   languages: Java
 Elasticsearch:
   id: 47
-  languages: Java,Python
+  languages: Java,Python,Golang
 transport-client:
   id: 48
   languages: Java
