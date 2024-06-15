@@ -1,13 +1,15 @@
 ## 10.1.0
 
 #### Project
-
+* E2E: bump up the version of the opentelemetry-collector to 0.102.1.
 
 #### OAP Server
 
 * Fix wrong indices in the eBPF Profiling related models.
 * Support exclude the specific namespaces traffic in the eBPF Access Log receiver.
 * Add Golang as a supported language for Elasticsearch.
+* Remove unnecessary BanyanDB flushing logs(info).
+* Increase `SW_CORE_GRPC_MAX_MESSAGE_SIZE` to 50MB.
 * Support to query relation metrics through PromQL.
 
 #### UI
