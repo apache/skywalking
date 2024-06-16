@@ -44,7 +44,14 @@ public enum LabelName {
     RECORD("record"),
     //For endpoint_traffic
     LIMIT("limit"),
-    KEYWORD("keyword");
+    KEYWORD("keyword"),
+    //for service_relation_traffic
+    DEST_SERVICE("dest_service"),
+    DEST_LAYER("dest_layer"),
+    //for service_instance_relation_traffic
+    DEST_SERVICE_INSTANCE("dest_service_instance"),
+    //for endpoint_relation
+    DEST_ENDPOINT("dest_endpoint");
 
     final String label;
 

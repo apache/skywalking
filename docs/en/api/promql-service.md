@@ -389,8 +389,9 @@ Not all scopes are supported for now, please check the following table:
 | Service                 | yes     |
 | ServiceInstance         | yes     |
 | Endpoint                | yes     |
-| ServiceRelation         | no      |
-| ServiceInstanceRelation | no      |
+| ServiceRelation         | yes     |
+| ServiceInstanceRelation | yes     |
+| EndpointRelation        | yes     |
 | Process                 | no      |
 | ProcessRelation         | no      |
 
@@ -398,11 +399,14 @@ Not all scopes are supported for now, please check the following table:
 Each metric contains general labels: [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java).
 Different metrics will have different labels depending on their Scope and metric value type.
 
-| Query Labels                     | Scope           | Expression Example                                                                             |
-|----------------------------------|-----------------|------------------------------------------------------------------------------------------------|
-| layer, service                   | Service         | service_cpm{service='$service', layer='$layer'}                                                |
-| layer, service, service_instance | ServiceInstance | service_instance_cpm{service='$service', service_instance='$service_instance', layer='$layer'} |
-| layer, service, endpoint         | Endpoint        | endpoint_cpm{service='$service', endpoint='$endpoint', layer='$layer'}                         |
+| Query Labels                                                                      | Scope                   | Expression Example                                                                                                                                                                                                 |
+|-----------------------------------------------------------------------------------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| layer, service                                                                    | Service                 | service_cpm{service='$service', layer='$layer'}                                                                                                                                                                    |
+| layer, service, service_instance                                                  | ServiceInstance         | service_instance_cpm{service='$service', service_instance='$service_instance', layer='$layer'}                                                                                                                     |
+| layer, service, endpoint                                                          | Endpoint                | endpoint_cpm{service='$service', endpoint='$endpoint', layer='$layer'}                                                                                                                                             |
+| layer, service, dest_service, dest_layer                                          | ServiceRelation         | service_relation_metric{service='$service', layer='$layer', dest_layer='$dest_layer', dest_service='$dest_service'}                                                                                                |
+| layer, service, dest_service, dest_layer, service_instance, dest_service_instance | ServiceInstanceRelation | service_instance_relation_metric{service='$service', layer='$layer', dest_layer='$dest_layer', dest_service='$dest_service', dest_service_instance='$dest_service_instance', service_instance='$service_instance'} |
+| layer, service, dest_service, dest_layer, endpoint, dest_endpoint                 | EndpointRelation        | endpoint_relation_metric{service='$service', endpoint='$endpoint', layer='$layer', dest_layer='$dest_layer', dest_service='$dest_service', dest_endpoint='$dest_endpoint'}                                         |
 
 
 
