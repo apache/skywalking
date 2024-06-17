@@ -105,9 +105,9 @@ to prevent it value be escaped.
 The following steps are the example of config a `General Relation` dashboard:
 1. Create a dashboard named `General Relation`.
 2. Configure variables for the dashboard:
-   <img src="https://skywalking.apache.org/screenshots/10.0.1/promql/grafana-relation-variables1.jpg"/>
+   <img src="https://skywalking.apache.org/screenshots/10.1.0/promql/grafana-relation-variables1.jpg"/>
    After configure, you can select the service/instance/endpoint and the dest service/instance/endpoint on the top of the dashboard:
-   <img src="https://skywalking.apache.org/screenshots/10.0.1/promql/grafana-relation-variables2.jpg"/>
+   <img src="https://skywalking.apache.org/screenshots/10.1.0/promql/grafana-relation-variables2.jpg"/>
 
 ## Preview on demo.skywalking.a.o
 SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.
