@@ -55,7 +55,7 @@ which could be accessed through HTTP GET `http://{core restHost}:{core restPort}
 | destProcess         | The destination process name                                                | No                         |               
 
 
-The time and step parameters are follow the [Duration](../api/query-protocol.md/#duration) format.
+The time and step parameters are follow the [Duration](../api/query-protocol.md#duration) format.
 
 - Example
 
