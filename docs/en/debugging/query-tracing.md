@@ -1,5 +1,5 @@
-# The OAP Query Tracing
-SkyWalking OAP provides the query tracing service to help users to debug and diagnose the query performance for the SkyWalking backend self.
+# Tracing MQE Execution
+SkyWalking OAP provides the metrics query tracing to help users debug and diagnose the query performance for the SkyWalking backend self.
 
 ## Tracing Structure
 - Trace
@@ -30,7 +30,7 @@ SkyWalking OAP provides the query tracing service to help users to debug and dia
 ## MQE Query Tracing
 MQE query tracing used to trace the query performance of the MQE query.
 
-### Debugging HTTP Service
+### Debugging through HTTP APIs
 The MQE query tracing service is provided within the OAP rest server, 
 which could be accessed through HTTP GET `http://{core restHost}:{core restPort}/debugging/query/mqe?{parameters}`.
 

@@ -340,7 +340,7 @@ catalog:
     catalog:
       - name: "Scratch The OAP Config Dump"
         path: "/en/debugging/config_dump"
-      - name: "The OAP Query Tracing"
+      - name: "Tracing Query Execution"
         path: "/en/debugging/query-tracing.md"
   - name: "Academy"
     catalog:
