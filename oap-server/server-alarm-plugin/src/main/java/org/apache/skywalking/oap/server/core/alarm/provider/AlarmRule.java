@@ -38,8 +38,11 @@ import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVerifyVisitor;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
 
 @Data
 @ToString
@@ -75,22 +78,29 @@ public class AlarmRule {
         } catch (ParseCancellationException e) {
             throw new IllegalExpressionException("Expression: " + expression + " error: " + e.getMessage());
         }
-        AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor();
-        ExpressionResult parseResult = visitor.visit(tree);
-        if (StringUtil.isNotBlank(parseResult.getError())) {
-            throw new IllegalExpressionException("Expression: " + expression + " error: " + parseResult.getError());
-        }
-        if (!parseResult.isBoolResult()) {
-            throw new IllegalExpressionException("Expression: " + expression + " root operation is not a Compare Operation.");
-        }
-        if (ExpressionResultType.SINGLE_VALUE != parseResult.getType()) {
-            throw new IllegalExpressionException("Expression: " + expression + " is not a SINGLE_VALUE result expression.");
-        }
+        try {
+            TRACE_CONTEXT.set(new DebuggingTraceContext(expression, false, false));
+            AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor();
+            ExpressionResult parseResult = visitor.visit(tree);
+            if (StringUtil.isNotBlank(parseResult.getError())) {
+                throw new IllegalExpressionException("Expression: " + expression + " error: " + parseResult.getError());
+            }
+            if (!parseResult.isBoolResult()) {
+                throw new IllegalExpressionException(
+                    "Expression: " + expression + " root operation is not a Compare Operation.");
+            }
+            if (ExpressionResultType.SINGLE_VALUE != parseResult.getType()) {
+                throw new IllegalExpressionException(
+                    "Expression: " + expression + " is not a SINGLE_VALUE result expression.");
+            }
 
-        verifyIncludeMetrics(visitor.getIncludeMetrics(), expression);
-        this.expression = expression;
-        this.includeMetrics = visitor.getIncludeMetrics();
-        this.maxTrendRange = visitor.getMaxTrendRange();
+            verifyIncludeMetrics(visitor.getIncludeMetrics(), expression);
+            this.expression = expression;
+            this.includeMetrics = visitor.getIncludeMetrics();
+            this.maxTrendRange = visitor.getMaxTrendRange();
+        } finally {
+            TRACE_CONTEXT.remove();
+        }
     }
 
     private void verifyIncludeMetrics(Set<String> includeMetrics, String expression) throws IllegalExpressionException {

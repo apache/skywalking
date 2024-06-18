@@ -16,24 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.core.query.type.debugging;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@EqualsAndHashCode
-@ToString
-public class KeyValue {
-    private String key;
-    private String value;
+@Getter
+public class DebuggingSpan {
+    private final int spanId;
+    @Setter
+    private int parentSpanId;
+    private final String operation;
+    //nano seconds
+    private final long startTime;
+    //nano seconds
+    private long endTime;
+    //nano seconds
+    private long duration;
+    @Setter
+    private String msg;
+    @Setter
+    private String error;
 
-    public KeyValue(String key, String value) {
-        this.key = key;
-        this.value = value;
+    public DebuggingSpan(int spanId, String operation) {
+        this.spanId = spanId;
+        this.operation = operation;
+        this.startTime = System.nanoTime();
     }
 
-    public KeyValue() {
+    public void stopSpan() {
+        this.endTime = System.nanoTime();
+        this.duration = endTime - startTime;
     }
 }

@@ -16,24 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.debug;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
-@EqualsAndHashCode
-@ToString
-public class KeyValue {
-    private String key;
-    private String value;
-
-    public KeyValue(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    public KeyValue() {
-    }
+@RequiredArgsConstructor
+@Getter
+public class DebuggingSpanRsp {
+    private final int spanId;
+    private final int parentSpanId;
+    private final String operation;
+    private final long startTime;
+    private final long endTime;
+    private final long duration;
+    private final String msg;
+    private final String error;
+    private final List<DebuggingSpanRsp> childSpans = new ArrayList<>();
 }

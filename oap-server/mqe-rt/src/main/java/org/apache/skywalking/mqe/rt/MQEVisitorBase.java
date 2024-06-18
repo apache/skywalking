@@ -43,7 +43,11 @@ import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
 
 @Slf4j
 public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResult> {
@@ -60,293 +64,343 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
 
     @Override
     public ExpressionResult visitAddSubOp(MQEParser.AddSubOpContext ctx) {
-        ExpressionResult left = visit(ctx.expression(0));
-        if (StringUtil.isNotBlank(left.getError())) {
-            return left;
-        }
-        ExpressionResult right = visit(ctx.expression(1));
-        if (StringUtil.isNotBlank(right.getError())) {
-            return right;
-        }
-        int opType = ctx.addSub().getStart().getType();
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Binary OP: " + ctx.getText());
         try {
-            return BinaryOp.doBinaryOp(left, right, opType);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+            ExpressionResult left = visit(ctx.expression(0));
+            if (StringUtil.isNotBlank(left.getError())) {
+                return left;
+            }
+            ExpressionResult right = visit(ctx.expression(1));
+            if (StringUtil.isNotBlank(right.getError())) {
+                return right;
+            }
+            int opType = ctx.addSub().getStart().getType();
+            try {
+                return BinaryOp.doBinaryOp(left, right, opType);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitMulDivModOp(MQEParser.MulDivModOpContext ctx) {
-        ExpressionResult left = visit(ctx.expression(0));
-        if (StringUtil.isNotBlank(left.getError())) {
-            return left;
-        }
-        ExpressionResult right = visit(ctx.expression(1));
-        if (StringUtil.isNotBlank(right.getError())) {
-            return right;
-        }
-        int opType = ctx.mulDivMod().getStart().getType();
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Binary OP: " + ctx.getText());
         try {
-            return BinaryOp.doBinaryOp(left, right, opType);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+            ExpressionResult left = visit(ctx.expression(0));
+            if (StringUtil.isNotBlank(left.getError())) {
+                return left;
+            }
+            ExpressionResult right = visit(ctx.expression(1));
+            if (StringUtil.isNotBlank(right.getError())) {
+                return right;
+            }
+            int opType = ctx.mulDivMod().getStart().getType();
+            try {
+                return BinaryOp.doBinaryOp(left, right, opType);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitScalar(MQEParser.ScalarContext ctx) {
-        ExpressionResult result = new ExpressionResult();
-        double value = Double.parseDouble(ctx.getText());
-        MQEValue mqeValue = new MQEValue();
-        mqeValue.setDoubleValue(value);
-        mqeValue.setEmptyValue(false);
-        MQEValues mqeValues = new MQEValues();
-        mqeValues.getValues().add(mqeValue);
-        result.getResults().add(mqeValues);
-        result.setType(ExpressionResultType.SINGLE_VALUE);
-        return result;
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Scalar: " + ctx.getText());
+        try {
+            ExpressionResult result = new ExpressionResult();
+            double value = Double.parseDouble(ctx.getText());
+            MQEValue mqeValue = new MQEValue();
+            mqeValue.setDoubleValue(value);
+            mqeValue.setEmptyValue(false);
+            MQEValues mqeValues = new MQEValues();
+            mqeValues.getValues().add(mqeValue);
+            result.getResults().add(mqeValues);
+            result.setType(ExpressionResultType.SINGLE_VALUE);
+            return result;
+        } finally {
+            traceContext.stopSpan(span);
+        }
     }
 
     @Override
     public ExpressionResult visitAggregationOp(MQEParser.AggregationOpContext ctx) {
-        int opType = ctx.aggregation().getStart().getType();
-        ExpressionResult expResult = visit(ctx.expression());
-        if (StringUtil.isNotEmpty(expResult.getError())) {
-            return expResult;
-        }
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Aggregation OP: " + ctx.getText());
         try {
-            return AggregationOp.doAggregationOp(expResult, opType);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+            int opType = ctx.aggregation().getStart().getType();
+            ExpressionResult expResult = visit(ctx.expression());
+            if (StringUtil.isNotEmpty(expResult.getError())) {
+                return expResult;
+            }
+            try {
+                return AggregationOp.doAggregationOp(expResult, opType);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitAggregateLabelsOp(final MQEParser.AggregateLabelsOpContext ctx) {
-        int funcType = ctx.aggregateLabelsFunc().getStart().getType();
-        ExpressionResult expResult = visit(ctx.expression());
-        if (StringUtil.isNotEmpty(expResult.getError())) {
-            return expResult;
-        }
-
-        if (!expResult.isLabeledResult()) {
-            expResult.setError("The result of expression [" + ctx.expression().getText() + "] is not a labeled result.");
-            return expResult;
-        }
-
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Aggregate Labels OP: " + ctx.getText());
         try {
-            if (expResult.getResults().isEmpty()) {
+            int funcType = ctx.aggregateLabelsFunc().getStart().getType();
+            ExpressionResult expResult = visit(ctx.expression());
+            if (StringUtil.isNotEmpty(expResult.getError())) {
                 return expResult;
             }
-            List<String> labelNames = new ArrayList<>();
-            MQEParser.LabelNameListContext labelNameListContext = ctx.aggregateLabelsFunc().labelNameList();
-            if (null != labelNameListContext) {
-                for (MQEParser.LabelNameContext labelNameContext : labelNameListContext.labelName()) {
-                    // ignore the label name that does not exist in the result
-                    if (expResult.getResults()
-                                 .get(0)
-                                 .getMetric()
-                                 .getLabels()
-                                 .stream()
-                                 .anyMatch(label -> label.getKey().equals(labelNameContext.getText()))) {
-                        labelNames.add(labelNameContext.getText());
+
+            if (!expResult.isLabeledResult()) {
+                expResult.setError(
+                    "The result of expression [" + ctx.expression().getText() + "] is not a labeled result.");
+                return expResult;
+            }
+
+            try {
+                if (expResult.getResults().isEmpty()) {
+                    return expResult;
+                }
+                List<String> labelNames = new ArrayList<>();
+                MQEParser.LabelNameListContext labelNameListContext = ctx.aggregateLabelsFunc().labelNameList();
+                if (null != labelNameListContext) {
+                    for (MQEParser.LabelNameContext labelNameContext : labelNameListContext.labelName()) {
+                        // ignore the label name that does not exist in the result
+                        if (expResult.getResults()
+                                     .get(0)
+                                     .getMetric()
+                                     .getLabels()
+                                     .stream()
+                                     .anyMatch(label -> label.getKey().equals(labelNameContext.getText()))) {
+                            labelNames.add(labelNameContext.getText());
+                        }
                     }
                 }
+                return AggregateLabelsOp.doAggregateLabelsOp(expResult, funcType, labelNames);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
             }
-            return AggregateLabelsOp.doAggregateLabelsOp(expResult, funcType, labelNames);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitMathematicalOperator0OP(MQEParser.MathematicalOperator0OPContext ctx) {
-        int opType = ctx.mathematical_operator0().getStart().getType();
-        ExpressionResult expResult = visit(ctx.expression());
-        if (StringUtil.isNotEmpty(expResult.getError())) {
-            return expResult;
-        }
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Mathematical OP: " + ctx.getText());
         try {
-            return MathematicalFunctionOp.doFunction0Op(expResult, opType);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+            int opType = ctx.mathematical_operator0().getStart().getType();
+            ExpressionResult expResult = visit(ctx.expression());
+            if (StringUtil.isNotEmpty(expResult.getError())) {
+                return expResult;
+            }
+            try {
+                return MathematicalFunctionOp.doFunction0Op(expResult, opType);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitMathematicalOperator1OP(MQEParser.MathematicalOperator1OPContext ctx) {
-        int opType = ctx.mathematical_operator1().getStart().getType();
-        ExpressionResult expResult = visit(ctx.expression());
-        if (StringUtil.isNotEmpty(expResult.getError())) {
-            return expResult;
-        }
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Mathematical OP: " + ctx.getText());
         try {
-            return MathematicalFunctionOp.doFunction1Op(expResult, opType, Integer.parseInt(ctx.parameter().INTEGER().getText()));
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+            int opType = ctx.mathematical_operator1().getStart().getType();
+            ExpressionResult expResult = visit(ctx.expression());
+            if (StringUtil.isNotEmpty(expResult.getError())) {
+                return expResult;
+            }
+            try {
+                return MathematicalFunctionOp.doFunction1Op(expResult, opType, Integer.parseInt(ctx.parameter().INTEGER().getText()));
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitTopNOP(MQEParser.TopNOPContext ctx) {
-        return visit(ctx.metric());
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE TopN OP: " + ctx.getText());
+        try {
+            return visit(ctx.metric());
+        } finally {
+            traceContext.stopSpan(span);
+        }
     }
 
     @Override
     public ExpressionResult visitRelablesOP(MQEParser.RelablesOPContext ctx) {
-        ExpressionResult result = visit(ctx.expression());
-        if (!result.isLabeledResult()) {
-            // Reserve the original result type
-            result.setError("The result of expression [" + ctx.expression().getText() + "] is not a labeled result.");
-            return result;
-        }
-        KeyValue targetLabel = buildLabel(ctx.label());
-        KeyValue replaceLabel = buildLabel(ctx.replaceLabel().label());
-        List<KeyValue> targetLabels = parseLabelValue(targetLabel, Const.COMMA);
-        List<KeyValue> replaceLabels = parseLabelValue(replaceLabel, Const.COMMA);
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Relabels OP: " + ctx.getText());
+        try {
+            ExpressionResult result = visit(ctx.expression());
+            if (!result.isLabeledResult()) {
+                // Reserve the original result type
+                result.setError("The result of expression [" + ctx.expression().getText() + "] is not a labeled result.");
+                return result;
+            }
+            KeyValue targetLabel = buildLabel(ctx.label());
+            KeyValue replaceLabel = buildLabel(ctx.replaceLabel().label());
+            List<KeyValue> targetLabels = parseLabelValue(targetLabel, Const.COMMA);
+            List<KeyValue> replaceLabels = parseLabelValue(replaceLabel, Const.COMMA);
 
-        Map<KeyValue, KeyValue> relabelMap = new HashMap<>();
-        if (targetLabels.isEmpty() || replaceLabels.isEmpty()) {
-            return result;
-        }
-        if (targetLabels.size() != replaceLabels.size()) {
-            result.setError(
-                "Targrt label [" + targetLabel.getKey() + "]: the number of relabel values is not equal to the number of replace label.");
-            return result;
-        }
-        for (int i = 0; i < targetLabels.size(); i++) {
-            relabelMap.put(targetLabels.get(i), replaceLabels.get(i));
-        }
-        for (MQEValues mqeValues : result.getResults()) {
-            for (KeyValue label : mqeValues.getMetric().getLabels()) {
-                if (relabelMap.containsKey(label)) {
-                    KeyValue replaceLabelValue = relabelMap.get(label);
-                    label.setKey(replaceLabelValue.getKey());
-                    label.setValue(replaceLabelValue.getValue());
+            Map<KeyValue, KeyValue> relabelMap = new HashMap<>();
+            if (targetLabels.isEmpty() || replaceLabels.isEmpty()) {
+                return result;
+            }
+            if (targetLabels.size() != replaceLabels.size()) {
+                result.setError(
+                    "Target label [" + targetLabel.getKey() + "]: the number of relabel values is not equal to the number of replace label.");
+                return result;
+            }
+            for (int i = 0; i < targetLabels.size(); i++) {
+                relabelMap.put(targetLabels.get(i), replaceLabels.get(i));
+            }
+            for (MQEValues mqeValues : result.getResults()) {
+                for (KeyValue label : mqeValues.getMetric().getLabels()) {
+                    if (relabelMap.containsKey(label)) {
+                        KeyValue replaceLabelValue = relabelMap.get(label);
+                        label.setKey(replaceLabelValue.getKey());
+                        label.setValue(replaceLabelValue.getValue());
+                    }
                 }
             }
+            return result;
+        } finally {
+            traceContext.stopSpan(span);
         }
-        return result;
     }
 
     @Override
     public ExpressionResult visitLogicalOperatorOP(MQEParser.LogicalOperatorOPContext ctx) {
-        int opType = ctx.logical_operator().getStart().getType();
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Logical OP: " + ctx.getText());
         try {
-            return LogicalFunctionOp.doOP(opType, ctx.expressionList(), this);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+            int opType = ctx.logical_operator().getStart().getType();
+            try {
+                return LogicalFunctionOp.doOP(opType, ctx.expressionList(), this);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitCompareOp(MQEParser.CompareOpContext ctx) {
-        ExpressionResult left = visit(ctx.expression(0));
-        if (StringUtil.isNotBlank(left.getError())) {
-            return left;
-        }
-        ExpressionResult right = visit(ctx.expression(1));
-        if (StringUtil.isNotBlank(right.getError())) {
-            return right;
-        }
-        int opType = ctx.compare().getStart().getType();
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Compare OP: " + ctx.getText());
         try {
-            ExpressionResult result = CompareOp.doCompareOP(left, right, opType);
-            if (ctx.parent == null) {
-                result.setBoolResult(true);
+            ExpressionResult left = visit(ctx.expression(0));
+            if (StringUtil.isNotBlank(left.getError())) {
+                return left;
             }
-            return result;
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+            ExpressionResult right = visit(ctx.expression(1));
+            if (StringUtil.isNotBlank(right.getError())) {
+                return right;
+            }
+            int opType = ctx.compare().getStart().getType();
+            try {
+                ExpressionResult result = CompareOp.doCompareOP(left, right, opType);
+                if (ctx.parent == null) {
+                    result.setBoolResult(true);
+                }
+                return result;
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitTrendOP(MQEParser.TrendOPContext ctx) {
-        int opType = ctx.trend().getStart().getType();
-        int trendRange = Integer.parseInt(ctx.INTEGER().getText());
-        if (trendRange < 1) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError("The trend range must be greater than 0.");
-            return result;
-        }
-        ExpressionResult expResult = visit(ctx.metric());
-        if (StringUtil.isNotEmpty(expResult.getError())) {
-            return expResult;
-        }
-        if (expResult.getType() != ExpressionResultType.TIME_SERIES_VALUES) {
-            expResult.setError("The result of expression [" + ctx.metric().getText() + "] is not a time series result.");
-            return expResult;
-        }
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Trend OP: " + ctx.getText());
         try {
-            return TrendOp.doTrendOp(expResult, opType, trendRange, queryStep);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult result = new ExpressionResult();
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError(e.getMessage());
-            return result;
+            int opType = ctx.trend().getStart().getType();
+            int trendRange = Integer.parseInt(ctx.INTEGER().getText());
+            if (trendRange < 1) {
+                return getErrorResult("The trend range must be greater than 0.");
+            }
+            ExpressionResult expResult = visit(ctx.metric());
+            if (StringUtil.isNotEmpty(expResult.getError())) {
+                return expResult;
+            }
+            if (expResult.getType() != ExpressionResultType.TIME_SERIES_VALUES) {
+                expResult.setError(
+                    "The result of expression [" + ctx.metric().getText() + "] is not a time series result.");
+                return expResult;
+            }
+            try {
+                return TrendOp.doTrendOp(expResult, opType, trendRange, queryStep);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitSortValuesOP(MQEParser.SortValuesOPContext ctx) {
-        ExpressionResult result = visit(ctx.expression());
-        int order = ctx.order().getStart().getType();
-        Optional<Integer> limit = Optional.empty();
-        if (ctx.INTEGER() != null) {
-            limit = Optional.of(Integer.valueOf(ctx.INTEGER().getText()));
-        }
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Sort Values OP: " + ctx.getText());
         try {
-            return SortValuesOp.doSortValuesOp(result, limit, order);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult errorResult = new ExpressionResult();
-            errorResult.setType(ExpressionResultType.UNKNOWN);
-            errorResult.setError(e.getMessage());
-            return errorResult;
+            ExpressionResult result = visit(ctx.expression());
+            int order = ctx.order().getStart().getType();
+            Optional<Integer> limit = Optional.empty();
+            if (ctx.INTEGER() != null) {
+                limit = Optional.of(Integer.valueOf(ctx.INTEGER().getText()));
+            }
+            try {
+                return SortValuesOp.doSortValuesOp(result, limit, order);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
     @Override
     public ExpressionResult visitSortLabelValuesOP(MQEParser.SortLabelValuesOPContext ctx) {
-        ExpressionResult result = visit(ctx.expression());
-        int order = ctx.order().getStart().getType();
-        List<String> labelNames = new ArrayList<>();
-        for (MQEParser.LabelNameContext labelNameContext : ctx.labelNameList().labelName()) {
-            labelNames.add(labelNameContext.getText());
-        }
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Sort Label Values OP: " + ctx.getText());
         try {
-            return SortLabelValuesOp.doSortLabelValuesOp(result, order, labelNames);
-        } catch (IllegalExpressionException e) {
-            ExpressionResult errorResult = new ExpressionResult();
-            errorResult.setType(ExpressionResultType.UNKNOWN);
-            errorResult.setError(e.getMessage());
-            return errorResult;
+            ExpressionResult result = visit(ctx.expression());
+            int order = ctx.order().getStart().getType();
+            List<String> labelNames = new ArrayList<>();
+            for (MQEParser.LabelNameContext labelNameContext : ctx.labelNameList().labelName()) {
+                labelNames.add(labelNameContext.getText());
+            }
+            try {
+                return SortLabelValuesOp.doSortLabelValuesOp(result, order, labelNames);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
         }
     }
 
@@ -385,5 +439,12 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
             }
         }
         return labels;
+    }
+
+    protected ExpressionResult getErrorResult(String error) {
+        ExpressionResult result = new ExpressionResult();
+        result.setType(ExpressionResultType.UNKNOWN);
+        result.setError(error);
+        return result;
     }
 }

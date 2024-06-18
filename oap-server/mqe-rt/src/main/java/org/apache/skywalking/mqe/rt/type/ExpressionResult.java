@@ -22,6 +22,7 @@ package org.apache.skywalking.mqe.rt.type;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
 
 @Data
 public class ExpressionResult {
@@ -30,4 +31,5 @@ public class ExpressionResult {
     private String error;
     private boolean isLabeledResult = false;
     private boolean isBoolResult = false;
+    private DebuggingTrace debuggingTrace;
 }
