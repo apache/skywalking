@@ -43,6 +43,7 @@ import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVisitor;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
@@ -58,6 +59,8 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
 
 /**
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
@@ -345,52 +348,57 @@ public class RunningRule {
 
         private boolean isMatch() {
             int isMatch = 0;
-            AlarmMQEVisitor visitor = new AlarmMQEVisitor(this.values, this.endTime, this.additionalPeriod);
-            ExpressionResult parseResult = visitor.visit(exprTree);
-            if (StringUtil.isNotBlank(parseResult.getError())) {
-                log.error("expression:" + expression + " error: " + parseResult.getError());
-                return false;
-            }
-            if (!parseResult.isBoolResult() ||
-                ExpressionResultType.SINGLE_VALUE != parseResult.getType() ||
-                CollectionUtils.isEmpty(parseResult.getResults())) {
-                return false;
-            }
-            if (!parseResult.isLabeledResult()) {
-                MQEValues mqeValues = parseResult.getResults().get(0);
-                if (mqeValues != null &&
-                    CollectionUtils.isNotEmpty(mqeValues.getValues()) &&
-                    mqeValues.getValues().get(0) != null) {
-                    isMatch = (int) mqeValues.getValues().get(0).getDoubleValue();
+            try {
+                TRACE_CONTEXT.set(new DebuggingTraceContext(expression, false, false));
+                AlarmMQEVisitor visitor = new AlarmMQEVisitor(this.values, this.endTime, this.additionalPeriod);
+                ExpressionResult parseResult = visitor.visit(exprTree);
+                if (StringUtil.isNotBlank(parseResult.getError())) {
+                    log.error("expression:" + expression + " error: " + parseResult.getError());
+                    return false;
                 }
-            } else {
-                // if the result has multiple labels, when there is one label match, then the result is match
-                // for example in 5 minutes, the sum(percentile{p='50,75'} > 1000) >= 3
-                // percentile{p='50,75'} result is:
-                // P50(1000,1100,1200,1000,500), > 1000 2 times
-                // P75(2000,1500,1200,1000,500), > 1000 3 times
-                // percentile{p='50,75'} > 1000 result is:
-                // P50(0,1,1,0,0)
-                // P75(1,1,1,0,0)
-                // sum(percentile{p='50,75'} > 1000) >= 3 result is:
-                // P50(0)
-                // P75(1)
-                // then the isMatch is 1
-                for (MQEValues mqeValues : parseResult.getResults()) {
+                if (!parseResult.isBoolResult() ||
+                    ExpressionResultType.SINGLE_VALUE != parseResult.getType() ||
+                    CollectionUtils.isEmpty(parseResult.getResults())) {
+                    return false;
+                }
+                if (!parseResult.isLabeledResult()) {
+                    MQEValues mqeValues = parseResult.getResults().get(0);
                     if (mqeValues != null &&
                         CollectionUtils.isNotEmpty(mqeValues.getValues()) &&
                         mqeValues.getValues().get(0) != null) {
                         isMatch = (int) mqeValues.getValues().get(0).getDoubleValue();
-                        if (isMatch == 1) {
-                            break;
+                    }
+                } else {
+                    // if the result has multiple labels, when there is one label match, then the result is match
+                    // for example in 5 minutes, the sum(percentile{p='50,75'} > 1000) >= 3
+                    // percentile{p='50,75'} result is:
+                    // P50(1000,1100,1200,1000,500), > 1000 2 times
+                    // P75(2000,1500,1200,1000,500), > 1000 3 times
+                    // percentile{p='50,75'} > 1000 result is:
+                    // P50(0,1,1,0,0)
+                    // P75(1,1,1,0,0)
+                    // sum(percentile{p='50,75'} > 1000) >= 3 result is:
+                    // P50(0)
+                    // P75(1)
+                    // then the isMatch is 1
+                    for (MQEValues mqeValues : parseResult.getResults()) {
+                        if (mqeValues != null &&
+                            CollectionUtils.isNotEmpty(mqeValues.getValues()) &&
+                            mqeValues.getValues().get(0) != null) {
+                            isMatch = (int) mqeValues.getValues().get(0).getDoubleValue();
+                            if (isMatch == 1) {
+                                break;
+                            }
                         }
                     }
                 }
+                if (log.isTraceEnabled()) {
+                    log.trace("Match expression is {}", expression);
+                }
+                return isMatch == 1;
+            } finally {
+                TRACE_CONTEXT.remove();
             }
-            if (log.isTraceEnabled()) {
-                log.trace("Match expression is {}", expression);
-            }
-            return isMatch == 1;
         }
 
         public boolean isExpired() {

@@ -11,6 +11,7 @@
 * Remove unnecessary BanyanDB flushing logs(info).
 * Increase `SW_CORE_GRPC_MAX_MESSAGE_SIZE` to 50MB.
 * Support to query relation metrics through PromQL.
+* Support trace MQE query for debugging.
 
 #### UI
 

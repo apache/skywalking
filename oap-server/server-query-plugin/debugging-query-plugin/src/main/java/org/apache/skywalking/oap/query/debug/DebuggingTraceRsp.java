@@ -16,24 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.debug;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
-@EqualsAndHashCode
-@ToString
-public class KeyValue {
-    private String key;
-    private String value;
-
-    public KeyValue(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    public KeyValue() {
-    }
+@RequiredArgsConstructor
+@Getter
+public class DebuggingTraceRsp {
+    private final String traceId;
+    private final String condition;
+    private final long startTime;
+    private final long endTime;
+    private final long duration;
+    private final DebuggingSpanRsp rootSpan;
 }

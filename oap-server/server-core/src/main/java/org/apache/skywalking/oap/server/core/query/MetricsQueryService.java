@@ -30,11 +30,15 @@ import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.NullableValue;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
+
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
 
 @Slf4j
 public class MetricsQueryService implements Service {
@@ -72,10 +76,7 @@ public class MetricsQueryService implements Service {
         return new NullableValue(defaultValue, true);
     }
 
-    /**
-     * Read time-series values in the duration of required metrics
-     */
-    public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
+    private MetricsValues invokeReadMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
         if (!condition.senseScope() || !condition.getEntity().isValid()) {
             return new MetricsValues();
         }
@@ -84,11 +85,25 @@ public class MetricsQueryService implements Service {
     }
 
     /**
-     * Read value in the given time duration, usually as a linear.
-     *
-     * @param labels the labels you need to query.
+     * Read time-series values in the duration of required metrics
      */
-    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
+    public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Service");
+                span.setMsg("readMetricsValues, MetricsCondition: " + condition + ", Duration: " + duration);
+            }
+            return invokeReadMetricsValues(condition, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    private List<MetricsValues> invokeReadLabeledMetricsValues(MetricsCondition condition,
                                                         List<KeyValue> labels,
                                                         Duration duration) throws IOException {
         if (!condition.senseScope() || !condition.getEntity().isValid()) {
@@ -96,6 +111,29 @@ public class MetricsQueryService implements Service {
         }
         return getMetricQueryDAO().readLabeledMetricsValues(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), labels, duration);
+    }
+
+    /**
+     * Read value in the given time duration, usually as a linear.
+     *
+     * @param labels the labels you need to query.
+     */
+    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
+                                                         List<KeyValue> labels,
+                                                         Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Service");
+                span.setMsg("readLabeledMetricsValues, MetricsCondition: " + condition + ", Labels: " + labels + ", Duration: " + duration);
+            }
+            return invokeReadLabeledMetricsValues(condition, labels, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
     }
 
     public List<MetricsValues> readLabeledMetricsValuesWithoutEntity(String metricsName,
