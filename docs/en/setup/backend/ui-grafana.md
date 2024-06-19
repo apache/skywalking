@@ -101,6 +101,23 @@ to prevent it value be escaped.
 4. Test query and save the panel.
 <img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-logs-panel.jpg"/>
 
+## Configure Relation Dashboards
+### Dashboards Settings
+The following steps are the example of config a `General Relation` dashboard:
+1. Create a dashboard named `General Relation`.
+2. Configure variables for the dashboard:
+   <img src="https://skywalking.apache.org/screenshots/10.1.0/promql/grafana-relation-variables1.png"/>
+   After configure, you can select the service/instance/endpoint and the dest service/instance/endpoint on the top of the dashboard:
+   <img src="https://skywalking.apache.org/screenshots/10.1.0/promql/grafana-relation-variables2.png"/>
+### Add Relation Metrics Panel
+The following contents show how to add relation metric panels.
+1. Chose the metrics and chart.
+2. Set `Query options`, `Connect null values`, `Show points` and `Returned Labels`. Please refer `Configure Metric Dashboards` part.
+3. Add PromQL expression, For all scopes, set `Layer`, `Dest Layer`, `Service` and `Dest Service` by the variables. For service instance relation scope, extra set `Service Instance` and `Dest Service Instance`.
+For endpoint relation scope, extra set `Endpoint` and `Dest Endpoint`.
+4. Test query and save the panel.
+<img src="https://skywalking.apache.org/screenshots/10.1.0/promql/grafana-relation-panel.png"/>
+
 ## Preview on demo.skywalking.a.o
 SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.
 You could take a glance through [**Preview metrics on Grafana**](https://skywalking.apache.org/#demo) of the demo deployment.
