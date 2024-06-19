@@ -101,7 +101,7 @@ to prevent it value be escaped.
 4. Test query and save the panel.
 <img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-logs-panel.jpg"/>
 
-## Configure General Relation Dashboards
+## Configure Relation Dashboards
 ### Dashboards Settings
 The following steps are the example of config a `General Relation` dashboard:
 1. Create a dashboard named `General Relation`.
