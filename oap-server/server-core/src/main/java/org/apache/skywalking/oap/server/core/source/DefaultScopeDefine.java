@@ -137,6 +137,13 @@ public class DefaultScopeDefine {
     public static final int K8S_ENDPOINT = 76;
     public static final int K8S_ENDPOINT_REALATION = 77;
 
+    public static final int CILIUM_SERVICE = 78;
+    public static final int CILIUM_SERVICE_INSTANCE = 79;
+    public static final int CILIUM_SERVICE_RELATION = 80;
+    public static final int CILIUM_SERVICE_INSTANCE_RELATION = 81;
+    public static final int CILIUM_ENDPOINT = 82;
+    public static final int CILIUM_ENDPOINT_REALATION = 83;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */

@@ -9,6 +9,8 @@
 * Support exclude the specific namespaces traffic in the eBPF Access Log receiver.
 * Add Golang as a supported language for Elasticsearch.
 * Remove unnecessary BanyanDB flushing logs(info).
+* Support fetch cilium flow to monitoring network traffic between cilium services.
+* Support `labelCount` function in the OAL engine.
 
 #### UI
 

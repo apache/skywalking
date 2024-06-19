@@ -1,0 +1,200 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// Cilium Service
+cilium_service_l4_read_pkg_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "tcp").filter(direction == "ingress").cpm();
+cilium_service_l4_write_pkg_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "tcp").filter(direction == "egress").cpm();
+cilium_service_l4_read_pkg_drop_cpm = from(CiliumService.*).filter(verdict == "dropped").filter(type == "tcp").filter(direction == "ingress").cpm();
+cilium_service_l4_write_pkg_drop_cpm = from(CiliumService.*).filter(verdict == "dropped").filter(type == "tcp").filter(direction == "egress").cpm();
+cilium_service_l4_drop_reason_count = from(CiliumService.*).filter(verdict == "dropped").filter(type == "tcp").labelCount(dropReason);
+// Protocols of Service(Summary)
+cilium_service_protocol_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_protocol_call_duration = from(CiliumService.duration).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_protocol_call_success_count = from(CiliumService.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+// Protocols of Service(HTTP)
+cilium_service_protocol_http_call_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_protocol_http_call_duration = from(CiliumService.duration).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_protocol_http_call_success_count = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_protocol_http_status_1xx_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 100).filter(http.code < 200).cpm();
+cilium_service_protocol_http_status_2xx_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 200).filter(http.code < 300).cpm();
+cilium_service_protocol_http_status_3xx_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 300).filter(http.code < 400).cpm();
+cilium_service_protocol_http_status_4xx_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 400).filter(http.code < 500).cpm();
+cilium_service_protocol_http_status_5xx_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 500).filter(http.code < 600).cpm();
+// Protocols of Service(DNS)
+cilium_service_protocol_dns_call_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_protocol_dns_call_duration = from(CiliumService.duration).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_protocol_dns_call_success_count = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_protocol_dns_error_count = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).filter(success == false).labelCount(dns.rcodeString);
+// Protocols of Service(Kafka)
+cilium_service_protocol_kafka_call_cpm = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_protocol_kafka_call_duration = from(CiliumService.duration).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_protocol_kafka_call_success_count = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_protocol_kafka_call_error_count = from(CiliumService.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).filter(success == false).labelCount(kafka.errorCodeString);
+
+// Cilium Service Instance
+cilium_service_instance_l4_read_pkg_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "tcp").filter(direction == "ingress").cpm();
+cilium_service_instance_l4_write_pkg_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "tcp").filter(direction == "egress").cpm();
+cilium_service_instance_l4_read_pkg_drop_cpm = from(CiliumServiceInstance.*).filter(verdict == "dropped").filter(type == "tcp").filter(direction == "ingress").cpm();
+cilium_service_instance_l4_write_pkg_drop_cpm = from(CiliumServiceInstance.*).filter(verdict == "dropped").filter(type == "tcp").filter(direction == "egress").cpm();
+cilium_service_instance_l4_drop_reason_count = from(CiliumServiceInstance.*).filter(verdict == "dropped").filter(type == "tcp").labelCount(dropReason);
+// Protocols of Service Instance(Summary)
+cilium_service_instance_protocol_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_instance_protocol_call_duration = from(CiliumServiceInstance.duration).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_instance_protocol_call_success_count = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+// Protocols of Service Instance(HTTP)
+cilium_service_instance_protocol_http_call_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_instance_protocol_http_call_duration = from(CiliumServiceInstance.duration).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_instance_protocol_http_call_success_count = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_instance_protocol_http_status_1xx_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 100).filter(http.code < 200).cpm();
+cilium_service_instance_protocol_http_status_2xx_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 200).filter(http.code < 300).cpm();
+cilium_service_instance_protocol_http_status_3xx_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 300).filter(http.code < 400).cpm();
+cilium_service_instance_protocol_http_status_4xx_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 400).filter(http.code < 500).cpm();
+cilium_service_instance_protocol_http_status_5xx_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 500).filter(http.code < 600).cpm();
+// Protocols of Service Instance(DNS)
+cilium_service_instance_protocol_dns_call_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_instance_protocol_dns_call_duration = from(CiliumServiceInstance.duration).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_instance_protocol_dns_call_success_count = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_instance_protocol_dns_error_count = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).filter(success == false).labelCount(dns.rcodeString);
+// Protocols of Service Instance(Kafka)
+cilium_service_instance_protocol_kafka_call_cpm = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_instance_protocol_kafka_call_duration = from(CiliumServiceInstance.duration).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_instance_protocol_kafka_call_success_count = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_instance_protocol_kafka_call_error_count = from(CiliumServiceInstance.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).filter(success == false).labelCount(kafka.errorCodeString);
+
+// Cilium Endpoint
+// Protocols of Endpoint(Summary)
+cilium_endpoint_protocol_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type != "tcp").cpm();
+cilium_endpoint_protocol_call_duration = from(CiliumEndpoint.duration).filter(verdict == "forwarded").filter(type != "tcp").sum();
+cilium_endpoint_protocol_call_success_count = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type != "tcp").filter(success == true).cpm();
+// Protocols of Endpoint(HTTP)
+cilium_endpoint_protocol_http_call_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "http").cpm();
+cilium_endpoint_protocol_http_call_duration = from(CiliumEndpoint.duration).filter(verdict == "forwarded").filter(type == "http").sum();
+cilium_endpoint_protocol_http_call_success_count = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "http").filter(success == true).cpm();
+cilium_endpoint_protocol_http_status_1xx_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "http").filter(http.code >= 100).filter(http.code < 200).cpm();
+cilium_endpoint_protocol_http_status_2xx_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "http").filter(http.code >= 200).filter(http.code < 300).cpm();
+cilium_endpoint_protocol_http_status_3xx_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "http").filter(http.code >= 300).filter(http.code < 400).cpm();
+cilium_endpoint_protocol_http_status_4xx_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "http").filter(http.code >= 400).filter(http.code < 500).cpm();
+cilium_endpoint_protocol_http_status_5xx_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "http").filter(http.code >= 500).filter(http.code < 600).cpm();
+// Protocols of Endpoint(DNS)
+cilium_endpoint_protocol_dns_call_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "dns").cpm();
+cilium_endpoint_protocol_dns_call_duration = from(CiliumEndpoint.duration).filter(verdict == "forwarded").filter(type == "dns").sum();
+cilium_endpoint_protocol_dns_call_success_count = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "dns").filter(success == true).cpm();
+cilium_endpoint_protocol_dns_error_count = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "dns").filter(success == false).labelCount(dns.rcodeString);
+// Protocols of Endpoint(Kafka)
+cilium_endpoint_protocol_kafka_call_cpm = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "kafka").cpm();
+cilium_endpoint_protocol_kafka_call_duration = from(CiliumEndpoint.duration).filter(verdict == "forwarded").filter(type == "kafka").sum();
+cilium_endpoint_protocol_kafka_call_success_count = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "kafka").filter(success == true).cpm();
+cilium_endpoint_protocol_kafka_call_error_count = from(CiliumEndpoint.*).filter(verdict == "forwarded").filter(type == "kafka").filter(success == false).labelCount(kafka.errorCodeString);
+
+// Cilium Service Relation
+cilium_service_relation_client_l4_read_pkg_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(direction == "ingress").cpm();
+cilium_service_relation_client_l4_write_pkg_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(direction == "egress").cpm();
+cilium_service_relation_client_l4_read_pkg_drop_cpm = from(CiliumServiceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(direction == "ingress").cpm();
+cilium_service_relation_client_l4_write_pkg_drop_cpm = from(CiliumServiceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(direction == "egress").cpm();
+cilium_service_relation_client_l4_drop_reason_count = from(CiliumServiceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).labelCount(dropReason);
+cilium_service_relation_server_l4_read_pkg_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).filter(direction == "ingress").cpm();
+cilium_service_relation_server_l4_write_pkg_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).filter(direction == "egress").cpm();
+cilium_service_relation_server_l4_read_pkg_drop_cpm = from(CiliumServiceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).filter(direction == "ingress").cpm();
+cilium_service_relation_server_l4_write_pkg_drop_cpm = from(CiliumServiceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).filter(direction == "egress").cpm();
+cilium_service_relation_server_l4_drop_reason_count = from(CiliumServiceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).labelCount(dropReason);
+// Protocols of Service Relation(Summary)
+cilium_service_relation_client_protocol_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.CLIENT).cpm();
+cilium_service_relation_client_protocol_call_duration = from(CiliumServiceRelation.duration).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.CLIENT).sum();
+cilium_service_relation_client_protocol_call_success_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(success == true).cpm();
+cilium_service_relation_server_protocol_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_relation_server_protocol_call_duration = from(CiliumServiceRelation.duration).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_relation_server_protocol_call_success_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+// Protocols of Service Relation(HTTP)
+cilium_service_relation_client_protocol_http_call_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.CLIENT).cpm();
+cilium_service_relation_client_protocol_http_call_duration = from(CiliumServiceRelation.duration).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.CLIENT).sum();
+cilium_service_relation_client_protocol_http_call_success_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.CLIENT).filter(success == true).cpm();
+cilium_service_relation_server_protocol_http_call_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_relation_server_protocol_http_call_duration = from(CiliumServiceRelation.duration).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_relation_server_protocol_http_call_success_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_relation_protocol_http_status_1xx_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 100).filter(http.code < 200).cpm();
+cilium_service_relation_protocol_http_status_2xx_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 200).filter(http.code < 300).cpm();
+cilium_service_relation_protocol_http_status_3xx_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 300).filter(http.code < 400).cpm();
+cilium_service_relation_protocol_http_status_4xx_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 400).filter(http.code < 500).cpm();
+cilium_service_relation_protocol_http_status_5xx_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 500).filter(http.code < 600).cpm();
+// Protocols of Service Relation(DNS)
+cilium_service_relation_client_protocol_dns_call_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.CLIENT).cpm();
+cilium_service_relation_client_protocol_dns_call_duration = from(CiliumServiceRelation.duration).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.CLIENT).sum();
+cilium_service_relation_client_protocol_dns_call_success_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.CLIENT).filter(success == true).cpm();
+cilium_service_relation_client_protocol_dns_error_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.CLIENT).filter(success == false).labelCount(dns.rcodeString);
+cilium_service_relation_server_protocol_dns_call_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_relation_server_protocol_dns_call_duration = from(CiliumServiceRelation.duration).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_relation_server_protocol_dns_call_success_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_relation_server_protocol_dns_error_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).filter(success == false).labelCount(dns.rcodeString);
+// Protocols of Service Relation(Kafka)
+cilium_service_relation_client_protocol_kafka_call_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.CLIENT).cpm();
+cilium_service_relation_client_protocol_kafka_call_duration = from(CiliumServiceRelation.duration).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.CLIENT).sum();
+cilium_service_relation_client_protocol_kafka_call_success_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.CLIENT).filter(success == true).cpm();
+cilium_service_relation_client_protocol_kafka_call_error_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.CLIENT).filter(success == false).labelCount(kafka.errorCodeString);
+cilium_service_relation_server_protocol_kafka_call_cpm = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_relation_server_protocol_kafka_call_duration = from(CiliumServiceRelation.duration).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_relation_server_protocol_kafka_call_success_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_relation_server_protocol_kafka_call_error_count = from(CiliumServiceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).filter(success == false).labelCount(kafka.errorCodeString);
+
+// Cilium Service Instance Relation
+cilium_service_instance_relation_client_l4_read_pkg_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(direction == "ingress").cpm();
+cilium_service_instance_relation_client_l4_write_pkg_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(direction == "egress").cpm();
+cilium_service_instance_relation_client_l4_read_pkg_drop_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(direction == "ingress").cpm();
+cilium_service_instance_relation_client_l4_write_pkg_drop_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(direction == "egress").cpm();
+cilium_service_instance_relation_client_l4_drop_reason_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.CLIENT).labelCount(dropReason);
+cilium_service_instance_relation_server_l4_read_pkg_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).filter(direction == "ingress").cpm();
+cilium_service_instance_relation_server_l4_write_pkg_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).filter(direction == "egress").cpm();
+cilium_service_instance_relation_server_l4_read_pkg_drop_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).filter(direction == "ingress").cpm();
+cilium_service_instance_relation_server_l4_write_pkg_drop_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).filter(direction == "egress").cpm();
+cilium_service_instance_relation_server_l4_drop_reason_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "dropped").filter(type == "tcp").filter(detectPoint == DetectPoint.SERVER).labelCount(dropReason);
+// Protocols of Service Instance Relation(Summary)
+cilium_service_instance_relation_client_protocol_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.CLIENT).cpm();
+cilium_service_instance_relation_client_protocol_call_duration = from(CiliumServiceInstanceRelation.duration).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.CLIENT).sum();
+cilium_service_instance_relation_client_protocol_call_success_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.CLIENT).filter(success == true).cpm();
+cilium_service_instance_relation_server_protocol_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_instance_relation_server_protocol_call_duration = from(CiliumServiceInstanceRelation.duration).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_instance_relation_server_protocol_call_success_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type != "tcp").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+// Protocols of Service Instance Relation(HTTP)
+cilium_service_instance_relation_client_protocol_http_call_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.CLIENT).cpm();
+cilium_service_instance_relation_client_protocol_http_call_duration = from(CiliumServiceInstanceRelation.duration).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.CLIENT).sum();
+cilium_service_instance_relation_client_protocol_http_call_success_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.CLIENT).filter(success == true).cpm();
+cilium_service_instance_relation_server_protocol_http_call_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_instance_relation_server_protocol_http_call_duration = from(CiliumServiceInstanceRelation.duration).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_instance_relation_server_protocol_http_call_success_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_instance_relation_protocol_http_status_1xx_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 100).filter(http.code < 200).cpm();
+cilium_service_instance_relation_protocol_http_status_2xx_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 200).filter(http.code < 300).cpm();
+cilium_service_instance_relation_protocol_http_status_3xx_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 300).filter(http.code < 400).cpm();
+cilium_service_instance_relation_protocol_http_status_4xx_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 400).filter(http.code < 500).cpm();
+cilium_service_instance_relation_protocol_http_status_5xx_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "http").filter(detectPoint == DetectPoint.SERVER).filter(http.code >= 500).filter(http.code < 600).cpm();
+// Protocols of Service Instance Relation(DNS)
+cilium_service_instance_relation_client_protocol_dns_call_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.CLIENT).cpm();
+cilium_service_instance_relation_client_protocol_dns_call_duration = from(CiliumServiceInstanceRelation.duration).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.CLIENT).sum();
+cilium_service_instance_relation_client_protocol_dns_call_success_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.CLIENT).filter(success == true).cpm();
+cilium_service_instance_relation_client_protocol_dns_error_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.CLIENT).filter(success == false).labelCount(dns.rcodeString);
+cilium_service_instance_relation_server_protocol_dns_call_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_instance_relation_server_protocol_dns_call_duration = from(CiliumServiceInstanceRelation.duration).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_instance_relation_server_protocol_dns_call_success_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_instance_relation_server_protocol_dns_error_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "dns").filter(detectPoint == DetectPoint.SERVER).filter(success == false).labelCount(dns.rcodeString);
+// Protocols of Service Instance Relation(Kafka)
+cilium_service_instance_relation_client_protocol_kafka_call_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.CLIENT).cpm();
+cilium_service_instance_relation_client_protocol_kafka_call_duration = from(CiliumServiceInstanceRelation.duration).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.CLIENT).sum();
+cilium_service_instance_relation_client_protocol_kafka_call_success_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.CLIENT).filter(success == true).cpm();
+cilium_service_instance_relation_client_protocol_kafka_call_error_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.CLIENT).filter(success == false).labelCount(kafka.errorCodeString);
+cilium_service_instance_relation_server_protocol_kafka_call_cpm = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).cpm();
+cilium_service_instance_relation_server_protocol_kafka_call_duration = from(CiliumServiceInstanceRelation.duration).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).sum();
+cilium_service_instance_relation_server_protocol_kafka_call_success_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).filter(success == true).cpm();
+cilium_service_instance_relation_server_protocol_kafka_call_error_count = from(CiliumServiceInstanceRelation.*).filter(verdict == "forwarded").filter(type == "kafka").filter(detectPoint == DetectPoint.SERVER).filter(success == false).labelCount(kafka.errorCodeString);

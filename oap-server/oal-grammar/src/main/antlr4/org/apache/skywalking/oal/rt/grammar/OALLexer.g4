@@ -58,6 +58,12 @@ SRC_K8S_ENDPOINT: 'K8SEndpoint';
 SRC_K8S_SERVICE_RELATION: 'K8SServiceRelation';
 SRC_K8S_SERVICE_INSTANCE_RELATION: 'K8SServiceInstanceRelation';
 SRC_K8S_ENDPOINT_RELATION: 'K8SEndpointRelation';
+SRC_CILIUM_SERVICE: 'CiliumService';
+SRC_CILIUM_SERVICE_INSTANCE: 'CiliumServiceInstance';
+SRC_CILIUM_ENDPOINT: 'CiliumEndpoint';
+SRC_CILIUM_SERVICE_RELATION: 'CiliumServiceRelation';
+SRC_CILIUM_SERVICE_INSTANCE_RELATION: 'CiliumServiceInstanceRelation';
+SRC_CILIUM_ENDPOINT_RELATION: 'CiliumEndpointRelation';
 
 
 // Browser keywords

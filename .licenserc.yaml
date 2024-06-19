@@ -60,6 +60,7 @@ header:
     - '**/src/main/proto/jaeger/**'
     - '**/src/main/proto/mixer/**'
     - '**/src/main/proto/policy/**'
+    - '**/src/main/proto/cilium/**'
     - '**/src/main/proto/prometheus/client_model/metrics.proto'
     - '**/src/main/proto/protoc-gen-swagger/**'
     - '**/src/main/proto/validate/validate.proto'

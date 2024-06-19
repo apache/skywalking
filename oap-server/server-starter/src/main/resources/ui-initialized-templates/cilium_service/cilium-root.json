@@ -1,0 +1,167 @@
+[
+    {
+        "id": "Cilium-Root",
+        "configuration": {
+            "children": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 24,
+                    "h": 2,
+                    "i": "100",
+                    "type": "Text",
+                    "graph": {
+                        "fontColor": "theme",
+                        "backgroundColor": "theme",
+                        "content": "Observing services through flow data in hubble",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "url": ""
+                    }
+                },
+                {
+                    "x": 0,
+                    "y": 2,
+                    "w": 24,
+                    "h": 52,
+                    "i": "1",
+                    "type": "Tab",
+                    "children": [
+                        {
+                            "name": "Service",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 24,
+                                    "h": 48,
+                                    "i": "0",
+                                    "type": "Widget",
+                                    "graph": {
+                                        "type": "ServiceList",
+                                        "dashboardName": "Cilium-Service",
+                                        "fontSize": 12,
+                                        "showXAxis": false,
+                                        "showYAxis": false,
+                                        "showGroup": true
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Load",
+                                            "unit": "calls / min",
+                                            "detailLabel": "load"
+                                        },
+                                        {
+                                            "label": "Success Rate",
+                                            "unit": "%",
+                                            "detailLabel": "success_rate"
+                                        },
+                                        {
+                                            "label": "Latency",
+                                            "unit": "ms",
+                                            "detailLabel": "latency"
+                                        }
+                                    ],
+                                    "expressions": [
+                                        "avg(cilium_service_protocol_cpm)",
+                                        "avg(cilium_service_protocol_call_success_count/cilium_service_protocol_cpm)*100",
+                                        "avg(cilium_service_protocol_call_duration/cilium_service_protocol_cpm)/1000000"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Topology",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 24,
+                                    "h": 48,
+                                    "i": "0",
+                                    "type": "Topology",
+                                    "graph": {
+                                        "showDepth": true
+                                    },
+                                    "linkDashboard": "Cilium-Service-Relation",
+                                    "nodeDashboard": [
+
+                                    ],
+                                    "linkServerExpressions": [
+                                        "avg(cilium_service_relation_server_l4_read_pkg_cpm)",
+                                        "avg(cilium_service_relation_server_l4_write_pkg_cpm)",
+                                        "avg(cilium_service_relation_server_protocol_cpm)",
+                                        "avg(cilium_service_relation_server_protocol_call_duration/cilium_service_relation_server_protocol_cpm)/1000000"
+                                    ],
+                                    "linkClientExpressions": [
+                                    ],
+                                    "nodeExpressions": [
+                                        "avg(cilium_service_l4_read_pkg_cpm)",
+                                        "avg(cilium_service_l4_write_pkg_cpm)",
+                                        "avg(cilium_service_protocol_cpm)",
+                                        "avg(cilium_service_protocol_call_duration/cilium_service_protocol_cpm)/1000000",
+                                        "avg(cilium_service_protocol_call_success_count/cilium_service_protocol_cpm*100)"
+                                    ],
+                                    "legendMQE": {
+                                        "expression": "(avg(cilium_service_protocol_call_success_count / cilium_service_protocol_cpm*100) < 95) * (avg(cilium_service_protocol_cpm) > 1) == 1"
+                                    },
+                                    "description": {
+                                        "healthy": "Healthy",
+                                        "unhealthy": "Success Rate < 95% and HTTP Traffic > 1 calls / min"
+                                    },
+                                    "linkServerMetricConfig": [
+                                        {
+                                            "unit": "Count / min",
+                                            "label": "Server Read Package"
+                                        },
+                                        {
+                                            "unit": "Count / min",
+                                            "label": "Server Write Package"
+                                        },
+                                        {
+                                            "unit": "calls / min",
+                                            "label": "Server Load"
+                                        },
+                                        {
+                                            "label": "Server Latency",
+                                            "unit": "ms"
+                                        }
+                                    ],
+                                    "linkClientMetricConfig": [
+                                    ],
+                                    "nodeMetricConfig": [
+                                        {
+                                            "label": "Read",
+                                            "unit": "package / min"
+                                        },
+                                        {
+                                            "unit": "package / min",
+                                            "label": "Write"
+                                        },
+                                        {
+                                            "label": "Load",
+                                            "unit": "calls / min"
+                                        },
+                                        {
+                                            "label": "Latency",
+                                            "unit": "ms"
+                                        },
+                                        {
+                                            "label": "Success Rate",
+                                            "unit": "%"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "layer": "CILIUM_SERVICE",
+            "entity": "All",
+            "name": "Cilium-Root",
+            "isRoot": true,
+            "path": "/Cilium/Service"
+        }
+    }
+]

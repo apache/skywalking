@@ -26,8 +26,13 @@ import com.google.protobuf.BytesValue;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -60,7 +65,8 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
         }
 
         final Struct metadata = requireNonNull(extractStructFromNodeFlatBuffer(flatNode));
-        FieldsHelper.SINGLETON.inflate(metadata, this);
+        FieldsHelper.forClass(this.getClass().getSuperclass()).inflate(metadata, this);
+        appendTags(metadata);
     }
 
     /**
@@ -103,7 +109,22 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
      * @param metadata the {@link Struct struct} to adapt from.
      */
     public ServiceMetaInfoAdapter(final Struct metadata) {
-        FieldsHelper.SINGLETON.inflate(requireNonNull(metadata), this);
+        FieldsHelper.forClass(this.getClass().getSuperclass()).inflate(requireNonNull(metadata), this);
+        appendTags(requireNonNull(metadata));
+    }
+
+    private void appendTags(Struct metadata) {
+        final Map<String, Value> fieldsMap = metadata.getFieldsMap();
+        final List<KeyValue> tags = new ArrayList<>();
+        if (fieldsMap.containsKey("NAME")) {
+            tags.add(new KeyValue("pod", fieldsMap.get("NAME").getStringValue()));
+        }
+        if (fieldsMap.containsKey("NAMESPACE")) {
+            tags.add(new KeyValue("namespace", fieldsMap.get("NAMESPACE").getStringValue()));
+        }
+        if (!tags.isEmpty()) {
+            this.setTags(tags);
+        }
     }
 
 }

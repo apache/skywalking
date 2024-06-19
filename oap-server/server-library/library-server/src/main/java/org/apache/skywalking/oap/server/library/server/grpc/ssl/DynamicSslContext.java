@@ -74,7 +74,7 @@ public class DynamicSslContext extends AbstractSslContext {
 
             if (StringUtil.isNotEmpty(trustedCAsFile)) {
                 builder.trustManager(Paths.get(trustedCAsFile).toFile())
-                       .clientAuth(ClientAuth.REQUIRE);
+                    .clientAuth(ClientAuth.REQUIRE);
             }
 
             setCtx(builder.build());

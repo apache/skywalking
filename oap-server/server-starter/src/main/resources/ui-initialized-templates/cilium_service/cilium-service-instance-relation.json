@@ -1,0 +1,395 @@
+[
+    {
+        "id": "0a792b86-23e7-4ccc-a0a8-2efb093479bc",
+        "configuration": {
+            "children": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 24,
+                    "h": 52,
+                    "i": "0",
+                    "type": "Tab",
+                    "children": [
+                        {
+                            "name": "Overview",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "2",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_l4_read_pkg_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "L4 Read Package Server Side(Count per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Read Package"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "3",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_l4_write_pkg_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "L4 Write Package Server Side(Count per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Write Package"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 12,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "6",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_protocol_http_call_cpm",
+                                        "cilium_service_instance_relation_server_protocol_http_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "HTTP Load Server Side(Count per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 12,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "7",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_protocol_http_call_duration/cilium_service_instance_relation_server_protocol_http_call_cpm/1000000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "HTTP Response Duration Server Side(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 24,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "10",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_protocol_dns_call_cpm",
+                                        "cilium_service_instance_relation_server_protocol_dns_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Load Server Side(Count per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 24,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "11",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_protocol_dns_call_duration/cilium_service_instance_relation_server_protocol_dns_call_cpm/1000000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Response Duration Server Side(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 36,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "14",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_protocol_kafka_call_cpm",
+                                        "cilium_service_instance_relation_server_protocol_kafka_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kakfa Load Server Side(Count per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 36,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "15",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_protocol_kafka_call_duration/cilium_service_instance_relation_server_protocol_kafka_call_cpm/1000000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kafka Response Duration Server Side(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "16",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_l4_read_pkg_drop_cpm",
+                                        "cilium_service_instance_relation_server_l4_write_pkg_drop_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "TCP Drop Package Server Side(Count Per Min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Drop Read Package Count"
+                                        },
+                                        {
+                                            "label": "Drop Write Package Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 18,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "17",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_l4_drop_reason_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Tcp Drop Package Reason Server Side(Count Per min)"
+                                    }
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 12,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "18",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_protocol_http_status_1xx_cpm",
+                                        "cilium_service_instance_relation_protocol_http_status_2xx_cpm",
+                                        "cilium_service_instance_relation_protocol_http_status_3xx_cpm",
+                                        "cilium_service_instance_relation_protocol_http_status_4xx_cpm",
+                                        "cilium_service_instance_relation_protocol_http_status_5xx_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "HTTP Response Status Server Side(Count Per Min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "1xx"
+                                        },
+                                        {
+                                            "label": "2xx"
+                                        },
+                                        {
+                                            "label": "3xx"
+                                        },
+                                        {
+                                            "label": "4xx"
+                                        },
+                                        {
+                                            "label": "5xx"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 24,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "19",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_protocol_dns_error_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Erro Server Side(Count Per Min)"
+                                    }
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 36,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "20",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_relation_server_protocol_kafka_call_error_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kafka Error Server Side(Count Per Min)"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "layer": "CILIUM_SERVICE",
+            "entity": "ServiceInstanceRelation",
+            "name": "Cilium-Service-Instance-Relation"
+        }
+    }
+]

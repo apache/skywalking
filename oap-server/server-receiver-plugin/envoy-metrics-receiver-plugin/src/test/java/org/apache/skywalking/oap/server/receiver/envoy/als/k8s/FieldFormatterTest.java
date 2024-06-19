@@ -31,7 +31,7 @@ import java.util.Map;
 import static com.google.common.collect.ImmutableSortedMap.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ServiceNameFormatterTest {
+public class FieldFormatterTest {
     public static Case[] parameters() {
         return new Case[] {
             new Case(

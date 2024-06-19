@@ -1,0 +1,151 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.oap.server.fetcher.cilium.handler;
+
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
+public class KafkaCodes {
+
+    // Follow https://kafka.apache.org/protocol#protocol_error_codes
+    public static final Map<Integer, String> ERROR_CODES = ImmutableMap.<Integer, String>builder()
+        .put(-1, "UNKNOWN_SERVER_ERROR")
+        .put(0, "NONE")
+        .put(1, "OFFSET_OUT_OF_RANGE")
+        .put(2, "CORRUPT_MESSAGE")
+        .put(3, "UNKNOWN_TOPIC_OR_PARTITION")
+        .put(4, "INVALID_FETCH_SIZE")
+        .put(5, "LEADER_NOT_AVAILABLE")
+        .put(6, "NOT_LEADER_OR_FOLLOWER")
+        .put(7, "REQUEST_TIMED_OUT")
+        .put(8, "BROKER_NOT_AVAILABLE")
+        .put(9, "REPLICA_NOT_AVAILABLE")
+        .put(10, "MESSAGE_TOO_LARGE")
+        .put(11, "STALE_CONTROLLER_EPOCH")
+        .put(12, "OFFSET_METADATA_TOO_LARGE")
+        .put(13, "NETWORK_EXCEPTION")
+        .put(14, "COORDINATOR_LOAD_IN_PROGRESS")
+        .put(15, "COORDINATOR_NOT_AVAILABLE")
+        .put(16, "NOT_COORDINATOR")
+        .put(17, "INVALID_TOPIC_EXCEPTION")
+        .put(18, "RECORD_LIST_TOO_LARGE")
+        .put(19, "NOT_ENOUGH_REPLICAS")
+        .put(20, "NOT_ENOUGH_REPLICAS_AFTER_APPEND")
+        .put(21, "INVALID_REQUIRED_ACKS")
+        .put(22, "ILLEGAL_GENERATION")
+        .put(23, "INCONSISTENT_GROUP_PROTOCOL")
+        .put(24, "INVALID_GROUP_ID")
+        .put(25, "UNKNOWN_MEMBER_ID")
+        .put(26, "INVALID_SESSION_TIMEOUT")
+        .put(27, "REBALANCE_IN_PROGRESS")
+        .put(28, "INVALID_COMMIT_OFFSET_SIZE")
+        .put(29, "TOPIC_AUTHORIZATION_FAILED")
+        .put(30, "GROUP_AUTHORIZATION_FAILED")
+        .put(31, "CLUSTER_AUTHORIZATION_FAILED")
+        .put(32, "INVALID_TIMESTAMP")
+        .put(33, "UNSUPPORTED_SASL_MECHANISM")
+        .put(34, "ILLEGAL_SASL_STATE")
+        .put(35, "UNSUPPORTED_VERSION")
+        .put(36, "TOPIC_ALREADY_EXISTS")
+        .put(37, "INVALID_PARTITIONS")
+        .put(38, "INVALID_REPLICATION_FACTOR")
+        .put(39, "INVALID_REPLICA_ASSIGNMENT")
+        .put(40, "INVALID_CONFIG")
+        .put(41, "NOT_CONTROLLER")
+        .put(42, "INVALID_REQUEST")
+        .put(43, "UNSUPPORTED_FOR_MESSAGE_FORMAT")
+        .put(44, "POLICY_VIOLATION")
+        .put(45, "OUT_OF_ORDER_SEQUENCE_NUMBER")
+        .put(46, "DUPLICATE_SEQUENCE_NUMBER")
+        .put(47, "INVALID_PRODUCER_EPOCH")
+        .put(48, "INVALID_TXN_STATE")
+        .put(49, "INVALID_PRODUCER_ID_MAPPING")
+        .put(50, "INVALID_TRANSACTION_TIMEOUT")
+        .put(51, "CONCURRENT_TRANSACTIONS")
+        .put(52, "TRANSACTION_COORDINATOR_FENCED")
+        .put(53, "TRANSACTIONAL_ID_AUTHORIZATION_FAILED")
+        .put(54, "SECURITY_DISABLED")
+        .put(55, "OPERATION_NOT_ATTEMPTED")
+        .put(56, "KAFKA_STORAGE_ERROR")
+        .put(57, "LOG_DIR_NOT_FOUND")
+        .put(58, "SASL_AUTHENTICATION_FAILED")
+        .put(59, "UNKNOWN_PRODUCER_ID")
+        .put(60, "REASSIGNMENT_IN_PROGRESS")
+        .put(61, "DELEGATION_TOKEN_AUTH_DISABLED")
+        .put(62, "DELEGATION_TOKEN_NOT_FOUND")
+        .put(63, "DELEGATION_TOKEN_OWNER_MISMATCH")
+        .put(64, "DELEGATION_TOKEN_REQUEST_NOT_ALLOWED")
+        .put(65, "DELEGATION_TOKEN_AUTHORIZATION_FAILED")
+        .put(66, "DELEGATION_TOKEN_EXPIRED")
+        .put(67, "INVALID_PRINCIPAL_TYPE")
+        .put(68, "NON_EMPTY_GROUP")
+        .put(69, "GROUP_ID_NOT_FOUND")
+        .put(70, "FETCH_SESSION_ID_NOT_FOUND")
+        .put(71, "INVALID_FETCH_SESSION_EPOCH")
+        .put(72, "LISTENER_NOT_FOUND")
+        .put(73, "TOPIC_DELETION_DISABLED")
+        .put(74, "FENCED_LEADER_EPOCH")
+        .put(75, "UNKNOWN_LEADER_EPOCH")
+        .put(76, "UNSUPPORTED_COMPRESSION_TYPE")
+        .put(77, "STALE_BROKER_EPOCH")
+        .put(78, "OFFSET_NOT_AVAILABLE")
+        .put(79, "MEMBER_ID_REQUIRED")
+        .put(80, "PREFERRED_LEADER_NOT_AVAILABLE")
+        .put(81, "GROUP_MAX_SIZE_REACHED")
+        .put(82, "FENCED_INSTANCE_ID")
+        .put(83, "ELIGIBLE_LEADERS_NOT_AVAILABLE")
+        .put(84, "ELECTION_NOT_NEEDED")
+        .put(85, "NO_REASSIGNMENT_IN_PROGRESS")
+        .put(86, "GROUP_SUBSCRIBED_TO_TOPIC")
+        .put(87, "INVALID_RECORD")
+        .put(88, "UNSTABLE_OFFSET_COMMIT")
+        .put(89, "THROTTLING_QUOTA_EXCEEDED")
+        .put(90, "PRODUCER_FENCED")
+        .put(91, "RESOURCE_NOT_FOUND")
+        .put(92, "DUPLICATE_RESOURCE")
+        .put(93, "UNACCEPTABLE_CREDENTIAL")
+        .put(94, "INCONSISTENT_VOTER_SET")
+        .put(95, "INVALID_UPDATE_VERSION")
+        .put(96, "FEATURE_UPDATE_FAILED")
+        .put(97, "PRINCIPAL_DESERIALIZATION_FAILURE")
+        .put(98, "SNAPSHOT_NOT_FOUND")
+        .put(99, "POSITION_OUT_OF_RANGE")
+        .put(100, "UNKNOWN_TOPIC_ID")
+        .put(101, "DUPLICATE_BROKER_REGISTRATION")
+        .put(102, "BROKER_ID_NOT_REGISTERED")
+        .put(103, "INCONSISTENT_TOPIC_ID")
+        .put(104, "INCONSISTENT_CLUSTER_ID")
+        .put(105, "TRANSACTIONAL_ID_NOT_FOUND")
+        .put(106, "FETCH_SESSION_TOPIC_ID_ERROR")
+        .put(107, "INELIGIBLE_REPLICA")
+        .put(108, "NEW_LEADER_ELECTED")
+        .put(109, "OFFSET_MOVED_TO_TIERED_STORAGE")
+        .put(110, "FENCED_MEMBER_EPOCH")
+        .put(111, "UNRELEASED_INSTANCE_ID")
+        .put(112, "UNSUPPORTED_ASSIGNOR")
+        .put(113, "STALE_MEMBER_EPOCH")
+        .put(114, "MISMATCHED_ENDPOINT_TYPE")
+        .put(115, "UNSUPPORTED_ENDPOINT_TYPE")
+        .put(116, "UNKNOWN_CONTROLLER_ID")
+        .put(117, "UNKNOWN_SUBSCRIPTION_ID")
+        .put(118, "TELEMETRY_TOO_LARGE")
+        .put(119, "INVALID_REGISTRATION")
+        .build();
+}

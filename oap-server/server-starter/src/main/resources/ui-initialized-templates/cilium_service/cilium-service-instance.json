@@ -1,0 +1,481 @@
+[
+    {
+        "id": "8a29b3a2-49d9-4fc8-848f-993229d03ac7",
+        "configuration": {
+            "children": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 24,
+                    "h": 48,
+                    "i": "0",
+                    "type": "Tab",
+                    "children": [
+                        {
+                            "name": "Overview",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "0",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_l4_read_pkg_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "L4 Read(Package Count per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Read Package Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "1",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_l4_write_pkg_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "L4 Write(Package Count per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Write Package Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "2",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_l4_read_pkg_drop_cpm",
+                                        "cilium_service_l4_write_pkg_drop_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "TCP Drop Package(Count Per Min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Drop Read Package Count"
+                                        },
+                                        {
+                                            "label": "Drop Write Package Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 18,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "3",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_l4_drop_reason_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Tcp Drop Package Reason Server Side(Count Per min)"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 12,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "4",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_http_call_cpm",
+                                        "cilium_service_instance_protocol_http_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "HTTP Load(Call per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 12,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "5",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_http_call_duration/cilium_service_instance_protocol_http_call_duration/1000000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "HTTP Duration(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 12,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "6",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_http_status_1xx_cpm",
+                                        "cilium_service_instance_protocol_http_status_2xx_cpm",
+                                        "cilium_service_instance_protocol_http_status_3xx_cpm",
+                                        "cilium_service_instance_protocol_http_status_4xx_cpm",
+                                        "cilium_service_instance_protocol_http_status_5xx_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "1xx"
+                                        },
+                                        {
+                                            "label": "2xx"
+                                        },
+                                        {
+                                            "label": "3xx"
+                                        },
+                                        {
+                                            "label": "4xx"
+                                        },
+                                        {
+                                            "label": "5xx"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "title": "HTTP Response Code(Count per min)"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 24,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "7",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_dns_call_cpm",
+                                        "cilium_service_instance_protocol_dns_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Load(Call per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 24,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "8",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_dns_call_duration/cilium_service_instance_protocol_dns_call_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Duration(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 24,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "9",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_dns_error_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Error(Count per min)"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 36,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "10",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_kafka_call_cpm",
+                                        "cilium_service_instance_protocol_kafka_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kafka Load(Operation per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 36,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "11",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_kafka_call_duration/cilium_service_instance_protocol_kafka_call_cpm/1000000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kafka Operation Duration(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 36,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "12",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_service_instance_protocol_kafka_call_error_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kafka Operation Error(Count per min)"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Topology",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 24,
+                                    "h": 48,
+                                    "i": "0",
+                                    "type": "Topology",
+                                    "graph": {
+                                        "showDepth": true
+                                    },
+                                    "linkDashboard": "",
+                                    "nodeDashboard": [
+
+                                    ],
+                                    "linkServerExpressions": [
+                                        "avg(cilium_service_instance_relation_server_l4_read_pkg_cpm)",
+                                        "avg(cilium_service_instance_relation_server_l4_write_pkg_cpm)",
+                                        "avg(cilium_service_instance_relation_server_protocol_cpm)",
+                                        "avg(cilium_service_instance_relation_server_protocol_call_duration/cilium_service_relation_server_protocol_cpm)/1000000"
+                                    ],
+                                    "linkClientExpressions": [
+
+                                    ],
+                                    "nodeExpressions": [
+                                        "avg(cilium_service_instance_l4_read_pkg_cpm)",
+                                        "avg(cilium_service_instance_l4_write_pkg_cpm)",
+                                        "avg(cilium_service_instance_protocol_cpm)",
+                                        "avg(cilium_service_instance_protocol_call_duration/cilium_service_instance_protocol_cpm)/1000000",
+                                        "avg(cilium_service_instance_protocol_call_success_count/cilium_service_instance_protocol_cpm)*100"
+                                    ],
+                                    "legendMQE": {
+                                        "expression": "(avg(cilium_service_instance_protocol_call_success_count / cilium_service_instance_protocol_cpm*100) < 95) * (avg(cilium_service_instance_protocol_cpm) > 1) == 1"
+                                    },
+                                    "description": {
+                                        "healthy": "Healthy",
+                                        "unhealthy": "Success Rate < 95% and HTTP Traffic > 1 calls / min"
+                                    },
+                                    "linkServerMetricConfig": [
+                                        {
+                                            "unit": "Count / min",
+                                            "label": "Server Read Package"
+                                        },
+                                        {
+                                            "unit": "Count / min",
+                                            "label": "Server Write Package"
+                                        },
+                                        {
+                                            "unit": "calls / min",
+                                            "label": "Server Load"
+                                        },
+                                        {
+                                            "label": "Server Latency",
+                                            "unit": "ms"
+                                        }
+                                    ],
+                                    "linkClientMetricConfig": [
+                                    ],
+                                    "nodeMetricConfig": [
+                                        {
+                                            "label": "Read",
+                                            "unit": "package / min"
+                                        },
+                                        {
+                                            "unit": "package / min",
+                                            "label": "Write"
+                                        },
+                                        {
+                                            "label": "Load",
+                                            "unit": "calls / min"
+                                        },
+                                        {
+                                            "label": "Latency",
+                                            "unit": "ms"
+                                        },
+                                        {
+                                            "label": "Success Rate",
+                                            "unit": "%"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "layer": "CILIUM_SERVICE",
+            "entity": "ServiceInstance",
+            "name": "Cilium-Service-Instance",
+            "isRoot": false
+        }
+    }
+]
