@@ -340,6 +340,8 @@ catalog:
     catalog:
       - name: "Scratch The OAP Config Dump"
         path: "/en/debugging/config_dump"
+      - name: "Tracing Query Execution"
+        path: "/en/debugging/query-tracing"
   - name: "Academy"
     catalog:
       - name: "Scaling SkyWalking server automatically in kubernetes"

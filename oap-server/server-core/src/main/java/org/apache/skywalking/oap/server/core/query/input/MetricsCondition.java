@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
@@ -29,6 +30,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
  */
 @Getter
 @Setter
+@ToString
 public class MetricsCondition {
     /**
      * Metrics name

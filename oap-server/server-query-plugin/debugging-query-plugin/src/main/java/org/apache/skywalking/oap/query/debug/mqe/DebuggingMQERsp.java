@@ -16,24 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.debug.mqe;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
+import org.apache.skywalking.mqe.rt.type.MQEValues;
+import org.apache.skywalking.oap.query.debug.DebuggingTraceRsp;
 
-@Data
-@EqualsAndHashCode
-@ToString
-public class KeyValue {
-    private String key;
-    private String value;
-
-    public KeyValue(String key, String value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    public KeyValue() {
-    }
+@RequiredArgsConstructor
+@Getter
+public class DebuggingMQERsp {
+    private final ExpressionResultType type;
+    private final List<MQEValues> results;
+    private final String error;
+    private final DebuggingTraceRsp execTrace;
 }

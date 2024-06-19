@@ -30,9 +30,14 @@ import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.oap.server.core.query.input.Entity;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.mqe.rt.grammar.MQELexer;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
+
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
 
 public class MetricsExpressionQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
@@ -43,32 +48,53 @@ public class MetricsExpressionQuery implements GraphQLQueryResolver {
         this.valueFormat.setGroupingUsed(false);
     }
 
-    public ExpressionResult execExpression(String expression, Entity entity, Duration duration) {
-        MQELexer lexer = new MQELexer(
-            CharStreams.fromString(expression));
-        lexer.addErrorListener(new ParseErrorListener());
-        MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
-        parser.addErrorListener(new ParseErrorListener());
-        ParseTree tree;
+    public ExpressionResult execExpression(String expression,
+                                           Entity entity,
+                                           Duration duration,
+                                           boolean debug,
+                                           boolean dumpStorageRsp) {
+        DebuggingTraceContext traceContext = new DebuggingTraceContext(
+            "Expression: " + expression + ", Entity: " + entity + ", Duration: " + duration, debug, dumpStorageRsp);
+        TRACE_CONTEXT.set(traceContext);
+        DebuggingSpan span = traceContext.createSpan("MQE query");
         try {
-            tree = parser.expression();
-        } catch (ParseCancellationException e) {
-            ExpressionResult errorResult = new ExpressionResult();
-            errorResult.setType(ExpressionResultType.UNKNOWN);
-            errorResult.setError(e.getMessage());
-            return errorResult;
-        }
-        MQEVisitor visitor = new MQEVisitor(moduleManager, entity, duration);
-        ExpressionResult parseResult = visitor.visit(tree);
-
-        parseResult.getResults().forEach(mqeValues -> {
-            mqeValues.getValues().forEach(mqeValue -> {
-                if (!mqeValue.isEmptyValue()) {
-                    mqeValue.setValue(valueFormat.format(mqeValue.getDoubleValue()));
+            MQEVisitor visitor = new MQEVisitor(moduleManager, entity, duration);
+            DebuggingTrace execTrace = traceContext.getExecTrace();
+            DebuggingSpan syntaxSpan = traceContext.createSpan("MQE syntax analysis");
+            ParseTree tree;
+            try {
+                MQELexer lexer = new MQELexer(
+                    CharStreams.fromString(expression));
+                lexer.addErrorListener(new ParseErrorListener());
+                MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
+                parser.addErrorListener(new ParseErrorListener());
+                try {
+                    tree = parser.expression();
+                } catch (ParseCancellationException e) {
+                    ExpressionResult errorResult = new ExpressionResult();
+                    errorResult.setType(ExpressionResultType.UNKNOWN);
+                    errorResult.setError(e.getMessage());
+                    return errorResult;
                 }
+            } finally {
+                traceContext.stopSpan(syntaxSpan);
+            }
+            ExpressionResult parseResult = visitor.visit(tree);
+            parseResult.getResults().forEach(mqeValues -> {
+                mqeValues.getValues().forEach(mqeValue -> {
+                    if (!mqeValue.isEmptyValue()) {
+                        mqeValue.setValue(valueFormat.format(mqeValue.getDoubleValue()));
+                    }
+                });
             });
-        });
-
-        return parseResult;
+            if (debug) {
+                parseResult.setDebuggingTrace(execTrace);
+            }
+            return parseResult;
+        } finally {
+            traceContext.stopSpan(span);
+            traceContext.stopTrace();
+            TRACE_CONTEXT.remove();
+        }
     }
 }

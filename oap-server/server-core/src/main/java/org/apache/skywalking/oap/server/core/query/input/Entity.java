@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query.input;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 
@@ -31,6 +32,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
  */
 @Setter
 @Getter
+@ToString
 public class Entity {
     /**
      * <pre>

@@ -90,9 +90,12 @@ extend type Query {
     # Get the list of all available metrics in the current OAP server.
     # Param, regex, could be used to filter the metrics by name.
     listMetrics(regex: String): [MetricDefinition!]!
-    execExpression(expression: String!, entity: Entity!, duration: Duration!): ExpressionResult!
+    # Param, if debug is true will enable the query tracing and return DebuggingTrace in the ExpressionResult.
+    # Param, if dumpDBRsp is true the database response will dump into the DebuggingTrace span message.
+    execExpression(expression: String!, entity: Entity!, duration: Duration!, debug: Boolean, dumpDBRsp: Boolean): ExpressionResult!
 }
 ```
+About the query tracing, see [MQE Query Tracing](../debugging/query-tracing.md#debugging-with-graphql-bundled).
 
 ```graphql
 type ExpressionResult {
@@ -103,6 +106,7 @@ type ExpressionResult {
     # When type == ExpressionResultType.UNKNOWN,
     # the error message includes the expression resolving errors.
     error: String
+    debuggingTrace: DebuggingTrace
 }
 ```
 

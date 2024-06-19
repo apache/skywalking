@@ -624,6 +624,7 @@ public enum MetadataRegistry {
 
     @Builder
     @EqualsAndHashCode
+    @ToString
     public static class Schema {
         @Getter
         private final SchemaMetadata metadata;
@@ -671,6 +672,7 @@ public enum MetadataRegistry {
     @Builder
     @EqualsAndHashCode
     @Getter
+    @ToString
     public static class TopNSpec {
         private final String name;
         @Singular
@@ -683,6 +685,7 @@ public enum MetadataRegistry {
 
     @RequiredArgsConstructor
     @Getter
+    @ToString
     public static class ColumnSpec {
         private final ColumnType columnType;
         private final Class<?> columnClass;
