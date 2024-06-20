@@ -523,7 +523,7 @@ Sybase-jdbc-driver:
 OceanBase-jdbc-driver:
   id: 157
   languages: Java
-SolonMvc:
+SolonMVC:
   id: 158
   languages: Java
 
