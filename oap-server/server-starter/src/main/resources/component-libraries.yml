@@ -523,6 +523,9 @@ Sybase-jdbc-driver:
 OceanBase-jdbc-driver:
   id: 157
   languages: Java
+SolonMvc:
+  id: 158
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
