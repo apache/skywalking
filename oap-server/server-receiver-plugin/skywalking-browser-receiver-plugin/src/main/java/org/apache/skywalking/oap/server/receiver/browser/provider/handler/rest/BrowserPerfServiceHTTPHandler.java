@@ -74,7 +74,7 @@ public class BrowserPerfServiceHTTPHandler {
 
         errorLogHistogram = metricsCreator.createHistogramMetric(
             "browser_error_log_in_latency", "The process latency of browser error log", new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("grpc")
+            new MetricsTag.Values("http")
         );
         logErrorCounter = metricsCreator.createCounter(
             "browser_error_log_analysis_error_count", "The error number of browser error log analysis",
