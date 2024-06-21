@@ -13,6 +13,7 @@
 * Support to query relation metrics through PromQL.
 * Support trace MQE query for debugging.
 * Add Component ID(158) for the Solon framework.
+* Fix metrics tag in HTTP handler of browser receiver plugin.
 
 #### UI
 
