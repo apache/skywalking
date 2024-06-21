@@ -54,7 +54,7 @@
         <jackson-databind.version>2.16.0</jackson-databind.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
-        <nacos.version>1.4.2</nacos.version>
+        <nacos.version>2.3.2</nacos.version>
         <curator.version>4.3.0</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.18.0</etcd4j.version>

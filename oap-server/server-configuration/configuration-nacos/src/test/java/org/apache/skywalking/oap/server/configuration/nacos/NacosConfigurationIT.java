@@ -21,12 +21,18 @@ package org.apache.skywalking.oap.server.configuration.nacos;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
+import java.io.FileNotFoundException;
+import java.io.Reader;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -37,12 +43,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -51,16 +51,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Slf4j
 @Testcontainers
 public class NacosConfigurationIT {
-    private final Yaml yaml = new Yaml();
-
-    private NacosConfigurationTestProvider provider;
-
     @Container
     public final GenericContainer<?> container =
-        new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
+        new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:v2.3.2-slim"))
             .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
             .withEnv(Collections.singletonMap("MODE", "standalone"))
-            .withExposedPorts(8848);
+            .withExposedPorts(8848, 9848);
+    private final Yaml yaml = new Yaml();
+    private NacosConfigurationTestProvider provider;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -76,6 +74,13 @@ public class NacosConfigurationIT {
         provider = (NacosConfigurationTestProvider) moduleManager.find(NacosConfigurationTestModule.NAME).provider();
 
         assertNotNull(provider);
+        Integer nacosPortOffset = container.getMappedPort(9848) - container.getMappedPort(8848);
+        System.setProperty("nacos.server.grpc.port.offset", nacosPortOffset.toString());
+    }
+
+    @AfterEach
+    public void after() {
+        System.clearProperty("nacos.server.grpc.port.offset");
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -122,28 +127,38 @@ public class NacosConfigurationIT {
         assertTrue(configService.publishConfig("test-module.default.testKeyGroup", "skywalking", "item1\n item2"));
         assertTrue(configService.publishConfig("item1", "skywalking", "100"));
         assertTrue(configService.publishConfig("item2", "skywalking", "200"));
-        for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
+        for (String v = provider.groupWatcher.groupItems()
+                                             .get("item1"); v == null; v = provider.groupWatcher.groupItems()
+                                                                                                .get("item1")) {
         }
-        for (String v = provider.groupWatcher.groupItems().get("item2"); v == null; v = provider.groupWatcher.groupItems().get("item2")) {
+        for (String v = provider.groupWatcher.groupItems()
+                                             .get("item2"); v == null; v = provider.groupWatcher.groupItems()
+                                                                                                .get("item2")) {
         }
         assertEquals("100", provider.groupWatcher.groupItems().get("item1"));
         assertEquals("200", provider.groupWatcher.groupItems().get("item2"));
 
         //test remove item1
         assertTrue(configService.removeConfig("item1", "skywalking"));
-        for (String v = provider.groupWatcher.groupItems().get("item1"); v != null; v = provider.groupWatcher.groupItems().get("item1")) {
+        for (String v = provider.groupWatcher.groupItems()
+                                             .get("item1"); v != null; v = provider.groupWatcher.groupItems()
+                                                                                                .get("item1")) {
         }
         assertNull(provider.groupWatcher.groupItems().get("item1"));
 
         //test modify item1
         assertTrue(configService.publishConfig("item1", "skywalking", "300"));
-        for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
+        for (String v = provider.groupWatcher.groupItems()
+                                             .get("item1"); v == null; v = provider.groupWatcher.groupItems()
+                                                                                                .get("item1")) {
         }
         assertEquals("300", provider.groupWatcher.groupItems().get("item1"));
 
         //test remove group key
         assertTrue(configService.removeConfig("test-module.default.testKeyGroup", "skywalking"));
-        for (String v = provider.groupWatcher.groupItems().get("item2"); v != null; v = provider.groupWatcher.groupItems().get("item2")) {
+        for (String v = provider.groupWatcher.groupItems()
+                                             .get("item2"); v != null; v = provider.groupWatcher.groupItems()
+                                                                                                .get("item2")) {
         }
         assertNull(provider.groupWatcher.groupItems().get("item2"));
         //chean
@@ -158,13 +173,15 @@ public class NacosConfigurationIT {
         if (CollectionUtils.isNotEmpty(moduleConfig)) {
             moduleConfig.forEach((moduleName, providerConfig) -> {
                 if (providerConfig.size() > 0) {
-                    ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(moduleName);
+                    ApplicationConfiguration.ModuleConfiguration moduleConfiguration = configuration.addModule(
+                        moduleName);
                     providerConfig.forEach((name, propertiesConfig) -> {
                         Properties properties = new Properties();
                         if (propertiesConfig != null) {
                             propertiesConfig.forEach((key, value) -> {
                                 properties.put(key, value);
-                                final Object replaceValue = yaml.load(PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties));
+                                final Object replaceValue = yaml.load(
+                                    PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(value + "", properties));
                                 if (replaceValue != null) {
                                     properties.replace(key, replaceValue);
                                 }

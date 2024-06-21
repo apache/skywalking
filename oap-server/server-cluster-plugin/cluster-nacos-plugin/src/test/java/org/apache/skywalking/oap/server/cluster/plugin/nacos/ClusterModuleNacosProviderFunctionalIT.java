@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
 import com.alibaba.nacos.api.naming.NamingService;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -33,6 +36,7 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,10 +50,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,17 +58,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(MockitoExtension.class)
 public class ClusterModuleNacosProviderFunctionalIT {
 
-    private String nacosAddress;
-    private final String username = "nacos";
-    private final String password = "nacos";
-
     @Container
     public final GenericContainer<?> container =
-        new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
+        new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:v2.3.2-slim"))
             .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
             .withEnv(Collections.singletonMap("MODE", "standalone"))
-            .withExposedPorts(8848);
-
+            .withLogConsumer(outputFrame -> System.out.print(outputFrame.getUtf8String()))
+            .withExposedPorts(8848, 9848);
+    private final String username = "nacos";
+    private final String password = "nacos";
+    private String nacosAddress;
     @Mock
     private ModuleManager moduleManager;
     @Mock
@@ -82,6 +81,13 @@ public class ClusterModuleNacosProviderFunctionalIT {
         Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         nacosAddress = container.getHost() + ":" + container.getMappedPort(8848);
+        Integer nacosPortOffset = container.getMappedPort(9848) - container.getMappedPort(8848);
+        System.setProperty("nacos.server.grpc.port.offset", nacosPortOffset.toString());
+    }
+
+    @AfterEach
+    public void after() {
+        System.clearProperty("nacos.server.grpc.port.offset");
     }
 
     @Test
