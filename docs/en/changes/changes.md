@@ -16,6 +16,7 @@
 * Fix metrics tag in HTTP handler of browser receiver plugin.
 * Increase `alarm_record#message` column length to 2000 from 200.
 * Remove `alarm_record#message` column indexing.
+* Add Python as a supported language for Pulsar.
 
 #### UI
 

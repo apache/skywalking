@@ -262,13 +262,13 @@ Light4J:
   languages: Java
 Pulsar:
   id: 72
-  languages: Java,Golang
+  languages: Java,Golang,Python
 pulsar-producer:
   id: 73
-  languages: Java,Golang
+  languages: Java,Golang,Python
 pulsar-consumer:
   id: 74
-  languages: Java,Golang
+  languages: Java,Golang,Python
 Ehcache:
   id: 75
   languages: Java
