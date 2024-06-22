@@ -100,7 +100,7 @@ public class Event extends Metrics {
     @Column(name = TYPE)
     private String type;
 
-    @Column(name = MESSAGE, length = 2000)
+    @Column(name = MESSAGE, storageOnly = true, length = 2000)
     private String message;
 
     @Column(name = PARAMETERS, storageOnly = true, length = PARAMETER_MAX_LENGTH)
