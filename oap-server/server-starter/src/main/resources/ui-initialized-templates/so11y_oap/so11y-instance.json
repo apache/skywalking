@@ -155,7 +155,7 @@
                   "i": "9",
                   "type": "Widget",
                   "widget": {
-                    "title": "Persistence Preparing Latency Per Metric Type (ms / 5min)"
+                    "title": "Persistence Preparing Latency Per Metric Type (s / 5min)"
                   },
                   "graph": {
                     "type": "Line",
@@ -177,7 +177,7 @@
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "Persistence Execution Latency Per Metric Type (ms / 5min)"
+                    "title": "Persistence Execution Latency Per Metric Type (s / 5min)"
                   },
                   "graph": {
                     "type": "Line",
