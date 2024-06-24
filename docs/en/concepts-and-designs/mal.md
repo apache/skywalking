@@ -214,6 +214,10 @@ Examples:
 `histogram(le: '<the tag name of le>')`: Transforms less-based histogram buckets to meter system histogram buckets.
 `le` parameter represents the tag name of the bucket.
 
+**Note** In SkyWalking, the histogram buckets are based on time and will be transformed to the `milliseconds-based`
+histogram buckets in the meter system. (If the metrics from the Prometheus are based on the `seconds-based` histogram
+buckets, will multiply the bucket value by 1000.)
+
 #### histogram_percentile
 `histogram_percentile([<p scalar>])`: Represents the meter-system to calculate the p-percentile (0 ≤ p ≤ 100) from the buckets.
 
