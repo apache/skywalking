@@ -34,6 +34,17 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.skywalking</groupId>
+                        <artifactId>oap-server-bom</artifactId>
+                        <version>${project.version}</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
             <dependencies>
                 <dependency>
                     <groupId>org.apache.skywalking</groupId>
