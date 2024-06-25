@@ -181,6 +181,8 @@ The following settings are provided to set the host and port manually, based on 
 
 Set the **cluster/selector** to **nacos** in the yml to enable it.
 
+**The Nacos client has upgraded to 2.x, so required Nacos Server version is  2.x**.
+
 ```yaml
 cluster:
   selector: ${SW_CLUSTER:nacos}
