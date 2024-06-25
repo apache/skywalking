@@ -14,6 +14,11 @@
 * Support trace MQE query for debugging.
 * Add Component ID(158) for the Solon framework.
 * Fix metrics tag in HTTP handler of browser receiver plugin.
+* Increase `alarm_record#message` column length to 2000 from 200.
+* Remove `alarm_record#message` column indexing.
+* Add Python as a supported language for Pulsar.
+* Make more proper histogram buckets for the `persistence_timer_bulk_prepare_latency`,
+  `persistence_timer_bulk_execute_latency` and `persistence_timer_bulk_all_latency` metrics in PersistenceTimer.
 
 #### UI
 
