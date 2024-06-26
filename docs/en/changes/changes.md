@@ -19,7 +19,7 @@
 * Add Python as a supported language for Pulsar.
 * Make more proper histogram buckets for the `persistence_timer_bulk_prepare_latency`,
   `persistence_timer_bulk_execute_latency` and `persistence_timer_bulk_all_latency` metrics in PersistenceTimer.
-* [Break Change] Update Nacos version to 2.3.2.
+* [Break Change] Update Nacos version to 2.3.2. Nacos 1.x server can't serve as cluster coordinator and configuration server.
 
 #### UI
 
@@ -30,6 +30,5 @@
 * Move the Official Dashboard docs to marketplace docs. 
 * Add marketplace introduction docs under `quick start` menu to reduce the confusion of finding feature docs.
 * Update Windows Metrics(Swap -> Virtual Memory)
-* [Break Change] Update Nacos version to 2.3.2.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/205?closed=1)
