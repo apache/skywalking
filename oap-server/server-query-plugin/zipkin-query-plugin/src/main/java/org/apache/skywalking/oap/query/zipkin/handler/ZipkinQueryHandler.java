@@ -64,6 +64,8 @@ import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAtta
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
@@ -172,15 +174,31 @@ public class ZipkinQueryHandler {
     @Get("/api/v2/trace/{traceId}")
     @Blocking
     public AggregatedHttpResponse getTraceById(@Param("traceId") String traceId) throws IOException {
-        if (StringUtil.isEmpty(traceId)) {
-            return AggregatedHttpResponse.of(BAD_REQUEST, ANY_TEXT_TYPE, "traceId is empty or null");
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan debuggingSpan = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            if (traceContext != null) {
+                builder.append("Condition: traceId: ")
+                       .append(traceId);
+                debuggingSpan = traceContext.createSpan("Query /api/v2/trace/{traceId}");
+                debuggingSpan.setMsg(builder.toString());
+            }
+            if (StringUtil.isEmpty(traceId)) {
+                return AggregatedHttpResponse.of(BAD_REQUEST, ANY_TEXT_TYPE, "traceId is empty or null");
+            }
+            List<Span> trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()));
+            if (CollectionUtils.isEmpty(trace)) {
+                return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
+            }
+            appendEventsDebuggable(trace, getSpanAttachedEventQueryDAO().querySpanAttachedEventsDebuggable(
+                SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(traceId)));
+            return response(SpanBytesEncoder.JSON_V2.encodeList(trace));
+        } finally {
+            if (traceContext != null && debuggingSpan != null) {
+                traceContext.stopSpan(debuggingSpan);
+            }
         }
-        List<Span> trace = getZipkinQueryDAO().getTrace(Span.normalizeTraceId(traceId.trim()));
-        if (CollectionUtils.isEmpty(trace)) {
-            return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
-        }
-        appendEvents(trace, getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(traceId)));
-        return response(SpanBytesEncoder.JSON_V2.encodeList(trace));
     }
 
     @Get("/api/v2/traces")
@@ -207,15 +225,30 @@ public class ZipkinQueryHandler {
                         .lookback(lookback.orElse(defaultLookback))
                         .limit(limit)
                         .build();
-        Duration duration = new Duration();
-        duration.setStep(Step.SECOND);
-        DateTime endTime = new DateTime(queryRequest.endTs());
-        DateTime startTime = endTime.minus(org.joda.time.Duration.millis(queryRequest.lookback()));
-        duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
-        duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
-        List<List<Span>> traces = getZipkinQueryDAO().getTraces(queryRequest, duration);
-        appendEventsToTraces(traces);
-        return response(encodeTraces(traces));
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan debuggingSpan = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            if (traceContext != null) {
+                builder.append("Condition: QueryRequest: ")
+                       .append(queryRequest);
+                debuggingSpan = traceContext.createSpan("Query /api/v2/traces");
+                debuggingSpan.setMsg(builder.toString());
+            }
+            Duration duration = new Duration();
+            duration.setStep(Step.SECOND);
+            DateTime endTime = new DateTime(queryRequest.endTs());
+            DateTime startTime = endTime.minus(org.joda.time.Duration.millis(queryRequest.lookback()));
+            duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
+            duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
+            List<List<Span>> traces = getZipkinQueryDAO().getTracesDebuggable(queryRequest, duration);
+            appendEventsToTracesDebuggable(traces);
+            return response(encodeTraces(traces));
+        } finally {
+            if (traceContext != null && debuggingSpan != null) {
+                traceContext.stopSpan(debuggingSpan);
+            }
+        }
     }
 
     @Get("/api/v2/traceMany")
@@ -308,6 +341,22 @@ public class ZipkinQueryHandler {
         return buff.array();
     }
 
+    private void appendEventsToTracesDebuggable(List<List<Span>> traces) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan debuggingSpan = null;
+        try {
+            if (traceContext != null) {
+                debuggingSpan = traceContext.createSpan("Query: appendEventsToTraces");
+            }
+            appendEventsToTraces(traces);
+        } finally {
+            if (traceContext != null && debuggingSpan != null) {
+                traceContext.stopSpan(debuggingSpan);
+
+            }
+        }
+    }
+
     private void appendEventsToTraces(List<List<Span>> traces) throws IOException {
         final Map<String, List<Span>> traceIdWithSpans = traces.stream().filter(CollectionUtils::isNotEmpty)
             .collect(Collectors.toMap(s -> s.get(0).traceId(), Function.identity(), (s1, s2) -> s1));
@@ -315,11 +364,26 @@ public class ZipkinQueryHandler {
             return;
         }
 
-        final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN,
+        final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType.ZIPKIN,
             new ArrayList<>(traceIdWithSpans.keySet()));
         final Map<String, List<SpanAttachedEventRecord>> traceEvents = records.stream().collect(Collectors.groupingBy(SpanAttachedEventRecord::getRelatedTraceId));
         for (Map.Entry<String, List<SpanAttachedEventRecord>> entry : traceEvents.entrySet()) {
-            appendEvents(traceIdWithSpans.get(entry.getKey()), entry.getValue());
+            appendEventsDebuggable(traceIdWithSpans.get(entry.getKey()), entry.getValue());
+        }
+    }
+
+    private void appendEventsDebuggable(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan debuggingSpan = null;
+        try {
+            if (traceContext != null) {
+                debuggingSpan = traceContext.createSpan("Query: appendEvents");
+            }
+            appendEvents(spans, events);
+        } finally {
+            if (traceContext != null && debuggingSpan != null) {
+                traceContext.stopSpan(debuggingSpan);
+            }
         }
     }
 
@@ -371,13 +435,28 @@ public class ZipkinQueryHandler {
                     spanCache.put(record.getTraceSpanId(), spanBuilder);
                 }
 
-                appendEvent(spanBuilder._1, eventName, event);
+                appendEventDebuggable(spanBuilder._1, eventName, event);
             }
         }
 
         // re-build modified spans
         for (Map.Entry<String, Tuple2<Span.Builder, Integer>> entry : spanCache.entrySet()) {
             spans.set(entry.getValue()._2, entry.getValue()._1.build());
+        }
+    }
+
+    private void appendEventDebuggable(Span.Builder span, String eventName, SpanAttachedEvent event) {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan debuggingSpan = null;
+        try {
+            if (traceContext != null) {
+                debuggingSpan = traceContext.createSpan("Query : appendEvent");
+            }
+            appendEvent(span, eventName, event);
+        } finally {
+            if (traceContext != null && debuggingSpan != null) {
+                traceContext.stopSpan(debuggingSpan);
+            }
         }
     }
 

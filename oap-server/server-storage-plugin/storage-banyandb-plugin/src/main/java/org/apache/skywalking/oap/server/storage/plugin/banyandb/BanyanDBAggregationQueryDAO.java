@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -31,9 +31,6 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
@@ -54,27 +51,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
     }
 
     @Override
-    public List<SelectedRecord> sortMetrics(TopNCondition condition,
-                                            String valueColumnName,
-                                            Duration duration,
-                                            List<KeyValue> additionalConditions) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Dao: sortMetrics");
-                span.setMsg("TopNCondition: " + condition + ", valueColumnName: " + valueColumnName + ", duration: " + duration + ", additionalConditions: " + additionalConditions);
-
-            }
-            return invokeSortMetrics(condition, valueColumnName, duration, additionalConditions);
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    private List<SelectedRecord> invokeSortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
+    public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
@@ -103,7 +80,12 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
     List<SelectedRecord> serverSideTopN(TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
                                         TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
-        TopNQueryResponse resp = traceServerSideTopN(schema, timestampRange, condition.getTopN(), additionalConditions, condition.getOrder());
+        TopNQueryResponse resp = null;
+        if (condition.getOrder() == Order.DES) {
+            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions);
+        } else {
+            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions);
+        }
         if (resp.size() == 0) {
             return Collections.emptyList();
         } else if (resp.size() > 1) { // since we have done aggregation, i.e. MEAN
@@ -123,8 +105,8 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
     List<SelectedRecord> directMetricsTopN(TopNCondition condition, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
                                            TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
-        MeasureQueryResponse resp = traceDirectMetricsTopN(condition.getName(), TAGS, Collections.singleton(valueColumnName),
-                timestampRange, valueColumnName, condition.getTopN(), condition.getOrder(), new QueryBuilder<MeasureQuery>() {
+        MeasureQueryResponse resp = queryDebuggable(condition.getName(), TAGS, Collections.singleton(valueColumnName),
+                timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.meanBy(valueColumnName, ImmutableSet.of(Metrics.ENTITY_ID));
@@ -165,92 +147,6 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             return (String) fieldValue;
         } else {
             return String.valueOf(((Number) fieldValue).longValue());
-        }
-    }
-
-    private MeasureQueryResponse traceDirectMetricsTopN(String measureModelName,
-                                                        Set<String> tags,
-                                                        Set<String> fields,
-                                                        TimestampRange timestampRange,
-                                                        String valueColumnName,
-                                                        int topN,
-                                                        Order order,
-                                                        QueryBuilder<MeasureQuery> queryBuilder) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query BanyanDB direct metrics TopN");
-                builder.append("Condition: ")
-                       .append("measureModelName: ")
-                       .append(measureModelName)
-                       .append(", tags: ")
-                       .append(tags)
-                       .append(", fields: ")
-                       .append(fields)
-                       .append(", timestampRange: ")
-                       .append(timestampRange)
-                       .append(", valueColumnName: ")
-                       .append(valueColumnName)
-                       .append(", topN: ")
-                       .append(topN)
-                       .append(", order: ")
-                       .append(order);
-                span.setMsg(builder.toString());
-            }
-            MeasureQueryResponse response = query(measureModelName, tags, fields, timestampRange, queryBuilder);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
-                span.setMsg(builder.toString());
-            }
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    private TopNQueryResponse traceServerSideTopN(MetadataRegistry.Schema schema,
-                                                  TimestampRange timestampRange,
-                                                  int topN,
-                                                  List<KeyValue> additionalConditions,
-                                                  Order order) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query BanyanDB server-side TopN");
-                builder.append("Condition: ")
-                       .append("schema: ")
-                       .append(schema)
-                       .append(", timestampRange: ")
-                       .append(timestampRange)
-                       .append(", topN: ")
-                       .append(topN)
-                       .append(", additionalConditions: ")
-                       .append(additionalConditions)
-                       .append(", order: ")
-                       .append(order);
-                span.setMsg(builder.toString());
-            }
-            TopNQueryResponse response;
-            if (order == Order.DES) {
-                response = topN(schema, timestampRange, topN, additionalConditions);
-            } else {
-                response = bottomN(schema, timestampRange, topN, additionalConditions);
-            }
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
-                span.setMsg(builder.toString());
-            }
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
         }
     }
 }

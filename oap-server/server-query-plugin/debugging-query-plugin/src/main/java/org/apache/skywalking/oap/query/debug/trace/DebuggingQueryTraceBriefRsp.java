@@ -16,22 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.debug.trace;
 
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.query.debug.DebuggingTraceRsp;
+import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 
+@RequiredArgsConstructor
 @Getter
-public class Trace {
-    private final List<Span> spans;
-    //For OAP internal query debugging
-    @Setter
-    private DebuggingTrace debuggingTrace;
-
-    public Trace() {
-        this.spans = new ArrayList<>();
-    }
+public class DebuggingQueryTraceBriefRsp {
+    private final List<BasicTrace> traces;
+    private final DebuggingTraceRsp debuggingTrace;
 }

@@ -144,7 +144,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
         }
 
-        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
+        StreamQueryResponse resp = queryDebuggable(SegmentRecord.INDEX_NAME,
                 BASIC_TAGS,
                 tsRange, q);
 
@@ -176,7 +176,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME, TAGS,
+        StreamQueryResponse resp = queryDebuggable(SegmentRecord.INDEX_NAME, TAGS, null,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {

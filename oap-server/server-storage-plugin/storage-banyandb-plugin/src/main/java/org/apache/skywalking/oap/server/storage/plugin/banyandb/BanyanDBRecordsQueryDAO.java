@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
@@ -30,14 +29,10 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.type.Record;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,28 +47,11 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
 
     @Override
     public List<Record> readRecords(RecordCondition condition, String valueColumnName, Duration duration) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query BanyanDB records");
-                span.setMsg(
-                    "Condition: " + condition + ", ValueColumnName: " + valueColumnName + ", Duration: " + duration);
-            }
-            return invokeReadRecords(condition, valueColumnName, duration);
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    public List<Record> invokeReadRecords(RecordCondition condition, String valueColumnName, Duration duration) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
         final Set<String> tags = ImmutableSet.of(TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID, valueColumnName);
-        StreamQueryResponse resp = traceRecordsTopN(modelName, tags,
-                timestampRange, valueColumnName, condition.getTopN(), condition.getOrder(), new QueryBuilder<StreamQuery>() {
+        StreamQueryResponse resp = queryDebuggable(modelName, tags,
+                timestampRange, new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {
                         query.and(eq(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
@@ -122,47 +100,6 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
             return e.getTagValue(fieldName);
         } else {
             return String.valueOf(((Number) e.getTagValue(fieldName)).longValue());
-        }
-    }
-
-    private StreamQueryResponse traceRecordsTopN(String modelName,
-                                                 Set<String> tags,
-                                                 TimestampRange timestampRange,
-                                                 String valueColumnName,
-                                                 int topN,
-                                                 Order order,
-                                                 QueryBuilder<StreamQuery> queryBuilder) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query BanyanDB records TopN");
-                builder.append("Condition: ")
-                       .append(modelName)
-                       .append(", Tags: ")
-                       .append(tags)
-                       .append(", TimestampRange: ")
-                       .append(timestampRange)
-                       .append(", ValueColumnName: ")
-                       .append(valueColumnName)
-                       .append(", TopN: ")
-                       .append(topN)
-                       .append(", Order: ")
-                       .append(order);
-                span.setMsg(builder.toString());
-            }
-
-            StreamQueryResponse response = query(modelName, tags, timestampRange, queryBuilder);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
-                span.setMsg(builder.toString());
-            }
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
         }
     }
 }

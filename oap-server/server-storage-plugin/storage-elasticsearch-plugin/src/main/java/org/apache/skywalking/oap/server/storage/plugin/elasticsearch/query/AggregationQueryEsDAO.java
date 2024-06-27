@@ -18,10 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import com.google.gson.Gson;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Supplier;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
@@ -37,9 +34,6 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -59,25 +53,6 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
 
     @Override
     public List<SelectedRecord> sortMetrics(final TopNCondition condition,
-                                            final String valueColumnName,
-                                            final Duration duration,
-                                            final List<KeyValue> additionalConditions) {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Dao: sortMetrics");
-                span.setMsg("TopNCondition: " + condition + ", ValueColumnName: " + valueColumnName + ", Duration: " + duration + ", AdditionalConditions: " + additionalConditions);
-            }
-            return invokeSortMetrics(condition, valueColumnName, duration, additionalConditions);
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    private List<SelectedRecord> invokeSortMetrics(final TopNCondition condition,
                                             final String valueColumnName,
                                             final Duration duration,
                                             final List<KeyValue> additionalConditions) {
@@ -137,7 +112,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .build());
 
-        final SearchResponse response = traceSearchResponse(new TimeRangeIndexNameGenerator(
+        final SearchResponse response = searchDebuggable(new TimeRangeIndexNameGenerator(
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
             duration.getStartTimeBucketInSec(),
             duration.getEndTimeBucketInSec()), search.build());
@@ -157,28 +132,5 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             }
         }
         return topNList;
-    }
-
-    private SearchResponse traceSearchResponse(Supplier<String[]> indices, Search search) {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Elasticsearch");
-                builder.append("Condition: ").append("indices: ").append(Arrays.toString(indices.get()));
-                span.setMsg(builder.toString());
-            }
-            SearchResponse response = getClient().search(indices, search);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
-                span.setMsg(builder.toString());
-            }
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
     }
 }

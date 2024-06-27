@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import com.google.gson.Gson;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -31,9 +30,6 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.type.Record;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -52,24 +48,6 @@ public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
 
     @Override
     public List<Record> readRecords(final RecordCondition condition,
-                                    final String valueColumnName,
-                                    final Duration duration) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Dao: readRecords");
-                span.setMsg("RecordCondition: " + condition + ", ValueColumnName: " + valueColumnName + ", Duration: " + duration);
-            }
-            return invokeReadRecords(condition, valueColumnName, duration);
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    private List<Record> invokeReadRecords(final RecordCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) throws IOException {
         final BoolQueryBuilder query =
@@ -91,9 +69,9 @@ public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
                       condition.getOrder().equals(Order.DES) ?
                           Sort.Order.DESC : Sort.Order.ASC
                   );
-        final SearchResponse response = traceSearchResponse(
+        final SearchResponse response = searchDebuggable(
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
-            search.build()
+            search.build(), null
         );
 
         List<Record> results = new ArrayList<>(condition.getTopN());
@@ -110,28 +88,5 @@ public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
         }
 
         return results;
-    }
-
-    private SearchResponse traceSearchResponse(String indexName, Search search) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Elasticsearch");
-                builder.append("Condition: ").append("indices: ").append(indexName);
-                span.setMsg(builder.toString());
-            }
-            SearchResponse response = getClient().search(indexName, search);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
-                span.setMsg(builder.toString());
-            }
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
     }
 }

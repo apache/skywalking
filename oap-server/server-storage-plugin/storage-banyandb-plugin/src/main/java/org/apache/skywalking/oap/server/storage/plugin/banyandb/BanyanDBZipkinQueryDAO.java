@@ -258,7 +258,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
         }
         List<AbstractCriteria> conditions = new ArrayList<>(traceIds.size());
         StreamQueryResponse resp =
-            query(ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS,
+            queryDebuggable(ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, null,
                   new QueryBuilder<StreamQuery>() {
 
                       @Override

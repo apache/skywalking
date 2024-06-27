@@ -27,9 +27,85 @@ import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ITraceQueryDAO extends Service {
+
+    default TraceBrief queryBasicTracesDebuggable(Duration duration,
+                                                  long minDuration,
+                                                  long maxDuration,
+                                                  String serviceId,
+                                                  String serviceInstanceId,
+                                                  String endpointId,
+                                                  String traceId,
+                                                  int limit,
+                                                  int from,
+                                                  TraceState traceState,
+                                                  QueryOrder queryOrder,
+                                                  final List<Tag> tags) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: queryBasicTraces");
+                builder.append("Condition: Duration: ")
+                       .append(duration)
+                       .append(", MinDuration: ")
+                       .append(minDuration)
+                       .append(", MaxDuration: ")
+                       .append(maxDuration)
+                       .append(", ServiceId: ")
+                       .append(serviceId)
+                       .append(", ServiceInstanceId: ")
+                       .append(serviceInstanceId)
+                       .append(", EndpointId: ")
+                       .append(endpointId)
+                       .append(", TraceId: ")
+                       .append(traceId)
+                       .append(", Limit: ")
+                       .append(limit)
+                       .append(", From: ")
+                       .append(from)
+                       .append(", TraceState: ")
+                       .append(traceState)
+                       .append(", QueryOrder: ")
+                       .append(queryOrder)
+                       .append(", Tags: ")
+                       .append(tags);
+                span.setMsg(builder.toString());
+            }
+            return queryBasicTraces(
+                duration, minDuration, maxDuration, serviceId, serviceInstanceId, endpointId, traceId, limit, from,
+                traceState, queryOrder, tags
+            );
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<SegmentRecord> queryByTraceIdDebuggable(String traceId) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: queryByTraceId");
+                builder.append("Condition: TraceId: ")
+                       .append(traceId);
+                span.setMsg(builder.toString());
+            }
+            return queryByTraceId(traceId);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
 
     TraceBrief queryBasicTraces(Duration duration,
                                 long minDuration,

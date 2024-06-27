@@ -16,22 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.debug.trace.zipkin;
 
-import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.query.debug.DebuggingTraceRsp;
+import zipkin2.Span;
 
-@Getter
-public class Trace {
-    private final List<Span> spans;
-    //For OAP internal query debugging
-    @Setter
-    private DebuggingTrace debuggingTrace;
-
-    public Trace() {
-        this.spans = new ArrayList<>();
-    }
+@RequiredArgsConstructor
+@Data
+public class DebuggingZipkinQueryTracesRsp {
+    private final List<List<Span>> traces;
+    private final DebuggingTraceRsp debuggingTrace;
 }

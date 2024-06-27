@@ -53,7 +53,7 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
 
     @Override
     public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
-        final StreamQueryResponse resp = query(SpanAttachedEventRecord.INDEX_NAME, TAGS, new QueryBuilder<StreamQuery>() {
+        final StreamQueryResponse resp = queryDebuggable(SpanAttachedEventRecord.INDEX_NAME, TAGS, null, new QueryBuilder<StreamQuery>() {
             @Override
             protected void apply(StreamQuery query) {
                 query.and(in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));

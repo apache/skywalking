@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -70,7 +69,7 @@ public class AggregationQueryService implements Service {
             final String serviceId = IDManager.ServiceID.buildId(condition.getParentService(), condition.getNormal());
             additionalConditions.add(new KeyValue(InstanceTraffic.SERVICE_ID, serviceId));
         }
-        final List<SelectedRecord> selectedRecords = getAggregationQueryDAO().sortMetrics(
+        final List<SelectedRecord> selectedRecords = getAggregationQueryDAO().sortMetricsDebuggable(
             condition, valueCName, duration, additionalConditions);
         selectedRecords.forEach(selectedRecord -> {
             switch (condition.getScope()) {
@@ -115,7 +114,7 @@ public class AggregationQueryService implements Service {
 
     public List<SelectedRecord> sortMetrics(TopNCondition condition,
                                             Duration duration) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
             if (traceContext != null) {

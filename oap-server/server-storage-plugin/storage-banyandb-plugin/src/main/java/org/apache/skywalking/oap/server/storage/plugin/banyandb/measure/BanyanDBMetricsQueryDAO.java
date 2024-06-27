@@ -19,16 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
-
-import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
@@ -46,9 +42,6 @@ import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -65,47 +58,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
     }
 
     @Override
-    public MetricsValues readMetricsValues(MetricsCondition condition,
-                                           String valueColumnName,
-                                           Duration duration) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Dao: readMetricsValues");
-                span.setMsg(
-                    "MetricsCondition: " + condition + ", valueColumnName: " + valueColumnName + ", duration: " + duration);
-            }
-            return invokeReadMetricsValues(condition, valueColumnName, duration);
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    @Override
-    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
-                                                        String valueColumnName,
-                                                        List<KeyValue> labels,
-                                                        Duration duration) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Dao: readLabeledMetricsValues");
-                span.setMsg(
-                    "MetricsCondition: " + condition + ", valueColumnName: " + valueColumnName + ", labels: " + labels + ", duration: " + duration);
-            }
-            return invokeReadLabeledMetricsValues(condition, valueColumnName, labels, duration);
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    private MetricsValues invokeReadMetricsValues(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
+    public MetricsValues readMetricsValues(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
         String modelName = condition.getName();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
         if (schema == null) {
@@ -149,7 +102,8 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
     }
 
-    private List<MetricsValues> invokeReadLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<KeyValue> labels, Duration duration) throws IOException {
+    @Override
+    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<KeyValue> labels, Duration duration) throws IOException {
         Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration);
 
         List<PointOfTime> tsPoints = duration.assembleDurationPoints();
@@ -263,7 +217,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
 
         Map<Long, DataPoint> map = new HashMap<>();
-        MeasureQueryResponse resp = traceQueryResponse(schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
+        MeasureQueryResponse resp = queryDebuggable(schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
             @Override
             protected void apply(MeasureQuery query) {
                 query.and(eq(Metrics.ENTITY_ID, entityID));
@@ -278,39 +232,5 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
 
         return map;
-    }
-
-    private MeasureQueryResponse traceQueryResponse(MetadataRegistry.Schema schema,
-                                                    Set<String> tags,
-                                                    Set<String> fields,
-                                                    TimestampRange timestampRange,
-                                                    QueryBuilder<MeasureQuery> queryBuilder) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query BanyanDB metrics");
-                builder.append("Condition: schema: ")
-                       .append(schema)
-                       .append(", tags: ")
-                       .append(tags)
-                       .append(", fields: ")
-                       .append(fields)
-                       .append(", timestampRange: ")
-                       .append(timestampRange);
-                span.setMsg(builder.toString());
-            }
-            MeasureQueryResponse response = query(schema, tags, fields, timestampRange, queryBuilder);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
-                span.setMsg(builder.toString());
-            }
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
     }
 }
