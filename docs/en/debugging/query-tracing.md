@@ -417,7 +417,8 @@ just enable the debug parameter to true.
 extend type Query {
     # Read the specific trace ID with given trace ID
     queryTrace(traceId: ID!, debug: Boolean): Trace
-...
+    ...
+}
 ```
 
 ```graphql

@@ -159,6 +159,7 @@ extend type Query {
     queryTraceTagAutocompleteKeys(duration: Duration!):[String!]
     # Search the available value options of the given key.
     queryTraceTagAutocompleteValues(tagKey: String! , duration: Duration!):[String!]
+}
 ```
 
 Trace query fetches trace segment lists and spans of given trace IDs.
