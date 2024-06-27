@@ -31,5 +31,5 @@ public class DebuggingMQERsp {
     private final ExpressionResultType type;
     private final List<MQEValues> results;
     private final String error;
-    private final DebuggingTraceRsp execTrace;
+    private final DebuggingTraceRsp debuggingTrace;
 }

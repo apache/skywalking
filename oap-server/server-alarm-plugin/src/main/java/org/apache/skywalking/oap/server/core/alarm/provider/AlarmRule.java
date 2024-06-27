@@ -42,7 +42,7 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 @Data
 @ToString

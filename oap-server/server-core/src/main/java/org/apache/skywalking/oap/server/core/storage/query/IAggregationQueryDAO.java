@@ -24,6 +24,8 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 /**
@@ -32,6 +34,25 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
  * @since 8.0.0
  */
 public interface IAggregationQueryDAO extends DAO {
+    default List<SelectedRecord> sortMetricsDebuggable(final TopNCondition condition,
+                                                       final String valueColumnName,
+                                                       final Duration duration,
+                                                       final List<KeyValue> additionalConditions) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: sortMetrics");
+                span.setMsg("Condition: TopNCondition: " + condition + ", ValueColumnName: " + valueColumnName + ", Duration: " + duration + ", AdditionalConditions: " + additionalConditions);
+            }
+            return sortMetrics(condition, valueColumnName, duration, additionalConditions);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
     List<SelectedRecord> sortMetrics(TopNCondition condition,
                                      String valueColumnName,
                                      Duration duration,

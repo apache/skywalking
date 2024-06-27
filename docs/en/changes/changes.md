@@ -20,6 +20,7 @@
 * Make more proper histogram buckets for the `persistence_timer_bulk_prepare_latency`,
   `persistence_timer_bulk_execute_latency` and `persistence_timer_bulk_all_latency` metrics in PersistenceTimer.
 * [Break Change] Update Nacos version to 2.3.2. Nacos 1.x server can't serve as cluster coordinator and configuration server.
+* Support tracing trace query(SkyWalking and Zipkin) for debugging.
 
 #### UI
 

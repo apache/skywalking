@@ -23,6 +23,7 @@ import lombok.Getter;
 
 @Getter
 public class DebuggingTraceContext {
+    public final static ThreadLocal<DebuggingTraceContext> TRACE_CONTEXT = new ThreadLocal<>();
     private final DebuggingTrace execTrace;
     private final Stack<DebuggingSpan> spanStack = new Stack<>();
     private int spanIdGenerator;

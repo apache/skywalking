@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
-import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 @Slf4j
 public class MetricsQueryService implements Service {
@@ -80,7 +80,7 @@ public class MetricsQueryService implements Service {
         if (!condition.senseScope() || !condition.getEntity().isValid()) {
             return new MetricsValues();
         }
-        return getMetricQueryDAO().readMetricsValues(
+        return getMetricQueryDAO().readMetricsValuesDebuggable(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }
 
@@ -109,7 +109,7 @@ public class MetricsQueryService implements Service {
         if (!condition.senseScope() || !condition.getEntity().isValid()) {
             return Collections.emptyList();
         }
-        return getMetricQueryDAO().readLabeledMetricsValues(
+        return getMetricQueryDAO().readLabeledMetricsValuesDebuggable(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), labels, duration);
     }
 

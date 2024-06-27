@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,9 +44,6 @@ import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -64,46 +60,6 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
     @Override
     public MetricsValues readMetricsValues(final MetricsCondition condition,
-                                           final String valueColumnName,
-                                           final Duration duration) {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Dao: readMetricsValues");
-                span.setMsg(
-                    "MetricsCondition: " + condition + ", ValueColumnName: " + valueColumnName + ", Duration: " + duration);
-            }
-            return invokeReadMetricsValues(condition, valueColumnName, duration);
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    @Override
-    public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
-                                                        final String valueColumnName,
-                                                        final List<KeyValue> labels,
-                                                        final Duration duration) {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Dao: readLabeledMetricsValues");
-                span.setMsg(
-                    "MetricsCondition: " + condition + ", ValueColumnName: " + valueColumnName + ", Labels: " + labels + ", Duration: " + duration);
-            }
-            return invokeReadLabeledMetricsValues(condition, valueColumnName, labels, duration);
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    private MetricsValues invokeReadMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) {
         final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
@@ -124,7 +80,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         }).collect(Collectors.toList());
 
         MetricsValues metricsValues = new MetricsValues();
-        Optional<Documents> response = traceQueryResponse(indexIdsGroup);
+        Optional<Documents> response = idsDebuggable(indexIdsGroup);
         if (response.isPresent()) {
             Map<String, Map<String, Object>> idMap = toMap(response.get());
 
@@ -153,7 +109,8 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         return metricsValues;
     }
 
-    private List<MetricsValues> invokeReadLabeledMetricsValues(final MetricsCondition condition,
+    @Override
+    public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
                                                         final String valueColumnName,
                                                         final List<KeyValue> labels,
                                                         final Duration duration) {
@@ -176,7 +133,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             indexIdsGroup.computeIfAbsent(indexName, v -> new ArrayList<>()).add(id);
         });
 
-        Optional<Documents> response = traceQueryResponse(indexIdsGroup);
+        Optional<Documents> response = idsDebuggable(indexIdsGroup);
         Map<String, DataTable> idMap = new HashMap<>();
 
         if (response.isPresent()) {
@@ -194,29 +151,6 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             ids,
             ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
         );
-    }
-
-    private Optional<Documents> traceQueryResponse(Map<String, List<String>> indexIdsGroup) {
-        DebuggingTraceContext traceContext = DebuggingTrace.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query Elasticsearch");
-                builder.append("Condition: ").append("indices: ").append(indexIdsGroup.keySet());
-                span.setMsg(builder.toString());
-            }
-            Optional<Documents> response = getClient().ids(indexIdsGroup);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(response.isPresent() ? new Gson().toJson(response.get()) : "null");
-                span.setMsg(builder.toString());
-            }
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
     }
 
     public List<MetricsValues> readLabeledMetricsValuesWithoutEntity(final String metricName,

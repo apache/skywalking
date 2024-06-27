@@ -149,16 +149,16 @@ full log text fuzzy queries, while others do not due to considerations related t
 
 ### Trace
 ```graphql
+# Param, if debug is true will enable the query tracing and return DebuggingTrace in the result.
 extend type Query {
     # Search segment list with given conditions
-    queryBasicTraces(condition: TraceQueryCondition): TraceBrief
+    queryBasicTraces(condition: TraceQueryCondition, debug: Boolean): TraceBrief
     # Read the specific trace ID with given trace ID
-    queryTrace(traceId: ID!): Trace
+    queryTrace(traceId: ID!, debug: Boolean): Trace
     # Read the list of searchable keys
     queryTraceTagAutocompleteKeys(duration: Duration!):[String!]
     # Search the available value options of the given key.
     queryTraceTagAutocompleteValues(tagKey: String! , duration: Duration!):[String!]
-}
 ```
 
 Trace query fetches trace segment lists and spans of given trace IDs.

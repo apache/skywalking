@@ -41,6 +41,8 @@ import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -54,6 +56,46 @@ import static java.util.stream.Collectors.toList;
  */
 public interface IMetricsQueryDAO extends DAO {
     int METRICS_VALUES_WITHOUT_ENTITY_LIMIT = 10;
+
+    default MetricsValues readMetricsValuesDebuggable(final MetricsCondition condition,
+                                                      final String valueColumnName,
+                                                      final Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: readMetricsValues");
+                span.setMsg(
+                    "Condition: MetricsCondition: " + condition + ", ValueColumnName: " + valueColumnName + ", Duration: " + duration);
+            }
+            return readMetricsValues(condition, valueColumnName, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<MetricsValues> readLabeledMetricsValuesDebuggable(final MetricsCondition condition,
+                                                                   final String valueColumnName,
+                                                                   final List<KeyValue> labels,
+                                                                   final Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: readLabeledMetricsValues");
+                span.setMsg(
+                    "Condition: MetricsCondition: " + condition + ", ValueColumnName: " + valueColumnName + ", Labels: " + labels + ", Duration: " + duration);
+            }
+            return readLabeledMetricsValues(condition, valueColumnName, labels, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
     MetricsValues readMetricsValues(MetricsCondition condition,
                                     String valueColumnName,
                                     Duration duration) throws IOException;

@@ -53,6 +53,8 @@ import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.Trace;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
@@ -61,6 +63,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import static java.util.Objects.nonNull;
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class TraceQueryService implements Service {
 
@@ -107,18 +110,59 @@ public class TraceQueryService implements Service {
                                        final Pagination paging,
                                        final Duration duration,
                                        final List<Tag> tags) throws IOException {
-        PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                StringBuilder msg = new StringBuilder();
+                span = traceContext.createSpan("Query Service: queryBasicTraces");
+                msg.append("Condition: ServiceId: ").append(serviceId)
+                   .append(", ServiceInstanceId: ").append(serviceInstanceId)
+                   .append(", EndpointId: ").append(endpointId)
+                   .append(", TraceId: ").append(traceId)
+                   .append(", MinTraceDuration: ").append(minTraceDuration)
+                   .append(", MaxTraceDuration: ").append(maxTraceDuration)
+                   .append(", TraceState: ").append(traceState)
+                   .append(", QueryOrder: ").append(queryOrder)
+                   .append(", Pagination: ").append(paging)
+                   .append(", Duration: ").append(duration)
+                   .append(", Tags: ").append(tags);
+                span.setMsg(msg.toString());
+            }
+            PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
-        return getTraceQueryDAO().queryBasicTraces(
-            duration, minTraceDuration, maxTraceDuration, serviceId, serviceInstanceId, endpointId,
-            traceId, page.getLimit(), page.getFrom(), traceState, queryOrder, tags
-        );
+            return getTraceQueryDAO().queryBasicTracesDebuggable(
+                duration, minTraceDuration, maxTraceDuration, serviceId, serviceInstanceId, endpointId,
+                traceId, page.getLimit(), page.getFrom(), traceState, queryOrder, tags
+            );
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
     }
 
     public Trace queryTrace(final String traceId) throws IOException {
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                StringBuilder msg = new StringBuilder();
+                span = traceContext.createSpan("Query Service: queryTrace");
+                msg.append("Condition: TraceId: ").append(traceId);
+            }
+            return invokeQueryTrace(traceId);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    private Trace invokeQueryTrace(final String traceId) throws IOException {
         Trace trace = new Trace();
 
-        List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceId(traceId);
+        List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceIdDebuggable(traceId);
         if (segmentRecords.isEmpty()) {
             trace.getSpans().addAll(getTraceQueryDAO().doFlexibleTraceQuery(traceId));
         } else {
@@ -147,8 +191,8 @@ public class TraceQueryService implements Service {
 
         if (CollectionUtils.isNotEmpty(sortedSpans)) {
             final List<SpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().
-                querySpanAttachedEvents(SpanAttachedEventTraceType.SKYWALKING, Arrays.asList(traceId));
-            appendAttachedEventsToSpan(sortedSpans, spanAttachedEvents);
+                querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType.SKYWALKING, Arrays.asList(traceId));
+            appendAttachedEventsToSpanDebuggable(sortedSpans, spanAttachedEvents);
         }
 
         trace.getSpans().clear();
@@ -271,6 +315,22 @@ public class TraceQueryService implements Service {
                 findChildren(spans, span, childrenSpan);
             }
         });
+    }
+
+    private void appendAttachedEventsToSpanDebuggable(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan debuggingSpan = null;
+        try {
+            if (traceContext != null) {
+                debuggingSpan = traceContext.createSpan("Query Service : appendAttachedEventsToSpan");
+            }
+            appendAttachedEventsToSpan(spans, events);
+        } finally {
+            if (traceContext != null && debuggingSpan != null) {
+                traceContext.stopSpan(debuggingSpan);
+
+            }
+        }
     }
 
     private void appendAttachedEventsToSpan(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {

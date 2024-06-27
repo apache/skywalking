@@ -25,7 +25,6 @@ import lombok.Getter;
 
 @Getter
 public class DebuggingTrace {
-    public final static ThreadLocal<DebuggingTraceContext> TRACE_CONTEXT = new ThreadLocal<>();
     private final String traceId;
     private final String condition;
     private final long startTime;

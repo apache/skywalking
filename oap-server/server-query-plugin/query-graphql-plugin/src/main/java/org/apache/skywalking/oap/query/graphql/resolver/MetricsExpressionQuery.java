@@ -37,7 +37,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.mqe.rt.grammar.MQELexer;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 
-import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class MetricsExpressionQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;

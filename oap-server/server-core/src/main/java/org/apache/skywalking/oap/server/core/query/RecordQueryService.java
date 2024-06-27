@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import java.io.IOException;
 import java.util.List;
 
-import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace.TRACE_CONTEXT;
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class RecordQueryService implements Service {
     private final ModuleManager moduleManager;
@@ -56,7 +56,7 @@ public class RecordQueryService implements Service {
         if (!condition.senseScope() || !condition.getParentEntity().isValid()) {
             return Collections.emptyList();
         }
-        return getRecordsQueryDAO().readRecords(
+        return getRecordsQueryDAO().readRecordsDebuggable(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }
 
