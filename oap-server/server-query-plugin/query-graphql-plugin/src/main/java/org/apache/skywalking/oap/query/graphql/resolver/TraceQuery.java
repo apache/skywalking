@@ -35,9 +35,12 @@ import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Trace;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static java.util.Objects.isNull;
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class TraceQuery implements GraphQLQueryResolver {
 
@@ -63,7 +66,25 @@ public class TraceQuery implements GraphQLQueryResolver {
         return tagQueryService;
     }
 
-    public TraceBrief queryBasicTraces(final TraceQueryCondition condition) throws IOException {
+    public TraceBrief queryBasicTraces(final TraceQueryCondition condition, boolean debug) throws IOException {
+        DebuggingTraceContext traceContext = new DebuggingTraceContext(
+            "TraceQueryCondition: " + condition, debug, false);
+        DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
+        DebuggingSpan span = traceContext.createSpan("Query basic traces");
+        try {
+            TraceBrief traceBrief = invokeQueryBasicTraces(condition);
+            if (debug) {
+                traceBrief.setDebuggingTrace(traceContext.getExecTrace());
+            }
+            return traceBrief;
+        } finally {
+            traceContext.stopSpan(span);
+            traceContext.stopTrace();
+            TRACE_CONTEXT.remove();
+        }
+    }
+
+    private TraceBrief invokeQueryBasicTraces(final TraceQueryCondition condition) throws IOException {
         String traceId = Const.EMPTY_STRING;
 
         if (!Strings.isNullOrEmpty(condition.getTraceId())) {
@@ -85,8 +106,22 @@ public class TraceQuery implements GraphQLQueryResolver {
         );
     }
 
-    public Trace queryTrace(final String traceId) throws IOException {
-        return getQueryService().queryTrace(traceId);
+    public Trace queryTrace(final String traceId, boolean debug) throws IOException {
+        DebuggingTraceContext traceContext = new DebuggingTraceContext(
+            "TraceId: " + traceId, debug, false);
+        DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
+        DebuggingSpan span = traceContext.createSpan("Query trace");
+        try {
+            Trace trace = getQueryService().queryTrace(traceId);
+            if (debug) {
+                trace.setDebuggingTrace(traceContext.getExecTrace());
+            }
+            return trace;
+        } finally {
+            traceContext.stopSpan(span);
+            traceContext.stopTrace();
+            TRACE_CONTEXT.remove();
+        }
     }
 
     public Set<String> queryTraceTagAutocompleteKeys(final Duration queryDuration) throws IOException {

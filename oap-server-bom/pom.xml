@@ -54,7 +54,7 @@
         <jackson-databind.version>2.16.0</jackson-databind.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
-        <nacos.version>1.4.2</nacos.version>
+        <nacos.version>2.3.2</nacos.version>
         <curator.version>4.3.0</curator.version>
         <curator-test.version>2.12.0</curator-test.version>
         <etcd4j.version>2.18.0</etcd4j.version>
@@ -71,6 +71,7 @@
         <armeria.version>1.27.3</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
+        <httpasyncclient.version>4.1.5</httpasyncclient.version>
         <commons-compress.version>1.21</commons-compress.version>
         <banyandb-java-client.version>0.6.0</banyandb-java-client.version>
         <kafka-clients.version>3.4.0</kafka-clients.version>
@@ -516,6 +517,12 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpclient.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpasyncclient</artifactId>
+                <version>${httpasyncclient.version}</version>
             </dependency>
 
             <dependency>

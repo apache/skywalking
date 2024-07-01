@@ -22,6 +22,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuil
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
@@ -73,6 +74,6 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
             .index(index)
             .resultConverter(searchHitSpanAttachedEventRecordFunction)
             .build();
-        return scroller.scroll();
+        return scrollDebuggable(scroller, index, new SearchParams());
     }
 }

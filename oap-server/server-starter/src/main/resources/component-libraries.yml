@@ -262,13 +262,13 @@ Light4J:
   languages: Java
 Pulsar:
   id: 72
-  languages: Java,Golang
+  languages: Java,Golang,Python
 pulsar-producer:
   id: 73
-  languages: Java,Golang
+  languages: Java,Golang,Python
 pulsar-consumer:
   id: 74
-  languages: Java,Golang
+  languages: Java,Golang,Python
 Ehcache:
   id: 75
   languages: Java
@@ -523,8 +523,11 @@ Sybase-jdbc-driver:
 OceanBase-jdbc-driver:
   id: 157
   languages: Java
-DNS:
+SolonMVC:
   id: 158
+  languages: Java
+DNS:
+  id: 159
   languages: ebpf
 
 # .NET/.NET Core components

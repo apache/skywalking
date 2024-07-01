@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -81,11 +82,10 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
                                         TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
         TopNQueryResponse resp = null;
         if (condition.getOrder() == Order.DES) {
-            resp = topN(schema, timestampRange, condition.getTopN(), additionalConditions);
+            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions);
         } else {
-            resp = bottomN(schema, timestampRange, condition.getTopN(), additionalConditions);
+            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions);
         }
-
         if (resp.size() == 0) {
             return Collections.emptyList();
         } else if (resp.size() > 1) { // since we have done aggregation, i.e. MEAN
@@ -105,7 +105,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
     List<SelectedRecord> directMetricsTopN(TopNCondition condition, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
                                            TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
-        MeasureQueryResponse resp = query(condition.getName(), TAGS, Collections.singleton(valueColumnName),
+        MeasureQueryResponse resp = queryDebuggable(condition.getName(), TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {

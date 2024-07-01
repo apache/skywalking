@@ -1,6 +1,8 @@
 # Dynamic Configuration Nacos Implementation
 
-[Nacos](https://github.com/alibaba/nacos) is also supported as a Dynamic Configuration Center (DCC). To use it, please configure it as follows:
+[Nacos](https://github.com/alibaba/nacos) 2.x is also supported as a Dynamic Configuration Center (DCC).
+
+To use it, please configure it as follows:
 
 ```yaml
 configuration:

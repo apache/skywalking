@@ -22,6 +22,8 @@ import java.util.Collections;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.type.Record;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
@@ -30,6 +32,8 @@ import org.apache.skywalking.oap.server.library.module.Service;
 
 import java.io.IOException;
 import java.util.List;
+
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class RecordQueryService implements Service {
     private final ModuleManager moduleManager;
@@ -48,11 +52,27 @@ public class RecordQueryService implements Service {
         return recordsQueryDAO;
     }
 
-    public List<Record> readRecords(RecordCondition condition, Duration duration) throws IOException {
+    private List<Record> invokeReadRecords(RecordCondition condition, Duration duration) throws IOException {
         if (!condition.senseScope() || !condition.getParentEntity().isValid()) {
             return Collections.emptyList();
         }
-        return getRecordsQueryDAO().readRecords(
+        return getRecordsQueryDAO().readRecordsDebuggable(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
+    }
+
+    public List<Record> readRecords(RecordCondition condition, Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Service");
+                span.setMsg("readRecords, RecordCondition: " + condition + ", Duration: " + duration);
+            }
+            return invokeReadRecords(condition, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
     }
 }

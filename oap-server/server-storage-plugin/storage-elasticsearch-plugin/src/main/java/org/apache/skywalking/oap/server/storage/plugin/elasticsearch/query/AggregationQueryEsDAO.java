@@ -112,7 +112,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .build());
 
-        final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
+        final SearchResponse response = searchDebuggable(new TimeRangeIndexNameGenerator(
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
             duration.getStartTimeBucketInSec(),
             duration.getEndTimeBucketInSec()), search.build());

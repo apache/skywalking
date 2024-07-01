@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +50,7 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
         final Set<String> tags = ImmutableSet.of(TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID, valueColumnName);
-        StreamQueryResponse resp = query(modelName, tags,
+        StreamQueryResponse resp = queryDebuggable(modelName, tags,
                 timestampRange, new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {

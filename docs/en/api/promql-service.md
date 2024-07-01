@@ -12,20 +12,26 @@ The following doc describes the details of the supported protocol and compared i
 If not mentioned, it will not be supported by default.
 
 ### Time series Selectors
-#### [Instant Vector Selectors](https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors)
+#### Instant Vector Selectors
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors)
+
 For example: select metric `service_cpm` which the service is `$service` and the layer is `$layer`.
 ```text
 service_cpm{service='$service', layer='$layer'}
 ```
 **Note: The label matching operators only support `=` instead of regular expressions.**
 
-#### [Range Vector Selectors](https://prometheus.io/docs/prometheus/latest/querying/basics/#range-vector-selectors)
+#### Range Vector Selectors
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/basics/#range-vector-selectors)
+
 For example: select metric `service_cpm` which the service is `$service` and the layer is `$layer` within the last 5 minutes.
 ```text
 service_cpm{service='$service', layer='$layer'}[5m]
 ```
 
-#### [Time Durations](https://prometheus.io/docs/prometheus/latest/querying/basics/#time-durations)
+#### Time Durations
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/basics/#time-durations)
+
 | Unit | Definition   | Support |
 |------|--------------|---------|
 | ms   | milliseconds | yes     |
@@ -37,7 +43,10 @@ service_cpm{service='$service', layer='$layer'}[5m]
 | y    | years        | **no**  |
 
 ### Binary operators
-#### [Arithmetic binary operators](https://prometheus.io/docs/prometheus/latest/querying/operators/#arithmetic-binary-operators)
+#### Arithmetic binary operators
+
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/operators/#arithmetic-binary-operators)
+
 | Operator | Definition           | Support |
 |----------|----------------------|---------|
 | +        | addition             | yes     |
@@ -67,7 +76,10 @@ service_cpm{service='$service', layer='$layer'} + service_cpm{service='$service'
 
 **Note: The operations between vectors require the same metric and labels, and don't support [Vector matching](https://prometheus.io/docs/prometheus/latest/querying/operators/#vector-matching).**
 
-#### [Comparison binary operators](https://prometheus.io/docs/prometheus/latest/querying/operators/#comparison-binary-operators)
+#### Comparison binary operators
+
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/operators/#comparison-binary-operators)
+
 | Operator | Definition       | Support |
 |----------|------------------|---------|
 | ==       | equal            | yes     |
@@ -98,7 +110,10 @@ service_cpm{service='service_A', layer='$layer'} > service_cpm{service='service_
 
 #### Expression queries
 
-##### [Instant queries](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries)
+##### Instant queries
+
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries)
+
 ```text
 GET|POST /api/v1/query
 ```
@@ -138,7 +153,10 @@ Result:
 }
 ```
 
-##### [Range queries](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries)
+##### Range queries
+
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries)
+
 ```text
 GET|POST /api/v1/query_range
 ```
@@ -204,7 +222,9 @@ Result:
 
 #### Querying metadata
 
-##### [Finding series by label matchers](https://prometheus.io/docs/prometheus/latest/querying/api/#finding-series-by-label-matchers)
+##### Finding series by label matchers
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/api/#finding-series-by-label-matchers)
+
 ```text
 GET|POST /api/v1/series
 ```
@@ -264,7 +284,9 @@ Result:
 - instance_traffic
 - endpoint_traffic
 
-#### [Getting label names](https://prometheus.io/docs/prometheus/latest/querying/api/#getting-label-names)
+#### Getting label names
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/api/#getting-label-names)
+
 ```text
 GET|POST /api/v1/labels
 ```
@@ -295,7 +317,9 @@ Result:
 }
 ```
 
-#### [Querying label values](https://prometheus.io/docs/prometheus/latest/querying/api/#querying-label-values)
+#### Querying label values
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/api/#querying-label-values)
+
 ```text
 GET /api/v1/label/<label_name>/values
 ```
@@ -333,7 +357,9 @@ Result:
 }
 ```
 
-#### [Querying metric metadata](https://prometheus.io/docs/prometheus/latest/querying/api/#querying-metric-metadata)
+#### Querying metric metadata
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/api/#querying-metric-metadata)
+
 ```text
 GET /api/v1/metadata
 ```
@@ -381,7 +407,7 @@ Result:
 
 ## Metrics Type For Query
 
-### Supported Metrics [Scope](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/query/enumeration/Scope.java)(Catalog)
+### Supported Metrics Scope(Catalog)
 Not all scopes are supported for now, please check the following table:
 
 | Scope                   | Support |
@@ -389,20 +415,26 @@ Not all scopes are supported for now, please check the following table:
 | Service                 | yes     |
 | ServiceInstance         | yes     |
 | Endpoint                | yes     |
-| ServiceRelation         | no      |
-| ServiceInstanceRelation | no      |
+| ServiceRelation         | yes     |
+| ServiceInstanceRelation | yes     |
+| EndpointRelation        | yes     |
 | Process                 | no      |
 | ProcessRelation         | no      |
+
+All Scopes could be found [here](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/query/enumeration/Scope.java).
 
 ### General labels
 Each metric contains general labels: [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java).
 Different metrics will have different labels depending on their Scope and metric value type.
 
-| Query Labels                     | Scope           | Expression Example                                                                             |
-|----------------------------------|-----------------|------------------------------------------------------------------------------------------------|
-| layer, service                   | Service         | service_cpm{service='$service', layer='$layer'}                                                |
-| layer, service, service_instance | ServiceInstance | service_instance_cpm{service='$service', service_instance='$service_instance', layer='$layer'} |
-| layer, service, endpoint         | Endpoint        | endpoint_cpm{service='$service', endpoint='$endpoint', layer='$layer'}                         |
+| Query Labels                                                                      | Scope                   | Expression Example                                                                                                                                                                                                 |
+|-----------------------------------------------------------------------------------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| layer, service                                                                    | Service                 | service_cpm{service='$service', layer='$layer'}                                                                                                                                                                    |
+| layer, service, service_instance                                                  | ServiceInstance         | service_instance_cpm{service='$service', service_instance='$service_instance', layer='$layer'}                                                                                                                     |
+| layer, service, endpoint                                                          | Endpoint                | endpoint_cpm{service='$service', endpoint='$endpoint', layer='$layer'}                                                                                                                                             |
+| layer, service, dest_service, dest_layer                                          | ServiceRelation         | service_relation_metric{service='$service', layer='$layer', dest_layer='$dest_layer', dest_service='$dest_service'}                                                                                                |
+| layer, service, dest_service, dest_layer, service_instance, dest_service_instance | ServiceInstanceRelation | service_instance_relation_metric{service='$service', layer='$layer', dest_layer='$dest_layer', dest_service='$dest_service', dest_service_instance='$dest_service_instance', service_instance='$service_instance'} |
+| layer, service, dest_service, dest_layer, endpoint, dest_endpoint                 | EndpointRelation        | endpoint_relation_metric{service='$service', endpoint='$endpoint', layer='$layer', dest_layer='$dest_layer', dest_service='$dest_service', dest_endpoint='$dest_endpoint'}                                         |
 
 
 

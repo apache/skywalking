@@ -147,7 +147,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         }
         search.size(limit).from(from);
 
-        final SearchResponse response = getClient().search(
+        final SearchResponse response = searchDebuggable(
             new TimeRangeIndexNameGenerator(
                 IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME),
                 startSecondTB,
@@ -190,7 +190,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         SearchParams searchParams = new SearchParams();
         RoutingUtils.addRoutingValueToSearchParam(searchParams, traceId);
 
-        final SearchResponse response = getClient().search(index, search.build(), searchParams);
+        final SearchResponse response = searchDebuggable(index, search.build(), searchParams);
 
         return buildRecords(response);
     }

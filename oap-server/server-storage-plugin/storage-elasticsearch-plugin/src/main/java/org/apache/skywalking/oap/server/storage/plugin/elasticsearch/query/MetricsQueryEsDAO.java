@@ -80,7 +80,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         }).collect(Collectors.toList());
 
         MetricsValues metricsValues = new MetricsValues();
-        Optional<Documents> response = getClient().ids(indexIdsGroup);
+        Optional<Documents> response = idsDebuggable(indexIdsGroup);
         if (response.isPresent()) {
             Map<String, Map<String, Object>> idMap = toMap(response.get());
 
@@ -133,7 +133,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             indexIdsGroup.computeIfAbsent(indexName, v -> new ArrayList<>()).add(id);
         });
 
-        Optional<Documents> response = getClient().ids(indexIdsGroup);
+        Optional<Documents> response = idsDebuggable(indexIdsGroup);
         Map<String, DataTable> idMap = new HashMap<>();
 
         if (response.isPresent()) {

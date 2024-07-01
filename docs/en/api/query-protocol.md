@@ -90,9 +90,12 @@ extend type Query {
     # Get the list of all available metrics in the current OAP server.
     # Param, regex, could be used to filter the metrics by name.
     listMetrics(regex: String): [MetricDefinition!]!
-    execExpression(expression: String!, entity: Entity!, duration: Duration!): ExpressionResult!
+    # Param, if debug is true will enable the query tracing and return DebuggingTrace in the ExpressionResult.
+    # Param, if dumpDBRsp is true the database response will dump into the DebuggingTrace span message.
+    execExpression(expression: String!, entity: Entity!, duration: Duration!, debug: Boolean, dumpDBRsp: Boolean): ExpressionResult!
 }
 ```
+About the query tracing, see [MQE Query Tracing](../debugging/query-tracing.md#debugging-with-graphql-bundled).
 
 ```graphql
 type ExpressionResult {
@@ -103,6 +106,7 @@ type ExpressionResult {
     # When type == ExpressionResultType.UNKNOWN,
     # the error message includes the expression resolving errors.
     error: String
+    debuggingTrace: DebuggingTrace
 }
 ```
 
@@ -145,11 +149,12 @@ full log text fuzzy queries, while others do not due to considerations related t
 
 ### Trace
 ```graphql
+# Param, if debug is true will enable the query tracing and return DebuggingTrace in the result.
 extend type Query {
     # Search segment list with given conditions
-    queryBasicTraces(condition: TraceQueryCondition): TraceBrief
+    queryBasicTraces(condition: TraceQueryCondition, debug: Boolean): TraceBrief
     # Read the specific trace ID with given trace ID
-    queryTrace(traceId: ID!): Trace
+    queryTrace(traceId: ID!, debug: Boolean): Trace
     # Read the list of searchable keys
     queryTraceTagAutocompleteKeys(duration: Duration!):[String!]
     # Search the available value options of the given key.

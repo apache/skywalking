@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
@@ -28,6 +29,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public class Duration {
     private String start;
     private String end;

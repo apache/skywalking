@@ -149,7 +149,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                 return ZipkinSpanRecord.buildSpanFromRecord(record);
             })
             .build();
-        return scroller.scroll();
+        return scrollDebuggable(scroller, index, params);
     }
 
     @Override
@@ -200,7 +200,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                        .order(BucketOrder.aggregation(ZipkinSpanRecord.TIMESTAMP_MILLIS, false));
 
         SearchBuilder search = Search.builder().query(query).aggregation(traceIdAggregation);
-        SearchResponse traceIdResponse = getClient().search(new TimeRangeIndexNameGenerator(
+        SearchResponse traceIdResponse = searchDebuggable(new TimeRangeIndexNameGenerator(
             IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME),
             TimeBucket.getRecordTimeBucket(startTimeMillis),
             TimeBucket.getRecordTimeBucket(endTimeMillis)

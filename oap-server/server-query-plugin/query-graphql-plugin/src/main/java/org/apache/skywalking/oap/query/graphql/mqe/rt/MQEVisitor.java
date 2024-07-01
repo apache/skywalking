@@ -47,6 +47,8 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -54,6 +56,8 @@ import org.apache.skywalking.mqe.rt.MQEVisitorBase;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.joda.time.DateTime;
+
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 @Slf4j
 public class MQEVisitor extends MQEVisitorBase {
@@ -102,77 +106,76 @@ public class MQEVisitor extends MQEVisitorBase {
 
     @Override
     public ExpressionResult visitMetric(MQEParser.MetricContext ctx) {
-        ExpressionResult result = new ExpressionResult();
-        String metricName = ctx.metricName().getText();
-        Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
-            metricName);
-        if (valueColumn.isEmpty()) {
-            result.setType(ExpressionResultType.UNKNOWN);
-            result.setError("Metric: [" + metricName + "] dose not exist.");
-            return result;
-        }
-
-        Column.ValueDataType dataType = valueColumn.get().getDataType();
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Metric OP: " + ctx.getText());
         try {
-            if (Column.ValueDataType.COMMON_VALUE == dataType) {
-                if (ctx.parent instanceof MQEParser.TopNOPContext) {
-                    MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
-                    int topN = Integer.parseInt(parent.INTEGER().getText());
-                    if (topN <= 0) {
-                        throw new IllegalExpressionException("TopN value must be > 0.");
-                    }
-                    querySortMetrics(metricName, Integer.parseInt(parent.INTEGER().getText()),
-                                     Order.valueOf(parent.order().getText().toUpperCase()), result
-                    );
-                } else if (ctx.parent instanceof MQEParser.TrendOPContext) {
-                    //trend query requires get previous data according to the trend range
-                    MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
-                    int trendRange = Integer.parseInt(parent.INTEGER().getText());
-                    queryMetrics(metricName, getTrendQueryDuration(trendRange), result);
-                } else {
-                    queryMetrics(metricName, this.duration, result);
-                }
-            } else if (Column.ValueDataType.LABELED_VALUE == dataType) {
-                if (ctx.parent instanceof MQEParser.TopNOPContext) {
-                    throw new IllegalExpressionException(
-                        "Metric: [" + metricName + "] is labeled value, dose not support top_n query.");
-                }
-                List<KeyValue> queryLabels = super.buildLabels(ctx.labelList());
-                if (ctx.parent instanceof MQEParser.TrendOPContext) {
-                    MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
-                    int trendRange = Integer.parseInt(parent.INTEGER().getText());
-                    queryLabeledMetrics(metricName, queryLabels, getTrendQueryDuration(trendRange), result);
-                } else {
-                    queryLabeledMetrics(metricName, queryLabels, this.duration, result);
-                }
-            } else if (Column.ValueDataType.SAMPLED_RECORD == dataType) {
-                if (ctx.parent instanceof MQEParser.TopNOPContext) {
-                    MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
-                    int topN = Integer.parseInt(parent.INTEGER().getText());
-                    if (topN <= 0) {
-                        throw new IllegalExpressionException("TopN value must be > 0.");
-                    }
-                    queryRecords(metricName, Integer.parseInt(parent.INTEGER().getText()),
-                                 Order.valueOf(parent.order().getText().toUpperCase()), result
-                    );
-                } else {
-                    throw new IllegalExpressionException(
-                        "Metric: [" + metricName + "] is topN record, need top_n function for query.");
-                }
+            ExpressionResult result = new ExpressionResult();
+            String metricName = ctx.metricName().getText();
+            Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
+                metricName);
+            if (valueColumn.isEmpty()) {
+                result.setType(ExpressionResultType.UNKNOWN);
+                result.setError("Metric: [" + metricName + "] dose not exist.");
+                return result;
             }
-        } catch (IllegalExpressionException e) {
-            ExpressionResult errorResult = new ExpressionResult();
-            errorResult.setType(ExpressionResultType.UNKNOWN);
-            errorResult.setError(e.getMessage());
-            return errorResult;
-        } catch (IOException e) {
-            ExpressionResult errorResult = new ExpressionResult();
-            errorResult.setType(ExpressionResultType.UNKNOWN);
-            errorResult.setError("Internal IO exception, query metrics error.");
-            log.error("Query metrics from backend error.", e);
-            return errorResult;
+
+            Column.ValueDataType dataType = valueColumn.get().getDataType();
+            try {
+                if (Column.ValueDataType.COMMON_VALUE == dataType) {
+                    if (ctx.parent instanceof MQEParser.TopNOPContext) {
+                        MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
+                        int topN = Integer.parseInt(parent.INTEGER().getText());
+                        if (topN <= 0) {
+                            throw new IllegalExpressionException("TopN value must be > 0.");
+                        }
+                        querySortMetrics(metricName, Integer.parseInt(parent.INTEGER().getText()),
+                                         Order.valueOf(parent.order().getText().toUpperCase()), result);
+                    } else if (ctx.parent instanceof MQEParser.TrendOPContext) {
+                        //trend query requires get previous data according to the trend range
+                        MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
+                        int trendRange = Integer.parseInt(parent.INTEGER().getText());
+                        queryMetrics(metricName, getTrendQueryDuration(trendRange), result);
+                    } else {
+                        queryMetrics(metricName, this.duration, result);
+                    }
+                } else if (Column.ValueDataType.LABELED_VALUE == dataType) {
+                    if (ctx.parent instanceof MQEParser.TopNOPContext) {
+                        throw new IllegalExpressionException(
+                            "Metric: [" + metricName + "] is labeled value, dose not support top_n query.");
+                    }
+                    List<KeyValue> queryLabels = super.buildLabels(ctx.labelList());
+                    if (ctx.parent instanceof MQEParser.TrendOPContext) {
+                        MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
+                        int trendRange = Integer.parseInt(parent.INTEGER().getText());
+                        queryLabeledMetrics(metricName, queryLabels, getTrendQueryDuration(trendRange), result);
+                    } else {
+                        queryLabeledMetrics(metricName, queryLabels, this.duration, result);
+                    }
+                } else if (Column.ValueDataType.SAMPLED_RECORD == dataType) {
+                    if (ctx.parent instanceof MQEParser.TopNOPContext) {
+                        MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
+                        int topN = Integer.parseInt(parent.INTEGER().getText());
+                        if (topN <= 0) {
+                            throw new IllegalExpressionException("TopN value must be > 0.");
+                        }
+                        queryRecords(metricName, Integer.parseInt(parent.INTEGER().getText()),
+                                     Order.valueOf(parent.order().getText().toUpperCase()), result);
+                    } else {
+                        throw new IllegalExpressionException(
+                            "Metric: [" + metricName + "] is topN record, need top_n function for query.");
+                    }
+                }
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            } catch (IOException e) {
+                ExpressionResult errorResult = getErrorResult("Internal IO exception, query metrics error.");
+                log.error("Query metrics from backend error.", e);
+                return errorResult;
+            }
+            return result;
+        } finally {
+            traceContext.stopSpan(span);
         }
-        return result;
     }
 
     private void querySortMetrics(String metricName,

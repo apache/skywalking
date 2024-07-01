@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
@@ -28,6 +30,44 @@ import java.util.List;
 import java.util.Set;
 
 public interface IZipkinQueryDAO extends DAO {
+    default List<List<Span>> getTracesDebuggable(final QueryRequest request,
+                                                 final Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: getTraces");
+                builder.append("Condition: Request: ")
+                       .append(request)
+                       .append(", Duration: ")
+                       .append(duration);
+                span.setMsg(builder.toString());
+            }
+            return getTraces(request, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Span> getTraceDebuggable(final String traceId) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: getTrace");
+                span.setMsg("Condition: TraceId: " + traceId);
+            }
+            return getTrace(traceId);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
     List<String> getServiceNames() throws IOException;
 
     List<String> getRemoteServiceNames(final String serviceName) throws IOException;

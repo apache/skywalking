@@ -19,6 +19,7 @@
 
 package org.apache.skywalking.library.elasticsearch.requests.search;
 
+import lombok.ToString;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -28,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+@ToString
 public final class SearchParams implements Iterable<Map.Entry<String, Object>> {
     private static final String IGNORE_UNAVAILABLE = "ignore_unavailable";
     private static final String ALLOW_NO_INDICES = "allow_no_indices";

@@ -440,6 +440,25 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                 checkLabels(labelMap, LabelName.ENDPOINT);
                 entity.setEndpointName(labelMap.get(LabelName.ENDPOINT));
                 break;
+            case ServiceRelation:
+                checkLabels(labelMap, LabelName.DEST_SERVICE, LabelName.DEST_LAYER);
+                entity.setDestServiceName(labelMap.get(LabelName.DEST_SERVICE));
+                entity.setDestNormal(Layer.nameOf(labelMap.get(LabelName.DEST_LAYER)).isNormal());
+                break;
+            case ServiceInstanceRelation:
+                checkLabels(labelMap, LabelName.DEST_SERVICE, LabelName.SERVICE_INSTANCE, LabelName.DEST_SERVICE_INSTANCE, LabelName.DEST_LAYER);
+                entity.setDestServiceName(labelMap.get(LabelName.DEST_SERVICE));
+                entity.setServiceInstanceName(labelMap.get(LabelName.SERVICE_INSTANCE));
+                entity.setDestServiceInstanceName(labelMap.get(LabelName.DEST_SERVICE_INSTANCE));
+                entity.setDestNormal(Layer.nameOf(labelMap.get(LabelName.DEST_LAYER)).isNormal());
+                break;
+            case EndpointRelation:
+                checkLabels(labelMap, LabelName.DEST_SERVICE, LabelName.ENDPOINT, LabelName.DEST_ENDPOINT, LabelName.DEST_LAYER);
+                entity.setDestServiceName(labelMap.get(LabelName.DEST_SERVICE));
+                entity.setEndpointName(labelMap.get(LabelName.ENDPOINT));
+                entity.setDestEndpointName(labelMap.get(LabelName.DEST_ENDPOINT));
+                entity.setDestNormal(Layer.nameOf(labelMap.get(LabelName.DEST_LAYER)).isNormal());
+                break;
         }
         return entity;
     }
