@@ -464,7 +464,7 @@ public class CiliumFlowListener implements CiliumNodeUpdateListener {
             case L7:
                 switch (flow.getL7().getRecordCase()) {
                     case HTTP: return 49;               // HTTP
-                    case DNS: return 158;               // DNS
+                    case DNS: return 159;               // DNS
                     case KAFKA: return 27;              // Kafka
                 }
         }
