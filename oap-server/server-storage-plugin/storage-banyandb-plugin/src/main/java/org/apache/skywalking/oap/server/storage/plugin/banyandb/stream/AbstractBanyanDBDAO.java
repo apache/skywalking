@@ -26,11 +26,13 @@ import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.Or;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import org.apache.skywalking.banyandb.v1.client.Span;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.Trace;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
@@ -196,6 +198,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getDataPoints()));
                 span.setMsg(builder.toString());
             }
+            addDBTrace2DebuggingTrace(response.getTrace(), traceContext, span);
             return response;
         } finally {
             if (traceContext != null && span != null) {
@@ -224,8 +227,31 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         }
 
         builder.apply(query);
-
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        if (traceContext != null && traceContext.isDebug()) {
+            query.enableTrace();
+        }
         return getClient().query(query);
+    }
+
+    private void addDBTrace2DebuggingTrace(Trace trace, DebuggingTraceContext traceContext, DebuggingSpan parentSpan) {
+        if (traceContext == null || parentSpan == null || trace == null) {
+            return;
+        }
+        trace.getSpans().forEach(span -> addDBSpan2DebuggingTrace(span, traceContext, parentSpan));
+    }
+
+    private void addDBSpan2DebuggingTrace(Span span, DebuggingTraceContext traceContext, DebuggingSpan parentSpan) {
+        DebuggingSpan debuggingSpan = traceContext.createSpan("BanyanDB: " + span.getMessage());
+        debuggingSpan.setStartTime(span.getStartTime().getSeconds() * 1000_000_000 + span.getStartTime().getNanos());
+        debuggingSpan.setEndTime(span.getEndTime().getSeconds() * 1000_000_000 + span.getEndTime().getNanos());
+        debuggingSpan.setDuration(span.getDuration());
+        debuggingSpan.setParentSpanId(parentSpan.getSpanId());
+        debuggingSpan.setMsg(span.getTags().toString());
+        if (span.isError()) {
+            debuggingSpan.setError("BanyanDB occurs error.");
+        }
+        span.getChildren().forEach(child -> addDBSpan2DebuggingTrace(child, traceContext, debuggingSpan));
     }
 
     protected static QueryBuilder<MeasureQuery> emptyMeasureQuery() {

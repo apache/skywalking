@@ -65,8 +65,8 @@ public class RecordQueryService implements Service {
         DebuggingSpan span = null;
         try {
             if (traceContext != null) {
-                span = traceContext.createSpan("Query Service");
-                span.setMsg("readRecords, RecordCondition: " + condition + ", Duration: " + duration);
+                span = traceContext.createSpan("Query Service: readRecords");
+                span.setMsg("RecordCondition: " + condition + ", Duration: " + duration);
             }
             return invokeReadRecords(condition, duration);
         } finally {

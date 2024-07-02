@@ -28,10 +28,13 @@ public class DebuggingSpan {
     private int parentSpanId;
     private final String operation;
     //nano seconds
-    private final long startTime;
+    @Setter
+    private long startTime;
     //nano seconds
+    @Setter
     private long endTime;
     //nano seconds
+    @Setter
     private long duration;
     @Setter
     private String msg;
@@ -41,11 +44,5 @@ public class DebuggingSpan {
     public DebuggingSpan(int spanId, String operation) {
         this.spanId = spanId;
         this.operation = operation;
-        this.startTime = System.nanoTime();
-    }
-
-    public void stopSpan() {
-        this.endTime = System.nanoTime();
-        this.duration = endTime - startTime;
     }
 }

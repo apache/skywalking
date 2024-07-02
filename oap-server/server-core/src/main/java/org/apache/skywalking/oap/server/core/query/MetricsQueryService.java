@@ -92,8 +92,8 @@ public class MetricsQueryService implements Service {
         DebuggingSpan span = null;
         try {
             if (traceContext != null) {
-                span = traceContext.createSpan("Query Service");
-                span.setMsg("readMetricsValues, MetricsCondition: " + condition + ", Duration: " + duration);
+                span = traceContext.createSpan("Query Service: readMetricsValues");
+                span.setMsg("MetricsCondition: " + condition + ", Duration: " + duration);
             }
             return invokeReadMetricsValues(condition, duration);
         } finally {
@@ -125,8 +125,8 @@ public class MetricsQueryService implements Service {
         DebuggingSpan span = null;
         try {
             if (traceContext != null) {
-                span = traceContext.createSpan("Query Service");
-                span.setMsg("readLabeledMetricsValues, MetricsCondition: " + condition + ", Labels: " + labels + ", Duration: " + duration);
+                span = traceContext.createSpan("Query Service: readLabeledMetricsValues");
+                span.setMsg("MetricsCondition: " + condition + ", Labels: " + labels + ", Duration: " + duration);
             }
             return invokeReadLabeledMetricsValues(condition, labels, duration);
         } finally {

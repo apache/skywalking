@@ -39,8 +39,11 @@ public class DebuggingTraceContext {
     public DebuggingSpan createSpan(String operation) {
         DebuggingSpan span = new DebuggingSpan(spanIdGenerator++, operation);
         if (debug) {
+            //default start time, could be overwritten by setStartTime (BanyanDB Trace)
+            span.setStartTime(System.nanoTime());
             DebuggingSpan parentSpan = spanStack.isEmpty() ? null : spanStack.peek();
             if (parentSpan != null) {
+                //default parent span id, could be overwritten by setParentSpanId (BanyanDB Trace)
                 span.setParentSpanId(parentSpan.getSpanId());
             } else {
                 span.setParentSpanId(-1);
@@ -51,9 +54,17 @@ public class DebuggingTraceContext {
         return span;
     }
 
+    public DebuggingSpan getParentSpan() {
+        if (spanStack.isEmpty()) {
+            return null;
+        }
+        return spanStack.peek();
+    }
+
     public void stopSpan(DebuggingSpan span) {
         if (debug) {
-            span.stopSpan();
+            span.setEndTime(System.nanoTime());
+            span.setDuration(span.getEndTime() - span.getStartTime());
             if (spanStack.isEmpty()) {
                 return;
             }

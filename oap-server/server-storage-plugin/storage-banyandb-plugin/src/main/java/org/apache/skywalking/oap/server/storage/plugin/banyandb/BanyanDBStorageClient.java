@@ -54,9 +54,11 @@ import java.util.List;
 public class BanyanDBStorageClient implements Client, HealthCheckable {
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
+    private final int flushTimeout;
 
-    public BanyanDBStorageClient(String... targets) {
+    public BanyanDBStorageClient(int flushTimeout, String... targets) {
         this.client = new BanyanDBClient(targets);
+        this.flushTimeout = flushTimeout;
     }
 
     @Override
@@ -234,11 +236,11 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     }
 
     public StreamBulkWriteProcessor createStreamBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency);
+        return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
     }
 
     public MeasureBulkWriteProcessor createMeasureBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.client.buildMeasureWriteProcessor(maxBulkSize, flushInterval, concurrency);
+        return this.client.buildMeasureWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
     }
 
     @Override
