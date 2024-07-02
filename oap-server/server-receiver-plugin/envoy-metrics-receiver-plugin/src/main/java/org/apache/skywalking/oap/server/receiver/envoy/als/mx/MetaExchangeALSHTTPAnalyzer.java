@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
@@ -56,7 +57,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) throws ModuleStartException {
         this.config = config;
         try {
-            FieldsHelper.SINGLETON.init(fieldMappingFile, config.serviceMetaInfoFactory().clazz());
+            FieldsHelper.forClass(config.serviceMetaInfoFactory().clazz()).init(fieldMappingFile);
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to load metadata-service-mapping.yaml", e);
         }

@@ -374,6 +374,18 @@ kafka-fetcher:
     kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
     kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
 
+cilium-fetcher:
+  selector: ${SW_CILIUM_FETCHER:-}
+  default:
+    peerHost: ${SW_CILIUM_FETCHER_PEER_HOST:hubble-peer.kube-system.svc.cluster.local}
+    peerPort: ${SW_CILIUM_FETCHER_PEER_PORT:80}
+    fetchFailureRetrySecond: ${SW_CILIUM_FETCHER_FETCH_FAILURE_RETRY_SECOND:10}
+    sslConnection: ${SW_CILIUM_FETCHER_SSL_CONNECTION:false}
+    sslPrivateKeyFile: ${SW_CILIUM_FETCHER_PRIVATE_KEY_FILE_PATH:}
+    sslCertChainFile: ${SW_CILIUM_FETCHER_CERT_CHAIN_FILE_PATH:}
+    sslCaFile: ${SW_CILIUM_FETCHER_CA_FILE_PATH:}
+    convertClientAsServerTraffic: ${SW_CILIUM_FETCHER_CONVERT_CLIENT_AS_SERVER_TRAFFIC:true}
+
 receiver-meter:
   selector: ${SW_RECEIVER_METER:default}
   default:

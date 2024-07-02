@@ -241,6 +241,8 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria/1.27.3 Apache-2.0
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql/1.27.3 Apache-2.0
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql-protocol/1.27.3 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-grpc/1.27.3 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-grpc-protocol/1.27.3 Apache-2.0
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-protobuf/1.27.3 Apache-2.0
     https://mvnrepository.com/artifact/com.orbitz.consul/consul-client/1.5.3 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp/3.14.9 Apache-2.0
@@ -295,6 +297,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.grpc/grpc-netty/1.63.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-protobuf/1.63.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-protobuf-lite/1.63.0 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-services/1.61.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-stub/1.63.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-util/1.63.0 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.12.2 Apache-2.0
@@ -371,6 +374,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java/1.1.8.4 Apache-2.0
     https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.0 Apache-2.0
     https://npmjs.com/package/typescript/v/4.7.4 4.7.4 Apache-2.0
+    https://github.com/cilium/cilium/tree/v1.15.6/api/v1 Apache-2.0
 
 ========================================================================
 BSD-2-Clause licenses
@@ -544,6 +548,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/nanoid/v/3.3.7 3.3.7 MIT
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.33.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.23 MIT
+    https://mvnrepository.com/artifact/org.curioswitch.curiostack/protobuf-jackson/2.2.0 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
     https://npmjs.com/package/postcss/v/8.4.33 8.4.33 MIT

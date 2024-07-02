@@ -16,23 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
+package org.apache.skywalking.oap.server.library.util;
 
-import com.google.protobuf.util.JsonFormat;
-import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
+import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.powermock.reflect.Whitebox;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.apache.skywalking.oap.server.receiver.envoy.als.k8s.K8SALSServiceMeshHTTPAnalysisTest.getResourceAsStream;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class FieldsHelperTest {
     public static Collection<Object[]> data() {
@@ -77,22 +75,36 @@ public class FieldsHelperTest {
 
     @BeforeEach
     public void setUp() {
-        Whitebox.setInternalState(FieldsHelper.SINGLETON, "initialized", false);
+        Whitebox.setInternalState(FieldsHelper.forClass(ServiceInfo.class), "initialized", false);
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
     public void testFormat(String mapping, String expectedServiceName, String expectedServiceInstanceName) throws Exception {
-        try (final InputStreamReader isr = new InputStreamReader(getResourceAsStream("field-helper.msg"))) {
-            final StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
-            JsonFormat.parser().merge(isr, requestBuilder);
-            final ServiceMetaInfo info = new ServiceMetaInfo();
-            FieldsHelper.SINGLETON.init(new ByteArrayInputStream(mapping.getBytes()), ServiceMetaInfo.class);
-            FieldsHelper.SINGLETON.inflate(
-                requestBuilder.getIdentifier().getNode().getMetadata(),
-                info
-            );
-            assertThat(info.getServiceName()).isEqualTo(expectedServiceName);
-        }
+        final Struct.Builder builder = Struct.newBuilder();
+        final Struct.Builder labelBuilder = Struct.newBuilder();
+        labelBuilder.putFields("service.istio.io/canonical-name", Value.newBuilder().setStringValue("productpage").build());
+        labelBuilder.putFields("version", Value.newBuilder().setStringValue("v1").build());
+        labelBuilder.putFields("security.istio.io/tlsMode", Value.newBuilder().setStringValue("istio").build());
+        labelBuilder.putFields("app", Value.newBuilder().setStringValue("whatever-differ-from-productpage").build());
+        labelBuilder.putFields("service.istio.io/canonical-revision", Value.newBuilder().setStringValue("v1").build());
+        labelBuilder.putFields("pod-template-hash", Value.newBuilder().setStringValue("65576bb7bf").build());
+        labelBuilder.putFields("istio.io/rev", Value.newBuilder().setStringValue("default").build());
+        builder.putFields("LABELS", Value.newBuilder().setStructValue(labelBuilder.build()).build());
+        builder.putFields("CLUSTER_ID", Value.newBuilder().setStringValue("Kubernetes").build());
+
+        final ServiceInfo info = new ServiceInfo();
+        FieldsHelper.forClass(ServiceInfo.class).init(new ByteArrayInputStream(mapping.getBytes()));
+        FieldsHelper.forClass(ServiceInfo.class).inflate(
+            builder.build(),
+            info
+        );
+        assertThat(info.getServiceName()).isEqualTo(expectedServiceName);
+    }
+
+    @Data
+    public static final class ServiceInfo {
+        private String serviceName;
+        private String serviceInstanceName;
     }
 }

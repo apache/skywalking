@@ -29,13 +29,35 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>fetcher-proto</module>
         <module>kafka-fetcher-plugin</module>
+        <module>cilium-fetcher-plugin</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-network</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-module</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -16,7 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
+package org.apache.skywalking.oap.server.library.util;
+
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Delegate;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
 import java.lang.invoke.CallSite;
@@ -28,51 +38,54 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo.KeyValue;
-import org.yaml.snakeyaml.Yaml;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.protobuf.Struct;
-import com.google.protobuf.Value;
-
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Delegate;
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
-public enum FieldsHelper {
-    SINGLETON;
+public class FieldsHelper {
 
+    /**
+     * The difference Class have different {@link FieldsHelper} instance for their own mappings.
+     */
+    private static final Map<Class<?>, FieldsHelper> HELPER_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * The target class to be inflated.
+     */
+    private final Class<?> targetClass;
+
+    /**
+     * Whether the {@link FieldsHelper} has been initialized.
+     */
     private boolean initialized = false;
 
     /**
-     * The mappings from the field name of {@link ServiceMetaInfo} to the field name of {@code flatbuffers}.
+     * The mappings from the field name to the field name of {@code flatbuffers}.
      */
-    private Map<String, ServiceNameFormat> fieldNameMapping;
+    private Map<String, FieldFormat> fieldNameMapping;
 
     /**
-     * The mappings from the field name of {@link ServiceMetaInfo} to its {@code setter}.
+     * The mappings from the field name to its {@code setter}.
      */
-    private Map<String, BiConsumer<? super ServiceMetaInfo, String>> fieldSetterMapping;
+    private Map<String, BiConsumer<Object, String>> fieldSetterMapping;
 
-    public void init(final String file,
-                     final Class<? extends ServiceMetaInfo> serviceInfoClass) throws Exception {
-        init(ResourceUtils.readToStream(file), serviceInfoClass);
+    public static FieldsHelper forClass(final Class<?> targetClass) {
+        return HELPER_MAP.computeIfAbsent(targetClass, FieldsHelper::new);
+    }
+
+    private FieldsHelper(Class<?> targetClass) {
+        this.targetClass = targetClass;
+    }
+
+    public void init(final String file) throws Exception {
+        init(ResourceUtils.readToStream(file));
     }
 
     @SuppressWarnings("unchecked")
-    public void init(final InputStream inputStream,
-                     final Class<? extends ServiceMetaInfo> serviceInfoClass) throws ModuleStartException {
+    public void init(final InputStream inputStream) {
         if (initialized) {
             return;
         }
@@ -103,12 +116,13 @@ public enum FieldsHelper {
                             tokenBuffer.append(token);
                         } else if (tokenBuffer.length() > 0) {
                             tokenBuffer.append(".").append(token);
-                            if (token.endsWith("\"")) {
-                                candidateFields.add(tokenBuffer.toString().replaceAll("\"", ""));
-                                tokenBuffer.setLength(0);
-                            }
                         } else {
                             candidateFields.add(token);
+                        }
+
+                        if (tokenBuffer.length() > 0 && token.endsWith("\"")) {
+                            candidateFields.add(tokenBuffer.toString().replaceAll("\"", ""));
+                            tokenBuffer.setLength(0);
                         }
                     }
                     return new Field(candidateFields);
@@ -119,7 +133,7 @@ public enum FieldsHelper {
 
             fieldNameMapping.put(
                 serviceMetaInfoFieldName,
-                new ServiceNameFormat(serviceNamePattern.toString(), flatBuffersFieldNames)
+                new FieldFormat(serviceNamePattern.toString(), flatBuffersFieldNames)
             );
 
             try {
@@ -130,35 +144,35 @@ public enum FieldsHelper {
                         lookup, "accept",
                         MethodType.methodType(BiConsumer.class),
                         MethodType.methodType(void.class, Object.class, Object.class),
-                        lookup.findVirtual(serviceInfoClass, setter,
+                        lookup.findVirtual(targetClass, setter,
                                            MethodType.methodType(void.class, parameterType)),
-                        MethodType.methodType(void.class, serviceInfoClass, parameterType));
+                        MethodType.methodType(void.class, targetClass, parameterType));
                 final MethodHandle factory = site.getTarget();
-                final BiConsumer<? super ServiceMetaInfo, String> method =
-                        (BiConsumer<? super ServiceMetaInfo, String>) factory.invoke();
+                final BiConsumer<Object, String> method =
+                        (BiConsumer<Object, String>) factory.invoke();
                 fieldSetterMapping.put(serviceMetaInfoFieldName, method);
             } catch (final Throwable e) {
-                throw new ModuleStartException("Initialize method error", e);
+                throw new IllegalStateException("Initialize method error", e);
             }
         }
         initialized = true;
     }
 
     /**
-     * Inflates the {@code serviceMetaInfo} with the given {@link Struct struct}.
+     * Inflates the {@code target} with the given {@link Struct struct}.
      *
-     * @param metadata        the {@link Struct} metadata from where to retrieve and inflate the {@code serviceMetaInfo}.
-     * @param serviceMetaInfo the {@code serviceMetaInfo} to be inflated.
+     * @param metadata        the {@link Struct} metadata from where to retrieve and inflate the {@code target}.
+     * @param target the {@code target} to be inflated.
      */
-    public void inflate(final Struct metadata, final ServiceMetaInfo serviceMetaInfo) {
+    public void inflate(final Struct metadata, final Object target) {
         final Value empty = Value.newBuilder().setStringValue("-").build();
         final Value root = Value.newBuilder().setStructValue(metadata).build();
-        for (final Map.Entry<String, ServiceNameFormat> entry : fieldNameMapping.entrySet()) {
-            final ServiceNameFormat serviceNameFormat = entry.getValue();
-            final Object[] values = new String[serviceNameFormat.properties.size()];
-            for (int i = 0; i < serviceNameFormat.properties.size(); i++) {
+        for (final Map.Entry<String, FieldFormat> entry : fieldNameMapping.entrySet()) {
+            final FieldFormat fieldFormat = entry.getValue();
+            final Object[] values = new String[fieldFormat.properties.size()];
+            for (int i = 0; i < fieldFormat.properties.size(); i++) {
                 values[i] = "-"; // Give it a default value
-                final Property property = serviceNameFormat.properties.get(i);
+                final Property property = fieldFormat.properties.get(i);
                 for (final Field field : property) {
                     Value value = root;
                     for (final String segment : field.dsvSegments) {
@@ -171,26 +185,15 @@ public enum FieldsHelper {
                     break;
                 }
             }
-            final String value = Strings.lenientFormat(serviceNameFormat.format, values);
+            final String value = Strings.lenientFormat(fieldFormat.format, values);
             if (!Strings.isNullOrEmpty(value)) {
-                fieldSetterMapping.get(entry.getKey()).accept(serviceMetaInfo, value);
+                fieldSetterMapping.get(entry.getKey()).accept(target, value);
             }
-        }
-        final Map<String, Value> fieldsMap = metadata.getFieldsMap();
-        final List<KeyValue> tags = new ArrayList<>();
-        if (fieldsMap.containsKey("NAME")) {
-            tags.add(new KeyValue("pod", fieldsMap.get("NAME").getStringValue()));
-        }
-        if (fieldsMap.containsKey("NAMESPACE")) {
-            tags.add(new KeyValue("namespace", fieldsMap.get("NAMESPACE").getStringValue()));
-        }
-        if (!tags.isEmpty()) {
-            serviceMetaInfo.setTags(tags);
         }
     }
 
     @RequiredArgsConstructor
-    private static class ServiceNameFormat {
+    private static class FieldFormat {
         private final String format;
 
         private final List<Property> properties;

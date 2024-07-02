@@ -553,6 +553,11 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>com.linecorp.armeria</groupId>
+                <artifactId>armeria-grpc</artifactId>
+                <version>${armeria.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpcore</artifactId>
                 <version>${httpcore.version}</version>

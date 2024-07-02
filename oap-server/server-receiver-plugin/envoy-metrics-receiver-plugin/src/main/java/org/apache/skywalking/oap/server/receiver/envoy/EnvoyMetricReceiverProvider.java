@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
-import org.apache.skywalking.oap.server.receiver.envoy.als.mx.FieldsHelper;
+import org.apache.skywalking.oap.server.library.util.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
@@ -72,7 +72,7 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         try {
-            FieldsHelper.SINGLETON.init(fieldMappingFile, config.serviceMetaInfoFactory().clazz());
+            FieldsHelper.forClass(config.serviceMetaInfoFactory().clazz()).init(fieldMappingFile);
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to load metadata-service-mapping.yaml", e);
         }

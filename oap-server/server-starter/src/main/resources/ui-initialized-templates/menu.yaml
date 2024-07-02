@@ -82,6 +82,15 @@ menus:
         description: Observe Service status and resources from Kubernetes.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-k8s-monitoring/
         i18nKey: kubernetes_service
+  - title: Cilium
+    icon: cilium
+    description: Cilium is a CNI plugin for Kubernetes that provides eBPF-based networking, security, and load balancing.
+    i18nKey: cilium
+    menus:
+      - title: Service
+        layer: CILIUM_SERVICE
+        description: Observe Service status and resources from Cilium Hubble.
+        i18nKey: cilium_service
   - title: Infrastructure
     icon: infrastructure
     description: Operation Systems act as the infrastructure of the whole IT system. Its observabilities provide the fundamentals for all distributed and modern complex systems running.

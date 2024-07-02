@@ -30,6 +30,9 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/{{ .Name }}/v/{{ .Version }} {{ .Version }} {{ .LicenseID }}
       {{- end }}
     {{- end }}
+    {{- if eq .LicenseID "Apache-2.0" }}
+    https://github.com/cilium/cilium/tree/v1.15.6/api/v1 Apache-2.0
+    {{- end }}
 {{ end }}
 =======================================================================
 The zipkin-lens.jar dependency has more front-end dependencies in it and the front-end dependencies' licenses

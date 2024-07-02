@@ -228,7 +228,13 @@ public enum Layer {
     /**
      *  ActiveMQ is a popular open source, multi-protocol, Java-based message broker.
      */
-    ACTIVEMQ(37, true);
+    ACTIVEMQ(37, true),
+
+    /**
+     * Cilium is open source software for providing and transparently securing network connectivity and load balancing
+     * between application workloads such as application containers or processes.
+     */
+    CILIUM_SERVICE(38, true);
 
     private final int value;
     /**

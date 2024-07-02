@@ -1,0 +1,304 @@
+[
+    {
+        "id": "71d6fd5c-d53d-49e8-8bef-d808ef3495f1",
+        "configuration": {
+            "children": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 24,
+                    "h": 48,
+                    "i": "0",
+                    "type": "Tab",
+                    "children": [
+                        {
+                            "name": "Overview",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "4",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_http_call_cpm",
+                                        "cilium_endpoint_protocol_http_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "HTTP Load(Call per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 0,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "5",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_http_call_duration/cilium_endpoint_protocol_http_call_cpm/1000000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "HTTP Duration(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 0,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "6",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_http_status_1xx_cpm",
+                                        "cilium_endpoint_protocol_http_status_2xx_cpm",
+                                        "cilium_endpoint_protocol_http_status_3xx_cpm",
+                                        "cilium_endpoint_protocol_http_status_4xx_cpm",
+                                        "cilium_endpoint_protocol_http_status_5xx_cpm"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "1xx"
+                                        },
+                                        {
+                                            "label": "2xx"
+                                        },
+                                        {
+                                            "label": "3xx"
+                                        },
+                                        {
+                                            "label": "4xx"
+                                        },
+                                        {
+                                            "label": "5xx"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "title": "HTTP Response Code(Count per min)"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 12,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "7",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_dns_call_cpm",
+                                        "cilium_endpoint_protocol_dns_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Load(Call per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 12,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "8",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_dns_call_duration/cilium_endpoint_protocol_dns_call_cpm/1000000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Duration(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 12,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "9",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_dns_error_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "DNS Error(Count per min)"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 24,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "10",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_kafka_call_cpm",
+                                        "cilium_endpoint_protocol_kafka_call_success_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kafka Load(Operation per min)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Total Count"
+                                        },
+                                        {
+                                            "label": "Success Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 24,
+                                    "w": 6,
+                                    "h": 12,
+                                    "i": "11",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_kafka_call_duration/cilium_endpoint_protocol_kafka_call_cpm/1000000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kafka Operation Duration(ms)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "duration"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 24,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "12",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "cilium_endpoint_protocol_kafka_call_error_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Kafka Operation Error(Count per min)"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Topology",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 24,
+                                    "h": 48,
+                                    "i": "0",
+                                    "type": "Topology",
+                                    "graph": {
+                                        "showDepth": true
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "layer": "CILIUM_SERVICE",
+            "entity": "Endpoint",
+            "name": "Cilium-Endpoint"
+        }
+    }
+]

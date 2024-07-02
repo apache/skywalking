@@ -22,9 +22,14 @@
 * [Break Change] Update Nacos version to 2.3.2. Nacos 1.x server can't serve as cluster coordinator and configuration server.
 * Support tracing trace query(SkyWalking and Zipkin) for debugging.
 * Fix BanyanDB metrics query: used the wrong `Downsampling` type to find the schema.
+* Support fetch cilium flow to monitoring network traffic between cilium services.
+* Support `labelCount` function in the OAL engine.
 
 #### UI
-
+* Highlight search log keywords.
+* Add Error URL in the browser log.
+* Add a SolonMVC icon.
+* Adding cilium icon and i18n for menu.
 
 #### Documentation
 

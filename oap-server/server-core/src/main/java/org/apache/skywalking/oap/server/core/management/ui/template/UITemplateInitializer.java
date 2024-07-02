@@ -75,6 +75,7 @@ public class UITemplateInitializer {
         Layer.ROCKETMQ.name(),
         Layer.CLICKHOUSE.name(),
         Layer.ACTIVEMQ.name(),
+        Layer.CILIUM_SERVICE.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

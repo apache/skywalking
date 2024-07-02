@@ -526,6 +526,9 @@ OceanBase-jdbc-driver:
 SolonMVC:
   id: 158
   languages: Java
+DNS:
+  id: 159
+  languages: ebpf
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

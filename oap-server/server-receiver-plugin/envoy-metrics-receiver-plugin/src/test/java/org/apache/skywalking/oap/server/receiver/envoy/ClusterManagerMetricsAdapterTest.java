@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.receiver.envoy;
 
 import io.prometheus.client.Metrics;
 import lombok.SneakyThrows;
-import org.apache.skywalking.oap.server.receiver.envoy.als.mx.FieldsHelper;
+import org.apache.skywalking.oap.server.library.util.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ClusterManagerMetricsAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,10 +41,10 @@ public class ClusterManagerMetricsAdapterTest {
     @SneakyThrows
     @BeforeEach
     public void setUp() {
-        Whitebox.setInternalState(FieldsHelper.SINGLETON, "initialized", false);
+        Whitebox.setInternalState(FieldsHelper.forClass(this.getClass()), "initialized", false);
         EnvoyMetricReceiverConfig config = new EnvoyMetricReceiverConfig();
         clusterManagerMetricsAdapter = new ClusterManagerMetricsAdapter(config);
-        FieldsHelper.SINGLETON.init("metadata-service-mapping.yaml", config.serviceMetaInfoFactory().clazz());
+        FieldsHelper.forClass(config.serviceMetaInfoFactory().clazz()).init("metadata-service-mapping.yaml");
     }
 
     @Test
