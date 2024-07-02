@@ -18,6 +18,7 @@ SkyWalking fetches Cilium Node and Observability Data from gRPC API, analysis to
 cilium-fetcher:
     selector: ${SW_CILIUM_FETCHER:default}
     default:
+        # Host name and port of Hubble peer component
         peerHost: ${SW_CILIUM_FETCHER_PEER_HOST:hubble-peer.kube-system.svc.cluster.local}
         peerPort: ${SW_CILIUM_FETCHER_PEER_PORT:80}
         fetchFailureRetrySecond: ${SW_CILIUM_FETCHER_FETCH_FAILURE_RETRY_SECOND:10}
