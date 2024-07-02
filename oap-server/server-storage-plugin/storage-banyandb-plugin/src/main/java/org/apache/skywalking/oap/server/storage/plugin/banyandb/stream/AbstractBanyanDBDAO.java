@@ -204,6 +204,13 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         }
     }
 
+    protected MeasureQueryResponse query(MetadataRegistry.Schema schema,
+                                         Set<String> tags,
+                                         Set<String> fields,
+                                         QueryBuilder<MeasureQuery> builder) throws IOException {
+        return query(schema, tags, fields, null, builder);
+    }
+
     protected MeasureQueryResponse query(MetadataRegistry.Schema schema, Set<String> tags, Set<String> fields,
                                          TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
         if (schema == null) {

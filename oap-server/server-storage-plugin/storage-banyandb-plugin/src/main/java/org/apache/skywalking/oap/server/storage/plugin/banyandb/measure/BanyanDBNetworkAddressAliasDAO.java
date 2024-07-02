@@ -65,7 +65,6 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
                     getSchema(),
                     TAGS,
                     Collections.emptySet(),
-                    null,
                     new QueryBuilder<MeasureQuery>() {
                         @Override
                         protected void apply(final MeasureQuery query) {

@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
          MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EBPFProfilingScheduleRecord.INDEX_NAME, DownSampling.Minute);
          MeasureQueryResponse resp = query(schema,
                  TAGS,
-                 Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
+                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                      @Override
                      protected void apply(MeasureQuery query) {
                          query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));

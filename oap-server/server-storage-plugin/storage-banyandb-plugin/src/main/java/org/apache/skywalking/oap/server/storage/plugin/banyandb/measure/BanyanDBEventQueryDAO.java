@@ -60,7 +60,7 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
     public Events queryEvents(EventQueryCondition condition) throws Exception {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(Event.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp = query(schema, TAGS,
-                Collections.emptySet(), null, buildQuery(Collections.singletonList(condition)));
+                Collections.emptySet(), buildQuery(Collections.singletonList(condition)));
         Events events = new Events();
         if (resp.size() == 0) {
             return events;
@@ -75,7 +75,7 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
     public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(Event.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp = query(schema, TAGS,
-                Collections.emptySet(), null, buildQuery(conditionList));
+                Collections.emptySet(), buildQuery(conditionList));
         Events events = new Events();
         if (resp.size() == 0) {
             return events;

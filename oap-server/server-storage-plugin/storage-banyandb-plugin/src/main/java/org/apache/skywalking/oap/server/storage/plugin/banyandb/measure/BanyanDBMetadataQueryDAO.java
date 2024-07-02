@@ -90,7 +90,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
         MeasureQueryResponse resp = query(schema,
                 SERVICE_TRAFFIC_TAGS,
-                Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
+                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                     }
@@ -141,7 +141,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -158,7 +157,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -181,7 +179,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 ENDPOINT_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -208,7 +205,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -241,7 +237,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -267,7 +262,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -290,7 +284,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -313,7 +306,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -334,7 +326,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
