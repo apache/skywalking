@@ -36,6 +36,7 @@ import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
@@ -84,10 +85,11 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
 
     @Override
     public List<String> getServiceNames() throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
-            query(ZipkinServiceTraffic.INDEX_NAME,
+            query(schema,
                   SERVICE_TRAFFIC_TAGS,
-                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
+                  Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
 
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -104,10 +106,11 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
 
     @Override
     public List<String> getRemoteServiceNames(final String serviceName) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceRelationTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
-            query(ZipkinServiceRelationTraffic.INDEX_NAME,
+            query(schema,
                   REMOTE_SERVICE_TRAFFIC_TAGS,
-                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
+                  Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
 
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -127,10 +130,11 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
 
     @Override
     public List<String> getSpanNames(final String serviceName) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceSpanTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
-            query(ZipkinServiceSpanTraffic.INDEX_NAME,
+            query(schema,
                   SPAN_TRAFFIC_TAGS,
-                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
+                  Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
 
                     @Override
                     protected void apply(MeasureQuery query) {

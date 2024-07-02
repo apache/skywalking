@@ -31,7 +31,6 @@ import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
@@ -99,7 +98,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             }
             StreamQueryResponse response = query(modelName, tags, timestampRange, queryBuilder);
             if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
+                builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getElements()));
                 span.setMsg(builder.toString());
             }
             return response;
@@ -108,11 +107,6 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 traceContext.stopSpan(span);
             }
         }
-    }
-
-    protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,
-                                         QueryBuilder<MeasureQuery> builder) throws IOException {
-        return this.query(measureModelName, tags, fields, null, builder);
     }
 
     protected TopNQueryResponse topN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number,
@@ -148,7 +142,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             }
             TopNQueryResponse response = topNQuery(schema, timestampRange, number, sort, additionalConditions);
             if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
+                builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getTopNLists()));
                 span.setMsg(builder.toString());
             }
             return response;
@@ -175,24 +169,6 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(q);
     }
 
-    protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,
-                                         TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(measureModelName, DownSampling.Minute);
-        if (schema == null) {
-            throw new IllegalArgumentException("measure is not registered");
-        }
-        return this.query(schema, tags, fields, timestampRange, builder);
-    }
-
-    protected MeasureQueryResponse queryDebuggable(String measureModelName, Set<String> tags, Set<String> fields,
-                                         TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(measureModelName, DownSampling.Minute);
-        if (schema == null) {
-            throw new IllegalArgumentException("measure is not registered");
-        }
-        return queryDebuggable(schema, tags, fields, timestampRange, builder);
-    }
-
     protected MeasureQueryResponse queryDebuggable(MetadataRegistry.Schema schema,
                                                    Set<String> tags,
                                                    Set<String> fields,
@@ -217,7 +193,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             }
             MeasureQueryResponse response = query(schema, tags, fields, timestampRange, queryBuilder);
             if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
+                builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getDataPoints()));
                 span.setMsg(builder.toString());
             }
             return response;
@@ -230,6 +206,9 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
 
     protected MeasureQueryResponse query(MetadataRegistry.Schema schema, Set<String> tags, Set<String> fields,
                                          TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
+        if (schema == null) {
+            throw new IllegalArgumentException("measure is not registered");
+        }
         final MeasureQuery query;
         if (timestampRange == null) {
             query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags, fields);

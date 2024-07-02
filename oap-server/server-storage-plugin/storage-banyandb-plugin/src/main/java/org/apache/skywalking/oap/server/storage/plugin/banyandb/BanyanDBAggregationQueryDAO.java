@@ -75,7 +75,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             }
         }
 
-        return directMetricsTopN(condition, valueColumnName, spec, timestampRange, additionalConditions);
+        return directMetricsTopN(condition, schema, valueColumnName, spec, timestampRange, additionalConditions);
     }
 
     List<SelectedRecord> serverSideTopN(TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
@@ -103,9 +103,9 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         return topNList;
     }
 
-    List<SelectedRecord> directMetricsTopN(TopNCondition condition, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
+    List<SelectedRecord> directMetricsTopN(TopNCondition condition, MetadataRegistry.Schema schema, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
                                            TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
-        MeasureQueryResponse resp = queryDebuggable(condition.getName(), TAGS, Collections.singleton(valueColumnName),
+        MeasureQueryResponse resp = queryDebuggable(schema, TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {

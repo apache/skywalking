@@ -86,17 +86,17 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public List<Service> listServices() throws IOException {
-        MeasureQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceTraffic.INDEX_NAME, DownSampling.Minute);
+
+        MeasureQueryResponse resp = query(schema,
                 SERVICE_TRAFFIC_TAGS,
-                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
+                Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                     }
                 });
 
         final List<Service> services = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceTraffic.INDEX_NAME, DownSampling.Minute);
-
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             services.add(buildService(dataPoint, schema));
         }
@@ -110,7 +110,8 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         if (duration != null) {
             timestampRange = new TimestampRange(0, duration.getEndTimestamp());
         }
-        MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 timestampRange,
@@ -126,7 +127,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 });
 
         final List<ServiceInstance> instances = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             instances.add(buildInstance(dataPoint, schema));
         }
@@ -137,9 +137,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public ServiceInstance getInstance(String instanceId) throws IOException {
         IDManager.ServiceInstanceID.InstanceIDDefinition id = IDManager.ServiceInstanceID.analysisId(instanceId);
-        MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -147,15 +149,16 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                                 .and(eq(InstanceTraffic.NAME, id.getName()));
                     }
                 });
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
         return resp.size() > 0 ? buildInstance(resp.getDataPoints().get(0), schema) : null;
     }
 
     @Override
     public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
-        MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -169,15 +172,16 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         query.criteria(or(instanceRelationsQueryConditions));
                     }
                 });
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
         return resp.getDataPoints().stream().map(e -> buildInstance(e, schema)).collect(Collectors.toList());
     }
 
     @Override
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
-        MeasureQueryResponse resp = query(EndpointTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EndpointTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 ENDPOINT_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -188,7 +192,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 });
 
         final List<Endpoint> endpoints = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EndpointTraffic.INDEX_NAME, DownSampling.Minute);
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             endpoints.add(buildEndpoint(dataPoint, schema));
         }
@@ -201,9 +204,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
-        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -222,7 +227,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 });
 
         final List<Process> processes = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             processes.add(buildProcess(dataPoint, schema));
         }
@@ -232,10 +236,12 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
         long lastPingStartTimeBucket = duration.getStartTimeBucket();
-        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+        MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -248,7 +254,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 });
 
         final List<Process> processes = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             processes.add(buildProcess(dataPoint, schema));
         }
@@ -258,9 +263,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public List<Process> listProcesses(String agentId) throws IOException {
-        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -270,7 +277,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 });
 
         final List<Process> processes = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             processes.add(buildProcess(dataPoint, schema));
         }
@@ -280,9 +286,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
-        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -301,9 +309,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public long getProcessCount(String instanceId) throws IOException {
-        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -320,9 +330,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public Process getProcess(String processId) throws IOException {
-        MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                null,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -331,7 +343,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         }
                     }
                 });
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
 
         return resp.size() > 0 ? buildProcess(resp.getDataPoints().get(0), schema) : null;
     }
