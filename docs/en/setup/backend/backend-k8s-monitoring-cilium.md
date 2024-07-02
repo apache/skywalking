@@ -13,7 +13,7 @@ SkyWalking fetches Cilium Node and Observability Data from gRPC API, analysis to
 
 ## Setup
 1. Please following the [Setup Hubble Observability documentation](https://docs.cilium.io/en/stable/gettingstarted/hubble_setup/) to setting the Hubble for provided API.
-2. Activate Cilium receiver module to set `selector=default` in the YAML or `set SW_CILIUM_FETCHER=default` through the system environment viriable.
+2. To activate Cilium receiver module, set `selector=default` in the YAML or `set SW_CILIUM_FETCHER=default` through the system environment variable.
 ```yaml
 cilium-fetcher:
     selector: ${SW_CILIUM_FETCHER:default}
