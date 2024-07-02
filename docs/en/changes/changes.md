@@ -25,7 +25,10 @@
 * Support `labelCount` function in the OAL engine.
 
 #### UI
-
+* Highlight search log keywords.
+* Add Error URL in the browser log.
+* Add a SolonMVC icon.
+* Adding cilium icon and i18n for menu.
 
 #### Documentation
 

@@ -567,3 +567,105 @@ For `K8SEndpoint` and `K8SEndpointRelation`, they only have the following **prot
 | destServiceName    | The dest service name in kubernetes.                               |           | string |
 | destServiceName    | The layer in kubernetes dest service.                              |           | string |
 | destEndpointName   | The endpoint name detect in kubernetes dest service.               |           | string |
+
+### SCOPES with `Cilium` Prefix
+
+All metrics starting with `Cilium` are derived from Cilium monitoring by Cilium Hubble.
+
+#### Service, Service Instance and relations
+
+For all `CiliumService`, `CiliumServiceInstance`, `CiliumServiceRelation` and `CiliumServiceInstanceRelation`, they all have the
+following **L4**/**L7** metric contents.
+
+| Name                  | Remarks                                                                     | Group Key | Type   |
+|-----------------------|-----------------------------------------------------------------------------|-----------|--------|
+| verdict               | The metrics verdict from Flow. The value may be `forwarded` and `dropped`.  |           | string |
+| type                  | The metrics type from Flow. The value may be `tcp`, `http`, `dns`, `kakfa`. |           | string |
+| direction             | The metrics direction from Flow. The value may be `ingress` and `egress`.   |           | string |
+| dropReason            | When the verdict is `dropped`, the drop reason would be recorded.           |           | string |
+| http.url              | The URL of the HTTP request.                                                |           | string |
+| http.code             | The Response code of the HTTP response.                                     |           | int    |
+| http.protocol         | The protocol of the HTTP request.                                           |           | string |
+| http.method           | The method of the HTTP request.                                             |           | string |
+| kafka.errorCode       | The error code of the Kafka request.                                        |           | int    |
+| kafka.errorCodeString | The error code explaination of the Kafka request.                           |           | string |
+| kafka.apiVersion      | The API version of the Kafka request.                                       |           | string |
+| kafka.apiKey          | The API key of the Kafka request.                                           |           | string |
+| kafka.correlationId   | The correlation ID of the Kafka request.                                    |           | string |
+| kafka.topic           | The topic of the Kafka request.                                             |           | string |
+| dns.domain            | The domain of the DNS request.                                              |           | string |
+| dns.queryType         | The query type of the DNS request.                                          |           | string |
+| dns.rcode             | The response code of the DNS request.                                       |           | int    |
+| dns.recodeString      | The response code explaination of the DNS request.                          |           | string |
+| dns.ttl               | The TTL of the DNS request.                                                 |           | int    |
+| dns.ipCount           | The count of the IP addresses of the DNS responsed.                         |           | int    |
+| duration              | The duration(millisecond) of the L7 response.                               |           | long   |
+| success               | Is the response success of the L7 response.                                 |           | bool   |
+
+##### SCOPE `CiliumService`
+
+| Name        | Remarks                                                            | Group Key | Type   |
+|-------------|--------------------------------------------------------------------|-----------|--------|
+| name        | The service name in Cilium.                                        |           | string |
+| layer       | The layer in Cilium service.                                       |           | string |
+| detectPoint | Where the relation is detected. The value may be client or server. |           | enum   |
+
+##### SCOPE `CiliumServiceInstance`
+
+| Name                | Remarks                                                            | Group Key | Type   |
+|---------------------|--------------------------------------------------------------------|-----------|--------|
+| serviceName         | The service name in Cilium.                                        |           | string |
+| serviceInstanceName | The pod name in Cilium.                                            |           | string |
+| layer               | The layer of Cilium service.                                       |           | string |
+| detectPoint         | Where the relation is detected. The value may be client or server. |           | enum   |
+
+##### SCOPE `CiliumServiceRelation`
+
+| Name              | Remarks                                                            | Group Key | Type   |
+|-------------------|--------------------------------------------------------------------|-----------|--------|
+| sourceServiceName | The source service name in Cilium.                                 |           | string |
+| sourceLayer       | The source layer service in Cilium.                                |           | string |
+| detectPoint       | Where the relation is detected. The value may be client or server. |           | enum   |
+| componentId       | The ID of component used in this call.                             |           | int    |
+| destServiceName   | The dest service name in Cilium.                                   |           | string |
+| destLayer         | The dest layer service in Cilium.                                  |           | string |
+
+##### SCOPE `CiliumServiceInstanceRelation`
+
+| Name                      | Remarks                                                            | Group Key | Type   |
+|---------------------------|--------------------------------------------------------------------|-----------|--------|
+| sourceServiceName         | The source service name in Cilium.                                 |           | string |
+| sourceServiceInstanceName | The source pod name in Cilium.                                     |           | string |
+| sourceLayer               | The source layer service in Cilium.                                |           | string |
+| detectPoint               | Where the relation is detected. The value may be client or server. |           | enum   |
+| componentId               | The ID of component used in this call.                             |           | int    |
+| destServiceName           | The dest service name in Cilium.                                   |           | string |
+| destServiceInstanceName   | The dest pod name in Cilium.                                       |           | string |
+| destLayer                 | The dest layer service in Cilium.                                  |           | string |
+
+#### Endpoint and Endpoint Relation
+
+For `CiliumEndpoint` and `CiliumEndpointRelation`, they have all the fields of **L4**/**L7** metric contents, but the `type` only would be `http`, `dns` or `kafka`.
+
+##### SCOPE `CiliumEndpoint`
+
+| Name         | Remarks                                                 | Group Key | Type   |
+|--------------|---------------------------------------------------------|-----------|--------|
+| serviceName  | The service name in Cilium.                             |           | string |
+| layer        | The layer in Cilium service.                            |           | string |
+| endpointName | The endpoint name detect in Cilium service.             |           | string |
+
+##### SCOPE `CiliumEndpointRelation`
+
+| Name               | Remarks                                                            | Group Key | Type   |
+|--------------------|--------------------------------------------------------------------|-----------|--------|
+| sourceServiceName  | The source service name in Cilium.                                 |           | string |
+| sourceLayer        | The layer in Cilium source service.                                |           | enum   |
+| sourceEndpointName | The endpoint name detect in Cilium source service.                 |           | string |
+| detectPoint        | Where the relation is detected. The value may be client or server. |           | enum   |
+| componentId        | The ID of component used in this call.                             |           | int    |
+| destServiceName    | The dest service name in Cilium.                                   |           | string |
+| destLayer          | The layer in Cilium dest service.                                  |           | enum   |
+| destEndpointName   | The endpoint name detect in Cilium dest service.                   |           | string |
+
+

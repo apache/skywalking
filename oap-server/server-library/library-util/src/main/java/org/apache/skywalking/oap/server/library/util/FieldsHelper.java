@@ -46,9 +46,20 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class FieldsHelper {
+
+    /**
+     * The difference Class have different {@link FieldsHelper} instance for their own mappings.
+     */
     private static final Map<Class<?>, FieldsHelper> HELPER_MAP = new ConcurrentHashMap<>();
 
+    /**
+     * The target class to be inflated.
+     */
     private final Class<?> targetClass;
+
+    /**
+     * Whether the {@link FieldsHelper} has been initialized.
+     */
     private boolean initialized = false;
 
     /**

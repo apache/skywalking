@@ -13,6 +13,9 @@ ways to monitor deployments on Kubernetes.
 2. Rover is a SkyWalking native eBPF agent to collect network Access Logs to support topology-aware and metrics 
    analysis. Meanwhile, due to the power of eBPF, it could profile running services written by C++, Rust, Golang, etc. 
    Read [Rover setup guide](./backend-k8s-monitoring-rover.md) for more details.
+3. If Cilium is installed in Kubernetes, use Cilium Fetcher can collect network traffic data from services. 
+   This data can be used to create topology maps and to provide L4 and L7 layer metrics. 
+   Read [Cilium Fetcher setup guide](./backend-k8s-monitoring-cilium.md) for more details.
 
 SkyWalking deeply integrates with Kubernetes to help users understand the status of their applications on Kubernetes.
 Cillium with Hubble is in our v10 plan. 
