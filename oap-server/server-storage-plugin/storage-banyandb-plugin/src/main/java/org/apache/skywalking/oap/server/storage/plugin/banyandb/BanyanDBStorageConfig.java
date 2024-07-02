@@ -42,6 +42,10 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int flushInterval = 15;
     /**
+     * Timeout of flush. In the timeunit of seconds.
+     */
+    private int flushTimeout = 10;
+    /**
      * Concurrent consumer threads for batch writing.
      */
     private int concurrentWriteThreads = 2;
