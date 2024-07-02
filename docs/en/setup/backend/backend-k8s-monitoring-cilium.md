@@ -4,7 +4,7 @@ SkyWalking uses the Cilium Fetcher to gather traffic data between services from 
 
 ## Data flow
 
-SkyWalking Fetch Cilium Node and Observe Data from gRPC API, analysis to generate entity and using [OAL](./../../concepts-and-designs/oal.md) to generating metrics.
+SkyWalking fetches Cilium Node and Observability Data from gRPC API, analysis to generate entity and using [OAL](./../../concepts-and-designs/oal.md) to generating metrics.
 
 ## API Requirements
 
@@ -13,7 +13,7 @@ SkyWalking Fetch Cilium Node and Observe Data from gRPC API, analysis to generat
 
 ## Setup
 1. Please following the [Setup Hubble Observability documentation](https://docs.cilium.io/en/stable/gettingstarted/hubble_setup/) to setting the Hubble for provided API.
-2. Setup cilium receiver module by the following configuration.
+2. Activate Cilium receiver module to set `selector=default` in the YAML or `set SW_CILIUM_FETCHER=default` through the system environment viriable.
 ```yaml
 cilium-fetcher:
     selector: ${SW_CILIUM_FETCHER:default}
@@ -27,7 +27,7 @@ cilium-fetcher:
         sslCaFile: ${SW_CILIUM_FETCHER_CA_FILE_PATH:}
         convertClientAsServerTraffic: ${SW_CILIUM_FETCHER_CONVERT_CLIENT_AS_SERVER_TRAFFIC:true}
 ```
-3. If enabled the [TLS certificate within the Hubble](https://docs.cilium.io/en/stable/gettingstarted/hubble-configuration/#tls-certificates), please update these few configuration.
+3. If enabled the [TLS certificate within the Hubble](https://docs.cilium.io/en/stable/gettingstarted/hubble-configuration/#tls-certificates), please update these few configurations.
    1. `peerPort`: usually should be updated to the `443`.
    2. `sslConnection`: should be set to `true`.
    3. `sslPrivateKeyFile`: the path of the private key file.
@@ -68,18 +68,18 @@ they must be explicitly specified in each service's CiliumNetworkPolicy. For det
 
 #### HTTP
 
-| Name                 | Unit        | Description                                             |
-|----------------------|-------------|---------------------------------------------------------|
-| Call CPM             | Count       | HTTP Request calls per minutes.                         |
-| Duration             | Nanoseconds | Total HTTP Response use duration.                       |
-| Success CPM          | Count       | Total HTTP Response success(status < 500) count.        |
-| Status 1/2/3/4/5xx   | Count       | HTTP Response status code group by 1xx/2xx/3xx/4xx/5xx. |
+| Name               | Unit        | Description                                             |
+|--------------------|-------------|---------------------------------------------------------|
+| CPM                | Count       | HTTP Request calls per minutes.                         |
+| Duration           | Nanoseconds | Total HTTP Response use duration.                       |
+| Success CPM        | Count       | Total HTTP Response success(status < 500) count.        |
+| Status 1/2/3/4/5xx | Count       | HTTP Response status code group by 1xx/2xx/3xx/4xx/5xx. |
 
 #### DNS
 
 | Name        | Unit        | Description                                            |
 |-------------|-------------|--------------------------------------------------------|
-| Call CPM    | Count       | DNS Request calls per minutes.                         |
+| CPM         | Count       | DNS Request calls per minutes.                         |
 | Duration    | Nanoseconds | Total DNS Response use duration.                       |
 | Success CPM | Count       | Total DNS Response success(code == 0) count.           |
 | Error Count | Label Count | DNS Response error count with error description label. |
@@ -88,7 +88,7 @@ they must be explicitly specified in each service's CiliumNetworkPolicy. For det
 
 | Name        | Unit        | Description                                              |
 |-------------|-------------|----------------------------------------------------------|
-| Call CPM    | Count       | Kafka Request calls per minutes.                         |
+| CPM         | Count       | Kafka Request calls per minutes.                         |
 | Duration    | Nanoseconds | Total Kafka Response use duration.                       |
 | Success CPM | Count       | Total Kafka Response success(errorCode == 0) count.      |
 | Error Count | Label Count | Kafka Response error count with error description label. |
