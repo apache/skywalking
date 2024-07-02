@@ -82,6 +82,8 @@ catalog:
                 path: "/en/setup/backend/backend-k8s-monitoring-rover"
               - name: "Profile Pod's Network"
                 path: "/en/setup/backend/backend-k8s-network-monitoring"
+              - name: "Cilium"
+                path: "/en/setup/backend/backend-k8s-monitoring-cilium"
           - name: "Infrastructure Monitoring"
             catalog:
               - name: "Linux Monitoring"
