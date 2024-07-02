@@ -89,7 +89,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
         MeasureQueryResponse resp =
             query(schema,
                   SERVICE_TRAFFIC_TAGS,
-                  Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
+                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
 
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -110,7 +110,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
         MeasureQueryResponse resp =
             query(schema,
                   REMOTE_SERVICE_TRAFFIC_TAGS,
-                  Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
+                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
 
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -134,7 +134,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
         MeasureQueryResponse resp =
             query(schema,
                   SPAN_TRAFFIC_TAGS,
-                  Collections.emptySet(), null, new QueryBuilder<MeasureQuery>() {
+                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
 
                     @Override
                     protected void apply(MeasureQuery query) {
