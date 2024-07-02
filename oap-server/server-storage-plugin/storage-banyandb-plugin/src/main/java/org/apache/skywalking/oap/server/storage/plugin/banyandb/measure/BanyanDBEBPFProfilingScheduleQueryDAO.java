@@ -24,11 +24,13 @@ import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
+ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+ import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
+ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -50,7 +52,8 @@ import java.util.stream.Collectors;
 
      @Override
      public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
-         MeasureQueryResponse resp = query(EBPFProfilingScheduleRecord.INDEX_NAME,
+         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EBPFProfilingScheduleRecord.INDEX_NAME, DownSampling.Minute);
+         MeasureQueryResponse resp = query(schema,
                  TAGS,
                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                      @Override
