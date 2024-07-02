@@ -27,9 +27,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements IServiceLabelDAO {
@@ -41,7 +43,8 @@ public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements ISer
 
     @Override
     public List<String> queryAllLabels(String serviceId) throws IOException {
-        return query(ServiceLabelRecord.INDEX_NAME, TAGS,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceLabelRecord.INDEX_NAME, DownSampling.Minute);
+        return query(schema, TAGS,
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(final MeasureQuery query) {

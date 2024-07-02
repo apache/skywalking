@@ -59,7 +59,8 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
 
     @Override
     public List<ServiceHierarchyRelationTraffic> readAllServiceHierarchyRelations() throws Exception {
-        MeasureQueryResponse resp = query(ServiceHierarchyRelationTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceHierarchyRelationTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                                           SERVICE_HIERARCHY_RELATION_TAGS,
                                           Collections.emptySet(), new QueryBuilder<>() {
                 @Override
@@ -69,8 +70,6 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
         );
 
         final List<ServiceHierarchyRelationTraffic> relations = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(
-            ServiceHierarchyRelationTraffic.INDEX_NAME, DownSampling.Minute);
 
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             relations.add(new ServiceHierarchyRelationTraffic.Builder().storage2Entity(
@@ -83,14 +82,13 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
     @Override
     public List<InstanceHierarchyRelationTraffic> readInstanceHierarchyRelations(final String instanceId,
                                                                                  final String layer) throws Exception {
-        MeasureQueryResponse resp = query(InstanceHierarchyRelationTraffic.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceHierarchyRelationTraffic.INDEX_NAME, DownSampling.Minute);
+        MeasureQueryResponse resp = query(schema,
                                               INSTANCE_HIERARCHY_RELATION_TAGS,
                                           Collections.emptySet(), buildInstanceRelationsQuery(instanceId, layer)
         );
 
         List<InstanceHierarchyRelationTraffic> relations = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(
-            InstanceHierarchyRelationTraffic.INDEX_NAME, DownSampling.Minute);
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             relations.add(new InstanceHierarchyRelationTraffic.Builder().storage2Entity(
                 new BanyanDBConverter.StorageToMeasure(schema, dataPoint)));

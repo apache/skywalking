@@ -50,6 +50,7 @@ import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 import static java.util.Objects.nonNull;
@@ -120,8 +121,8 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         }
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceRelationServerSideMetrics.INDEX_NAME :
                 ServiceRelationClientSideMetrics.INDEX_NAME;
-
-        MeasureQueryResponse resp = query(modelName,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        MeasureQueryResponse resp = queryDebuggable(schema,
                 ImmutableSet.of(
                         ServiceRelationClientSideMetrics.COMPONENT_IDS,
                         Metrics.ENTITY_ID
@@ -203,8 +204,8 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         }
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceInstanceRelationServerSideMetrics.INDEX_NAME :
                 ServiceInstanceRelationClientSideMetrics.INDEX_NAME;
-
-        MeasureQueryResponse resp = query(modelName,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        MeasureQueryResponse resp = query(schema,
                 ImmutableSet.of(
                         Metrics.ENTITY_ID
                 ),
@@ -267,8 +268,8 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         if (startTB > 0 && endTB > 0) {
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
-
-        MeasureQueryResponse resp = query(EndpointRelationServerSideMetrics.INDEX_NAME,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EndpointRelationServerSideMetrics.INDEX_NAME, duration.getStep());
+        MeasureQueryResponse resp = query(schema,
                 ImmutableSet.of(
                         Metrics.ENTITY_ID
                 ),
@@ -302,8 +303,8 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         }
         final String modelName = detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME :
                 ProcessRelationClientSideMetrics.INDEX_NAME;
-
-        MeasureQueryResponse resp = query(modelName,
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        MeasureQueryResponse resp = query(schema,
                 ImmutableSet.of(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID),
                 Collections.emptySet(), timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
