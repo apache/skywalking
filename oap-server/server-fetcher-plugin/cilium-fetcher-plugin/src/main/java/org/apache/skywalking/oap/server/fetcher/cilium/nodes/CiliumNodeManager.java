@@ -221,6 +221,7 @@ public class CiliumNodeManager implements ClusterWatcher {
             }
         });
 
+        newNodes.sort(Comparator.comparing(CiliumNode::getAddress));
         this.usingNodes = ImmutableList.copyOf(newNodes);
     }
 

@@ -304,7 +304,6 @@
                                     "type": "Widget",
                                     "expressions": [
                                         "cilium_service_instance_relation_protocol_http_status_1xx_cpm",
-                                        "cilium_service_instance_relation_protocol_http_status_2xx_cpm",
                                         "cilium_service_instance_relation_protocol_http_status_3xx_cpm",
                                         "cilium_service_instance_relation_protocol_http_status_4xx_cpm",
                                         "cilium_service_instance_relation_protocol_http_status_5xx_cpm"
@@ -318,14 +317,11 @@
                                         "showYAxis": true
                                     },
                                     "widget": {
-                                        "title": "HTTP Response Status Server Side(Count Per Min)"
+                                        "title": "HTTP Non-2xx Response Status Server Side(Count Per Min)"
                                     },
                                     "metricConfig": [
                                         {
                                             "label": "1xx"
-                                        },
-                                        {
-                                            "label": "2xx"
                                         },
                                         {
                                             "label": "3xx"

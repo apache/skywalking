@@ -188,7 +188,6 @@
                                     "type": "Widget",
                                     "expressions": [
                                         "cilium_service_protocol_http_status_1xx_cpm",
-                                        "cilium_service_protocol_http_status_2xx_cpm",
                                         "cilium_service_protocol_http_status_3xx_cpm",
                                         "cilium_service_protocol_http_status_4xx_cpm",
                                         "cilium_service_protocol_http_status_5xx_cpm"
@@ -206,9 +205,6 @@
                                             "label": "1xx"
                                         },
                                         {
-                                            "label": "2xx"
-                                        },
-                                        {
                                             "label": "3xx"
                                         },
                                         {
@@ -219,7 +215,7 @@
                                         }
                                     ],
                                     "widget": {
-                                        "title": "HTTP Response Code(Count per min)"
+                                        "title": "HTTP Non-2xx Response Code(Count per min)"
                                     }
                                 },
                                 {

@@ -685,6 +685,9 @@ jobs:
 
           - name: OTLP Trace
             config:  test/e2e-v2/cases/otlp-traces/e2e.yaml
+
+          - name: Cilium Service
+            config: test/e2e-v2/cases/cilium/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:
@@ -720,7 +723,7 @@ jobs:
         if: matrix.test.docker != null
         run: docker build -t ${{ matrix.test.docker.name }} -f ${{ matrix.test.docker.base }}/${{ matrix.test.docker.file }} ${{ matrix.test.docker.base }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
+        uses: apache/skywalking-infra-e2e@7f6b0da20f170b181a79cf89ef7d47848ac34138
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() }}
