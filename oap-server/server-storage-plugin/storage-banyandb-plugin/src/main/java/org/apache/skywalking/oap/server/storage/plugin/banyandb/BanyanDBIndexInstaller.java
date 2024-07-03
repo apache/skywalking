@@ -32,8 +32,6 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import java.io.IOException;
-
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
     private final BanyanDBStorageConfig config;
