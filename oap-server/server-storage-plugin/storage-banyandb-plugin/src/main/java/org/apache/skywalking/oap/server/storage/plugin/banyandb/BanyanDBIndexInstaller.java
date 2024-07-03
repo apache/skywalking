@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
@@ -48,8 +49,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         if (!model.isTimeSeries()) {
             return true;
         }
-        final ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
-        final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config, configService);
+        final ConfigService configService = moduleManager.find(CoreModule.NAME)
+                                                         .provider()
+                                                         .getService(ConfigService.class);
+        final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(
+            model, config, configService);
         try {
             final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
             // first check resource existence and create group if necessary
@@ -78,26 +82,60 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     @Override
     public void createTable(Model model) throws StorageException {
         try {
-            ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
+            ConfigService configService = moduleManager.find(CoreModule.NAME)
+                                                       .provider()
+                                                       .getService(ConfigService.class);
             if (model.isRecord()) { // stream
                 Stream stream = MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
                 if (stream != null) {
                     log.info("install stream schema {}", model.getName());
-                    ((BanyanDBStorageClient) client).define(stream);
+                    try {
+                        ((BanyanDBStorageClient) client).define(stream);
+                    } catch (BanyanDBException ex) {
+                        if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                            log.info(
+                                "Stream schema {}_{} already created by another OAP node",
+                                model.getName(),
+                                model.getDownsampling()
+                            );
+                        } else {
+                            throw ex;
+                        }
+                    }
                 }
             } else { // measure
                 Measure measure = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
                 if (measure != null) {
                     log.info("install measure schema {}", measure.name());
-                    ((BanyanDBStorageClient) client).define(measure);
                     final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
-                    MetadataRegistry.INSTANCE.findMetadata(model).installTopNAggregation(c);
+                    try {
+                        c.define(measure);
+                    } catch (BanyanDBException ex) {
+                        if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                            log.info("Measure schema {}_{} already created by another OAP node",
+                                     model.getName(),
+                                     model.getDownsampling());
+                        } else {
+                            throw ex;
+                        }
+                    }
+                    final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
+                    try {
+                        schema.installTopNAggregation(c);
+                    } catch (BanyanDBException ex) {
+                        if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                            log.info("Measure schema {}_{} TopN({}) already created by another OAP node",
+                                     model.getName(),
+                                     model.getDownsampling(),
+                                     schema.getTopNSpec());
+                        } else {
+                            throw ex;
+                        }
+                    }
                 }
             }
-        } catch (IOException ex) {
-            throw new StorageException("fail to install schema", ex);
         } catch (BanyanDBException ex) {
-            throw new StorageException("fail to install TopN schema", ex);
+            throw new StorageException("fail to create schema " + model.getName(), ex);
         }
     }
 }

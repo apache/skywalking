@@ -180,23 +180,23 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public void define(Stream stream) throws IOException {
+    public void define(Stream stream) throws BanyanDBException {
         try {
             this.client.define(stream);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
-            throw new IOException("fail to define stream", ex);
+            throw ex;
         }
     }
 
-    public void define(Measure measure) throws IOException {
+    public void define(Measure measure) throws BanyanDBException {
         try {
             this.client.define(measure);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
-            throw new IOException("fail to define stream", ex);
+            throw ex;
         }
     }
 
