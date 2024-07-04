@@ -54,9 +54,11 @@ import java.util.List;
 public class BanyanDBStorageClient implements Client, HealthCheckable {
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
+    private final int flushTimeout;
 
-    public BanyanDBStorageClient(String... targets) {
+    public BanyanDBStorageClient(int flushTimeout, String... targets) {
         this.client = new BanyanDBClient(targets);
+        this.flushTimeout = flushTimeout;
     }
 
     @Override
@@ -178,23 +180,23 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public void define(Stream stream) throws IOException {
+    public void define(Stream stream) throws BanyanDBException {
         try {
             this.client.define(stream);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
-            throw new IOException("fail to define stream", ex);
+            throw ex;
         }
     }
 
-    public void define(Measure measure) throws IOException {
+    public void define(Measure measure) throws BanyanDBException {
         try {
             this.client.define(measure);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
-            throw new IOException("fail to define stream", ex);
+            throw ex;
         }
     }
 
@@ -234,11 +236,11 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     }
 
     public StreamBulkWriteProcessor createStreamBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency);
+        return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
     }
 
     public MeasureBulkWriteProcessor createMeasureBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.client.buildMeasureWriteProcessor(maxBulkSize, flushInterval, concurrency);
+        return this.client.buildMeasureWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
     }
 
     @Override

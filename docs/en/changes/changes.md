@@ -24,6 +24,9 @@
 * Fix BanyanDB metrics query: used the wrong `Downsampling` type to find the schema.
 * Support fetch cilium flow to monitoring network traffic between cilium services.
 * Support `labelCount` function in the OAL engine.
+* Support BanyanDB internal metrics query execution tracing.
+* BanyanDB client config: rise the default `maxBulkSize` to 10000, add `flushTimeout` and set default to 10s.
+* Polish BanyanDB group and schema creation logic to fix the schema creation failure issue in distributed race conditions.
 
 #### UI
 * Highlight search log keywords.

@@ -3,7 +3,7 @@
 [BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community.
 Activate BanyanDB as the storage, and set storage provider to **banyandb**.
 
-The OAP requires BanyanDB 0.6 server. From this version, BanyanDB provides general compatibility.
+The OAP requires BanyanDB 0.7 server. From this version, BanyanDB provides general compatibility.
 
 ```yaml
 storage:
@@ -14,12 +14,14 @@ storage:
     targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
     # The max number of records in a bulk write request.
     # Bigger value can improve the write performance, but also increase the OAP and BanyanDB Server memory usage.
-    maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
+    maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:10000}
     # The minimum seconds between two bulk flushes.
     # If the data in a bulk is less than maxBulkSize, the data will be flushed after this period.
     # If the data in a bulk is more than maxBulkSize, the data will be flushed immediately.
     # Bigger value can reduce the write pressure on BanyanDB Server, but also increase the latency of the data.
     flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
+    # The timeout seconds of a bulk flush.
+    flushTimeout: ${SW_STORAGE_BANYANDB_FLUSH_TIMEOUT:10}
     # The shard number of `measure` groups that store the metrics data.
     metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
     # The shard number of `stream` groups that store the trace, log and profile data.

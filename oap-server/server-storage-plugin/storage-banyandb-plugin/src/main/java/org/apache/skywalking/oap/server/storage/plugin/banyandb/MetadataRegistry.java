@@ -551,22 +551,44 @@ public enum MetadataRegistry {
                 case STREAM:
                     resourceExist = client.existStream(this.group, this.name());
                     if (!resourceExist.hasGroup()) {
-                        Group g = client.define(Group.create(this.group, Catalog.STREAM, this.shard,
-                                IntervalRule.create(IntervalRule.Unit.DAY, this.segmentIntervalDays),
-                                IntervalRule.create(IntervalRule.Unit.DAY, this.ttlDays)));
-                        if (g != null) {
-                            log.info("group {} created", g.name());
+                        try {
+                            Group g = client.define(Group.create(this.group, Catalog.STREAM, this.shard,
+                                                                 IntervalRule.create(
+                                                                     IntervalRule.Unit.DAY, this.segmentIntervalDays),
+                                                                 IntervalRule.create(
+                                                                     IntervalRule.Unit.DAY, this.ttlDays)
+                            ));
+                            if (g != null) {
+                                log.info("group {} created", g.name());
+                            }
+                        } catch (BanyanDBException ex) {
+                            if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                                log.info("group {} already created by another OAP node", this.group);
+                            } else {
+                                throw ex;
+                            }
                         }
                     }
                     return resourceExist.hasResource();
                 case MEASURE:
                     resourceExist = client.existMeasure(this.group, this.name());
-                    if (!resourceExist.hasGroup()) {
-                        Group g = client.define(Group.create(this.group, Catalog.MEASURE, this.shard,
-                                IntervalRule.create(IntervalRule.Unit.DAY, this.segmentIntervalDays),
-                                IntervalRule.create(IntervalRule.Unit.DAY, this.ttlDays)));
-                        if (g != null) {
-                            log.info("group {} created", g.name());
+                    try {
+                        if (!resourceExist.hasGroup()) {
+                            Group g = client.define(Group.create(this.group, Catalog.MEASURE, this.shard,
+                                                                 IntervalRule.create(
+                                                                     IntervalRule.Unit.DAY, this.segmentIntervalDays),
+                                                                 IntervalRule.create(
+                                                                     IntervalRule.Unit.DAY, this.ttlDays)
+                            ));
+                            if (g != null) {
+                                log.info("group {} created", g.name());
+                            }
+                        }
+                    } catch (BanyanDBException ex) {
+                        if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                            log.info("group {} already created by another OAP node", this.group);
+                        } else {
+                            throw ex;
                         }
                     }
                     return resourceExist.hasResource();
