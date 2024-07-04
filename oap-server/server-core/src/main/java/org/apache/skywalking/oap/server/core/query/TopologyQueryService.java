@@ -301,18 +301,4 @@ public class TopologyQueryService implements Service {
         node.setReal(true);
         return node;
     }
-
-//    private EndpointNode buildEndpointDependencyNode(String endpointId) {
-//        final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
-//            endpointId);
-//        EndpointNode instanceNode = new EndpointNode();
-//        instanceNode.setId(endpointId);
-//        instanceNode.setName(endpointIDDefinition.getEndpointName());
-//        instanceNode.setServiceId(endpointIDDefinition.getServiceId());
-//        final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(
-//            endpointIDDefinition.getServiceId());
-//        instanceNode.setServiceName(serviceIDDefinition.getName());
-//        instanceNode.setReal(serviceIDDefinition.isReal());
-//        return instanceNode;
-//    }
 }
