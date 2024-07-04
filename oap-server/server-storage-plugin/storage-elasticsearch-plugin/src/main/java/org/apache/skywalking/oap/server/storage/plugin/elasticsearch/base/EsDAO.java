@@ -65,6 +65,10 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         }
     }
 
+    protected SearchResponse searchDebuggable(String indexName, Search search) {
+        return searchDebuggable(indexName, search, null);
+    }
+
     protected SearchResponse searchDebuggable(String indexName, Search search, SearchParams params) {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan span = null;

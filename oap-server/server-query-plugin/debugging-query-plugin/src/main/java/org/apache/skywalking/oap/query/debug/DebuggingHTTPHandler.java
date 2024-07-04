@@ -27,6 +27,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.server.annotation.Default;
+import com.linecorp.armeria.server.annotation.ExceptionHandler;
 import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Param;
 import java.util.ArrayList;
@@ -39,11 +40,16 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.oap.query.debug.mqe.DebuggingMQERsp;
+import org.apache.skywalking.oap.query.debug.topology.DebuggingQueryEndpointTopologyRsp;
+import org.apache.skywalking.oap.query.debug.topology.DebuggingQueryInstanceTopologyRsp;
+import org.apache.skywalking.oap.query.debug.topology.DebuggingQueryProcessTopologyRsp;
+import org.apache.skywalking.oap.query.debug.topology.DebuggingQueryServiceTopologyRsp;
 import org.apache.skywalking.oap.query.debug.trace.DebuggingQueryTraceBriefRsp;
 import org.apache.skywalking.oap.query.debug.trace.DebuggingQueryTraceRsp;
 import org.apache.skywalking.oap.query.debug.trace.zipkin.DebuggingZipkinQueryTraceRsp;
 import org.apache.skywalking.oap.query.debug.trace.zipkin.DebuggingZipkinQueryTracesRsp;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsExpressionQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
 import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
@@ -56,8 +62,12 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.Entity;
 import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
+import org.apache.skywalking.oap.server.core.query.type.EndpointTopology;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
+import org.apache.skywalking.oap.server.core.query.type.ProcessTopology;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceTopology;
+import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.core.query.type.Trace;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
@@ -69,11 +79,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import zipkin2.Span;
 
 @Slf4j
+@ExceptionHandler(DebuggingQueryExceptionHandler.class)
 public class DebuggingHTTPHandler {
     private final ServerStatusService serverStatusService;
     private final MetricsExpressionQuery mqeQuery;
     private final TraceQuery traceQuery;
     private final ZipkinQueryHandler zipkinQueryHandler;
+    private final TopologyQuery topologyQuery;
     final DebuggingQueryConfig config;
 
     public DebuggingHTTPHandler(final ModuleManager manager, final DebuggingQueryConfig config) {
@@ -85,6 +97,7 @@ public class DebuggingHTTPHandler {
         this.traceQuery = new TraceQuery(manager);
         //use zipkin default config for debugging
         this.zipkinQueryHandler = new ZipkinQueryHandler(new ZipkinQueryConfig(), manager);
+        this.topologyQuery = new TopologyQuery(manager);
     }
 
     @Get("/debugging/config/dump")
@@ -264,6 +277,104 @@ public class DebuggingHTTPHandler {
             traceContext.stopTrace();
             DebuggingTraceContext.TRACE_CONTEXT.remove();
         }
+    }
+
+    @SneakyThrows
+    @Get("/debugging/query/topology/getGlobalTopology")
+    public String getGlobalTopology(@Param("startTime") String startTime,
+                                 @Param("endTime") String endTime,
+                                 @Param("step") String step,
+                                 @Param("serviceLayer") Optional<String> serviceLayer) {
+        Duration duration = new Duration();
+        duration.setStart(startTime);
+        duration.setEnd(endTime);
+        duration.setStep(Step.valueOf(step));
+        Topology topology = topologyQuery.getGlobalTopology(duration, serviceLayer.orElse(null), true);
+        DebuggingQueryServiceTopologyRsp result = new DebuggingQueryServiceTopologyRsp(
+            topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
+        return transToYAMLString(result);
+    }
+
+    @SneakyThrows
+    @Get("/debugging/query/topology/getServicesTopology")
+    public String getServicesTopology(@Param("startTime") String startTime,
+                                    @Param("endTime") String endTime,
+                                    @Param("step") String step,
+                                    @Param("serviceLayer") String serviceLayer,
+                                    @Param("services") String services) {
+        Duration duration = new Duration();
+        duration.setStart(startTime);
+        duration.setEnd(endTime);
+        duration.setStep(Step.valueOf(step));
+
+        List<String> ids = Arrays.stream(services.split(Const.COMMA))
+                                 .map(name -> IDManager.ServiceID.buildId(name, Layer.nameOf(serviceLayer).isNormal()))
+                                 .collect(Collectors.toList());
+        Topology topology = topologyQuery.getServicesTopology(ids, duration, true);
+        DebuggingQueryServiceTopologyRsp result = new DebuggingQueryServiceTopologyRsp(
+            topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
+        return transToYAMLString(result);
+    }
+
+    @SneakyThrows
+    @Get("/debugging/query/topology/getServiceInstanceTopology")
+    public String getServiceInstanceTopology(@Param("startTime") String startTime,
+                                             @Param("endTime") String endTime,
+                                             @Param("step") String step,
+                                             @Param("clientService") String clientService,
+                                             @Param("serverService") String serverService,
+                                             @Param("clientServiceLayer") String clientServiceLayer,
+                                             @Param("serverServiceLayer") String serverServiceLayer) {
+        Duration duration = new Duration();
+        duration.setStart(startTime);
+        duration.setEnd(endTime);
+        duration.setStep(Step.valueOf(step));
+        String clientServiceId = IDManager.ServiceID.buildId(clientService, Layer.nameOf(clientServiceLayer).isNormal());
+        String serverServiceId = IDManager.ServiceID.buildId(serverService, Layer.nameOf(serverServiceLayer).isNormal());
+        ServiceInstanceTopology topology = topologyQuery.getServiceInstanceTopology(clientServiceId, serverServiceId, duration, true);
+        DebuggingQueryInstanceTopologyRsp result = new DebuggingQueryInstanceTopologyRsp(
+            topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
+        return transToYAMLString(result);
+    }
+
+    @SneakyThrows
+    @Get("/debugging/query/topology/getEndpointDependencies")
+    public String getEndpointDependencies(@Param("startTime") String startTime,
+                                          @Param("endTime") String endTime,
+                                          @Param("step") String step,
+                                          @Param("service") String service,
+                                          @Param("serviceLayer") String serviceLayer,
+                                          @Param("endpoint") String endpoint) {
+        Duration duration = new Duration();
+        duration.setStart(startTime);
+        duration.setEnd(endTime);
+        duration.setStep(Step.valueOf(step));
+        String endpointId = IDManager.EndpointID.buildId(
+            IDManager.ServiceID.buildId(service, Layer.nameOf(serviceLayer).isNormal()), endpoint);
+        EndpointTopology topology = topologyQuery.getEndpointDependencies(endpointId, duration, true);
+        DebuggingQueryEndpointTopologyRsp result = new DebuggingQueryEndpointTopologyRsp(
+            topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
+        return transToYAMLString(result);
+    }
+
+    @SneakyThrows
+    @Get("/debugging/query/topology/getProcessTopology")
+    public String getProcessTopology(@Param("startTime") String startTime,
+                                     @Param("endTime") String endTime,
+                                     @Param("step") String step,
+                                     @Param("service") String service,
+                                     @Param("serviceLayer") String serviceLayer,
+                                     @Param("instance") String process) {
+        Duration duration = new Duration();
+        duration.setStart(startTime);
+        duration.setEnd(endTime);
+        duration.setStep(Step.valueOf(step));
+        String instanceId = IDManager.ServiceInstanceID.buildId(
+            IDManager.ServiceID.buildId(service, Layer.nameOf(serviceLayer).isNormal()), process);
+        ProcessTopology topology = topologyQuery.getProcessTopology(instanceId, duration, true);
+        DebuggingQueryProcessTopologyRsp result = new DebuggingQueryProcessTopologyRsp(
+            topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
+        return transToYAMLString(result);
     }
 
     private DebuggingTraceRsp transformTrace(DebuggingTrace trace) {

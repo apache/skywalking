@@ -16,24 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.debug.topology;
 
-import lombok.Getter;
-
-import java.util.ArrayList;
 import java.util.List;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.query.debug.DebuggingTraceRsp;
+import org.apache.skywalking.oap.server.core.query.type.Call;
+import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceNode;
 
+@RequiredArgsConstructor
 @Getter
-public class ProcessTopology {
-    private final List<ProcessNode> nodes;
+public class DebuggingQueryInstanceTopologyRsp {
+    private final List<ServiceInstanceNode> nodes;
     private final List<Call> calls;
-    @Setter
-    private DebuggingTrace debuggingTrace;
-
-    public ProcessTopology() {
-        this.nodes = new ArrayList<>();
-        this.calls = new ArrayList<>();
-    }
+    private final DebuggingTraceRsp debuggingTrace;
 }

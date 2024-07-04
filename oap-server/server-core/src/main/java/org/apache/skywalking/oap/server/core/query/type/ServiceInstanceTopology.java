@@ -21,12 +21,16 @@ package org.apache.skywalking.oap.server.core.query.type;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
 
 @Getter
 public class ServiceInstanceTopology {
 
     private final List<ServiceInstanceNode> nodes;
     private final List<Call> calls;
+    @Setter
+    private DebuggingTrace debuggingTrace;
 
     public ServiceInstanceTopology() {
         this.nodes = new ArrayList<>();
