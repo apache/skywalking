@@ -28,6 +28,7 @@
 * BanyanDB client config: rise the default `maxBulkSize` to 10000, add `flushTimeout` and set default to 10s.
 * Polish BanyanDB group and schema creation logic to fix the schema creation failure issue in distributed race conditions.
 * Support tracing topology query for debugging.
+* Fix expression of graph `Current QPS` in MySQL dashboard.
 
 #### UI
 * Highlight search log keywords.
