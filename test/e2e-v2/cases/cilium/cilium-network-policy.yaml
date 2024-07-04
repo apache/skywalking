@@ -1,0 +1,161 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+    name: "rule3"
+spec:
+    description: "L7 policy to restrict access to specific HTTP call"
+    endpointSelector:
+        matchLabels:
+            app: productpage
+    ingress:
+        - fromEndpoints:
+              - matchLabels:
+                    "k8s:app": details
+              - matchLabels:
+                    "k8s:app": reviews
+              - matchLabels:
+                    "k8s:app": trafficgenerator
+    egress:
+        - toEndpoints:
+              - matchLabels:
+                    "k8s:io.kubernetes.pod.namespace": kube-system
+                    "k8s:k8s-app": kube-dns
+          toPorts:
+              - ports:
+                    - port: "53"
+                      protocol: ANY
+                rules:
+                    dns:
+                        - matchPattern: "*"
+        - toEndpoints:
+              - matchLabels:
+                    "k8s:app": trafficgenerator
+              - matchLabels:
+                    "k8s:app": details
+              - matchLabels:
+                    "k8s:app": reviews
+          toPorts:
+              - ports:
+                    - port: "9080"
+                      protocol: TCP
+                rules:
+                    http:
+                        - method: ""
+                          path: ""
+
+---
+
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+    name: "rule5"
+spec:
+    description: "L7 policy to restrict access to specific HTTP call"
+    endpointSelector:
+        matchLabels:
+            app: reviews
+    ingress:
+        - fromEndpoints:
+              - matchLabels:
+                    "k8s:app": productpage
+              - matchLabels:
+                    "k8s:app": ratings
+              - matchLabels:
+                    "k8s:io.kubernetes.pod.namespace": kube-system
+                    "k8s:k8s-app": kube-dns
+        - toPorts:
+              - ports:
+                    - port: "9080"
+                      protocol: TCP
+                rules:
+                    http:
+                        - method: ""
+                          path: ""
+    egress:
+        - toEndpoints:
+              - matchLabels:
+                    "k8s:io.kubernetes.pod.namespace": kube-system
+                    "k8s:k8s-app": kube-dns
+          toPorts:
+              - ports:
+                    - port: "53"
+                      protocol: ANY
+                rules:
+                    dns:
+                        - matchPattern: "*"
+        - toEndpoints:
+              - matchLabels:
+                    "k8s:app": productpage
+              - matchLabels:
+                    "k8s:app": ratings
+          toPorts:
+              - ports:
+                    - port: "9080"
+                      protocol: TCP
+                rules:
+                    http:
+                        - method: ""
+                          path: ""
+
+---
+
+apiVersion: "cilium.io/v2"
+kind: CiliumNetworkPolicy
+metadata:
+    name: "rule4"
+spec:
+    description: "L7 policy to restrict access to specific HTTP call"
+    endpointSelector:
+        matchLabels:
+            app: trafficgenerator
+    ingress:
+        - fromEndpoints:
+              - matchLabels:
+                    "k8s:app": productpage
+        - toPorts:
+              - ports:
+                    - port: "9080"
+                      protocol: TCP
+                rules:
+                    http:
+                        - method: ""
+                          path: ""
+    egress:
+        - toEndpoints:
+              - matchLabels:
+                    "k8s:io.kubernetes.pod.namespace": kube-system
+                    "k8s:k8s-app": kube-dns
+          toPorts:
+              - ports:
+                    - port: "53"
+                      protocol: ANY
+                rules:
+                    dns:
+                        - matchPattern: "*"
+        - toEndpoints:
+              - matchLabels:
+                    "k8s:app": productpage
+          toPorts:
+              - ports:
+                    - port: "9080"
+                      protocol: TCP
+                rules:
+                    http:
+                        - method: ""
+                          path: ""

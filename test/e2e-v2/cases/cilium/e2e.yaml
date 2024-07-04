@@ -1,0 +1,152 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+setup:
+  env: kind
+  file: kind.yaml
+  init-system-environment: ../../script/env
+  timeout: 10m
+  kind:
+    no-wait: true
+    import-images:
+      - skywalking/ui:latest
+      - skywalking/oap:latest
+    expose-ports:
+      - namespace: kube-system
+        resource: service/skywalking-ui
+        port: 80
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: install kubectl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
+    - name: Install helm
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh helm
+    - name: Install kubectl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
+    - name: install cilium
+      command: |
+        bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh cilium
+        cilium install --wait
+        cilium status --wait
+    - name: Install SkyWalking
+      command: |
+        helm -n kube-system install skywalking \
+          oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+          --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
+          --set fullnameOverride=skywalking \
+          --set elasticsearch.replicas=1 \
+          --set elasticsearch.minimumMasterNodes=1 \
+          --set oap.replicas=1 \
+          --set ui.image.repository=skywalking/ui \
+          --set ui.image.tag=latest \
+          --set oap.image.tag=latest \
+          --set oap.image.repository=skywalking/oap \
+          --set oap.storageType=elasticsearch \
+          -f test/e2e-v2/cases/cilium/values.yaml
+      wait:
+        - namespace: kube-system
+          resource: deployments/skywalking-oap
+          for: condition=available
+    - name: Deploy demo services
+      command: |
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/1.18.0/samples/bookinfo/platform/kube/bookinfo.yaml
+      wait:
+        - namespace: default
+          resource: pod
+          for: condition=Ready
+    - name: Generate traffic
+      path: traffic-gen.yaml
+      wait:
+        - namespace: default
+          resource: pod
+          for: condition=Ready
+    - name: Apply Cilium Network Policy
+      path: cilium-network-policy.yaml
+
+verify:
+  retry:
+    count: 10
+    interval: 10s
+  cases:
+    # service list
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
+      expected: expected/service.yml
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=productpage.default
+      expected: expected/service-instance.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=reviews.default
+      expected: expected/service-instance.yml
+    # service endpoint list
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=productpage.default
+      expected: expected/service-endpoint-productpage.yml
+
+    # dependency service
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency global --layer=CILIUM_SERVICE
+      expected: expected/dependency-services.yml
+
+    # service metrics
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_l4_read_pkg_cpm --service-name='productpage.default'
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_l4_write_pkg_cpm --service-name='productpage.default'
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_protocol_http_call_cpm --service-name='productpage.default'
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_protocol_http_status_2xx_cpm --service-name='productpage.default'
+      expected: expected/metrics-has-value.yml
+
+    # service instance metrics
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_instance_l4_read_pkg_cpm --service-name='productpage.default' --instance-name=$(
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=productpage.default | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_instance_l4_write_pkg_cpm --service-name='productpage.default' --instance-name=$(
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=productpage.default | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_instance_protocol_http_call_cpm --service-name='productpage.default' --instance-name=$(
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=productpage.default | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_instance_protocol_http_status_2xx_cpm --service-name='productpage.default' --instance-name=$(
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=productpage.default | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+
+    # service endpoint metrics
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_endpoint_protocol_http_call_cpm --service-name='productpage.default' --endpoint-name="GET:/productpage"
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_endpoint_protocol_http_status_2xx_cpm --service-name='productpage.default' --endpoint-name="GET:/productpage"
+      expected: expected/metrics-has-value.yml
+
+    # service relation metrics
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_relation_server_l4_read_pkg_cpm  --service-name='productpage.default' --dest-service-name='details.default'
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_relation_server_l4_write_pkg_cpm  --service-name='productpage.default' --dest-service-name='details.default'
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_relation_server_protocol_http_call_cpm  --service-name='productpage.default' --dest-service-name='details.default'
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=cilium_service_relation_protocol_http_status_2xx_cpm  --service-name='productpage.default' --dest-service-name='details.default'
+      expected: expected/metrics-has-value.yml
