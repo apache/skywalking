@@ -55,23 +55,24 @@ extend type Query {
 The topology and dependency graphs among services, instances and endpoints. Includes direct relationships or global maps.
 
 ```graphql
+# Param, if debug is true will enable the query tracing and return DebuggingTrace in the result.
 extend type Query {
     # Query the global topology
     # When layer is specified, the topology of this layer would be queried
-    getGlobalTopology(duration: Duration!, layer: String): Topology
+    getGlobalTopology(duration: Duration!, layer: String, debug: Boolean): Topology
     # Query the topology, based on the given service
-    getServiceTopology(serviceId: ID!, duration: Duration!): Topology
+    getServiceTopology(serviceId: ID!, duration: Duration!, debug: Boolean): Topology
     # Query the topology, based on the given services.
     # `#getServiceTopology` could be replaced by this.
-    getServicesTopology(serviceIds: [ID!]!, duration: Duration!): Topology
+    getServicesTopology(serviceIds: [ID!]!, duration: Duration!, debug: Boolean): Topology
     # Query the instance topology, based on the given clientServiceId and serverServiceId
-    getServiceInstanceTopology(clientServiceId: ID!, serverServiceId: ID!, duration: Duration!): ServiceInstanceTopology
+    getServiceInstanceTopology(clientServiceId: ID!, serverServiceId: ID!, duration: Duration!, debug: Boolean): ServiceInstanceTopology
     # Query the topology, based on the given endpoint
     getEndpointTopology(endpointId: ID!, duration: Duration!): Topology
     # v2 of getEndpointTopology
-    getEndpointDependencies(endpointId: ID!, duration: Duration!): EndpointTopology
+    getEndpointDependencies(endpointId: ID!, duration: Duration!, debug: Boolean): EndpointTopology
     # Query the topology, based on the given instance
-    getProcessTopology(serviceInstanceId: ID!, duration: Duration!): ProcessTopology
+    getProcessTopology(serviceInstanceId: ID!, duration: Duration!, debug: Boolean): ProcessTopology
 }
 ```
 

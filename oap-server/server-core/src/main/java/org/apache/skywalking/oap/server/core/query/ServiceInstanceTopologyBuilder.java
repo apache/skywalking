@@ -28,6 +28,8 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceNode;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceTopology;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -35,6 +37,22 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class ServiceInstanceTopologyBuilder {
 
     public ServiceInstanceTopologyBuilder(ModuleManager moduleManager) {
+    }
+
+    ServiceInstanceTopology buildDebuggable(List<Call.CallDetail> serviceInstanceRelationClientCalls,
+                                  List<Call.CallDetail> serviceInstanceRelationServerCalls) {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Build service instance topology");
+            }
+            return build(serviceInstanceRelationClientCalls, serviceInstanceRelationServerCalls);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
     }
 
     ServiceInstanceTopology build(List<Call.CallDetail> serviceInstanceRelationClientCalls,

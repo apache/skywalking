@@ -27,6 +27,8 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.query.type.ProcessNode;
 import org.apache.skywalking.oap.server.core.query.type.ProcessTopology;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
@@ -66,6 +68,22 @@ public class ProcessTopologyBuilder {
         this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
             .provider()
             .getService(IComponentLibraryCatalogService.class);
+    }
+
+    ProcessTopology buildDebuggable(List<Call.CallDetail> clientCalls,
+                                    List<Call.CallDetail> serverCalls) throws Exception {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Build process topology");
+            }
+            return build(clientCalls, serverCalls);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
     }
 
     ProcessTopology build(List<Call.CallDetail> clientCalls,

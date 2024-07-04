@@ -26,9 +26,164 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.Se
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ITopologyQueryDAO extends Service {
+    default List<Call.CallDetail> loadServiceRelationsDetectedAtServerSideDebuggable(Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadServiceRelationsDetectedAtServerSide");
+                span.setMsg("Duration: " + duration);
+            }
+            return loadServiceRelationsDetectedAtServerSide(duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Call.CallDetail> loadServiceRelationDetectedAtClientSideDebuggable(Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadServiceRelationDetectedAtClientSide");
+                span.setMsg("Duration: " + duration);
+            }
+            return loadServiceRelationDetectedAtClientSide(duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Call.CallDetail> loadServiceRelationsDetectedAtServerSideDebuggable(Duration duration,
+                                                                               List<String> serviceIds) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadServiceRelationsDetectedAtServerSide");
+                span.setMsg("Duration: " + duration + ", ServiceIds: " + serviceIds);
+            }
+            return loadServiceRelationsDetectedAtServerSide(duration, serviceIds);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Call.CallDetail> loadServiceRelationDetectedAtClientSideDebuggable(Duration duration,
+                                                                              List<String> serviceIds) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadServiceRelationDetectedAtClientSide");
+                span.setMsg("Duration: " + duration + ", ServiceIds: " + serviceIds);
+            }
+            return loadServiceRelationDetectedAtClientSide(duration, serviceIds);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Call.CallDetail> loadInstanceRelationDetectedAtServerSideDebuggable(String clientServiceId,
+                                                                               String serverServiceId,
+                                                                               Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadInstanceRelationDetectedAtServerSide");
+                span.setMsg("ClientServiceId: " + clientServiceId + ", ServerServiceId: " + serverServiceId + ", Duration: " + duration);
+            }
+            return loadInstanceRelationDetectedAtServerSide(clientServiceId, serverServiceId, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Call.CallDetail> loadInstanceRelationDetectedAtClientSideDebuggable(String clientServiceId,
+                                                                               String serverServiceId,
+                                                                               Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadInstanceRelationDetectedAtClientSide");
+                span.setMsg("ClientServiceId: " + clientServiceId + ", ServerServiceId: " + serverServiceId + ", Duration: " + duration);
+            }
+            return loadInstanceRelationDetectedAtClientSide(clientServiceId, serverServiceId, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Call.CallDetail> loadEndpointRelationDebuggable(Duration duration,
+                                               String destEndpointId) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadEndpointRelation");
+                span.setMsg("Duration: " + duration + ", DestEndpointId: " + destEndpointId);
+            }
+            return loadEndpointRelation(duration, destEndpointId);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Call.CallDetail> loadProcessRelationDetectedAtClientSideDebuggable(String serviceInstanceId,
+                                                                  Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadProcessRelationDetectedAtClientSide");
+                span.setMsg("ServiceInstanceId: " + serviceInstanceId + ", Duration: " + duration);
+            }
+            return loadProcessRelationDetectedAtClientSide(serviceInstanceId, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    default List<Call.CallDetail> loadProcessRelationDetectedAtServerSideDebuggable(String serviceInstanceId,
+                                                                  Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: loadProcessRelationDetectedAtServerSide");
+                span.setMsg("ServiceInstanceId: " + serviceInstanceId + ", Duration: " + duration);
+            }
+            return loadProcessRelationDetectedAtServerSide(serviceInstanceId, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
     /**
      * Query {@link ServiceRelationServerSideMetrics} through the given conditions
      */

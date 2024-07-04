@@ -71,7 +71,7 @@ public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
                   );
         final SearchResponse response = searchDebuggable(
             IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
-            search.build(), null
+            search.build()
         );
 
         List<Record> results = new ArrayList<>(condition.getTopN());
