@@ -52,7 +52,7 @@
             }
           ],
           "expressions": [
-            "avg(meter_mysql_instance_qps)"
+            "meter_mysql_instance_qps"
           ]
         },
         {
