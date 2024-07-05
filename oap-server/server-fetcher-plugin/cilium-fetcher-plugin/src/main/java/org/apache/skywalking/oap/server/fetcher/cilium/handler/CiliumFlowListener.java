@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.core.source.CiliumService;
 import org.apache.skywalking.oap.server.core.source.CiliumServiceRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.fetcher.cilium.CiliumFetcherConfig;
+import org.apache.skywalking.oap.server.fetcher.cilium.ExcludeRules;
 import org.apache.skywalking.oap.server.fetcher.cilium.nodes.CiliumNode;
 import org.apache.skywalking.oap.server.fetcher.cilium.nodes.CiliumNodeUpdateListener;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -66,13 +67,15 @@ public class CiliumFlowListener implements CiliumNodeUpdateListener {
     private final SourceReceiver sourceReceiver;
     private final Integer retrySecond;
     private final boolean convertClientAsServerTraffic;
+    private final ExcludeRules excludeRules;
 
     public static final Layer SERVICE_LAYER = Layer.CILIUM_SERVICE;
 
-    public CiliumFlowListener(ModuleManager moduleManager, CiliumFetcherConfig config) {
+    public CiliumFlowListener(ModuleManager moduleManager, CiliumFetcherConfig config, ExcludeRules excludeRules) {
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.retrySecond = config.getFetchFailureRetrySecond();
         this.convertClientAsServerTraffic = config.isConvertClientAsServerTraffic();
+        this.excludeRules = excludeRules;
     }
 
     @Override
@@ -355,6 +358,10 @@ public class CiliumFlowListener implements CiliumNodeUpdateListener {
         }
         // ignore the client traffic if we convert the client as server traffic
         if (this.convertClientAsServerTraffic && DetectPoint.SERVER.equals(parseDetectPoint(flow))) {
+            return true;
+        }
+        // ignore the flow when the source and dest endpoint should exclude both
+        if (excludeRules.shouldExclude(flow.getSource()) && excludeRules.shouldExclude(flow.getDestination())) {
             return true;
         }
         return false;

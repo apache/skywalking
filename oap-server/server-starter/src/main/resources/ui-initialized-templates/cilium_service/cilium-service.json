@@ -554,7 +554,37 @@
             "layer": "CILIUM_SERVICE",
             "entity": "Service",
             "name": "Cilium-Service",
-            "isRoot": false
+            "isRoot": false,
+            "isDefault": true,
+            "expressions": [
+                "avg(cilium_service_l4_read_pkg_cpm)",
+                "avg(cilium_service_l4_write_pkg_cpm)",
+                "avg(cilium_service_protocol_cpm)",
+                "avg(cilium_service_protocol_call_duration/cilium_service_protocol_cpm)/1000000",
+                "avg(cilium_service_protocol_call_success_count/cilium_service_protocol_cpm*100)"
+            ],
+            "expressionsConfig": [
+                {
+                    "unit": "package / min",
+                    "label": "Read"
+                },
+                {
+                    "label": "Write",
+                    "unit": "package / min"
+                },
+                {
+                    "label": "Load",
+                    "unit": "calls / min"
+                },
+                {
+                    "label": "Latency",
+                    "unit": "ms"
+                },
+                {
+                    "label": "Success Rate",
+                    "unit": "%"
+                }
+            ]
         }
     }
 ]
