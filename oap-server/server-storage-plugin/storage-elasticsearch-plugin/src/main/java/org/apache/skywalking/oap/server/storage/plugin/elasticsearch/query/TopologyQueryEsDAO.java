@@ -260,7 +260,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         if (IndexController.LogicIndicesRegister.isMergedTable(indexName)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, indexName));
         }
-        final SearchResponse response = getClient().search(index, sourceBuilder.build());
+        final SearchResponse response = searchDebuggable(index, sourceBuilder.build());
 
         final List<Call.CallDetail> calls = new ArrayList<>();
         final Map<String, Object> entityTerms =
@@ -300,7 +300,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(indexName);
-        final SearchResponse response = getClient().search(index, sourceBuilder.build());
+        final SearchResponse response = searchDebuggable(index, sourceBuilder.build());
 
         final List<Call.CallDetail> calls = new ArrayList<>();
         final Map<String, Object> entityTerms =
@@ -337,7 +337,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(indexName);
-        SearchResponse response = getClient().search(index, sourceBuilder.build());
+        SearchResponse response = searchDebuggable(index, sourceBuilder.build());
 
         List<Call.CallDetail> calls = new ArrayList<>();
         final Map<String, Object> entityTerms =
@@ -365,7 +365,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
 
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(indexName);
-        final SearchResponse response = getClient().search(index, sourceBuilder.build());
+        final SearchResponse response = searchDebuggable(index, sourceBuilder.build());
 
         final List<Call.CallDetail> calls = new ArrayList<>();
         final Map<String, Object> entityTerms =
