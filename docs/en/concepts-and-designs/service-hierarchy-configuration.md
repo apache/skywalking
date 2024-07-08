@@ -53,6 +53,7 @@ layer-levels:
   MYSQL: 2
   POSTGRESQL: 2
   MESH_DP: 1
+  CILIUM_SERVICE: 1
   K8S_SERVICE: 0
 ```
 

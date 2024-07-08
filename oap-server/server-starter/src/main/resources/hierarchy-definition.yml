@@ -112,8 +112,7 @@ layer-levels:
   ACTIVEMQ: 2
 
   MESH_DP: 1
+  CILIUM_SERVICE: 1
 
   K8S_SERVICE: 0
-
-  CILIUM_SERVICE: 1
 
