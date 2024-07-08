@@ -74,6 +74,9 @@ hierarchy:
     KAFKA: lower-short-name-with-fqdn
     PULSAR: lower-short-name-with-fqdn
 
+  CILIUM_SERVICE:
+    K8S_SERVICE: short-name
+
 # Use Groovy script to define the matching rules, the input parameters are the upper service(u) and the lower service(l) and the return value is a boolean,
 # which are used to match the relation between the upper service(u) and the lower service(l) on the different layers.
 auto-matching-rules:
@@ -109,6 +112,7 @@ layer-levels:
   ACTIVEMQ: 2
 
   MESH_DP: 1
+  CILIUM_SERVICE: 1
 
   K8S_SERVICE: 0
 

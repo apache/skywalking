@@ -320,6 +320,7 @@
                         <exclude>lal/</exclude>
                         <exclude>log-mal-rules/</exclude>
                         <exclude>telegraf-rules/</exclude>
+                        <exclude>cilium-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

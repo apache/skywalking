@@ -34,6 +34,26 @@ cilium-fetcher:
    3. `sslPrivateKeyFile`: the path of the private key file.
    4. `sslCertChainFile`: the path of the certificate chain file.
    5. `sslCaFile`: the path of the CA file.
+3. Configure the cilium rules please configure the following configuration:
+   1. `cilium-rules/exclude.yaml`: Configure the which endpoint should be excluded from the monitoring, Please read [exclude rules selection](#exclude-rules) for more detail.
+   2. `cilium-rules/metadata-service-mapping.yaml`: Configure the service name and endpoint mapping.
+
+### Exclude Rules
+
+The exclude configuration in Cilium rules is used to specify which Cilium Endpoints would be excluded from being added to the topology map or from the generation of metrics and other data.
+
+```yaml
+namespaces:   # define with traffic from which namespace should be excluded
+   - kube-system
+
+labels:       # define with traffic from which endpoint labels should be excluded, if matches any labels, the traffic would be excluded.
+   - k8s:io.cilium.k8s.namespace.labels.istio-injection: "enabled" # Each labels is a key-value pair, the key is the label key, the value is the label value.
+     k8s:security.istio.io/tlsMode: istio
+```
+
+By default, all the traffic from `kube-system` and traffic management by istio mesh would be excluded.
+
+NOTE: Only the endpoint in both source and destination matches the exclude rules would be excluded. Otherwise, the traffic would be still included.
 
 ## Generated Entities
 

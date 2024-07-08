@@ -32,11 +32,14 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.util.FieldsHelper;
 
+import java.io.IOException;
+
 @Slf4j
 public class CiliumFetcherProvider extends ModuleProvider {
     private CiliumFetcherConfig config;
 
-    protected String fieldMappingFile = "metadata-service-mapping.yaml";
+    protected String excludeRulesFile = "cilium-rules/exclude.yaml";
+    protected String fieldMappingFile = "cilium-rules/metadata-service-mapping.yaml";
 
     @Override
     public String name() {
@@ -79,9 +82,15 @@ public class CiliumFetcherProvider extends ModuleProvider {
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+        ExcludeRules excludeRules;
+        try {
+            excludeRules = ExcludeRules.loadRules(excludeRulesFile);
+        } catch (IOException e) {
+            throw new ModuleStartException("loading exclude rules error", e);
+        }
 
         final CiliumNodeManager ciliumNodeManager = new CiliumNodeManager(getManager(), new GrpcStubBuilder(config), config);
-        ciliumNodeManager.addListener(new CiliumFlowListener(getManager(), config));
+        ciliumNodeManager.addListener(new CiliumFlowListener(getManager(), config, excludeRules));
         ciliumNodeManager.start();
     }
 
