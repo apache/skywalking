@@ -48,7 +48,10 @@ namespaces:   # define with traffic from which namespace should be excluded
 
 labels:       # define with traffic from which endpoint labels should be excluded, if matches any labels, the traffic would be excluded.
    - k8s:io.cilium.k8s.namespace.labels.istio-injection: "enabled" # Each labels is a key-value pair, the key is the label key, the value is the label value.
+     k8s:security.istio.io/tlsMode: istio
 ```
+
+By default, all the traffic from `kube-system` and traffic management by istio mesh would be excluded.
 
 NOTE: Only the endpoint in both source and destination matches the exclude rules would be excluded. Otherwise, the traffic would be still included.
 
