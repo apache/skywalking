@@ -36,19 +36,36 @@ public class DebuggingTraceContext {
         this.dumpStorageRsp = dumpStorageRsp;
     }
 
+    /**
+     * Create a new span for OAP internal debugging trace and start.
+     * @param operation operation
+     * @return DebuggingSpan
+     */
     public DebuggingSpan createSpan(String operation) {
         DebuggingSpan span = new DebuggingSpan(spanIdGenerator++, operation);
         if (debug) {
-            //default start time, could be overwritten by setStartTime (BanyanDB Trace)
             span.setStartTime(System.nanoTime());
             DebuggingSpan parentSpan = spanStack.isEmpty() ? null : spanStack.peek();
             if (parentSpan != null) {
-                //default parent span id, could be overwritten by setParentSpanId (BanyanDB Trace)
                 span.setParentSpanId(parentSpan.getSpanId());
             } else {
                 span.setParentSpanId(-1);
             }
             spanStack.push(span);
+            execTrace.addSpan(span);
+        }
+        return span;
+    }
+
+    /**
+     * Use for transform the other Span to DebuggingSpan, such as BanyanDB trace span.
+     * The start time , end time, duration, parent span id should be set manually.
+     * @param operation operation
+     * @return DebuggingSpan
+     */
+    public DebuggingSpan createSpanForTransform(String operation) {
+        DebuggingSpan span = new DebuggingSpan(spanIdGenerator++, operation);
+        if (debug) {
             execTrace.addSpan(span);
         }
         return span;
