@@ -242,7 +242,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
     }
 
     private void addDBSpan2DebuggingTrace(Span span, DebuggingTraceContext traceContext, DebuggingSpan parentSpan) {
-        DebuggingSpan debuggingSpan = traceContext.createSpan("BanyanDB: " + span.getMessage());
+        DebuggingSpan debuggingSpan = traceContext.createSpanForTransform("BanyanDB: " + span.getMessage());
         debuggingSpan.setStartTime(span.getStartTime().getSeconds() * 1000_000_000 + span.getStartTime().getNanos());
         debuggingSpan.setEndTime(span.getEndTime().getSeconds() * 1000_000_000 + span.getEndTime().getNanos());
         debuggingSpan.setDuration(span.getDuration());
