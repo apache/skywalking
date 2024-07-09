@@ -133,7 +133,7 @@ enum ExpressionResultType {
 extend type Query {
     # Return true if the current storage implementation supports fuzzy query for logs.
     supportQueryLogsByKeywords: Boolean!
-    queryLogs(condition: LogQueryCondition): Logs
+    queryLogs(condition: LogQueryCondition, debug: Boolean): Logs
     # Test the logs and get the results of the LAL output.
     test(requests: LogTestRequest!): LogTestResponse!
     # Read the list of searchable keys

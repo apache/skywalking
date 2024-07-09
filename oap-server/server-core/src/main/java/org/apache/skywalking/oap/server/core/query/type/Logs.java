@@ -24,6 +24,7 @@ import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
 
 @Setter
 @Getter
@@ -31,6 +32,7 @@ import java.util.List;
 public class Logs {
     private final List<Log> logs;
     private String errorReason;
+    private DebuggingTrace debuggingTrace;
 
     public Logs() {
         this.logs = new ArrayList<>();

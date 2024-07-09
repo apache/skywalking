@@ -31,12 +31,57 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.Service;
+
+import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public interface ILogQueryDAO extends Service {
 
     default boolean supportQueryLogsByKeywords() {
         return false;
+    }
+
+    default Logs queryLogsDebuggable(String serviceId,
+                                     String serviceInstanceId,
+                                     String endpointId,
+                                     TraceScopeCondition relatedTrace,
+                                     Order queryOrder,
+                                     int from,
+                                     int limit,
+                                     final Duration duration,
+                                     final List<Tag> tags,
+                                     final List<String> keywordsOfContent,
+                                     final List<String> excludingKeywordsOfContent) throws IOException {
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: queryLogs");
+                StringBuilder msg = new StringBuilder();
+                msg.append("ServiceId: ").append(serviceId)
+                   .append(", ServiceInstanceId: ").append(serviceInstanceId)
+                   .append(", EndpointId: ").append(endpointId)
+                   .append(", RelatedTrace: ").append(relatedTrace)
+                   .append(", QueryOrder: ").append(queryOrder)
+                   .append(", From: ").append(from)
+                   .append(", Limit: ").append(limit)
+                   .append(", Duration: ").append(duration)
+                   .append(", Tags: ").append(tags)
+                   .append(", KeywordsOfContent: ").append(keywordsOfContent)
+                   .append(", ExcludingKeywordsOfContent: ").append(excludingKeywordsOfContent);
+                span.setMsg(msg.toString());
+            }
+            return queryLogs(
+                serviceId, serviceInstanceId, endpointId, relatedTrace, queryOrder, from, limit, duration, tags,
+                keywordsOfContent, excludingKeywordsOfContent
+            );
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
     }
 
     Logs queryLogs(String serviceId,

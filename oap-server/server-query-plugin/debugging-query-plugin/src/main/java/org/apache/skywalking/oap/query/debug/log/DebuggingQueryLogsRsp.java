@@ -16,28 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.input;
+package org.apache.skywalking.oap.query.debug.log;
 
 import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
-import org.apache.skywalking.oap.server.core.query.enumeration.Order;
-import org.apache.skywalking.oap.server.core.query.type.Pagination;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.query.debug.DebuggingTraceRsp;
+import org.apache.skywalking.oap.server.core.query.type.Log;
 
+@RequiredArgsConstructor
 @Getter
-@Setter
-@ToString
-public class LogQueryCondition {
-    private String serviceId;
-    private String serviceInstanceId;
-    private String endpointId;
-    private TraceScopeCondition relatedTrace;
-    private Duration queryDuration;
-    private Pagination paging;
-    private List<Tag> tags;
-    private List<String> keywordsOfContent;
-    private List<String> excludingKeywordsOfContent;
-    private Order queryOrder;
+public class DebuggingQueryLogsRsp {
+    private final List<Log> logs;
+    private final String errorReason;
+    private final DebuggingTraceRsp debuggingTrace;
 }

@@ -150,6 +150,7 @@ public class TraceQueryService implements Service {
                 StringBuilder msg = new StringBuilder();
                 span = traceContext.createSpan("Query Service: queryTrace");
                 msg.append("Condition: TraceId: ").append(traceId);
+                span.setMsg(msg.toString());
             }
             return invokeQueryTrace(traceId);
         } finally {
