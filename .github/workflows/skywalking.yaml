@@ -434,6 +434,8 @@ jobs:
           - name: Log ES 8.8.1 Shardng
             config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
             env: ES_VERSION=8.8.1
+          - name: Log BanyanDB
+            config: test/e2e-v2/cases/log/banyandb/e2e.yaml
 
           - name: Log FluentBit ES 7.16.3
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml

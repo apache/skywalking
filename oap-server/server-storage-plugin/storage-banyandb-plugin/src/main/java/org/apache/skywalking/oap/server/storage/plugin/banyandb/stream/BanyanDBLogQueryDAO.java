@@ -118,7 +118,7 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
 
-        StreamQueryResponse resp = query(LogRecord.INDEX_NAME, TAGS, tsRange, query);
+        StreamQueryResponse resp = queryDebuggable(LogRecord.INDEX_NAME, TAGS, tsRange, query);
 
         Logs logs = new Logs();
 

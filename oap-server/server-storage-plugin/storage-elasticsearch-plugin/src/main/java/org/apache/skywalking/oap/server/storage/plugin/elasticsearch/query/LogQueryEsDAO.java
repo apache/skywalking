@@ -145,7 +145,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                   .size(limit)
                   .from(from);
 
-        SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
+        SearchResponse response = searchDebuggable(new TimeRangeIndexNameGenerator(
             IndexController.LogicIndicesRegister.getPhysicalTableName(LogRecord.INDEX_NAME),
             startSecondTB,
             endSecondTB

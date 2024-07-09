@@ -425,7 +425,6 @@ debuggingTrace:
 
 - Example
 ```shell
-
 curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getProcessTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&serviceLayer=GENERAL&instance=mock_a_service_instance'
 ```
 
@@ -435,6 +434,45 @@ Response will include query result and the debuggingTrace information, the debug
 nodes:
 ...
 calls:
+...
+debuggingTrace:
+...
+```
+
+### Tracing Log Query
+
+#### Tracing SkyWalking API queryLogs
+ URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/log/queryLogs?{parameters}`.
+ Parameters
+
+  | Field                      | Description                                                    | Required                       |
+  |----------------------------|----------------------------------------------------------------|--------------------------------|
+  | startTime                  | The start time of the query                                    | Yes, unless traceId not empty  |               
+  | endTime                    | The end time of the query                                      | Yes, unless traceId not empty  |               
+  | step                       | The query step                                                 | Yes, unless traceId not empty  |  
+  | service                    | The service name                                               | No, require serviceLayer       |               
+  | serviceLayer               | The service layer name                                         | No                             |  
+  | serviceInstance            | The service instance name                                      | No, require service            |               
+  | endpoint                   | The endpoint name                                              | No, require service            |               
+  | traceId                    | The trace ID                                                   | No                             |               
+  | segmentId                  | The segment ID                                                 | No, require traceId            |
+  | spanId                     | The span ID                                                    | No, require traceId            | 
+  | queryOrder                 | The order of the query result, `ASC`, `DES`                    | No, default `DES`              |               
+  | tags                       | The tags of the trace, `key1=value1,key2=value2`               | No                             |  
+  | pageNum                    | The page number of the query result                            | Yes                            |
+  | pageSize                   | The page size of the query result                              | Yes                            |
+  | keywordsOfContent          | The keywords of the log content, `keyword1,keyword2`           | No                             |
+  | excludingKeywordsOfContent | The excluding keywords of the log content, `keyword1,keyword2` | No                             |
+
+- Example
+```shell
+curl -X GET 'http://127.0.0.1:12800/debugging/query/log/queryLogs?service=e2e-service-provider&serviceLayer=GENERAL&startTime=2024-07-09&endTime=2024-07-09&step=DAY&pageNum=1&pageSize=15&queryOrder=ASC&tags=level%3DINFO'
+```
+
+Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
+
+```yaml
+logs:
 ...
 debuggingTrace:
 ...
@@ -711,6 +749,30 @@ type ProcessTopology {
   nodes: [ProcessNode!]!
   calls: [Call!]!
   debuggingTrace: DebuggingTrace
+}
+```
+
+- Example
+Same as the MQE query tracing, follow the GraphQL protocol and grammar to query the result and get debuggingTrace information,
+just enable the debug parameter to true.
+
+### Tracing Log Query
+- Bundle API: [Log](../api/query-protocol.md#logs)
+
+```graphql
+extend type Query {
+...
+    queryLogs(condition: LogQueryCondition, debug: Boolean): Logs
+...
+}
+```
+
+```graphql
+type Logs {
+    # When this field is not empty, frontend should display it in UI
+    errorReason: String
+    logs: [Log!]!
+    debuggingTrace: DebuggingTrace
 }
 ```
 

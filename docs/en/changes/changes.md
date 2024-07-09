@@ -29,6 +29,7 @@
 * Polish BanyanDB group and schema creation logic to fix the schema creation failure issue in distributed race conditions.
 * Support tracing topology query for debugging.
 * Fix expression of graph `Current QPS` in MySQL dashboard.
+* Support tracing logs query for debugging.
 
 #### UI
 * Highlight search log keywords.

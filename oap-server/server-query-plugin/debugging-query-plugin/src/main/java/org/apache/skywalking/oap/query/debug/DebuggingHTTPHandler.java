@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.query.debug.log.DebuggingQueryLogsRsp;
 import org.apache.skywalking.oap.query.debug.mqe.DebuggingMQERsp;
 import org.apache.skywalking.oap.query.debug.topology.DebuggingQueryEndpointTopologyRsp;
 import org.apache.skywalking.oap.query.debug.topology.DebuggingQueryInstanceTopologyRsp;
@@ -48,6 +49,7 @@ import org.apache.skywalking.oap.query.debug.trace.DebuggingQueryTraceBriefRsp;
 import org.apache.skywalking.oap.query.debug.trace.DebuggingQueryTraceRsp;
 import org.apache.skywalking.oap.query.debug.trace.zipkin.DebuggingZipkinQueryTraceRsp;
 import org.apache.skywalking.oap.query.debug.trace.zipkin.DebuggingZipkinQueryTracesRsp;
+import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsExpressionQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
@@ -58,11 +60,15 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.Entity;
+import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
+import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.EndpointTopology;
+import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.ProcessTopology;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
@@ -86,6 +92,7 @@ public class DebuggingHTTPHandler {
     private final TraceQuery traceQuery;
     private final ZipkinQueryHandler zipkinQueryHandler;
     private final TopologyQuery topologyQuery;
+    private final LogQuery logQuery;
     final DebuggingQueryConfig config;
 
     public DebuggingHTTPHandler(final ModuleManager manager, final DebuggingQueryConfig config) {
@@ -98,6 +105,7 @@ public class DebuggingHTTPHandler {
         //use zipkin default config for debugging
         this.zipkinQueryHandler = new ZipkinQueryHandler(new ZipkinQueryConfig(), manager);
         this.topologyQuery = new TopologyQuery(manager);
+        this.logQuery = new LogQuery(manager);
     }
 
     @Get("/debugging/config/dump")
@@ -374,6 +382,74 @@ public class DebuggingHTTPHandler {
         ProcessTopology topology = topologyQuery.getProcessTopology(instanceId, duration, true);
         DebuggingQueryProcessTopologyRsp result = new DebuggingQueryProcessTopologyRsp(
             topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
+        return transToYAMLString(result);
+    }
+
+    @SneakyThrows
+    @Get("/debugging/query/log/queryLogs")
+    public String queryLogs(@Param("service") Optional<String> service,
+                            @Param("serviceLayer") Optional<String> serviceLayer,
+                            @Param("serviceInstance") Optional<String> serviceInstance,
+                            @Param("endpoint") Optional<String> endpoint,
+                            @Param("startTime") Optional<String> startTime,
+                            @Param("endTime") Optional<String> endTime,
+                            @Param("step") Optional<String> step,
+                            @Param("traceId") Optional<String> traceId,
+                            @Param("segmentId") Optional<String> segmentId,
+                            @Param("spanId") Optional<Integer> spanId,
+                            @Param("tags") Optional<String> tags,
+                            @Param("pageNum") int pageNum,
+                            @Param("pageSize") int pageSize,
+                            @Param("keywordsOfContent") Optional<String> keywordsOfContent,
+                            @Param("excludingKeywordsOfContent") Optional<String> excludingKeywordsOfContent,
+                            @Param("queryOrder") Optional<String> queryOrder) {
+        LogQueryCondition condition = new LogQueryCondition();
+        condition.setPaging(new Pagination(pageNum, pageSize));
+        if (traceId.isPresent()) {
+            TraceScopeCondition traceScopeCondition = new TraceScopeCondition();
+            traceScopeCondition.setTraceId(traceId.get());
+            segmentId.ifPresent(traceScopeCondition::setSegmentId);
+            spanId.ifPresent(traceScopeCondition::setSpanId);
+            condition.setRelatedTrace(traceScopeCondition);
+        } else {
+            if (startTime.isEmpty() || endTime.isEmpty() || step.isEmpty()) {
+                return "startTime, endTime and step are required";
+            }
+            Duration duration = new Duration();
+            duration.setStart(startTime.get());
+            duration.setEnd(endTime.get());
+            duration.setStep(Step.valueOf(step.get()));
+            condition.setQueryDuration(duration);
+        }
+
+        Optional<String> serviceId = service.map(
+            name -> IDManager.ServiceID.buildId(name, Layer.nameOf(serviceLayer.orElseThrow()).isNormal()));
+        Optional<String> serviceInstanceId = serviceInstance.map(
+            name -> IDManager.ServiceInstanceID.buildId(serviceId.orElseThrow(), name));
+        Optional<String> endpointId = endpoint.map(name -> IDManager.EndpointID.buildId(serviceId.orElseThrow(), name));
+        serviceId.ifPresent(condition::setServiceId);
+        serviceInstanceId.ifPresent(condition::setServiceInstanceId);
+        endpointId.ifPresent(condition::setEndpointId);
+        tags.ifPresent(ts -> {
+            List<Tag> tagList = new ArrayList<>();
+            Arrays.stream(ts.split(Const.COMMA)).forEach(t -> {
+                Tag tag = new Tag();
+                String[] tagArr = t.split(Const.EQUAL);
+                tag.setKey(tagArr[0]);
+                tag.setValue(tagArr[1]);
+                tagList.add(tag);
+            });
+            condition.setTags(tagList);
+        });
+        queryOrder.ifPresent(s -> condition.setQueryOrder(Order.valueOf(s)));
+        keywordsOfContent.ifPresent(
+            k -> condition.setKeywordsOfContent(Arrays.stream(k.split(Const.COMMA)).collect(Collectors.toList())));
+        excludingKeywordsOfContent.ifPresent(e -> condition.setExcludingKeywordsOfContent(
+            Arrays.stream(e.split(Const.COMMA)).collect(Collectors.toList())));
+
+        Logs logs = logQuery.queryLogs(condition, true);
+        DebuggingQueryLogsRsp result = new DebuggingQueryLogsRsp(
+            logs.getLogs(), logs.getErrorReason(), transformTrace(logs.getDebuggingTrace()));
         return transToYAMLString(result);
     }
 
