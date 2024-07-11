@@ -45,6 +45,15 @@ LT:          '<';
 GTE:         '>=';
 GT:          '>';
 
+// Aggregation operators
+AVG:         'avg';
+MAX:         'max';
+MIN:         'min';
+SUM:         'sum';
+
+BY:          'by';
+WITHOUT:     'without';
+
 // Literals
 NUMBER: Digit+ (DOT Digit+)?;
 DURATION: Digit+ ('ms' | 's' | 'm' | 'h' | 'd' | 'w');

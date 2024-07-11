@@ -117,6 +117,22 @@ public class PromQLExprQueryVisitorTest {
                 "service_cpm{service='serviceA', layer='GENERAL'} > 1",
                 ParseResultType.METRICS_RANGE,
                 List.of(new TimeValuePair(TIME_2023022012, "2"))
+            },
+            {
+                "MetricsAggregationOpSum",
+                PromQLApiHandler.QueryType.RANGE,
+                "sum by(service_instance_id) (http_requests_total{service='serviceA', layer='GENERAL'})",
+                ParseResultType.METRICS_RANGE,
+                List.of(new TimeValuePair(TIME_2023022010, "0.0"), new TimeValuePair(TIME_2023022011, "2.0"),
+                        new TimeValuePair(TIME_2023022012, "4.0"))
+            },
+            {
+                "MetricsAggregationOpAvg",
+                PromQLApiHandler.QueryType.RANGE,
+                "avg by(service_instance_id) (http_requests_total{service='serviceA', layer='GENERAL'})",
+                ParseResultType.METRICS_RANGE,
+                List.of(new TimeValuePair(TIME_2023022010, "0.0"), new TimeValuePair(TIME_2023022011, "1.0"),
+                        new TimeValuePair(TIME_2023022012, "2.0"))
             }
         });
     }
@@ -125,6 +141,10 @@ public class PromQLExprQueryVisitorTest {
     @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent("service_cpm", "value", Column.ValueDataType.COMMON_VALUE,
+                                                 0,
+                                                 DefaultScopeDefine.SERVICE
+        );
+        ValueColumnMetadata.INSTANCE.putIfAbsent("http_requests_total", "value", Column.ValueDataType.LABELED_VALUE,
                                                  0,
                                                  DefaultScopeDefine.SERVICE
         );
@@ -138,6 +158,10 @@ public class PromQLExprQueryVisitorTest {
         Mockito.doReturn(mockMetricsValues())
                .when(metricsQueryService)
                .readMetricsValues(any(MetricsCondition.class), any(Duration.class));
+
+        Mockito.doReturn(mockLabeledMetricsValues())
+               .when(metricsQueryService)
+               .readLabeledMetricsValues(any(MetricsCondition.class), any(), any(Duration.class));
     }
 
     private MetricsValues mockMetricsValues() {
@@ -150,6 +174,28 @@ public class PromQLExprQueryVisitorTest {
             values.getValues().addKVInt(kvInt);
         }
         return values;
+    }
+
+    private List<MetricsValues> mockLabeledMetricsValues() {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        MetricsValues values1 = new MetricsValues();
+        values1.setLabel("{\"service_instance_id\": \"a\"}");
+        for (int i = 0; i < pointOfTimes.size(); i++) {
+            final KVInt kvInt = new KVInt();
+            kvInt.setId(String.valueOf(pointOfTimes.get(i).getPoint()));
+            kvInt.setValue(i);
+            values1.getValues().addKVInt(kvInt);
+        }
+
+        MetricsValues values2 = new MetricsValues();
+        values2.setLabel("{\"service_instance_id\": \"b\"}");
+        for (int i = 0; i < pointOfTimes.size(); i++) {
+            final KVInt kvInt = new KVInt();
+            kvInt.setId(String.valueOf(pointOfTimes.get(i).getPoint()));
+            kvInt.setValue(i);
+            values2.getValues().addKVInt(kvInt);
+        }
+        return List.of(values1, values2);
     }
 
     @ParameterizedTest(name = "{0}")

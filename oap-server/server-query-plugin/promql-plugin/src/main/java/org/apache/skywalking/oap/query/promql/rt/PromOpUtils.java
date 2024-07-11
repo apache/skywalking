@@ -20,8 +20,18 @@ package org.apache.skywalking.oap.query.promql.rt;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.skywalking.mqe.rt.operation.aggregatelabels.AggregateLabelsFunc;
+import org.apache.skywalking.mqe.rt.operation.aggregatelabels.AggregateLabelsFuncFactory;
+import org.apache.skywalking.mqe.rt.operation.aggregatelabels.AvgAggregateLabelsFunc;
+import org.apache.skywalking.mqe.rt.operation.aggregatelabels.MaxAggregateLabelsFunc;
+import org.apache.skywalking.mqe.rt.operation.aggregatelabels.MinAggregateLabelsFunc;
+import org.apache.skywalking.mqe.rt.operation.aggregatelabels.SumAggregateLabelsFunc;
+import org.apache.skywalking.oap.query.promql.entity.LabelValuePair;
+import org.apache.skywalking.oap.query.promql.entity.MetricInfo;
 import org.apache.skywalking.oap.query.promql.entity.MetricRangeData;
 import org.apache.skywalking.oap.query.promql.entity.TimeValuePair;
 import org.apache.skywalking.oap.query.promql.rt.exception.IllegalExpressionException;
@@ -33,9 +43,13 @@ import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 public class PromOpUtils {
 
@@ -90,6 +104,70 @@ public class PromOpUtils {
             }
         }
         return result;
+    }
+
+    static MetricsRangeResult matrixAggregateOp(MetricsRangeResult result, int funcType, List<String> groupingBy) {
+        List<MetricRangeData> metricDataList = result.getMetricDataList();
+        Map<List<LabelValuePair>, List<MetricRangeData>> groupedResult = metricDataList
+            .stream().collect(groupingBy(rangeData -> getLabels(groupingBy, rangeData), LinkedHashMap::new, toList()));
+
+        MetricsRangeResult rangeResult = new MetricsRangeResult();
+        rangeResult.setResultType(ParseResultType.METRICS_RANGE);
+        AggregateLabelsFuncFactory factory = getAggregateFuncFactory(funcType);
+        groupedResult.forEach((labels, dataList) -> {
+            if (dataList.isEmpty()) {
+                return;
+            }
+            List<TimeValuePair> combineTo = dataList.get(0).getValues();
+            for (int i = 0; i < combineTo.size(); i++) {
+                AggregateLabelsFunc aggregateLabelsFunc = factory.getAggregateLabelsFunc();
+                for (MetricRangeData rangeData : dataList) {
+                    TimeValuePair toCombine = rangeData.getValues().get(i);
+                    if (StringUtil.isNotBlank(toCombine.getValue())) {
+                        aggregateLabelsFunc.combine(Double.parseDouble(toCombine.getValue()));
+                    }
+                }
+
+                TimeValuePair timeValuePair = combineTo.get(i);
+                Double aggResult = aggregateLabelsFunc.getResult();
+                if (aggResult != null) {
+                    timeValuePair.setValue(aggResult.toString());
+                }
+            }
+            MetricRangeData rangeData = new MetricRangeData();
+            rangeData.setMetric(new MetricInfo(null));
+            rangeData.getMetric().setLabels(labels);
+            rangeData.setValues(combineTo);
+            rangeResult.getMetricDataList().add(rangeData);
+        });
+
+        return rangeResult;
+    }
+
+    private static AggregateLabelsFuncFactory getAggregateFuncFactory(int funcType) {
+        switch (funcType) {
+            case PromQLParser.AVG:
+                return AvgAggregateLabelsFunc::new;
+            case PromQLParser.SUM:
+                return SumAggregateLabelsFunc::new;
+            case PromQLParser.MAX:
+                return MaxAggregateLabelsFunc::new;
+            case PromQLParser.MIN:
+                return MinAggregateLabelsFunc::new;
+            default:
+                throw new IllegalArgumentException("Unsupported aggregate function type: " + funcType);
+        }
+    }
+
+    private static List<LabelValuePair> getLabels(List<String> groupingBy, MetricRangeData data) {
+        return groupingBy.stream()
+                         .map(
+                             labelName ->
+                                 data.getMetric().getLabels()
+                                           .stream().filter(label -> labelName.equals(label.getLabelName()))
+                                           .findAny().orElseGet(() -> new LabelValuePair(labelName, ""))
+                         )
+                         .collect(toList());
     }
 
     static double scalarBinaryOp(double leftValue, double rightValue, int opType) {

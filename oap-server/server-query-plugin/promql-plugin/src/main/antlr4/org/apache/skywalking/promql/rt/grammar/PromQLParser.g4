@@ -27,6 +27,8 @@ expression
     | expression mulDivMod expression  # mulDivModOp
     | expression addSub expression     # addSubOp
     | expression compare expression    # compareOp
+    | aggregationFunc (aggregationClause)? L_PAREN expression R_PAREN   # aggregationOp
+    | aggregationFunc L_PAREN expression R_PAREN (aggregationClause)?   # aggregationOp
     ;
 
 expressionNode:  metricInstant| metricRange| numberLiteral| badRange;
@@ -34,6 +36,12 @@ expressionNode:  metricInstant| metricRange| numberLiteral| badRange;
 addSub:          ADD | SUB ;
 mulDivMod:       MUL | DIV | MOD;
 compare:        (DEQ | NEQ | LTE | LT | GTE | GT) BOOL?;
+
+aggregationFunc:
+    AVG | SUM | MAX | MIN;
+
+aggregationClause:
+    (BY | WITHOUT) L_PAREN labelNameList R_PAREN;
 
 metricName:      NAME_STRING;
 metricInstant:   metricName | metricName L_BRACE labelList? R_BRACE;
@@ -43,6 +51,7 @@ labelName:       NAME_STRING;
 labelValue:      VALUE_STRING;
 label:           labelName EQ labelValue;
 labelList:       label (COMMA label)*;
+labelNameList:   labelName (COMMA labelName)*;
 
 numberLiteral:   NUMBER;
 

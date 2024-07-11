@@ -30,6 +30,7 @@
 * Support tracing topology query for debugging.
 * Fix expression of graph `Current QPS` in MySQL dashboard.
 * Support tracing logs query for debugging.
+* Support aggregation operators in PromQL query.
 
 #### UI
 * Highlight search log keywords.
