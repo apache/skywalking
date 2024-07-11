@@ -54,12 +54,16 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     @Override
     public Set<String> queryTagAutocompleteKeys(TagType tagType, int limit, Duration duration) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
-        long startTB = 0;
-        long endTB = 0;
+        long startSecondTB = 0;
+        long endSecondTB = 0;
         if (nonNull(duration)) {
-            startTB = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-            endTB = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
         }
+
+        long startTB = startSecondTB / 1000000 * 10000;
+        long endTB = endSecondTB / 1000000 * 10000 + 2359;
+
         TimestampRange range = null;
         if (startTB > 0 && endTB > 0) {
             range = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));

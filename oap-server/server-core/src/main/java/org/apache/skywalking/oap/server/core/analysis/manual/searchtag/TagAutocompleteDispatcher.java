@@ -30,7 +30,8 @@ public class TagAutocompleteDispatcher implements SourceDispatcher<TagAutocomple
         autocomplete.setTagKey(source.getTagKey());
         autocomplete.setTagValue(source.getTagValue());
         autocomplete.setTagType(source.getTagType().name());
-        autocomplete.setTimeBucket(source.getTimeBucket());
+        // change the precision in Day for reduce the storage
+        autocomplete.setTimeBucket(source.getTimeBucket() / 10000 * 10000);
         MetricsStreamProcessor.getInstance().in(autocomplete);
     }
 }

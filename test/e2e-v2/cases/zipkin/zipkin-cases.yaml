@@ -27,5 +27,7 @@ cases:
   - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=frontend&remoteServiceName=backend&spanName=get&annotationQuery=wr&limit=1
     expected: expected/traces.yml
   # autocomplete
+  - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/autocompleteKeys
+    expected: expected/autocomplete-keys.yml
   - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/autocompleteValues?key=http.method
-    expected: expected/autocomplete.yml
+    expected: expected/autocomplete-value.yml
