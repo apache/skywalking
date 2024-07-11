@@ -54,15 +54,15 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     @Override
     public Set<String> queryTagAutocompleteKeys(TagType tagType, int limit, Duration duration) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
-        long startSecondTB = 0;
-        long endSecondTB = 0;
+        long startMinTB = 0;
+        long endMinTB = 0;
         if (nonNull(duration)) {
-            startSecondTB = duration.getStartTimeBucketInSec();
-            endSecondTB = duration.getEndTimeBucketInSec();
+            startMinTB = duration.getStartTimeBucketInMin();
+            endMinTB = duration.getEndTimeBucketInMin();
         }
 
-        long startTB = startSecondTB / 1000000 * 10000;
-        long endTB = endSecondTB / 1000000 * 10000 + 2359;
+        long startTB = TimeBucket.retainToDay4MinuteBucket(startMinTB);
+        long endTB = TimeBucket.retainToDayLastMin4MinuteBucket(endMinTB);
 
         TimestampRange range = null;
         if (startTB > 0 && endTB > 0) {
@@ -95,15 +95,15 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     @Override
     public Set<String> queryTagAutocompleteValues(TagType tagType, String tagKey, int limit, Duration duration) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
-        long startSecondTB = 0;
-        long endSecondTB = 0;
+        long startMinTB = 0;
+        long endMinTB = 0;
         if (nonNull(duration)) {
-            startSecondTB = duration.getStartTimeBucketInSec();
-            endSecondTB = duration.getEndTimeBucketInSec();
+            startMinTB = duration.getStartTimeBucketInMin();
+            endMinTB = duration.getEndTimeBucketInMin();
         }
 
-        long startTB = startSecondTB / 1000000 * 10000;
-        long endTB = endSecondTB / 1000000 * 10000 + 2359;
+        long startTB = TimeBucket.retainToDay4MinuteBucket(startMinTB);
+        long endTB = TimeBucket.retainToDayLastMin4MinuteBucket(endMinTB);
 
         TimestampRange range = null;
         if (startTB > 0 && endTB > 0) {

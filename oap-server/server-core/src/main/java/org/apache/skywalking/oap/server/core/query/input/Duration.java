@@ -65,6 +65,14 @@ public class Duration {
         return DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(step, end);
     }
 
+    public long getStartTimeBucketInMin() {
+        return DurationUtils.INSTANCE.startTimeDurationToMinuteTimeBucket(step, start);
+    }
+
+    public long getEndTimeBucketInMin() {
+        return DurationUtils.INSTANCE.endTimeDurationToMinuteTimeBucket(step, end);
+    }
+
     /**
      * Assemble time point based on {@link #step} and {@link #start} / {@link #end}
      */
