@@ -30,6 +30,7 @@
 * Support tracing topology query for debugging.
 * Fix expression of graph `Current QPS` in MySQL dashboard.
 * Support tracing logs query for debugging.
+* BanyanDB: fix Tag autocomplete data storage and query.
 
 #### UI
 * Highlight search log keywords.

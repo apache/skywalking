@@ -163,4 +163,33 @@ public class TimeBucket {
                 throw new UnexpectedException("Unknown downsampling value.");
         }
     }
+
+    /**
+     * Retain the minute time bucket to day time bucket. The format of timeBucket in minute format is "yyyyMMddHHmm", `HHmm` will be set to `0000`.
+     * minuteTimeBucket `202407112218` will be converted to `202407110000`.
+     * @param minuteTimeBucket minuteTimeBucket
+     * @return minute time bucket in day precision
+     */
+    public static long retainToDay4MinuteBucket(long minuteTimeBucket) {
+        if (isMinuteBucket(minuteTimeBucket)) {
+            return minuteTimeBucket / 10000 * 10000;
+        } else {
+            throw new UnexpectedException("Current time bucket is not a minute time bucket");
+        }
+    }
+
+    /**
+     * Retain the minute time bucket to day time bucket. The format of timeBucket in minute format is "yyyyMMddHHmm", `HHmm` will be set to `2359`.
+     * minuteTimeBucket `202407112218` will be converted to `202407112359`.
+     * @param minuteTimeBucket minuteTimeBucket
+     * @return minute time bucket in day precision
+     */
+    public static long retainToDayLastMin4MinuteBucket(long minuteTimeBucket) {
+        if (isMinuteBucket(minuteTimeBucket)) {
+            return minuteTimeBucket / 10000 * 10000 + 2359;
+        } else {
+            throw new UnexpectedException("Current time bucket is not a minute time bucket");
+        }
+    }
 }
+

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.searchtag;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 
@@ -30,7 +31,8 @@ public class TagAutocompleteDispatcher implements SourceDispatcher<TagAutocomple
         autocomplete.setTagKey(source.getTagKey());
         autocomplete.setTagValue(source.getTagValue());
         autocomplete.setTagType(source.getTagType().name());
-        autocomplete.setTimeBucket(source.getTimeBucket());
+        // change the precision in Day for reduce the storage
+        autocomplete.setTimeBucket(TimeBucket.retainToDay4MinuteBucket(source.getTimeBucket()));
         MetricsStreamProcessor.getInstance().in(autocomplete);
     }
 }
