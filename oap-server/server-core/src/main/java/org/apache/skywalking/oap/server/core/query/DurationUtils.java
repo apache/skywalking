@@ -85,6 +85,36 @@ public enum DurationUtils {
         throw new UnexpectedException("Unsupported step " + step.name());
     }
 
+    public long startTimeDurationToMinuteTimeBucket(Step step, String dateStr) {
+        long minTimeBucket = convertToTimeBucket(step, dateStr);
+        switch (step) {
+            case DAY:
+                return minTimeBucket * 100 * 100;
+            case HOUR:
+                return minTimeBucket * 100;
+            case MINUTE:
+                return minTimeBucket;
+            case SECOND:
+                return minTimeBucket / 100;
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
+    }
+
+    public long endTimeDurationToMinuteTimeBucket(Step step, String dateStr) {
+        long minTimeBucket = convertToTimeBucket(step, dateStr);
+        switch (step) {
+            case DAY:
+                return (minTimeBucket * 100 + 23) * 100 + 59;
+            case HOUR:
+                return minTimeBucket * 100 + 59;
+            case MINUTE:
+                return minTimeBucket;
+            case SECOND:
+                return minTimeBucket / 100;
+        }
+        throw new UnexpectedException("Unsupported step " + step.name());
+    }
+
     public List<PointOfTime> getDurationPoints(Step step, long startTimeBucket, long endTimeBucket) {
         DateTime dateTime = parseToDateTime(step, startTimeBucket);
 

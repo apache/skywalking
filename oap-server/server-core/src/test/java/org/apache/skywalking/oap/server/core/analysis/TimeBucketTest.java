@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -63,5 +64,15 @@ public class TimeBucketTest {
             }
         }
         Assertions.assertEquals(instance.getTimeInMillis(), timestamp);
+    }
+
+    @Test
+    public void testRetainToDay4MinuteBucket() {
+        Assertions.assertEquals(202407110000L, TimeBucket.retainToDay4MinuteBucket(202407112218L));
+    }
+
+    @Test
+    public void testRetainToDayLastMin4MinuteBucket() {
+        Assertions.assertEquals(202407112359L, TimeBucket.retainToDayLastMin4MinuteBucket(202407112218L));
     }
 }

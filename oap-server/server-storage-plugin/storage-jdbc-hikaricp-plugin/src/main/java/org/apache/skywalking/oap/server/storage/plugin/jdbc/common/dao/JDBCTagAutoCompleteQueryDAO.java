@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -125,15 +126,15 @@ public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
                                                 final Duration duration,
                                                 final StringBuilder sql,
                                                 final List<Object> condition) {
-        long startSecondTB = 0;
-        long endSecondTB = 0;
+        long startMinTB = 0;
+        long endMinTB = 0;
         if (nonNull(duration)) {
-            startSecondTB = duration.getStartTimeBucketInSec();
-            endSecondTB = duration.getEndTimeBucketInSec();
+            startMinTB = duration.getStartTimeBucketInMin();
+            endMinTB = duration.getEndTimeBucketInMin();
         }
 
-        long startTB = startSecondTB / 1000000 * 10000;
-        long endTB = endSecondTB / 1000000 * 10000 + 2359;
+        long startTB = TimeBucket.retainToDay4MinuteBucket(startMinTB);
+        long endTB = TimeBucket.retainToDayLastMin4MinuteBucket(endMinTB);
 
         sql.append(" and ");
         sql.append(TagAutocompleteData.TAG_TYPE).append(" = ?");

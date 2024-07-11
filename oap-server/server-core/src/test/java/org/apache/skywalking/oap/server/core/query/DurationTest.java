@@ -91,4 +91,40 @@ public class DurationTest {
         Assertions.assertTrue(Arrays.asList(20220910L, 20220911L, 20220912L)
                                 .equals(pointOfTimes.stream().map(PointOfTime::getPoint).collect(Collectors.toList())));
     }
+
+    @Test
+    public void testStartTimeDurationToMinuteTimeBucket() {
+        Assertions.assertEquals(
+            202209080000L, DurationUtils.INSTANCE.startTimeDurationToMinuteTimeBucket(Step.DAY, "2022-09-08"));
+        Assertions.assertEquals(
+            202209081000L, DurationUtils.INSTANCE.startTimeDurationToMinuteTimeBucket(Step.HOUR, "2022-09-08 10"));
+        Assertions.assertEquals(
+            202209081010L, DurationUtils.INSTANCE.startTimeDurationToMinuteTimeBucket(Step.MINUTE, "2022-09-08 1010"));
+        Assertions.assertEquals(
+            202209081010L, DurationUtils.INSTANCE.startTimeDurationToMinuteTimeBucket(Step.SECOND, "2022-09-08 101010"));
+        try {
+            DurationUtils.INSTANCE.startTimeDurationToMinuteTimeBucket(Step.HOUR, "2022-09-08 30");
+            Assertions.fail("Should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            Assertions.assertTrue(true);
+        }
+    }
+
+    @Test
+    public void testEndTimeDurationToMinuteTimeBucket() {
+        Assertions.assertEquals(
+            202209082359L, DurationUtils.INSTANCE.endTimeDurationToMinuteTimeBucket(Step.DAY, "2022-09-08"));
+        Assertions.assertEquals(
+            202209081059L, DurationUtils.INSTANCE.endTimeDurationToMinuteTimeBucket(Step.HOUR, "2022-09-08 10"));
+        Assertions.assertEquals(
+            202209081010L, DurationUtils.INSTANCE.endTimeDurationToMinuteTimeBucket(Step.MINUTE, "2022-09-08 1010"));
+        Assertions.assertEquals(
+            202209081010L, DurationUtils.INSTANCE.endTimeDurationToMinuteTimeBucket(Step.SECOND, "2022-09-08 101010"));
+        try {
+            DurationUtils.INSTANCE.endTimeDurationToMinuteTimeBucket(Step.HOUR, "2022-09-08 30");
+            Assertions.fail("Should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            Assertions.assertTrue(true);
+        }
+    }
 }
