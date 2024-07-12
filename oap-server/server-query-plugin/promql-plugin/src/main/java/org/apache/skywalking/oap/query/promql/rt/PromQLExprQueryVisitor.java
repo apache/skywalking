@@ -26,7 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.RuleContext;
 import org.apache.skywalking.oap.query.promql.entity.ErrorType;
 import org.apache.skywalking.oap.query.promql.entity.LabelName;
 import org.apache.skywalking.oap.query.promql.entity.LabelValuePair;
@@ -58,6 +60,7 @@ import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.apache.skywalking.promql.rt.grammar.PromQLParserBaseVisitor;
@@ -133,6 +136,51 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         boolean boolModifier = ctx.compare().BOOL() != null;
         int opType = ctx.compare().getStart().getType();
         return compareOp(left, right, opType, boolModifier);
+    }
+
+    @Override
+    public ParseResult visitAggregationOp(final PromQLParser.AggregationOpContext ctx) {
+        ParseResult parseResult = visit(ctx.expression());
+        if (StringUtil.isNotBlank(parseResult.getErrorInfo())) {
+            return parseResult;
+        }
+
+        if (!parseResult.getResultType().equals(ParseResultType.METRICS_RANGE)) {
+            ParseResult result = new ParseResult();
+            result.setErrorType(ErrorType.BAD_DATA);
+            result.setErrorInfo("Expected type instant vector in aggregation expression.");
+            return result;
+        }
+
+        MetricsRangeResult metricsRangeResult = (MetricsRangeResult) parseResult;
+        if (CollectionUtils.isEmpty(metricsRangeResult.getMetricDataList())) {
+            return metricsRangeResult;
+        }
+
+        List<String> resultLabelNames = metricsRangeResult.getMetricDataList()
+                                                          .get(0).getMetric().getLabels()
+                                                          .stream().map(LabelValuePair::getLabelName)
+                                                          .collect(Collectors.toList());
+
+        List<String> groupingBy = new ArrayList<>();
+        PromQLParser.AggregationClauseContext clauseContext = ctx.aggregationClause();
+        if (clauseContext != null) {
+            List<String> clauseGroupingBy = clauseContext.labelNameList().labelName().stream()
+                                                         .map(RuleContext::getText)
+                                                         .filter(resultLabelNames::contains)
+                                                         .collect(Collectors.toList());
+            if (clauseContext.getStart().getType() == PromQLParser.WITHOUT) {
+                groupingBy = resultLabelNames.stream()
+                                             .filter(labelName -> !clauseGroupingBy.contains(labelName))
+                                             .collect(Collectors.toList());
+            } else {
+                groupingBy = clauseGroupingBy;
+            }
+        }
+
+        return PromOpUtils.matrixAggregateOp(
+            (MetricsRangeResult) parseResult, ctx.aggregationFunc().getStart().getType(), groupingBy
+        );
     }
 
     private ParseResult compareOp(ParseResult left, ParseResult right, int opType, boolean boolModifier) {

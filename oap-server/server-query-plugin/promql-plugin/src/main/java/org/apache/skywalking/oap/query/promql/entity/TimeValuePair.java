@@ -25,8 +25,8 @@ import org.apache.skywalking.oap.query.promql.entity.codec.TimeValuePairSerializ
 @Data
 @JsonSerialize(using = TimeValuePairSerializer.class)
 public class TimeValuePair {
-    private final long time;
-    private final String value;
+    private long time;
+    private String value;
 
     public TimeValuePair(final long time, String value) {
         this.time = time;

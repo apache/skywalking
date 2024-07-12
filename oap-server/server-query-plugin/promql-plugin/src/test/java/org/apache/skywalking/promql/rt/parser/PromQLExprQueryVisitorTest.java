@@ -25,6 +25,7 @@ import lombok.SneakyThrows;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.skywalking.oap.query.promql.entity.LabelValuePair;
 import org.apache.skywalking.oap.query.promql.entity.TimeValuePair;
 import org.apache.skywalking.oap.query.promql.handler.PromQLApiHandler;
 import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
@@ -121,10 +122,116 @@ public class PromQLExprQueryVisitorTest {
         });
     }
 
+    public static Collection<Object[]> aggregateData() {
+        // {service_instance_id=a,group=g} 0, 1, 2
+        // {service_instance_id=b,group=g} 2, 3, 4
+        return Arrays.asList(new Object[][] {
+            {
+                "MetricsAggregationOpSum",
+                PromQLApiHandler.QueryType.RANGE,
+                "sum by(group) (http_requests_total{service='serviceA', layer='GENERAL'})",
+                List.of(
+                    List.of(
+                        new TimeValuePair(TIME_2023022010, "2.0"),
+                        new TimeValuePair(TIME_2023022011, "4.0"),
+                        new TimeValuePair(TIME_2023022012, "6.0")
+                    )
+                ),
+                List.of(
+                    List.of(
+                        new LabelValuePair("group", "g")
+                    )
+                )
+            },
+            {
+                "MetricsAggregationOpAvg",
+                PromQLApiHandler.QueryType.RANGE,
+                "avg by(group) (http_requests_total{service='serviceA', layer='GENERAL'})",
+                List.of(
+                    List.of(
+                        new TimeValuePair(TIME_2023022010, "1.0"),
+                        new TimeValuePair(TIME_2023022011, "2.0"),
+                        new TimeValuePair(TIME_2023022012, "3.0")
+                    )
+                ),
+                List.of(
+                    List.of(
+                        new LabelValuePair("group", "g")
+                    )
+                )
+            },
+            {
+                "MetricsAggregationOpMax",
+                PromQLApiHandler.QueryType.RANGE,
+                "max (http_requests_total{service='serviceA', layer='GENERAL'}) by (group)",
+                List.of(
+                    List.of(
+                        new TimeValuePair(TIME_2023022010, "2.0"),
+                        new TimeValuePair(TIME_2023022011, "3.0"),
+                        new TimeValuePair(TIME_2023022012, "4.0")
+                    )
+                ),
+                List.of(
+                    List.of(
+                        new LabelValuePair("group", "g")
+                    )
+                )
+            },
+            {
+                "MetricsAggregationOpMin",
+                PromQLApiHandler.QueryType.RANGE,
+                "min (http_requests_total{service='serviceA', layer='GENERAL'}) by (group)",
+                List.of(
+                    List.of(
+                        new TimeValuePair(TIME_2023022010, "0.0"),
+                        new TimeValuePair(TIME_2023022011, "1.0"),
+                        new TimeValuePair(TIME_2023022012, "2.0")
+                    )
+                ),
+                List.of(
+                    List.of(
+                        new LabelValuePair("group", "g")
+                    )
+                )
+            },
+            {
+                "MetricsAggregationOpMinWithout",
+                PromQLApiHandler.QueryType.RANGE,
+                "min (http_requests_total{service='serviceA', layer='GENERAL'}) without (group)",
+                List.of(
+                    List.of(
+                        new TimeValuePair(TIME_2023022010, "0.0"),
+                        new TimeValuePair(TIME_2023022011, "1.0"),
+                        new TimeValuePair(TIME_2023022012, "2.0")
+                    ),
+                    List.of(
+                        new TimeValuePair(TIME_2023022010, "2.0"),
+                        new TimeValuePair(TIME_2023022011, "3.0"),
+                        new TimeValuePair(TIME_2023022012, "4.0")
+                    )
+                ),
+                List.of(
+                    List.of(
+                        new LabelValuePair("service_instance_id", "a"),
+                        new LabelValuePair("layer", "GENERAL")
+                    ),
+                    List.of(
+                        new LabelValuePair("service_instance_id", "b"),
+                        new LabelValuePair("layer", "GENERAL")
+                    )
+                )
+            }
+        });
+    }
+
     @SneakyThrows
     @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent("service_cpm", "value", Column.ValueDataType.COMMON_VALUE,
+                                                 0,
+                                                 DefaultScopeDefine.SERVICE
+        );
+        ValueColumnMetadata.INSTANCE.putIfAbsent("http_requests_total", "value", Column.ValueDataType.LABELED_VALUE,
                                                  0,
                                                  DefaultScopeDefine.SERVICE
         );
@@ -138,6 +245,10 @@ public class PromQLExprQueryVisitorTest {
         Mockito.doReturn(mockMetricsValues())
                .when(metricsQueryService)
                .readMetricsValues(any(MetricsCondition.class), any(Duration.class));
+
+        Mockito.doReturn(mockLabeledMetricsValues())
+               .when(metricsQueryService)
+               .readLabeledMetricsValues(any(MetricsCondition.class), any(), any(Duration.class));
     }
 
     private MetricsValues mockMetricsValues() {
@@ -150,6 +261,30 @@ public class PromQLExprQueryVisitorTest {
             values.getValues().addKVInt(kvInt);
         }
         return values;
+    }
+
+    private List<MetricsValues> mockLabeledMetricsValues() {
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        // {service_instance_id=a,group=g} 0, 1, 2
+        MetricsValues values1 = new MetricsValues();
+        values1.setLabel("{service_instance_id=a,group=g}");
+        for (int i = 0; i < pointOfTimes.size(); i++) {
+            final KVInt kvInt = new KVInt();
+            kvInt.setId(String.valueOf(pointOfTimes.get(i).getPoint()));
+            kvInt.setValue(i);
+            values1.getValues().addKVInt(kvInt);
+        }
+
+        // {service_instance_id=b,group=g} 2, 3, 4
+        MetricsValues values2 = new MetricsValues();
+        values2.setLabel("{service_instance_id=b,group=g}");
+        for (int i = 0; i < pointOfTimes.size(); i++) {
+            final KVInt kvInt = new KVInt();
+            kvInt.setId(String.valueOf(pointOfTimes.get(i).getPoint()));
+            kvInt.setValue(i + 2);
+            values2.getValues().addKVInt(kvInt);
+        }
+        return List.of(values1, values2);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -180,6 +315,30 @@ public class PromQLExprQueryVisitorTest {
                 break;
             default:
                 Assertions.fail();
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("aggregateData")
+    public void testAggregate(String name,
+                              PromQLApiHandler.QueryType queryType,
+                              String expression,
+                              List<Object> wantResultValues,
+                              List<Object> wantResultLabels) {
+        PromQLLexer lexer = new PromQLLexer(CharStreams.fromString(expression));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        PromQLParser parser = new PromQLParser(tokens);
+        ParseTree tree = parser.expression();
+        PromQLExprQueryVisitor visitor = new PromQLExprQueryVisitor(
+            metricsQueryService, recordQueryService, aggregationQueryService, duration, queryType);
+        ParseResult parseResult = visitor.visit(tree);
+        Assertions.assertEquals(ParseResultType.METRICS_RANGE, parseResult.getResultType());
+
+        MetricsRangeResult result = (MetricsRangeResult) parseResult;
+        Assertions.assertEquals(result.getMetricDataList().size(), wantResultValues.size());
+        for (int i = 0; i < result.getMetricDataList().size(); i++) {
+            Assertions.assertEquals(result.getMetricDataList().get(i).getValues(), wantResultValues.get(i));
+            Assertions.assertEquals(result.getMetricDataList().get(i).getMetric().getLabels(), wantResultLabels.get(i));
         }
     }
 }

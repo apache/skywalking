@@ -106,6 +106,33 @@ For example:
 service_cpm{service='service_A', layer='$layer'} > service_cpm{service='service_B', layer='$layer'}
 ```
 
+### Aggregation operators
+[Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators)
+
+| Operator | Definition                            | Support |
+|----------|---------------------------------------|---------|
+| sum      | calculate sum over dimensions         | yes     |
+| min      | select minimum over dimensions        | yes     |
+| max      | select maximum over dimensions        | yes     |
+| avg      | calculate the average over dimensions | yes     |
+
+For example:
+
+If the metric `http_requests_total` had time series that fan out by `service`, `service_instance_id`, and `group` labels,
+we could calculate the total number of seen HTTP requests per service and group over all service instances via:
+
+```
+sum by (service, group) (http_requests_total{service='$service', layer='$layer'})
+```
+Which is equivalent to:
+```
+sum without (service_instance_id) (http_requests_total{service='$service', layer='$layer'})
+```
+If we are just interested in the total of HTTP requests we have seen in all services, we could simply write:
+```
+sum(http_requests_total{service='$service', layer='$layer'})
+```
+
 ### HTTP API
 
 #### Expression queries
