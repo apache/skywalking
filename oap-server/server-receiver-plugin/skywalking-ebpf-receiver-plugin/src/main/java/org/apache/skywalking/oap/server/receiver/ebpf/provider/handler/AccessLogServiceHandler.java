@@ -300,7 +300,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 protocol.setHttp(new K8SMetrics.ProtocolHTTP());
                 protocol.setSuccess(success);
 
-                protocol.getHttp().setLatency(getDurationFromTimestamp(node, http.getStartTime(), http.getEndTime()));
+                duration = convertNsToMs(getDurationFromTimestamp(node, http.getStartTime(), http.getEndTime()));
+                protocol.getHttp().setLatency(duration);
                 protocol.getHttp().setUrl(http.getRequest().getPath());
                 protocol.getHttp().setMethod(http.getRequest().getMethod().name());
                 protocol.getHttp().setStatusCode(http.getResponse().getStatusCode());
@@ -308,7 +309,6 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 protocol.getHttp().setSizeOfRequestBody(http.getRequest().getSizeOfBodyBytes());
                 protocol.getHttp().setSizeOfResponseHeader(http.getResponse().getSizeOfHeadersBytes());
                 protocol.getHttp().setSizeOfResponseBody(http.getResponse().getSizeOfBodyBytes());
-                duration = protocol.getHttp().getLatency();
                 break;
         }
 
@@ -715,5 +715,9 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         public void increaseCount() {
             count.incrementAndGet();
         }
+    }
+
+    protected long convertNsToMs(long latency) {
+        return TimeUnit.NANOSECONDS.toMillis(latency);
     }
 }

@@ -86,15 +86,15 @@ Based on each transfer data analysis, extract the information of the 7-layer net
 
 #### HTTP/1.x or HTTP/2.x
 
-| Name                 | Init        | Description                                      |
-|----------------------|-------------|--------------------------------------------------|
-| Call CPM             | Count       | HTTP Request calls per minutes.                  |
-| Duration             | Nanoseconds | Total HTTP Response use duration.                |
-| Success CPM          | Count       | Total HTTP Response success(status < 500) count. |
-| Request Header Size  | Bytes       | Total Request Header size.                       |
-| Request Body Size    | Bytes       | Total Request Body size.                         |
-| Response Header Size | Bytes       | Total Response Header size.                      |
-| Response Body Size   | Bytes       | Total Response Body size.                        |
+| Name                 | Init         | Description                                      |
+|----------------------|--------------|--------------------------------------------------|
+| Call CPM             | Count        | HTTP Request calls per minutes.                  |
+| Duration             | Milliseconds | Total HTTP Response use duration.                |
+| Success CPM          | Count        | Total HTTP Response success(status < 500) count. |
+| Request Header Size  | Bytes        | Total Request Header size.                       |
+| Request Body Size    | Bytes        | Total Request Body size.                         |
+| Response Header Size | Bytes        | Total Response Header size.                      |
+| Response Body Size   | Bytes        | Total Response Body size.                        |
 
 ## Customizations
 You can customize your own metrics/dashboard panel.

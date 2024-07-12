@@ -104,19 +104,19 @@
                     "avg(kubernetes_service_relation_server_write_package_size)/60",
                     "avg(kubernetes_service_relation_server_read_package_size)/60",
                     "avg(kubernetes_service_relation_client_http_call_cpm)/60",
-                    "avg(kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm)/1000000"
+                    "avg(kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm)"
                   ],
                   "linkClientExpressions": [
                     "avg(kubernetes_service_relation_client_write_package_size)/60",
                     "avg(kubernetes_service_relation_client_read_package_size)/60",
                     "avg(kubernetes_service_relation_server_http_call_cpm)/60",
-                    "avg(kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm)/1000000"
+                    "avg(kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm)"
                   ],
                   "nodeExpressions": [
                     "avg(kubernetes_service_write_package_size)/60",
                     "avg(kubernetes_service_read_package_size)/60",
                     "avg(kubernetes_service_http_call_cpm)",
-                    "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)/1000000",
+                    "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)",
                     "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
                   ],
                   "legendMQE": {

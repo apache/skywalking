@@ -1336,7 +1336,7 @@
                   "i": "1",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_http_call_duration/kubernetes_service_instance_http_call_cpm/1000000"
+                    "kubernetes_service_instance_http_call_duration/kubernetes_service_instance_http_call_cpm"
                   ],
                   "metricConfig": [
                     {
@@ -1533,7 +1533,7 @@
         "avg(kubernetes_service_instance_write_package_size)/60",
         "avg(kubernetes_service_instance_read_package_size)/60",
         "avg(kubernetes_service_instance_http_call_cpm)",
-        "avg(kubernetes_service_instance_http_call_duration/kubernetes_service_instance_http_call_cpm/1000000)",
+        "avg(kubernetes_service_instance_http_call_duration/kubernetes_service_instance_http_call_cpm)",
         "avg(kubernetes_service_instance_http_call_success_count / kubernetes_service_instance_http_call_cpm*100)"
       ],
       "expressionsConfig": [
