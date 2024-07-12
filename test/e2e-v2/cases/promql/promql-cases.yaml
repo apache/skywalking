@@ -74,6 +74,10 @@ cases:
     expected: expected/service-metric-matrix.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-metric-labeled-matrix.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=sum by (p) (service_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90"})&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/service-metric-labeled-matrix-aggregate-by-p.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=sum without (p) (service_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90"})&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/service-metric-labeled-matrix-aggregate-without-p.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_cpm{layer="GENERAL",top_n="10", order="DES"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-metric-sort-matrix.yml
   ## instance
