@@ -64,7 +64,7 @@
                   "i": "1",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_endpoint_http_call_duration/kubernetes_service_endpoint_http_call_cpm/1000000"
+                    "kubernetes_service_endpoint_http_call_duration/kubernetes_service_endpoint_http_call_cpm"
                   ],
                   "metricConfig": [
                     {

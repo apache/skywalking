@@ -32,6 +32,7 @@
 * Support tracing logs query for debugging.
 * BanyanDB: fix Tag autocomplete data storage and query.
 * Support aggregation operators in PromQL query.
+* Update the kubernetes HTTP latency related metrics source unit from `ns` to `ms`.
 
 #### UI
 * Highlight search log keywords.

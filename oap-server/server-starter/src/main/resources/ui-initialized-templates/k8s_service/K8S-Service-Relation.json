@@ -3286,7 +3286,7 @@
                   "i": "1",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm/1000000"
+                    "kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3400,7 +3400,7 @@
                   "i": "3",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm/1000000"
+                    "kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm"
                   ],
                   "graph": {
                     "type": "Line",
