@@ -24,7 +24,7 @@
 * Fix BanyanDB metrics query: used the wrong `Downsampling` type to find the schema.
 * Support fetch cilium flow to monitoring network traffic between cilium services.
 * Support `labelCount` function in the OAL engine.
-* Support BanyanDB internal metrics query execution tracing.
+* Support BanyanDB internal measure query execution tracing.
 * BanyanDB client config: rise the default `maxBulkSize` to 10000, add `flushTimeout` and set default to 10s.
 * Polish BanyanDB group and schema creation logic to fix the schema creation failure issue in distributed race conditions.
 * Support tracing topology query for debugging.
@@ -33,6 +33,7 @@
 * BanyanDB: fix Tag autocomplete data storage and query.
 * Support aggregation operators in PromQL query.
 * Update the kubernetes HTTP latency related metrics source unit from `ns` to `ms`.
+* Support BanyanDB internal stream query execution tracing.
 
 #### UI
 * Highlight search log keywords.
