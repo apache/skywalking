@@ -74,7 +74,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         }
 
         builder.apply(query);
-
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        if (traceContext != null && traceContext.isDebug()) {
+            query.enableTrace();
+        }
         return getClient().query(query);
     }
 
@@ -103,6 +106,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getElements()));
                 span.setMsg(builder.toString());
             }
+            addDBTrace2DebuggingTrace(response.getTrace(), traceContext, span);
             return response;
         } finally {
             if (traceContext != null && span != null) {
