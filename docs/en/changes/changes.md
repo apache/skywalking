@@ -1,7 +1,9 @@
 ## 10.1.0
 
 #### Project
+
 * E2E: bump up the version of the opentelemetry-collector to 0.102.1.
+* Push snapshot data-generator docker image to ghcr.io.
 
 #### OAP Server
 
@@ -35,6 +37,7 @@
 * Update the kubernetes HTTP latency related metrics source unit from `ns` to `ms`.
 
 #### UI
+
 * Highlight search log keywords.
 * Add Error URL in the browser log.
 * Add a SolonMVC icon.
@@ -43,7 +46,7 @@
 #### Documentation
 
 * Update the version description supported by zabbix receiver.
-* Move the Official Dashboard docs to marketplace docs. 
+* Move the Official Dashboard docs to marketplace docs.
 * Add marketplace introduction docs under `quick start` menu to reduce the confusion of finding feature docs.
 * Update Windows Metrics(Swap -> Virtual Memory)
 
