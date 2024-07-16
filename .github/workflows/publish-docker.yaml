@@ -87,5 +87,5 @@ jobs:
       - name: Build and push docker images
         run: make build.all docker.push
       - name: Build and push data-generator image
-        if: github.event_name != "release"
+        if: github.event_name != 'release'
         run: make push.docker.data-generator
