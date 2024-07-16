@@ -20,7 +20,6 @@ on:
   push:
     branches:
       - master
-      - docker-push
   release:
     types:
       - released
