@@ -36,6 +36,7 @@
 * Support aggregation operators in PromQL query.
 * Update the kubernetes HTTP latency related metrics source unit from `ns` to `ms`.
 * Support BanyanDB internal stream query execution tracing.
+* Add Unknown Node when receive Kubernetes peer address is not aware in current cluster.
 
 #### UI
 
