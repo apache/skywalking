@@ -276,7 +276,7 @@
             }
           ],
           "expressions": [
-            "meter_mysql_slow_queries_rate"
+            "meter_mysql_instance_slow_queries_rate"
           ]
         },
         {

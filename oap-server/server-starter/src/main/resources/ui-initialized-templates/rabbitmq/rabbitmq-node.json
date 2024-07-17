@@ -97,7 +97,7 @@
             "showUnit": true
           },
           "widget": {
-            "title": "Collections"
+            "title": "Connections"
           },
           "expressions": [
             "latest(meter_rabbitmq_node_connections_total)"
