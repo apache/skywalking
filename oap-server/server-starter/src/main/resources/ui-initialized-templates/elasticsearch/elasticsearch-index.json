@@ -389,7 +389,10 @@
           },
           "widget": {
             "title": "Documents (Primary Shards)"
-          }
+          },
+          "expressions": [
+            "meter_elasticsearch_index_indices_docs_primary"
+          ]
         },
         {
           "x": 8,
@@ -408,7 +411,10 @@
           },
           "widget": {
             "title": "Documents Created Per Min (Primary Shards)"
-          }
+          },
+          "expressions": [
+            "meter_elasticsearch_index_indices_docs_primary_rate"
+          ]
         },
         {
           "x": 16,
@@ -584,7 +590,7 @@
             "title": "Deleted Documents Count (Primary Shard)"
           },
           "expressions": [
-            "latest(meter_elasticsearch_index_indices_docs_primary)"
+            "latest(meter_elasticsearch_index_indices_deleted_docs_primary)"
           ]
         },
         {
@@ -627,7 +633,10 @@
           },
           "widget": {
             "title": "Shards Documents"
-          }
+          },
+          "expressions": [
+            "meter_elasticsearch_index_indices_shards_docs"
+          ]
         }
       ],
       "layer": "ELASTICSEARCH",
