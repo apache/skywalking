@@ -284,7 +284,7 @@
                     "title": "Cache Hit Rate (%)"
                   },
                   "expressions": [
-                    "aggregate_labels(meter_pg_cache_hit_rate,sum)"
+                    "aggregate_labels(meter_pg_cache_hit_rate,avg)"
                   ],
                   "metricConfig": [
                     {
