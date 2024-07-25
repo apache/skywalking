@@ -44,6 +44,8 @@
 * Add Error URL in the browser log.
 * Add a SolonMVC icon.
 * Adding cilium icon and i18n for menu.
+* Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Windows-Service Dashboard.
+
 
 #### Documentation
 

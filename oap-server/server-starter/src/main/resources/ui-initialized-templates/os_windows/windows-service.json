@@ -20,8 +20,16 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_win_network_receive",
-            "meter_win_network_transmit"
+            "meter_win_network_receive/1024",
+            "meter_win_network_transmit/1024"
+          ],
+          "metricConfig": [
+            {
+              "label": "receive"
+            },
+            {
+              "label": "transmit"
+            }
           ]
         },
         {
@@ -49,7 +57,7 @@
               "label": "read"
             },
             {
-              "calculation": "written"
+              "label": "written"
             }
           ]
         },
