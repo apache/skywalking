@@ -82,13 +82,11 @@ public class ZipkinSpanRecord extends Record {
     @Getter
     @Column(name = TRACE_ID)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE}, reserveOriginalColumns = true)
-    @BanyanDB.SeriesID(index = 0)
     @ElasticSearch.Routing
     private String traceId;
     @Setter
     @Getter
     @Column(name = SPAN_ID)
-    @BanyanDB.SeriesID(index = 1)
     private String spanId;
     @Setter
     @Getter
@@ -116,6 +114,7 @@ public class ZipkinSpanRecord extends Record {
     private long timestamp;
     @Setter
     @Getter
+    @BanyanDB.SeriesID(index = 0)
     @Column(name = LOCAL_ENDPOINT_SERVICE_NAME)
     private String localEndpointServiceName;
     @Setter
