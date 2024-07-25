@@ -37,6 +37,7 @@
 * Update the kubernetes HTTP latency related metrics source unit from `ns` to `ms`.
 * Support BanyanDB internal stream query execution tracing.
 * Fix Elasticsearch, MySQL, RabbitMQ dashboards typos and missing expressions.
+* BanyanDB: Zipkin Module set service as Entity for improving the query performance.
 
 #### UI
 
