@@ -29,7 +29,7 @@ public class BinaryOp {
         try {
             return LROp.doLROp(left, right, opType, BinaryOp::scalarBinaryOp);
         } catch (IllegalExpressionException e) {
-            throw new IllegalExpressionException("Unsupported binary operation.");
+            throw new IllegalExpressionException("Unsupported binary operation: " + e.getMessage());
         }
     }
 

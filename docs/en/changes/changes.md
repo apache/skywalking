@@ -38,6 +38,7 @@
 * Support BanyanDB internal stream query execution tracing.
 * Fix Elasticsearch, MySQL, RabbitMQ dashboards typos and missing expressions.
 * BanyanDB: Zipkin Module set service as Entity for improving the query performance.
+* MQE: check the metrics value before do binary operation to improve robustness.
 
 #### UI
 

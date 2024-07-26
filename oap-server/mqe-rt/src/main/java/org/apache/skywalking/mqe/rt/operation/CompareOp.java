@@ -29,7 +29,7 @@ public class CompareOp {
         try {
             return LROp.doLROp(left, right, opType, CompareOp::scalarCompareOp);
         } catch (IllegalExpressionException e) {
-            throw new IllegalExpressionException("Unsupported compare operation.");
+            throw new IllegalExpressionException("Unsupported compare operation: " + e.getMessage());
         }
     }
 
