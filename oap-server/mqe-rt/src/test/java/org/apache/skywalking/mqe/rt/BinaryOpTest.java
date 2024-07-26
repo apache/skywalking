@@ -26,6 +26,7 @@ import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BinaryOpTest {
     private final MockData mockData = new MockData();
@@ -33,6 +34,10 @@ public class BinaryOpTest {
     //DIV/MUL/MOD/SUB... are the same logic and tested in here, the others only test ADD is enough.
     @Test
     public void seriesNoLabeledTest() throws Exception {
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newEmptyResult(ExpressionResultType.TIME_SERIES_VALUES, false),
+            mockData.newEmptyResult(ExpressionResultType.TIME_SERIES_VALUES, false), MQEParser.ADD
+        ));
         ExpressionResult add = BinaryOp.doBinaryOp(
             mockData.newSeriesNoLabeledResult(), mockData.newSeriesNoLabeledResult(), MQEParser.ADD);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, add.getType());
@@ -76,6 +81,10 @@ public class BinaryOpTest {
 
     @Test
     public void seriesLabeledTest() throws Exception {
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newSeriesLabeledResult(),
+            mockData.newEmptyResult(ExpressionResultType.TIME_SERIES_VALUES, false), MQEParser.ADD
+        ));
         //seriesLabeled + seriesNoLabeled
         ExpressionResult add = BinaryOp.doBinaryOp(mockData.newSeriesLabeledResult(), mockData.newSeriesNoLabeledResult(), MQEParser.ADD);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, add.getType());
@@ -133,6 +142,18 @@ public class BinaryOpTest {
 
     @Test
     public void many2OneTest() throws Exception {
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newEmptyResult(ExpressionResultType.TIME_SERIES_VALUES, false),
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, false), MQEParser.ADD
+        ));
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newEmptyResult(ExpressionResultType.TIME_SERIES_VALUES, true),
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, false), MQEParser.ADD
+        ));
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newEmptyResult(ExpressionResultType.TIME_SERIES_VALUES, false),
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, true), MQEParser.ADD
+        ));
         //sort_list + single
         ExpressionResult add = BinaryOp.doBinaryOp(
             mockData.newListResult(), mockData.newSingleResult(1000), MQEParser.ADD);
@@ -171,6 +192,14 @@ public class BinaryOpTest {
 
     @Test
     public void one2ManyTest() throws Exception {
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, false),
+            mockData.newEmptyResult(ExpressionResultType.TIME_SERIES_VALUES, false), MQEParser.ADD
+        ));
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, false),
+            mockData.newEmptyResult(ExpressionResultType.TIME_SERIES_VALUES, true), MQEParser.ADD
+        ));
         // single - sort_list
         ExpressionResult sub = BinaryOp.doBinaryOp(
             mockData.newSingleResult(1000), mockData.newListResult(), MQEParser.SUB);
@@ -209,6 +238,15 @@ public class BinaryOpTest {
 
     @Test
     public void single2SingleTest() throws IllegalExpressionException {
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, false),
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, false), MQEParser.ADD
+        ));
+        assertThrows(IllegalExpressionException.class, () -> BinaryOp.doBinaryOp(
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, false),
+            mockData.newEmptyResult(ExpressionResultType.SINGLE_VALUE, true), MQEParser.ADD
+        ));
+
         //noLabeled + noLabeled
         ExpressionResult add = BinaryOp.doBinaryOp(
             mockData.newSingleResult(100), mockData.newSingleResult(200), MQEParser.ADD);
