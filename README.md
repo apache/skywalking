@@ -34,7 +34,7 @@ microservices, cloud native and container-based architectures.
 * Alerting and Telemetry Pipelines
   * Support service-centric, deployment-centric, API-centric alarm rule setting. Support forwarding alarms and all telemetry data to 3rd party.
 
-<img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220513"/>
+<img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220516"/>
 
 # Live Demo
 - Find the [SkyWalking live demo with native UI and Grafana](https://skywalking.apache.org/#demo), and [screenshots](https://skywalking.apache.org/#arch) on our website.
