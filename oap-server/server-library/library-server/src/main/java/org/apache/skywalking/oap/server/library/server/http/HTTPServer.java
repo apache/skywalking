@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ssl.PrivateKeyUtil;
 
@@ -58,11 +57,10 @@ public class HTTPServer implements Server {
 
     @Override
     public void initialize() {
-        // TODO replace prefix with real context path when Armeria supports it
-        final String contextPath = StringUtils.stripEnd(config.getContextPath(), "/");
         sb = com.linecorp.armeria.server.Server
             .builder()
-            .serviceUnder(contextPath + "/docs", DocService.builder().build())
+            .baseContextPath(config.getContextPath())
+            .serviceUnder("/docs", DocService.builder().build())
             .service("/internal/l7check", HealthCheckService.of())
             .workerGroup(config.getMaxThreads())
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
@@ -99,7 +97,7 @@ public class HTTPServer implements Server {
             sb.absoluteUriTransformer(this::transformAbsoluteURI);
         }
 
-        log.info("Server root context path: {}", contextPath);
+        log.info("Server root context path: {}", config.getContextPath());
     }
 
     /**
@@ -114,7 +112,6 @@ public class HTTPServer implements Server {
         );
 
         sb.annotatedService()
-          .pathPrefix(config.getContextPath())
           .build(handler);
         this.allowedMethods.addAll(httpMethods);
     }
