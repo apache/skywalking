@@ -23,6 +23,7 @@ import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
@@ -136,13 +137,11 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     private int querySequenceWithAgg(AggType aggType, String segmentId, long start, long end) throws IOException {
         StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
-                TAGS_ALL,
+                TAGS_ALL, new TimestampRange(start, end),
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
-                                .and(lte(ProfileThreadSnapshotRecord.DUMP_TIME, end))
-                                .and(gte(ProfileThreadSnapshotRecord.DUMP_TIME, start));
+                        query.and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId));
                     }
                 });
 
