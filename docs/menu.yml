@@ -322,6 +322,8 @@ catalog:
             path: "/en/api/promql-service"
           - name: "LogQL APIs"
             path: "/en/api/logql-service"
+          - name: "Health Check API"
+            path: "/env/api/health-check"
   - name: "Customization"
     catalog:
       - name: "Overview"
