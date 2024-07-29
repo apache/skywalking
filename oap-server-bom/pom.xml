@@ -68,7 +68,7 @@
         <postgresql.version>42.4.4</postgresql.version>
         <jetcd.version>0.6.1</jetcd.version>
         <testcontainers.version>1.17.6</testcontainers.version>
-        <armeria.version>1.27.3</armeria.version>
+        <armeria.version>1.29.3</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <httpasyncclient.version>4.1.5</httpasyncclient.version>
@@ -548,7 +548,11 @@
                     </exclusion>
                     <exclusion>
                         <groupId>com.aayushatharva.brotli4j</groupId>
-                        <artifactId>native-osx-x86_64</artifactId>
+                        <artifactId>native-linux-x86_64</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.aayushatharva.brotli4j</groupId>
+                        <artifactId>native-osx-aarch64</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
