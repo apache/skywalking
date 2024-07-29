@@ -323,7 +323,7 @@ catalog:
           - name: "LogQL APIs"
             path: "/en/api/logql-service"
           - name: "Health Check API"
-            path: "/env/api/health-check"
+            path: "/en/api/health-check"
   - name: "Customization"
     catalog:
       - name: "Overview"
