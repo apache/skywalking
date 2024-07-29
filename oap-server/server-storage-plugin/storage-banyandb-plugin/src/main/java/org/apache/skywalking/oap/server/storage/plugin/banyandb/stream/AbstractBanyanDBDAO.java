@@ -305,14 +305,6 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             return PairQueryCondition.LongQueryCondition.ne(name, value);
         }
 
-        protected AbstractQuery.OrderBy desc(String name) {
-            return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.DESC);
-        }
-
-        protected AbstractQuery.OrderBy asc(String name) {
-            return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.ASC);
-        }
-
         protected AbstractCriteria and(List<? extends AbstractCriteria> conditions) {
             if (conditions.isEmpty()) {
                 return null;

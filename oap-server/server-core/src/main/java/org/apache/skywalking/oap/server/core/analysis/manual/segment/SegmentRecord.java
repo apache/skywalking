@@ -85,6 +85,7 @@ public class SegmentRecord extends Record {
     @Setter
     @Getter
     @Column(name = START_TIME)
+    @BanyanDB.NoIndexing
     private long startTime;
     @Setter
     @Getter

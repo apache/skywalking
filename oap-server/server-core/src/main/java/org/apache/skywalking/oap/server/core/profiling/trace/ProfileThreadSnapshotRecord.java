@@ -60,6 +60,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     @BanyanDB.SeriesID(index = 0)
     private String segmentId;
     @Column(name = DUMP_TIME)
+    @BanyanDB.NoIndexing
     private long dumpTime;
     @Column(name = SEQUENCE)
     private int sequence;

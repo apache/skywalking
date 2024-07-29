@@ -58,7 +58,7 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
             protected void apply(StreamQuery query) {
                 query.and(in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
                 query.and(eq(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
-                query.setOrderBy(new StreamQuery.OrderBy(SpanAttachedEventRecord.START_TIME_SECOND, AbstractQuery.Sort.ASC));
+                query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.ASC));
             }
         });
 
