@@ -52,6 +52,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
 
     private static final TimestampRange LARGEST_TIME_RANGE = new TimestampRange(0, UPPER_BOUND.toEpochMilli());
 
+    protected static final long UPPER_BOUND_TIME = UPPER_BOUND.toEpochMilli();
+
+    protected static final long LOWER_BOUND_TIME = 0;
+
     protected AbstractBanyanDBDAO(BanyanDBStorageClient client) {
         super(client);
     }
@@ -303,14 +307,6 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
 
         protected PairQueryCondition<Long> ne(String name, long value) {
             return PairQueryCondition.LongQueryCondition.ne(name, value);
-        }
-
-        protected AbstractQuery.OrderBy desc(String name) {
-            return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.DESC);
-        }
-
-        protected AbstractQuery.OrderBy asc(String name) {
-            return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.ASC);
         }
 
         protected AbstractCriteria and(List<? extends AbstractCriteria> conditions) {

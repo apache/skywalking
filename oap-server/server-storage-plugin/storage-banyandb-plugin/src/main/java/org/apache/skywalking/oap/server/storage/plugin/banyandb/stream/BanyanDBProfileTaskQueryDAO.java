@@ -23,6 +23,7 @@ import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
@@ -58,7 +59,15 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
 
     @Override
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
-        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME, TAGS,
+        long startTS = LOWER_BOUND_TIME;
+        long endTS = UPPER_BOUND_TIME;
+        if (startTimeBucket != null) {
+            startTS = TimeBucket.getTimestamp(startTimeBucket);
+        }
+        if (endTimeBucket != null) {
+            endTS = TimeBucket.getTimestamp(endTimeBucket);
+        }
+        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME, TAGS, new TimestampRange(startTS, endTS),
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {
@@ -68,19 +77,13 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
                         if (StringUtil.isNotEmpty(endpointName)) {
                             query.and(eq(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
                         }
-                        if (startTimeBucket != null) {
-                            query.and(gte(ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
-                        }
-                        if (endTimeBucket != null) {
-                            query.and(lte(ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
-                        }
 
                         if (limit != null) {
                             query.setLimit(limit);
                         } else {
                             query.setLimit(BanyanDBProfileTaskQueryDAO.this.queryMaxSize);
                         }
-                        query.setOrderBy(new AbstractQuery.OrderBy(ProfileTaskRecord.START_TIME, AbstractQuery.Sort.DESC));
+                        query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                     }
                 });
 

@@ -107,10 +107,12 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(name = TIMESTAMP_MILLIS)
+    @BanyanDB.NoIndexing
     private long timestampMillis;
     @Setter
     @Getter
     @Column(name = TIMESTAMP)
+    @BanyanDB.NoIndexing
     private long timestamp;
     @Setter
     @Getter

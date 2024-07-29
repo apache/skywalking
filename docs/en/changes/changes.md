@@ -42,6 +42,8 @@
 * Replace workaround with Armeria native supported context path.
 * Add an http endpoint wrapper for health check.
 * Bump up Armeria and transitive dependencies.
+* BanyanDB: if the model column is already a `@BanyanDB.TimestampColumn`, set `@BanyanDB.NoIndexing` on it to reduce indexes.
+* BanyanDB: stream sort-by `time` query, use internal time-series rather than `index` to improve the query performance.
 
 #### UI
 

@@ -67,6 +67,7 @@ public class ProfileTaskRecord extends NoneStream {
     @Column(name = TASK_ID)
     private String taskId;
     @Column(name = START_TIME)
+    @BanyanDB.NoIndexing
     private long startTime;
     @Column(name = DURATION)
     private int duration;

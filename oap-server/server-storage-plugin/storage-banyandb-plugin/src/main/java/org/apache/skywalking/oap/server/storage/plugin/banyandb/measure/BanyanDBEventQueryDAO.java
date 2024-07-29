@@ -25,6 +25,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -98,9 +99,9 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
                 query.limit(page.getLimit());
                 query.offset(page.getFrom());
                 if (queryOrder == Order.ASC) {
-                    query.setOrderBy(asc(Event.START_TIME));
+                    query.setOrderBy(new AbstractQuery.OrderBy(Event.START_TIME, AbstractQuery.Sort.ASC));
                 } else {
-                    query.setOrderBy(desc(Event.START_TIME));
+                    query.setOrderBy(new AbstractQuery.OrderBy(Event.START_TIME, AbstractQuery.Sort.DESC));
                 }
                 for (final EventQueryCondition condition : conditionList) {
                     List<PairQueryCondition<?>> queryConditions = new ArrayList<>();

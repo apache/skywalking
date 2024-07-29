@@ -77,6 +77,7 @@ public class SpanAttachedEventRecord extends Record {
     @Setter
     @Getter
     @Column(name = TIMESTAMP)
+    @BanyanDB.NoIndexing
     private long timestamp;
 
     @Override
