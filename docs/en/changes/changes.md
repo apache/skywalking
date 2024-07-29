@@ -40,6 +40,8 @@
 * BanyanDB: Zipkin Module set service as Entity for improving the query performance.
 * MQE: check the metrics value before do binary operation to improve robustness.
 * Replace workaround with Armeria native supported context path.
+* Add an http endpoint wrapper for health check.
+* Bump up Armeria and transitive dependencies.
 
 #### UI
 

@@ -26,7 +26,6 @@ import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.encoding.DecodingService;
-import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 import com.linecorp.armeria.server.logging.LoggingService;
 
 import java.io.FileInputStream;
@@ -61,7 +60,6 @@ public class HTTPServer implements Server {
             .builder()
             .baseContextPath(config.getContextPath())
             .serviceUnder("/docs", DocService.builder().build())
-            .service("/internal/l7check", HealthCheckService.of())
             .workerGroup(config.getMaxThreads())
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
             .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
