@@ -52,7 +52,8 @@
 * Add a SolonMVC icon.
 * Adding cilium icon and i18n for menu.
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Windows-Service Dashboard.
-
+* Make a maximum 20 entities per query in service/instance/endpoint list widgets.
+* Polish error nodes in trace widget.
 
 #### Documentation
 
