@@ -44,6 +44,7 @@
 * Bump up Armeria and transitive dependencies.
 * BanyanDB: if the model column is already a `@BanyanDB.TimestampColumn`, set `@BanyanDB.NoIndexing` on it to reduce indexes.
 * BanyanDB: stream sort-by `time` query, use internal time-series rather than `index` to improve the query performance.
+* Bump up graphql-java to 21.5.
 * Add Unknown Node when receive Kubernetes peer address is not aware in current cluster.
 
 #### UI
