@@ -17,8 +17,10 @@ health-checker:
 ```
 Note: The `telemetry` module should be enabled at the same time. This means that the provider should not be `-` and `none`.
 
-After that, we can check the OAP server health status by querying GraphQL:
+After that, we can check the OAP server health status by querying the http endpoint: `/healthcheck`,
+see [the health check http endpoint doc](../../api/health-check.md).
 
+You can also query the healthiness via other methods like GraphQL, see following.
 ```
 query{
   checkHealth{

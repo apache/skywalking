@@ -185,6 +185,13 @@ public class MockData {
         return result;
     }
 
+    public ExpressionResult newEmptyResult(ExpressionResultType type, boolean labeled) {
+        ExpressionResult result = new ExpressionResult();
+        result.setType(type);
+        result.setLabeledResult(labeled);
+        return result;
+    }
+
     public MQEValue newMQEValue(String id, double value) {
         MQEValue mqeValue = new MQEValue();
         mqeValue.setId(id);

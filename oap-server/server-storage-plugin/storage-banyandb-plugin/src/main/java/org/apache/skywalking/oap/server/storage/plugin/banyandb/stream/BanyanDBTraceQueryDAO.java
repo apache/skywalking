@@ -118,7 +118,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
                 switch (queryOrder) {
                     case BY_START_TIME:
-                        query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
+                        query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
                         break;
                     case BY_DURATION:
                         query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.LATENCY, AbstractQuery.Sort.DESC));

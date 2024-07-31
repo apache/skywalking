@@ -241,7 +241,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                 if (request.maxDuration() != null) {
                     query.and(lte(ZipkinSpanRecord.DURATION, request.maxDuration()));
                 }
-                query.setOrderBy(new StreamQuery.OrderBy(ZipkinSpanRecord.TIMESTAMP_MILLIS, AbstractQuery.Sort.DESC));
+                query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
                 query.setLimit(limit);
             }
         };
@@ -276,7 +276,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                               query.criteria(or(conditions));
                           }
                           query.setOrderBy(
-                              new StreamQuery.OrderBy(ZipkinSpanRecord.TIMESTAMP_MILLIS, AbstractQuery.Sort.DESC));
+                              new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
                           query.setLimit(QUERY_MAX_SIZE);
                       }
                   }

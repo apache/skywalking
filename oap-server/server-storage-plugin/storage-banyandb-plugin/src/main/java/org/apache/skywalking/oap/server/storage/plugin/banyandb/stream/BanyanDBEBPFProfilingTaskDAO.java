@@ -71,7 +71,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
                         if (triggerType != null) {
                             query.and(eq(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType.value()));
                         }
-                        query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingTaskRecord.CREATE_TIME, AbstractQuery.Sort.DESC));
+                        query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                     }
                 });
             tasks.addAll(resp.getElements().stream().map(this::buildTask).collect(Collectors.toList()));
@@ -100,7 +100,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
                         }
                         query.and(eq(EBPFProfilingTaskRecord.TARGET_TYPE, targetType.value()));
                         appendTimeQuery(this, query, taskStartTime, latestUpdateTime);
-                        query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingTaskRecord.CREATE_TIME, AbstractQuery.Sort.DESC));
+                        query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                     }
                 });
             tasks.addAll(resp.getElements().stream().map(this::buildTask).collect(Collectors.toList()));

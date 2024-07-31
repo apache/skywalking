@@ -62,7 +62,7 @@ metricsRules:
 
   ## cache and temporary file
   - name: cache_hit_rate
-    exp: (pg_stat_database_blks_hit*100 / (pg_stat_database_blks_read + pg_stat_database_blks_hit)).sum(['service_instance_id','host_name'])
+    exp: (pg_stat_database_blks_hit*100 / (pg_stat_database_blks_read + pg_stat_database_blks_hit)).avg(['service_instance_id','host_name'])
   - name: temporary_files_rate
     exp: pg_stat_database_temp_bytes.sum(['service_instance_id','host_name']).rate('PT1M')
 

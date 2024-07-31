@@ -57,7 +57,6 @@ public class ZipkinServiceSpanTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = SPAN_NAME)
-    @BanyanDB.SeriesID(index = 1)
     private String spanName = Const.EMPTY_STRING;
 
     @Override

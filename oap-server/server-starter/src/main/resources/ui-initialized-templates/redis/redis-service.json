@@ -125,7 +125,7 @@
                     }
                   ],
                   "expressions": [
-                    "aggregate_labels(meter_redis_hit_rate,sum)"
+                    "aggregate_labels(meter_redis_hit_rate,avg)"
                   ]
                 },
                 {

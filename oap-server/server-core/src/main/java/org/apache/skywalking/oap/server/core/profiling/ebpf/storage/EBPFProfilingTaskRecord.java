@@ -79,6 +79,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     @Column(name = TARGET_TYPE)
     private int targetType = EBPFProfilingTargetType.UNKNOWN.value();
     @Column(name = CREATE_TIME)
+    @BanyanDB.NoIndexing
     private long createTime;
     @Column(name = LAST_UPDATE_TIME)
     private long lastUpdateTime;
