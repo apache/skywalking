@@ -17,7 +17,7 @@ nodes:
 {{- contains .nodes }}
 - id: {{ b64enc "productpage.default"}}.1
   name: productpage.default
-  type: null
+  type: http
   isreal: true
 - id: {{ b64enc "details.default"}}.1
   name: details.default

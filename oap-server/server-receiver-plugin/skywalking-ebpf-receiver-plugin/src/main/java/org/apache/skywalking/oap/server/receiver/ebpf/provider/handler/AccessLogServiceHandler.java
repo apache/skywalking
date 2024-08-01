@@ -46,6 +46,7 @@ import org.apache.skywalking.apm.network.ebpf.accesslog.v3.IPAddress;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.KubernetesProcessAddress;
 import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -80,6 +81,10 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccessLogServiceImplBase {
+    protected static final KubernetesProcessAddress UNKNOWN_ADDRESS = KubernetesProcessAddress.newBuilder()
+        .setServiceName(Const.UNKNOWN)
+        .setPodName(Const.UNKNOWN)
+        .build();
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
 
@@ -171,7 +176,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
     private void dispatchKernelLog(NodeInfo node, ConnectionInfo connection, AccessLogKernelLog kernelLog) {
         final List<K8SMetrics> metrics = Arrays.asList(connection.toService(), connection.toServiceInstance(),
-            connection.toServiceRelation(), connection.toServiceInstanceRelation());
+            connection.toServiceRelation(), connection.toServiceInstanceRelation())
+            .stream().filter(Objects::nonNull).collect(Collectors.toList());
 
         for (K8SMetrics metric : metrics) {
             switch (kernelLog.getOperationCase()) {
@@ -464,18 +470,22 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     protected KubernetesProcessAddress buildKubernetesAddressByIP(NodeInfo nodeInfo, IPAddress ipAddress) {
         final ObjectID pod = K8sInfoRegistry.getInstance().findPodByIP(ipAddress.getHost());
         if (pod == ObjectID.EMPTY) {
-            return null;
-        }
-        if (nodeInfo.shouldExcludeNamespace(pod.namespace())) {
-            log.debug("Should exclude the namespace[{}] traffic, pod: {}", pod.namespace(), pod.name());
-            return null;
+            // if cannot found the address, then return the unknown address
+            log.debug("building unknown address by ip: {}:{}", ipAddress.getHost(), ipAddress.getPort());
+            return buildUnknownAddress();
         }
         final ObjectID serviceName = K8sInfoRegistry.getInstance().findService(pod.namespace(), pod.name());
         if (serviceName == ObjectID.EMPTY) {
-            return null;
+            // if the pod have been found, but the service name cannot found, then still return unknown address
+            log.debug("building unknown address by pod: {}:{}", pod.name(), ipAddress.getPort());
+            return buildUnknownAddress();
         }
 
         return buildRemoteAddress(nodeInfo, serviceName, pod);
+    }
+
+    protected KubernetesProcessAddress buildUnknownAddress() {
+        return UNKNOWN_ADDRESS;
     }
 
     protected KubernetesProcessAddress buildRemoteAddress(NodeInfo nodeInfo, ObjectID service, ObjectID pod) {
@@ -511,6 +521,10 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             this.nodeInfo = nodeInfo;
             this.protocolType = connection.getProtocol();
             this.valid = generateIsValid();
+            if (log.isDebugEnabled() &&
+                (Objects.equals(this.local, buildUnknownAddress()) || Objects.equals(this.remote, buildUnknownAddress()))) {
+                log.debug("found unknown connection: {}", connection);
+            }
         }
 
         private KubernetesProcessAddress buildAddress(NodeInfo nodeInfo, ConnectionAddress address) {
@@ -542,6 +556,9 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public K8SService toService() {
+            if (Objects.equals(local, buildUnknownAddress())) {
+                return null;
+            }
             final K8SService service = new K8SService();
             service.setName(buildServiceNameByAddress(nodeInfo, local));
             service.setLayer(Layer.K8S_SERVICE);
@@ -550,6 +567,9 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public K8SServiceInstance toServiceInstance() {
+            if (Objects.equals(local, buildUnknownAddress())) {
+                return null;
+            }
             final K8SServiceInstance serviceInstance = new K8SServiceInstance();
             serviceInstance.setServiceName(buildServiceNameByAddress(nodeInfo, local));
             serviceInstance.setServiceInstanceName(buildServiceInstanceName(local));
