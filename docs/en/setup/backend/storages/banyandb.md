@@ -10,7 +10,8 @@ storage:
   banyandb:
     # Targets is the list of BanyanDB servers, separated by commas.
     # Each target is a BanyanDB server in the format of `host:port` 
-    # The host is the IP address or domain name of the BanyanDB server, and the port is the port number of the BanyanDB server.
+    # If the BanyanDB is deployed as a standalone server, the target should be the IP address or domain name and port of the BanyanDB server.
+    # If the BanyanDB is deployed in a cluster, the targets should be the IP address or domain name and port of the `liaison` nodes, separated by commas.
     targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
     # The max number of records in a bulk write request.
     # Bigger value can improve the write performance, but also increase the OAP and BanyanDB Server memory usage.
