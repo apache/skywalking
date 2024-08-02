@@ -46,6 +46,7 @@
 * BanyanDB: stream sort-by `time` query, use internal time-series rather than `index` to improve the query performance.
 * Bump up graphql-java to 21.5.
 * Add Unknown Node when receive Kubernetes peer address is not aware in current cluster.
+* Fix CounterWindow concurrent increase cause NPE by PriorityQueue
 
 #### UI
 
