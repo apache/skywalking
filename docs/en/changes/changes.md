@@ -4,6 +4,7 @@
 
 * E2E: bump up the version of the opentelemetry-collector to 0.102.1.
 * Push snapshot data-generator docker image to ghcr.io.
+* Bump up skywalking-infra-e2e to work around GHA removing `docker-compose` v1.
 
 #### OAP Server
 
