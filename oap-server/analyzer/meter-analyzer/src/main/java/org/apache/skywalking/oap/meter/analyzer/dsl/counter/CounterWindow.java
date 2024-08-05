@@ -48,25 +48,27 @@ public class CounterWindow {
     public Tuple2<Long, Double> increase(String name, ImmutableMap<String, String> labels, Double value, long windowSize, long now) {
         ID id = new ID(name, labels);
         Queue<Tuple2<Long, Double>> window = windows.computeIfAbsent(id, unused -> new PriorityQueue<>());
-        window.offer(Tuple.of(now, value));
-        long waterLevel = now - windowSize;
-        Tuple2<Long, Double> peek = window.peek();
-        if (peek._1 > waterLevel) {
+        synchronized (window) {
+            window.offer(Tuple.of(now, value));
+            long waterLevel = now - windowSize;
+            Tuple2<Long, Double> peek = window.peek();
+            if (peek._1 > waterLevel) {
+                return peek;
+            }
+
+            Tuple2<Long, Double> result = peek;
+            while (peek._1 < waterLevel) {
+                result = window.poll();
+                peek = window.element();
+            }
+
+            // Choose the closed slot to the expected timestamp
+            if (waterLevel - result._1 <= peek._1 - waterLevel) {
+                return result;
+            }
+
             return peek;
         }
-
-        Tuple2<Long, Double> result = peek;
-        while (peek._1 < waterLevel) {
-            result = window.poll();
-            peek = window.element();
-        }
-
-        // Choose the closed slot to the expected timestamp
-        if (waterLevel - result._1 <= peek._1 - waterLevel) {
-            return result;
-        }
-
-        return peek;
     }
 
     public Tuple2<Long, Double> pop(String name, ImmutableMap<String, String> labels, Double value, long now) {
