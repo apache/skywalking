@@ -96,7 +96,7 @@ public class NamingControl implements Service {
      * @return the string, which length less than or equals {@link #endpointNameMaxLength};
      */
     public String formatEndpointName(String serviceName, String endpointName) {
-        if (StringUtil.isEmpty(serviceName) || endpointName == null) {
+        if (StringUtil.isEmpty(serviceName) || StringUtil.isEmpty(endpointName)) {
             return endpointName;
         }
 
