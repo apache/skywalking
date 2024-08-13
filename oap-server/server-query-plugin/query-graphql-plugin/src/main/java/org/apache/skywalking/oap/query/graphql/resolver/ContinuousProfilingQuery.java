@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import java.util.concurrent.CompletableFuture;
+import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingTargetType;
@@ -26,10 +28,9 @@ import org.apache.skywalking.oap.server.core.query.type.ContinuousProfilingMonit
 import org.apache.skywalking.oap.server.core.query.type.ContinuousProfilingPolicyTarget;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import java.io.IOException;
 import java.util.List;
 
-public class ContinuousProfilingQuery implements GraphQLQueryResolver {
+public class ContinuousProfilingQuery extends AsyncQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private ContinuousProfilingQueryService queryService;
@@ -46,12 +47,23 @@ public class ContinuousProfilingQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
-    public List<ContinuousProfilingPolicyTarget> queryContinuousProfilingServiceTargets(String serviceId) throws IOException {
-        return getQueryService().queryContinuousProfilingServiceTargets(serviceId);
+    public CompletableFuture<List<ContinuousProfilingPolicyTarget>> queryContinuousProfilingServiceTargets(String serviceId) {
+        return queryAsync(() -> {
+            try {
+                return getQueryService().queryContinuousProfilingServiceTargets(serviceId);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public List<ContinuousProfilingMonitoringInstance> queryContinuousProfilingMonitoringInstances(String serviceId, ContinuousProfilingTargetType target) throws IOException {
-        return getQueryService().queryContinuousProfilingMonitoringInstances(serviceId, target);
+    public CompletableFuture<List<ContinuousProfilingMonitoringInstance>> queryContinuousProfilingMonitoringInstances(String serviceId, ContinuousProfilingTargetType target) {
+        return queryAsync(() -> {
+            try {
+                return getQueryService().queryContinuousProfilingMonitoringInstances(serviceId, target);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
-
 }

@@ -19,13 +19,15 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import java.util.concurrent.CompletableFuture;
+import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-public class EventQuery implements GraphQLQueryResolver {
+public class EventQuery extends AsyncQuery implements GraphQLQueryResolver {
     private EventQueryService queryService;
 
     private final ModuleManager moduleManager;
@@ -45,7 +47,13 @@ public class EventQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
-    public Events queryEvents(final EventQueryCondition condition) throws Exception {
-        return queryService().queryEvents(condition);
+    public CompletableFuture<Events> queryEvents(final EventQueryCondition condition) {
+        return queryAsync(() -> {
+            try {
+                return queryService().queryEvents(condition);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

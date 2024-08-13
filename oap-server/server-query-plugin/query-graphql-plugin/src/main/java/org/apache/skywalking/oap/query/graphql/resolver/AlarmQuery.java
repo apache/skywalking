@@ -24,8 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -50,7 +52,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 
-public class AlarmQuery implements GraphQLQueryResolver {
+public class AlarmQuery extends AsyncQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
 
     private AlarmQueryService queryService;
@@ -79,29 +81,35 @@ public class AlarmQuery implements GraphQLQueryResolver {
         return new AlarmTrend();
     }
 
-    public Alarms getAlarm(final Duration duration, final Scope scope, final String keyword,
+    public CompletableFuture<Alarms> getAlarm(final Duration duration, final Scope scope, final String keyword,
                            final Pagination paging, final List<Tag> tags,
-                           final DataFetchingEnvironment env) throws Exception {
-        Integer scopeId = null;
-        if (scope != null) {
-            scopeId = scope.getScopeId();
-        }
-        final EventQueryCondition.EventQueryConditionBuilder conditionPrototype =
-            EventQueryCondition.builder()
-                               .paging(new Pagination(1, IEventQueryDAO.MAX_SIZE));
-        if (nonNull(duration)) {
-            conditionPrototype.time(duration);
-        }
-        Alarms alarms = getQueryService().getAlarm(
-            scopeId, keyword, paging, duration, tags);
+                           final DataFetchingEnvironment env) {
+        return queryAsync(() -> {
+            Integer scopeId = null;
+            if (scope != null) {
+                scopeId = scope.getScopeId();
+            }
+            final EventQueryCondition.EventQueryConditionBuilder conditionPrototype =
+                EventQueryCondition.builder()
+                                   .paging(new Pagination(1, IEventQueryDAO.MAX_SIZE));
+            if (nonNull(duration)) {
+                conditionPrototype.time(duration);
+            }
+            try {
+                Alarms alarms = getQueryService().getAlarm(
+                    scopeId, keyword, paging, duration, tags);
 
-        final boolean selectEvents = env.getSelectionSet().contains("**/events/**");
+                final boolean selectEvents = env.getSelectionSet().contains("**/events/**");
 
-        if (selectEvents) {
-            return findRelevantEvents(alarms, conditionPrototype);
-        }
+                if (selectEvents) {
+                    return findRelevantEvents(alarms, conditionPrototype);
+                }
 
-        return alarms;
+                return alarms;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private Alarms findRelevantEvents(

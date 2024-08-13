@@ -61,7 +61,7 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
     public PodContainers listContainers(final OndemandContainergQueryCondition condition)
         throws IOException {
         final ServiceInstance instance =
-            metadataQuery.getInstance(condition.getServiceInstanceId());
+            metadataQuery.getInstance(condition.getServiceInstanceId()).join();
         final Map<String, String> attributesMap = convertInstancePropertiesToMap(instance);
         final String ns = attributesMap.get(PropertyUtil.NAMESPACE);
         final String pod = attributesMap.get(PropertyUtil.POD);
@@ -71,7 +71,7 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
     public Logs ondemandPodLogs(final OndemandLogQueryCondition condition)
         throws IOException {
         final ServiceInstance instance =
-            metadataQuery.getInstance(condition.getServiceInstanceId());
+            metadataQuery.getInstance(condition.getServiceInstanceId()).join();
         final Map<String, String> attributesMap = convertInstancePropertiesToMap(instance);
         final String ns = attributesMap.get(PropertyUtil.NAMESPACE);
         final String pod = attributesMap.get(PropertyUtil.POD);

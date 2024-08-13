@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
@@ -28,13 +31,12 @@ import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfiledTraceSegments;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
  * profile query GraphQL resolver
  */
-public class ProfileQuery implements GraphQLQueryResolver {
+public class ProfileQuery extends AsyncQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private ProfileTaskQueryService profileTaskQueryService;
@@ -52,20 +54,43 @@ public class ProfileQuery implements GraphQLQueryResolver {
         return profileTaskQueryService;
     }
 
-    public List<ProfileTask> getProfileTaskList(final String serviceId, final String endpointName) throws IOException {
-        return getProfileTaskQueryService().getTaskList(serviceId, endpointName);
+    public CompletableFuture<List<ProfileTask>> getProfileTaskList(final String serviceId, final String endpointName) {
+        return queryAsync(() -> {
+            try {
+                return getProfileTaskQueryService().getTaskList(serviceId, endpointName);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public List<ProfileTaskLog> getProfileTaskLogs(final String taskID) throws IOException {
-        return getProfileTaskQueryService().getProfileTaskLogs(taskID);
+    public CompletableFuture<List<ProfileTaskLog>> getProfileTaskLogs(final String taskID) {
+        return queryAsync(() -> {
+            try {
+                return getProfileTaskQueryService().getProfileTaskLogs(taskID);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public List<ProfiledTraceSegments> getProfileTaskSegments(String taskId) throws IOException {
-        return getProfileTaskQueryService().getProfileTaskSegments(taskId);
+    public CompletableFuture<List<ProfiledTraceSegments>> getProfileTaskSegments(String taskId) {
+        return queryAsync(() -> {
+            try {
+                return getProfileTaskQueryService().getProfileTaskSegments(taskId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public ProfileAnalyzation getSegmentsProfileAnalyze(final List<SegmentProfileAnalyzeQuery> queries) throws IOException {
-        return getProfileTaskQueryService().getProfileAnalyze(queries);
+    public CompletableFuture<ProfileAnalyzation> getSegmentsProfileAnalyze(final List<SegmentProfileAnalyzeQuery> queries) {
+        return queryAsync(() -> {
+            try {
+                return getProfileTaskQueryService().getProfileAnalyze(queries);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
-
 }

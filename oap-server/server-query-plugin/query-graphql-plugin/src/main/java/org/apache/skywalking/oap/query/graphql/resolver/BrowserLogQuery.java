@@ -20,7 +20,9 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
 import org.apache.skywalking.oap.server.core.query.input.BrowserErrorLogQueryCondition;
@@ -28,7 +30,7 @@ import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @RequiredArgsConstructor
-public class BrowserLogQuery implements GraphQLQueryResolver {
+public class BrowserLogQuery extends AsyncQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private BrowserLogQueryService queryService;
 
@@ -39,11 +41,16 @@ public class BrowserLogQuery implements GraphQLQueryResolver {
         });
     }
 
-    public BrowserErrorLogs queryBrowserErrorLogs(BrowserErrorLogQueryCondition condition) throws IOException {
-
-        return getQueryService().queryBrowserErrorLogs(
-            condition.getServiceId(), condition.getServiceVersionId(), condition.getPagePathId(),
-            condition.getCategory(), condition.getQueryDuration(), condition.getPaging()
-        );
+    public CompletableFuture<BrowserErrorLogs> queryBrowserErrorLogs(BrowserErrorLogQueryCondition condition) {
+        return queryAsync(() -> {
+            try {
+                return getQueryService().queryBrowserErrorLogs(
+                    condition.getServiceId(), condition.getServiceVersionId(), condition.getPagePathId(),
+                    condition.getCategory(), condition.getQueryDuration(), condition.getPaging()
+                );
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

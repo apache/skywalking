@@ -52,7 +52,7 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
         topNCondition.setOrder(condition.getOrder());
         topNCondition.setTopN(condition.getTopN());
 
-        final List<SelectedRecord> selectedRecords = query.readSampledRecords(topNCondition, condition.getDuration());
+        final List<SelectedRecord> selectedRecords = query.readSampledRecords(topNCondition, condition.getDuration()).join();
         List<TopNRecord> list = new ArrayList<>(selectedRecords.size());
         selectedRecords.forEach(record -> {
             TopNRecord top = new TopNRecord();

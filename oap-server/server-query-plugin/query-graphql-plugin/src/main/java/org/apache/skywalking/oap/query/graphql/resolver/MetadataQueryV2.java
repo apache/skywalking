@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.query.graphql.type.TimeInfo;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -41,7 +43,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *
  * @since 9.0.0
  */
-public class MetadataQueryV2 implements GraphQLQueryResolver {
+public class MetadataQueryV2 extends AsyncQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private MetadataQueryService metadataQueryService;
@@ -59,50 +61,116 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
         return metadataQueryService;
     }
 
-    public Set<String> listLayers() throws IOException {
-        return getMetadataQueryService().listLayers();
+    public CompletableFuture<Set<String>> listLayers() {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().listLayers();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public List<Service> listServices(final String layer) throws IOException {
-        return getMetadataQueryService().listServices(layer, null);
+    public CompletableFuture<List<Service>> listServices(final String layer) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().listServices(layer, null);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public Service findService(final String serviceName) throws IOException {
-        return getMetadataQueryService().getService(IDManager.ServiceID.buildId(serviceName, true));
+    public CompletableFuture<Service> findService(final String serviceName) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().getService(IDManager.ServiceID.buildId(serviceName, true));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public Service getService(final String serviceId) throws IOException {
-        return getMetadataQueryService().getService(serviceId);
+    public CompletableFuture<Service> getService(final String serviceId) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().getService(serviceId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public List<ServiceInstance> listInstances(final Duration duration,
-                                               final String serviceId) throws IOException {
-        return getMetadataQueryService().listInstances(duration, serviceId);
+    public CompletableFuture<List<ServiceInstance>> listInstances(final Duration duration,
+                                                                  final String serviceId) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().listInstances(duration, serviceId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public ServiceInstance getInstance(final String instanceId) throws IOException {
-        return getMetadataQueryService().getInstance(instanceId);
+    public CompletableFuture<ServiceInstance> getInstance(final String instanceId) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().getInstance(instanceId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public List<Endpoint> findEndpoint(final String keyword, final String serviceId,
-                                       final int limit) throws IOException {
-        return getMetadataQueryService().findEndpoint(keyword, serviceId, limit);
+    public CompletableFuture<List<Endpoint>> findEndpoint(final String keyword, final String serviceId,
+                                                          final int limit) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().findEndpoint(keyword, serviceId, limit);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public EndpointInfo getEndpointInfo(final String endpointId) throws IOException {
-        return getMetadataQueryService().getEndpointInfo(endpointId);
+    public CompletableFuture<EndpointInfo> getEndpointInfo(final String endpointId) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().getEndpointInfo(endpointId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public List<Process> listProcesses(final Duration duration, final String instanceId) throws IOException {
-        return getMetadataQueryService().listProcesses(duration, instanceId);
+    public CompletableFuture<List<Process>> listProcesses(final Duration duration, final String instanceId) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().listProcesses(duration, instanceId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public Process getProcess(final String processId) throws IOException {
-        return getMetadataQueryService().getProcess(processId);
+    public CompletableFuture<Process> getProcess(final String processId) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().getProcess(processId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public Long estimateProcessScale(String serviceId, List<String> labels) throws IOException {
-        return getMetadataQueryService().estimateProcessScale(serviceId, labels);
+    public CompletableFuture<Long> estimateProcessScale(String serviceId, List<String> labels) {
+        return queryAsync(() -> {
+            try {
+                return getMetadataQueryService().estimateProcessScale(serviceId, labels);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public TimeInfo getTimeInfo() {

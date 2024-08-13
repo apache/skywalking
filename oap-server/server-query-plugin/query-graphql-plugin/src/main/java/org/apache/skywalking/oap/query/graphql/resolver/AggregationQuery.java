@@ -49,7 +49,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         condition.setOrder(order);
         condition.setTopN(topN);
         List<TopNEntity> list = new ArrayList<>();
-        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+        query.sortMetrics(condition, duration).join().forEach(selectedRecord -> {
             TopNEntity entity = new TopNEntity(selectedRecord);
             list.add(entity);
         });
@@ -64,7 +64,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         condition.setOrder(order);
         condition.setTopN(topN);
         List<TopNEntity> list = new ArrayList<>();
-        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+        query.sortMetrics(condition, duration).join().forEach(selectedRecord -> {
             TopNEntity entity = new TopNEntity(selectedRecord);
             list.add(entity);
         });
@@ -82,7 +82,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         condition.setOrder(order);
         condition.setTopN(topN);
         List<TopNEntity> list = new ArrayList<>();
-        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+        query.sortMetrics(condition, duration).join().forEach(selectedRecord -> {
             TopNEntity entity = new TopNEntity(selectedRecord);
             list.add(entity);
         });
@@ -97,7 +97,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         condition.setOrder(order);
         condition.setTopN(topN);
         List<TopNEntity> list = new ArrayList<>();
-        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+        query.sortMetrics(condition, duration).join().forEach(selectedRecord -> {
             TopNEntity entity = new TopNEntity(selectedRecord);
             list.add(entity);
         });
@@ -115,7 +115,7 @@ public class AggregationQuery implements GraphQLQueryResolver {
         condition.setOrder(order);
         condition.setTopN(topN);
         List<TopNEntity> list = new ArrayList<>();
-        query.sortMetrics(condition, duration).forEach(selectedRecord -> {
+        query.sortMetrics(condition, duration).join().forEach(selectedRecord -> {
             TopNEntity entity = new TopNEntity(selectedRecord);
             list.add(entity);
         });

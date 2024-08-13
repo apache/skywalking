@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.HierarchyQueryService;
 import org.apache.skywalking.oap.server.core.query.type.InstanceHierarchy;
@@ -27,7 +29,7 @@ import org.apache.skywalking.oap.server.core.query.type.LayerLevel;
 import org.apache.skywalking.oap.server.core.query.type.ServiceHierarchy;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-public class HierarchyQuery implements GraphQLQueryResolver {
+public class HierarchyQuery extends AsyncQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private HierarchyQueryService hierarchyQueryService;
 
@@ -44,15 +46,33 @@ public class HierarchyQuery implements GraphQLQueryResolver {
         return hierarchyQueryService;
     }
 
-    public ServiceHierarchy getServiceHierarchy(String serviceId, String layer) throws Exception {
-        return getHierarchyQueryService().getServiceHierarchy(serviceId, layer);
+    public CompletableFuture<ServiceHierarchy> getServiceHierarchy(String serviceId, String layer) {
+        return AsyncQuery.queryAsync(() -> {
+            try {
+                return getHierarchyQueryService().getServiceHierarchy(serviceId, layer);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public InstanceHierarchy getInstanceHierarchy(String instanceId, String layer) throws Exception {
-        return getHierarchyQueryService().getInstanceHierarchy(instanceId, layer);
+    public CompletableFuture<InstanceHierarchy> getInstanceHierarchy(String instanceId, String layer) {
+        return AsyncQuery.queryAsync(() -> {
+            try {
+                return getHierarchyQueryService().getInstanceHierarchy(instanceId, layer);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public List<LayerLevel> listLayerLevels() throws Exception {
-        return getHierarchyQueryService().listLayerLevels();
+    public CompletableFuture<List<LayerLevel>> listLayerLevels() {
+        return AsyncQuery.queryAsync(() -> {
+            try {
+                return getHierarchyQueryService().listLayerLevels();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

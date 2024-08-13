@@ -19,11 +19,13 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import java.util.concurrent.CompletableFuture;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.text.DecimalFormat;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.query.graphql.mqe.rt.MQEVisitor;
 import org.apache.skywalking.mqe.rt.exception.ParseErrorListener;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
@@ -39,7 +41,7 @@ import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
-public class MetricsExpressionQuery implements GraphQLQueryResolver {
+public class MetricsExpressionQuery extends AsyncQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private final DecimalFormat valueFormat = new DecimalFormat();
 
@@ -48,53 +50,55 @@ public class MetricsExpressionQuery implements GraphQLQueryResolver {
         this.valueFormat.setGroupingUsed(false);
     }
 
-    public ExpressionResult execExpression(String expression,
-                                           Entity entity,
-                                           Duration duration,
-                                           boolean debug,
-                                           boolean dumpStorageRsp) {
-        DebuggingTraceContext traceContext = new DebuggingTraceContext(
-            "Expression: " + expression + ", Entity: " + entity + ", Duration: " + duration, debug, dumpStorageRsp);
-        TRACE_CONTEXT.set(traceContext);
-        DebuggingSpan span = traceContext.createSpan("MQE query");
-        try {
-            MQEVisitor visitor = new MQEVisitor(moduleManager, entity, duration);
-            DebuggingTrace execTrace = traceContext.getExecTrace();
-            DebuggingSpan syntaxSpan = traceContext.createSpan("MQE syntax analysis");
-            ParseTree tree;
+    public CompletableFuture<ExpressionResult> execExpression(String expression,
+                                                              Entity entity,
+                                                              Duration duration,
+                                                              boolean debug,
+                                                              boolean dumpStorageRsp) {
+        return queryAsync(() -> {
+            DebuggingTraceContext traceContext = new DebuggingTraceContext(
+                "Expression: " + expression + ", Entity: " + entity + ", Duration: " + duration, debug, dumpStorageRsp);
+            TRACE_CONTEXT.set(traceContext);
+            DebuggingSpan span = traceContext.createSpan("MQE query");
             try {
-                MQELexer lexer = new MQELexer(
-                    CharStreams.fromString(expression));
-                lexer.addErrorListener(new ParseErrorListener());
-                MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
-                parser.addErrorListener(new ParseErrorListener());
+                MQEVisitor visitor = new MQEVisitor(moduleManager, entity, duration);
+                DebuggingTrace execTrace = traceContext.getExecTrace();
+                DebuggingSpan syntaxSpan = traceContext.createSpan("MQE syntax analysis");
+                ParseTree tree;
                 try {
-                    tree = parser.expression();
-                } catch (ParseCancellationException e) {
-                    ExpressionResult errorResult = new ExpressionResult();
-                    errorResult.setType(ExpressionResultType.UNKNOWN);
-                    errorResult.setError(e.getMessage());
-                    return errorResult;
-                }
-            } finally {
-                traceContext.stopSpan(syntaxSpan);
-            }
-            ExpressionResult parseResult = visitor.visit(tree);
-            parseResult.getResults().forEach(mqeValues -> {
-                mqeValues.getValues().forEach(mqeValue -> {
-                    if (!mqeValue.isEmptyValue()) {
-                        mqeValue.setValue(valueFormat.format(mqeValue.getDoubleValue()));
+                    MQELexer lexer = new MQELexer(
+                        CharStreams.fromString(expression));
+                    lexer.addErrorListener(new ParseErrorListener());
+                    MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
+                    parser.addErrorListener(new ParseErrorListener());
+                    try {
+                        tree = parser.expression();
+                    } catch (ParseCancellationException e) {
+                        ExpressionResult errorResult = new ExpressionResult();
+                        errorResult.setType(ExpressionResultType.UNKNOWN);
+                        errorResult.setError(e.getMessage());
+                        return errorResult;
                     }
+                } finally {
+                    traceContext.stopSpan(syntaxSpan);
+                }
+                ExpressionResult parseResult = visitor.visit(tree);
+                parseResult.getResults().forEach(mqeValues -> {
+                    mqeValues.getValues().forEach(mqeValue -> {
+                        if (!mqeValue.isEmptyValue()) {
+                            mqeValue.setValue(valueFormat.format(mqeValue.getDoubleValue()));
+                        }
+                    });
                 });
-            });
-            if (debug) {
-                parseResult.setDebuggingTrace(execTrace);
+                if (debug) {
+                    parseResult.setDebuggingTrace(execTrace);
+                }
+                return parseResult;
+            } finally {
+                traceContext.stopSpan(span);
+                traceContext.stopTrace();
+                TRACE_CONTEXT.remove();
             }
-            return parseResult;
-        } finally {
-            traceContext.stopSpan(span);
-            traceContext.stopTrace();
-            TRACE_CONTEXT.remove();
-        }
+        });
     }
 }
