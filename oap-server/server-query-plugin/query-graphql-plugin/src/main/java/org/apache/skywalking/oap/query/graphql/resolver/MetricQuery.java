@@ -59,21 +59,17 @@ public class MetricQuery implements GraphQLQueryResolver {
             condition.setName(metrics.getName());
             condition.setEntity(new MockEntity(null));
 
-            kv.setValue(query.readMetricsValue(condition, duration));
+            kv.setValue(query.readMetricsValue(condition, duration).join());
             values.addKVInt(kv);
         } else {
             List<KVInt> ints = metrics.getIds().parallelStream().map(id -> {
                 MetricsCondition condition = new MetricsCondition();
                 condition.setName(metrics.getName());
                 condition.setEntity(new MockEntity(id));
-                try {
-                    KVInt kv = new KVInt();
-                    kv.setId(id);
-                    kv.setValue(query.readMetricsValue(condition, duration));
-                    return kv;
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                KVInt kv = new KVInt();
+                kv.setId(id);
+                kv.setValue(query.readMetricsValue(condition, duration).join());
+                return kv;
             }).collect(Collectors.toList());
             ints.forEach(v -> values.addKVInt(v));
 
@@ -88,7 +84,7 @@ public class MetricQuery implements GraphQLQueryResolver {
         condition.setName(metrics.getName());
         condition.setEntity(new MockEntity(metrics.getId()));
 
-        final MetricsValues metricsValues = query.readMetricsValues(condition, duration);
+        final MetricsValues metricsValues = query.readMetricsValues(condition, duration).join();
         return metricsValues.getValues();
     }
 
@@ -103,7 +99,7 @@ public class MetricQuery implements GraphQLQueryResolver {
             labels.add(String.valueOf(i));
         }
 
-        final List<MetricsValues> metricsValues = query.readLabeledMetricsValues(condition, labels, duration);
+        final List<MetricsValues> metricsValues = query.readLabeledMetricsValues(condition, labels, duration).join();
         List<IntValues> response = new ArrayList<>(metricsValues.size());
         labels.forEach(l -> metricsValues.stream()
                                          .filter(m -> m.getLabel().equals(l))
@@ -122,7 +118,7 @@ public class MetricQuery implements GraphQLQueryResolver {
         List<String> labels = new ArrayList<>(linearIndex.size());
         linearIndex.forEach(i -> labels.add(String.valueOf(i)));
 
-        final List<MetricsValues> metricsValues = query.readLabeledMetricsValues(condition, labels, duration);
+        final List<MetricsValues> metricsValues = query.readLabeledMetricsValues(condition, labels, duration).join();
         List<IntValues> response = new ArrayList<>(metricsValues.size());
         labels.forEach(l -> metricsValues.stream()
                                          .filter(m -> m.getLabel().equals(l))
@@ -137,7 +133,7 @@ public class MetricQuery implements GraphQLQueryResolver {
         condition.setName(metrics.getName());
         condition.setEntity(new MockEntity(metrics.getId()));
 
-        final HeatMap heatMap = query.readHeatMap(condition, duration);
+        final HeatMap heatMap = query.readHeatMap(condition, duration).join();
 
         Thermodynamic thermodynamic = new Thermodynamic();
         final List<Bucket> buckets = heatMap.getBuckets();

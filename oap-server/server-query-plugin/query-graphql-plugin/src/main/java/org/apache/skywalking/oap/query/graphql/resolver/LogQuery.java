@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
@@ -37,6 +38,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.isNull;
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class LogQuery implements GraphQLQueryResolver {
@@ -66,21 +68,24 @@ public class LogQuery implements GraphQLQueryResolver {
         return getQueryService().supportQueryLogsByKeywords();
     }
 
-    public Logs queryLogs(LogQueryCondition condition, boolean debug) throws IOException {
-        DebuggingTraceContext traceContext = new DebuggingTraceContext("LogQueryCondition: " + condition, debug, false);
-        DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
-        DebuggingSpan span = traceContext.createSpan("Query logs");
-        try {
-            Logs logs = invokeQueryLogs(condition);
-            if (debug) {
-                logs.setDebuggingTrace(traceContext.getExecTrace());
+    public CompletableFuture<Logs> queryLogs(LogQueryCondition condition, boolean debug) {
+        return queryAsync(() -> {
+            DebuggingTraceContext traceContext = new DebuggingTraceContext(
+                "LogQueryCondition: " + condition, debug, false);
+            DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
+            DebuggingSpan span = traceContext.createSpan("Query logs");
+            try {
+                Logs logs = invokeQueryLogs(condition);
+                if (debug) {
+                    logs.setDebuggingTrace(traceContext.getExecTrace());
+                }
+                return logs;
+            } finally {
+                traceContext.stopSpan(span);
+                traceContext.stopTrace();
+                TRACE_CONTEXT.remove();
             }
-            return logs;
-        } finally {
-            traceContext.stopSpan(span);
-            traceContext.stopTrace();
-            TRACE_CONTEXT.remove();
-        }
+        });
     }
 
     private Logs invokeQueryLogs(LogQueryCondition condition) throws IOException {
@@ -115,11 +120,11 @@ public class LogQuery implements GraphQLQueryResolver {
         );
     }
 
-    public Set<String> queryLogTagAutocompleteKeys(final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration);
+    public CompletableFuture<Set<String>> queryLogTagAutocompleteKeys(final Duration queryDuration) {
+        return queryAsync(() -> getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration));
     }
 
-    public Set<String> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
-        return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration);
+    public CompletableFuture<Set<String>> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) {
+        return queryAsync(() -> getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration));
     }
 }

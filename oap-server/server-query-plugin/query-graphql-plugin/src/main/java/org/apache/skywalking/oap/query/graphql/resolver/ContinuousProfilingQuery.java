@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import java.util.concurrent.CompletableFuture;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingTargetType;
@@ -26,8 +27,9 @@ import org.apache.skywalking.oap.server.core.query.type.ContinuousProfilingMonit
 import org.apache.skywalking.oap.server.core.query.type.ContinuousProfilingPolicyTarget;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import java.io.IOException;
 import java.util.List;
+
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
 
 public class ContinuousProfilingQuery implements GraphQLQueryResolver {
 
@@ -46,12 +48,11 @@ public class ContinuousProfilingQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
-    public List<ContinuousProfilingPolicyTarget> queryContinuousProfilingServiceTargets(String serviceId) throws IOException {
-        return getQueryService().queryContinuousProfilingServiceTargets(serviceId);
+    public CompletableFuture<List<ContinuousProfilingPolicyTarget>> queryContinuousProfilingServiceTargets(String serviceId) {
+        return queryAsync(() -> getQueryService().queryContinuousProfilingServiceTargets(serviceId));
     }
 
-    public List<ContinuousProfilingMonitoringInstance> queryContinuousProfilingMonitoringInstances(String serviceId, ContinuousProfilingTargetType target) throws IOException {
-        return getQueryService().queryContinuousProfilingMonitoringInstances(serviceId, target);
+    public CompletableFuture<List<ContinuousProfilingMonitoringInstance>> queryContinuousProfilingMonitoringInstances(String serviceId, ContinuousProfilingTargetType target) {
+        return queryAsync(() -> getQueryService().queryContinuousProfilingMonitoringInstances(serviceId, target));
     }
-
 }

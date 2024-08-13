@@ -20,15 +20,16 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-
-import java.io.IOException;
 import java.util.List;
+
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
 
 public class RecordsQuery implements GraphQLQueryResolver {
     private ModuleManager moduleManager;
@@ -47,10 +48,12 @@ public class RecordsQuery implements GraphQLQueryResolver {
         return recordQueryService;
     }
 
-    public List<Record> readRecords(RecordCondition condition, Duration duration) throws IOException {
-        if (!condition.senseScope() || !condition.getParentEntity().isValid()) {
-            return Collections.emptyList();
-        }
-        return getRecordQueryService().readRecords(condition, duration);
+    public CompletableFuture<List<Record>> readRecords(RecordCondition condition, Duration duration) {
+        return queryAsync(() -> {
+            if (!condition.senseScope() || !condition.getParentEntity().isValid()) {
+                return Collections.emptyList();
+            }
+            return getRecordQueryService().readRecords(condition, duration);
+        });
     }
 }
