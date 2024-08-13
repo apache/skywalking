@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -50,9 +49,10 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 
-public class AlarmQuery extends AsyncQuery implements GraphQLQueryResolver {
+public class AlarmQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
 
     private AlarmQueryService queryService;
@@ -95,20 +95,16 @@ public class AlarmQuery extends AsyncQuery implements GraphQLQueryResolver {
             if (nonNull(duration)) {
                 conditionPrototype.time(duration);
             }
-            try {
-                Alarms alarms = getQueryService().getAlarm(
-                    scopeId, keyword, paging, duration, tags);
+            Alarms alarms = getQueryService().getAlarm(
+                scopeId, keyword, paging, duration, tags);
 
-                final boolean selectEvents = env.getSelectionSet().contains("**/events/**");
+            final boolean selectEvents = env.getSelectionSet().contains("**/events/**");
 
-                if (selectEvents) {
-                    return findRelevantEvents(alarms, conditionPrototype);
-                }
-
-                return alarms;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (selectEvents) {
+                return findRelevantEvents(alarms, conditionPrototype);
             }
+
+            return alarms;
         });
     }
 

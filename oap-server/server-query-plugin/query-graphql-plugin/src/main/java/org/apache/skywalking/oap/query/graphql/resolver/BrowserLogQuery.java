@@ -18,19 +18,19 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
 import org.apache.skywalking.oap.server.core.query.input.BrowserErrorLogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+
 @RequiredArgsConstructor
-public class BrowserLogQuery extends AsyncQuery implements GraphQLQueryResolver {
+public class BrowserLogQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private BrowserLogQueryService queryService;
 
@@ -42,15 +42,9 @@ public class BrowserLogQuery extends AsyncQuery implements GraphQLQueryResolver 
     }
 
     public CompletableFuture<BrowserErrorLogs> queryBrowserErrorLogs(BrowserErrorLogQueryCondition condition) {
-        return queryAsync(() -> {
-            try {
-                return getQueryService().queryBrowserErrorLogs(
-                    condition.getServiceId(), condition.getServiceVersionId(), condition.getPagePathId(),
-                    condition.getCategory(), condition.getQueryDuration(), condition.getPaging()
-                );
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getQueryService().queryBrowserErrorLogs(
+            condition.getServiceId(), condition.getServiceVersionId(), condition.getPagePathId(),
+            condition.getCategory(), condition.getQueryDuration(), condition.getPaging()
+        ));
     }
 }

@@ -16,20 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql;
+package org.apache.skywalking.oap.query.graphql.resolver;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.Supplier;
 
 import static java.util.concurrent.ForkJoinPool.defaultForkJoinWorkerThreadFactory;
 
-public abstract class AsyncQuery {
+public class AsyncQueryUtils {
     private static final Executor EXECUTOR = new ForkJoinPool(
         Runtime.getRuntime().availableProcessors(), defaultForkJoinWorkerThreadFactory, null, true);
 
-    protected static <U> CompletableFuture<U> queryAsync(Supplier<U> supplier) {
-        return CompletableFuture.supplyAsync(supplier, EXECUTOR);
+    protected static <U> CompletableFuture<U> queryAsync(Callable<U> caller) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return caller.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, EXECUTOR);
     }
 }

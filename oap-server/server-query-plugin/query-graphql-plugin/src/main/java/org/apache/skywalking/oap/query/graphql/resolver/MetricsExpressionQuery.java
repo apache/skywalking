@@ -25,7 +25,6 @@ import java.text.DecimalFormat;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.query.graphql.mqe.rt.MQEVisitor;
 import org.apache.skywalking.mqe.rt.exception.ParseErrorListener;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
@@ -39,9 +38,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.mqe.rt.grammar.MQELexer;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
-public class MetricsExpressionQuery extends AsyncQuery implements GraphQLQueryResolver {
+public class MetricsExpressionQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private final DecimalFormat valueFormat = new DecimalFormat();
 

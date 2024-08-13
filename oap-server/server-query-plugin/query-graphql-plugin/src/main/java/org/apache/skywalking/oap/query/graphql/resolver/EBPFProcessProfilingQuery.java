@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
@@ -35,11 +34,11 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskPrepare;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-
-import java.io.IOException;
 import java.util.List;
 
-public class EBPFProcessProfilingQuery extends AsyncQuery implements GraphQLQueryResolver {
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+
+public class EBPFProcessProfilingQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private EBPFProfilingQueryService queryService;
@@ -61,13 +60,7 @@ public class EBPFProcessProfilingQuery extends AsyncQuery implements GraphQLQuer
         if (StringUtil.isEmpty(serviceId)) {
             throw new IllegalArgumentException("please provide the service id");
         }
-        return queryAsync(() -> {
-            try {
-                return getQueryService().queryPrepareCreateEBPFProfilingTaskData(serviceId);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getQueryService().queryPrepareCreateEBPFProfilingTaskData(serviceId));
     }
 
     public CompletableFuture<List<EBPFProfilingTask>> queryEBPFProfilingTasks(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targets, EBPFProfilingTriggerType triggerType, Duration duration) {
@@ -75,40 +68,22 @@ public class EBPFProcessProfilingQuery extends AsyncQuery implements GraphQLQuer
             throw new IllegalArgumentException("please provide the service id or instance id");
         }
 
-        return queryAsync(() -> {
-            try {
-                return getQueryService().queryEBPFProfilingTasks(serviceId, serviceInstanceId, targets,
-                                                                 Objects.requireNonNullElse(
-                                                                     triggerType,
-                                                                     EBPFProfilingTriggerType.FIXED_TIME
-                                                                 ),
-                                                                 duration
-                );
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getQueryService().queryEBPFProfilingTasks(serviceId, serviceInstanceId, targets,
+                                                                          Objects.requireNonNullElse(
+                                                                              triggerType,
+                                                                              EBPFProfilingTriggerType.FIXED_TIME
+                                                                          ),
+                                                                          duration
+        ));
     }
 
     public CompletableFuture<List<EBPFProfilingSchedule>> queryEBPFProfilingSchedules(String taskId) {
-        return queryAsync(() -> {
-            try {
-                return getQueryService().queryEBPFProfilingSchedules(taskId);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getQueryService().queryEBPFProfilingSchedules(taskId));
     }
 
     public CompletableFuture<EBPFProfilingAnalyzation> analysisEBPFProfilingResult(List<String> scheduleIdList,
                                                                 List<EBPFProfilingAnalyzeTimeRange> timeRanges,
                                                                 EBPFProfilingAnalyzeAggregateType aggregateType) {
-        return queryAsync(() -> {
-            try {
-                return getQueryService().getEBPFProfilingAnalyzation(scheduleIdList, timeRanges, aggregateType);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getQueryService().getEBPFProfilingAnalyzation(scheduleIdList, timeRanges, aggregateType));
     }
 }

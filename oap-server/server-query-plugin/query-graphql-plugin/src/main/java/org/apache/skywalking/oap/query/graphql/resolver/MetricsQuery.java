@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +26,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
@@ -52,12 +50,14 @@ import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+
 /**
  * Metrics v2 query protocol implementation.
  *
  * @since 8.0.0
  */
-public class MetricsQuery extends AsyncQuery implements GraphQLQueryResolver {
+public class MetricsQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private MetricsQueryService metricsQueryService;
     private AggregationQueryService queryService;
@@ -126,27 +126,19 @@ public class MetricsQuery extends AsyncQuery implements GraphQLQueryResolver {
      */
     public CompletableFuture<Long> readMetricsValue(MetricsCondition condition, Duration duration) {
         return queryAsync(() -> {
-            try {
-                if (!condition.senseScope() || !condition.getEntity().isValid()) {
-                    return 0L;
-                }
-                return getMetricsQueryService().readMetricsValue(condition, duration).getValue();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (!condition.senseScope() || !condition.getEntity().isValid()) {
+                return 0L;
             }
+            return getMetricsQueryService().readMetricsValue(condition, duration).getValue();
         });
     }
 
     public CompletableFuture<NullableValue> readNullableMetricsValue(MetricsCondition condition, Duration duration) {
         return queryAsync(() -> {
-            try {
-                if (!condition.senseScope() || !condition.getEntity().isValid()) {
-                    return new NullableValue(0, true);
-                }
-                return getMetricsQueryService().readMetricsValue(condition, duration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (!condition.senseScope() || !condition.getEntity().isValid()) {
+                return new NullableValue(0, true);
             }
+            return getMetricsQueryService().readMetricsValue(condition, duration);
         });
     }
 
@@ -155,29 +147,25 @@ public class MetricsQuery extends AsyncQuery implements GraphQLQueryResolver {
      */
     public CompletableFuture<MetricsValues> readMetricsValues(MetricsCondition condition, Duration duration) {
         return queryAsync(() -> {
-            try {
-                boolean hasScope = condition.senseScope();
-                if (!hasScope || !condition.getEntity().isValid()) {
-                    final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-                    String entityId = "UNKNOWN_METRIC_NAME";
-                    if (hasScope) {
-                        entityId = "ILLEGAL_ENTITY";
-                    }
-                    MetricsValues values = new MetricsValues();
-                    for (PointOfTime pointOfTime : pointOfTimes) {
-                        String id = pointOfTime.id(entityId);
-                        final KVInt kvInt = new KVInt();
-                        kvInt.setId(id);
-                        kvInt.setValue(0);
-                        kvInt.setEmptyValue(true);
-                        values.getValues().addKVInt(kvInt);
-                    }
-                    return values;
+            boolean hasScope = condition.senseScope();
+            if (!hasScope || !condition.getEntity().isValid()) {
+                final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+                String entityId = "UNKNOWN_METRIC_NAME";
+                if (hasScope) {
+                    entityId = "ILLEGAL_ENTITY";
                 }
-                return getMetricsQueryService().readMetricsValues(condition, duration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                MetricsValues values = new MetricsValues();
+                for (PointOfTime pointOfTime : pointOfTimes) {
+                    String id = pointOfTime.id(entityId);
+                    final KVInt kvInt = new KVInt();
+                    kvInt.setId(id);
+                    kvInt.setValue(0);
+                    kvInt.setEmptyValue(true);
+                    values.getValues().addKVInt(kvInt);
+                }
+                return values;
             }
+            return getMetricsQueryService().readMetricsValues(condition, duration);
         });
     }
 
@@ -186,14 +174,10 @@ public class MetricsQuery extends AsyncQuery implements GraphQLQueryResolver {
      */
     public CompletableFuture<List<SelectedRecord>> sortMetrics(TopNCondition condition, Duration duration) {
         return queryAsync(() -> {
-            try {
-                if (!condition.senseScope()) {
-                    return Collections.emptyList();
-                }
-                return getQueryService().sortMetrics(condition, duration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            if (!condition.senseScope()) {
+                return Collections.emptyList();
             }
+            return getQueryService().sortMetrics(condition, duration);
         });
     }
 
@@ -206,37 +190,33 @@ public class MetricsQuery extends AsyncQuery implements GraphQLQueryResolver {
                                                         List<String> labels,
                                                         Duration duration) {
         return queryAsync(() -> {
-            try {
-                boolean hasScope = condition.senseScope();
-                if (!hasScope || !condition.getEntity().isValid()) {
-                    final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-                    String entityId = "UNKNOWN_METRIC_NAME";
-                    if (hasScope) {
-                        entityId = "ILLEGAL_ENTITY";
-                    }
-                    List<MetricsValues> labeledValues = new ArrayList<>(labels.size());
-                    for (String label : labels) {
-                        MetricsValues values = new MetricsValues();
-                        for (PointOfTime pointOfTime : pointOfTimes) {
-                            String id = pointOfTime.id(entityId);
-                            final KVInt kvInt = new KVInt();
-                            kvInt.setId(id);
-                            kvInt.setValue(0);
-                            kvInt.setEmptyValue(true);
-                            values.getValues().addKVInt(kvInt);
-                        }
-                        values.setLabel(label);
-                        labeledValues.add(values);
-                    }
-                    return labeledValues;
+            boolean hasScope = condition.senseScope();
+            if (!hasScope || !condition.getEntity().isValid()) {
+                final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+                String entityId = "UNKNOWN_METRIC_NAME";
+                if (hasScope) {
+                    entityId = "ILLEGAL_ENTITY";
                 }
-                List<KeyValue> labelList = new ArrayList<>();
-                String labelValue = labels.stream().reduce((a, b) -> a + Const.COMMA + b).orElse("");
-                labelList.add(new KeyValue(DataLabel.GENERAL_LABEL_NAME, labelValue));
-                return getMetricsQueryService().readLabeledMetricsValues(condition, labelList, duration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                List<MetricsValues> labeledValues = new ArrayList<>(labels.size());
+                for (String label : labels) {
+                    MetricsValues values = new MetricsValues();
+                    for (PointOfTime pointOfTime : pointOfTimes) {
+                        String id = pointOfTime.id(entityId);
+                        final KVInt kvInt = new KVInt();
+                        kvInt.setId(id);
+                        kvInt.setValue(0);
+                        kvInt.setEmptyValue(true);
+                        values.getValues().addKVInt(kvInt);
+                    }
+                    values.setLabel(label);
+                    labeledValues.add(values);
+                }
+                return labeledValues;
             }
+            List<KeyValue> labelList = new ArrayList<>();
+            String labelValue = labels.stream().reduce((a, b) -> a + Const.COMMA + b).orElse("");
+            labelList.add(new KeyValue(DataLabel.GENERAL_LABEL_NAME, labelValue));
+            return getMetricsQueryService().readLabeledMetricsValues(condition, labelList, duration);
         });
     }
 
@@ -254,28 +234,24 @@ public class MetricsQuery extends AsyncQuery implements GraphQLQueryResolver {
      */
     public CompletableFuture<HeatMap> readHeatMap(MetricsCondition condition, Duration duration) {
         return queryAsync(() -> {
-            try {
-                boolean hasScope = condition.senseScope();
-                if (!hasScope || !condition.getEntity().isValid()) {
-                    DataTable emptyData = new DataTable();
-                    emptyData.put("0", 0L);
-                    final String rawdata = emptyData.toStorageData();
-                    final HeatMap heatMap = new HeatMap();
-                    final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-                    String entityId = "UNKNOWN_METRIC_NAME";
-                    if (hasScope) {
-                        entityId = "ILLEGAL_ENTITY";
-                    }
-                    for (PointOfTime pointOfTime : pointOfTimes) {
-                        String id = pointOfTime.id(entityId);
-                        heatMap.buildColumn(id, rawdata, 0);
-                    }
-                    return heatMap;
+            boolean hasScope = condition.senseScope();
+            if (!hasScope || !condition.getEntity().isValid()) {
+                DataTable emptyData = new DataTable();
+                emptyData.put("0", 0L);
+                final String rawdata = emptyData.toStorageData();
+                final HeatMap heatMap = new HeatMap();
+                final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+                String entityId = "UNKNOWN_METRIC_NAME";
+                if (hasScope) {
+                    entityId = "ILLEGAL_ENTITY";
                 }
-                return getMetricsQueryService().readHeatMap(condition, duration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                for (PointOfTime pointOfTime : pointOfTimes) {
+                    String id = pointOfTime.id(entityId);
+                    heatMap.buildColumn(id, rawdata, 0);
+                }
+                return heatMap;
             }
+            return getMetricsQueryService().readHeatMap(condition, duration);
         });
     }
 
@@ -287,16 +263,12 @@ public class MetricsQuery extends AsyncQuery implements GraphQLQueryResolver {
     @Deprecated
     public CompletableFuture<List<SelectedRecord>> readSampledRecords(TopNCondition condition, Duration duration) {
         return queryAsync(() -> {
-            try {
-                RecordCondition recordCondition = new RecordCondition(condition);
-                if (!recordCondition.senseScope() || !recordCondition.getParentEntity().isValid()) {
-                    return Collections.emptyList();
-                }
-                final List<Record> records = getRecordQueryService().readRecords(recordCondition, duration);
-                return records.stream().filter(Objects::nonNull).map(Record::toSelectedRecord).collect(Collectors.toList());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            RecordCondition recordCondition = new RecordCondition(condition);
+            if (!recordCondition.senseScope() || !recordCondition.getParentEntity().isValid()) {
+                return Collections.emptyList();
             }
+            final List<Record> records = getRecordQueryService().readRecords(recordCondition, duration);
+            return records.stream().filter(Objects::nonNull).map(Record::toSelectedRecord).collect(Collectors.toList());
         });
     }
 }

@@ -19,11 +19,9 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -35,9 +33,10 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
-public class TopologyQuery extends AsyncQuery implements GraphQLQueryResolver {
+public class TopologyQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private TopologyQueryService queryService;
@@ -67,8 +66,6 @@ public class TopologyQuery extends AsyncQuery implements GraphQLQueryResolver {
                     topology.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return topology;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();
@@ -113,8 +110,6 @@ public class TopologyQuery extends AsyncQuery implements GraphQLQueryResolver {
                     topology.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return topology;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();
@@ -143,8 +138,6 @@ public class TopologyQuery extends AsyncQuery implements GraphQLQueryResolver {
                     topology.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return topology;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();
@@ -158,13 +151,7 @@ public class TopologyQuery extends AsyncQuery implements GraphQLQueryResolver {
      */
     @Deprecated
     public CompletableFuture<Topology> getEndpointTopology(final String endpointId, final Duration duration) {
-        return queryAsync(() -> {
-            try {
-                return getQueryService().getEndpointTopology(duration, endpointId);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getQueryService().getEndpointTopology(duration, endpointId));
     }
 
     public CompletableFuture<EndpointTopology> getEndpointDependencies(final String endpointId,
@@ -181,8 +168,6 @@ public class TopologyQuery extends AsyncQuery implements GraphQLQueryResolver {
                     topology.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return topology;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();
@@ -203,8 +188,6 @@ public class TopologyQuery extends AsyncQuery implements GraphQLQueryResolver {
                     topology.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return topology;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();

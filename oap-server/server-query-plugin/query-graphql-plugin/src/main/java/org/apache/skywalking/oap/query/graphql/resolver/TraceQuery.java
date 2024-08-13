@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -42,9 +41,10 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static java.util.Objects.isNull;
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
-public class TraceQuery extends AsyncQuery implements GraphQLQueryResolver {
+public class TraceQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private TraceQueryService queryService;
@@ -80,8 +80,6 @@ public class TraceQuery extends AsyncQuery implements GraphQLQueryResolver {
                     traceBrief.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return traceBrief;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();
@@ -124,8 +122,6 @@ public class TraceQuery extends AsyncQuery implements GraphQLQueryResolver {
                     trace.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return trace;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();
@@ -135,22 +131,10 @@ public class TraceQuery extends AsyncQuery implements GraphQLQueryResolver {
     }
 
     public CompletableFuture<Set<String>> queryTraceTagAutocompleteKeys(final Duration queryDuration) {
-        return queryAsync(() -> {
-            try {
-                return getTagQueryService().queryTagAutocompleteKeys(TagType.TRACE, queryDuration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getTagQueryService().queryTagAutocompleteKeys(TagType.TRACE, queryDuration));
     }
 
     public CompletableFuture<Set<String>> queryTraceTagAutocompleteValues(final String tagKey, final Duration queryDuration) {
-        return queryAsync(() -> {
-            try {
-                return getTagQueryService().queryTagAutocompleteValues(TagType.TRACE, tagKey, queryDuration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getTagQueryService().queryTagAutocompleteValues(TagType.TRACE, tagKey, queryDuration));
     }
 }

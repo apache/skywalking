@@ -22,7 +22,6 @@ import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import org.apache.skywalking.oap.query.graphql.AsyncQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
@@ -39,9 +38,10 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.isNull;
+import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
-public class LogQuery extends AsyncQuery implements GraphQLQueryResolver {
+public class LogQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private LogQueryService logQueryService;
     private TagAutoCompleteQueryService tagQueryService;
@@ -80,8 +80,6 @@ public class LogQuery extends AsyncQuery implements GraphQLQueryResolver {
                     logs.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return logs;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();
@@ -123,22 +121,10 @@ public class LogQuery extends AsyncQuery implements GraphQLQueryResolver {
     }
 
     public CompletableFuture<Set<String>> queryLogTagAutocompleteKeys(final Duration queryDuration) {
-        return queryAsync(() -> {
-            try {
-                return getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration));
     }
 
     public CompletableFuture<Set<String>> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) {
-        return queryAsync(() -> {
-            try {
-                return getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        return queryAsync(() -> getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration));
     }
 }
