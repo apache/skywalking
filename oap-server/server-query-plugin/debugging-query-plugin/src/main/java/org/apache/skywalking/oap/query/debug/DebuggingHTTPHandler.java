@@ -148,7 +148,7 @@ public class DebuggingHTTPHandler {
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
-        ExpressionResult expressionResult = mqeQuery.execExpression(expression, entity, duration, true, dumpStorageRsp);
+        ExpressionResult expressionResult = mqeQuery.execExpression(expression, entity, duration, true, dumpStorageRsp).join();
         DebuggingTrace execTrace = expressionResult.getDebuggingTrace();
         DebuggingMQERsp result = new DebuggingMQERsp(
             expressionResult.getType(), expressionResult.getResults(), expressionResult.getError(),
@@ -160,8 +160,8 @@ public class DebuggingHTTPHandler {
 
     @SneakyThrows
     @Get("/debugging/query/trace/queryBasicTraces")
-    public String queryBasicTraces(@Param("service") String service,
-                                   @Param("serviceLayer") String serviceLayer,
+    public String queryBasicTraces(@Param("service") Optional<String> service,
+                                   @Param("serviceLayer") Optional<String> serviceLayer,
                                    @Param("serviceInstance") Optional<String> serviceInstance,
                                    @Param("endpoint") Optional<String> endpoint,
                                    @Param("traceId") Optional<String> traceId,
@@ -176,10 +176,11 @@ public class DebuggingHTTPHandler {
                                    @Param("pageNum") int pageNum,
                                    @Param("pageSize") int pageSize
     ) {
-        String serviceId = IDManager.ServiceID.buildId(service, Layer.nameOf(serviceLayer).isNormal());
+        Optional<String> serviceId = service.map(
+            name -> IDManager.ServiceID.buildId(name, Layer.nameOf(serviceLayer.orElseThrow()).isNormal()));
         Optional<String> serviceInstanceId = serviceInstance.map(
-            name -> IDManager.ServiceInstanceID.buildId(serviceId, name));
-        Optional<String> endpointId = endpoint.map(name -> IDManager.EndpointID.buildId(serviceId, name));
+            name -> IDManager.ServiceInstanceID.buildId(serviceId.orElseThrow(), name));
+        Optional<String> endpointId = endpoint.map(name -> IDManager.EndpointID.buildId(serviceId.orElseThrow(), name));
         Duration duration = new Duration();
         duration.setStart(startTime);
         duration.setEnd(endTime);
@@ -188,7 +189,7 @@ public class DebuggingHTTPHandler {
         pagination.setPageNum(pageNum);
         pagination.setPageSize(pageSize);
         TraceQueryCondition condition = new TraceQueryCondition();
-        condition.setServiceId(serviceId);
+        condition.setServiceId(serviceId.orElse(null));
         condition.setServiceInstanceId(serviceInstanceId.orElse(null));
         condition.setEndpointId(endpointId.orElse(null));
         condition.setTraceId(traceId.orElse(null));
@@ -210,7 +211,7 @@ public class DebuggingHTTPHandler {
             condition.setTags(tagList);
         });
 
-        TraceBrief traceBrief = traceQuery.queryBasicTraces(condition, true);
+        TraceBrief traceBrief = traceQuery.queryBasicTraces(condition, true).join();
         DebuggingQueryTraceBriefRsp result = new DebuggingQueryTraceBriefRsp(
             traceBrief.getTraces(), transformTrace(traceBrief.getDebuggingTrace()));
         return transToYAMLString(result);
@@ -219,7 +220,7 @@ public class DebuggingHTTPHandler {
     @SneakyThrows
     @Get("/debugging/query/trace/queryTrace")
     public String queryTrace(@Param("traceId") String traceId) {
-        Trace trace = traceQuery.queryTrace(traceId, true);
+        Trace trace = traceQuery.queryTrace(traceId, true).join();
         DebuggingQueryTraceRsp result = new DebuggingQueryTraceRsp(
             trace.getSpans(), transformTrace(trace.getDebuggingTrace()));
         return transToYAMLString(result);
@@ -297,7 +298,7 @@ public class DebuggingHTTPHandler {
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
-        Topology topology = topologyQuery.getGlobalTopology(duration, serviceLayer.orElse(null), true);
+        Topology topology = topologyQuery.getGlobalTopology(duration, serviceLayer.orElse(null), true).join();
         DebuggingQueryServiceTopologyRsp result = new DebuggingQueryServiceTopologyRsp(
             topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
         return transToYAMLString(result);
@@ -318,7 +319,7 @@ public class DebuggingHTTPHandler {
         List<String> ids = Arrays.stream(services.split(Const.COMMA))
                                  .map(name -> IDManager.ServiceID.buildId(name, Layer.nameOf(serviceLayer).isNormal()))
                                  .collect(Collectors.toList());
-        Topology topology = topologyQuery.getServicesTopology(ids, duration, true);
+        Topology topology = topologyQuery.getServicesTopology(ids, duration, true).join();
         DebuggingQueryServiceTopologyRsp result = new DebuggingQueryServiceTopologyRsp(
             topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
         return transToYAMLString(result);
@@ -339,7 +340,7 @@ public class DebuggingHTTPHandler {
         duration.setStep(Step.valueOf(step));
         String clientServiceId = IDManager.ServiceID.buildId(clientService, Layer.nameOf(clientServiceLayer).isNormal());
         String serverServiceId = IDManager.ServiceID.buildId(serverService, Layer.nameOf(serverServiceLayer).isNormal());
-        ServiceInstanceTopology topology = topologyQuery.getServiceInstanceTopology(clientServiceId, serverServiceId, duration, true);
+        ServiceInstanceTopology topology = topologyQuery.getServiceInstanceTopology(clientServiceId, serverServiceId, duration, true).join();
         DebuggingQueryInstanceTopologyRsp result = new DebuggingQueryInstanceTopologyRsp(
             topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
         return transToYAMLString(result);
@@ -359,7 +360,7 @@ public class DebuggingHTTPHandler {
         duration.setStep(Step.valueOf(step));
         String endpointId = IDManager.EndpointID.buildId(
             IDManager.ServiceID.buildId(service, Layer.nameOf(serviceLayer).isNormal()), endpoint);
-        EndpointTopology topology = topologyQuery.getEndpointDependencies(endpointId, duration, true);
+        EndpointTopology topology = topologyQuery.getEndpointDependencies(endpointId, duration, true).join();
         DebuggingQueryEndpointTopologyRsp result = new DebuggingQueryEndpointTopologyRsp(
             topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
         return transToYAMLString(result);
@@ -379,7 +380,7 @@ public class DebuggingHTTPHandler {
         duration.setStep(Step.valueOf(step));
         String instanceId = IDManager.ServiceInstanceID.buildId(
             IDManager.ServiceID.buildId(service, Layer.nameOf(serviceLayer).isNormal()), process);
-        ProcessTopology topology = topologyQuery.getProcessTopology(instanceId, duration, true);
+        ProcessTopology topology = topologyQuery.getProcessTopology(instanceId, duration, true).join();
         DebuggingQueryProcessTopologyRsp result = new DebuggingQueryProcessTopologyRsp(
             topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
         return transToYAMLString(result);
@@ -447,7 +448,7 @@ public class DebuggingHTTPHandler {
         excludingKeywordsOfContent.ifPresent(e -> condition.setExcludingKeywordsOfContent(
             Arrays.stream(e.split(Const.COMMA)).collect(Collectors.toList())));
 
-        Logs logs = logQuery.queryLogs(condition, true);
+        Logs logs = logQuery.queryLogs(condition, true).join();
         DebuggingQueryLogsRsp result = new DebuggingQueryLogsRsp(
             logs.getLogs(), logs.getErrorReason(), transformTrace(logs.getDebuggingTrace()));
         return transToYAMLString(result);

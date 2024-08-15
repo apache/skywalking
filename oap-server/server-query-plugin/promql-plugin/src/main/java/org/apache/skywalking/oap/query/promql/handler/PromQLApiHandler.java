@@ -309,11 +309,11 @@ public class PromQLApiHandler {
         } else if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
             String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
             if (StringUtil.isNotBlank(serviceName)) {
-                Service service = metadataQuery.findService(serviceName);
+                Service service = metadataQuery.findService(serviceName).join();
                 response.getData().add(buildMetricInfoFromTraffic(metricName, service));
             } else {
                 List<Service> services = metadataQuery.listServices(
-                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel()));
+                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
                 services.forEach(service -> {
                     response.getData().add(buildMetricInfoFromTraffic(metricName, service));
                 });
@@ -322,7 +322,7 @@ public class PromQLApiHandler {
             String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
             String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
             List<ServiceInstance> instances = metadataQuery.listInstances(
-                duration, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()));
+                duration, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal())).join();
             instances.forEach(instance -> {
                 response.getData().add(buildMetricInfoFromTraffic(metricName, instance));
             });
@@ -334,7 +334,7 @@ public class PromQLApiHandler {
             List<Endpoint> endpoints = metadataQuery.findEndpoint(
                 keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()),
                 Integer.parseInt(limit)
-            );
+            ).join();
             endpoints.forEach(endpoint -> {
                 response.getData().add(buildMetricInfoFromTraffic(metricName, endpoint));
             });
