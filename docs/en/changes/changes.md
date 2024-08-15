@@ -50,6 +50,7 @@
 * Fix CounterWindow concurrent increase cause NPE by PriorityQueue
 * Fix format the endpoint name with empty string.
 * Support async query for the composite GraphQL query.
+* Get endpoint list order by timestamp desc.
 
 #### UI
 

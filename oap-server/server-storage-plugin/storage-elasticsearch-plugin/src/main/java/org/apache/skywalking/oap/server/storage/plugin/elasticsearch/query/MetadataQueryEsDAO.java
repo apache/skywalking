@@ -29,6 +29,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -234,7 +235,10 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, EndpointTraffic.INDEX_NAME));
         }
 
-        final var search = Search.builder().query(query).size(limit);
+        final var search = Search.builder().query(query).size(limit).sort(
+            EndpointTraffic.TIME_BUCKET,
+            Sort.Order.DESC
+        );
 
         final var scroller = ElasticSearchScroller
             .<Endpoint>builder()
