@@ -223,6 +223,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
                 sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
                 condition.add(keyword);
             }
+            sql.append(" order by ").append(EndpointTraffic.TIME_BUCKET).append(" desc");
             sql.append(" limit ").append(limit);
 
             results.addAll(
