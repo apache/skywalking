@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.resolver;
+package org.apache.skywalking.oap.query.graphql;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -25,11 +25,15 @@ import java.util.concurrent.ForkJoinPool;
 
 import static java.util.concurrent.ForkJoinPool.defaultForkJoinWorkerThreadFactory;
 
+/**
+ * The utility class for async GraphQL query.
+ * All the async GraphQL query should be wrapped by this class and shared the same executor.
+ */
 public class AsyncQueryUtils {
     private static final Executor EXECUTOR = new ForkJoinPool(
         Runtime.getRuntime().availableProcessors(), defaultForkJoinWorkerThreadFactory, null, true);
 
-    protected static <U> CompletableFuture<U> queryAsync(Callable<U> caller) {
+    public static <U> CompletableFuture<U> queryAsync(Callable<U> caller) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return caller.call();

@@ -49,7 +49,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isNotEmpty;
 
 public class AlarmQuery implements GraphQLQueryResolver {

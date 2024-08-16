@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.util.List;
 
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 
 /**
  * profile query GraphQL resolver
