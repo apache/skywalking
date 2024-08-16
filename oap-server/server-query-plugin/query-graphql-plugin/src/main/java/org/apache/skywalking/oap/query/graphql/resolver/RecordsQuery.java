@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import java.util.List;
 
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 
 public class RecordsQuery implements GraphQLQueryResolver {
     private ModuleManager moduleManager;

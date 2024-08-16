@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static java.util.Objects.isNull;
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class TraceQuery implements GraphQLQueryResolver {

@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 
 /**
  * Metadata v2 query protocol implementation.

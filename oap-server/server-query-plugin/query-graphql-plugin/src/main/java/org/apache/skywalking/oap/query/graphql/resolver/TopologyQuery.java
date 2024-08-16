@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class TopologyQuery implements GraphQLQueryResolver {

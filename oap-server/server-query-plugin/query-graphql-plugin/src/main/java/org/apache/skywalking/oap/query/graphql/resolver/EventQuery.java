@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.query.type.event.EventQueryConditio
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 
 public class EventQuery implements GraphQLQueryResolver {
     private EventQueryService queryService;

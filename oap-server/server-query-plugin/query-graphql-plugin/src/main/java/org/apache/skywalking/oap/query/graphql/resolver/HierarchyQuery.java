@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.core.query.type.LayerLevel;
 import org.apache.skywalking.oap.server.core.query.type.ServiceHierarchy;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 
 public class HierarchyQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;

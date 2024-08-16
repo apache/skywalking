@@ -27,7 +27,7 @@ import org.apache.skywalking.oap.server.core.query.input.BrowserErrorLogQueryCon
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import static org.apache.skywalking.oap.query.graphql.resolver.AsyncQueryUtils.queryAsync;
+import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 
 @RequiredArgsConstructor
 public class BrowserLogQuery implements GraphQLQueryResolver {
