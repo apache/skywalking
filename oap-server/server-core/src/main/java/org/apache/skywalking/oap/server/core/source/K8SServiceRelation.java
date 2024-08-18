@@ -34,6 +34,7 @@ public class K8SServiceRelation extends K8SMetrics {
     private volatile String entityId;
 
     private String sourceServiceId;
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_name", requireDynamicActive = true)
     private String sourceServiceName;
     private Layer sourceLayer;
 
@@ -42,6 +43,7 @@ public class K8SServiceRelation extends K8SMetrics {
     private AccessLogConnectionTLSMode tlsMode;
 
     private String destServiceId;
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_name", requireDynamicActive = true)
     private String destServiceName;
     private Layer destLayer;
 

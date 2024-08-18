@@ -33,16 +33,20 @@ public class K8SServiceInstanceRelation extends K8SMetrics {
     private volatile String entityId;
 
     private String sourceServiceId;
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_name", requireDynamicActive = true)
     private String sourceServiceName;
     private String sourceServiceInstanceId;
+    @ScopeDefaultColumn.DefinedByField(columnName = "source_service_instance_name", requireDynamicActive = true)
     private String sourceServiceInstanceName;
     private Layer sourceLayer;
 
     private DetectPoint detectPoint;
 
     private String destServiceId;
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_name", requireDynamicActive = true)
     private String destServiceName;
     private String destServiceInstanceId;
+    @ScopeDefaultColumn.DefinedByField(columnName = "dest_service_instance_name", requireDynamicActive = true)
     private String destServiceInstanceName;
     private Layer destLayer;
 

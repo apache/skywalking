@@ -32,6 +32,7 @@ public class K8SService extends K8SMetrics {
 
     private volatile String entityId;
 
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     public Layer layer;
 
