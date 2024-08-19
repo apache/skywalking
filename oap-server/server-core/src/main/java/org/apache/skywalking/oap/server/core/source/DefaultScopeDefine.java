@@ -135,7 +135,6 @@ public class DefaultScopeDefine {
     public static final int K8S_SERVICE_RELATION = 74;
     public static final int K8S_SERVICE_INSTANCE_RELATION = 75;
     public static final int K8S_ENDPOINT = 76;
-    public static final int K8S_ENDPOINT_REALATION = 77;
 
     public static final int CILIUM_SERVICE = 78;
     public static final int CILIUM_SERVICE_INSTANCE = 79;
