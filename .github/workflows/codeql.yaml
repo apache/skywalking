@@ -18,19 +18,24 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ 'master' ]
+    branches: ["master"]
     paths:
-      - '**.java'
+      - "**.java"
   pull_request:
-    branches: [ 'master' ]
+    branches: ["master"]
     paths:
-      - '**.java'
+      - "**.java"
   schedule:
-    - cron: '28 3 * * *'
+    - cron: "28 3 * * *"
 
 concurrency:
   group: codeql-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
 
 jobs:
   analyze:
@@ -41,20 +46,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'java' ]
+        language: ["java"]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        submodules: true
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: ${{ matrix.language }}
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
 
-    - run: ./mvnw -q -Dmaven.test.skip=true clean install || ./mvnw -q -Dmaven.test.skip=true clean install
+      - run: ./mvnw -q -Dmaven.test.skip=true clean install || ./mvnw -q -Dmaven.test.skip=true clean install
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
