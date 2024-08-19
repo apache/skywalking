@@ -19,8 +19,6 @@ name: "CodeQL"
 on:
   push:
     branches: ["master"]
-    paths:
-      - "**.java"
   pull_request:
     branches: ["master"]
     paths:
@@ -55,11 +53,11 @@ jobs:
           submodules: true
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
       - run: ./mvnw -q -Dmaven.test.skip=true clean install || ./mvnw -q -Dmaven.test.skip=true clean install
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
