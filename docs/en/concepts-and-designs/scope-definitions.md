@@ -529,9 +529,9 @@ following **package**/**protocol** level metric contents.
 | destServiceInstanceName   | The dest pod name in kubernetes.                                   |           | string |
 | destLayer                 | The dest layer service in kubernetes.                              |           | string |
 
-#### Endpoint and Endpoint Relation
+#### Endpoint 
 
-For `K8SEndpoint` and `K8SEndpointRelation`, they only have the following **protocol** level metric contents.
+For `K8SEndpoint`, they only have the following **protocol** level metric contents.
 
 | Name                                | Remarks                                                                                                                                     | Group Key | Type                 |
 |-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------|----------------------|
@@ -554,19 +554,6 @@ For `K8SEndpoint` and `K8SEndpointRelation`, they only have the following **prot
 | layer        | The layer in kubernetes service.                        |           | string |
 | endpointName | The endpoint name detect in kubernetes service.         |           | string |
 | duration     | The duration of the service endpoint response latency.  |           | long   |
-
-##### SCOPE `K8SEndpointRelation`
-
-| Name               | Remarks                                                            | Group Key | Type   |
-|--------------------|--------------------------------------------------------------------|-----------|--------|
-| sourceServiceName  | The source service name in kubernetes.                             |           | string |
-| sourceServiceName  | The layer in kubernetes source service.                            |           | string |
-| sourceEndpointName | The endpoint name detect in kubernetes source service.             |           | string |
-| detectPoint        | Where the relation is detected. The value may be client or server. |           | enum   |
-| componentId        | The ID of component used in this call.                             |           | string |
-| destServiceName    | The dest service name in kubernetes.                               |           | string |
-| destServiceName    | The layer in kubernetes dest service.                              |           | string |
-| destEndpointName   | The endpoint name detect in kubernetes dest service.               |           | string |
 
 ### SCOPES with `Cilium` Prefix
 

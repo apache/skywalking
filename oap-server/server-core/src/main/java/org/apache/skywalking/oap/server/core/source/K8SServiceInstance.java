@@ -31,8 +31,11 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 public class K8SServiceInstance extends K8SMetrics {
     private volatile String entityId;
 
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String serviceInstanceName;
     public Layer layer;
     private DetectPoint detectPoint;

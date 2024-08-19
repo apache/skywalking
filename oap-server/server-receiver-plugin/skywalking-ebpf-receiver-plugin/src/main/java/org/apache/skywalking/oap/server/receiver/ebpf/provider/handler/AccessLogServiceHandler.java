@@ -52,7 +52,6 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.K8SEndpoint;
-import org.apache.skywalking.oap.server.core.source.K8SEndpointRelation;
 import org.apache.skywalking.oap.server.core.source.K8SMetrics;
 import org.apache.skywalking.oap.server.core.source.K8SService;
 import org.apache.skywalking.oap.server.core.source.K8SServiceInstance;
@@ -332,7 +331,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
         // endpoint, endpoint relation
         final String endpointName = buildProtocolEndpointName(connection, protocolLog);
-        Stream.of(connection.toEndpoint(endpointName, success, duration), connection.toEndpointRelation(endpointName, success))
+        Stream.of(connection.toEndpoint(endpointName, success, duration))
             .filter(Objects::nonNull)
             .forEach(metric -> {
                 metric.setType(protocol.getType());
@@ -646,26 +645,6 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             endpoint.setSuccess(success);
             endpoint.setDuration(duration);
             return endpoint;
-        }
-
-        public K8SEndpointRelation toEndpointRelation(String endpointName, boolean success) {
-            final Tuple2<KubernetesProcessAddress, KubernetesProcessAddress> tuple = convertSourceAndDestAddress();
-            final String sourceServiceName = buildServiceNameByAddress(nodeInfo, tuple._1);
-            final String destServiceName = buildServiceNameByAddress(nodeInfo, tuple._2);
-
-            final K8SEndpointRelation endpointRelation = new K8SEndpointRelation();
-            endpointRelation.setSourceServiceName(sourceServiceName);
-            endpointRelation.setSourceEndpointName(namingControl.formatEndpointName(sourceServiceName, endpointName));
-            endpointRelation.setSourceLayer(Layer.K8S_SERVICE);
-
-            endpointRelation.setDetectPoint(parseToSourceRole());
-            endpointRelation.setComponentId(buildComponentId());
-
-            endpointRelation.setDestServiceName(destServiceName);
-            endpointRelation.setDestEndpointName(namingControl.formatEndpointName(destServiceName, endpointName));
-            endpointRelation.setDestLayer(Layer.K8S_SERVICE);
-            endpointRelation.setSuccess(success);
-            return endpointRelation;
         }
 
         private int buildComponentId() {

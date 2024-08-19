@@ -31,9 +31,12 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.K8
 public class K8SEndpoint extends K8SMetrics.ProtocolMetrics {
     private volatile String entityId;
 
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true)
     private String serviceId;
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;
     private Layer layer;
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String endpointName;
 
     private long duration;
