@@ -189,6 +189,11 @@ public class PromQLApiHandler {
         @Param("start") Optional<String> start,
         @Param("end") Optional<String> end) throws IOException {
         LabelsQueryRsp response = new LabelsQueryRsp();
+        long endTS = System.currentTimeMillis();
+        if (end.isPresent()) {
+            endTS = formatTimestamp2Millis(end.get());
+        }
+        Duration duration = getDayDurationFromTimestamp(endTS);
         if (match.isPresent()) {
             MatcherSetResult parseResult;
             try {
@@ -207,7 +212,7 @@ public class PromQLApiHandler {
                 Scope scope = Scope.Finder.valueOf(metaData.getScopeId());
                 response.getData().addAll(buildLabelNames(scope, metaData));
                 if (Column.ValueDataType.LABELED_VALUE == valueColumn.get().getDataType()) {
-                    List<MetricsValues> matchedMetrics = getMatcherMetricsValues(parseResult, end);
+                    List<MetricsValues> matchedMetrics = getMatcherMetricsValues(parseResult, duration);
                     response.getData().addAll(buildLabelNamesFromQuery(matchedMetrics));
                 }
                 if (metaData.isMultiIntValues()) {
@@ -238,6 +243,12 @@ public class PromQLApiHandler {
         @Param("end") Optional<String> end) throws IOException {
         LabelValuesQueryRsp response = new LabelValuesQueryRsp();
         response.setStatus(ResultStatus.SUCCESS);
+        long endTS = System.currentTimeMillis();
+        if (end.isPresent()) {
+            endTS = formatTimestamp2Millis(end.get());
+        }
+        Duration duration = getDayDurationFromTimestamp(endTS);
+
         //general labels
         if (LabelName.NAME.getLabel().equals(labelName)) {
             getMetricsMetadataQueryService().listMetrics("").forEach(definition -> {
@@ -270,8 +281,45 @@ public class PromQLApiHandler {
             Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
                 metricName);
             if (valueColumn.isPresent() && Column.ValueDataType.LABELED_VALUE == valueColumn.get().getDataType()) {
-                List<MetricsValues> matchedMetrics = getMatcherMetricsValues(parseResult, end);
+                List<MetricsValues> matchedMetrics = getMatcherMetricsValues(parseResult, duration);
                 response.getData().addAll(buildLabelValuesFromQuery(matchedMetrics, labelName));
+            } else {
+                // Make compatible with Grafana 11 when use old config variables
+                // e.g. query service list config: `label_values(service_traffic{layer='$layer'}, service)`
+                // Grafana 11 will query this API by default rather than `/api/v1/series`(< 11)
+                if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
+                    String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
+                    if (StringUtil.isNotBlank(serviceName)) {
+                        Service service = metadataQuery.findService(serviceName).join();
+                        response.getData().add(service.getName());
+                    } else {
+                        List<Service> services = metadataQuery.listServices(
+                            parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
+                        services.forEach(service -> {
+                            response.getData().add(service.getName());
+                        });
+                    }
+                } else if (Objects.equals(metricName, InstanceTraffic.INDEX_NAME)) {
+                    String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
+                    String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
+                    List<ServiceInstance> instances = metadataQuery.listInstances(
+                        duration, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal())).join();
+                    instances.forEach(instance -> {
+                        response.getData().add(instance.getName());
+                    });
+                } else if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
+                    String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
+                    String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
+                    String keyword = parseResult.getLabelMap().getOrDefault(LabelName.KEYWORD.getLabel(), "");
+                    String limit = parseResult.getLabelMap().getOrDefault(LabelName.LIMIT.getLabel(), "100");
+                    List<Endpoint> endpoints = metadataQuery.findEndpoint(
+                        keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()),
+                        Integer.parseInt(limit)
+                    ).join();
+                    endpoints.forEach(endpoint -> {
+                        response.getData().add(endpoint.getName());
+                    });
+                }
             }
         }
 
@@ -658,7 +706,7 @@ public class PromQLApiHandler {
         return visitor.visit(tree);
     }
 
-    private List<MetricsValues> getMatcherMetricsValues(MatcherSetResult parseResult,  Optional<String> end) throws IOException {
+    private List<MetricsValues> getMatcherMetricsValues(MatcherSetResult parseResult,  Duration duration) throws IOException {
         String metricName = parseResult.getMetricName();
         List<KeyValue> matchLabels = parseResult.getLabelMap().entrySet().stream().map(entry -> {
             KeyValue keyValue = new KeyValue();
@@ -666,11 +714,7 @@ public class PromQLApiHandler {
             keyValue.setValue(entry.getValue());
             return keyValue;
         }).collect(Collectors.toList());
-        long endTS = System.currentTimeMillis();
-        if (end.isPresent()) {
-            endTS = formatTimestamp2Millis(end.get());
-        }
-        Duration duration = getDayDurationFromTimestamp(endTS);
+
         return getMetricsQueryService().readLabeledMetricsValuesWithoutEntity(metricName, matchLabels, duration);
     }
 
