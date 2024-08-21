@@ -173,9 +173,25 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         };
     }
 
+    protected List<K8SMetrics> buildKernelLogMetrics(NodeInfo node, ConnectionInfo connection, AccessLogKernelLog kernelLog) {
+        return Arrays.asList(connection.toService(), connection.toServiceInstance(),
+            connection.toServiceRelation(), connection.toServiceInstanceRelation());
+    }
+
+    protected List<K8SMetrics> buildProtocolServiceWithInstanceMetrics(NodeInfo node, ConnectionInfo connection, List<AccessLogKernelLog> relatedKernelLogs, AccessLogProtocolLogs protocolLog) {
+        return Arrays.asList(connection.toService(), connection.toServiceInstance(),
+            connection.toServiceRelation(), connection.toServiceInstanceRelation());
+    }
+
+    protected List<K8SMetrics.ProtocolMetrics> buildProtocolEndpointMetrics(NodeInfo node, ConnectionInfo connection,
+                                                                            String endpointName, List<AccessLogKernelLog> relatedKernelLogs,
+                                                                            AccessLogProtocolLogs protocolLog,
+                                                                            boolean success, long duration) {
+        return Collections.singletonList(connection.toEndpoint(endpointName, success, duration));
+    }
+
     private void dispatchKernelLog(NodeInfo node, ConnectionInfo connection, AccessLogKernelLog kernelLog) {
-        final List<K8SMetrics> metrics = Arrays.asList(connection.toService(), connection.toServiceInstance(),
-            connection.toServiceRelation(), connection.toServiceInstanceRelation())
+        final List<K8SMetrics> metrics = buildKernelLogMetrics(node, connection, kernelLog)
             .stream().filter(Objects::nonNull).collect(Collectors.toList());
 
         for (K8SMetrics metric : metrics) {
@@ -319,8 +335,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
         // service, service instance, service relation, service instance relation
         long finalStartTimeBucket = startTimeBucket;
-        Stream.of(connection.toService(), connection.toServiceInstance(),
-                connection.toServiceRelation(), connection.toServiceInstanceRelation())
+        Stream.ofNullable(buildProtocolServiceWithInstanceMetrics(node, connection, relatedKernelLogs, protocolLog))
+            .flatMap(List::stream)
             .filter(Objects::nonNull)
             .forEach(metric -> {
                 metric.setType(K8SMetrics.TYPE_PROTOCOL);
@@ -331,7 +347,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
         // endpoint, endpoint relation
         final String endpointName = buildProtocolEndpointName(connection, protocolLog);
-        Stream.of(connection.toEndpoint(endpointName, success, duration))
+        Stream.ofNullable(buildProtocolEndpointMetrics(node, connection, endpointName, relatedKernelLogs, protocolLog, success, duration))
+            .flatMap(List::stream)
             .filter(Objects::nonNull)
             .forEach(metric -> {
                 metric.setType(protocol.getType());
