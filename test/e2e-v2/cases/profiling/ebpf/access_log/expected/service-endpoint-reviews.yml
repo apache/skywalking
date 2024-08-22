@@ -14,6 +14,6 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "details.default" }}.1_{{ b64enc "/details/0" }}
-  name: /details/0
+- id: {{ b64enc "details.default" }}.1_{{ b64enc "GET:/details/0" }}
+  name: GET:/details/0
 {{- end }}

@@ -22,6 +22,7 @@ import io.grpc.stub.StreamObserver;
 import io.vavr.Tuple2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.AccessLogConnection;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.AccessLogConnectionTLSMode;
@@ -421,7 +422,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         switch (protocol.getProtocolCase()) {
             case HTTP:
                 final AccessLogHTTPProtocol http = protocol.getHttp();
-                return namingControl.formatEndpointName(serviceName, http.getRequest().getPath());
+                return namingControl.formatEndpointName(serviceName,
+                    StringUtils.upperCase(http.getRequest().getMethod().name()) + ":" + http.getRequest().getPath());
             default:
                 return null;
         }
