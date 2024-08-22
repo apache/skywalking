@@ -84,8 +84,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         .setServiceName(Const.UNKNOWN)
         .setPodName(Const.UNKNOWN)
         .build();
-    private final SourceReceiver sourceReceiver;
-    private final NamingControl namingControl;
+    protected final SourceReceiver sourceReceiver;
+    protected final NamingControl namingControl;
 
     private final CounterMetrics inCounter;
     private final HistogramMetrics processHistogram;
@@ -190,7 +190,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         return Collections.singletonList(connection.toEndpoint(endpointName, success, duration));
     }
 
-    private void dispatchKernelLog(NodeInfo node, ConnectionInfo connection, AccessLogKernelLog kernelLog) {
+    protected void dispatchKernelLog(NodeInfo node, ConnectionInfo connection, AccessLogKernelLog kernelLog) {
         final List<K8SMetrics> metrics = buildKernelLogMetrics(node, connection, kernelLog)
             .stream().filter(Objects::nonNull).collect(Collectors.toList());
 
@@ -304,7 +304,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
     }
 
-    private void dispatchProtocolLog(NodeInfo node, ConnectionInfo connection,
+    protected void dispatchProtocolLog(NodeInfo node, ConnectionInfo connection,
                                      List<AccessLogKernelLog> relatedKernelLogs, AccessLogProtocolLogs protocolLog) {
         long startTimeBucket = 0;
         boolean success = false;
@@ -359,7 +359,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             });
     }
 
-    private long getDurationFromTimestamp(NodeInfo nodeInfo, EBPFTimestamp start, EBPFTimestamp end) {
+    protected long getDurationFromTimestamp(NodeInfo nodeInfo, EBPFTimestamp start, EBPFTimestamp end) {
         return end.getOffset().getOffset() - start.getOffset().getOffset();
     }
 
@@ -515,7 +515,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             .build();
     }
 
-    private class ConnectionInfo {
+    public class ConnectionInfo {
         private final AccessLogConnection originalConnection;
         private final NamingControl namingControl;
         private final KubernetesProcessAddress local;
@@ -636,7 +636,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             return serviceInstanceRelation;
         }
 
-        private Tuple2<KubernetesProcessAddress, KubernetesProcessAddress> convertSourceAndDestAddress() {
+        public Tuple2<KubernetesProcessAddress, KubernetesProcessAddress> convertSourceAndDestAddress() {
             KubernetesProcessAddress source, dest;
             if (role == DetectPoint.server) {
                 source = this.remote;
@@ -664,7 +664,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             return endpoint;
         }
 
-        private int buildComponentId() {
+        public int buildComponentId() {
             boolean isTLS = tlsMode == AccessLogConnectionTLSMode.TLS;
             switch (protocolType) {
                 case HTTP_1:
@@ -682,7 +682,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             return 0;
         }
 
-        private org.apache.skywalking.oap.server.core.source.DetectPoint parseToSourceRole() {
+        public org.apache.skywalking.oap.server.core.source.DetectPoint parseToSourceRole() {
             switch (role) {
                 case server:
                     return org.apache.skywalking.oap.server.core.source.DetectPoint.SERVER;
