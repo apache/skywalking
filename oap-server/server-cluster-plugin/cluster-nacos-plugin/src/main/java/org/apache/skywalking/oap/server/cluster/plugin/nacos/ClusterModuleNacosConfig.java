@@ -32,6 +32,7 @@ public class ClusterModuleNacosConfig extends ModuleConfig {
     private String namespace = "public";
     private String internalComHost;
     private int internalComPort = -1;
+    private String contextPath;
     private String username;
     private String password;
     private String accessKey;
