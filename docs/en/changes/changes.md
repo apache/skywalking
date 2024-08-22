@@ -9,6 +9,7 @@
 
 #### OAP Server
 
+* Nacos supports configuration contextPath.
 * Fix wrong indices in the eBPF Profiling related models.
 * Support exclude the specific namespaces traffic in the eBPF Access Log receiver.
 * Add Golang as a supported language for Elasticsearch.
