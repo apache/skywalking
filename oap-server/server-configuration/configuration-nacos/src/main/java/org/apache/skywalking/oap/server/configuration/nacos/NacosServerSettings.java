@@ -34,6 +34,7 @@ public class NacosServerSettings extends ModuleConfig {
     private int period = 60;
     private String username;
     private String password;
+    private String contextPath;
     private String accessKey;
     private String secretKey;
 }

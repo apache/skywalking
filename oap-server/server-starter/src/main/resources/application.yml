@@ -56,6 +56,7 @@ cluster:
     hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
     # Nacos Naming namespace
     namespace: ${SW_CLUSTER_NACOS_NAMESPACE:"public"}
+    contextPath: ${SW_CLUSTER_NACOS_CONTEXT_PATH:""}
     # Nacos auth username
     username: ${SW_CLUSTER_NACOS_USERNAME:""}
     password: ${SW_CLUSTER_NACOS_PASSWORD:""}
