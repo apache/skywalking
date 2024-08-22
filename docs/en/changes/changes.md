@@ -64,6 +64,9 @@
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Windows-Service Dashboard.
 * Make a maximum 20 entities per query in service/instance/endpoint list widgets.
 * Polish error nodes in trace widget.
+* Introduce flame graph to the trace profiling.
+* Correct services and instances when changing page numbers.
+* Improve metric queries to make page opening brisker.
 
 #### Documentation
 
