@@ -57,6 +57,9 @@ public class NacosConfigWatcherRegister extends FetchingConfigWatcherRegister {
         final Properties properties = new Properties();
         properties.put(PropertyKeyConst.SERVER_ADDR, serverAddr + ":" + port);
         properties.put(PropertyKeyConst.NAMESPACE, settings.getNamespace());
+        if (StringUtil.isNotEmpty(settings.getContextPath())) {
+            properties.put(PropertyKeyConst.CONTEXT_PATH, settings.getContextPath());
+        }
         if (StringUtil.isNotEmpty(settings.getUsername())) {
             properties.put(PropertyKeyConst.USERNAME, settings.getUsername());
             properties.put(PropertyKeyConst.PASSWORD, settings.getPassword());
