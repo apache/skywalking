@@ -92,9 +92,9 @@ cases:
     expected: expected/metrics-sorted-has-value.yml
 
   # service endpoint level metrics
-  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_endpoint_call_cpm --service-name=details.default --endpoint-name=/details/0
+  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_endpoint_call_cpm --service-name=details.default --endpoint-name=GET:/details/0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_endpoint_http_call_cpm --service-name=details.default --endpoint-name=/details/0
+  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_endpoint_http_call_cpm --service-name=details.default --endpoint-name=GET:/details/0
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression="top_n(kubernetes_service_endpoint_call_duration,10,des)" --service-name=details.default
     expected: expected/metrics-sorted-has-value.yml
