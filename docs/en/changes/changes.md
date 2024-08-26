@@ -69,6 +69,7 @@
 * Introduce flame graph to the trace profiling.
 * Correct services and instances when changing page numbers.
 * Improve metric queries to make page opening brisker.
+* Bump up dependencies to fix CVEs.
 
 #### Documentation
 
