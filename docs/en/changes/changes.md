@@ -1,5 +1,7 @@
 ## 10.1.0
 
+* **Huge UI Performance Improvement. Metrics widgets queries are bundled by leveraging the GraphQL capabilities.**
+
 #### Project
 
 * E2E: bump up the version of the opentelemetry-collector to 0.102.1.
