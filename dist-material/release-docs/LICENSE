@@ -369,7 +369,6 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.lz4/lz4-java/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j/1.7.30 Apache-2.0
-    https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine/2.6 Apache-2.0
     https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java/1.1.8.4 Apache-2.0
     https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.0 Apache-2.0
@@ -552,6 +551,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.33.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.23 MIT
     https://mvnrepository.com/artifact/org.curioswitch.curiostack/protobuf-jackson/2.5.0 MIT
+    https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
     https://npmjs.com/package/postcss/v/8.4.41 8.4.41 MIT

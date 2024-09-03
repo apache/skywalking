@@ -83,7 +83,7 @@ dependency:
   licenses:
     - name: org.slf4j:slf4j-api
       version: 1.7.30,1.7.32
-      license: Apache-2.0
+      license: MIT
     - name: com.squareup.okhttp3:okhttp
       version: 3.14.9,3.12.2
       license: Apache-2.0
