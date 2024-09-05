@@ -72,6 +72,8 @@
 * Correct services and instances when changing page numbers.
 * Improve metric queries to make page opening brisker.
 * Bump up dependencies to fix CVEs.
+* Add a loading view for initialization page.
+* Fix a bug for selectors when clicking the refresh icon.
 
 #### Documentation
 
