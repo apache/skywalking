@@ -27,6 +27,7 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.logs.v1.LogRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
@@ -39,6 +40,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,6 +58,17 @@ public class OpenTelemetryLogHandler
     private final ModuleManager manager;
 
     private ILogAnalyzerService logAnalyzerService;
+
+    @Getter(lazy = true)
+    private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+
+    @Getter(lazy = true)
+    private final HistogramMetrics processHistogram = getMetricsCreator().createHistogramMetric(
+        "otel_logs_latency",
+        "The latency to process the logs request",
+        MetricsTag.EMPTY_KEY,
+        MetricsTag.EMPTY_VALUE
+    );
 
     @Override
     public String type() {
@@ -87,9 +103,11 @@ public class OpenTelemetryLogHandler
                 .getScopeLogsList()
                 .stream()
                 .flatMap(it -> it.getLogRecordsList().stream())
-                .forEach(
-                    logRecord ->
-                        doAnalysisQuietly(service, layer, serviceInstance, logRecord));
+                .forEach(logRecord -> {
+                    try (final var timer = getProcessHistogram().createTimer()) {
+                        doAnalysisQuietly(service, layer, serviceInstance, logRecord);
+                    }
+                });
             responseObserver.onNext(ExportLogsServiceResponse.getDefaultInstance());
             responseObserver.onCompleted();
         });

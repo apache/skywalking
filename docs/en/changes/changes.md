@@ -58,6 +58,7 @@
 * Fix the compatibility with Grafana 11 when using label_values query variables.
 * Nacos as config server and cluster coordinator supports configuration contextPath.
 * Update the endpoint name format to `<Method>:<Path>` in eBPF Access Log Receiver.
+* Add self-observability metrics for OpenTelemetry receiver.
 
 #### UI
 

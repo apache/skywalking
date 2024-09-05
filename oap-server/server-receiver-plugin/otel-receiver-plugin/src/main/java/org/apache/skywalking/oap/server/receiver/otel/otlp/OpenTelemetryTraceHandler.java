@@ -30,6 +30,7 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Status;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -40,6 +41,10 @@ import org.apache.skywalking.oap.server.receiver.otel.Handler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.receiver.zipkin.SpanForwardService;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverModule;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 
@@ -64,6 +69,17 @@ public class OpenTelemetryTraceHandler
     private final ModuleManager manager;
     private SpanForwardService forwardService;
 
+    @Getter(lazy = true)
+    private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+
+    @Getter(lazy = true)
+    private final HistogramMetrics processHistogram = getMetricsCreator().createHistogramMetric(
+        "otel_spans_latency",
+        "The latency to process the span request",
+        MetricsTag.EMPTY_KEY,
+        MetricsTag.EMPTY_VALUE
+    );
+
     @Override
     public String type() {
         return "otlp-traces";
@@ -80,34 +96,36 @@ public class OpenTelemetryTraceHandler
     @Override
     public void export(ExportTraceServiceRequest request, StreamObserver<ExportTraceServiceResponse> responseObserver) {
         final ArrayList<Span> result = new ArrayList<>();
-        request.getResourceSpansList().forEach(resourceSpans -> {
-            final Resource resource = resourceSpans.getResource();
-            final List<ScopeSpans> scopeSpansList = resourceSpans.getScopeSpansList();
-            if (resource.getAttributesCount() == 0 && scopeSpansList.size() == 0) {
-                return;
-            }
 
-            final Map<String, String> resourceTags = convertAttributeToMap(resource.getAttributesList());
-            String serviceName = extractZipkinServiceName(resourceTags);
-            if (StringUtil.isEmpty(serviceName)) {
-                log.warn("No service name found in resource attributes, discarding the trace");
-                return;
-            }
-
-            try {
-                for (ScopeSpans scopeSpans : scopeSpansList) {
-                    extractScopeTag(scopeSpans.getScope(), resourceTags);
-                    for (io.opentelemetry.proto.trace.v1.Span span : scopeSpans.getSpansList()) {
-                        Span zipkinSpan = convertSpan(span, serviceName, resourceTags);
-                        result.add(zipkinSpan);
-                    }
+        try (final var unused = getProcessHistogram().createTimer()) {
+            request.getResourceSpansList().forEach(resourceSpans -> {
+                final Resource resource = resourceSpans.getResource();
+                final List<ScopeSpans> scopeSpansList = resourceSpans.getScopeSpansList();
+                if (resource.getAttributesCount() == 0 && scopeSpansList.size() == 0) {
+                    return;
                 }
-            } catch (Exception e) {
-                log.warn("convert span error, discarding the span: {}", e.getMessage());
-            }
-        });
+                final Map<String, String> resourceTags = convertAttributeToMap(resource.getAttributesList());
+                String serviceName = extractZipkinServiceName(resourceTags);
+                if (StringUtil.isEmpty(serviceName)) {
+                    log.warn("No service name found in resource attributes, discarding the trace");
+                    return;
+                }
 
-        getForwardService().send(result);
+                try {
+                    for (ScopeSpans scopeSpans : scopeSpansList) {
+                        extractScopeTag(scopeSpans.getScope(), resourceTags);
+                        for (io.opentelemetry.proto.trace.v1.Span span : scopeSpans.getSpansList()) {
+                            Span zipkinSpan = convertSpan(span, serviceName, resourceTags);
+                            result.add(zipkinSpan);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.warn("convert span error, discarding the span: {}", e.getMessage());
+                }
+            });
+            getForwardService().send(result);
+        }
+
         responseObserver.onNext(ExportTraceServiceResponse.getDefaultInstance());
         responseObserver.onCompleted();
     }
