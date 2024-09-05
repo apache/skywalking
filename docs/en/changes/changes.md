@@ -74,6 +74,7 @@
 * Bump up dependencies to fix CVEs.
 * Add a loading view for initialization page.
 * Fix a bug for selectors when clicking the refresh icon.
+* Fix health check to OAP backend.
 
 #### Documentation
 

@@ -58,7 +58,7 @@ public final class OapProxyService extends AbstractHttpService {
     private static WebClient newLoadBalancingClient(EndpointGroup oapGroup) {
         final HealthCheckedEndpointGroup healthCheckedGroup =
             HealthCheckedEndpointGroup
-                .builder(oapGroup, "/internal/l7check")
+                .builder(oapGroup, "/healthcheck")
                 .protocol(SessionProtocol.HTTP)
                 .retryInterval(Duration.ofSeconds(10))
                 .build();
