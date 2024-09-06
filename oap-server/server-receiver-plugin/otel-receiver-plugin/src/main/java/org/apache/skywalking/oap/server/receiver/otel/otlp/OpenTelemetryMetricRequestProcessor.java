@@ -25,6 +25,7 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Sum;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint;
 import io.vavr.Function1;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
@@ -42,6 +43,10 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogra
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -73,39 +78,51 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             .build();
     private List<PrometheusMetricConverter> converters;
 
+    @Getter(lazy = true)
+    private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
+
+    @Getter(lazy = true)
+    private final HistogramMetrics processHistogram = getMetricsCreator().createHistogramMetric(
+        "otel_metrics_latency",
+        "The latency to process the metrics request",
+        MetricsTag.EMPTY_KEY,
+        MetricsTag.EMPTY_VALUE
+    );
+
     public void processMetricsRequest(final ExportMetricsServiceRequest requests) {
-        requests.getResourceMetricsList().forEach(request -> {
-            if (log.isDebugEnabled()) {
-                log.debug("Resource attributes: {}", request.getResource().getAttributesList());
-            }
+        try (final var unused = getProcessHistogram().createTimer()) {
+            requests.getResourceMetricsList().forEach(request -> {
+                if (log.isDebugEnabled()) {
+                    log.debug("Resource attributes: {}", request.getResource().getAttributesList());
+                }
 
-            final Map<String, String> nodeLabels =
-                request
-                    .getResource()
-                    .getAttributesList()
-                    .stream()
-                    .collect(toMap(
-                        it -> LABEL_MAPPINGS
-                            .getOrDefault(it.getKey(), it.getKey())
-                            .replaceAll("\\.", "_"),
-                        it -> anyValueToString(it.getValue()),
-                        (v1, v2) -> v1
-                    ));
-
-            converters
-                .forEach(convert -> convert.toMeter(
+                final Map<String, String> nodeLabels =
                     request
-                        .getScopeMetricsList().stream()
-                        .flatMap(scopeMetrics -> scopeMetrics
-                            .getMetricsList().stream()
-                            .flatMap(metric -> adaptMetrics(nodeLabels, metric))
-                            .map(Function1.liftTry(Function.identity()))
-                            .flatMap(tryIt -> MetricConvert.log(
-                                tryIt,
-                                "Convert OTEL metric to prometheus metric"
-                            )))));
-        });
+                        .getResource()
+                        .getAttributesList()
+                        .stream()
+                        .collect(toMap(
+                            it -> LABEL_MAPPINGS
+                                .getOrDefault(it.getKey(), it.getKey())
+                                .replaceAll("\\.", "_"),
+                                it -> anyValueToString(it.getValue()),
+                        (v1, v2) -> v1
+                        ));
 
+                converters
+                    .forEach(convert -> convert.toMeter(
+                        request
+                            .getScopeMetricsList().stream()
+                            .flatMap(scopeMetrics -> scopeMetrics
+                                .getMetricsList().stream()
+                                .flatMap(metric -> adaptMetrics(nodeLabels, metric))
+                                .map(Function1.liftTry(Function.identity()))
+                                .flatMap(tryIt -> MetricConvert.log(
+                                    tryIt,
+                                    "Convert OTEL metric to prometheus metric"
+                                )))));
+            });
+        }
     }
 
     public void start() throws ModuleStartException {
