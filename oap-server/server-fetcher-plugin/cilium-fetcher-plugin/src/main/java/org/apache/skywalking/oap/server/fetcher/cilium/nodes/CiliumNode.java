@@ -42,7 +42,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 })
 @ToString(of = {
     "address",
-    "connected"
 })
 public class CiliumNode {
     private final String address;

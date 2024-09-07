@@ -26,42 +26,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>fetcher-proto</artifactId>
-  <packaging>jar</packaging>
-
-  <properties>
-    <fbs.sources>${basedir}/src/main/fbs</fbs.sources>
-    <fbs.generated.sources>${project.build.directory}/generated-sources/fbs/java</fbs.generated.sources>
-    <fbs.compiler>${project.build.directory}/bin/flatc</fbs.compiler>
-    <fbs.compiler.artifact.type>tar.gz</fbs.compiler.artifact.type>
-  </properties>
 
   <dependencies>
     <dependency>
-      <groupId>com.google.flatbuffers</groupId>
-      <artifactId>flatbuffers-java</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-api</artifactId>
-      <version>1.63.0</version>
-      <scope>compile</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>windows</id>
-      <activation>
-        <os>
-          <family>Windows</family>
-        </os>
-      </activation>
-      <properties>
-        <fbs.compiler.artifact.type>zip</fbs.compiler.artifact.type>
-      </properties>
-    </profile>
-  </profiles>
 
   <build>
     <extensions>
@@ -110,52 +81,6 @@
               <goal>compile</goal>
               <goal>compile-custom</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.github.davidmoten</groupId>
-                  <artifactId>flatbuffers-compiler</artifactId>
-                  <version>1.12.0.1</version>
-                  <type>${fbs.compiler.artifact.type}</type>
-                  <classifier>distribution-${os.detected.name}</classifier>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>${build-helper-maven-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>${fbs.generated.sources}</source>
-              </sources>
-            </configuration>
           </execution>
         </executions>
       </plugin>
