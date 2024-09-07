@@ -84,7 +84,6 @@ public class FieldsHelper {
         init(ResourceUtils.readToStream(file));
     }
 
-    @SuppressWarnings("unchecked")
     public void init(final InputStream inputStream) {
         if (initialized) {
             return;

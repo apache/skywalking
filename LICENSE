@@ -215,6 +215,7 @@ Apache 2.0 licenses
 The following components are provided under the Apache License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
 
+   proto files from cilium: https://github.com/cilium/cilium/tree/v1.15.6/api/v1 Apache 2.0
    proto files from cncf/udpa: https://github.com/cncf/udpa Apache 2.0
    proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
    proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
