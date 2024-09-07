@@ -8,6 +8,7 @@
 * Push snapshot data-generator docker image to ghcr.io.
 * Bump up skywalking-infra-e2e to work around GHA removing `docker-compose` v1.
 * Bump up CodeQL GitHub Actions.
+* Fix wrong phase of delombok plugin to reduce build warnings.
 
 #### OAP Server
 
