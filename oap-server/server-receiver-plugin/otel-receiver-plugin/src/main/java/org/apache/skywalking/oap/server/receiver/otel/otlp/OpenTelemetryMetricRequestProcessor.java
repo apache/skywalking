@@ -86,7 +86,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         "otel_metrics_latency",
         "The latency to process the metrics request",
         MetricsTag.EMPTY_KEY,
-        MetricsTag.EMPTY_VALUE
+        MetricsTag.EMPTY_VALUE,
+        .005, .01, .025, .05, .075, .1, .25, .5, .75, 1, 2.5, 5, 7.5, 10, 15, 30, 60, 120
     );
 
     public void processMetricsRequest(final ExportMetricsServiceRequest requests) {
