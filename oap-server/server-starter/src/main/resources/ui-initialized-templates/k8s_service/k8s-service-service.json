@@ -214,7 +214,20 @@
                     "showDepth": true
                   },
                   "linkDashboard": "K8S-Service-Relation",
-                  "nodeDashboard": [],
+                  "nodeDashboard": [
+                    {
+                      "scope": "Service",
+                      "dashboard": "K8S-Service-Service"
+                    },
+                    {
+                      "scope": "Endpoint",
+                      "dashboard": "K8S-Endpoint"
+                    },
+                    {
+                      "scope": "ServiceInstance",
+                      "dashboard": "K8S-Service-Pods"
+                    }
+                  ],
                   "nodeMetrics": [],
                   "linkServerExpressions": [
                     "avg(kubernetes_service_relation_server_write_package_size)/60",
