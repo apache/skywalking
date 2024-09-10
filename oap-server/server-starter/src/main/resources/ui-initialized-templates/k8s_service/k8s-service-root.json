@@ -95,8 +95,16 @@
                   "linkDashboard": "K8S-Service-Relation",
                   "nodeDashboard": [
                     {
+                      "scope": "Service",
+                      "dashboard": "K8S-Service-Service"
+                    },
+                    {
                       "scope": "Endpoint",
                       "dashboard": "K8S-Endpoint"
+                    },
+                    {
+                      "scope": "ServiceInstance",
+                      "dashboard": "K8S-Service-Pods"
                     }
                   ],
                   "nodeMetrics": [],

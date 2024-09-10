@@ -78,6 +78,7 @@
 * Add a loading view for initialization page.
 * Fix a bug for selectors when clicking the refresh icon.
 * Fix health check to OAP backend.
+* Add `Service`, `ServiceInstance`, `Endpoint` dashboard forwarder to Kubernetes Topologies. 
 
 #### Documentation
 
