@@ -60,6 +60,7 @@
 * Nacos as config server and cluster coordinator supports configuration contextPath.
 * Update the endpoint name format to `<Method>:<Path>` in eBPF Access Log Receiver.
 * Add self-observability metrics for OpenTelemetry receiver.
+* Support service level metrics aggregate when missing pod context in eBPF Access Log Receiver.
 
 #### UI
 

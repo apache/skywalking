@@ -181,7 +181,7 @@ jobs:
             -Dcheckstyle.skip
       - name: Verify builds are reproducible
         run: ./mvnw -Dmaven.test.skip clean verify artifact:compare -Pall
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload distribution tar
         with:
           name: dist
@@ -202,7 +202,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         name: Download distribution tar
         with:
           name: dist
@@ -220,7 +220,7 @@ jobs:
           docker save -o docker-images-skywalking-oap.tar skywalking/oap:latest
           docker save -o docker-images-skywalking-ui.tar skywalking/ui:latest
       - name: Upload docker images
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-images-${{ matrix.java-version }}
           path: docker-images-skywalking-*.tar
@@ -694,7 +694,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         name: Download docker images
         with:
           name: docker-images-11
@@ -733,7 +733,7 @@ jobs:
           df -h
           du -sh .
           docker images
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         name: Upload Logs
         with:
@@ -766,7 +766,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         name: Download docker images
         with:
           name: docker-images-11
@@ -794,7 +794,7 @@ jobs:
           df -h
           du -sh .
           docker images
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         name: Upload Logs
         with:
@@ -817,7 +817,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         name: Download docker images
         with:
           name: docker-images-${{ matrix.java-version }}
