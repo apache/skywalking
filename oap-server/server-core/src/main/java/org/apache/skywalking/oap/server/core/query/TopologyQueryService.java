@@ -130,6 +130,9 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceTopology");
                 span.setMsg("Duration: " + duration + ", ServiceIds: " + serviceIds);
             }
+            if (CollectionUtils.isEmpty(serviceIds)) {
+                return new Topology();
+            }
             return invokeGetServiceTopology(duration, serviceIds);
         } finally {
             if (traceContext != null && span != null) {
