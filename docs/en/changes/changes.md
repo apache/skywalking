@@ -61,6 +61,7 @@
 * Update the endpoint name format to `<Method>:<Path>` in eBPF Access Log Receiver.
 * Add self-observability metrics for OpenTelemetry receiver.
 * Support service level metrics aggregate when missing pod context in eBPF Access Log Receiver.
+* Fix query `getGlobalTopology` throw exception when didn't find any services by the given Layer.
 
 #### UI
 
