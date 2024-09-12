@@ -79,6 +79,10 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
                     return result;
                 }
                 return analyzeSideCar(result, entry);
+            case NONE:
+                // For the Ambient Istio with waypoint mode, the role is NONE.
+                // The analysis should keep the result from other roles.
+                return result;
         }
 
         return Result.builder().build();
