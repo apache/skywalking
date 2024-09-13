@@ -195,7 +195,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             endpoints.add(buildEndpoint(dataPoint, schema));
         }
 
-        if (StringUtil.isNotEmpty(serviceId)) {
+        if (StringUtil.isNotEmpty(keyword)) {
             return endpoints.stream().filter(e -> e.getName().contains(keyword)).collect(Collectors.toList());
         }
         return endpoints;
