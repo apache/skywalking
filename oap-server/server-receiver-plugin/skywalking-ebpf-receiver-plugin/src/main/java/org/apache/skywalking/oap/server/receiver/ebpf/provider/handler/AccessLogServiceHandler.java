@@ -45,6 +45,7 @@ import org.apache.skywalking.apm.network.common.v3.Instant;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.EBPFTimestamp;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.IPAddress;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.KubernetesProcessAddress;
+import org.apache.skywalking.apm.network.ebpf.accesslog.v3.ZTunnelAttachmentEnvironment;
 import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.Const;
@@ -485,15 +486,23 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         });
     }
 
-    protected KubernetesProcessAddress buildKubernetesAddressByIP(NodeInfo nodeInfo, IPAddress ipAddress) {
-        final ObjectID service = K8sInfoRegistry.getInstance().findServiceByIP(ipAddress.getHost());
+    protected KubernetesProcessAddress buildKubernetesAddressByIP(NodeInfo nodeInfo, AccessLogConnection connection, boolean isLocal, IPAddress ipAddress) {
+        String host = ipAddress.getHost();
+        // if the resolving address is not local, and have attached ztunnel info, then using the ztunnel mapped host
+        if (!isLocal && connection.hasAttachment() && connection.getAttachment().hasZTunnel()) {
+            final ZTunnelAttachmentEnvironment ztunnel = connection.getAttachment().getZTunnel();
+            host = ztunnel.getRealDestinationIp();
+            log.debug("detected the ztunnel connection, so update the remote IP address as: {}, detect by: {}", host,
+                ztunnel.getBy());
+        }
+        final ObjectID service = K8sInfoRegistry.getInstance().findServiceByIP(host);
         if (service != ObjectID.EMPTY) {
             return buildRemoteAddress(nodeInfo, service, null);
         }
-        final ObjectID pod = K8sInfoRegistry.getInstance().findPodByIP(ipAddress.getHost());
+        final ObjectID pod = K8sInfoRegistry.getInstance().findPodByIP(host);
         if (pod == ObjectID.EMPTY) {
             // if cannot found the address, then return the unknown address
-            log.debug("building unknown address by ip: {}:{}", ipAddress.getHost(), ipAddress.getPort());
+            log.debug("building unknown address by ip: {}:{}", host, ipAddress.getPort());
             return buildUnknownAddress();
         }
         final ObjectID serviceName = K8sInfoRegistry.getInstance().findService(pod.namespace(), pod.name());
@@ -536,8 +545,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         public ConnectionInfo(NamingControl namingControl, NodeInfo nodeInfo, AccessLogConnection connection) {
             this.originalConnection = connection;
             this.namingControl = namingControl;
-            this.local = buildAddress(nodeInfo, connection.getLocal());
-            this.remote = buildAddress(nodeInfo, connection.getRemote());
+            this.local = buildAddress(nodeInfo, connection, true, connection.getLocal());
+            this.remote = buildAddress(nodeInfo, connection, false, connection.getRemote());
             this.role = connection.getRole();
             this.tlsMode = connection.getTlsMode();
             this.nodeInfo = nodeInfo;
@@ -549,12 +558,12 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             }
         }
 
-        private KubernetesProcessAddress buildAddress(NodeInfo nodeInfo, ConnectionAddress address) {
+        private KubernetesProcessAddress buildAddress(NodeInfo nodeInfo, AccessLogConnection connection, boolean local, ConnectionAddress address) {
             switch (address.getAddressCase()) {
                 case KUBERNETES:
                     return address.getKubernetes();
                 case IP:
-                    return buildKubernetesAddressByIP(nodeInfo, address.getIp());
+                    return buildKubernetesAddressByIP(nodeInfo, connection, local, address.getIp());
             }
             return null;
         }
