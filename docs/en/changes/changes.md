@@ -90,5 +90,6 @@
 * Move the Official Dashboard docs to marketplace docs.
 * Add marketplace introduction docs under `quick start` menu to reduce the confusion of finding feature docs.
 * Update Windows Metrics(Swap -> Virtual Memory)
+* Update the browser API protocol doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/205?closed=1)
