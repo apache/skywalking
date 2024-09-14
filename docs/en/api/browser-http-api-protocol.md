@@ -33,7 +33,7 @@ Input:
   "firstPackTime": 10,
   "isPV": true,
 }
-// or
+// Since client-js 1.0.0, the following attached metrics are reported.
 {
   "service": "web",
   "serviceVersion": "v0.0.1",
