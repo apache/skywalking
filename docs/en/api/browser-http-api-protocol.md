@@ -31,7 +31,23 @@ Input:
   "sslTime": 10,
   "ttlTime": 10,
   "firstPackTime": 10,
-  "fmpTime": 10
+  "isPV": true,
+}
+// or
+{
+  "service": "web",
+  "serviceVersion": "v0.0.1",
+  "pagePath": "/index.html",
+  "fmpTime": 10,
+  "clsTime": 10,
+  "lcpTime": 10,
+}
+// or
+{
+  "service": "web",
+  "serviceVersion": "v0.0.1",
+  "pagePath": "/index.html",
+  "fidTime": 10,
 }
 ```
 
