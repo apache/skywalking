@@ -61,10 +61,6 @@ public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements 
                                                         .build())
                                     .addTags(TagAndValue.newLongTag(UIMenu.UPDATE_TIME, menu.getUpdateTime()).build())
                                     .build();
-//        this.getClient().define(Property.create(GROUP, UIMenu.INDEX_NAME, menu.id().build())
-//            .addTag(TagAndValue.newStringTag(UIMenu.CONFIGURATION, menu.getConfigurationJson()))
-//            .addTag(TagAndValue.newLongTag(UIMenu.UPDATE_TIME, menu.getUpdateTime()))
-//            .build());
         this.getClient().define(property);
     }
 

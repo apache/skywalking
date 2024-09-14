@@ -182,7 +182,6 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                                                                                          BanyanDBUITemplateManagementDAO.GROUP))
                                                           .setCatalog(BanyandbCommon.Catalog.CATALOG_UNSPECIFIED)
                                                           .build());
-            //this.client.defineIfEmpty(Group.create(BanyanDBUITemplateManagementDAO.GROUP));
             this.modelInstaller.start();
 
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);
