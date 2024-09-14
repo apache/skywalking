@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
-import org.apache.skywalking.banyandb.v1.client.metadata.Group;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -175,7 +175,13 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.client.registerChecker(healthChecker);
         try {
             this.client.connect();
-            this.client.defineIfEmpty(Group.create(BanyanDBUITemplateManagementDAO.GROUP));
+            this.client.defineIfEmpty(BanyandbCommon.Group.newBuilder()
+                                                          .setMetadata(
+                                                              BanyandbCommon.Metadata.newBuilder()
+                                                                                     .setName(
+                                                                                         BanyanDBUITemplateManagementDAO.GROUP))
+                                                          .setCatalog(BanyandbCommon.Catalog.CATALOG_UNSPECIFIED)
+                                                          .build());
             this.modelInstaller.start();
 
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);

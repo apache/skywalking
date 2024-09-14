@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
@@ -30,14 +31,15 @@ import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.ApplyRequest.Strategy;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.DeleteResponse;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.banyandb.v1.client.metadata.Group;
-import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
-import org.apache.skywalking.banyandb.v1.client.metadata.Property;
-import org.apache.skywalking.banyandb.v1.client.metadata.PropertyStore;
-import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
-import org.apache.skywalking.banyandb.v1.client.metadata.TopNAggregation;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
@@ -103,9 +105,9 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public PropertyStore.DeleteResult deleteProperty(String group, String name, String id, String... tags) throws IOException {
+    public DeleteResponse deleteProperty(String group, String name, String id, String... tags) throws IOException {
         try {
-            PropertyStore.DeleteResult result = this.client.deleteProperty(group, name, id, tags);
+            DeleteResponse result = this.client.deleteProperty(group, name, id, tags);
             this.healthChecker.health();
             return result;
         } catch (BanyanDBException ex) {
@@ -158,7 +160,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     }
 
     /**
-     * PropertyStore.Strategy is default to {@link PropertyStore.Strategy#MERGE}
+     * PropertyStore.Strategy is default to {@link Strategy#STRATEGY_MERGE}
      */
     public void define(Property property) throws IOException {
         try {
@@ -170,7 +172,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public void define(Property property, PropertyStore.Strategy strategy) throws IOException {
+    public void define(Property property, Strategy strategy) throws IOException {
         try {
             this.client.apply(property, strategy);
             this.healthChecker.health();
@@ -190,9 +192,29 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public void define(Stream stream, List<BanyandbDatabase.IndexRule> indexRules) throws BanyanDBException {
+        try {
+            this.client.define(stream, indexRules);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw ex;
+        }
+    }
+
     public void define(Measure measure) throws BanyanDBException {
         try {
             this.client.define(measure);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw ex;
+        }
+    }
+
+    public void define(Measure measure, List<BanyandbDatabase.IndexRule> indexRules) throws BanyanDBException {
+        try {
+            this.client.define(measure, indexRules);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
@@ -223,12 +245,20 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public StreamWrite createStreamWrite(String group, String name, String elementId) {
-        return this.client.createStreamWrite(group, name, elementId);
+    public StreamWrite createStreamWrite(String group, String name, String elementId) throws IOException {
+        try {
+            return this.client.createStreamWrite(group, name, elementId);
+        } catch (BanyanDBException e) {
+            throw new IOException("fail to create stream write", e);
+        }
     }
 
-    public MeasureWrite createMeasureWrite(String group, String name, long timestamp) {
-        return this.client.createMeasureWrite(group, name, timestamp);
+    public MeasureWrite createMeasureWrite(String group, String name, long timestamp) throws IOException {
+        try {
+            return this.client.createMeasureWrite(group, name, timestamp);
+        } catch (BanyanDBException e) {
+            throw new IOException("fail to create measure write", e);
+        }
     }
 
     public void write(StreamWrite streamWrite) {
