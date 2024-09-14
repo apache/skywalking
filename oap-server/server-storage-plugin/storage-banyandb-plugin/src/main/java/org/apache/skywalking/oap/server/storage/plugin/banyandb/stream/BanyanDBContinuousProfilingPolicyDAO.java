@@ -19,8 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
-import org.apache.skywalking.banyandb.v1.client.metadata.Property;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -48,10 +51,15 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
     }
 
     public Property applyAll(ContinuousProfilingPolicy policy) {
-        return Property.create(GROUP, ContinuousProfilingPolicy.INDEX_NAME, policy.id().build())
-            .addTag(TagAndValue.newStringTag(ContinuousProfilingPolicy.UUID, policy.getUuid()))
-            .addTag(TagAndValue.newStringTag(ContinuousProfilingPolicy.CONFIGURATION_JSON, policy.getConfigurationJson()))
-            .build();
+        return Property.newBuilder()
+                       .setMetadata(BanyandbProperty.Metadata.newBuilder()
+                                                             .setId(policy.id().build())
+                                                             .setContainer(BanyandbCommon.Metadata.newBuilder()
+                                                                               .setGroup(GROUP)
+                                                                               .setName(ContinuousProfilingPolicy.INDEX_NAME)))
+            .addTags(TagAndValue.newStringTag(ContinuousProfilingPolicy.UUID, policy.getUuid()).build())
+            .addTags(TagAndValue.newStringTag(ContinuousProfilingPolicy.CONFIGURATION_JSON, policy.getConfigurationJson()).build())
+                       .build();
     }
 
     @Override
@@ -65,16 +73,16 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
             }
         }).filter(Objects::nonNull).map(properties -> {
             final ContinuousProfilingPolicy policy = new ContinuousProfilingPolicy();
-            policy.setServiceId(properties.id());
-            for (TagAndValue<?> tag : properties.tags()) {
-                if (tag.getTagName().equals(ContinuousProfilingPolicy.CONFIGURATION_JSON)) {
-                    policy.setConfigurationJson((String) tag.getValue());
-                } else if (tag.getTagName().equals(ContinuousProfilingPolicy.UUID)) {
-                    policy.setUuid((String) tag.getValue());
+            policy.setServiceId(properties.getMetadata().getId());
+            for (BanyandbModel.Tag tag : properties.getTagsList()) {
+                TagAndValue<?> tagAndValue = TagAndValue.fromProtobuf(tag);
+                if (tagAndValue.getTagName().equals(ContinuousProfilingPolicy.CONFIGURATION_JSON)) {
+                    policy.setConfigurationJson((String) tagAndValue.getValue());
+                } else if (tagAndValue.getTagName().equals(ContinuousProfilingPolicy.UUID)) {
+                    policy.setUuid((String) tagAndValue.getValue());
                 }
             }
             return policy;
         }).collect(Collectors.toList());
     }
-
 }

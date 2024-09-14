@@ -44,7 +44,7 @@ public class BanyanDBNoneStreamDAO extends AbstractDAO<BanyanDBStorageClient> im
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        StreamWrite streamWrite = getClient().client.createStreamWrite(
+        StreamWrite streamWrite = getClient().createStreamWrite(
             schema.getMetadata().getGroup(), // group name
             schema.getMetadata().name(), // stream-name
             noneStream.id().build() // identity

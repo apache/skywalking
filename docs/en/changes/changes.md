@@ -64,6 +64,7 @@
 * Fix query `getGlobalTopology` throw exception when didn't find any services by the given Layer.
 * Fix the previous analysis result missing in the ALS `k8s-mesh` analyzer.
 * Fix `findEndpoint` query require `keyword` when using BanyanDB.
+* Adapt BanyanDB Java Client 0.7.0.
 
 #### UI
 
