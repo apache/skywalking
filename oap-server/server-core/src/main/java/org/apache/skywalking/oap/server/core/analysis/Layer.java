@@ -234,7 +234,13 @@ public enum Layer {
      * Cilium is open source software for providing and transparently securing network connectivity and load balancing
      * between application workloads such as application containers or processes.
      */
-    CILIUM_SERVICE(38, true);
+    CILIUM_SERVICE(38, true),
+
+    /**
+     * The self observability of SkyWalking Java Agent,
+     * which provides the abilities to measure the tracing performance and error statistics of plugins.
+     */
+    SO11Y_JAVA_AGENT(39, true);
 
     private final int value;
     /**

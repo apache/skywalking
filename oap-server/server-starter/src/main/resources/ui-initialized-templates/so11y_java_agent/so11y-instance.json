@@ -1,0 +1,195 @@
+[
+  {
+    "id": "Self-Observability-Java-Agent-Instance",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "14",
+          "type": "Widget",
+          "widget": {
+            "title": "Tracing Context Creation (Per Minute)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_java_agent_created_tracing_context_count"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "Tracing Context Creation and Completion (Per Minute)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metricConfig": [
+            {
+              "label": "Creation"
+            },
+            {
+              "label": "Completion"
+            }
+          ],
+          "expressions": [
+            "aggregate_labels(meter_java_agent_created_tracing_context_count,sum)",
+            "meter_java_agent_finished_tracing_context_count"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "Ignored Context Creation (Per Minute)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_java_agent_created_ignored_context_count"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Ignored Context Creation and Completion (Per Minute)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "aggregate_labels(meter_java_agent_created_ignored_context_count,sum)",
+            "meter_java_agent_finished_ignored_context_count"
+          ],
+          "metricConfig": [
+            {
+              "label": "Creation"
+            },
+            {
+              "label": "Completion"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "11",
+          "type": "Widget",
+          "widget": {
+            "title": "Possible Leaked Context (Per Minute)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_java_agent_possible_leaked_context_count"
+          ],
+          "metricConfig": [
+            {
+              "label": "count"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "w": 12,
+          "h": 13,
+          "i": "8",
+          "type": "Widget",
+          "widget": {
+            "title": "Interceptor Error Count (Per Minute)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_java_agent_interceptor_error_count"
+          ],
+          "metricConfig": [
+            {
+              "label": "count"
+            }
+          ]
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "15",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Tracing Context Execution time (ms)"
+          },
+          "expressions": [
+            "relabels(meter_java_agent_tracing_context_execution_time_percentile,p='50,75,90,95,99',p='50,75,90,95,99')"
+          ]
+        }
+      ],
+      "layer": "SO11Y_JAVA_AGENT",
+      "entity": "ServiceInstance",
+      "name": "Self-Observability-Java-Agent-Instance",
+      "isRoot": false
+    }
+  }
+]

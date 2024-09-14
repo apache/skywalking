@@ -76,6 +76,7 @@ public class UITemplateInitializer {
         Layer.CLICKHOUSE.name(),
         Layer.ACTIVEMQ.name(),
         Layer.CILIUM_SERVICE.name(),
+        Layer.SO11Y_JAVA_AGENT.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

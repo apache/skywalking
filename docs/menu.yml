@@ -146,6 +146,8 @@ catalog:
                 path: "/en/setup/backend/dashboards-so11y"
               - name: "Satellite self telemetry"
                 path: "/en/setup/backend/dashboards-so11y-satellite"
+              - name: "SkyWalking Java Agent self telemetry"
+                path: "/en/setup/backend/dashboards-so11y-java-agent"
       - name: "Configuration Vocabulary"
         path: "/en/setup/backend/configuration-vocabulary"
       - name: "Advanced Setup"
