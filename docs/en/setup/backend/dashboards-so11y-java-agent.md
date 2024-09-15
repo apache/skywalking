@@ -24,7 +24,7 @@ Self observability monitoring provides monitoring of the runtime performance of 
 | Count Per Minute  | meter_java_agent_finished_ignored_context_count                | Finished Ignored Context Count (Per Minute) | SkyWalking Java Agent |
 | Count Per Minute  | meter_java_agent_possible_leaked_context_count                 | Possible Leak Context Count (Per Minute)    | SkyWalking Java Agent |
 | Count Per Minute  | meter_java_agent_interceptor_error_count                       | Interceptor Error Count (Per Minute)        | SkyWalking Java Agent |
-| ms                | meter_java_agent_tracing_context_execution_time_percentile     | Tracing Context Execution Time (ms)         | SkyWalking Java Agent |
+| ns                | meter_java_agent_tracing_context_execution_time_percentile     | Tracing Context Execution Time (ns)         | SkyWalking Java Agent |
 
 ## Customizations
 You can customize your own metrics/expression/dashboard panel.

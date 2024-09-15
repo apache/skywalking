@@ -182,7 +182,7 @@
             "title": "Tracing Context Execution time (ms)"
           },
           "expressions": [
-            "relabels(meter_java_agent_tracing_context_execution_time_percentile,p='50,75,90,95,99',p='50,75,90,95,99')"
+            "relabels(meter_java_agent_tracing_context_execution_time_percentile,p='50,75,90,95,99',p='50,75,90,95,99')/1000000"
           ]
         }
       ],
