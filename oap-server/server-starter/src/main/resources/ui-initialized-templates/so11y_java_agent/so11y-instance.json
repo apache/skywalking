@@ -11,7 +11,8 @@
           "i": "14",
           "type": "Widget",
           "widget": {
-            "title": "Tracing Context Creation (Per Minute)"
+            "title": "Tracing Context Creation (Per Minute)",
+            "tips": "The number of created tracing contexts per minute, including a label created_by(value=sampler,propagated)."
           },
           "graph": {
             "type": "Line",
@@ -33,7 +34,8 @@
           "i": "6",
           "type": "Widget",
           "widget": {
-            "title": "Tracing Context Creation and Completion (Per Minute)"
+            "title": "Tracing Context Creation and Completion (Per Minute)",
+            "tips": "The number of created tracing contexts and finished tracing contexts per minute."
           },
           "graph": {
             "type": "Line",
@@ -64,7 +66,8 @@
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "Ignored Context Creation (Per Minute)"
+            "title": "Ignored Context Creation (Per Minute)",
+            "tips": "The number of created ignored contexts per minute, including a label created_by(value=sampler,propagated)."
           },
           "graph": {
             "type": "Line",
@@ -86,7 +89,8 @@
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "Ignored Context Creation and Completion (Per Minute)"
+            "title": "Ignored Context Creation and Completion (Per Minute)",
+            "tips": "The number of created ignored contexts and finished ignored contexts per minute."
           },
           "graph": {
             "type": "Line",
@@ -117,7 +121,8 @@
           "i": "11",
           "type": "Widget",
           "widget": {
-            "title": "Possible Leaked Context (Per Minute)"
+            "title": "Possible Leaked Context (Per Minute)",
+            "tips": "The number of detected leaked contexts per minute, including a label source(value=tracing, ignore)."
           },
           "graph": {
             "type": "Line",
@@ -144,7 +149,8 @@
           "i": "8",
           "type": "Widget",
           "widget": {
-            "title": "Interceptor Error Count (Per Minute)"
+            "title": "Interceptor Error Count (Per Minute)",
+            "tips": "The number of errors happened in the interceptor logic per minute, including the label plugin_name and inter_type(constructor, inst, static)."
           },
           "graph": {
             "type": "Line",
@@ -179,7 +185,8 @@
             "showYAxis": true
           },
           "widget": {
-            "title": "Tracing Context Execution time (ms)"
+            "title": "Tracing Context Execution time (ms)",
+            "tips": "For successfully finished tracing context, it measures every interceptor's time cost."
           },
           "expressions": [
             "relabels(meter_java_agent_tracing_context_execution_time_percentile,p='50,75,90,95,99',p='50,75,90,95,99')/1000000"
