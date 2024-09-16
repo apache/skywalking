@@ -64,7 +64,7 @@ public class UserController {
     @PostMapping("/users")
     public User createAuthor(@RequestBody final User user) throws InterruptedException, IOException {
         Thread.sleep(randomSleepLong(sleepMin, sleepMax));
-        new URL("http://localhost:9090/agent-so11y-scenario/case/ignore.html").getContent();
+        new URL("http://localhost:9090/ignore.html").getContent();
         //virtual cache test case
         testCacheService();
         return userRepo.save(user);

@@ -12,7 +12,7 @@
           "type": "Widget",
           "widget": {
             "title": "Tracing Context Creation (Per Minute)",
-            "tips": "The number of created tracing contexts per minute, including a label created_by(value=sampler,propagated)."
+            "tips": "The number of created tracing contexts, including a label created_by(value=sampler,propagated)."
           },
           "graph": {
             "type": "Line",
@@ -35,7 +35,7 @@
           "type": "Widget",
           "widget": {
             "title": "Tracing Context Creation and Completion (Per Minute)",
-            "tips": "The number of created tracing contexts and finished tracing contexts per minute."
+            "tips": "The number of created tracing contexts and finished tracing contexts."
           },
           "graph": {
             "type": "Line",
@@ -67,7 +67,7 @@
           "type": "Widget",
           "widget": {
             "title": "Ignored Context Creation (Per Minute)",
-            "tips": "The number of created ignored contexts per minute, including a label created_by(value=sampler,propagated)."
+            "tips": "The number of created ignored contexts, including a label created_by(value=sampler,propagated)."
           },
           "graph": {
             "type": "Line",
@@ -90,7 +90,7 @@
           "type": "Widget",
           "widget": {
             "title": "Ignored Context Creation and Completion (Per Minute)",
-            "tips": "The number of created ignored contexts and finished ignored contexts per minute."
+            "tips": "The number of created ignored contexts and finished ignored contexts."
           },
           "graph": {
             "type": "Line",
@@ -122,7 +122,7 @@
           "type": "Widget",
           "widget": {
             "title": "Possible Leaked Context (Per Minute)",
-            "tips": "The number of detected leaked contexts per minute, including a label source(value=tracing, ignore)."
+            "tips": "The number of detected leaked contexts, including a label source(value=tracing, ignore)."
           },
           "graph": {
             "type": "Line",
@@ -150,7 +150,7 @@
           "type": "Widget",
           "widget": {
             "title": "Interceptor Error Count (Per Minute)",
-            "tips": "The number of errors happened in the interceptor logic per minute, including the label plugin_name and inter_type(constructor, inst, static)."
+            "tips": "The number of errors happened in the interceptor logic, including the label plugin_name and inter_type(constructor, inst, static)."
           },
           "graph": {
             "type": "Line",
