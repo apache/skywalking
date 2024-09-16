@@ -20,11 +20,14 @@ package org.apache.skywalking.e2e.controller;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import java.io.IOException;
+import java.net.URL;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.apache.skywalking.e2e.User;
 import org.apache.skywalking.e2e.UserRepo;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,11 +62,17 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public User createAuthor(@RequestBody final User user) throws InterruptedException {
+    public User createAuthor(@RequestBody final User user) throws InterruptedException, IOException {
         Thread.sleep(randomSleepLong(sleepMin, sleepMax));
+        new URL("http://localhost:9090/ignore.html").getContent();
         //virtual cache test case
         testCacheService();
         return userRepo.save(user);
+    }
+
+    @GetMapping("/ignore.html")
+    public String ignore() {
+        return "success";
     }
 
     @PostMapping("/correlation")

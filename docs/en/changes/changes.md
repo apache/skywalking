@@ -66,6 +66,7 @@
 * Fix `findEndpoint` query require `keyword` when using BanyanDB.
 * Support to analysis the ztunnel mapped IP address in eBPF Access Log Receiver.
 * Adapt BanyanDB Java Client 0.7.0-rc3.
+* Add SkyWalking Java Agent self observability dashboard.
 
 #### UI
 

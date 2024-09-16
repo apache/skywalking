@@ -13,29 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "localhost:-1" }}.0
-  name: localhost:-1
-  group: ""
-  shortname: localhost:-1
-  normal: false
-  layers:
-    - VIRTUAL_DATABASE
-
-- id: {{ b64enc "e2e-service-provider" }}.1
-  name: e2e-service-provider
-  group: ""
-  shortname: e2e-service-provider
-  normal: true
-  layers:
-    - SO11Y_JAVA_AGENT
-    - GENERAL
-
-- id: {{ b64enc "GuavaCache-local" }}.0
-  name: GuavaCache-local
-  group: ""
-  shortname: GuavaCache-local
-  normal: false
-  layers:
-    - VIRTUAL_CACHE
-{{- end }}
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+  - metric:
+      labels:
+        {{- contains .metric.labels }}
+        - key: created_by
+          value: {{ .value }}
+        {{- end}}
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+  {{- end}}
+error: null
