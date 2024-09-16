@@ -37,6 +37,7 @@ services:
       service: provider
     environment:
       SW_METER_REPORT_INTERVAL: 5
+      SW_METER_ACTIVE: 'true'
     # Activate guava-cache plugin for virtual cache test case
     command: ["bash" , "-c" , "cp /skywalking/agent/optional-plugins/apm-guava-cache-plugin*.jar /skywalking/agent/plugins/ && java -jar /services_provider.jar"]
     depends_on:
