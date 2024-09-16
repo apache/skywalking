@@ -62,6 +62,9 @@ hierarchy:
 
   ACTIVEMQ:
     K8S_SERVICE: short-name
+  
+  KONG:
+    K8S_SERVICE: short-name
 
   VIRTUAL_DATABASE:
     MYSQL: lower-short-name-with-fqdn
@@ -110,6 +113,7 @@ layer-levels:
   KAFKA: 2
   PULSAR: 2
   ACTIVEMQ: 2
+  KONG: 2
 
   MESH_DP: 1
   CILIUM_SERVICE: 1

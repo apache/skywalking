@@ -116,7 +116,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>ci --registry=https://registry.npmjs.org/</arguments>
+                            <arguments>ci --registry=https://registry.npmmirror.com/</arguments>
                         </configuration>
                     </execution>
                     <execution>

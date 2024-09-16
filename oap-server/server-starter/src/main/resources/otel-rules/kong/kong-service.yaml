@@ -1,0 +1,69 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'kong-monitoring' }"
+expSuffix: tag({tags -> tags.host_name = 'kong::' + tags.host_name}).service(['host_name'], Layer.KONG)
+metricPrefix: meter_kong_service
+metricsRules:
+  # counter
+    # Total bandwidth (ingress/egress) throughput in bytes
+  - name: http_bandwidth
+    exp: kong_bandwidth_bytes.sum(['host_name','service_instance_id','direction','route']).rate('PT1M')
+    # HTTP status codes per consumer/service/route in Kong
+  - name: http_status
+    exp: kong_http_requests_total.sum(['host_name','service_instance_id','code']).rate('PT1M')
+    # Number of nginx-lua-prometheus errors
+  - name: nginx_metric_errors_total
+    exp: kong_nginx_metric_errors_total.sum(['host_name','service_instance_id'])
+    
+  # gauge
+    # Datastore reachable from Kong
+  - name: datastore_reachable
+    exp: kong_datastore_reachable.sum(['host_name','service_instance_id'])
+    # Total number of requests
+  - name: http_requests
+    exp: kong_nginx_requests_total.sum(['host_name','service_instance_id']).rate('PT1M')
+    # Number of connections by subsystem
+  - name: nginx_connections_total
+    exp: kong_nginx_connections_total.sum(['host_name','service_instance_id','state']).rate('PT1M')
+    # Number of Nginx timers
+  - name: nginx_timers
+    exp: kong_nginx_timers.sum(['host_name','service_instance_id','state'])
+    
+  # histogram
+    # Latency added by Kong and enabled plugins for each service/route in Kong
+  - name: kong_latency
+    exp: kong_kong_latency_ms.sum(['le','host_name','service_instance_id']).histogram().histogram_percentile([50,70,90,99])
+    # Total latency incurred during requests for each service/route in Kong
+  - name: request_latency
+    exp: kong_request_latency_ms.sum(['le','host_name','service_instance_id']).histogram().histogram_percentile([50,70,90,99])
+    # Latency added by upstream response for each service/route in Kong
+  - name: upstream_latency
+    exp: kong_upstream_latency_ms.sum(['le','host_name','service_instance_id']).histogram().histogram_percentile([50,70,90,99])

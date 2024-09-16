@@ -1,0 +1,116 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - "12800:12800"
+    networks:
+      - e2e
+  kong-db:
+    image: postgres:alpine
+    networks:
+      - e2e
+    expose:
+      - 5432
+    environment:
+      POSTGRES_DB: kong
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/5432" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+  kong-migrations:
+    image: kong:3.8.0
+    networks:
+      - e2e
+    environment:
+      - KONG_DATABASE=postgres
+      - KONG_PG_USER=kong
+      - KONG_PG_PASSWORD=kong
+      - KONG_PG_HOST=kong-db
+      - KONG_CASSANDRA_CONTACT_POINTS=kong-db
+    command: kong migrations bootstrap
+    depends_on:
+      kong-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "kong", "health" ]
+      interval: 10s
+      timeout: 60s
+      retries: 120
+  kong-1:
+    image: kong:3.8.0
+    networks:
+      - e2e
+    depends_on:
+      kong-migrations:
+        condition: service_completed_successfully
+    environment:
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_CASSANDRA_CONTACT_POINTS: kong-db
+      KONG_DATABASE: postgres
+      KONG_PG_DATABASE: kong
+      KONG_PG_PASSWORD: kong
+      KONG_PG_HOST: kong-db
+      KONG_PG_USER: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+    ports:
+      - "8001:8001"
+      - "8000:8000"
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "kong", "health" ]
+      interval: 10s
+      timeout: 60s
+      retries: 120
+  otel-collector:
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      oap:
+        condition: service_healthy
+  kong-mock:
+    image: curlimages/curl:8.10.1
+    networks:
+      - e2e
+    depends_on:
+      kong-1:
+        condition: service_healthy
+      oap:
+        condition: service_healthy
+    command: "sh /etc/kong-e2e-data-mock.sh"
+    volumes:
+      - ./kong-e2e-data-mock.sh:/etc/kong-e2e-data-mock.sh
+
+networks:
+  e2e:

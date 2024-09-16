@@ -1,0 +1,320 @@
+[
+  {
+    "id": "Kong-Instance",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 13,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "Total bandwidth Trend (ingress/egress) (KB/s)"
+          },
+          "metricConfig": [
+            {
+              "label": "HTTP bandwidth Trend (requests per second)",
+              "unit": "KB/s"
+            }
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_kong_instance_http_bandwidth/1024"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Status Trend (requests per second)"
+          },
+          "metricConfig": [
+            {
+              "label": "HTTP Status Trend",
+              "unit": "req/s"
+            }
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_kong_instance_http_status"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 12,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "expressions": [
+            "latest(meter_kong_instance_datastore_reachable)"
+          ],
+          "graph": {
+            "type": "Card",
+            "fontSize": 24,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "metricConfig": [
+            {
+              "label": "Datastore reachable"
+            }
+          ],
+          "widget": {
+            "title": "Datastore reachable",
+            "tips": "Datastore reachable from Kong, 0 is unreachable"
+          }
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "w": 12,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Request Trend (requests per second)"
+          },
+          "metricConfig": [
+            {
+              "label": "Number of requests total"
+            }
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_kong_instance_http_requests"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "w": 12,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "expressions": [
+            "(meter_kong_instance_shared_dict_bytes*100)/meter_kong_instance_shared_dict_total_bytes"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Shared memory usage (%)",
+            "tips": "Kong shared memory usage by Node (%)"
+          },
+          "metricConfig": [
+            {
+              "unit": "%",
+              "label": "Kong shared memory usage by Node (%)"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 26,
+          "w": 12,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_instance_memory_workers_lua_vms_bytes/1024/1024"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Worker Lua VM usage by Node(MB)",
+            "tips": "Kong worker Lua VM usage by Node(MB)"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB",
+              "label": "Kong worker Lua VM usage by Node"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 39,
+          "w": 12,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_instance_nginx_connections_total"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "HTTP Connections Trend (requests per second)"
+          },
+          "metricConfig": [
+            {
+              "label": "HTTP Connections"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 39,
+          "w": 12,
+          "h": 13,
+          "i": "7",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_instance_nginx_timers"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Nginx timers"
+          },
+          "metricConfig": [
+            {
+              "label": "Nginx timers"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 52,
+          "w": 8,
+          "h": 13,
+          "i": "8",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_instance_kong_latency"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Kong Latency",
+            "unit": "ms"
+          },
+          "metricConfig": [
+            {
+              "label": "Kong Latency",
+              "tips": "Latency added by Kong and enabled plugins for each service/route in Kong"
+            }
+          ]
+        },
+        {
+          "x": 8,
+          "y": 52,
+          "w": 8,
+          "h": 13,
+          "i": "9",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_instance_request_latency"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Request Latency",
+            "unit": "ms"
+          },
+          "metricConfig": [
+            {
+              "label": "Request Latency",
+              "tips": "Total latency incurred during requests for each service/route in Kong"
+            }
+          ]
+        },
+        {
+          "x": 16,
+          "y": 52,
+          "w": 8,
+          "h": 13,
+          "i": "10",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_instance_upstream_latency"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Upstream Latency",
+            "unit": "ms"
+          },
+          "metricConfig": [
+            {
+              "label": "Upstream Latency",
+              "tips": "Latency added by upstream response for each service/route in Kong"
+            }
+          ]
+        }
+      ],
+      "layer": "KONG",
+      "entity": "ServiceInstance",
+      "name": "Kong-Instance",
+      "isRoot": false,
+      "isDefault": true
+    }
+  }
+]

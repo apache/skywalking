@@ -7,10 +7,11 @@
 * Reduce the count of process index and adding time range when query process index.
 * Bump up Apache commons-io to 2.17.0.
 * Polish eBPF so11y metrics and add error count for query metrics.
-
+* Support Kong monitoring.
 
 #### UI
 
+* Add support for case-insensitive search in the dashboard list.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
