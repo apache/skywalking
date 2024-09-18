@@ -67,6 +67,7 @@
 * Support to analysis the ztunnel mapped IP address in eBPF Access Log Receiver.
 * Adapt BanyanDB Java Client 0.7.0-rc3.
 * Add SkyWalking Java Agent self observability dashboard.
+* Add Component ID(5022) for the GoFrame framework.
 
 #### UI
 
