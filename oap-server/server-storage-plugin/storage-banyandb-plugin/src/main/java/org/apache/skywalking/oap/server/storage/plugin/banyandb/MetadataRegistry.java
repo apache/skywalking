@@ -135,7 +135,6 @@ public enum MetadataRegistry {
         builder.setEntity(BanyandbDatabase.Entity.newBuilder().addAllTagNames(shardingColumns));
         builder.addAllTagFamilies(tagFamilySpecs);
 
-        //builder.addIndexes(indexRules);
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return new StreamModel(builder.build(), indexRules);
     }
@@ -169,7 +168,6 @@ public enum MetadataRegistry {
 
         if (model.getBanyanDBModelExtension().isStoreIDTag()) {
             indexRules.add(indexRule(schemaMetadata.group, BanyanDBConverter.ID));
-           // indexRules.add(IndexRule.create(BanyanDBConverter.ID, IndexRule.IndexType.INVERTED));
         }
 
         final Measure.Builder builder = Measure.newBuilder();
@@ -178,9 +176,6 @@ public enum MetadataRegistry {
         builder.setInterval(downSamplingDuration(model.getDownsampling()).format());
         builder.setEntity(BanyandbDatabase.Entity.newBuilder().addAllTagNames(shardingColumns));
         builder.addAllTagFamilies(tagFamilySpecs);
-//        if (!indexRules.isEmpty()) {
-//            builder.addIndexes(indexRules);
-//        }
         // parse and set field
         for (BanyandbDatabase.FieldSpec field : tagsAndFields.fields) {
             builder.addFields(field);
@@ -308,7 +303,6 @@ public enum MetadataRegistry {
         return IndexRule.newBuilder()
                         .setMetadata(Metadata.newBuilder().setName(tagName).setGroup(group))
                         .setType(IndexRule.Type.TYPE_INVERTED).addTags(tagName).build();
-        //return IndexRule.create(tagName, IndexRule.IndexType.INVERTED);
     }
 
     /**
@@ -622,12 +616,6 @@ public enum MetadataRegistry {
                     try {
                         if (!resourceExist.hasGroup()) {
                             Group g = client.define(gBuilder.setCatalog(Catalog.CATALOG_MEASURE).build());
-//                                Group.create(this.group, Catalog.MEASURE, this.shard,
-//                                                                 IntervalRule.create(
-//                                                                     IntervalRule.Unit.DAY, this.segmentIntervalDays),
-//                                                                 IntervalRule.create(
-//                                                                     IntervalRule.Unit.DAY, this.ttlDays)
-//                            ));
                             if (g != null) {
                                 log.info("group {} created", g.getMetadata().getName());
                             }
@@ -742,14 +730,6 @@ public enum MetadataRegistry {
                                  .setCountersNumber(this.getTopNSpec().getCountersNumber())
                                  .setLruSize(this.getTopNSpec().getLruSize());
             client.define(builder.build());
-//            client.define(TopNAggregation.create(getMetadata().getGroup(), this.getTopNSpec().getName())
-//                    .setSourceMeasureName(getMetadata().name())
-//                    .setFieldValueSort(this.getTopNSpec().getSort())
-//                    .setFieldName(this.getTopNSpec().getFieldName())
-//                    .setGroupByTagNames(this.getTopNSpec().getGroupByTagNames())
-//                    .setCountersNumber(this.getTopNSpec().getCountersNumber())
-//                    .setLruSize(this.getTopNSpec().getLruSize())
-//                    .build());
             log.info("installed TopN schema for measure {}", getMetadata().name());
         }
     }
