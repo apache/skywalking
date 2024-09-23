@@ -68,6 +68,7 @@
 * Adapt BanyanDB Java Client 0.7.0-rc3.
 * Add SkyWalking Java Agent self observability dashboard.
 * Add Component ID(5022) for the GoFrame framework.
+* Bump up protobuf java dependencies to 3.25.5.
 
 #### UI
 
