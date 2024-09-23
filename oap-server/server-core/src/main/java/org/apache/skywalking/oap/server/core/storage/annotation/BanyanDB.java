@@ -182,7 +182,7 @@ public @interface BanyanDB {
      * Match query is designed for BanyanDB match query with specific analyzer. It is a fuzzy query implementation
      * powered by analyzer.
      *
-     * @since 10.0.1
+     * @since 10.1.0
      */
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
