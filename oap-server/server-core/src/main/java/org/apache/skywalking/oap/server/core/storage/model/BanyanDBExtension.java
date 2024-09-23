@@ -62,6 +62,12 @@ public class BanyanDBExtension {
     private final boolean isMeasureField;
 
     /**
+     * The analyzer policy appointed to fuzzy query, especially for BanyanDB.
+     */
+    @Getter
+    private final BanyanDB.MatchQuery.AnalyzerType analyzer;
+
+    /**
      * @return true if this column is a part of sharding key
      */
     public boolean isShardingKey() {

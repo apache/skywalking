@@ -177,4 +177,34 @@ public @interface BanyanDB {
          */
         int countersNumber() default 1000;
     }
+
+    /**
+     * Match query is designed for BanyanDB match query with specific analyzer. It is a fuzzy query implementation
+     * powered by analyzer.
+     *
+     * @since 10.0.1
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MatchQuery {
+        AnalyzerType analyzer() default AnalyzerType.ANALYZER_SIMPLE;
+
+        enum AnalyzerType {
+            /**
+             * Keyword analyzer is a “noop” analyzer which returns the entire input string as a single token.
+             */
+            ANALYZER_KEYWORD,
+            /**
+             * Standard analyzer provides grammar based tokenization
+             */
+            ANALYZER_STANDARD,
+            /**
+             * The default analyzer.
+             * Simple analyzer breaks text into tokens at any non-letter character,
+             * such as numbers, spaces, hyphens and apostrophes, discards non-letter characters,
+             * and changes uppercase to lowercase.
+             */
+            ANALYZER_SIMPLE
+        }
+    }
 }

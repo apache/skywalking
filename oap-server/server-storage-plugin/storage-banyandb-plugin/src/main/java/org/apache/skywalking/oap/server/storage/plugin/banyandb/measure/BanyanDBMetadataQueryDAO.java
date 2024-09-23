@@ -186,6 +186,9 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         if (StringUtil.isNotEmpty(serviceId)) {
                             query.and(eq(EndpointTraffic.SERVICE_ID, serviceId));
                         }
+                        if (StringUtil.isNotEmpty(keyword)) {
+                            query.and(match(EndpointTraffic.NAME, keyword));
+                        }
                         query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                     }
                 });
@@ -193,10 +196,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         final List<Endpoint> endpoints = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             endpoints.add(buildEndpoint(dataPoint, schema));
-        }
-
-        if (StringUtil.isNotEmpty(keyword)) {
-            return endpoints.stream().filter(e -> e.getName().contains(keyword)).collect(Collectors.toList());
         }
         return endpoints;
     }
