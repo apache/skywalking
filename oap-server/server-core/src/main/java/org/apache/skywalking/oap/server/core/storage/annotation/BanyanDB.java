@@ -187,7 +187,7 @@ public @interface BanyanDB {
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
     @interface MatchQuery {
-        AnalyzerType analyzer() default AnalyzerType.ANALYZER_SIMPLE;
+        AnalyzerType analyzer();
 
         enum AnalyzerType {
             /**
@@ -199,7 +199,6 @@ public @interface BanyanDB {
              */
             ANALYZER_STANDARD,
             /**
-             * The default analyzer.
              * Simple analyzer breaks text into tokens at any non-letter character,
              * such as numbers, spaces, hyphens and apostrophes, discards non-letter characters,
              * and changes uppercase to lowercase.
