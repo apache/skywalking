@@ -49,6 +49,8 @@ storage:
     # Please refer to https://github.com/apache/skywalking-banyandb/blob/${BANYANDB_RELEASE}/docs/crud/group.md#create-operation
     # for group setting details.
     specificGroupSettings: ${SW_STORAGE_BANYANDB_SPECIFIC_GROUP_SETTINGS:""}
+    # If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection.
+    sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
 ```
 
 BanyanDB Server supports two installation modes: standalone and cluster. The standalone mode is suitable for small-scale deployments, while the cluster mode is suitable for large-scale deployments.
