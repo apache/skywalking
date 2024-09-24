@@ -178,9 +178,10 @@ jobs:
         run: |
           ./mvnw clean install javadoc:javadoc -B -q -Pall \
             -Dmaven.test.skip \
-            -Dcheckstyle.skip
+            -Dcheckstyle.skip \
+            -Dgpg.skip
       - name: Verify builds are reproducible
-        run: ./mvnw -Dmaven.test.skip clean verify artifact:compare -Pall
+        run: ./mvnw -Dmaven.test.skip clean verify artifact:compare -Pall -Dgpg.skip
       - uses: actions/upload-artifact@v4
         name: Upload distribution tar
         with:
