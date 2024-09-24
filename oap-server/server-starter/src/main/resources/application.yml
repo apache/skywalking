@@ -220,7 +220,7 @@ storage:
     # Targets is the list of BanyanDB servers, separated by commas.
     # Each target is a BanyanDB server in the format of `host:port` 
     # The host is the IP address or domain name of the BanyanDB server, and the port is the port number of the BanyanDB server.
-    targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
+    targets: ${SW_STORAGE_BANYANDB_TARGETS:localhost:17912}
     # The max number of records in a bulk write request.
     # Bigger value can improve the write performance, but also increase the OAP and BanyanDB Server memory usage.
     maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:10000}
@@ -254,9 +254,11 @@ storage:
     superDatasetSegmentIntervalDays: ${SW_STORAGE_BANYANDB_SUPER_DATASET_SEGMENT_INTERVAL_DAYS:1}
     # Specific groups settings.
     # For example, {"group1": {"blockIntervalHours": 4, "segmentIntervalDays": 1}}
-    # Please refer to https://github.com/apache/skywalking-banyandb/blob/${BANYANDB_RELEASE}/docs/crud/group.md#create-operation
+    # Please refer to https://github.com/apache/skywalking-banyandb/blob/${BANYANDB_RELEASE}/docs/interacting/bydbctl/schema/group.md#create-operation
     # for group setting details.
     specificGroupSettings: ${SW_STORAGE_BANYANDB_SPECIFIC_GROUP_SETTINGS:""}
+    # If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection.
+    sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
 
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}
