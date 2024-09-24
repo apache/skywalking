@@ -60,7 +60,13 @@ git submodule update
 export RELEASE_VERSION=x.y.z # (example: RELEASE_VERSION=10.1.0)
 ```
 
-- Modify the property `revision` in `pom.xml` file, set it to `x.y.z`, and commit it.
+- Update the property `revision` in `pom.xml` file, and commit it.
+
+```bash
+./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${RELEASE_VERSION}
+git add pom.xml
+git commit -m "Prepare for release ${RELEASE_VERSION}"
+```
 
 - Tag the commit and push it to the upstream.
 
