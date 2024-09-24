@@ -306,14 +306,17 @@ public enum MetadataRegistry {
                                              .setType(IndexRule.Type.TYPE_INVERTED).addTags(tagName);
         if (analyzer != null) {
             switch (analyzer) {
-                case ANALYZER_KEYWORD:
-                    builder.setAnalyzer(IndexRule.Analyzer.ANALYZER_KEYWORD);
+                case KEYWORD:
+                    builder.setAnalyzer("keyword");
                     break;
-                case ANALYZER_STANDARD:
-                    builder.setAnalyzer(IndexRule.Analyzer.ANALYZER_STANDARD);
+                case STANDARD:
+                    builder.setAnalyzer("standard");
                     break;
-                case ANALYZER_SIMPLE:
-                    builder.setAnalyzer(IndexRule.Analyzer.ANALYZER_SIMPLE);
+                case SIMPLE:
+                    builder.setAnalyzer("simple");
+                    break;
+                case URL:
+                    builder.setAnalyzer("url");
                     break;
                 default:
                     throw new UnsupportedOperationException("unsupported analyzer type: " + analyzer);

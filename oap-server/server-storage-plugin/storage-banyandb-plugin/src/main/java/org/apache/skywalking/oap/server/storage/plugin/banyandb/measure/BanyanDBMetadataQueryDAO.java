@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
@@ -187,7 +188,10 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                             query.and(eq(EndpointTraffic.SERVICE_ID, serviceId));
                         }
                         if (StringUtil.isNotEmpty(keyword)) {
-                            query.and(match(EndpointTraffic.NAME, keyword));
+                            query.and(match(EndpointTraffic.NAME, keyword,
+                                            BanyandbModel.Condition.MatchOption.newBuilder().setOperator(
+                                                BanyandbModel.Condition.MatchOption.Operator.OPERATOR_AND).build()
+                            ));
                         }
                         query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                     }

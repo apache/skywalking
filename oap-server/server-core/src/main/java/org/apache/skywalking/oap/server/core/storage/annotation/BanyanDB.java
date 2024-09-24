@@ -193,17 +193,21 @@ public @interface BanyanDB {
             /**
              * Keyword analyzer is a “noop” analyzer which returns the entire input string as a single token.
              */
-            ANALYZER_KEYWORD,
+            KEYWORD,
             /**
              * Standard analyzer provides grammar based tokenization
              */
-            ANALYZER_STANDARD,
+            STANDARD,
             /**
              * Simple analyzer breaks text into tokens at any non-letter character,
              * such as numbers, spaces, hyphens and apostrophes, discards non-letter characters,
              * and changes uppercase to lowercase.
              */
-            ANALYZER_SIMPLE
+            SIMPLE,
+            /**
+             * URL analyzer breaks test into tokens at any non-letter and non-digit character
+             */
+            URL
         }
     }
 }
