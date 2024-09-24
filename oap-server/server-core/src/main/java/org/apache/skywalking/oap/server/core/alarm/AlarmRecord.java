@@ -82,6 +82,7 @@ public class AlarmRecord extends Record {
     private long startTime;
     @Column(name = ALARM_MESSAGE, length = 512)
     @ElasticSearch.MatchQuery
+    @BanyanDB.MatchQuery(analyzer = BanyanDB.MatchQuery.AnalyzerType.SIMPLE)
     private String alarmMessage;
     @Column(name = RULE_NAME)
     private String ruleName;

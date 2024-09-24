@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
@@ -71,7 +72,9 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
                         if (Objects.nonNull(scopeId)) {
                             query.and(eq(AlarmRecord.SCOPE, (long) scopeId));
                         }
-
+                        if (StringUtil.isNotEmpty(keyword)) {
+                            query.and(match(AlarmRecord.ALARM_MESSAGE, keyword));
+                        }
                         if (CollectionUtils.isNotEmpty(tags)) {
                             List<String> tagsConditions = new ArrayList<>(tags.size());
                             for (final Tag tag : tags) {

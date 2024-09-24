@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.gson.Gson;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.And;
@@ -295,6 +296,14 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
 
         protected PairQueryCondition<String> eq(String name, String value) {
             return PairQueryCondition.StringQueryCondition.eq(name, value);
+        }
+
+        protected PairQueryCondition<String> match(String name, String value) {
+            return PairQueryCondition.StringQueryCondition.match(name, value);
+        }
+
+        protected PairQueryCondition<String> match(String name, String value, BanyandbModel.Condition.MatchOption matchOption) {
+            return PairQueryCondition.StringQueryCondition.match(name, value, matchOption);
         }
 
         protected PairQueryCondition<List<String>> in(String name, List<String> values) {
