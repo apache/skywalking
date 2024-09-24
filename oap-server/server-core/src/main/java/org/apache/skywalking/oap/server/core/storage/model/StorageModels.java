@@ -215,11 +215,15 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     BanyanDB.MeasureField.class);
                 final BanyanDB.TopNAggregation topNAggregation = field.getAnnotation(
                     BanyanDB.TopNAggregation.class);
+                final BanyanDB.MatchQuery analyzer = field.getAnnotation(
+                    BanyanDB.MatchQuery.class);
+                final boolean shouldIndex = (banyanDBNoIndex == null) && !column.storageOnly();
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
                     banyanDBSeriesID == null ? -1 : banyanDBSeriesID.index(),
-                    banyanDBNoIndex == null && !column.storageOnly(),
+                    shouldIndex,
                     banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType(),
-                    banyanDBMeasureField != null
+                    banyanDBMeasureField != null,
+                    analyzer == null ? null : analyzer.analyzer()
                 );
 
                 if (topNAggregation != null) {
