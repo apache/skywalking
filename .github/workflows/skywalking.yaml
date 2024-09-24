@@ -359,6 +359,8 @@ jobs:
 
           - name: BanyanDB
             config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
+          - name: BanyanDB TLS
+            config: test/e2e-v2/cases/storage/banyandb/tls/e2e.yaml
           - name: Storage H2
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL

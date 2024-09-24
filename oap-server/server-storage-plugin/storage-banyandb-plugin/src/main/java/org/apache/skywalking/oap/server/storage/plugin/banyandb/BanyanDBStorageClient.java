@@ -25,6 +25,7 @@ import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.banyandb.v1.client.Options;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -58,9 +59,11 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
 
-    public BanyanDBStorageClient(int flushTimeout, String... targets) {
-        this.client = new BanyanDBClient(targets);
-        this.flushTimeout = flushTimeout;
+    public BanyanDBStorageClient(BanyanDBStorageConfig config) {
+        Options options = new Options();
+        options.setSslTrustCAPath(config.getSslTrustCAPath());
+        this.client = new BanyanDBClient(config.getTargetArray(), options);
+        this.flushTimeout = config.getFlushTimeout();
     }
 
     @Override
