@@ -106,6 +106,19 @@ This script takes care of the following things:
 
 `apache-skywalking-apm-x.y.z-src.tgz` and files ending with `.asc` and `.sha512` may be found in the `tools/releasing` folder.
 
+## Start the next iteration
+
+Once the release is deployed to the staging repositories, you can start updating the version to the next number and open a pull request.
+
+```bash
+git checkout next
+./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=<next-version-number>-SNAPSHOT
+git add pom.xml
+git commit -m 'Start next iteration'
+git push
+gh pr create --fill # If you have gh cli installed and configured, or open the pull request in https://github.com/apache/skywalking/pulls
+```
+
 ## Locate and download the distribution package in Apache Nexus Staging repositories
 1. Use your Apache ID to log in to `https://repository.apache.org/`.
 1. Go to `https://repository.apache.org/#stagingRepositories`.
