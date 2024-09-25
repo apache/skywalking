@@ -100,6 +100,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.promql.rt.grammar.PromQLLexer;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.formatDoubleValue;
 
@@ -582,7 +583,15 @@ public class PromQLApiHandler {
     }
 
     private static long formatTimestamp2Millis(String timestamp) {
-        return Double.valueOf(timestamp).longValue() * 1000;
+        long time;
+        try {
+            // if Unix timestamp in seconds, such as 1627756800
+            time = Double.valueOf(timestamp).longValue() * 1000;
+        } catch (NumberFormatException e) {
+            // if RFC3399 format, such as 2024-09-19T20:11:00.781Z
+            time = ISODateTimeFormat.dateTime().parseMillis(timestamp);
+        }
+        return time;
     }
 
     private List<String> buildLabelNames(Scope scope, ValueColumnMetadata.ValueColumn metaData) {
