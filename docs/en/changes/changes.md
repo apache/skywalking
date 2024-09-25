@@ -73,6 +73,7 @@
 * BanyanDB: support using native term searching for `keyword` in query `findEndpoint` and `getAlarm`.
 * BanyanDB: support TLS connection and configuration.
 * PromQL service: query API support RFC3399 time format.
+* Improve the performance of OTEL metrics handler.
 
 #### UI
 
