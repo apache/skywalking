@@ -312,7 +312,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         }
 
         String timeRange = ctx.DURATION().getText().toUpperCase();
-        long endTS = System.currentTimeMillis();
+        long endTS = this.duration.getEndTimestamp();
         long startTS = endTS - formatDuration(timeRange).getMillis();
         duration = DurationUtils.timestamp2Duration(startTS, endTS);
         ParseResult result = visit(ctx.metricInstant());

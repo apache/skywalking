@@ -57,7 +57,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
 
-      - run: ./mvnw -q -Dmaven.test.skip=true clean install || ./mvnw -q -Dmaven.test.skip=true clean install
+      - run: ./mvnw -q -Dmaven.test.skip=true clean install -Dgpg.skip || ./mvnw -q -Dmaven.test.skip=true clean install -Dgpg.skip
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
