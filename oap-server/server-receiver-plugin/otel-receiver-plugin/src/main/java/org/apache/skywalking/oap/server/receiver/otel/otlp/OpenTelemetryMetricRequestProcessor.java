@@ -29,6 +29,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
@@ -76,7 +77,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             .put("job", "job_name")
             .put("service.name", "job_name")
             .build();
-    private List<PrometheusMetricConverter> converters;
+    private List<MetricConvert> converters;
 
     @Getter(lazy = true)
     private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
@@ -110,18 +111,16 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                         (v1, v2) -> v1
                         ));
 
-                converters
-                    .forEach(convert -> convert.toMeter(
-                        request
-                            .getScopeMetricsList().stream()
-                            .flatMap(scopeMetrics -> scopeMetrics
-                                .getMetricsList().stream()
-                                .flatMap(metric -> adaptMetrics(nodeLabels, metric))
-                                .map(Function1.liftTry(Function.identity()))
-                                .flatMap(tryIt -> MetricConvert.log(
-                                    tryIt,
-                                    "Convert OTEL metric to prometheus metric"
-                                )))));
+                ImmutableMap<String, SampleFamily> sampleFamilies = PrometheusMetricConverter.convertPromMetricToSampleFamily(
+                    request.getScopeMetricsList().stream()
+                           .flatMap(scopeMetrics -> scopeMetrics
+                               .getMetricsList().stream()
+                               .flatMap(metric -> adaptMetrics(nodeLabels, metric))
+                               .map(Function1.liftTry(Function.identity()))
+                               .flatMap(tryIt -> MetricConvert.log(tryIt, "Convert OTEL metric to prometheus metric"))
+                           )
+                );
+                converters.forEach(convert -> convert.toMeter(sampleFamilies));
             });
         }
     }
@@ -146,7 +145,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
 
         converters = rules
             .stream()
-            .map(r -> new PrometheusMetricConverter(r, meterSystem))
+            .map(r -> new MetricConvert(r, meterSystem))
             .collect(toList());
     }
 

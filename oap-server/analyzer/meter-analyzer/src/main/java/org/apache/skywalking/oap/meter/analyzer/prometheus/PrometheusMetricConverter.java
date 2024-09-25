@@ -30,12 +30,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
@@ -55,39 +52,22 @@ import static org.apache.skywalking.oap.meter.analyzer.Analyzer.NIL;
  */
 @Slf4j
 public class PrometheusMetricConverter {
-    private final Pattern metricsNameEscapePattern;
+    private static final Pattern METRICS_NAME_ESCAPE_PATTERN = Pattern.compile("[/.]");
 
-    private final LoadingCache<String, String> escapedMetricsNameCache =
+    private static final LoadingCache<String, String> ESCAPED_METRICS_NAME_CACHE =
         CacheBuilder.newBuilder()
                     .maximumSize(1000)
                     .build(new CacheLoader<String, String>() {
                         @Override
                         public String load(final String name) {
-                            return metricsNameEscapePattern.matcher(name).replaceAll("_");
+                            return METRICS_NAME_ESCAPE_PATTERN.matcher(name).replaceAll("_");
                         }
                     });
 
-    private final MetricConvert convert;
-
-    public PrometheusMetricConverter(Rule rule, MeterSystem service) {
-        this.convert = new MetricConvert(rule, service);
-        this.metricsNameEscapePattern = Pattern.compile("[/.]");
-    }
-
-    /**
-     * toMeter transforms prometheus metrics to meter-system metrics.
-     *
-     * @param metricStream prometheus metrics stream.
-     */
-    public void toMeter(Stream<Metric> metricStream) {
-        ImmutableMap<String, SampleFamily> data = convertPromMetricToSampleFamily(metricStream);
-        convert.toMeter(data);
-    }
-
-    public ImmutableMap<String, SampleFamily> convertPromMetricToSampleFamily(Stream<Metric> metricStream) {
+    public static ImmutableMap<String, SampleFamily> convertPromMetricToSampleFamily(Stream<Metric> metricStream) {
         return metricStream
             .peek(metric -> log.debug("Prom metric to be convert to SampleFamily: {}", metric))
-            .flatMap(this::convertMetric)
+            .flatMap(PrometheusMetricConverter::convertMetric)
             .filter(t -> t != NIL && t._2.samples.length > 0)
             .peek(t -> log.debug("SampleFamily: {}", t))
             .collect(toImmutableMap(Tuple2::_1, Tuple2::_2, (a, b) -> {
@@ -99,7 +79,7 @@ public class PrometheusMetricConverter {
             }));
     }
 
-    private Stream<Tuple2<String, SampleFamily>> convertMetric(Metric metric) {
+    private static Stream<Tuple2<String, SampleFamily>> convertMetric(Metric metric) {
         return Match(metric).of(
             Case($(instanceOf(Histogram.class)), t -> Stream.of(
                 Tuple.of(escapedName(metric.getName() + "_count"), SampleFamilyBuilder.newBuilder(Sample.builder().name(escapedName(metric.getName() + "_count"))
@@ -117,7 +97,7 @@ public class PrometheusMetricConverter {
         );
     }
 
-    private Optional<Tuple2<String, SampleFamily>> convertToSample(Metric metric) {
+    private static Optional<Tuple2<String, SampleFamily>> convertToSample(Metric metric) {
         Sample[] ss = Match(metric).of(
             Case($(instanceOf(Counter.class)), t -> Collections.singletonList(Sample.builder()
                 .name(escapedName(t.getName()))
@@ -161,12 +141,12 @@ public class PrometheusMetricConverter {
     }
 
     // Returns the escaped name of the given one, with "." and "/" replaced by "_"
-    protected String escapedName(final String name) {
+    protected static String escapedName(final String name) {
         try {
-            return escapedMetricsNameCache.get(name);
+            return ESCAPED_METRICS_NAME_CACHE.get(name);
         } catch (ExecutionException e) {
             log.error("Failed to get escaped metrics name from cache", e);
-            return metricsNameEscapePattern.matcher(name).replaceAll("_");
+            return METRICS_NAME_ESCAPE_PATTERN.matcher(name).replaceAll("_");
         }
     }
 }
