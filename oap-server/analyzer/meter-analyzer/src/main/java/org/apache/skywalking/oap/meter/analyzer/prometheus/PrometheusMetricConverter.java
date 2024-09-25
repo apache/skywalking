@@ -52,15 +52,15 @@ import static org.apache.skywalking.oap.meter.analyzer.Analyzer.NIL;
  */
 @Slf4j
 public class PrometheusMetricConverter {
-    private static final Pattern metricsNameEscapePattern = Pattern.compile("[/.]");
+    private static final Pattern METRICS_NAME_ESCAPE_PATTERN = Pattern.compile("[/.]");
 
-    private static final LoadingCache<String, String> escapedMetricsNameCache =
+    private static final LoadingCache<String, String> ESCAPED_METRICS_NAME_CACHE =
         CacheBuilder.newBuilder()
                     .maximumSize(1000)
                     .build(new CacheLoader<String, String>() {
                         @Override
                         public String load(final String name) {
-                            return metricsNameEscapePattern.matcher(name).replaceAll("_");
+                            return METRICS_NAME_ESCAPE_PATTERN.matcher(name).replaceAll("_");
                         }
                     });
 
@@ -143,10 +143,10 @@ public class PrometheusMetricConverter {
     // Returns the escaped name of the given one, with "." and "/" replaced by "_"
     protected static String escapedName(final String name) {
         try {
-            return escapedMetricsNameCache.get(name);
+            return ESCAPED_METRICS_NAME_CACHE.get(name);
         } catch (ExecutionException e) {
             log.error("Failed to get escaped metrics name from cache", e);
-            return metricsNameEscapePattern.matcher(name).replaceAll("_");
+            return METRICS_NAME_ESCAPE_PATTERN.matcher(name).replaceAll("_");
         }
     }
 }
