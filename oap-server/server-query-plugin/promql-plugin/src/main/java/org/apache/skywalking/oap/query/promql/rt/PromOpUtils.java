@@ -56,6 +56,7 @@ public class PromOpUtils {
     static MetricsRangeResult matrixScalarBinaryOp(MetricsRangeResult matrix, ScalarResult scalar, int opType) {
         MetricsRangeResult result = new MetricsRangeResult();
         result.setResultType(ParseResultType.METRICS_RANGE);
+        result.setRangeExpression(matrix.isRangeExpression());
         matrix.getMetricDataList().forEach(metricData -> {
             MetricRangeData newData = new MetricRangeData();
             result.getMetricDataList().add(newData);
@@ -78,6 +79,7 @@ public class PromOpUtils {
                                              int opType) throws IllegalExpressionException {
         MetricsRangeResult result = new MetricsRangeResult();
         result.setResultType(ParseResultType.METRICS_RANGE);
+        result.setRangeExpression(matrixLeft.isRangeExpression());
         for (int i = 0; i < matrixLeft.getMetricDataList().size(); i++) {
             MetricRangeData dataLeft = matrixLeft.getMetricDataList().get(i);
             MetricRangeData dataRight = matrixRight.getMetricDataList().get(i);
@@ -113,6 +115,7 @@ public class PromOpUtils {
 
         MetricsRangeResult rangeResult = new MetricsRangeResult();
         rangeResult.setResultType(ParseResultType.METRICS_RANGE);
+        rangeResult.setRangeExpression(result.isRangeExpression());
         AggregateLabelsFuncFactory factory = getAggregateFuncFactory(funcType);
         groupedResult.forEach((labels, dataList) -> {
             if (dataList.isEmpty()) {
@@ -224,6 +227,7 @@ public class PromOpUtils {
     static MetricsRangeResult matrixScalarCompareOp(MetricsRangeResult matrix, ScalarResult scalar, int opType) {
         MetricsRangeResult result = new MetricsRangeResult();
         result.setResultType(ParseResultType.METRICS_RANGE);
+        result.setRangeExpression(matrix.isRangeExpression());
         matrix.getMetricDataList().forEach(metricData -> {
             MetricRangeData newData = new MetricRangeData();
             result.getMetricDataList().add(newData);
@@ -246,6 +250,7 @@ public class PromOpUtils {
                                               int opType) throws IllegalExpressionException {
         MetricsRangeResult result = new MetricsRangeResult();
         result.setResultType(ParseResultType.METRICS_RANGE);
+        result.setRangeExpression(matrixLeft.isRangeExpression());
         for (int i = 0; i < matrixLeft.getMetricDataList().size(); i++) {
             MetricRangeData dataLeft = matrixLeft.getMetricDataList().get(i);
             MetricRangeData dataRight = matrixRight.getMetricDataList().get(i);

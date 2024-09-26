@@ -78,6 +78,7 @@
 * BanyanDB: support TLS connection and configuration.
 * PromQL service: query API support RFC3399 time format.
 * Improve the performance of OTEL metrics handler.
+* PromQL service: fix operators result missing `rangeExpression` flag.
 
 #### UI
 
