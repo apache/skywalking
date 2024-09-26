@@ -180,6 +180,13 @@ Result:
 }
 ```
 
+We can also use [Range Vector Selectors](#range-vector-selectors) in the instant query.
+```
+/api/v1/query?query=service_cpm{service='agent::songs', layer='GENERAL'}[5m]
+```
+
+the result is the same as the [Range queries](#range-queries).
+
 ##### Range queries
 
 [Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries)
