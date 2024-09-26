@@ -80,7 +80,7 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
             metricName);
         if (valueColumn.isEmpty()) {
             result.setType(ExpressionResultType.UNKNOWN);
-            result.setError("Metric: [" + metricName + "] dose not exist.");
+            result.setError("Metric: [" + metricName + "] does not exist.");
             return result;
         }
         Column.ValueDataType dataType = valueColumn.get().getDataType();

@@ -54,7 +54,7 @@ public class AlarmMQEVerifyVisitor extends MQEVisitorBase {
             metricName);
         if (valueColumn.isEmpty()) {
             result.setType(ExpressionResultType.UNKNOWN);
-            result.setError("Metric: [" + metricName + "] dose not exist.");
+            result.setError("Metric: [" + metricName + "] does not exist.");
             return result;
         }
 
@@ -80,7 +80,7 @@ public class AlarmMQEVerifyVisitor extends MQEVisitorBase {
             return result;
         } else {
             result.setType(ExpressionResultType.UNKNOWN);
-            result.setError("Metric dose not supported in alarm, metric: [" + metricName + "] is not a common or labeled metric.");
+            result.setError("Metric does not supported in alarm, metric: [" + metricName + "] is not a common or labeled metric.");
             return result;
         }
     }
