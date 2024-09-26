@@ -1,6 +1,10 @@
 ## 10.1.0
 
+#### A Version of PERFORMANCE
 * **Huge UI Performance Improvement. Metrics widgets queries are bundled by leveraging the GraphQL capabilities.**
+* **Parallel Queries Support in GraphQL engine. Improve query performance.**
+* **Significantly improve the performance of OTEL metrics handler. Reduce CPU and GC costs in OTEL metrics processes.**
+* **With adopting BanyanDB 0.7, native database performance and stability are improved.**
 
 #### Project
 
