@@ -78,7 +78,7 @@ git push origin v${RELEASE_VERSION}
 ## Stage the release 
 
 ```bash
-./mvnw install deploy -DskipTests
+./mvnw flatten:flatten install deploy -DskipTests
 ```
 
 This command will build, sign, and deploy the release to the Apache staging repository.
@@ -86,7 +86,7 @@ You should be prompted for your GPG passphrase during the deployment process.
 If no prompt is present, you can set the passphrase in the environment variable `MAVEN_GPG_PASSPHRASE`:
 
 ```bash
-MAVEN_GPG_PASSPHRASE=<your-gpg-passphrase> ./mvnw install deploy -DskipTests
+MAVEN_GPG_PASSPHRASE=<your-gpg-passphrase> ./mvnw flatten:flatten install deploy -DskipTests
 ```
 
 - The release will be automatically inserted into a temporary staging repository.
