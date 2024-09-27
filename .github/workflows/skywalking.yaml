@@ -405,6 +405,8 @@ jobs:
             config: test/e2e-v2/cases/alarm/mysql/e2e.yaml
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
+          - name: Alarm BanyanDB
+            config: test/e2e-v2/cases/alarm/banyandb/e2e.yaml
 
           - name: TTL ES 7.16.3
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
