@@ -178,9 +178,10 @@ jobs:
         run: |
           ./mvnw clean install javadoc:javadoc -B -q -Pall \
             -Dmaven.test.skip \
-            -Dcheckstyle.skip
+            -Dcheckstyle.skip \
+            -Dgpg.skip
       - name: Verify builds are reproducible
-        run: ./mvnw -Dmaven.test.skip clean verify artifact:compare -Pall
+        run: ./mvnw -Dmaven.test.skip clean verify artifact:compare -Pall -Dgpg.skip
       - uses: actions/upload-artifact@v4
         name: Upload distribution tar
         with:
@@ -359,6 +360,8 @@ jobs:
 
           - name: BanyanDB
             config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
+          - name: BanyanDB TLS
+            config: test/e2e-v2/cases/storage/banyandb/tls/e2e.yaml
           - name: Storage H2
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
@@ -402,6 +405,8 @@ jobs:
             config: test/e2e-v2/cases/alarm/mysql/e2e.yaml
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
+          - name: Alarm BanyanDB
+            config: test/e2e-v2/cases/alarm/banyandb/e2e.yaml
 
           - name: TTL ES 7.16.3
             config: test/e2e-v2/cases/ttl/es/e2e.yaml

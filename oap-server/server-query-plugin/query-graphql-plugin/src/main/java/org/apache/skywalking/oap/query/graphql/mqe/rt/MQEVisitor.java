@@ -115,7 +115,7 @@ public class MQEVisitor extends MQEVisitorBase {
                 metricName);
             if (valueColumn.isEmpty()) {
                 result.setType(ExpressionResultType.UNKNOWN);
-                result.setError("Metric: [" + metricName + "] dose not exist.");
+                result.setError("Metric: [" + metricName + "] does not exist.");
                 return result;
             }
 
@@ -141,7 +141,7 @@ public class MQEVisitor extends MQEVisitorBase {
                 } else if (Column.ValueDataType.LABELED_VALUE == dataType) {
                     if (ctx.parent instanceof MQEParser.TopNOPContext) {
                         throw new IllegalExpressionException(
-                            "Metric: [" + metricName + "] is labeled value, dose not support top_n query.");
+                            "Metric: [" + metricName + "] is labeled value, does not support top_n query.");
                     }
                     List<KeyValue> queryLabels = super.buildLabels(ctx.labelList());
                     if (ctx.parent instanceof MQEParser.TrendOPContext) {

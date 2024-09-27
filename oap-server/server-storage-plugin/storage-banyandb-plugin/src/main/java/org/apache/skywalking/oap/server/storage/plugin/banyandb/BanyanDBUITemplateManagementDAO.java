@@ -19,8 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
-import org.apache.skywalking.banyandb.v1.client.metadata.Property;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
@@ -64,7 +67,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
             this.getClient().define(newTemplate);
             return TemplateChangeStatus.builder()
                     .status(true)
-                    .id(newTemplate.id())
+                    .id(newTemplate.getMetadata().getId())
                     .build();
         } catch (IOException ioEx) {
             log.error("fail to add new template", ioEx);
@@ -80,7 +83,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
             this.getClient().define(newTemplate);
             return TemplateChangeStatus.builder()
                     .status(true)
-                    .id(newTemplate.id())
+                    .id(newTemplate.getMetadata().getId())
                     .build();
         } catch (IOException ioEx) {
             log.error("fail to modify the template", ioEx);
@@ -118,9 +121,10 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
 
     public UITemplate parse(Property property) {
         UITemplate uiTemplate = new UITemplate();
-        uiTemplate.setTemplateId(property.id());
+        uiTemplate.setTemplateId(property.getMetadata().getId());
 
-        for (TagAndValue<?> tagAndValue : property.tags()) {
+        for (BanyandbModel.Tag tag : property.getTagsList()) {
+            TagAndValue<?> tagAndValue = TagAndValue.fromProtobuf(tag);
             if (tagAndValue.getTagName().equals(UITemplate.CONFIGURATION)) {
                 uiTemplate.setConfiguration((String) tagAndValue.getValue());
             } else if (tagAndValue.getTagName().equals(UITemplate.DISABLED)) {
@@ -133,11 +137,16 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
     }
 
     public Property applyAll(UITemplate uiTemplate) {
-        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
-                .addTag(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()))
-                .addTag(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()))
-                .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
-                .build();
+        return Property.newBuilder()
+                .setMetadata(BanyandbProperty.Metadata.newBuilder()
+                        .setId(uiTemplate.id().build())
+                        .setContainer(BanyandbCommon.Metadata.newBuilder()
+                                .setGroup(GROUP)
+                                .setName(UITemplate.INDEX_NAME)))
+            .addTags(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()).build())
+            .addTags(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()).build())
+            .addTags(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()).build())
+            .build();
     }
 
     /**
@@ -147,10 +156,15 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
      * @return new property (patch) to be applied
      */
     public Property applyStatus(UITemplate uiTemplate) {
-        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
-                .addTag(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()))
-                .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
-                .build();
+        return Property.newBuilder()
+                .setMetadata(BanyandbProperty.Metadata.newBuilder()
+                        .setId(uiTemplate.id().build())
+                        .setContainer(BanyandbCommon.Metadata.newBuilder()
+                                .setGroup(GROUP)
+                                .setName(UITemplate.INDEX_NAME)))
+                .addTags(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()).build())
+                .addTags(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()).build())
+            .build();
     }
 
     /**
@@ -160,9 +174,14 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
      * @return new property (patch) to be applied
      */
     public Property applyConfiguration(UITemplate uiTemplate) {
-        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
-                .addTag(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()))
-                .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
-                .build();
+        return Property.newBuilder()
+                .setMetadata(BanyandbProperty.Metadata.newBuilder()
+                        .setId(uiTemplate.id().build())
+                        .setContainer(BanyandbCommon.Metadata.newBuilder()
+                                .setGroup(GROUP)
+                                .setName(UITemplate.INDEX_NAME)))
+                .addTags(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()).build())
+                .addTags(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()).build())
+            .build();
     }
 }

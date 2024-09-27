@@ -99,6 +99,11 @@ public class ModelColumn {
         }
         this.indexOnly = indexOnly;
         this.banyanDBExtension = banyanDBExtension;
+
+        if (!this.banyanDBExtension.shouldIndex() && this.banyanDBExtension.getAnalyzer() != null) {
+            throw new IllegalArgumentException(
+                "The column " + columnName + " should be indexed if require MatchQuery.");
+        }
     }
 
     /**

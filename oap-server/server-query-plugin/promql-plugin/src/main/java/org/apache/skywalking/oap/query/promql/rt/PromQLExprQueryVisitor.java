@@ -237,7 +237,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
             Optional<ValueColumnMetadata.ValueColumn> valueColumn = getValueColumn(metricName);
             if (valueColumn.isEmpty()) {
                 result.setErrorType(ErrorType.BAD_DATA);
-                result.setErrorInfo("Metric: [" + metricName + "] dose not exist.");
+                result.setErrorInfo("Metric: [" + metricName + "] does not exist.");
                 return result;
             }
             if (ctx.labelList() == null) {
@@ -312,7 +312,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         }
 
         String timeRange = ctx.DURATION().getText().toUpperCase();
-        long endTS = System.currentTimeMillis();
+        long endTS = this.duration.getEndTimestamp();
         long startTS = endTS - formatDuration(timeRange).getMillis();
         duration = DurationUtils.timestamp2Duration(startTS, endTS);
         ParseResult result = visit(ctx.metricInstant());

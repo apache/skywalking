@@ -108,6 +108,7 @@ services:
       SW_AGENT_NAME: e2e-service-provider
       SW_AGENT_INSTANCE_NAME: provider1
       SW_LOGGING_OUTPUT: CONSOLE
+      SW_METER_ACTIVE: 'false'
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9090"]
       interval: 5s
@@ -127,6 +128,7 @@ services:
       service: consumer
     environment:
       PROVIDER_URL: http://provider:9090
+      SW_METER_ACTIVE: 'false'
     ports:
       - 9092
     depends_on:

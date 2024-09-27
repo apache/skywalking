@@ -21,7 +21,7 @@
     <parent>
         <artifactId>server-telemetry</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>10.1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

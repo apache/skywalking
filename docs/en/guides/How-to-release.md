@@ -43,25 +43,56 @@ This step is only for testing purpose. If your env is correctly set, you don't n
 ```
 
 ## Prepare for the release
-```
-./mvnw release:clean
-./mvnw release:prepare -DautoVersionSubmodules=true -Darguments='-Dmaven.test.skip' -Pall
+
+- Make sure you local repo is clean, up-to-date, and no uncommitted changes.
+
+```bash
+git checkout master
+git pull
+git checkout .
+git clean -df
+git submodule update
 ```
 
-- Set version number as x.y.z, and tag as **v**x.y.z (The version tag must start with **v**. You will find out why this is necessary in the next step.)
+- Set the version number that you are about to release.
 
-_You could do a GPG signature before preparing for the release. If you need to input the password to sign, and the maven doesn't provide you with the opportunity to do so, this may lead to failure of the release. To resolve this, you may run `gpg --sign xxx` in any file. This will allow it to remember the password for long enough to prepare for the release._ 
+```bash
+export RELEASE_VERSION=x.y.z # (example: RELEASE_VERSION=10.1.0)
+```
+
+- Update the property `revision` in `pom.xml` file, and commit it.
+
+```bash
+./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${RELEASE_VERSION}
+git add pom.xml
+git commit -m "Prepare for release ${RELEASE_VERSION}"
+```
+
+- Tag the commit and push it to the upstream.
+
+```bash
+git tag v${RELEASE_VERSION}
+git push origin v${RELEASE_VERSION}
+```
 
 ## Stage the release 
+
+```bash
+./mvnw install deploy -DskipTests
 ```
-./mvnw release:perform -Darguments='-Dmaven.test.skip' -Pall
+
+This command will build, sign, and deploy the release to the Apache staging repository.
+You should be prompted for your GPG passphrase during the deployment process.
+If no prompt is present, you can set the passphrase in the environment variable `MAVEN_GPG_PASSPHRASE`:
+
+```bash
+MAVEN_GPG_PASSPHRASE=<your-gpg-passphrase> ./mvnw install deploy -DskipTests
 ```
 
 - The release will be automatically inserted into a temporary staging repository.
 
 ## Build and sign the source code package
-```shell
-export RELEASE_VERSION=x.y.z (example: RELEASE_VERSION=5.0.0-alpha)
+```bash
 cd tools/releasing
 bash create_source_release.sh
 ```
@@ -74,6 +105,19 @@ This script takes care of the following things:
 
 
 `apache-skywalking-apm-x.y.z-src.tgz` and files ending with `.asc` and `.sha512` may be found in the `tools/releasing` folder.
+
+## Start the next iteration
+
+Once the release is deployed to the staging repositories, you can start updating the version to the next number and open a pull request.
+
+```bash
+git checkout next
+./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=<next-version-number>-SNAPSHOT
+git add pom.xml
+git commit -m 'Start next iteration'
+git push
+gh pr create --fill # If you have gh cli installed and configured, or open the pull request in https://github.com/apache/skywalking/pulls
+```
 
 ## Locate and download the distribution package in Apache Nexus Staging repositories
 1. Use your Apache ID to log in to `https://repository.apache.org/`.

@@ -22,8 +22,9 @@ import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
-import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
+import org.apache.skywalking.banyandb.v1.client.metadata.MetadataCache;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -31,6 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
@@ -58,20 +60,20 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             final boolean resourceExist = metadata.checkResourceExistence(c);
             if (!resourceExist) {
                 return false;
-            }
-
-            // then check entity schema
-            if (metadata.findRemoteSchema(c).isPresent()) {
-                // register models only locally but not remotely
+            } else {
+                // register models only locally(Schema cache) but not remotely
                 if (model.isRecord()) { // stream
                     MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
                 } else { // measure
                     MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
                 }
+                // pre-load remote schema for java client
+                MetadataCache.EntityMetadata remoteMeta = metadata.updateRemoteSchema(c);
+                if (remoteMeta == null) {
+                    throw new IllegalStateException("inconsistent state: metadata:" + metadata + ", remoteMeta: null");
+                }
                 return true;
             }
-
-            throw new IllegalStateException("inconsistent state:" + metadata);
         } catch (BanyanDBException ex) {
             throw new StorageException("fail to check existence", ex);
         }
@@ -84,11 +86,17 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                                        .provider()
                                                        .getService(ConfigService.class);
             if (model.isRecord()) { // stream
-                Stream stream = MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
+                StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
+                Stream stream = streamModel.getStream();
                 if (stream != null) {
                     log.info("install stream schema {}", model.getName());
+                    final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;
                     try {
-                        ((BanyanDBStorageClient) client).define(stream);
+                        if (CollectionUtils.isNotEmpty(streamModel.getIndexRules())) {
+                            client.define(stream, streamModel.getIndexRules());
+                        } else {
+                            client.define(stream);
+                        }
                     } catch (BanyanDBException ex) {
                         if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
                             log.info(
@@ -102,12 +110,17 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     }
                 }
             } else { // measure
-                Measure measure = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
+                MeasureModel measureModel = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
+                Measure measure = measureModel.getMeasure();
                 if (measure != null) {
-                    log.info("install measure schema {}", measure.name());
-                    final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
+                    log.info("install measure schema {}", model.getName());
+                    final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;
                     try {
-                        c.define(measure);
+                        if (CollectionUtils.isNotEmpty(measureModel.getIndexRules())) {
+                            client.define(measure, measureModel.getIndexRules());
+                        } else {
+                            client.define(measure);
+                        }
                     } catch (BanyanDBException ex) {
                         if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
                             log.info("Measure schema {}_{} already created by another OAP node",
@@ -119,7 +132,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     }
                     final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
                     try {
-                        schema.installTopNAggregation(c);
+                        schema.installTopNAggregation(client);
                     } catch (BanyanDBException ex) {
                         if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
                             log.info("Measure schema {}_{} TopN({}) already created by another OAP node",

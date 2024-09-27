@@ -42,6 +42,7 @@ header:
     - '**/*.ini'
     - '**/*.crt'
     - '**/*.pem'
+    - '**/*.key'
     - '**/*.txt'
     - 'LICENSE'
     - 'NOTICE'

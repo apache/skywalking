@@ -77,7 +77,7 @@ public class AlarmRuleTest {
 
         //not exist metric
         Assertions.assertEquals(
-            "Expression: sum(service_percent111 < 85) >= 3 error: Metric: [service_percent111] dose not exist.",
+            "Expression: sum(service_percent111 < 85) >= 3 error: Metric: [service_percent111] does not exist.",
             Assertions.assertThrows(IllegalExpressionException.class, () -> {
                 rule.setExpression("sum(service_percent111 < 85) >= 3");
             }).getMessage()
@@ -101,7 +101,7 @@ public class AlarmRuleTest {
 
         //not a common or labeled metric
         Assertions.assertEquals(
-            "Expression: sum(record < 85) > 1 error: Metric dose not supported in alarm, metric: [record] is not a common or labeled metric.",
+            "Expression: sum(record < 85) > 1 error: Metric does not supported in alarm, metric: [record] is not a common or labeled metric.",
             Assertions.assertThrows(IllegalExpressionException.class, () -> {
                 rule.setExpression("sum(record < 85) > 1");
             }).getMessage()

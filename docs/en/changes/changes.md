@@ -1,6 +1,10 @@
 ## 10.1.0
 
+#### A Version of PERFORMANCE
 * **Huge UI Performance Improvement. Metrics widgets queries are bundled by leveraging the GraphQL capabilities.**
+* **Parallel Queries Support in GraphQL engine. Improve query performance.**
+* **Significantly improve the performance of OTEL metrics handler. Reduce CPU and GC costs in OTEL metrics processes.**
+* **With adopting BanyanDB 0.7, native database performance and stability are improved.**
 
 #### Project
 
@@ -9,6 +13,7 @@
 * Bump up skywalking-infra-e2e to work around GHA removing `docker-compose` v1.
 * Bump up CodeQL GitHub Actions.
 * Fix wrong phase of delombok plugin to reduce build warnings.
+* Use ci-friendly revision to set the project version.
 
 #### OAP Server
 
@@ -63,7 +68,19 @@
 * Support service level metrics aggregate when missing pod context in eBPF Access Log Receiver.
 * Fix query `getGlobalTopology` throw exception when didn't find any services by the given Layer.
 * Fix the previous analysis result missing in the ALS `k8s-mesh` analyzer.
-* Fix `findEndpoint` query require `keyword` when using BanyanDB.
+* Fix `findEndpoint` query requires `keyword` when using BanyanDB.
+* Support to analysis the ztunnel mapped IP address in eBPF Access Log Receiver.
+* Adapt BanyanDB Java Client 0.7.0.
+* Add SkyWalking Java Agent self observability dashboard.
+* Add Component ID(5022) for the GoFrame framework.
+* Bump up protobuf java dependencies to 3.25.5.
+* BanyanDB: support using native term searching for `keyword` in query `findEndpoint` and `getAlarm`.
+* BanyanDB: support TLS connection and configuration.
+* PromQL service: query API support RFC3399 time format.
+* Improve the performance of OTEL metrics handler.
+* PromQL service: fix operators result missing `rangeExpression` flag.
+* BanyanDB: use `TimestampRange` to improve "events" query for BanyanDB. 
+* Optimize `network_address_alias` table to reduce the number of the index.
 
 #### UI
 

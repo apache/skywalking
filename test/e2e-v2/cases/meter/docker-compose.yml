@@ -18,7 +18,7 @@ version: '2.1'
 services:
   oap:
     environment:
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-micrometer,batch-meter
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-micrometer,batch-meter,java-agent
       #virtual cache test case
       SW_SLOW_CACHE_SLOW_WRITE_THRESHOLD: default:-1
       SW_SLOW_CACHE_SLOW_READ_THRESHOLD: default:-1
@@ -37,6 +37,7 @@ services:
       service: provider
     environment:
       SW_METER_REPORT_INTERVAL: 5
+      SW_METER_ACTIVE: 'true'
     # Activate guava-cache plugin for virtual cache test case
     command: ["bash" , "-c" , "cp /skywalking/agent/optional-plugins/apm-guava-cache-plugin*.jar /skywalking/agent/plugins/ && java -jar /services_provider.jar"]
     depends_on:

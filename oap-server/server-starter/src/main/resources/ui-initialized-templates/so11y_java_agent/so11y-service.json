@@ -1,0 +1,62 @@
+[
+  {
+    "id": "Self-Observability-Java-Agent-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 2,
+          "w": 24,
+          "h": 38,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "InstanceList",
+            "dashboardName": "Self-Observability-Java-Agent-Instance",
+            "fontSize": 12
+          },
+          "metricConfig": [
+            {
+              "label": "Context Creation",
+              "detailLabel": "context_creation",
+              "unit": "Per Minute"
+            },
+            {
+              "label": "Context Completion",
+              "unit": "Per Minute",
+              "detailLabel": "context_completion"
+            }
+          ],
+          "expressions": [
+            "avg(aggregate_labels(meter_java_agent_created_tracing_context_count,sum)+aggregate_labels(meter_java_agent_created_ignored_context_count,sum))",
+            "avg(meter_java_agent_finished_tracing_context_count+meter_java_agent_finished_ignored_context_count)"
+          ],
+          "subExpressions": [
+            "aggregate_labels(meter_java_agent_created_tracing_context_count,sum)+aggregate_labels(meter_java_agent_created_ignored_context_count,sum)",
+            "meter_java_agent_finished_tracing_context_count+meter_java_agent_finished_ignored_context_count"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "100",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "The self observability of SkyWalking Java Agent, which provides the abilities to measure the tracing performance and error statistics of plugins.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/dashboards-so11y-java-agent/"
+          }
+        }
+      ],
+      "layer": "SO11Y_JAVA_AGENT",
+      "entity": "Service",
+      "name": "Self-Observability-Java-Agent-Service",
+      "isRoot": true
+    }
+  }
+]

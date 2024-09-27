@@ -1,0 +1,32 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+expSuffix: instance(['service'], ['instance'], Layer.SO11Y_JAVA_AGENT)
+metricPrefix: meter_java_agent
+metricsRules:
+  - name: created_tracing_context_count
+    exp: created_tracing_context_counter.sum(['created_by', 'service', 'instance']).increase('PT1M')
+  - name: finished_tracing_context_count
+    exp: finished_tracing_context_counter.sum(['service', 'instance']).increase('PT1M')
+  - name: created_ignored_context_count
+    exp: created_ignored_context_counter.sum(['created_by', 'service', 'instance']).increase('PT1M')
+  - name: finished_ignored_context_count
+    exp: finished_ignored_context_counter.sum(['service', 'instance']).increase('PT1M')
+  - name: possible_leaked_context_count
+    exp: possible_leaked_context_counter.sum(['source', 'service', 'instance']).increase('PT1M')
+  - name: interceptor_error_count
+    exp: interceptor_error_counter.sum(['plugin_name', 'inter_type', 'service', 'instance']).increase('PT1M')
+  - name: tracing_context_execution_time_percentile
+    exp: tracing_context_performance.sum(['le', 'service', 'instance']).histogram().histogram_percentile([50,70,90,99])
