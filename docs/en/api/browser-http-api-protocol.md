@@ -40,7 +40,7 @@ Http Status: 204
 
 ### POST http://localhost:12800/browser/perfData/webVitals
 
-Send a performance data object in JSON format.
+Send a performance data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
 
 Input:
 
@@ -61,7 +61,7 @@ Http Status: 204
 
 ### POST http://localhost:12800/browser/perfData/webInteraction
 
-Send a performance data object in JSON format.
+Send a performance data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
 
 Input:
 
