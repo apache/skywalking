@@ -69,7 +69,7 @@
 * Fix query `getGlobalTopology` throw exception when didn't find any services by the given Layer.
 * Fix the previous analysis result missing in the ALS `k8s-mesh` analyzer.
 * Fix `findEndpoint` query requires `keyword` when using BanyanDB.
-* Support to analysis the ztunnel mapped IP address in eBPF Access Log Receiver.
+* Support to analysis the ztunnel mapped IP address and mTLS mode in eBPF Access Log Receiver.
 * Adapt BanyanDB Java Client 0.7.0.
 * Add SkyWalking Java Agent self observability dashboard.
 * Add Component ID(5022) for the GoFrame framework.
