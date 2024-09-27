@@ -59,10 +59,12 @@ public class NetworkAddressAlias extends Metrics {
     @Setter
     @Getter
     @Column(name = REPRESENT_SERVICE_ID)
+    @BanyanDB.SeriesID(index = 1)
     private String representServiceId;
     @Setter
     @Getter
     @Column(name = REPRESENT_SERVICE_INSTANCE_ID)
+    @BanyanDB.SeriesID(index = 2)
     private String representServiceInstanceId;
     @Setter
     @Getter

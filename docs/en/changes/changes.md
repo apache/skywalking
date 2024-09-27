@@ -79,6 +79,7 @@
 * PromQL service: query API support RFC3399 time format.
 * Improve the performance of OTEL metrics handler.
 * PromQL service: fix operators result missing `rangeExpression` flag.
+* Optimize `network_address_alias` table to reduce the number of the index.
 
 #### UI
 
