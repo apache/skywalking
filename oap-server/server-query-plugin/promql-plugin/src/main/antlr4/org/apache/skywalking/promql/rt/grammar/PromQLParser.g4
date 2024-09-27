@@ -24,6 +24,7 @@ root: expression EOF;
 
 expression
     : expressionNode                   # exprNode
+    | L_PAREN expression R_PAREN       # parensOp
     | expression mulDivMod expression  # mulDivModOp
     | expression addSub expression     # addSubOp
     | expression compare expression    # compareOp
