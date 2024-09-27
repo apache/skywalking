@@ -31,9 +31,20 @@ Input:
   "sslTime": 10,
   "ttlTime": 10,
   "firstPackTime": 10,
-  "isPV": true,
 }
-// or
+```
+
+OutPut:
+
+Http Status: 204
+
+### POST http://localhost:12800/browser/perfData/webVitals
+
+Send a performance data object in JSON format.
+
+Input:
+
+```json
 {
   "service": "web",
   "serviceVersion": "v0.0.1",
@@ -42,7 +53,19 @@ Input:
   "clsTime": 10,
   "lcpTime": 10,
 }
-// or
+```
+
+OutPut:
+
+Http Status: 204
+
+### POST http://localhost:12800/browser/perfData/webInteraction
+
+Send a performance data object in JSON format.
+
+Input:
+
+```json
 {
   "service": "web",
   "serviceVersion": "v0.0.1",
