@@ -81,6 +81,7 @@
 * PromQL service: fix operators result missing `rangeExpression` flag.
 * BanyanDB: use `TimestampRange` to improve "events" query for BanyanDB. 
 * Optimize `network_address_alias` table to reduce the number of the index.
+* PromQL service: support round brackets operator.
 
 #### UI
 

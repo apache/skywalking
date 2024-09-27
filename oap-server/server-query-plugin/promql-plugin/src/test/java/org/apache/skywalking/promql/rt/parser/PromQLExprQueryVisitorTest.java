@@ -82,6 +82,13 @@ public class PromQLExprQueryVisitorTest {
                 "100"
             },
             {
+                "ScalarBinaryOpParens",
+                PromQLApiHandler.QueryType.RANGE,
+                "(200 + 2) / 2 - 2 * (6 + 2) * 6",
+                ParseResultType.SCALAR,
+                "5"
+            },
+            {
                 "ScalarCompareOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "2 > bool 1",
@@ -111,6 +118,14 @@ public class PromQLExprQueryVisitorTest {
                 ParseResultType.METRICS_RANGE,
                 List.of(new TimeValuePair(TIME_2023022010, "0"), new TimeValuePair(TIME_2023022011, "2"),
                         new TimeValuePair(TIME_2023022012, "4"))
+            },
+            {
+                "MetricsBinaryOpParens",
+                PromQLApiHandler.QueryType.RANGE,
+                "2 * (service_cpm{service='serviceA', layer='GENERAL'} + service_cpm{service='serviceA', layer='GENERAL'})",
+                ParseResultType.METRICS_RANGE,
+                List.of(new TimeValuePair(TIME_2023022010, "0"), new TimeValuePair(TIME_2023022011, "4"),
+                        new TimeValuePair(TIME_2023022012, "8"))
             },
             {
                 "MetricsScalarCompareOp",
