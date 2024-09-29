@@ -170,6 +170,10 @@ Trace query fetches trace segment lists and spans of given trace IDs.
 extend type Query {
     getAlarmTrend(duration: Duration!): AlarmTrend!
     getAlarm(duration: Duration!, scope: Scope, keyword: String, paging: Pagination!, tags: [AlarmTag]): Alarms
+    # Read the list of searchable keys
+    queryAlarmTagAutocompleteKeys(duration: Duration!):[String!]
+    # Search the available value options of the given key.
+    queryAlarmTagAutocompleteValues(tagKey: String! , duration: Duration!):[String!]
 }
 ```
 
