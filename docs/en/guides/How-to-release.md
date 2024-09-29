@@ -44,20 +44,21 @@ This step is only for testing purpose. If your env is correctly set, you don't n
 
 ## Prepare for the release
 
-- Make sure you local repo is clean, up-to-date, and no uncommitted changes.
-
-```bash
-git checkout master
-git pull
-git checkout .
-git clean -df
-git submodule update
-```
-
 - Set the version number that you are about to release.
 
 ```bash
 export RELEASE_VERSION=x.y.z # (example: RELEASE_VERSION=10.1.0)
+export NEXT_RELEASE_VERSION=x.y.z # (example: NEXT_RELEASE_VERSION=10.2.0)
+```
+
+- Create a new folder for the new release.
+
+```bash
+git clone https://github.com/apache/skywalking.git
+cd skywalking
+git checkout -b ${RELEASE_VERSION}-release # Create a branch for new release, such as 10.1.0-release
+git submodule init
+git submodule update
 ```
 
 - Update the property `revision` in `pom.xml` file, and commit it.
@@ -111,10 +112,18 @@ This script takes care of the following things:
 Once the release is deployed to the staging repositories, you can start updating the version to the next number and open a pull request.
 
 ```bash
-git checkout next
-./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=<next-version-number>-SNAPSHOT
+# Update the version to the next snapshot version still in the same branch, such as 10.1.0-release
+./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${NEXT_RELEASE_VERSION}-SNAPSHOT
 git add pom.xml
-git commit -m 'Start next iteration'
+git commit -m "Start next iteration ${NEXT_RELEASE_VERSION}"
+```
+
+Update the change log files for the next iteration.
+* Rename [latest changes](../changes/changes.md) to `changes-{RELEASE_VERSION}.md`.
+* Reset the [latest changes](../changes/changes.md) to the new version.
+* Update Changelog in the `menu.yml` to link to `changes-{RELEASE_VERSION}.md`.
+
+```bash
 git push
 gh pr create --fill # If you have gh cli installed and configured, or open the pull request in https://github.com/apache/skywalking/pulls
 ```
