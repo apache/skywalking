@@ -92,6 +92,9 @@ MAVEN_GPG_PASSPHRASE=<your-gpg-passphrase> ./mvnw flatten:flatten install deploy
 
 - The release will be automatically inserted into a temporary staging repository.
 
+`apache-skywalking-apm-x.y.z.tar.gz` with its `.asc` size could be found in https://repository.apache.org/ staging repo.
+Create shasum through `shasum -a 512 apache-skywalking-apm-x.y.z.tar.gz > apache-skywalking-apm-x.y.z.tar.gz.sha512` 
+
 ## Build and sign the source code package
 ```bash
 cd tools/releasing
@@ -103,7 +106,6 @@ This script takes care of the following things:
 1. Complete `git submodule init/update`.
 1. Exclude all unnecessary files in the target source tar, such as `.git`, `.github`, and `.gitmodules`. See the script for more details.
 1. Execute `gpg` and `shasum 512`. 
-
 
 `apache-skywalking-apm-x.y.z-src.tgz` and files ending with `.asc` and `.sha512` may be found in the `tools/releasing` folder.
 
