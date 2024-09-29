@@ -103,6 +103,7 @@
 * Add `Service`, `ServiceInstance`, `Endpoint` dashboard forwarder to Kubernetes Topologies. 
 * Fix pagination for service/instance list widgets.
 * Add queries for alarm tags.
+* Add skywalking java agent self observability menu.
 
 #### Documentation
 
