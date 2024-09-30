@@ -27,6 +27,8 @@ public class CommandDeserializer {
             return ProfileTaskCommand.DESERIALIZER.deserialize(command);
         } else if (ConfigurationDiscoveryCommand.NAME.equals(commandName)) {
             return ConfigurationDiscoveryCommand.DESERIALIZER.deserialize(command);
+        } else if (AsyncProfilerTaskCommand.NAME.equals(commandName)) {
+            return AsyncProfilerTaskCommand.DESERIALIZER.deserialize(command);
         }
         throw new UnsupportedCommandException(command);
     }

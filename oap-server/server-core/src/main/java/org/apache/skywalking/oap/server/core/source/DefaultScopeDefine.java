@@ -143,6 +143,10 @@ public class DefaultScopeDefine {
     public static final int CILIUM_ENDPOINT = 82;
     public static final int CILIUM_ENDPOINT_REALATION = 83;
 
+    public static final int JFR_PROFILING_DATA = 84;
+    public static final int ASYNC_PROFILER_TASK = 85;
+    public static final int ASYNC_PROFILER_TASK_LOG = 86;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */

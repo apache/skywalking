@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.cache.AsyncProfilerTaskCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
@@ -33,6 +34,8 @@ import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
 import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerMutationService;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerQueryService;
 import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingMutationService;
 import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingMutationService;
@@ -100,6 +103,7 @@ public class CoreModule extends ModuleDefine {
         addOALService(classes);
         addManagementService(classes);
         addEBPFProfilingService(classes);
+        addAsyncProfilerService(classes);
 
         classes.add(CommandService.class);
         classes.add(HierarchyService.class);
@@ -122,6 +126,12 @@ public class CoreModule extends ModuleDefine {
         classes.add(ProfileTaskMutationService.class);
         classes.add(ProfileTaskQueryService.class);
         classes.add(ProfileTaskCache.class);
+    }
+
+    private void addAsyncProfilerService(List<Class> classes) {
+        classes.add(AsyncProfilerMutationService.class);
+        classes.add(AsyncProfilerQueryService.class);
+        classes.add(AsyncProfilerTaskCache.class);
     }
 
     private void addOALService(List<Class> classes) {

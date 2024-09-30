@@ -30,9 +30,12 @@ import org.apache.skywalking.oap.server.core.profiling.continuous.storage.Contin
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerEventType;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.network.trace.component.command.AsyncProfilerTaskCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingReportCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicyCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProfilingTaskCommand;
@@ -56,8 +59,17 @@ public class CommandService implements Service {
     public ProfileTaskCommand newProfileTaskCommand(ProfileTask task) {
         final String serialNumber = UUID.randomUUID().toString();
         return new ProfileTaskCommand(
-            serialNumber, task.getId(), task.getEndpointName(), task.getDuration(), task.getMinDurationThreshold(), task
-            .getDumpPeriod(), task.getMaxSamplingCount(), task.getStartTime(), task.getCreateTime());
+                serialNumber, task.getId(), task.getEndpointName(), task.getDuration(), task.getMinDurationThreshold(), task
+                .getDumpPeriod(), task.getMaxSamplingCount(), task.getStartTime(), task.getCreateTime());
+    }
+
+    public AsyncProfilerTaskCommand newAsyncProfileTaskCommand(AsyncProfilerTask task) {
+        final String serialNumber = UUID.randomUUID().toString();
+        List<String> eventNames = task.getEvents().stream()
+                .map(AsyncProfilerEventType::getName)
+                .collect(Collectors.toList());
+        return new AsyncProfilerTaskCommand(serialNumber, task.getId(), task.getDuration(),
+                eventNames, task.getExecArgs(), task.getCreateTime());
     }
 
     /**
@@ -70,14 +82,14 @@ public class CommandService implements Service {
             fixedTrigger = new EBPFProfilingTaskCommand.FixedTrigger(task.getFixedTriggerDuration());
         }
         return new EBPFProfilingTaskCommand(serialNumber, task.getLogicalId(), processId, task.getStartTime(),
-            task.getLastUpdateTime(), EBPFProfilingTriggerType.valueOf(task.getTriggerType()).name(), fixedTrigger,
-            EBPFProfilingTargetType.valueOf(task.getTargetType()).name(),
-            convertExtension(task));
+                task.getLastUpdateTime(), EBPFProfilingTriggerType.valueOf(task.getTriggerType()).name(), fixedTrigger,
+                EBPFProfilingTargetType.valueOf(task.getTargetType()).name(),
+                convertExtension(task));
     }
 
     public ContinuousProfilingPolicyCommand newContinuousProfilingServicePolicyCommand(List<ContinuousProfilingPolicy> policy) {
         return new ContinuousProfilingPolicyCommand(UUID.randomUUID().toString(),
-            policy.stream().map(this::convertContinuesProfilingPolicy).collect(Collectors.toList()));
+                policy.stream().map(this::convertContinuesProfilingPolicy).collect(Collectors.toList()));
     }
 
     public ContinuousProfilingReportCommand newContinuousProfilingReportCommand(String taskId) {
@@ -91,17 +103,17 @@ public class CommandService implements Service {
         if (StringUtil.isNotEmpty(policy.getConfigurationJson())) {
             final ContinuousProfilingPolicyConfiguration configuration = ContinuousProfilingPolicyConfiguration.parseFromJSON(policy.getConfigurationJson());
             result.setProfiling(configuration.getTargetCheckers().entrySet().stream().collect(Collectors.toMap(
-                c -> c.getKey().name(),
-                c -> c.getValue().entrySet().stream().collect(Collectors.toMap(i -> i.getKey().name(), i -> {
-                        final org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicy.Item item = new org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicy.Item();
-                        item.setThreshold(i.getValue().getThreshold());
-                        item.setPeriod(i.getValue().getPeriod());
-                        item.setCount(i.getValue().getCount());
-                        item.setUriList(i.getValue().getUriList());
-                        item.setUriRegex(i.getValue().getUriRegex());
-                        return item;
-                    }
-                )))));
+                    c -> c.getKey().name(),
+                    c -> c.getValue().entrySet().stream().collect(Collectors.toMap(i -> i.getKey().name(), i -> {
+                                final org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicy.Item item = new org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicy.Item();
+                                item.setThreshold(i.getValue().getThreshold());
+                                item.setPeriod(i.getValue().getPeriod());
+                                item.setCount(i.getValue().getCount());
+                                item.setUriList(i.getValue().getUriList());
+                                item.setUriRegex(i.getValue().getUriRegex());
+                                return item;
+                            }
+                    )))));
         }
         return result;
     }
