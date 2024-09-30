@@ -327,6 +327,10 @@ receiver-profile:
   selector: ${SW_RECEIVER_PROFILE:default}
   default:
 
+receiver-async-profiler:
+  selector: ${SW_RECEIVER_PROFILE:default}
+  default:
+
 receiver-zabbix:
   selector: ${SW_RECEIVER_ZABBIX:-}
   default:

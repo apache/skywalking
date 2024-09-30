@@ -24,6 +24,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
+import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
@@ -60,6 +64,10 @@ public enum CacheUpdateTimer {
         // Profile could be disabled by the OAL script. Only load the task when it is activated.
         if (!DisableRegister.INSTANCE.include(ProfileTaskRecord.INDEX_NAME)) {
             updateProfileTask(moduleDefineHolder);
+        }
+
+        if (!DisableRegister.INSTANCE.include(AsyncProfilerTaskRecord.INDEX_NAME)) {
+            updateAsyncProfilerTask(moduleDefineHolder);
         }
     }
 
@@ -112,5 +120,32 @@ public enum CacheUpdateTimer {
         } catch (IOException e) {
             log.warn("Unable to update profile task cache", e);
         }
+    }
+
+    private void updateAsyncProfilerTask(ModuleDefineHolder moduleDefineHolder) {
+        AsyncProfilerTaskCache taskCache = moduleDefineHolder.find(CoreModule.NAME)
+                .provider()
+                .getService(AsyncProfilerTaskCache.class);
+        IAsyncProfilerTaskQueryDAO taskQueryDAO = moduleDefineHolder.find(StorageModule.NAME)
+                .provider()
+                .getService(IAsyncProfilerTaskQueryDAO.class);
+        try {
+            List<AsyncProfilerTask> taskList = taskQueryDAO.getTaskList(
+                    null, taskCache.getCacheStartTimeBucket(), taskCache.getCacheEndTimeBucket(), null
+            );
+            if (CollectionUtils.isEmpty(taskList)) {
+                return;
+            }
+//            List<String> taskIds = taskList.stream().map(AsyncProfilerTask::getId).collect(Collectors.toList());
+//            Map<String, List<AsyncProfilerTaskLogRecord>> taskId2Log = taskCache.getTaskLogQueryDAO().getTaskLogByTaskId(taskIds);
+            for (AsyncProfilerTask task : taskList) {
+                taskCache.saveTask(task.getServiceId(), task);
+            }
+
+        } catch (IOException e) {
+            log.warn("Unable to update async profiler task cache", e);
+        }
+
+        return;
     }
 }

@@ -35,5 +35,6 @@
         <module>library-elasticsearch-client</module>
         <module>library-datacarrier-queue</module>
         <module>library-kubernetes-support</module>
+        <module>library-async-profiler-jfr-parser</module>
     </modules>
 </project>
