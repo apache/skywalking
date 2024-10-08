@@ -2,6 +2,8 @@
 
 #### OAP Server
 
+Fix OTLP metrics incorrectly processed when the datapoint flag is `FLAG_NO_RECORDED_VALUE`.
+
 
 #### UI
 
