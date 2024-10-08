@@ -23,8 +23,11 @@ import com.google.gson.Gson;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +45,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlarmStandardPersistence.class);
     private final Gson gson = new Gson();
     private final ModuleManager manager;
+    private SourceReceiver receiver;
 
     public AlarmStandardPersistence(ModuleManager manager) {
         this.manager = manager;
@@ -64,10 +68,18 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
             record.setRuleName(message.getRuleName());
             Collection<Tag> tags = appendSearchableTags(message.getTags());
+            addAutocompleteTags(tags, TimeBucket.getMinuteTimeBucket(message.getStartTime()));
             record.setTagsRawData(gson.toJson(message.getTags()).getBytes(Charsets.UTF_8));
             record.setTagsInString(Tag.Util.toStringList(new ArrayList<>(tags)));
             RecordStreamProcessor.getInstance().in(record);
         });
+    }
+
+    private SourceReceiver getReceiver() {
+        if (receiver == null) {
+            receiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        }
+        return receiver;
     }
 
     private Collection<Tag> appendSearchableTags(List<Tag> tags) {
@@ -89,5 +101,16 @@ public class AlarmStandardPersistence implements AlarmCallback {
             }
         });
         return alarmTags;
+    }
+
+    private void addAutocompleteTags(Collection<Tag> alarmTags, long minuteTimeBucket) {
+        alarmTags.forEach(tag -> {
+            TagAutocomplete tagAutocomplete = new TagAutocomplete();
+            tagAutocomplete.setTagKey(tag.getKey());
+            tagAutocomplete.setTagValue(tag.getValue());
+            tagAutocomplete.setTagType(TagType.ALARM);
+            tagAutocomplete.setTimeBucket(minuteTimeBucket);
+            getReceiver().receive(tagAutocomplete);
+        });
     }
 }
