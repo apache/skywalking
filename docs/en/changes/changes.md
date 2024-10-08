@@ -2,7 +2,8 @@
 
 #### OAP Server
 
-Fix OTLP metrics incorrectly processed when the datapoint flag is `FLAG_NO_RECORDED_VALUE`.
+* Skip processing OTLP metrics data points with flag `FLAG_NO_RECORDED_VALUE`, which causes exceptional result.
+* Add self observability metrics for GraphQL query, `graphql_query_latency`.
 
 
 #### UI
