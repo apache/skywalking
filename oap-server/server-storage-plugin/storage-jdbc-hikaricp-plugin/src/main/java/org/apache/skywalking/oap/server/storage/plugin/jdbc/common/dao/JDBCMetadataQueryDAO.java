@@ -248,16 +248,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
-        List<String> tables;
-        if (lastPingStartTimeBucket > 0 && lastPingEndTimeBucket > 0) {
-            tables = tableHelper.getTablesForRead(
-                ProcessTraffic.INDEX_NAME,
-                lastPingStartTimeBucket,
-                lastPingEndTimeBucket
-            );
-        } else {
-            tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
-        }
+        List<String> tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         final var results = new ArrayList<Process>();
 
         for (String table : tables) {
@@ -297,11 +288,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) {
-        final var tables = tableHelper.getTablesForRead(
-            ProcessTraffic.INDEX_NAME,
-            duration.getStartTimeBucket(),
-            duration.getEndTimeBucket()
-        );
+        final List<String> tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         final var results = new ArrayList<Process>();
 
         for (String table : tables) {
@@ -337,7 +324,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<Process> listProcesses(String agentId) {
+    public List<Process> listProcesses(String agentId, long startPingTimeBucket, long endPingTimeBucket) {
         final var tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         final var results = new ArrayList<Process>();
 
@@ -364,11 +351,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
-        final var tables = tableHelper.getTablesForRead(
-            ProcessTraffic.INDEX_NAME,
-            lastPingStartTimeBucket,
-            lastPingEndTimeBucket
-        );
+        final var tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         long total = 0;
 
         for (String table : tables) {

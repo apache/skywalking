@@ -78,7 +78,7 @@ public interface IMetadataQueryDAO extends DAO {
     /**
      * @param agentId the agent id of the process.
      */
-    List<Process> listProcesses(final String agentId) throws IOException;
+    List<Process> listProcesses(final String agentId, long startPingTimeBucket, long endPingTimeBucket) throws IOException;
 
     /**
      * @param serviceId the service id of the process
