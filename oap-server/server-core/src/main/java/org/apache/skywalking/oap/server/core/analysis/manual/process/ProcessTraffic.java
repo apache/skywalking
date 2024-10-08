@@ -139,6 +139,12 @@ public class ProcessTraffic extends Metrics {
         if (StringUtil.isNotEmpty(processTraffic.getLabelsJson())) {
             this.labelsJson = processTraffic.getLabelsJson();
         }
+        /**
+         * Keep the time bucket as the same time inserted.
+         */
+        if (this.getTimeBucket() > metrics.getTimeBucket()) {
+            this.setTimeBucket(metrics.getTimeBucket());
+        }
         return true;
     }
 

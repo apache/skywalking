@@ -262,7 +262,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Process> listProcesses(String agentId) throws IOException {
+    public List<Process> listProcesses(String agentId, long startPingTimeBucket, long endPingTimeBucket) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp = query(schema,
                 PROCESS_TRAFFIC_TAGS,
@@ -271,6 +271,12 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.and(eq(ProcessTraffic.AGENT_ID, agentId));
+                        if (startPingTimeBucket > 0) {
+                            query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, startPingTimeBucket));
+                        }
+                        if (endPingTimeBucket > 0) {
+                            query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, endPingTimeBucket));
+                        }
                         query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
                     }
                 });
