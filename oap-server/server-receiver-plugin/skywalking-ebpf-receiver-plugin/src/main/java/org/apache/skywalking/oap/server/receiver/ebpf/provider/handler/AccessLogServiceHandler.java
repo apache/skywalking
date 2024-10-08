@@ -46,6 +46,7 @@ import org.apache.skywalking.apm.network.ebpf.accesslog.v3.EBPFTimestamp;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.IPAddress;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.KubernetesProcessAddress;
 import org.apache.skywalking.apm.network.ebpf.accesslog.v3.ZTunnelAttachmentEnvironment;
+import org.apache.skywalking.apm.network.ebpf.accesslog.v3.ZTunnelAttachmentSecurityPolicy;
 import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.Const;
@@ -530,6 +531,34 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             .build();
     }
 
+    protected int buildConnectionComponentId(ConnectionInfo connectionInfo) {
+        final AccessLogConnection originalConnection = connectionInfo.getOriginalConnection();
+        if (originalConnection.hasAttachment() && originalConnection.getAttachment().hasZTunnel() &&
+            ZTunnelAttachmentSecurityPolicy.MTLS.equals(originalConnection.getAttachment().getZTunnel().getSecurityPolicy())) {
+            return 142; // mTLS
+        }
+        return buildProtocolComponentID(connectionInfo);
+    }
+
+    protected int buildProtocolComponentID(ConnectionInfo connectionInfo) {
+        boolean isTLS = connectionInfo.getTlsMode() == AccessLogConnectionTLSMode.TLS;
+        switch (connectionInfo.getProtocolType()) {
+            case HTTP_1:
+            case HTTP_2:
+                if (isTLS) {
+                    return 129; // https
+                }
+                return 49;  // http
+            case TCP:
+                if (isTLS) {
+                    return 130; // tls
+                }
+                return 110; // tcp
+        }
+        return 0;
+    }
+
+    @Getter
     public class ConnectionInfo {
         private final AccessLogConnection originalConnection;
         private final NamingControl namingControl;
@@ -539,7 +568,6 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         private final AccessLogConnectionTLSMode tlsMode;
         private final AccessLogProtocolType protocolType;
         private final NodeInfo nodeInfo;
-        @Getter
         private final boolean valid;
 
         public ConnectionInfo(NamingControl namingControl, NodeInfo nodeInfo, AccessLogConnection connection) {
@@ -623,7 +651,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             serviceRelation.setSourceLayer(Layer.K8S_SERVICE);
 
             serviceRelation.setDetectPoint(parseToSourceRole());
-            serviceRelation.setComponentId(buildComponentId());
+            serviceRelation.setComponentId(buildConnectionComponentId(this));
             serviceRelation.setTlsMode(tlsMode);
 
             serviceRelation.setDestServiceName(destServiceName);
@@ -680,24 +708,6 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             endpoint.setSuccess(success);
             endpoint.setDuration(duration);
             return endpoint;
-        }
-
-        public int buildComponentId() {
-            boolean isTLS = tlsMode == AccessLogConnectionTLSMode.TLS;
-            switch (protocolType) {
-                case HTTP_1:
-                case HTTP_2:
-                    if (isTLS) {
-                        return 129; // https
-                    }
-                    return 49;  // http
-                case TCP:
-                    if (isTLS) {
-                        return 130; // tls
-                    }
-                    return 110; // tcp
-            }
-            return 0;
         }
 
         public org.apache.skywalking.oap.server.core.source.DetectPoint parseToSourceRole() {

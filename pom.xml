@@ -146,7 +146,7 @@
     </profiles>
 
     <properties>
-        <revision>10.1.0-SNAPSHOT</revision>
+        <revision>10.2.0-SNAPSHOT</revision>
 
         <!-- Built in properties -->
         <maven.compiler.source>11</maven.compiler.source>
@@ -196,6 +196,7 @@
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
         <assertj-core.version>3.20.2</assertj-core.version>
         <cyclonedx-maven-plugin.version>2.8.0</cyclonedx-maven-plugin.version>
+        <flatten-plugin-version>1.6.0</flatten-plugin-version>
 
         <skipUTs>false</skipUTs>
         <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
@@ -446,6 +447,15 @@
                         <retryFailedDeploymentCount>5</retryFailedDeploymentCount>
                     </configuration>
                   </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>${flatten-plugin-version}</version>
+                    <configuration>
+                        <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                        <updatePomFile>true</updatePomFile>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -583,6 +593,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

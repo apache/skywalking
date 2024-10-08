@@ -96,6 +96,11 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
     }
 
     @Override
+    public ParseResult visitParensOp(PromQLParser.ParensOpContext ctx) {
+        return visit(ctx.expression());
+    }
+
+    @Override
     public ParseResult visitAddSubOp(PromQLParser.AddSubOpContext ctx) {
         ParseResult left = visit(ctx.expression(0));
         if (StringUtil.isNotBlank(left.getErrorInfo())) {

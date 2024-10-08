@@ -24,14 +24,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
+import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
@@ -59,6 +62,8 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
     private EventQueryService eventQueryService;
 
+    private TagAutoCompleteQueryService tagQueryService;
+
     public AlarmQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
@@ -75,6 +80,13 @@ public class AlarmQuery implements GraphQLQueryResolver {
             this.eventQueryService = moduleManager.find(CoreModule.NAME).provider().getService(EventQueryService.class);
         }
         return eventQueryService;
+    }
+
+    private TagAutoCompleteQueryService getTagQueryService() {
+        if (tagQueryService == null) {
+            this.tagQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TagAutoCompleteQueryService.class);
+        }
+        return tagQueryService;
     }
 
     public AlarmTrend getAlarmTrend(final Duration duration) {
@@ -106,6 +118,14 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
             return alarms;
         });
+    }
+
+    public CompletableFuture<Set<String>> queryAlarmTagAutocompleteKeys(final Duration queryDuration) {
+        return queryAsync(() -> getTagQueryService().queryTagAutocompleteKeys(TagType.ALARM, queryDuration));
+    }
+
+    public CompletableFuture<Set<String>> queryAlarmTagAutocompleteValues(final String tagKey, final Duration queryDuration) {
+        return queryAsync(() -> getTagQueryService().queryTagAutocompleteValues(TagType.ALARM, tagKey, queryDuration));
     }
 
     private Alarms findRelevantEvents(
