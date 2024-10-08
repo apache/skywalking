@@ -73,6 +73,10 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
     private static final Gson GSON = new Gson();
     public static final List<EBPFProfilingStackType> COMMON_STACK_TYPE_ORDER = Arrays.asList(
             EBPFProfilingStackType.KERNEL_SPACE, EBPFProfilingStackType.USER_SPACE);
+    /**
+     * When querying profiling tasks, processes from the last few minutes would be queried.
+     */
+    public static final int QUERY_TASK_PROCESSES_RANGE_MINUTES = 5;
 
     private IEBPFProfilingTaskDAO taskDAO;
     private IMetadataQueryDAO metadataQueryDAO;
@@ -92,10 +96,11 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
         final long latestUpdateTime = request.getLatestUpdateTime();
         try {
             final Calendar now = Calendar.getInstance();
-            now.add(Calendar.MINUTE, -5);
+            long endTimeBucket = TimeBucket.getTimeBucket(now.getTimeInMillis(), DownSampling.Minute);
+            now.add(Calendar.MINUTE, -QUERY_TASK_PROCESSES_RANGE_MINUTES);
             long startTimeBucket = TimeBucket.getTimeBucket(now.getTimeInMillis(), DownSampling.Minute);
             // find exists process from agent
-            final List<Process> processes = metadataQueryDAO.listProcesses(agentId, startTimeBucket, 0);
+            final List<Process> processes = metadataQueryDAO.listProcesses(agentId, startTimeBucket, endTimeBucket);
             if (CollectionUtils.isEmpty(processes)) {
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();

@@ -271,12 +271,8 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.and(eq(ProcessTraffic.AGENT_ID, agentId));
-                        if (startPingTimeBucket > 0) {
-                            query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, startPingTimeBucket));
-                        }
-                        if (endPingTimeBucket > 0) {
-                            query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, endPingTimeBucket));
-                        }
+                        query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, startPingTimeBucket));
+                        query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, endPingTimeBucket));
                         query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
                     }
                 });
