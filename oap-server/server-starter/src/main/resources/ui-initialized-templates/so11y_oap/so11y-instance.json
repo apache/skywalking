@@ -315,6 +315,33 @@
                     "meter_oap_jvm_class_total_unloaded_count",
                     "meter_oap_jvm_class_total_loaded_count"
                   ]
+                },
+                {
+                  "x": 0,
+                  "y": 39,
+                  "w": 6,
+                  "h": 11,
+                  "i": "16",
+                  "type": "Widget",
+                  "expressions": [
+                    "relabels(meter_oap_graphql_query_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "GraphQL Query Latency (ms)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "ns"
+                    }
+                  ]
                 }
               ]
             },
