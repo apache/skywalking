@@ -102,6 +102,10 @@ metricsRules:
     exp: k8s_als_drop_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_k8s_als_latency_percentile
     exp: k8s_als_in_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_k8s_als_streams
+    exp: k8s_als_in_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_k8s_als_error_streams
+    exp: k8s_als_error_streams.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_metrics_received
     exp: otel_metrics_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_logs_received
@@ -116,3 +120,7 @@ metricsRules:
     exp: otel_spans_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: graphql_query_latency_percentile
     exp: graphql_query_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_graphql_query_count
+    exp: graphql_query_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_graphql_query_error_count
+    exp: graphql_query_error_count.sum(['service', 'host_name']).increase('PT1M')
