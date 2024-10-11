@@ -6,6 +6,7 @@
 * Add self observability metrics for GraphQL query, `graphql_query_latency`.
 * Reduce the count of process index and adding time range when query process index.
 * Bump up Apache commons-io to 2.17.0.
+* Polish eBPF so11y metrics and add error count for query metrics.
 
 
 #### UI

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.query.graphql;
 
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
@@ -51,6 +52,16 @@ public class GraphQLQueryHandler {
                             "The processing latency of graphql query",
                             MetricsTag.EMPTY_KEY,
                             MetricsTag.EMPTY_VALUE);
+    @Getter(lazy = true)
+    private final CounterMetrics errorCount =
+        moduleManager.find(TelemetryModule.NAME)
+                     .provider()
+                     .getService(MetricsCreator.class)
+                     .createCounter(
+                             "graphql_query_error_count",
+                             "The error count of graphql query",
+                             MetricsTag.EMPTY_KEY,
+                             MetricsTag.EMPTY_VALUE);
 
     public GraphQLQueryHandler(
         final ModuleManager moduleManager,
@@ -81,6 +92,9 @@ public class GraphQLQueryHandler {
         final HttpRequest req) throws Exception {
         try (final var ignored = getQueryHistogram().createTimer()) {
             return graphqlService.serve(ctx, req);
+        } catch (Exception e) {
+            getErrorCount().inc();
+            throw e;
         }
     }
 }
