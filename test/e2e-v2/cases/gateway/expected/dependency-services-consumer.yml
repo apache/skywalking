@@ -19,14 +19,20 @@ nodes:
   name: User
   type: USER
   isreal: false
+  layers:
+    - UNDEFINED
 - id: {{ b64enc "e2e-service-consumer" }}.1
   name: e2e-service-consumer
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "gateway:80" }}.0
   name: gateway:80
   type: SpringRestTemplate
   isreal: false
+  layers:
+    - UNDEFINED
 {{- end }}
 calls:
 {{- contains .calls }}

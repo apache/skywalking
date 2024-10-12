@@ -19,14 +19,19 @@ nodes:
   name: User
   type: USER
   isreal: false
+  layers: []
 - id: {{ b64enc "e2e-service-provider" }}.1
   name: e2e-service-provider
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "php" }}.1
   name: php
   type: PHP
   isreal: true
+  layers:
+    - GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}

@@ -22,7 +22,7 @@ SKIP_TEST ?= false
 DIST ?= apache-skywalking-apm-bin.tar.gz
 
 init:
-	cd $(SW_ROOT) && git submodule update --init --recursive
+	#cd $(SW_ROOT) && git submodule update --init --recursive
 
 .PHONY: build.all build.backend build.ui
 
