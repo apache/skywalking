@@ -25,7 +25,8 @@ nodes:
   name: test-ui<browser>
   type: null
   isreal: true
-  layers: []
+  layers:
+    - UNDEFINED
 {{- end }}
 calls:
 {{- contains .calls }}
