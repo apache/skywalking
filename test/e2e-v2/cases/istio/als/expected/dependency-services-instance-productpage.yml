@@ -21,16 +21,12 @@ nodes:
   servicename: e2e::reviews
   type: ""
   isreal: true
-  layers:
-    - MESH
 - id: {{ notEmpty .id }}
   name: {{ notEmpty .name }}
   serviceid: {{ b64enc "e2e::productpage" }}.1
   servicename: e2e::productpage
   type: ""
   isreal: true
-  layers:
-    - MESH
 {{- end }}
 calls:
 {{- contains .calls }}
