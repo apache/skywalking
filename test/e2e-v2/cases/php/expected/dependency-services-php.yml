@@ -19,7 +19,8 @@ nodes:
   name: User
   type: USER
   isreal: false
-  layers: []
+  layers:
+    - UNDEFINED
 - id: {{ b64enc "e2e-service-provider" }}.1
   name: e2e-service-provider
   type: Tomcat

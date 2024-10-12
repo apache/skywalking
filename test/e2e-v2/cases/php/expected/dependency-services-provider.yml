@@ -25,7 +25,8 @@ nodes:
   name: localhost:-1
   type: H2
   isreal: false
-  layers: []
+  layers:
+    - VIRTUAL_DATABASE
 - id: {{ b64enc "php" }}.1
   name: php
   type: PHP
