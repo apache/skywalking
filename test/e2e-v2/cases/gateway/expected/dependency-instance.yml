@@ -21,18 +21,24 @@ nodes:
   servicename: gateway:80
   type: ""
   isreal: false
+  layers:
+    - UNDEFINED
 - id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
   name: provider1
   serviceid: {{ b64enc "e2e-service-provider" }}.1
   servicename: e2e-service-provider
   type: ""
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider2" }}
   name: provider2
   serviceid: {{ b64enc "e2e-service-provider" }}.1
   servicename: e2e-service-provider
   type: ""
   isreal: true
+  layers:
+    - GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}
