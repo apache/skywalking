@@ -205,7 +205,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) {
+    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit, Duration duration) {
         final var results = new ArrayList<Endpoint>();
         final var tables = tableHelper.getTablesWithinTTL(EndpointTraffic.INDEX_NAME);
 
@@ -222,6 +222,14 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             if (!Strings.isNullOrEmpty(keyword)) {
                 sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
                 condition.add(keyword);
+            }
+            if (duration != null) {
+                final var startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+                final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+                sql.append(" and ").append(EndpointTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+                condition.add(startMinuteTimeBucket);
+                sql.append(" and ").append(EndpointTraffic.LAST_PING_TIME_BUCKET).append(" <= ?");
+                condition.add(endMinuteTimeBucket);
             }
             sql.append(" order by ").append(EndpointTraffic.TIME_BUCKET).append(" desc");
             sql.append(" limit ").append(limit);

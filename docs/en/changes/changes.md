@@ -1,7 +1,7 @@
 ## 10.2.0
 
 #### OAP Server
-
+* Support query endpoint list with duration parameter.
 
 #### UI
 
