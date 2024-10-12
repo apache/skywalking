@@ -317,7 +317,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String agentId) {
+    public List<Process> listProcesses(String agentId, long startPingTimeBucket, long endPingTimeBucket) {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
@@ -326,7 +326,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ProcessTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
-        appendProcessWhereQuery(query, null, null, agentId, null, 0, 0, false);
+        appendProcessWhereQuery(query, null, null, agentId, null,
+            startPingTimeBucket, endPingTimeBucket, false);
 
         final var scroller = ElasticSearchScroller
             .<Process>builder()

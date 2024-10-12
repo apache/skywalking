@@ -1,7 +1,14 @@
 ## 10.2.0
 
 #### OAP Server
+
+* Skip processing OTLP metrics data points with flag `FLAG_NO_RECORDED_VALUE`, which causes exceptional result.
+* Add self observability metrics for GraphQL query, `graphql_query_latency`.
+* Reduce the count of process index and adding time range when query process index.
+* Bump up Apache commons-io to 2.17.0.
+* Polish eBPF so11y metrics and add error count for query metrics.
 * Support query endpoint list with duration parameter.
+
 
 #### UI
 

@@ -33,6 +33,8 @@ import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingStackMet
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingTaskMetadata;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingTaskQuery;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingStackType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
@@ -55,6 +57,7 @@ import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProf
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +73,10 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
     private static final Gson GSON = new Gson();
     public static final List<EBPFProfilingStackType> COMMON_STACK_TYPE_ORDER = Arrays.asList(
             EBPFProfilingStackType.KERNEL_SPACE, EBPFProfilingStackType.USER_SPACE);
+    /**
+     * When querying profiling tasks, processes from the last few minutes would be queried.
+     */
+    public static final int QUERY_TASK_PROCESSES_RANGE_MINUTES = 5;
 
     private IEBPFProfilingTaskDAO taskDAO;
     private IMetadataQueryDAO metadataQueryDAO;
@@ -88,8 +95,12 @@ public class EBPFProfilingServiceHandler extends EBPFProfilingServiceGrpc.EBPFPr
         String agentId = request.getRoverInstanceId();
         final long latestUpdateTime = request.getLatestUpdateTime();
         try {
+            final Calendar now = Calendar.getInstance();
+            long endTimeBucket = TimeBucket.getTimeBucket(now.getTimeInMillis(), DownSampling.Minute);
+            now.add(Calendar.MINUTE, -QUERY_TASK_PROCESSES_RANGE_MINUTES);
+            long startTimeBucket = TimeBucket.getTimeBucket(now.getTimeInMillis(), DownSampling.Minute);
             // find exists process from agent
-            final List<Process> processes = metadataQueryDAO.listProcesses(agentId);
+            final List<Process> processes = metadataQueryDAO.listProcesses(agentId, startTimeBucket, endTimeBucket);
             if (CollectionUtils.isEmpty(processes)) {
                 responseObserver.onNext(Commands.newBuilder().build());
                 responseObserver.onCompleted();
