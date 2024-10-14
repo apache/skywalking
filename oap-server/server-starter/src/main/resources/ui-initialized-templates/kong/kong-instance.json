@@ -10,6 +10,32 @@
           "h": 13,
           "i": "0",
           "type": "Widget",
+          "expressions": [
+            "latest(meter_kong_instance_datastore_reachable)"
+          ],
+          "graph": {
+            "type": "Card",
+            "fontSize": 24,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "metricConfig": [
+            {
+              "label": "Datastore reachable"
+            }
+          ],
+          "widget": {
+            "title": "Datastore reachable",
+            "tips": "Datastore reachable from Kong, 0 is unreachable"
+          }
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
           "widget": {
             "title": "Total bandwidth Trend (ingress/egress) (KB/s)"
           },
@@ -32,11 +58,11 @@
           ]
         },
         {
-          "x": 12,
-          "y": 0,
+          "x": 0,
+          "y": 13,
           "w": 12,
           "h": 13,
-          "i": "1",
+          "i": "2",
           "type": "Widget",
           "widget": {
             "title": "HTTP Status Trend (requests per second)"
@@ -58,32 +84,6 @@
           "expressions": [
             "meter_kong_instance_http_status"
           ]
-        },
-        {
-          "x": 0,
-          "y": 13,
-          "w": 12,
-          "h": 13,
-          "i": "2",
-          "type": "Widget",
-          "expressions": [
-            "latest(meter_kong_instance_datastore_reachable)"
-          ],
-          "graph": {
-            "type": "Card",
-            "fontSize": 24,
-            "textAlign": "center",
-            "showUnit": true
-          },
-          "metricConfig": [
-            {
-              "label": "Datastore reachable"
-            }
-          ],
-          "widget": {
-            "title": "Datastore reachable",
-            "tips": "Datastore reachable from Kong, 0 is unreachable"
-          }
         },
         {
           "x": 12,

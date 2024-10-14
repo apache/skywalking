@@ -18,8 +18,59 @@
                   "x": 0,
                   "y": 0,
                   "w": 12,
-                  "h": 13,
+                  "h": 8,
                   "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_kong_service_nginx_metric_errors_total,sum))"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Nginx metric errors"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Nginx metric errors"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 8,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_kong_service_datastore_reachable,sum(service_instance_id)))"
+                  ],
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": true,
+                    "tableHeaderCol1": "Instances",
+                    "tableHeaderCol2": "Reachable"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Datastore reachable"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Datastore reachable",
+                    "tips": "Datastore reachable from Kong, 0 is unreachable"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 8,
+                  "w": 12,
+                  "h": 13,
+                  "i": "2",
                   "type": "Widget",
                   "widget": {
                     "title": "Total bandwidth Trend (ingress/egress) (KB/s)"
@@ -44,10 +95,10 @@
                 },
                 {
                   "x": 12,
-                  "y": 0,
+                  "y": 8,
                   "w": 12,
                   "h": 13,
-                  "i": "1",
+                  "i": "3",
                   "type": "Widget",
                   "widget": {
                     "title": "HTTP Status Trend (requests per second)"
@@ -72,58 +123,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 13,
-                  "w": 12,
-                  "h": 13,
-                  "i": "2",
-                  "type": "Widget",
-                  "expressions": [
-                    "latest(aggregate_labels(meter_kong_service_nginx_metric_errors_total,sum))"
-                  ],
-                  "graph": {
-                    "type": "Card",
-                    "fontSize": 24,
-                    "textAlign": "center",
-                    "showUnit": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "Nginx metric errors"
-                    }
-                  ],
-                  "widget": {
-                    "title": "Nginx metric errors"
-                  }
-                },
-                {
-                  "x": 12,
-                  "y": 13,
-                  "w": 12,
-                  "h": 13,
-                  "i": "3",
-                  "type": "Widget",
-                  "expressions": [
-                    "latest(aggregate_labels(meter_kong_service_datastore_reachable,sum))"
-                  ],
-                  "graph": {
-                    "type": "Card",
-                    "fontSize": 24,
-                    "textAlign": "center",
-                    "showUnit": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "Datastore reachable"
-                    }
-                  ],
-                  "widget": {
-                    "title": "Datastore reachable",
-                    "tips": "Datastore reachable from Kong, 0 is unreachable"
-                  }
-                },
-                {
-                  "x": 0,
-                  "y": 26,
+                  "y": 21,
                   "w": 12,
                   "h": 13,
                   "i": "4",
@@ -151,7 +151,7 @@
                 },
                 {
                   "x": 12,
-                  "y": 26,
+                  "y": 21,
                   "w": 12,
                   "h": 13,
                   "i": "5",
@@ -179,7 +179,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 39,
+                  "y": 34,
                   "w": 12,
                   "h": 13,
                   "i": "6",
@@ -206,7 +206,7 @@
                 },
                 {
                   "x": 12,
-                  "y": 39,
+                  "y": 34,
                   "w": 12,
                   "h": 13,
                   "i": "7",
@@ -235,7 +235,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 52,
+                  "y": 47,
                   "w": 12,
                   "h": 13,
                   "i": "8",
@@ -264,7 +264,7 @@
                 },
                 {
                   "x": 12,
-                  "y": 52,
+                  "y": 47,
                   "w": 12,
                   "h": 13,
                   "i": "9",

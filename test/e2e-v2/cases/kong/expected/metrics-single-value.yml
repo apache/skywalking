@@ -13,22 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: TIME_SERIES_VALUES
+type: SINGLE_VALUE
 results:
   {{- contains .results }}
   - metric:
-      labels:
-        {{- contains .metric.labels }}
-        - key: service_instance_id
-          value: {{ .value }}
-        {{- end}}
+      labels: []
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
         value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
         traceid: null
       {{- end}}
   {{- end}}

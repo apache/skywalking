@@ -20,26 +20,26 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected: expected/service.yml
   # service metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_http_bandwidth --service-name=kong::kong-cluster
-    expected: expected/service/metrics-has-value-label-bandwidth.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_http_status --service-name=kong::kong-cluster
-    expected: expected/service/metrics-has-value-label-status.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_nginx_metric_errors_total --service-name=kong::kong-cluster
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_datastore_reachable --service-name=kong::kong-cluster
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_http_requests --service-name=kong::kong-cluster
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_nginx_connections_total --service-name=kong::kong-cluster
-    expected: expected/service/metrics-has-value-label-state.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_nginx_timers --service-name=kong::kong-cluster
-    expected: expected/service/metrics-has-value-label-state.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_kong_latency --service-name=kong::kong-cluster
-    expected: expected/service/metrics-has-value-label-percentile.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_request_latency --service-name=kong::kong-cluster
-    expected: expected/service/metrics-has-value-label-percentile.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_service_upstream_latency --service-name=kong::kong-cluster
-    expected: expected/service/metrics-has-value-label-percentile.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='latest(aggregate_labels(meter_kong_service_nginx_metric_errors_total,sum))' --service-name=kong::kong-cluster
+    expected: expected/metrics-single-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='latest(aggregate_labels(meter_kong_service_datastore_reachable,sum(service_instance_id)))' --service-name=kong::kong-cluster
+    expected: expected/metrics-single-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_kong_service_http_bandwidth,sum(direction))' --service-name=kong::kong-cluster
+    expected: expected/metrics-has-value-label-bandwidth-service.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_kong_service_http_status,sum(code))' --service-name=kong::kong-cluster
+    expected: expected/metrics-has-value-label-status.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_kong_service_http_requests,sum)' --service-name=kong::kong-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_kong_service_nginx_connections_total,sum(state))' --service-name=kong::kong-cluster
+    expected: expected/metrics-has-value-label-state.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_kong_service_nginx_timers,sum(state))' --service-name=kong::kong-cluster
+    expected: expected/metrics-has-value-label-state.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_kong_service_kong_latency,avg(p))' --service-name=kong::kong-cluster
+    expected: expected/metrics-has-value-label-percentile.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_kong_service_request_latency,avg(p))' --service-name=kong::kong-cluster
+    expected: expected/metrics-has-value-label-percentile.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_kong_service_upstream_latency,avg(p))' --service-name=kong::kong-cluster
+    expected: expected/metrics-has-value-label-percentile.yml
 
   # instance metrics
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kong_instance_http_bandwidth --service-name=kong::kong-cluster --instance-name=kong-1:8001
