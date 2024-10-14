@@ -40,8 +40,11 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @Stream(name = EndpointTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.ENDPOINT,
     builder = EndpointTraffic.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = false, supportUpdate = false)
-@EqualsAndHashCode
+@MetricsExtension(supportDownSampling = false, supportUpdate = true)
+@EqualsAndHashCode(of = {
+    "serviceId",
+    "name"
+})
 public class EndpointTraffic extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_traffic";
