@@ -17,7 +17,11 @@
             "type": "Card",
             "fontSize": 24,
             "textAlign": "center",
-            "showUnit": true
+            "showUnit": true,
+            "decorations": {
+              "0": "unreachable",
+              "1": "reachable"
+            }
           },
           "metricConfig": [
             {

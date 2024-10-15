@@ -12,6 +12,7 @@
 #### UI
 
 * Add support for case-insensitive search in the dashboard list.
+* Add content decorations to Table and Card widgets.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.

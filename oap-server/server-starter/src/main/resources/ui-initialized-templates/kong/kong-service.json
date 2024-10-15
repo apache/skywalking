@@ -53,7 +53,11 @@
                     "type": "Table",
                     "showTableValues": true,
                     "tableHeaderCol1": "Instances",
-                    "tableHeaderCol2": "Reachable"
+                    "tableHeaderCol2": "Reachable",
+                    "decorations": {
+                      "0": "unreachable",
+                      "1": "reachable"
+                    }
                   },
                   "metricConfig": [
                     {
