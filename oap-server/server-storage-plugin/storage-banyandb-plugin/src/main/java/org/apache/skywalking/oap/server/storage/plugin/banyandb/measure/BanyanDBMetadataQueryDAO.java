@@ -176,7 +176,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
+    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit, Duration duration) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EndpointTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp = query(schema,
                 ENDPOINT_TRAFFIC_TAGS,
@@ -192,6 +192,12 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                                             BanyandbModel.Condition.MatchOption.newBuilder().setOperator(
                                                 BanyandbModel.Condition.MatchOption.Operator.OPERATOR_AND).build()
                             ));
+                        }
+                        if (duration != null) {
+                            final var startTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+                            final var endTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+                            query.and(gte(EndpointTraffic.LAST_PING_TIME_BUCKET, startTimeBucket));
+                            query.and(lte(EndpointTraffic.LAST_PING_TIME_BUCKET, endTimeBucket));
                         }
                         query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                     }

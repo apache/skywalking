@@ -30,6 +30,9 @@ cases:
     expected: expected/service-endpoint-provider.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=e2e-service-consumer
     expected: expected/service-endpoint-consumer.yml
+  # service endpoint with duration check
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=e2e-service-provider --step=MINUTE
+    expected: expected/service-endpoint-provider.yml
   # dependency service
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency global --layer=GENERAL
     expected: expected/dependency-services-provider.yml

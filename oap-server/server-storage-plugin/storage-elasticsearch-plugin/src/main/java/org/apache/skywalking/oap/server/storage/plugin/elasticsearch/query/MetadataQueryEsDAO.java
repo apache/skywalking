@@ -217,7 +217,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) {
+    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit, Duration duration) {
         initColumnName();
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
             EndpointTraffic.INDEX_NAME);
@@ -233,6 +233,12 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
 
         if (IndexController.LogicIndicesRegister.isMergedTable(EndpointTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, EndpointTraffic.INDEX_NAME));
+        }
+
+        if (duration != null) {
+            final long startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+            final long endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+            query.must(Query.range(EndpointTraffic.LAST_PING_TIME_BUCKET).gte(startMinuteTimeBucket).lte(endMinuteTimeBucket));
         }
 
         final var search = Search.builder().query(query).size(limit).sort(

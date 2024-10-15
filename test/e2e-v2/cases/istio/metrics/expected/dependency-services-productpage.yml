@@ -19,18 +19,26 @@ nodes:
   name: e2e::reviews
   type: null
   isreal: true
+  layers:
+    - MESH_DP
 - id: {{ b64enc "e2e::productpage"}}.1
   name: e2e::productpage
   type: null
   isreal: true
+  layers:
+    - MESH_DP
 - id: {{ b64enc "e2e::details" }}.1
   name: e2e::details
   type: null
   isreal: true
+  layers:
+    - MESH_DP
 - id: ZTJlOjppc3Rpby1pbmdyZXNzZ2F0ZXdheQ==.1
   name: e2e::istio-ingressgateway
   type: null
   isreal: true
+  layers:
+    - MESH_DP
 {{- end }}
 calls:
 {{- contains .calls }}

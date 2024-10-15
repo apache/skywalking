@@ -315,7 +315,7 @@ public class PromQLApiHandler {
                     String limit = parseResult.getLabelMap().getOrDefault(LabelName.LIMIT.getLabel(), "100");
                     List<Endpoint> endpoints = metadataQuery.findEndpoint(
                         keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()),
-                        Integer.parseInt(limit)
+                        Integer.parseInt(limit), duration
                     ).join();
                     endpoints.forEach(endpoint -> {
                         response.getData().add(endpoint.getName());
@@ -382,7 +382,7 @@ public class PromQLApiHandler {
             String limit = parseResult.getLabelMap().getOrDefault(LabelName.LIMIT.getLabel(), "100");
             List<Endpoint> endpoints = metadataQuery.findEndpoint(
                 keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()),
-                Integer.parseInt(limit)
+                Integer.parseInt(limit), duration
             ).join();
             endpoints.forEach(endpoint -> {
                 response.getData().add(buildMetricInfoFromTraffic(metricName, endpoint));

@@ -19,14 +19,20 @@ nodes:
   name: e2e-service-entry-provider
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "e2e-service-end-provider"}}.1
   name: e2e-service-end-provider
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "User_Service_Name"}}.1
   name: User_Service_Name
   type: Nginx
   isreal: true
+  layers:
+    - GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}
