@@ -7,6 +7,8 @@
 * Reduce the count of process index and adding time range when query process index.
 * Bump up Apache commons-io to 2.17.0.
 * Polish eBPF so11y metrics and add error count for query metrics.
+* Support query endpoint list with duration parameter(optional).
+* Change the endpoint_traffic to updatable for the additional column `last_ping`.
 * Support Kong monitoring.
 
 #### UI

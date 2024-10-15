@@ -19,10 +19,14 @@ nodes:
   name: provider-py
   type: Python
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "test-ui<browser>"}}.1
   name: test-ui<browser>
   type: null
   isreal: true
+  layers:
+    - UNDEFINED
 {{- end }}
 calls:
 {{- contains .calls }}

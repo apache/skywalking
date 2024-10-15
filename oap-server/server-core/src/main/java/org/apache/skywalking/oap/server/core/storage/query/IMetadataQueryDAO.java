@@ -56,9 +56,10 @@ public interface IMetadataQueryDAO extends DAO {
      * @param keyword   to filter the endpoints
      * @param serviceId the owner of the endpoints
      * @param limit     max match size.
+     * @param duration  filter endpoints with time range(last ping time)
      * @return list of endpoint matching the given conditions.
      */
-    List<Endpoint> findEndpoint(final String keyword, final String serviceId, final int limit) throws IOException;
+    List<Endpoint> findEndpoint(final String keyword, final String serviceId, final int limit, final Duration duration) throws IOException;
 
     /**
      * @param serviceId the service id of the process.
