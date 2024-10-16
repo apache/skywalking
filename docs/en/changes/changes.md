@@ -9,6 +9,7 @@
 * Polish eBPF so11y metrics and add error count for query metrics.
 * Support query endpoint list with duration parameter(optional).
 * Change the endpoint_traffic to updatable for the additional column `last_ping`.
+* Add Component ID(5023) for the GoZero framework.
 * Support Kong monitoring.
 
 #### UI
