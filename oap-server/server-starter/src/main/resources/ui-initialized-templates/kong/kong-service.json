@@ -321,7 +321,31 @@
       "entity": "Service",
       "name": "Kong-Service",
       "isRoot": false,
-      "isDefault": true
+      "isDefault": true,
+      "expressions": [
+        "avg(aggregate_labels(meter_kong_service_http_requests,sum))",
+        "avg(aggregate_labels(meter_kong_service_http_status{code='200'}, sum))",
+        "avg(aggregate_labels(meter_kong_service_http_status{code='404'}, sum))",
+        "avg(aggregate_labels(meter_kong_service_http_status{code='500'}, sum))"
+      ],
+      "expressionsConfig": [
+        {
+          "label": "Avg HTTP Requests",
+          "unit": "req / s"
+        },
+        {
+          "label": "Avg HTTP Status 200",
+          "unit": "req / s"
+        },
+        {
+          "label": "Avg HTTP Status 404",
+          "unit": "req / s"
+        },
+        {
+          "label": "Avg HTTP Status 500",
+          "unit": "req / s"
+        }
+      ]
     }
   }
 ]

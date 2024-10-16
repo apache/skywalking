@@ -29,6 +29,7 @@ hierarchy:
   GENERAL:
     APISIX: lower-short-name-remove-ns
     K8S_SERVICE: lower-short-name-remove-ns
+    KONG: lower-short-name-remove-ns
 
   MYSQL:
     K8S_SERVICE: short-name
