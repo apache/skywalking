@@ -110,6 +110,8 @@ catalog:
                 path: "/en/setup/backend/backend-apisix-monitoring"
               - name: "AWS API Gateway"
                 path: "/en/setup/backend/backend-aws-api-gateway-monitoring"
+              - name: "Kong Monitoring"
+                path: "/en/setup/backend/backend-kong-monitoring"
           - name: "Database Monitoring"
             catalog:
               - name: "MySQL/MariaDB Server"

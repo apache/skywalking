@@ -1,0 +1,351 @@
+[
+  {
+    "id": "Kong-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 48,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Inspections",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 12,
+                  "h": 8,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_kong_service_nginx_metric_errors_total,sum))"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Nginx metric errors"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Nginx metric errors"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 8,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(aggregate_labels(meter_kong_service_datastore_reachable,sum(service_instance_id)))"
+                  ],
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": true,
+                    "tableHeaderCol1": "Instances",
+                    "tableHeaderCol2": "Reachable",
+                    "decorations": {
+                      "0": "unreachable",
+                      "1": "reachable"
+                    }
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Datastore reachable"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Datastore reachable",
+                    "tips": "Datastore reachable from Kong, 0 is unreachable"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 8,
+                  "w": 12,
+                  "h": 13,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Total bandwidth Trend (ingress/egress) (KB/s)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "HTTP bandwidth Trend (requests per second)",
+                      "unit": "KB/s"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "aggregate_labels(meter_kong_service_http_bandwidth,sum(direction))/1024"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 8,
+                  "w": 12,
+                  "h": 13,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "HTTP Status Trend (requests per second)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "HTTP Status Trend",
+                      "unit": "req/s"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "aggregate_labels(meter_kong_service_http_status,sum(code))"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 21,
+                  "w": 12,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "HTTP Request Trend (requests per second)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Number of requests total",
+                      "unit": "req/s"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "aggregate_labels(meter_kong_service_http_requests,sum)"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 21,
+                  "w": 12,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_kong_service_nginx_connections_total,sum(state))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Nginx Connections Trend (requests per second)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Nginx Connections",
+                      "unit": "req/s"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 34,
+                  "w": 12,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_kong_service_nginx_timers,sum(state))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Nginx timers"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Nginx timers"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 34,
+                  "w": 12,
+                  "h": 13,
+                  "i": "7",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_kong_service_kong_latency,avg(p))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Kong Latency",
+                    "unit": "ms"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Kong Latency",
+                      "tips": "Latency added by Kong and enabled plugins for each service/route in Kong"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 47,
+                  "w": 12,
+                  "h": 13,
+                  "i": "8",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_kong_service_request_latency,avg(p))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Request Latency",
+                    "unit": "ms"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Request Latency",
+                      "tips": "Total latency incurred during requests for each service/route in Kong"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 47,
+                  "w": 12,
+                  "h": 13,
+                  "i": "9",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_kong_service_upstream_latency,avg(p))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Upstream Latency",
+                    "unit": "ms"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Upstream Latency",
+                      "tips": "Latency added by upstream response for each service/route in Kong"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Instances",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 17,
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "Kong-Instance",
+                    "fontSize": 12
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "KONG",
+      "entity": "Service",
+      "name": "Kong-Service",
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(aggregate_labels(meter_kong_service_http_requests,sum))",
+        "avg(aggregate_labels(meter_kong_service_http_status{code='200'}, sum))",
+        "avg(aggregate_labels(meter_kong_service_http_status{code='404'}, sum))",
+        "avg(aggregate_labels(meter_kong_service_http_status{code='500'}, sum))"
+      ],
+      "expressionsConfig": [
+        {
+          "label": "Avg HTTP Requests",
+          "unit": "req / s"
+        },
+        {
+          "label": "Avg HTTP Status 200",
+          "unit": "req / s"
+        },
+        {
+          "label": "Avg HTTP Status 404",
+          "unit": "req / s"
+        },
+        {
+          "label": "Avg HTTP Status 500",
+          "unit": "req / s"
+        }
+      ]
+    }
+  }
+]

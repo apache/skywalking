@@ -10,10 +10,12 @@
 * Support query endpoint list with duration parameter(optional).
 * Change the endpoint_traffic to updatable for the additional column `last_ping`.
 * Add Component ID(5023) for the GoZero framework.
-
+* Support Kong monitoring.
 
 #### UI
 
+* Add support for case-insensitive search in the dashboard list.
+* Add content decorations to Table and Card widgets.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
