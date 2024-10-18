@@ -18,7 +18,7 @@
             "fontSize": 24,
             "textAlign": "center",
             "showUnit": true,
-            "decorations": {
+            "valueMappings": {
               "0": "unreachable",
               "1": "reachable"
             }
