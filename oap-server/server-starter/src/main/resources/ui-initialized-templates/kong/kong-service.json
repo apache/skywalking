@@ -54,7 +54,7 @@
                     "showTableValues": true,
                     "tableHeaderCol1": "Instances",
                     "tableHeaderCol2": "Reachable",
-                    "decorations": {
+                    "valueMappings": {
                       "0": "unreachable",
                       "1": "reachable"
                     }
