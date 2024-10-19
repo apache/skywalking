@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.library.jfr.parser.type.event.Event;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.EventPair;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.ExecutionSample;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.GCHeapSummary;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.LiveObject;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.ObjectCount;
 
@@ -244,17 +244,17 @@ public class JfrReader implements Closeable {
             }
 
             if (type == executionSample || type == nativeMethodSample) {
-                return new EventPair(JfrEventType.EXECUTION_SAMPLE, readExecutionSample());
+                return new EventPair(JFREventType.EXECUTION_SAMPLE, readExecutionSample());
             } else if (type == allocationInNewTLAB) {
-                return new EventPair(JfrEventType.OBJECT_ALLOCATION_IN_NEW_TLAB, readAllocationSample(true));
+                return new EventPair(JFREventType.OBJECT_ALLOCATION_IN_NEW_TLAB, readAllocationSample(true));
             } else if (type == allocationOutsideTLAB || type == allocationSample) {
-                return new EventPair(JfrEventType.OBJECT_ALLOCATION_OUTSIDE_TLAB, readAllocationSample(false));
+                return new EventPair(JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB, readAllocationSample(false));
             } else if (type == liveObject) {
-                return new EventPair(JfrEventType.PROFILER_LIVE_OBJECT, readLiveObject());
+                return new EventPair(JFREventType.PROFILER_LIVE_OBJECT, readLiveObject());
             } else if (type == monitorEnter) {
-                return new EventPair(JfrEventType.JAVA_MONITOR_ENTER, readContendedLock(false));
+                return new EventPair(JFREventType.JAVA_MONITOR_ENTER, readContendedLock(false));
             } else if (type == threadPark) {
-                return new EventPair(JfrEventType.THREAD_PARK, readContendedLock(true));
+                return new EventPair(JFREventType.THREAD_PARK, readContendedLock(true));
             } else if (type == activeSetting) {
                 readActiveSetting();
             }
@@ -267,7 +267,7 @@ public class JfrReader implements Closeable {
     }
 
     public EventPair readEventWithType1() throws IOException {
-        return new EventPair(JfrEventType.EXECUTION_SAMPLE, readEvent());
+        return new EventPair(JFREventType.EXECUTION_SAMPLE, readEvent());
     }
 
     private ExecutionSample readExecutionSample() {

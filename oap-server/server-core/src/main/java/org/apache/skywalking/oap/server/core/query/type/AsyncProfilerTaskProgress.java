@@ -16,16 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.type.event;
+package org.apache.skywalking.oap.server.core.query.type;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.server.core.query.AsyncProfilerTaskLog;
+
+import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class EventPair {
-    private JFREventType type;
-    private Event event;
+public class AsyncProfilerTaskProgress {
+    private List<AsyncProfilerTaskLog> logs;
+    private List<String> errorInstanceIds;
+    private List<String> successInstanceIds;
 }

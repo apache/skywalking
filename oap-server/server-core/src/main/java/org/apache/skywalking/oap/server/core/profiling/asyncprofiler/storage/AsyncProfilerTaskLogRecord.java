@@ -23,8 +23,10 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -36,8 +38,9 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AS
 @Setter
 @ScopeDeclaration(id = ASYNC_PROFILER_TASK_LOG, name = "AsyncProfilerTaskLog")
 @Stream(name = AsyncProfilerTaskLogRecord.INDEX_NAME, scopeId = ASYNC_PROFILER_TASK_LOG, builder = AsyncProfilerTaskLogRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(AsyncProfilerTaskLogRecord.TIMESTAMP)
 public class AsyncProfilerTaskLogRecord extends Record {
-    public static final String INDEX_NAME = "async_profile_task_log";
+    public static final String INDEX_NAME = "async_profiler_task_log";
     public static final String TASK_ID = "task_id";
     public static final String INSTANCE_ID = "instance_id";
     public static final String OPERATION_TYPE = "operation_type";
@@ -47,11 +50,16 @@ public class AsyncProfilerTaskLogRecord extends Record {
     @Column(name = TASK_ID)
     private String taskId;
     @Column(name = INSTANCE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
     @Column(name = OPERATION_TYPE, storageOnly = true)
     private int operationType;
     @Column(name = OPERATION_TIME)
     private long operationTime;
+    @Getter
+    @Setter
+    @Column(name = TIMESTAMP)
+    private long timestamp;
 
     @Override
     public StorageID id() {

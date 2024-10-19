@@ -23,6 +23,7 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -30,17 +31,18 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.jfr.parser.convert.FrameTree;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ASYNC_PROFILER_TASK_LOG;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.JFR_PROFILING_DATA;
 
 @Data
-@Stream(name = JfrProfilingDataRecord.INDEX_NAME, scopeId = JFR_PROFILING_DATA,
-        builder = JfrProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(JfrProfilingDataRecord.UPLOAD_TIME)
-public class JfrProfilingDataRecord extends Record {
+@Stream(name = JFRProfilingDataRecord.INDEX_NAME, scopeId = JFR_PROFILING_DATA,
+        builder = JFRProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(JFRProfilingDataRecord.UPLOAD_TIME)
+public class JFRProfilingDataRecord extends Record {
     public static final String INDEX_NAME = "jfr_profiling_data";
 
     public static final String TASK_ID = "task_id";
@@ -53,10 +55,11 @@ public class JfrProfilingDataRecord extends Record {
     private String taskId;
 
     @Column(name = INSTANCE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
 
     /**
-     * @see JfrEventType
+     * @see JFREventType
      */
     @Column(name = EVENT_TYPE)
     private String eventType;
@@ -88,11 +91,11 @@ public class JfrProfilingDataRecord extends Record {
         );
     }
 
-    public static class Builder implements StorageBuilder<JfrProfilingDataRecord> {
+    public static class Builder implements StorageBuilder<JFRProfilingDataRecord> {
 
         @Override
-        public JfrProfilingDataRecord storage2Entity(final Convert2Entity converter) {
-            final JfrProfilingDataRecord dataTraffic = new JfrProfilingDataRecord();
+        public JFRProfilingDataRecord storage2Entity(final Convert2Entity converter) {
+            final JFRProfilingDataRecord dataTraffic = new JFRProfilingDataRecord();
             dataTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             dataTraffic.setTaskId((String) converter.get(TASK_ID));
             dataTraffic.setInstanceId((String) converter.get(INSTANCE_ID));
@@ -103,7 +106,7 @@ public class JfrProfilingDataRecord extends Record {
         }
 
         @Override
-        public void entity2Storage(final JfrProfilingDataRecord storageData, final Convert2Storage converter) {
+        public void entity2Storage(final JFRProfilingDataRecord storageData, final Convert2Storage converter) {
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(TASK_ID, storageData.getTaskId());
             converter.accept(INSTANCE_ID, storageData.getInstanceId());

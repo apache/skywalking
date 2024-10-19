@@ -4,12 +4,14 @@ import graphql.kickstart.tools.GraphQLQueryResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerQueryService;
+import org.apache.skywalking.oap.server.core.query.AsyncProfilerTaskLog;
 import org.apache.skywalking.oap.server.core.query.input.AsyncProfilerAnalyzatonRequest;
 import org.apache.skywalking.oap.server.core.query.input.AsyncProfilerTaskListRequest;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerStackTree;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskListResult;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskProgress;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -49,7 +51,11 @@ public class AsyncProfilerQuery implements GraphQLQueryResolver {
         return new AsyncProfilerAnalyzation(null, eventFrameTrees);
     }
 
-    public List<ProfileTaskLog> queryAsyncProfilerTaskLogs(String taskId) throws IOException {
-        return getAsyncProfilerQueryService().queryAsyncProfilerTaskLogs(taskId);
+    public AsyncProfilerTaskProgress queryAsyncProfilerTaskProgress(String taskId) throws IOException {
+        // todo add success/error parse
+        AsyncProfilerTaskProgress asyncProfilerTaskProgress = new AsyncProfilerTaskProgress();
+        List<AsyncProfilerTaskLog> logs = getAsyncProfilerQueryService().queryAsyncProfilerTaskLogs(taskId);
+        asyncProfilerTaskProgress.setLogs(logs);
+        return asyncProfilerTaskProgress;
     }
 }

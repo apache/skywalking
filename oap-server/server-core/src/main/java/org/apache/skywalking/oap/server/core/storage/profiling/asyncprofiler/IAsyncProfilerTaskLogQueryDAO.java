@@ -16,16 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.type.event;
+package org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.server.core.query.AsyncProfilerTaskLog;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class EventPair {
-    private JFREventType type;
-    private Event event;
+import java.io.IOException;
+import java.util.List;
+
+public interface IAsyncProfilerTaskLogQueryDAO extends DAO {
+    /**
+     * search all task log list in appoint task id
+     */
+    List<AsyncProfilerTaskLog> getTaskLogList() throws IOException;
 }

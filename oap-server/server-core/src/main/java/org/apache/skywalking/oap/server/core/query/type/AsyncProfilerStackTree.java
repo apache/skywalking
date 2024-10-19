@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.jfr.parser.convert.FrameTree;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,12 +14,12 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor
 public class AsyncProfilerStackTree {
-    private JfrEventType type;
+    private JFREventType type;
     private List<AsyncProfilerStackElement> elements;
 
     private int idGen = 0;
 
-    public AsyncProfilerStackTree(JfrEventType type, FrameTree tree) {
+    public AsyncProfilerStackTree(JFREventType type, FrameTree tree) {
         this.type = type;
         this.elements = convertTree(-1, tree);
     }

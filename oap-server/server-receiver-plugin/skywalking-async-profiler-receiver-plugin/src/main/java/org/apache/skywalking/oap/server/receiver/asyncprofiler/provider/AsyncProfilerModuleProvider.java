@@ -26,10 +26,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.asyncprofiler.module.AsyncProfilerModule;
+import org.apache.skywalking.oap.server.receiver.asyncprofiler.module.AsyncProfilerModuleConfig;
 import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.AsyncProfilerServiceHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 public class AsyncProfilerModuleProvider extends ModuleProvider {
+    private AsyncProfilerModuleConfig config;
+
     @Override
     public String name() {
         return "default";

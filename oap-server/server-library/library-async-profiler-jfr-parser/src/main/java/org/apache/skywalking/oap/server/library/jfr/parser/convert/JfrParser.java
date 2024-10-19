@@ -19,15 +19,24 @@
 package org.apache.skywalking.oap.server.library.jfr.parser.convert;
 
 import org.apache.skywalking.oap.server.library.jfr.parser.type.JfrReader;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 public class JfrParser {
 
-    public static Map<JfrEventType, FrameTree> dumpTree(String fileName, Arguments args) throws IOException {
+    public static Map<JFREventType, FrameTree> dumpTree(String fileName, Arguments args) throws IOException {
         try (JfrReader jfr = new JfrReader(fileName)) {
+            JfrToFrameTree converter = new JfrToFrameTree(jfr, args);
+            converter.convert();
+            return converter.getFrameTreeMap();
+        }
+    }
+
+    public static Map<JFREventType, FrameTree> dumpTree(ByteBuffer buf, Arguments args) throws IOException {
+        try (JfrReader jfr = new JfrReader(buf)) {
             JfrToFrameTree converter = new JfrToFrameTree(jfr, args);
             converter.convert();
             return converter.getFrameTreeMap();

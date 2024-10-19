@@ -16,21 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.type.event;
+package org.apache.skywalking.oap.server.core.query;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
 
+@Setter
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
-public enum JfrEventType {
-    UNKNOWN(-1),
-    EXECUTION_SAMPLE(1),
-    JAVA_MONITOR_ENTER(2),
-    THREAD_PARK(3),
-    OBJECT_ALLOCATION_IN_NEW_TLAB(4),
-    OBJECT_ALLOCATION_OUTSIDE_TLAB(5),
-    PROFILER_LIVE_OBJECT(6);
+@Builder
+public class AsyncProfilerTaskLog {
+    private String id;
+    private String taskId;
 
-    private final int code;
+    // instance
+    private String instanceId;
+    private String instanceName;
+
+    // operation
+    private AsyncProfilerTaskLogOperationType operationType;
+    private long operationTime;
 }

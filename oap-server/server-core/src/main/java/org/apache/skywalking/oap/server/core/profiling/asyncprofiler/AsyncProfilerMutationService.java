@@ -95,10 +95,10 @@ public class AsyncProfilerMutationService implements Service {
             return "duration cannot be negative";
         }
         if (CollectionUtils.isEmpty(events)) {
-            return "profile events cannot be empty";
+            return "events cannot be empty";
         }
 
-        // Each service can monitor up to 1 endpoints during the execution of tasks
+        // Each service can only enable one task at a time
         long endTimeBucket = TimeBucket.getMinuteTimeBucket(createTime);
         final List<AsyncProfilerTask> alreadyHaveTaskList = getAsyncProfileTaskDAO().getTaskList(
                 serviceId, null, endTimeBucket, 1

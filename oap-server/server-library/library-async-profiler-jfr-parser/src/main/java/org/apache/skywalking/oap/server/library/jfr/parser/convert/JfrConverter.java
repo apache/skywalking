@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.library.jfr.parser.type.event.Event;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.EventAggregator;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.EventPair;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.ExecutionSample;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.LiveObject;
 
 import java.io.IOException;
@@ -45,12 +45,12 @@ import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.
 import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_CPP;
 import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_KERNEL;
 import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_NATIVE;
-import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType.EXECUTION_SAMPLE;
-import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType.JAVA_MONITOR_ENTER;
-import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType.OBJECT_ALLOCATION_IN_NEW_TLAB;
-import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType.OBJECT_ALLOCATION_OUTSIDE_TLAB;
-import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType.PROFILER_LIVE_OBJECT;
-import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JfrEventType.THREAD_PARK;
+import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType.EXECUTION_SAMPLE;
+import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType.JAVA_MONITOR_ENTER;
+import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType.OBJECT_ALLOCATION_IN_NEW_TLAB;
+import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB;
+import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType.PROFILER_LIVE_OBJECT;
+import static org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType.THREAD_PARK;
 
 public abstract class JfrConverter extends Classifier {
     protected final JfrReader jfr;
@@ -106,8 +106,8 @@ public abstract class JfrConverter extends Classifier {
         return agg;
     }
 
-    protected Map<JfrEventType, EventAggregator> collectMultiEvents() throws IOException {
-        Map<JfrEventType, EventAggregator> event2aggMap = new HashMap<>();
+    protected Map<JFREventType, EventAggregator> collectMultiEvents() throws IOException {
+        Map<JFREventType, EventAggregator> event2aggMap = new HashMap<>();
 
         long threadStates = 0;
         if (args.state != null) {
@@ -119,7 +119,7 @@ public abstract class JfrConverter extends Classifier {
         long startTicks = args.from != 0 ? toTicks(args.from) : Long.MIN_VALUE;
         long endTicks = args.to != 0 ? toTicks(args.to) : Long.MAX_VALUE;
         for (EventPair eventPair; (eventPair = jfr.readEventWithType()) != null; ) {
-            JfrEventType type = eventPair.getType();
+            JFREventType type = eventPair.getType();
             Event event = eventPair.getEvent();
             if (event.time >= startTicks && event.time <= endTicks) {
                 EventAggregator agg;
@@ -154,7 +154,7 @@ public abstract class JfrConverter extends Classifier {
         return event2aggMap;
     }
 
-    private static EventAggregator getExecutionSampleAggregator(JfrEventType jfrEventType) {
+    private static EventAggregator getExecutionSampleAggregator(JFREventType jfrEventType) {
         // TODO aggregator default configure
         switch (jfrEventType) {
             case EXECUTION_SAMPLE:

@@ -22,14 +22,14 @@ import com.google.gson.Gson;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.JfrProfilingData;
+import org.apache.skywalking.oap.server.core.source.JFRProfilingData;
 
-public class JfrProfilingDataDispatcher implements SourceDispatcher<JfrProfilingData> {
+public class JfrProfilingDataDispatcher implements SourceDispatcher<JFRProfilingData> {
     private static final Gson GSON = new Gson();
 
     @Override
-    public void dispatch(JfrProfilingData source) {
-        JfrProfilingDataRecord record = new JfrProfilingDataRecord();
+    public void dispatch(JFRProfilingData source) {
+        JFRProfilingDataRecord record = new JFRProfilingDataRecord();
         record.setTaskId(source.getTaskId());
         record.setInstanceId(source.getInstanceId());
         record.setEventType(source.getEventType().toString());

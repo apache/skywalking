@@ -24,9 +24,12 @@ import java.util.Map;
 public enum AsyncProfilerTaskLogOperationType {
     // when sniffer has notified
     NOTIFIED(1), // when sniffer has execution finished to report
-    EXECUTION_FINISHED(2);
+    EXECUTION_FINISHED(2), // when sniffer has execution finished to report
+    JFR_UPLOAD_FILE_TOO_LARGE_ERROR(3), // when sniffer finished task but jfr file is to large that oap server can not receive
+    EXECUTION_TASK_ERROR(4) // when sniffer fails to execute its task
+    ;
 
-    private int code;
+    private final int code;
     private static final Map<Integer, AsyncProfilerTaskLogOperationType> CACHE = new HashMap<Integer, AsyncProfilerTaskLogOperationType>();
 
     static {
@@ -36,7 +39,7 @@ public enum AsyncProfilerTaskLogOperationType {
     }
 
     /**
-     * Parse opetation type by code
+     * Parse operation type by code
      */
     public static AsyncProfilerTaskLogOperationType parse(int code) {
         return CACHE.get(code);

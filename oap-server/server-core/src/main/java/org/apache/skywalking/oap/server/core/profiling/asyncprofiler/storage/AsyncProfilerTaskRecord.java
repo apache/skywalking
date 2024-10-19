@@ -37,7 +37,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AS
 
 @Getter
 @Setter
-@ScopeDeclaration(id = ASYNC_PROFILER_TASK, name = "AsyncProfileTask")
+@ScopeDeclaration(id = ASYNC_PROFILER_TASK, name = "AsyncProfilerTask")
 @Stream(name = AsyncProfilerTaskRecord.INDEX_NAME, scopeId = ASYNC_PROFILER_TASK, builder = AsyncProfilerTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
 @BanyanDB.TimestampColumn(AsyncProfilerTaskRecord.CREATE_TIME)
 public class AsyncProfilerTaskRecord extends NoneStream {
@@ -47,7 +47,6 @@ public class AsyncProfilerTaskRecord extends NoneStream {
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_IDS = "service_instance_ids";
     public static final String CREATE_TIME = "create_time";
-    public static final String DATA_FORMAT = "data_format";
     public static final String EVENT_TYPES = "events";
     public static final String DURATION = "duration";
     public static final String EXEC_ARGS = "exec_args";
@@ -63,8 +62,6 @@ public class AsyncProfilerTaskRecord extends NoneStream {
     private long createTime;
     @Column(name = DURATION)
     private int duration;
-    @Column(name = DATA_FORMAT)
-    private String dataFormat;
     @Column(name = EVENT_TYPES)
     private List<String> events;
     @Column(name = EXEC_ARGS, storageOnly = true)
@@ -85,7 +82,6 @@ public class AsyncProfilerTaskRecord extends NoneStream {
             record.setCreateTime(((Number) converter.get(CREATE_TIME)).longValue());
             record.setDuration(((Number) converter.get(DURATION)).intValue());
             record.setEvents((List<String>) converter.get(EVENT_TYPES));
-            record.setDataFormat((String) converter.get(DATA_FORMAT));
             record.setExecArgs((String) converter.get(EXEC_ARGS));
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return record;
@@ -98,7 +94,6 @@ public class AsyncProfilerTaskRecord extends NoneStream {
             converter.accept(TASK_ID, storageData.getTaskId());
             converter.accept(CREATE_TIME, storageData.getCreateTime());
             converter.accept(DURATION, storageData.getDuration());
-            converter.accept(DATA_FORMAT, storageData.getDataFormat());
             converter.accept(EVENT_TYPES, storageData.getEvents());
             converter.accept(EXEC_ARGS, storageData.getExecArgs());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());

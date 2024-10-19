@@ -36,8 +36,9 @@ import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasD
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJfrDataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -76,6 +77,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSe
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AlarmQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AsyncProfilerTaskLogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AsyncProfilerTaskQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.BrowserLogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ContinuousProfilingPolicyEsDAO;
@@ -84,7 +86,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFP
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFProfilingTaskEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.HierarchyQueryEsDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.JfrDataQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.JFRDataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
@@ -258,14 +260,18 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             IZipkinQueryDAO.class, new ZipkinQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
             ISpanAttachedEventQueryDAO.class, new SpanAttachedEventEsDAO(elasticSearchClient, config));
-        // TODO Currently, the TaskQueryMaxSize parameters still reuse the tracing profile parameters.
+
         this.registerServiceImplementation(
                 IAsyncProfilerTaskQueryDAO.class,
-                new AsyncProfilerTaskQueryEsDAO(elasticSearchClient, config.getProfileTaskQueryMaxSize())
+                new AsyncProfilerTaskQueryEsDAO(elasticSearchClient, config.getAsyncProfilerTaskQueryMaxSize())
         );
         this.registerServiceImplementation(
-                IJfrDataQueryDAO.class,
-                new JfrDataQueryEsDAO(elasticSearchClient)
+                IAsyncProfilerTaskLogQueryDAO.class,
+                new AsyncProfilerTaskLogQueryEsDAO(elasticSearchClient, config.getAsyncProfilerTaskQueryMaxSize())
+        );
+        this.registerServiceImplementation(
+                IJFRDataQueryDAO.class,
+                new JFRDataQueryEsDAO(elasticSearchClient)
         );
         IndexController.INSTANCE.setLogicSharding(config.isLogicSharding());
         IndexController.INSTANCE.setEnableCustomRouting(config.isEnableCustomRouting());
