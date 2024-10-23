@@ -49,15 +49,15 @@ metricsRules:
       .tag({tags -> if (tags['gc'] == 'PS Scavenge' || tags['gc'] == 'Copy' || tags['gc'] == 'ParNew' || tags['gc'] == 'G1 Young Generation') {tags.gc = 'young_gc_time'} })
       .tag({tags -> if (tags['gc'] == 'PS MarkSweep' || tags['gc'] == 'MarkSweepCompact' || tags['gc'] == 'ConcurrentMarkSweep' || tags['gc'] == 'G1 Old Generation') {tags.gc = 'old_gc_time'} })
   - name: instance_trace_count
-    exp: trace_in_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: trace_in_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_trace_latency_percentile
-    exp: trace_in_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+    exp: trace_in_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_trace_analysis_error_count
     exp: trace_analysis_error_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_mesh_count
-    exp: mesh_analysis_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: mesh_analysis_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_mesh_latency_percentile
-    exp: mesh_analysis_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+    exp: mesh_analysis_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_mesh_analysis_error_count
     exp: mesh_analysis_error_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_metrics_aggregation
@@ -65,15 +65,15 @@ metricsRules:
       metrics_aggregation.tagEqual('dimensionality', 'minute').sum(['service', 'host_name', 'level']).increase('PT1M')
       .tag({tags -> if (tags['level'] == '1') {tags.level = 'L1 aggregation'} }).tag({tags -> if (tags['level'] == '2') {tags.level = 'L2 aggregation'} })
   - name: instance_persistence_execute_percentile
-    exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+    exp: persistence_timer_bulk_execute_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_prepare_percentile
-    exp: persistence_timer_bulk_prepare_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+    exp: persistence_timer_bulk_prepare_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_error_count
     exp: persistence_timer_bulk_error_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_persistence_execute_count
-    exp: persistence_timer_bulk_execute_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: persistence_timer_bulk_execute_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_persistence_prepare_count
-    exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: persistence_timer_bulk_prepare_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_metrics_persistent_cache
     exp: metrics_persistent_cache.sum(['service', 'host_name', 'status']).increase('PT1M')
   - name: jvm_thread_live_count
@@ -101,26 +101,26 @@ metricsRules:
   - name: instance_k8s_als_drop
     exp: k8s_als_drop_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_k8s_als_latency_percentile
-    exp: k8s_als_in_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+    exp: k8s_als_in_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_k8s_als_streams
-    exp: k8s_als_in_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: k8s_als_in_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_k8s_als_error_streams
     exp: k8s_als_error_streams.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_metrics_received
-    exp: otel_metrics_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: otel_metrics_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_logs_received
-    exp: otel_logs_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: otel_logs_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_spans_received
-    exp: otel_spans_latency_count.sum(['service', 'host_name']).increase('PT1M')
-  - name: otel_metrics_latency_percentile
-    exp: otel_metrics_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
-  - name: otel_logs_latency_percentile
-    exp: otel_logs_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
-  - name: otel_spans_latency_percentile
-    exp: otel_spans_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
-  - name: graphql_query_latency_percentile
-    exp: graphql_query_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+    exp: otel_spans_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: otel_metrics_latency_seconds_percentile
+    exp: otel_metrics_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: otel_logs_latency_seconds_percentile
+    exp: otel_logs_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: otel_spans_latency_seconds_percentile
+    exp: otel_spans_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: graphql_query_latency_seconds_percentile
+    exp: graphql_query_latency_seconds.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_graphql_query_count
-    exp: graphql_query_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: graphql_query_latency_seconds_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_graphql_query_error_count
     exp: graphql_query_error_count.sum(['service', 'host_name']).increase('PT1M')

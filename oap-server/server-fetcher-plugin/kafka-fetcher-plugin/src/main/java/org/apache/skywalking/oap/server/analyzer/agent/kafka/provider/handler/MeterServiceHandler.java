@@ -50,13 +50,13 @@ public class MeterServiceHandler extends AbstractKafkaHandler {
                                                .provider()
                                                .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "meter_in_latency",
+            "meter_in_latency_seconds",
             "The process latency of meter",
             new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("kafka")
         );
         histogramBatch = metricsCreator.createHistogramMetric(
-            "meter_batch_in_latency",
+            "meter_batch_in_latency_seconds",
             "The process latency of meter",
             new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("kafka")

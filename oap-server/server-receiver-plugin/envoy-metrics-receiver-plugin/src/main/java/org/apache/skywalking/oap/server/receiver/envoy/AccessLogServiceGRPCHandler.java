@@ -86,7 +86,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             MetricsTag.EMPTY_VALUE
         );
         histogram = metricCreator.createHistogramMetric(
-            "envoy_als_in_latency", "The process latency of service ALS metric receiver", MetricsTag.EMPTY_KEY,
+            "envoy_als_in_latency_seconds", "The process latency of service ALS metric receiver", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
         sourceDispatcherCounter = metricCreator.createCounter(

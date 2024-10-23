@@ -49,7 +49,7 @@ public class LogHandler extends AbstractKafkaHandler {
                                                      .provider()
                                                      .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "log_in_latency",
+            "log_in_latency_seconds",
             "The process latency of log",
             new MetricsTag.Keys("protocol", "data_format"),
             new MetricsTag.Values("kafka", getDataFormat())

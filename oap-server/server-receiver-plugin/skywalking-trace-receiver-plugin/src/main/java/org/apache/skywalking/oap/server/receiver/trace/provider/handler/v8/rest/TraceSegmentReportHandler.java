@@ -46,7 +46,7 @@ public class TraceSegmentReportHandler {
                                                      .provider()
                                                      .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency", "The process latency of trace data",
+            "trace_in_latency_seconds", "The process latency of trace data",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         errorCounter = metricsCreator.createCounter(

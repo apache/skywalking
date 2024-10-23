@@ -51,7 +51,7 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
                 .provider()
                 .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-                "meter_in_latency", "The process latency of meter",
+                "meter_in_latency_seconds", "The process latency of meter",
                 new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
         errorCounter = metricsCreator.createCounter("meter_analysis_error_count", "The error number of meter analysis",

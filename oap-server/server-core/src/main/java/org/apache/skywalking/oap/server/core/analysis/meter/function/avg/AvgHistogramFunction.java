@@ -48,8 +48,8 @@ import lombok.extern.slf4j.Slf4j;
  * The acceptable bucket value should be a result from one of "increase", "rate" and "irate" query functions. That means
  * the value is the increase or per-second instant rate of increase in a specific range.
  *
- * Example: "persistence_timer_bulk_execute_latency" is histogram, the possible PromQL format of acceptable bucket value
- * should be: "increase(persistence_timer_bulk_execute_latency{service="oap-server", instance="localhost:1234"}[5m])"
+ * Example: "persistence_timer_bulk_execute_latency_seconds" is histogram, the possible PromQL format of acceptable bucket value
+ * should be: "increase(persistence_timer_bulk_execute_latency_seconds{service="oap-server", instance="localhost:1234"}[5m])"
  */
 @MeterFunction(functionName = "avgHistogram")
 @Slf4j

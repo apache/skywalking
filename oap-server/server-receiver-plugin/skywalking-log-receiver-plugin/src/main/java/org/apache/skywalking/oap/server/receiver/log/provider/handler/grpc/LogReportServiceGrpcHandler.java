@@ -52,7 +52,7 @@ public class LogReportServiceGrpcHandler extends LogReportServiceGrpc.LogReportS
                                                .getService(ILogAnalyzerService.class);
 
         histogram = metricsCreator.createHistogramMetric(
-            "log_in_latency", "The process latency of log",
+            "log_in_latency_seconds", "The process latency of log",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
         errorCounter = metricsCreator.createCounter("log_analysis_error_count", "The error number of log analysis",
