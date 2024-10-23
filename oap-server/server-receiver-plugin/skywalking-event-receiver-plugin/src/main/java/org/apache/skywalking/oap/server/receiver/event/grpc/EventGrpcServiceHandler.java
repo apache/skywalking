@@ -54,7 +54,7 @@ public class EventGrpcServiceHandler extends EventServiceGrpc.EventServiceImplBa
                                             .getService(EventAnalyzerService.class);
 
         histogram = metricsCreator.createHistogramMetric(
-            "event_in_latency", "The process latency of event data",
+            "event_in_latency_seconds", "The process latency of event data",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
         errorCounter = metricsCreator.createCounter(

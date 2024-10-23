@@ -91,7 +91,7 @@ public class KafkaHandler {
                                                .provider()
                                                .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency",
+            "trace_in_latency_seconds",
             "The process latency of trace data",
             new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("zipkin-kafka")
