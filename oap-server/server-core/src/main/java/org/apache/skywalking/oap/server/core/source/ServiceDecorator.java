@@ -16,21 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.output;
+package org.apache.skywalking.oap.server.core.source;
 
-import java.util.ArrayList;
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oal.rt.parser.AnalysisResult;
+import org.apache.skywalking.oap.server.core.analysis.ISourceDecorator;
 
-@Getter
-@Setter
-public class DispatcherContext {
+public class ServiceDecorator implements ISourceDecorator<Service> {
+    @Override
+    public int getSourceScope() {
+        return DefaultScopeDefine.SERVICE;
+    }
 
-    private String sourcePackage;
-    private String source;
-    private String packageName;
-    private List<AnalysisResult> metrics = new ArrayList<>();
-    private String sourceDecorator;
+    /**
+     * Set the Layer name to attr0
+     * @param source The source instance to be decorated
+     */
+    @Override
+    public void decorate(final Service source) {
+        source.setAttr0(source.getLayer().name());
+    }
 }

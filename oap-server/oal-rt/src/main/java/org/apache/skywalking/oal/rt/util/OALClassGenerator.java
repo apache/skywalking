@@ -428,6 +428,7 @@ public class OALClassGenerator {
             absent.setSourcePackage(oalDefine.getSourcePackage());
             absent.setSource(name);
             absent.setPackageName(name.toLowerCase());
+            absent.setSourceDecorator(metricsStmt.getSourceDecorator());
             return absent;
         });
         metricsStmt.setMetricsClassPackage(oalDefine.getDynamicMetricsClassPackage());

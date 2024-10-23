@@ -9,9 +9,16 @@ private void do${metricsName}(${sourcePackage}${from.sourceName} source) {
 </#if>
 
 ${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}${metricsName}Metrics();
+<#if sourceDecorator??>
+    source.decorate("${sourceDecorator}");
+</#if>
 metrics.setTimeBucket(source.getTimeBucket());
 <#list fieldsFromSource as field>
-    metrics.${field.fieldSetter}(source.${field.fieldGetter}());
+    <#if field.attribute && !sourceDecorator??>
+        <#--Metrics share the source instance, do not process attributes unless added decorator func-->
+    <#else>
+        metrics.${field.fieldSetter}(source.${field.fieldGetter}());
+    </#if>
 </#list>
 metrics.${entryMethod.methodName}(
 <#list entryMethod.argsExpressions as arg>

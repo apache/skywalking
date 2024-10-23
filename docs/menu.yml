@@ -342,6 +342,8 @@ catalog:
         path: "/en/concepts-and-designs/profiling"
       - name : "Service Hierarchy Configuration"
         path: "/en/concepts-and-designs/service-hierarchy-configuration"
+      - name: "Metrics Attributes"
+        path: "/en/concepts-and-designs/metrics-attributes"
   - name: "Security Notice"
     path: "/en/security/readme"
   - name: "Debugging"

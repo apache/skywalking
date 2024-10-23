@@ -17,8 +17,8 @@
  */
 
 // Service scope metrics
-service_resp_time = from(Service.latency).longAvg();
-service_sla = from(Service.*).percent(status == true);
+service_resp_time = from(Service.latency).longAvg().decorator("ServiceDecorator");
+service_sla = from(Service.*).percent(status == true).decorator("ServiceDecorator");
 service_cpm = from(Service.*).cpm();
 service_percentile = from(Service.latency).percentile2(10); // Multiple values including p50, p75, p90, p95, p99
 service_percentile_old = from(Service.latency).percentile(10); // old version, use percentile func, need compatible with old version

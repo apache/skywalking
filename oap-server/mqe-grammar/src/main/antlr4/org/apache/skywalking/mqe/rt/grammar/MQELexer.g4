@@ -85,6 +85,13 @@ AGGREGATE_LABELS:   'aggregate_labels';
 SORT_VALUES: 'sort_values';
 SORT_LABEL_VALUES: 'sort_label_values';
 
+// Attributes
+ATTR0: 'attr0';
+ATTR1: 'attr1';
+ATTR2: 'attr2';
+ATTR3: 'attr3';
+ATTR4: 'attr4';
+
 // Literals
 INTEGER: Digit+;
 DECIMAL: Digit+ DOT Digit+;
