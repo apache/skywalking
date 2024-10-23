@@ -11,6 +11,7 @@
 * Change the endpoint_traffic to updatable for the additional column `last_ping`.
 * Add Component ID(5023) for the GoZero framework.
 * Support Kong monitoring.
+* Support adding additional attr[0-4] for service level metrics.
 * All self observability histogram metrics names are suffixed with `_seconds` to indicate the time unit, as per [Prometheus metrics names guide](https://prometheus.io/docs/practices/naming/),
   if you have any customized configuration files that utilize these metrics, you can migrate the metrics names with our helper script `tools/migrate-so11y-metrics-names.sh`,
   this script migrates the metrics names in files `*.yaml`, `*.java`, and `*.json` files, review and adjust the script if you have other file types.

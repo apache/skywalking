@@ -89,6 +89,8 @@ public class AnalysisResult {
      */
     private PersistenceColumns serializeFields;
 
+    private String sourceDecorator;
+
     public void addPersistentField(String fieldName, String columnName, Class<?> type) {
         if (persistentFields == null) {
             persistentFields = new ArrayList<>();

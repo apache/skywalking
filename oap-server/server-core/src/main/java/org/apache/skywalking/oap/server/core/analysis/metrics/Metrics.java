@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 public abstract class Metrics extends StreamData implements StorageData {
     public static final String ENTITY_ID = "entity_id";
     public static final String ID = "id";
+    public static final String ATTR_NAME_PREFIX = "attr";
 
     /**
      * Time attribute

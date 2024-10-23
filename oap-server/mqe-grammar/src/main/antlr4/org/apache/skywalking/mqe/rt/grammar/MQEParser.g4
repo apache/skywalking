@@ -33,7 +33,7 @@ expression
     | mathematical_operator1 L_PAREN expression COMMA parameter R_PAREN #mathematicalOperator1OP
     | trend L_PAREN metric COMMA INTEGER R_PAREN #trendOP
     | logical_operator L_PAREN expressionList R_PAREN #logicalOperatorOP
-    | topN L_PAREN metric COMMA INTEGER COMMA order R_PAREN  #topNOP
+    | topN L_PAREN metric COMMA INTEGER COMMA order (COMMA attributeList)? R_PAREN  #topNOP
     | relabels L_PAREN expression COMMA label COMMA replaceLabel R_PAREN #relablesOP
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
     | sort_values L_PAREN expression (COMMA INTEGER)? COMMA order R_PAREN #sortValuesOP
@@ -99,3 +99,8 @@ sort_values:
 
 sort_label_values:
     SORT_LABEL_VALUES;
+
+attributeName:
+    ATTR0 | ATTR1 | ATTR2 | ATTR3 | ATTR4;
+attribute: attributeName EQ VALUE_STRING;
+attributeList: attribute (COMMA attribute)*;

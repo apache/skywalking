@@ -132,6 +132,13 @@ Cast statement is supported in
 2. **Filter expression**. `.filter((cast)tag["transmission.latency"] > 0)`
 3. **Aggregation function parameter**. `.longAvg((cast)strField1== 1,  (cast)strField2)`
 
+## Decorator
+`decorator` is to select a specific decorator to decorate the source for the metrics.
+> service_resp_time = from(Service.latency).longAvg().decorator("ServiceDecorator");
+
+In this case, the `ServiceDecorator` is the `Java Class simple name` which used to decorate the source of `Service` before the aggregation function.
+This function is used to add additional attributes to the metrics. More details, see [Metrics Additional Attributes](metrics-additional-attributes.md).
+
 ## Disable
 `Disable` is an advanced statement in OAL, which is only used in certain cases.
 Some of the aggregation and metrics are defined through core hard codes. Examples include `segment` and `top_n_database_statement`.
