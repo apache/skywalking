@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
+import org.apache.skywalking.oap.server.core.analysis.ISourceDecorator;
+import org.apache.skywalking.oap.server.core.analysis.SourceDecoratorManager;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -321,6 +324,28 @@ public class ScriptParserTest {
         Assertions.assertEquals("(str->long)", castExp.getAggregationFuncStmt().getFuncConditionExpressions().get(0).getCastType());
         Assertions.assertEquals(EntryMethod.ATTRIBUTE_EXP_TYPE, castExp.getAggregationFuncStmt().getFuncArgs().get(0).getType());
         Assertions.assertEquals("(str->long)", castExp.getAggregationFuncStmt().getFuncArgs().get(0).getCastType());
+    }
+
+    @Test
+    public void testParseDecorator() throws IOException {
+        SourceDecoratorManager.DECORATOR_MAP.put("ServiceDecorator", new ISourceDecorator<ISource>() {
+            @Override
+            public int getSourceScope() {
+                return DefaultScopeDefine.SERVICE;
+            }
+
+            @Override
+            public void decorate(final ISource source) {
+
+            }
+        });
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "service_resp_time = from(Service.latency).longAvg().decorator(\"ServiceDecorator\");",
+            TEST_SOURCE_PACKAGE
+        );
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        AnalysisResult castExp = results.get(0);
+        Assertions.assertEquals("ServiceDecorator", castExp.getSourceDecorator());
     }
 
     @Test

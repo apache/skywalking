@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.ClassPath;
-import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -60,22 +57,6 @@ public class DispatcherManager implements DispatcherDetectorListener {
             for (SourceDispatcher<ISource> dispatcher : dispatchers) {
                 dispatcher.dispatch(source);
             }
-        }
-    }
-
-    /**
-     * Scan all classes under `org.apache.skywalking` package,
-     * <p>
-     * If it implement {@link org.apache.skywalking.oap.server.core.analysis.SourceDispatcher}, then, it will be added
-     * into this DispatcherManager based on the Source definition.
-     */
-    public void scan() throws IOException, IllegalAccessException, InstantiationException {
-        ClassPath classpath = ClassPath.from(this.getClass().getClassLoader());
-        ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
-        for (ClassPath.ClassInfo classInfo : classes) {
-            Class<?> aClass = classInfo.load();
-
-            addIfAsSourceDispatcher(aClass);
         }
     }
 

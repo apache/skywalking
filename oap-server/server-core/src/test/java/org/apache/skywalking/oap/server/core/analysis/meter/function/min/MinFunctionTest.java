@@ -84,31 +84,39 @@ public class MinFunctionTest {
     @Test
     public void testToHour() {
         function.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, LARGE_VALUE);
+        function.accept(meterEntity, SMALL_VALUE);
         function.calculate();
 
         final MinFunction hourFunction = (MinFunction) function.toHour();
         hourFunction.calculate();
 
         assertThat(hourFunction.getValue()).isEqualTo(SMALL_VALUE);
+        assertThat(hourFunction.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     @Test
     public void testToDay() {
         function.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, LARGE_VALUE);
+        function.accept(meterEntity, SMALL_VALUE);
         function.calculate();
 
         final MinFunction dayFunction = (MinFunction) function.toDay();
         dayFunction.calculate();
         assertThat(dayFunction.getValue()).isEqualTo(SMALL_VALUE);
+        assertThat(dayFunction.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     @Test
     public void testSerialize() {
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, SMALL_VALUE);
         MinFunction function2 = Mockito.spy(MinFunction.class);
         function2.deserialize(function.serialize().build());
 
@@ -116,11 +124,15 @@ public class MinFunctionTest {
         assertThat(function2.getTimeBucket()).isEqualTo(function.getTimeBucket());
         assertThat(function2.getServiceId()).isEqualTo(function.getServiceId());
         assertThat(function2.getValue()).isEqualTo(function.getValue());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
+
     }
 
     @Test
     public void testBuilder() throws IllegalAccessException, InstantiationException {
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, SMALL_VALUE);
         function.calculate();
         StorageBuilder<MinFunction> storageBuilder = function.builder().newInstance();
 

@@ -52,3 +52,9 @@ verify:
     # multiple-linear metrics
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_cpu_average_used --service-name=vm-service
       expected: ../expected/metrics-has-average-value-label.yml
+    # topN
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(meter_vm_cpu_load1,3,des)" --service-name=vm-service
+      expected: ../expected/topN.yml
+    # topN with attrs
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(meter_vm_cpu_load1,3,des,attr0='OS_LINUX')" --service-name=vm-service
+      expected: ../expected/topN.yml

@@ -11,6 +11,7 @@
 * Change the endpoint_traffic to updatable for the additional column `last_ping`.
 * Add Component ID(5023) for the GoZero framework.
 * Support Kong monitoring.
+* Support adding additional attr[0-4] for service level metrics.
 
 #### UI
 

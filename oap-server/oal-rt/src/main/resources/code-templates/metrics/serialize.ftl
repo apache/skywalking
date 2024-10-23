@@ -1,7 +1,7 @@
 public org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builder serialize() {
 org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builder remoteBuilder = org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.newBuilder();
 <#list serializeFields.stringFields as field>
-    remoteBuilder.addDataStrings(${field.getter}());
+    remoteBuilder.addDataStrings(${field.getter}() == null ? "" : ${field.getter}());
 </#list>
 
 <#list serializeFields.longFields as field>
