@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import java.io.IOException;
@@ -196,8 +197,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         }
         if (CollectionUtils.isNotEmpty(attributes)) {
             for (int i = 0; i < attributes.length; i++) {
-                conditions.add(
-                    PairQueryCondition.StringQueryCondition.eq(Metrics.ATTR_NAME_PREFIX + i, attributes[i]));
+                if (StringUtil.isNotEmpty(attributes[i])) {
+                    conditions.add(
+                        PairQueryCondition.StringQueryCondition.eq(Metrics.ATTR_NAME_PREFIX + i, attributes[i]));
+                }
             }
         }
         q.setConditions(conditions);
