@@ -28,6 +28,8 @@ import org.apache.skywalking.oal.rt.grammar.OALParser;
 import org.apache.skywalking.oal.rt.grammar.OALParserBaseListener;
 import org.apache.skywalking.oap.server.core.analysis.ISourceDecorator;
 import org.apache.skywalking.oap.server.core.analysis.SourceDecoratorManager;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ISource;
 
@@ -114,10 +116,10 @@ public class OALListener extends OALParserBaseListener {
 
     @Override
     public void enterDecorateSource(OALParser.DecorateSourceContext ctx) {
-        if (Objects.equals(current.getAggregationFuncStmt().getAggregationFunctionName(), "percentile2")
-            || Objects.equals(current.getAggregationFuncStmt().getAggregationFunctionName(), "percentile")) {
+        Class<? extends Metrics> metricsClass = MetricsHolder.find(current.getAggregationFuncStmt().getAggregationFunctionName());
+        if (LabeledValueHolder.class.isAssignableFrom(metricsClass)) {
             throw new IllegalArgumentException(
-                "OAL metric: " + current.getMetricsName() + " decorate source not support percentile metrics function.");
+                "OAL metric: " + current.getMetricsName() + ", decorate source not support labeled value metrics.");
         }
         String decoratorName = ctx.STRING_LITERAL().getText();
         String decoratorNameTrim = decoratorName.substring(1, decoratorName.length() - 1);
