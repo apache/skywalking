@@ -59,7 +59,7 @@ public class TelegrafServiceHandler {
                                                            .getService(MetricsCreator.class);
 
         histogram = metricsCreator.createHistogramMetric(
-                "telegraf_in_latency_seconds", "The process latency of telegraf data",
+                "telegraf_in_latency", "The process latency of telegraf data",
                 new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
 

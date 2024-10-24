@@ -49,7 +49,7 @@ public class LogReportServiceHTTPHandler {
                                           .getService(ILogAnalyzerService.class);
 
         histogram = metricsCreator.createHistogramMetric(
-            "log_in_latency_seconds", "The process latency of log",
+            "log_in_latency", "The process latency of log",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         errorCounter = metricsCreator.createCounter(

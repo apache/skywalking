@@ -110,7 +110,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             "k8s_als_error_streams", "The error count of eBPF log streams that OAP failed to process", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE);
         this.processHistogram = metricsCreator.createHistogramMetric(
-            "k8s_als_in_latency_seconds", "The processing latency of eBPF log streams", MetricsTag.EMPTY_KEY,
+            "k8s_als_in_latency", "The processing latency of eBPF log streams", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE);
         this.dropCounter = metricsCreator.createCounter(
             "k8s_als_drop_count", "The count of eBPF log entries dropped", MetricsTag.EMPTY_KEY,

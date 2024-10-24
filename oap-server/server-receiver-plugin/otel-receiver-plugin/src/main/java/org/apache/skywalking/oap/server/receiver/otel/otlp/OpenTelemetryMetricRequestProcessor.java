@@ -85,7 +85,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
 
     @Getter(lazy = true)
     private final HistogramMetrics processHistogram = getMetricsCreator().createHistogramMetric(
-        "otel_metrics_latency_seconds",
+        "otel_metrics_latency",
         "The latency to process the metrics request",
         MetricsTag.EMPTY_KEY,
         MetricsTag.EMPTY_VALUE,

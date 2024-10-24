@@ -62,8 +62,8 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
  * Then AvgPercentileFunction calculates percentile based on the above buckets.
  *
  * Example:
- * "persistence_timer_bulk_execute_latency_seconds" is histogram, the possible PromQL format of acceptable bucket value should be:
- * "increase(persistence_timer_bulk_execute_latency_seconds{service="oap-server", instance="localhost:1234"}[5m])"
+ * "persistence_timer_bulk_execute_latency" is histogram, the possible PromQL format of acceptable bucket value should be:
+ * "increase(persistence_timer_bulk_execute_latency{service="oap-server", instance="localhost:1234"}[5m])"
  */
 @MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j

@@ -17,7 +17,7 @@ cases:
   # verify traces
   - query: |
         sleep 10;
-        trace_in=$(curl -s http://${oap_host}:${oap_1234} | grep trace_in_latency_seconds_count{ | awk '{print $2}'); \
+        trace_in=$(curl -s http://${oap_host}:${oap_1234} | grep trace_in_latency_count{ | awk '{print $2}'); \
         trace_out=$(curl -s http://${oap_host}:${oap_1234} | grep kafka_exporter_trace_success_count{ | awk '{print $2}'); \
         awk 'BEGIN {print '$trace_out/$trace_in'}' | yq e '{"result": .}' -
     expected: expected/result.yml
@@ -28,7 +28,7 @@ cases:
       curl -X POST http://${provider_host}:${provider_9090}/logs/trigger > /dev/null;
       curl -X POST http://${provider_host}:${provider_9090}/logs/trigger > /dev/null;
       sleep 10;
-        log_in=$(curl -s http://${oap_host}:${oap_1234} | grep log_in_latency_seconds_count{ | awk '{print $2}'); \
+        log_in=$(curl -s http://${oap_host}:${oap_1234} | grep log_in_latency_count{ | awk '{print $2}'); \
         log_out=$(curl -s http://${oap_host}:${oap_1234} | grep kafka_exporter_log_success_count{ | awk '{print $2}'); \
         awk 'BEGIN {print '$log_out/$log_in'}' | yq e '{"result": .}' -
     expected: expected/result.yml

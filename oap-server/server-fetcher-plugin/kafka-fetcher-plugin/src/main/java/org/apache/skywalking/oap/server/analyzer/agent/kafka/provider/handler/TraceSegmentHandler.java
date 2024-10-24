@@ -54,7 +54,7 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
                                                      .provider().getService(MetricsCreator.class);
 
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency_seconds",
+            "trace_in_latency",
             "The process latency of trace data",
             new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("kafka")

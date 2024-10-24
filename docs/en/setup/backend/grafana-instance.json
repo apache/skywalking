@@ -1787,7 +1787,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(trace_in_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "rate(trace_in_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -1879,7 +1879,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(trace_in_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(trace_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2064,7 +2064,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(mesh_analysis_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "rate(mesh_analysis_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -2156,7 +2156,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(mesh_analysis_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(mesh_analysis_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2426,7 +2426,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(k8s_als_in_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(k8s_als_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -2599,7 +2599,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(meter_in_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "rate(meter_in_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -2691,7 +2691,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(meter_in_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(meter_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2876,7 +2876,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(log_in_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "rate(log_in_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -2968,7 +2968,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(log_in_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(log_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3153,7 +3153,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(event_in_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "rate(event_in_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -3245,7 +3245,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(event_in_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(event_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3430,7 +3430,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(browser_perf_data_in_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "rate(browser_perf_data_in_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -3522,7 +3522,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(browser_perf_data_in_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(browser_perf_data_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3707,7 +3707,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(browser_error_log_in_latency_seconds_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "rate(browser_error_log_in_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -3799,7 +3799,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(browser_error_log_in_latency_seconds_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(browser_error_log_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -4261,7 +4261,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(increase(trace_in_latency_seconds_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1h]))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1h]))",
           "format": "time_series",
           "hide": false,
           "interval": "1h",
@@ -4270,7 +4270,7 @@
           "refId": "A"
         },
         {
-          "expr": "sum(increase(trace_in_latency_seconds_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1h] offset 1w))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1h] offset 1w))",
           "interval": "1h",
           "legendFormat": "Last Week",
           "refId": "B"
@@ -4359,7 +4359,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(increase(trace_in_latency_seconds_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1d]))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1d]))",
           "format": "time_series",
           "hide": false,
           "interval": "1d",
@@ -4368,7 +4368,7 @@
           "refId": "A"
         },
         {
-          "expr": "sum(increase(trace_in_latency_seconds_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1d] offset 1w))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1d] offset 1w))",
           "interval": "1d",
           "legendFormat": "Last Week",
           "refId": "B"
@@ -4641,7 +4641,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(remote_in_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "rate(remote_in_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 1,
@@ -4796,7 +4796,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(persistence_timer_bulk_prepare_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(persistence_timer_bulk_prepare_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "interval": "1m",
@@ -4889,7 +4889,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(persistence_timer_bulk_prepare_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(persistence_timer_bulk_prepare_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "interval": "1m",
@@ -4982,7 +4982,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(persistence_timer_bulk_execute_latency_seconds_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(persistence_timer_bulk_execute_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "interval": "1m",
@@ -5075,7 +5075,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(persistence_timer_bulk_execute_latency_seconds_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "increase(persistence_timer_bulk_execute_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "interval": "1m",

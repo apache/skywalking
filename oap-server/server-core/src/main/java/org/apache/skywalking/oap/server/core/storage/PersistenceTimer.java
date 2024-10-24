@@ -68,14 +68,14 @@ public enum PersistenceTimer {
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
         );
         prepareLatency = metricsCreator.createHistogramMetric(
-            "persistence_timer_bulk_prepare_latency_seconds",
+            "persistence_timer_bulk_prepare_latency",
             "Latency of the prepare stage in persistence timer",
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE,
             // 50ms -> 30s should be a proper range for the persistence timer prepare stage
             .05, .075, .1, .25, .5, .75, 1, 3, 5, 10, 30
         );
         executeLatency = metricsCreator.createHistogramMetric(
-            "persistence_timer_bulk_execute_latency_seconds",
+            "persistence_timer_bulk_execute_latency",
             "Latency of the execute stage in persistence timer",
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE,
             // 500ms -> 2min should be a proper range for the persistence timer execute stage
@@ -83,7 +83,7 @@ public enum PersistenceTimer {
             0.5, 1, 3, 5, 10, 15, 20, 25, 50, 120
         );
         allLatency = metricsCreator.createHistogramMetric(
-            "persistence_timer_bulk_all_latency_seconds", "Latency of the all stage in persistence timer",
+            "persistence_timer_bulk_all_latency", "Latency of the all stage in persistence timer",
             MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE,
             // 500ms -> 2min should be a proper range for the persistence timer
             0.5, 1, 3, 5, 10, 15, 20, 25, 50, 120

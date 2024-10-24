@@ -324,7 +324,7 @@
                   "i": "16",
                   "type": "Widget",
                   "expressions": [
-                    "relabels(meter_oap_graphql_query_latency_seconds_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+                    "relabels(meter_oap_graphql_query_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "graph": {
                     "type": "Line",
@@ -606,7 +606,7 @@
                   "i": "22",
                   "type": "Widget",
                   "expressions": [
-                    "relabels(meter_oap_otel_metrics_latency_seconds_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+                    "relabels(meter_oap_otel_metrics_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "graph": {
                     "type": "Line",
@@ -628,7 +628,7 @@
                   "i": "23",
                   "type": "Widget",
                   "expressions": [
-                    "relabels(meter_oap_otel_spans_latency_seconds_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+                    "relabels(meter_oap_otel_spans_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "graph": {
                     "type": "Line",
@@ -650,7 +650,7 @@
                   "i": "24",
                   "type": "Widget",
                   "expressions": [
-                    "relabels(meter_oap_otel_logs_latency_seconds_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+                    "relabels(meter_oap_otel_logs_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "graph": {
                     "type": "Line",
