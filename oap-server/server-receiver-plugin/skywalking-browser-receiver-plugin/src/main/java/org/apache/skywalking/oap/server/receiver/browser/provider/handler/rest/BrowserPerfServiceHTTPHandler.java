@@ -64,7 +64,7 @@ public class BrowserPerfServiceHTTPHandler {
                                                      .getService(MetricsCreator.class);
 
         perfHistogram = metricsCreator.createHistogramMetric(
-            "browser_perf_data_in_latency_seconds", "The process latency of browser performance data",
+            "browser_perf_data_in_latency", "The process latency of browser performance data",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         perfErrorCounter = metricsCreator.createCounter(
@@ -73,7 +73,7 @@ public class BrowserPerfServiceHTTPHandler {
         );
 
         errorLogHistogram = metricsCreator.createHistogramMetric(
-            "browser_error_log_in_latency_seconds_seconds", "The process latency of browser error log", new MetricsTag.Keys("protocol"),
+            "browser_error_log_in_latency", "The process latency of browser error log", new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("http")
         );
         logErrorCounter = metricsCreator.createCounter(

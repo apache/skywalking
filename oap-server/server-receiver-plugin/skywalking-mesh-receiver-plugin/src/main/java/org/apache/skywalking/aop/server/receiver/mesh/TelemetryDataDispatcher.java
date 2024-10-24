@@ -77,7 +77,7 @@ public class TelemetryDataDispatcher {
                                            .provider()
                                            .getService(NamingControl.class);
         MESH_ANALYSIS_METRICS = metricsCreator.createHistogramMetric(
-            "mesh_analysis_latency_seconds", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY,
+            "mesh_analysis_latency", "The process latency of service mesh telemetry", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
         MESH_ERROR_METRICS = metricsCreator.createCounter("mesh_analysis_error_count",

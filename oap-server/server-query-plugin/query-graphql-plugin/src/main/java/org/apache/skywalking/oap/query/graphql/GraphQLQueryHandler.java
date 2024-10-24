@@ -48,7 +48,7 @@ public class GraphQLQueryHandler {
                      .provider()
                      .getService(MetricsCreator.class)
                      .createHistogramMetric(
-                            "graphql_query_latency_seconds", 
+                            "graphql_query_latency", 
                             "The processing latency of graphql query",
                             MetricsTag.EMPTY_KEY,
                             MetricsTag.EMPTY_VALUE);

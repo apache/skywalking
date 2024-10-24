@@ -74,7 +74,7 @@ public class OpenTelemetryTraceHandler
 
     @Getter(lazy = true)
     private final HistogramMetrics processHistogram = getMetricsCreator().createHistogramMetric(
-        "otel_spans_latency_seconds",
+        "otel_spans_latency",
         "The latency to process the span request",
         MetricsTag.EMPTY_KEY,
         MetricsTag.EMPTY_VALUE

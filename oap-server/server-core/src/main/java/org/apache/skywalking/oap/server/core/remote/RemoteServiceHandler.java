@@ -87,7 +87,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                                               .provider()
                                               .getService(MetricsCreator.class)
                                               .createHistogramMetric(
-                                                  "remote_in_latency_seconds",
+                                                  "remote_in_latency",
                                                   "The latency(server side) of inside remote inside aggregate rpc.",
                                                   MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE
                                               );

@@ -69,7 +69,7 @@ public class BrowserPerfServiceHandler extends BrowserPerfServiceGrpc.BrowserPer
 
         // performance
         perfHistogram = metricsCreator.createHistogramMetric(
-            "browser_perf_data_in_latency_seconds", "The process latency of browser performance data",
+            "browser_perf_data_in_latency", "The process latency of browser performance data",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
         perfErrorCounter = metricsCreator.createCounter(
@@ -79,7 +79,7 @@ public class BrowserPerfServiceHandler extends BrowserPerfServiceGrpc.BrowserPer
 
         // error log
         errorLogHistogram = metricsCreator.createHistogramMetric(
-            "browser_error_log_in_latency_seconds_seconds", "The process latency of browser error log", new MetricsTag.Keys("protocol"),
+            "browser_error_log_in_latency", "The process latency of browser error log", new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("grpc")
         );
         logErrorCounter = metricsCreator.createCounter(

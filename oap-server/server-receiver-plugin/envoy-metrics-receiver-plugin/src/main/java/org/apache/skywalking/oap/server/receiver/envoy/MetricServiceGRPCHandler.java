@@ -69,7 +69,7 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
             MetricsTag.EMPTY_VALUE
         );
         histogram = metricsCreator.createHistogramMetric(
-            "envoy_metric_in_latency_seconds", "The process latency of service metrics receiver", MetricsTag.EMPTY_KEY,
+            "envoy_metric_in_latency", "The process latency of service metrics receiver", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
 

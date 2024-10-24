@@ -49,7 +49,7 @@ public class ProfileTaskHandler extends AbstractKafkaHandler {
                 .provider()
                 .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-                "profile_task_in_latency_seconds",
+                "profile_task_in_latency",
                 "The process latency of profile task",
                 new Keys("protocol"),
                 new Values("kafka")

@@ -1177,12 +1177,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(trace_in_latency_seconds_count{job=\"$job\"}[1m]))",
+          "expr": "sum(rate(trace_in_latency_count{job=\"$job\"}[1m]))",
           "legendFormat": "total",
           "refId": "B"
         },
         {
-          "expr": "rate(trace_in_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "rate(trace_in_latency_count{job=\"$job\"}[1m])",
           "legendFormat": "{{instance}}-{{protocol}}",
           "refId": "A"
         }
@@ -1271,7 +1271,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(trace_in_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(trace_in_latency_sum{job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1454,12 +1454,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(mesh_analysis_latency_seconds_count{job=\"$job\"}[1m]))",
+          "expr": "sum(rate(mesh_analysis_latency_count{job=\"$job\"}[1m]))",
           "legendFormat": "total",
           "refId": "A"
         },
         {
-          "expr": "rate(mesh_analysis_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "rate(mesh_analysis_latency_count{job=\"$job\"}[1m])",
           "legendFormat": "{{instance}}",
           "refId": "B"
         }
@@ -1548,7 +1548,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(mesh_analysis_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(mesh_analysis_latency_sum{job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -1829,7 +1829,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(k8s_als_in_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(k8s_als_in_latency_sum{job=\"$job\"}[1m])",
           "interval": "",
           "legendFormat": "{{instance}}",
           "refId": "A"
@@ -2006,12 +2006,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(meter_in_latency_seconds_count{job=\"$job\"}[1m]))",
+          "expr": "sum(rate(meter_in_latency_count{job=\"$job\"}[1m]))",
           "legendFormat": "total",
           "refId": "A"
         },
         {
-          "expr": "rate(meter_in_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "rate(meter_in_latency_count{job=\"$job\"}[1m])",
           "legendFormat": "{{instance}}-{{protocol}}",
           "refId": "B"
         }
@@ -2100,7 +2100,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(meter_in_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(meter_in_latency_sum{job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2287,12 +2287,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(log_in_latency_seconds_count{job=\"$job\"}[1m]))",
+          "expr": "sum(rate(log_in_latency_count{job=\"$job\"}[1m]))",
           "legendFormat": "total",
           "refId": "A"
         },
         {
-          "expr": "rate(log_in_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "rate(log_in_latency_count{job=\"$job\"}[1m])",
           "legendFormat": "{{instance}}-{{protocol}}",
           "refId": "B"
         }
@@ -2381,7 +2381,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(log_in_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(log_in_latency_sum{job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2568,12 +2568,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(event_in_latency_seconds_count{job=\"$job\"}[1m]))",
+          "expr": "sum(rate(event_in_latency_count{job=\"$job\"}[1m]))",
           "legendFormat": "total",
           "refId": "A"
         },
         {
-          "expr": "rate(event_in_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "rate(event_in_latency_count{job=\"$job\"}[1m])",
           "legendFormat": "{{instance}}-{{protocol}}",
           "refId": "B"
         }
@@ -2662,7 +2662,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(event_in_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(event_in_latency_sum{job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -2849,12 +2849,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(browser_perf_data_in_latency_seconds_count{job=\"$job\"}[1m]))",
+          "expr": "sum(rate(browser_perf_data_in_latency_count{job=\"$job\"}[1m]))",
           "legendFormat": "total",
           "refId": "A"
         },
         {
-          "expr": "rate(browser_perf_data_in_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "rate(browser_perf_data_in_latency_count{job=\"$job\"}[1m])",
           "legendFormat": "{{instance}}-{{protocol}}",
           "refId": "B"
         }
@@ -2943,7 +2943,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(browser_perf_data_in_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(browser_perf_data_in_latency_sum{job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3130,12 +3130,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(browser_error_log_in_latency_seconds_seconds_count{job=\"$job\"}[1m]))",
+          "expr": "sum(rate(browser_error_log_in_latency_count{job=\"$job\"}[1m]))",
           "legendFormat": "total",
           "refId": "A"
         },
         {
-          "expr": "rate(browser_error_log_in_latency_seconds_seconds_count{job=\"$job\"}[1m])",
+          "expr": "rate(browser_error_log_in_latency_count{job=\"$job\"}[1m])",
           "legendFormat": "{{instance}}-{{protocol}}",
           "refId": "B"
         }
@@ -3224,7 +3224,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(browser_error_log_in_latency_seconds_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(browser_error_log_in_latency_sum{job=\"$job\"}[1m])",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3692,13 +3692,13 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(increase(trace_in_latency_seconds_count{job=\"$job\",protocol=~\"kafka-fetcher|grpc\"}[1h]))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",protocol=~\"kafka-fetcher|grpc\"}[1h]))",
           "interval": "1h",
           "legendFormat": "Current Week",
           "refId": "B"
         },
         {
-          "expr": "sum(increase(trace_in_latency_seconds_count{job=\"$job\",protocol=~\"kafka-fetcher|grpc\"}[1h] offset 1w))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",protocol=~\"kafka-fetcher|grpc\"}[1h] offset 1w))",
           "interval": "1h",
           "legendFormat": "Last Week",
           "refId": "A"
@@ -3787,13 +3787,13 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(increase(trace_in_latency_seconds_count{job=\"$job\",protocol=~\"kafka-fetcher|grpc\"}[1d]))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",protocol=~\"kafka-fetcher|grpc\"}[1d]))",
           "interval": "1d",
           "legendFormat": "Current Week",
           "refId": "B"
         },
         {
-          "expr": "sum(increase(trace_in_latency_seconds_count{job=\"$job\",protocol=~\"kafka-fetcher|grpc\"}[1d] offset 1w))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",protocol=~\"kafka-fetcher|grpc\"}[1d] offset 1w))",
           "interval": "1d",
           "legendFormat": "Last Week",
           "refId": "A"
@@ -4066,12 +4066,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(remote_in_latency_seconds_count{job=\"$job\"}[1m]))",
+          "expr": "sum(rate(remote_in_latency_count{job=\"$job\"}[1m]))",
           "legendFormat": "total",
           "refId": "A"
         },
         {
-          "expr": "rate(remote_in_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "rate(remote_in_latency_count{job=\"$job\"}[1m])",
           "legendFormat": "{{instance}}",
           "refId": "B"
         }
@@ -4231,7 +4231,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(persistence_timer_bulk_prepare_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "increase(persistence_timer_bulk_prepare_latency_count{job=\"$job\"}[1m])",
           "instant": false,
           "interval": "1m",
           "legendFormat": "{{instance}}",
@@ -4322,7 +4322,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(persistence_timer_bulk_prepare_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(persistence_timer_bulk_prepare_latency_sum{job=\"$job\"}[1m])",
           "interval": "1m",
           "legendFormat": "{{instance}}",
           "refId": "A"
@@ -4412,7 +4412,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(persistence_timer_bulk_execute_latency_seconds_count{job=\"$job\"}[1m])",
+          "expr": "increase(persistence_timer_bulk_execute_latency_count{job=\"$job\"}[1m])",
           "interval": "1m",
           "legendFormat": "{{instance}}",
           "refId": "A"
@@ -4502,7 +4502,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "increase(persistence_timer_bulk_execute_latency_seconds_sum{job=\"$job\"}[1m])",
+          "expr": "increase(persistence_timer_bulk_execute_latency_sum{job=\"$job\"}[1m])",
           "interval": "1m",
           "legendFormat": "{{instance}}",
           "refId": "A"
