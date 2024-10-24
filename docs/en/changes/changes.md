@@ -20,6 +20,7 @@
 * Support the endpoint list widget query with duration parameter.
 * Support ranges for Value Mappings.
 * Add service global topN widget on `General-Root` and `Mesh-Root` dashboard.
+* Fix initialization dashboards.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.

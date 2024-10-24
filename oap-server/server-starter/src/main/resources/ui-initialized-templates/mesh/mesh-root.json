@@ -243,7 +243,7 @@
           "i": "104",
           "type": "Widget",
           "expressions": [
-            "top_n(service_apdex,10,des,attr0='MESH')/10000"
+            "top_n(service_apdex,10,asc,attr0='MESH')/10000"
           ],
           "graph": {
             "type": "TopList",
