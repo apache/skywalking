@@ -15,13 +15,17 @@
 
 type: SORTED_LIST
 results:
+  {{- contains .results }}
   - metric:
       labels: []
     values:
-      - id: e2e-service-consumer
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
         value: "100"
         traceid: null
-      - id: e2e-service-provider
+      - id: {{ notEmpty .id }}
         value: "100"
         traceid: null
+      {{- end }}
+  {{- end }}
 error: null
