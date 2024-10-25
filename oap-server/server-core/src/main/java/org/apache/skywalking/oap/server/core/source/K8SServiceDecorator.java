@@ -16,20 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
+package org.apache.skywalking.oap.server.core.source;
 
-import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.K8SEndpoint;
+import org.apache.skywalking.oap.server.core.analysis.ISourceDecorator;
 
-public class K8SEndpointTrafficDispatcher implements SourceDispatcher<K8SEndpoint> {
+public class K8SServiceDecorator implements ISourceDecorator<K8SService> {
     @Override
-    public void dispatch(K8SEndpoint source) {
-        final EndpointTraffic traffic = new EndpointTraffic();
-        traffic.setTimeBucket(source.getTimeBucket());
-        traffic.setName(source.getEndpointName());
-        traffic.setServiceId(source.getServiceId());
-        traffic.setLastPingTimestamp(source.getTimeBucket());
-        MetricsStreamProcessor.getInstance().in(traffic);
+    public int getSourceScope() {
+        return DefaultScopeDefine.K8S_SERVICE;
+    }
+
+    /**
+     * Set the Layer name to attr0
+     * @param source The source instance to be decorated
+     */
+    @Override
+    public void decorate(final K8SService source) {
+        source.setAttr0(source.getLayer().name());
     }
 }

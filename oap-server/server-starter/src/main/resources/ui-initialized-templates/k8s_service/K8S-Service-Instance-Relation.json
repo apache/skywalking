@@ -1816,13 +1816,13 @@
                   "i": "16",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_client_write_l4_duration/kubernetes_service_instance_relation_client_write_cpm",
-                    "kubernetes_service_instance_relation_client_write_l3_duration/kubernetes_service_instance_relation_client_write_cpm",
-                    "kubernetes_service_instance_relation_client_write_l3_local_duration/kubernetes_service_instance_relation_client_write_cpm",
-                    "kubernetes_service_instance_relation_client_write_l3_output_duration/kubernetes_service_instance_relation_client_write_cpm",
-                    "kubernetes_service_instance_relation_client_write_l2_duration/kubernetes_service_instance_relation_client_write_cpm",
-                    "kubernetes_service_instance_relation_client_write_l2_ready_send_duration/kubernetes_service_instance_relation_client_write_cpm",
-                    "kubernetes_service_instance_relation_client_write_l2_net_dev_send_duration/kubernetes_service_instance_relation_client_write_cpm"
+                    "kubernetes_service_instance_relation_client_write_l4_time",
+                    "kubernetes_service_instance_relation_client_write_l3_time",
+                    "kubernetes_service_instance_relation_client_write_l3_local_time",
+                    "kubernetes_service_instance_relation_client_write_l3_output_time",
+                    "kubernetes_service_instance_relation_client_write_l2_time",
+                    "kubernetes_service_instance_relation_client_write_l2_ready_send_time",
+                    "kubernetes_service_instance_relation_client_write_l2_net_dev_send_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1951,11 +1951,11 @@
                   "i": "17",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_client_read_l4_duration/kubernetes_service_instance_relation_client_read_cpm",
-                    "kubernetes_service_instance_relation_client_read_l3_duration/kubernetes_service_instance_relation_client_read_cpm",
-                    "kubernetes_service_instance_relation_client_read_l3_rcv_duration/kubernetes_service_instance_relation_client_read_cpm",
-                    "kubernetes_service_instance_relation_client_read_l3_local_duration/kubernetes_service_instance_relation_client_read_cpm",
-                    "kubernetes_service_instance_relation_client_read_l2_package_to_queue_duration/kubernetes_service_instance_relation_client_read_cpm"
+                    "kubernetes_service_instance_relation_client_read_l4_time",
+                    "kubernetes_service_instance_relation_client_read_l3_time",
+                    "kubernetes_service_instance_relation_client_read_l3_rcv_time",
+                    "kubernetes_service_instance_relation_client_read_l3_local_time",
+                    "kubernetes_service_instance_relation_client_read_l2_package_to_queue_time"
                   ],
                   "metricConfig": [
                     {
@@ -2078,13 +2078,13 @@
                   "i": "18",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_server_write_l4_duration/kubernetes_service_instance_relation_server_write_cpm",
-                    "kubernetes_service_instance_relation_server_write_l3_duration/kubernetes_service_instance_relation_server_write_cpm",
-                    "kubernetes_service_instance_relation_server_write_l3_local_duration/kubernetes_service_instance_relation_server_write_cpm",
-                    "kubernetes_service_instance_relation_server_write_l3_output_duration/kubernetes_service_instance_relation_server_write_cpm",
-                    "kubernetes_service_instance_relation_server_write_l2_duration/kubernetes_service_instance_relation_server_write_cpm",
-                    "kubernetes_service_instance_relation_server_write_l2_ready_send_duration/kubernetes_service_instance_relation_server_write_cpm",
-                    "kubernetes_service_instance_relation_server_write_l2_net_dev_send_duration/kubernetes_service_instance_relation_server_write_cpm"
+                    "kubernetes_service_instance_relation_server_write_l4_time",
+                    "kubernetes_service_instance_relation_server_write_l3_time",
+                    "kubernetes_service_instance_relation_server_write_l3_local_time",
+                    "kubernetes_service_instance_relation_server_write_l3_output_time",
+                    "kubernetes_service_instance_relation_server_write_l2_time",
+                    "kubernetes_service_instance_relation_server_write_l2_ready_send_time",
+                    "kubernetes_service_instance_relation_server_write_l2_net_dev_send_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -2213,11 +2213,11 @@
                   "i": "19",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_server_read_l4_duration/kubernetes_service_instance_relation_server_read_cpm",
-                    "kubernetes_service_instance_relation_server_read_l3_duration/kubernetes_service_instance_relation_server_read_cpm",
-                    "kubernetes_service_instance_relation_server_read_l3_rcv_duration/kubernetes_service_instance_relation_server_read_cpm",
-                    "kubernetes_service_instance_relation_server_read_l3_local_duration/kubernetes_service_instance_relation_server_read_cpm",
-                    "kubernetes_service_instance_relation_server_read_l2_package_to_queue_duration/kubernetes_service_instance_relation_server_read_cpm"
+                    "kubernetes_service_instance_relation_server_read_l4_time",
+                    "kubernetes_service_instance_relation_server_read_l3_time",
+                    "kubernetes_service_instance_relation_server_read_l3_rcv_time",
+                    "kubernetes_service_instance_relation_server_read_l3_local_time",
+                    "kubernetes_service_instance_relation_server_read_l2_package_to_queue_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3286,7 +3286,7 @@
                   "i": "1",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_client_http_call_duration/kubernetes_service_instance_relation_client_http_call_cpm"
+                    "kubernetes_service_instance_relation_client_http_call_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3400,7 +3400,7 @@
                   "i": "3",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_server_http_call_duration/kubernetes_service_instance_relation_server_http_call_cpm"
+                    "kubernetes_service_instance_relation_server_http_call_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3457,8 +3457,8 @@
                   "i": "4",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_server_http_req_header_size/kubernetes_service_instance_relation_server_http_call_cpm/1024",
-                    "kubernetes_service_instance_relation_server_http_req_body_size/kubernetes_service_instance_relation_server_http_call_cpm/1024"
+                    "kubernetes_service_instance_relation_server_http_avg_req_header_size/1024",
+                    "kubernetes_service_instance_relation_server_http_avg_req_header_size/1024"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3518,8 +3518,8 @@
                   "i": "5",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_server_http_resp_header_size/kubernetes_service_instance_relation_server_http_call_cpm/1024",
-                    "kubernetes_service_instance_relation_server_http_resp_body_size/kubernetes_service_instance_relation_server_http_call_cpm/1024"
+                    "kubernetes_service_instance_relation_server_http_avg_resp_header_size/1024",
+                    "kubernetes_service_instance_relation_server_http_avg_resp_body_size/1024"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3579,8 +3579,8 @@
                   "i": "6",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_client_http_req_header_size/kubernetes_service_instance_relation_client_http_call_cpm/1024",
-                    "kubernetes_service_instance_relation_client_http_req_body_size/kubernetes_service_instance_relation_client_http_call_cpm/1024"
+                    "kubernetes_service_instance_relation_client_http_avg_req_header_size/1024",
+                    "kubernetes_service_instance_relation_client_http_avg_req_body_size/1024"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3640,8 +3640,8 @@
                   "i": "7",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_instance_relation_server_http_resp_header_size/kubernetes_service_instance_relation_server_http_call_cpm/1024",
-                    "kubernetes_service_instance_relation_server_http_resp_body_size/kubernetes_service_instance_relation_server_http_call_cpm/1024"
+                    "kubernetes_service_instance_relation_client_http_avg_resp_header_size/1024",
+                    "kubernetes_service_instance_relation_client_http_avg_resp_body_size/1024"
                   ],
                   "graph": {
                     "type": "Line",

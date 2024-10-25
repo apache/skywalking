@@ -42,7 +42,7 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_read_cpm --service-name=productpage.default
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_write_l4_duration --service-name=productpage.default
+  - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_write_l4_time --service-name=productpage.default
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_read_l4_duration --service-name=productpage.default
     expected: expected/metrics-has-value.yml
