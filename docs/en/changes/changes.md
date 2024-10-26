@@ -19,8 +19,9 @@
 * Add content decorations to Table and Card widgets.
 * Support the endpoint list widget query with duration parameter.
 * Support ranges for Value Mappings.
-* Add service global topN widget on `General-Root` and `Mesh-Root` dashboard.
+* Add service global topN widget on `General-Root`, `Mesh-Root`, `K8S-Root` dashboard.
 * Fix initialization dashboards.
+* Update the Kubernetes metrics for reduce multiple metrics calculate in MQE.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.

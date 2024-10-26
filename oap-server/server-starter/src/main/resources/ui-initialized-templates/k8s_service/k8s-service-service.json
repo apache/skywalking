@@ -233,23 +233,23 @@
                     "avg(kubernetes_service_relation_server_write_package_size)/60",
                     "avg(kubernetes_service_relation_server_read_package_size)/60",
                     "avg(kubernetes_service_relation_server_http_call_cpm)/60",
-                    "avg(kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_client_http_call_cpm)"
+                    "avg(kubernetes_service_relation_server_http_call_time)"
                   ],
                   "linkClientExpressions": [
                     "avg(kubernetes_service_relation_client_write_package_size)/60",
                     "avg(kubernetes_service_relation_client_read_package_size)/60",
                     "avg(kubernetes_service_relation_client_http_call_cpm)/60",
-                    "avg(kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_server_http_call_cpm)"
+                    "avg(kubernetes_service_relation_client_http_call_time)"
                   ],
                   "nodeExpressions": [
                     "avg(kubernetes_service_write_package_size)/60",
                     "avg(kubernetes_service_read_package_size)/60",
                     "avg(kubernetes_service_http_call_cpm)",
-                    "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)",
-                    "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
+                    "avg(kubernetes_service_http_call_time)",
+                    "avg(kubernetes_service_http_call_successful_rate/100)"
                   ],
                   "legendMQE": {
-                    "expression": "(avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100) < 95) * (avg(kubernetes_service_http_call_cpm) > 1) == 1"
+                    "expression": "(avg(kubernetes_service_http_call_successful_rate) < 9500) * (avg(kubernetes_service_http_call_cpm) > 1) == 1"
                   },
                   "description": {
                     "healthy": "Healthy",
@@ -406,7 +406,7 @@
                   "i": "1",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_connect_duration/kubernetes_service_connect_cpm"
+                    "kubernetes_service_connect_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -551,7 +551,7 @@
                   "i": "3",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_accept_duration/kubernetes_service_accept_cpm"
+                    "kubernetes_service_accept_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -930,7 +930,7 @@
                   "i": "8",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_write_duration/kubernetes_service_write_cpm"
+                    "kubernetes_service_write_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1000,7 +1000,7 @@
                   "i": "9",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_read_duration/kubernetes_service_read_cpm"
+                    "kubernetes_service_read_time"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1070,11 +1070,11 @@
                   "i": "10",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_read_l4_duration/kubernetes_service_read_cpm",
-                    "kubernetes_service_read_l3_duration/kubernetes_service_read_cpm",
-                    "kubernetes_service_read_l3_rcv_duration/kubernetes_service_read_cpm",
-                    "kubernetes_service_read_l3_local_duration/kubernetes_service_read_cpm",
-                    "kubernetes_service_read_package_to_queue_duration/kubernetes_service_read_package_cpm"
+                    "kubernetes_service_read_l4_time",
+                    "kubernetes_service_read_l3_time",
+                    "kubernetes_service_read_l3_rcv_time",
+                    "kubernetes_service_read_l3_local_time",
+                    "kubernetes_service_read_package_to_queue_time"
                   ],
                   "metricConfig": [
                     {
@@ -1161,14 +1161,14 @@
                   "i": "11",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_write_l4_duration/kubernetes_service_write_cpm",
-                    "kubernetes_service_write_l3_duration/kubernetes_service_write_cpm",
-                    "kubernetes_service_write_l3_local_duration/kubernetes_service_write_cpm",
-                    "kubernetes_service_write_l3_output_duration/kubernetes_service_write_cpm",
-                    "kubernetes_service_write_l2_duration/kubernetes_service_write_cpm",
-                    "kubernetes_service_write_l2_enter_queue_count/kubernetes_service_write_cpm",
-                    "kubernetes_service_write_l2_ready_send_duration/kubernetes_service_write_cpm",
-                    "kubernetes_service_write_l2_net_device_send_duration/kubernetes_service_write_cpm"
+                    "kubernetes_service_write_l4_time",
+                    "kubernetes_service_write_l3_time",
+                    "kubernetes_service_write_l3_local_time",
+                    "kubernetes_service_write_l3_output_time",
+                    "kubernetes_service_write_l2_time",
+                    "kubernetes_service_write_l2_enter_avg_queue_count",
+                    "kubernetes_service_write_l2_ready_avg_send_duration",
+                    "kubernetes_service_write_l2_net_device_avg_send_duration"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1614,7 +1614,7 @@
                   "i": "1",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm"
+                    "kubernetes_service_http_call_time"
                   ],
                   "metricConfig": [
                     {
@@ -1656,8 +1656,8 @@
                   "i": "2",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_http_req_header_size/kubernetes_service_http_call_cpm/1024",
-                    "kubernetes_service_http_req_body_size/kubernetes_service_http_call_cpm/1024"
+                    "kubernetes_service_http_avg_req_header_size/1024",
+                    "kubernetes_service_http_avg_req_body_size/1024"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1702,8 +1702,8 @@
                   "i": "3",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_http_resp_header_size/kubernetes_service_http_call_cpm/1024",
-                    "kubernetes_service_http_resp_body_size/kubernetes_service_http_call_cpm/1024"
+                    "kubernetes_service_http_avg_resp_header_size/1024",
+                    "kubernetes_service_http_avg_resp_body_size/1024"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1831,8 +1831,8 @@
                   ],
                   "expressions": [
                     "latest(kubernetes_service_instance_http_call_cpm)",
-                    "latest(kubernetes_service_instance_http_call_duration/kubernetes_service_instance_http_call_cpm)",
-                    "latest(kubernetes_service_instance_http_call_success_count/kubernetes_service_instance_http_call_cpm*100)"
+                    "latest(kubernetes_service_instance_http_call_time)",
+                    "latest(kubernetes_service_instance_http_call_successful_rate/100)"
                   ]
                 }
               ]
@@ -1873,13 +1873,13 @@
                   ],
                   "expressions": [
                     "avg(kubernetes_service_endpoint_call_cpm)",
-                    "avg(kubernetes_service_endpoint_call_success_cpm/kubernetes_service_endpoint_call_cpm*100)",
-                    "avg(kubernetes_service_endpoint_call_duration/kubernetes_service_endpoint_call_cpm)"
+                    "avg(kubernetes_service_endpoint_call_successful_rate/100)",
+                    "avg(kubernetes_service_endpoint_call_time)"
                   ],
                   "subExpressions": [
                     "kubernetes_service_endpoint_call_cpm",
-                    "kubernetes_service_endpoint_call_success_cpm/kubernetes_service_endpoint_call_cpm*100",
-                    "kubernetes_service_endpoint_call_duration/kubernetes_service_endpoint_call_cpm"
+                    "kubernetes_service_endpoint_call_successful_rate/100",
+                    "kubernetes_service_endpoint_call_time"
                   ]
                 }
               ]
@@ -1928,8 +1928,8 @@
         "avg(kubernetes_service_write_package_size)/60",
         "avg(kubernetes_service_read_package_size)/60",
         "avg(kubernetes_service_http_call_cpm)",
-        "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)",
-        "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
+        "avg(kubernetes_service_http_call_time)",
+        "avg(kubernetes_service_http_call_successful_rate/100)"
       ],
       "expressionsConfig": [
         {
