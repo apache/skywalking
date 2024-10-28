@@ -54,7 +54,9 @@ public class SourceDecoratorManager {
                     ISourceDecorator<ISource> decorator = (ISourceDecorator) aClass.newInstance();
                     ISourceDecorator<ISource> exist = DECORATOR_MAP.put(aClass.getSimpleName(), decorator);
                     if (exist != null) {
-                        throw new IllegalStateException("Deprecated decorator: " + aClass.getName() + " the class simple name is already used.");
+                        throw new IllegalStateException(
+                            "Conflict decorator names: The " + aClass.getName() + " class simple name is the same with " + exist.getClass().getName() +
+                                ", please change the class simple name.");
                     }
                     log.info("Decorator {} is added into DefaultScopeDefine {}.", decorator.getClass()
                                                                                                 .getName(), ((ISource) source).scope());
