@@ -123,8 +123,8 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     public List<Endpoint> findEndpoint(final String keyword, final String serviceId,
-                                       final int limit) throws IOException {
-        return getMetadataQueryDAO().findEndpoint(keyword, serviceId, limit)
+                                       final int limit, final Duration duration) throws IOException {
+        return getMetadataQueryDAO().findEndpoint(keyword, serviceId, limit, duration)
                                     .stream().distinct().collect(Collectors.toList());
     }
 

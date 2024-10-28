@@ -389,15 +389,15 @@ public class CoreModuleProvider extends ModuleProvider {
             moduleConfig.getMaxHttpUrisNumberPerService()
         );
 
-        // Disable OAL script has higher priority
-        oalEngineLoaderService.load(DisableOALDefine.INSTANCE);
-
         try {
             receiver.scan();
             annotationScan.scan();
         } catch (IOException | IllegalAccessException | InstantiationException | StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+
+        // Disable OAL script has higher priority
+        oalEngineLoaderService.load(DisableOALDefine.INSTANCE);
 
         Address gRPCServerInstanceAddress = new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true);
         TelemetryRelatedContext.INSTANCE.setId(gRPCServerInstanceAddress.toString());

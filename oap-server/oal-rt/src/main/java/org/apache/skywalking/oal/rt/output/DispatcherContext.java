@@ -32,4 +32,5 @@ public class DispatcherContext {
     private String source;
     private String packageName;
     private List<AnalysisResult> metrics = new ArrayList<>();
+    private String sourceDecorator;
 }

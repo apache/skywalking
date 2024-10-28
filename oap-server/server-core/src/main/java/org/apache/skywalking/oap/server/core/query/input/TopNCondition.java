@@ -57,6 +57,12 @@ public class TopNCondition {
     private Scope scope;
     private int topN;
     private Order order;
+    /**
+     * @since 10.2.0
+     * Attributes for query condition, if the metrics support attributes from
+     * {@link org.apache.skywalking.oap.server.core.analysis.ISourceDecorator}.
+     */
+    private String[] attributes;
 
     /**
      * Sense Scope through metric name.

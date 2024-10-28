@@ -205,7 +205,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) {
+    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit, Duration duration) {
         final var results = new ArrayList<Endpoint>();
         final var tables = tableHelper.getTablesWithinTTL(EndpointTraffic.INDEX_NAME);
 
@@ -222,6 +222,14 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             if (!Strings.isNullOrEmpty(keyword)) {
                 sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
                 condition.add(keyword);
+            }
+            if (duration != null) {
+                final var startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+                final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+                sql.append(" and ").append(EndpointTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+                condition.add(startMinuteTimeBucket);
+                sql.append(" and ").append(EndpointTraffic.LAST_PING_TIME_BUCKET).append(" <= ?");
+                condition.add(endMinuteTimeBucket);
             }
             sql.append(" order by ").append(EndpointTraffic.TIME_BUCKET).append(" desc");
             sql.append(" limit ").append(limit);
@@ -248,16 +256,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
-        List<String> tables;
-        if (lastPingStartTimeBucket > 0 && lastPingEndTimeBucket > 0) {
-            tables = tableHelper.getTablesForRead(
-                ProcessTraffic.INDEX_NAME,
-                lastPingStartTimeBucket,
-                lastPingEndTimeBucket
-            );
-        } else {
-            tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
-        }
+        List<String> tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         final var results = new ArrayList<Process>();
 
         for (String table : tables) {
@@ -297,11 +296,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) {
-        final var tables = tableHelper.getTablesForRead(
-            ProcessTraffic.INDEX_NAME,
-            duration.getStartTimeBucket(),
-            duration.getEndTimeBucket()
-        );
+        final List<String> tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         final var results = new ArrayList<Process>();
 
         for (String table : tables) {
@@ -337,7 +332,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<Process> listProcesses(String agentId) {
+    public List<Process> listProcesses(String agentId, long startPingTimeBucket, long endPingTimeBucket) {
         final var tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         final var results = new ArrayList<Process>();
 
@@ -364,11 +359,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
-        final var tables = tableHelper.getTablesForRead(
-            ProcessTraffic.INDEX_NAME,
-            lastPingStartTimeBucket,
-            lastPingEndTimeBucket
-        );
+        final var tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         long total = 0;
 
         for (String table : tables) {

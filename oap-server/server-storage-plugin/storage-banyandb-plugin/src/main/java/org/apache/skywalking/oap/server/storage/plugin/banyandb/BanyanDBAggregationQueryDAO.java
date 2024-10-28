@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
@@ -82,9 +83,9 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
                                         TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
         TopNQueryResponse resp = null;
         if (condition.getOrder() == Order.DES) {
-            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions);
+            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions, condition.getAttributes());
         } else {
-            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions);
+            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions, condition.getAttributes());
         }
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -121,6 +122,16 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
                                             additionalCondition.getKey(),
                                             additionalCondition.getValue()
                                     )));
+                        }
+                        if (CollectionUtils.isNotEmpty(condition.getAttributes())) {
+                            for (int i = 0; i < condition.getAttributes().length; i++) {
+                                if (StringUtil.isNotEmpty(condition.getAttributes()[i])) {
+                                    query.and(eq(
+                                        Metrics.ATTR_NAME_PREFIX + i,
+                                        condition.getAttributes()[i]
+                                    ));
+                                }
+                            }
                         }
                     }
                 });

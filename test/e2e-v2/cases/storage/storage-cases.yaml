@@ -160,3 +160,9 @@ cases:
           | yq e '.traces[0].traceids[0]' - \
       )
     expected: expected/trace-users-detail.yml
+  # topN-OP-service Global
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des)/100"
+    expected: expected/topN-OP-service.yml
+    # topN-OP-service Global with attrs
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des,attr0='GENERAL')/100"
+    expected: expected/topN-OP-service.yml

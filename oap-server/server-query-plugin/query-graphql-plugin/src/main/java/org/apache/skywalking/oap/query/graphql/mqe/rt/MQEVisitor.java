@@ -55,6 +55,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.mqe.rt.MQEVisitorBase;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.joda.time.DateTime;
 
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
@@ -128,8 +129,21 @@ public class MQEVisitor extends MQEVisitorBase {
                         if (topN <= 0) {
                             throw new IllegalExpressionException("TopN value must be > 0.");
                         }
+                        String[] attrsCondition = new String[5];
+                        if (parent.attributeList() != null) {
+                            for (MQEParser.AttributeContext attributeContext : parent.attributeList().attribute()) {
+                                String attrName = attributeContext.attributeName().getText();
+                                String attrValue = attributeContext.VALUE_STRING().getText();
+                                if (StringUtil.isNotBlank(attrValue)) {
+                                    String attrValueTrim = attrValue.substring(1, attrValue.length() - 1);
+                                    int index = Integer.parseInt(attrName.substring(attrName.length() - 1));
+                                    attrsCondition[index] = attrValueTrim;
+                                }
+                            }
+                        }
+
                         querySortMetrics(metricName, Integer.parseInt(parent.INTEGER().getText()),
-                                         Order.valueOf(parent.order().getText().toUpperCase()), result);
+                                         Order.valueOf(parent.order().getText().toUpperCase()), attrsCondition, result);
                     } else if (ctx.parent instanceof MQEParser.TrendOPContext) {
                         //trend query requires get previous data according to the trend range
                         MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
@@ -181,6 +195,7 @@ public class MQEVisitor extends MQEVisitorBase {
     private void querySortMetrics(String metricName,
                                   int topN,
                                   Order order,
+                                  String[] attrs,
                                   ExpressionResult result) throws IOException {
         TopNCondition topNCondition = new TopNCondition();
         topNCondition.setName(metricName);
@@ -188,6 +203,8 @@ public class MQEVisitor extends MQEVisitorBase {
         topNCondition.setParentService(entity.getServiceName());
         topNCondition.setOrder(order);
         topNCondition.setNormal(entity.getNormal());
+        topNCondition.setAttributes(attrs);
+
         List<SelectedRecord> selectedRecords = getAggregationQueryService().sortMetrics(topNCondition, duration);
 
         List<MQEValue> mqeValueList = new ArrayList<>(selectedRecords.size());

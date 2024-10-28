@@ -19,18 +19,26 @@ nodes:
   name: User
   type: USER
   isreal: false
+  layers:
+    - UNDEFINED
 - id: {{ b64enc "e2e-service-consumer"}}.1
   name: e2e-service-consumer
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "consumer-py" }}.1
   name: consumer-py
   type: Python
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "provider-py-kafka" }}.1
   name: provider-py-kafka
   type: Python
   isreal: true
+  layers:
+    - GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}

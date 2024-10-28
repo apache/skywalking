@@ -45,7 +45,7 @@
         <protobuf-java-util.version>3.25.5</protobuf-java-util.version>
         <commons-codec.version>1.11</commons-codec.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
-        <commons-io.version>2.7</commons-io.version>
+        <commons-io.version>2.17.0</commons-io.version>
         <commons-text.version>1.4</commons-text.version>
         <kubernetes.version>6.7.1</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>

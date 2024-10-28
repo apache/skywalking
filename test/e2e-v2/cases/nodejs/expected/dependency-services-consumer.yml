@@ -19,14 +19,20 @@ nodes:
   name: provider
   type: Express
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "e2e-service-consumer" }}.1
   name: e2e-service-consumer
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "consumer" }}.1
   name: consumer
   type: http
   isreal: true
+  layers:
+    - GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}

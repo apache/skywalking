@@ -87,8 +87,8 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
     }
 
     public CompletableFuture<List<Endpoint>> findEndpoint(final String keyword, final String serviceId,
-                                                          final int limit) {
-        return queryAsync(() -> getMetadataQueryService().findEndpoint(keyword, serviceId, limit));
+                                                          final int limit, final Duration duration) {
+        return queryAsync(() -> getMetadataQueryService().findEndpoint(keyword, serviceId, limit, duration));
     }
 
     public CompletableFuture<EndpointInfo> getEndpointInfo(final String endpointId) {

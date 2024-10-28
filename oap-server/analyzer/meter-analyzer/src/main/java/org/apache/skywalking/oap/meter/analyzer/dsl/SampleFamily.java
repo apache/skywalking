@@ -694,6 +694,33 @@ public class SampleFamily {
     }
 
     /**
+     * Decorate the service meter entity with the given closure.
+     */
+    public SampleFamily decorate(Closure<Void> c) {
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            if (ctx.getScopeType() != ScopeType.SERVICE) {
+                throw new IllegalStateException("decorate() should be invoked after service()");
+            }
+            if (ctx.isHistogram()) {
+                throw new IllegalStateException("decorate() not supported for histogram metrics");
+            }
+            if (!ctx.getLabels().isEmpty()) {
+                throw new IllegalStateException("decorate() not supported for labeled metrics");
+            }
+        });
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        this.context.getMeterSamples().keySet().forEach(meterEntity -> {
+            // Only service meter entity can be decorated
+            if (meterEntity.getScopeType().equals(ScopeType.SERVICE)) {
+                c.call(meterEntity);
+            }
+        });
+        return this;
+    }
+
+    /**
      * The parsing context holds key results more than sample collection.
      */
     @ToString

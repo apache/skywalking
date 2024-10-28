@@ -38,3 +38,12 @@ module](https://docs.python.org/3/library/logging.html) with functionalities ali
 To explore how to enable the reporting features for your use cases, please refer to the
 [Log Reporter Doc](https://skywalking.apache.org/docs/skywalking-python/next/en/setup/advanced/logreporter/) for a
 detailed guide.
+
+## Golang agent log reporter
+
+[SkyWalking Golang Agent](https://github.com/apache/skywalking-go) implements a log reporter for the logging module 
+with functionality is similar to that of the Java toolkits.
+
+To explore how to enable the reporting features for your use cases, please refer to the
+[Log Reporter Doc](https://skywalking.apache.org/docs/skywalking-go/next/en/advanced-features/manual-apis/toolkit-log/) for a
+detailed guide.

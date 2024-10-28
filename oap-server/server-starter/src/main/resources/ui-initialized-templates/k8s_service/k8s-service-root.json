@@ -24,7 +24,7 @@
         },
         {
           "x": 0,
-          "y": 2,
+          "y": 13,
           "w": 24,
           "h": 50,
           "i": "101",
@@ -45,7 +45,7 @@
                     "latest(k8s_service_cpu_cores_requests)",
                     "latest(k8s_service_cpu_cores_limits)",
                     "latest(kubernetes_service_http_call_cpm)",
-                    "latest(kubernetes_service_http_call_success_count/kubernetes_service_http_call_cpm*100)"
+                    "latest(kubernetes_service_http_call_successful_rate/100)"
                   ],
                   "graph": {
                     "type": "ServiceList",
@@ -112,23 +112,23 @@
                     "avg(kubernetes_service_relation_server_write_package_size)/60",
                     "avg(kubernetes_service_relation_server_read_package_size)/60",
                     "avg(kubernetes_service_relation_client_http_call_cpm)/60",
-                    "avg(kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm)"
+                    "avg(kubernetes_service_relation_client_http_call_time)"
                   ],
                   "linkClientExpressions": [
                     "avg(kubernetes_service_relation_client_write_package_size)/60",
                     "avg(kubernetes_service_relation_client_read_package_size)/60",
                     "avg(kubernetes_service_relation_server_http_call_cpm)/60",
-                    "avg(kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm)"
+                    "avg(kubernetes_service_relation_server_http_call_time)"
                   ],
                   "nodeExpressions": [
                     "avg(kubernetes_service_write_package_size)/60",
                     "avg(kubernetes_service_read_package_size)/60",
                     "avg(kubernetes_service_http_call_cpm)",
-                    "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)",
-                    "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
+                    "avg(kubernetes_service_http_call_time)",
+                    "avg(kubernetes_service_http_call_successful_rate/100)"
                   ],
                   "legendMQE": {
-                    "expression": "(avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100) < 95) * (avg(kubernetes_service_http_call_cpm) > 1) == 1"
+                    "expression": "(avg(kubernetes_service_http_call_successful_rate) < 9500) * (avg(kubernetes_service_http_call_cpm) > 1) == 1"
                   },
                   "description": {
                     "healthy": "Healthy",
@@ -196,6 +196,78 @@
               ]
             }
           ]
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "102",
+          "type": "Widget",
+          "expressions": [
+            "top_n(kubernetes_service_apdex,10,asc,attr0='K8S_SERVICE')/10000"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Service HTTP Apdex"
+          }
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "103",
+          "type": "Widget",
+          "expressions": [
+            "top_n(kubernetes_service_http_call_successful_rate,10,asc,attr0='K8S_SERVICE')/100"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "HTTP Success Rate"
+          }
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "104",
+          "type": "Widget",
+          "expressions": [
+            "top_n(kubernetes_service_http_call_time,10,des,attr0='K8S_SERVICE')"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Service Avg HTTP Response Time (ms)"
+          }
+        },
+        {
+          "x": 18,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "105",
+          "type": "Widget",
+          "expressions": [
+            "top_n(kubernetes_service_http_call_cpm,10,des,attr0='K8S_SERVICE')"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Service HTTP Load (calls / min)"
+          }
         }
       ],
       "id": "K8S-Service-Root",

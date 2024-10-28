@@ -64,7 +64,7 @@
                   "i": "1",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_endpoint_http_call_duration/kubernetes_service_endpoint_http_call_cpm"
+                    "kubernetes_service_endpoint_http_call_time"
                   ],
                   "metricConfig": [
                     {
@@ -106,8 +106,8 @@
                   "i": "2",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_endpoint_http_req_header_size/kubernetes_service_endpoint_http_call_cpm/1024",
-                    "kubernetes_service_endpoint_http_req_body_size/kubernetes_service_endpoint_http_call_cpm/1024"
+                    "kubernetes_service_endpoint_http_avg_req_header_size/1024",
+                    "kubernetes_service_endpoint_http_avg_req_body_size/1024"
                   ],
                   "graph": {
                     "type": "Line",
@@ -152,8 +152,8 @@
                   "i": "3",
                   "type": "Widget",
                   "expressions": [
-                    "kubernetes_service_endpoint_http_resp_header_size/kubernetes_service_endpoint_http_call_cpm/1024",
-                    "kubernetes_service_endpoint_http_resp_body_size/kubernetes_service_endpoint_http_call_cpm/1024"
+                    "kubernetes_service_endpoint_http_avg_resp_header_size/1024",
+                    "kubernetes_service_endpoint_http_avg_resp_body_size/1024"
                   ],
                   "graph": {
                     "type": "Line",

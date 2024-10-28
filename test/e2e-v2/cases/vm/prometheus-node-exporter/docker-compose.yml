@@ -23,6 +23,8 @@ services:
     environment:
       SW_OTEL_RECEIVER: default
       SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: vm
+    volumes:
+      - ./otel-rules/vm.yaml:/skywalking/config/otel-rules/vm.yaml
     ports:
       - 12800
 
