@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.Asy
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerEventType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskCreationResult;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskCreationType;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -59,11 +60,11 @@ public class AsyncProfilerMutationService implements Service {
                                                       String execArgs) throws IOException {
         long createTime = System.currentTimeMillis();
         // check data
-        final String errorMessage = checkDataSuccess(
+        AsyncProfilerTaskCreationResult checkResult = checkDataSuccess(
                 serviceId, serviceInstanceIds, duration, createTime, events
         );
-        if (errorMessage != null) {
-            return AsyncProfilerTaskCreationResult.builder().errorReason(errorMessage).build();
+        if (checkResult != null) {
+            return checkResult;
         }
 
         // create task
@@ -79,15 +80,38 @@ public class AsyncProfilerMutationService implements Service {
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(createTime));
         NoneStreamProcessor.getInstance().in(task);
 
-        return AsyncProfilerTaskCreationResult.builder().id(task.id().build()).build();
+        return AsyncProfilerTaskCreationResult.builder()
+                .id(task.id().build())
+                .code(AsyncProfilerTaskCreationType.SUCCESS)
+                .build();
     }
 
-    private String checkDataSuccess(String serviceId,
-                                    List<String> serviceInstanceIds,
-                                    long duration,
-                                    long createTime,
-                                    List<AsyncProfilerEventType> events) throws IOException {
-        // basic check
+    private AsyncProfilerTaskCreationResult checkDataSuccess(String serviceId,
+                                                             List<String> serviceInstanceIds,
+                                                             int duration,
+                                                             long createTime,
+                                                             List<AsyncProfilerEventType> events) throws IOException {
+        String checkArgumentMessage = checkArgumentError(serviceId, serviceInstanceIds, duration, events);
+        if (checkArgumentMessage != null) {
+            return AsyncProfilerTaskCreationResult.builder()
+                    .code(AsyncProfilerTaskCreationType.ARGUMENT_ERROR)
+                    .errorReason(checkArgumentMessage)
+                    .build();
+        }
+        String checkTaskProfilingMessage = checkTaskProfiling(serviceId, createTime);
+        if (checkTaskProfilingMessage != null) {
+            return AsyncProfilerTaskCreationResult.builder()
+                    .code(AsyncProfilerTaskCreationType.ALREADY_PROFILING_ERROR)
+                    .errorReason(checkTaskProfilingMessage)
+                    .build();
+        }
+        return null;
+    }
+
+    private String checkArgumentError(String serviceId,
+                                      List<String> serviceInstanceIds,
+                                      int duration,
+                                      List<AsyncProfilerEventType> events) {
         if (serviceId == null) {
             return "service cannot be null";
         }
@@ -97,7 +121,14 @@ public class AsyncProfilerMutationService implements Service {
         if (CollectionUtils.isEmpty(events)) {
             return "events cannot be empty";
         }
+        if (CollectionUtils.isEmpty(serviceInstanceIds)) {
+            return "serviceInstanceIds cannot be empty";
+        }
+        return null;
+    }
 
+    private String checkTaskProfiling(String serviceId,
+                                      long createTime) throws IOException {
         // Each service can only enable one task at a time
         long endTimeBucket = TimeBucket.getMinuteTimeBucket(createTime);
         final List<AsyncProfilerTask> alreadyHaveTaskList = getAsyncProfileTaskDAO().getTaskList(

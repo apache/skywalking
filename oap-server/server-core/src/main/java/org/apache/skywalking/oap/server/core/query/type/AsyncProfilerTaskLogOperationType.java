@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum AsyncProfilerTaskLogOperationType {
-    // when sniffer has notified
     NOTIFIED(1), // when sniffer has execution finished to report
     EXECUTION_FINISHED(2), // when sniffer has execution finished to report
     JFR_UPLOAD_FILE_TOO_LARGE_ERROR(3), // when sniffer finished task but jfr file is to large that oap server can not receive

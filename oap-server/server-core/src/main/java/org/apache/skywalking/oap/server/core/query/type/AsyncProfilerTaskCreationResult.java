@@ -33,8 +33,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AsyncProfilerTaskCreationResult {
-    // if null or empty means the task create success, otherwise get create error reason
+    // ErrorReason gives detailed reason for the exception, if the code returned represents a kind of failure.
     private String errorReason;
-    // get data id when create success
+    // Code defines the status of the response, i.e. success or failure.
+    private AsyncProfilerTaskCreationType code;
+    // Task id, if code is SUCCESS.
     private String id;
 }

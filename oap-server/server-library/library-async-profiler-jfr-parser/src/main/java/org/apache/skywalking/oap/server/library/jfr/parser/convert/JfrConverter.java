@@ -125,22 +125,22 @@ public abstract class JfrConverter extends Classifier {
                 EventAggregator agg;
                 switch (type) {
                     case EXECUTION_SAMPLE:
-                        agg = event2aggMap.computeIfAbsent(EXECUTION_SAMPLE, JfrConverter::getExecutionSampleAggregator);
+                        agg = event2aggMap.computeIfAbsent(EXECUTION_SAMPLE, JfrConverter::getEventAggregator);
                         break;
                     case OBJECT_ALLOCATION_IN_NEW_TLAB:
-                        agg = event2aggMap.computeIfAbsent(OBJECT_ALLOCATION_IN_NEW_TLAB, JfrConverter::getExecutionSampleAggregator);
+                        agg = event2aggMap.computeIfAbsent(OBJECT_ALLOCATION_IN_NEW_TLAB, JfrConverter::getEventAggregator);
                         break;
                     case OBJECT_ALLOCATION_OUTSIDE_TLAB:
-                        agg = event2aggMap.computeIfAbsent(OBJECT_ALLOCATION_OUTSIDE_TLAB, JfrConverter::getExecutionSampleAggregator);
+                        agg = event2aggMap.computeIfAbsent(OBJECT_ALLOCATION_OUTSIDE_TLAB, JfrConverter::getEventAggregator);
                         break;
                     case THREAD_PARK:
-                        agg = event2aggMap.computeIfAbsent(THREAD_PARK, JfrConverter::getExecutionSampleAggregator);
+                        agg = event2aggMap.computeIfAbsent(THREAD_PARK, JfrConverter::getEventAggregator);
                         break;
                     case JAVA_MONITOR_ENTER:
-                        agg = event2aggMap.computeIfAbsent(JAVA_MONITOR_ENTER, JfrConverter::getExecutionSampleAggregator);
+                        agg = event2aggMap.computeIfAbsent(JAVA_MONITOR_ENTER, JfrConverter::getEventAggregator);
                         break;
                     case PROFILER_LIVE_OBJECT:
-                        agg = event2aggMap.computeIfAbsent(PROFILER_LIVE_OBJECT, JfrConverter::getExecutionSampleAggregator);
+                        agg = event2aggMap.computeIfAbsent(PROFILER_LIVE_OBJECT, JfrConverter::getEventAggregator);
                         break;
                     default:
                         throw new RuntimeException("Unknown event type: " + type);
@@ -154,7 +154,7 @@ public abstract class JfrConverter extends Classifier {
         return event2aggMap;
     }
 
-    private static EventAggregator getExecutionSampleAggregator(JFREventType jfrEventType) {
+    private static EventAggregator getEventAggregator(JFREventType jfrEventType) {
         // TODO aggregator default configure
         switch (jfrEventType) {
             case EXECUTION_SAMPLE:

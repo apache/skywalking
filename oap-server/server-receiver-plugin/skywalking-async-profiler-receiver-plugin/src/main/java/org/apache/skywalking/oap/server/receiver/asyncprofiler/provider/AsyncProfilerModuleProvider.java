@@ -45,7 +45,17 @@ public class AsyncProfilerModuleProvider extends ModuleProvider {
 
     @Override
     public ConfigCreator<? extends ModuleConfig> newConfigCreator() {
-        return null;
+        return new ConfigCreator<AsyncProfilerModuleConfig>() {
+            @Override
+            public Class type() {
+                return AsyncProfilerModuleConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final AsyncProfilerModuleConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -58,7 +68,7 @@ public class AsyncProfilerModuleProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                 .provider()
                 .getService(GRPCHandlerRegister.class);
-        AsyncProfilerServiceHandler asyncProfilerServiceHandler = new AsyncProfilerServiceHandler(getManager());
+        AsyncProfilerServiceHandler asyncProfilerServiceHandler = new AsyncProfilerServiceHandler(getManager(), config.getJfrMaxSize());
         grpcHandlerRegister.addHandler(asyncProfilerServiceHandler);
     }
 

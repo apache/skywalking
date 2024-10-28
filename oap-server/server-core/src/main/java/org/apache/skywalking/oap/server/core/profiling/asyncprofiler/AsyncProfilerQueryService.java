@@ -92,7 +92,7 @@ public class AsyncProfilerQueryService implements Service {
 
     private List<AsyncProfilerTaskLog> findMatchedLogs(final String taskID, final List<AsyncProfilerTaskLog> allLogs) {
         return allLogs.stream()
-                .filter(l -> com.google.common.base.Objects.equal(l.getTaskId(), taskID))
+                .filter(l -> Objects.equals(l.getTaskId(), taskID))
                 .map(this::extendTaskLog)
                 .collect(Collectors.toList());
     }

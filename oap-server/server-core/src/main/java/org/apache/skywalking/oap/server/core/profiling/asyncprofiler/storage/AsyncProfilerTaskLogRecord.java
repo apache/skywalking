@@ -77,6 +77,7 @@ public class AsyncProfilerTaskLogRecord extends Record {
             log.setInstanceId((String) converter.get(INSTANCE_ID));
             log.setOperationType(((Number) converter.get(OPERATION_TYPE)).intValue());
             log.setOperationTime(((Number) converter.get(OPERATION_TIME)).longValue());
+            log.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             log.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return log;
         }
@@ -88,6 +89,7 @@ public class AsyncProfilerTaskLogRecord extends Record {
             converter.accept(OPERATION_TYPE, storageData.getOperationType());
             converter.accept(OPERATION_TIME, storageData.getOperationTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(TIMESTAMP, storageData.getTimestamp());
         }
     }
 }

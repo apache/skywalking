@@ -23,6 +23,7 @@ import org.apache.skywalking.banyandb.v1.client.*;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerEventType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -105,13 +106,15 @@ public class BanyanDBAsyncProfilerTaskQueryDAO extends AbstractBanyanDBDAO imple
     }
 
     private AsyncProfilerTask buildAsyncProfilerTask(RowEntity data) {
+        List<String> events = data.getTagValue(AsyncProfilerTaskRecord.EVENT_TYPES);
+
         return AsyncProfilerTask.builder()
                 .id(data.getTagValue(AsyncProfilerTaskRecord.TASK_ID))
                 .serviceId(data.getTagValue(AsyncProfilerTaskRecord.SERVICE_ID))
                 .serviceInstanceIds(data.getTagValue(AsyncProfilerTaskRecord.SERVICE_INSTANCE_IDS))
                 .createTime(((Number) data.getTagValue(AsyncProfilerTaskRecord.CREATE_TIME)).longValue())
                 .duration(((Number) data.getTagValue(AsyncProfilerTaskRecord.DURATION)).intValue())
-                .events(data.getTagValue(AsyncProfilerTaskRecord.EVENT_TYPES))
+                .events(AsyncProfilerEventType.valueOfList(events))
                 .execArgs(data.getTagValue(AsyncProfilerTaskRecord.EXEC_ARGS))
                 .build();
     }

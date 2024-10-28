@@ -11,11 +11,12 @@ import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerAnalyzation
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerStackTree;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskListResult;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskProgress;
-import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -52,10 +53,21 @@ public class AsyncProfilerQuery implements GraphQLQueryResolver {
     }
 
     public AsyncProfilerTaskProgress queryAsyncProfilerTaskProgress(String taskId) throws IOException {
-        // todo add success/error parse
         AsyncProfilerTaskProgress asyncProfilerTaskProgress = new AsyncProfilerTaskProgress();
         List<AsyncProfilerTaskLog> logs = getAsyncProfilerQueryService().queryAsyncProfilerTaskLogs(taskId);
         asyncProfilerTaskProgress.setLogs(logs);
+        List<String> errorInstances = new ArrayList<>();
+        List<String> successInstances = new ArrayList<>();
+        logs.forEach(log -> {
+            if (AsyncProfilerTaskLogOperationType.EXECUTION_FINISHED.equals(log.getOperationType())) {
+                successInstances.add(log.getInstanceId());
+            } else if (AsyncProfilerTaskLogOperationType.EXECUTION_TASK_ERROR.equals(log.getOperationType())
+                    || AsyncProfilerTaskLogOperationType.JFR_UPLOAD_FILE_TOO_LARGE_ERROR.equals(log.getOperationType())) {
+                errorInstances.add(log.getInstanceId());
+            }
+        });
+        asyncProfilerTaskProgress.setErrorInstanceIds(errorInstances);
+        asyncProfilerTaskProgress.setSuccessInstanceIds(successInstances);
         return asyncProfilerTaskProgress;
     }
 }

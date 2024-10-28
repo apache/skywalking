@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class AsyncProfilerTaskCommand extends BaseCommand implements Serializable, Deserializable<AsyncProfilerTaskCommand> {
     public static final Deserializable<AsyncProfilerTaskCommand> DESERIALIZER = new AsyncProfilerTaskCommand("", "", 0, null, "", 0);
-    public static final String NAME = "AsyncProfileTaskQuery";
+    public static final String NAME = "AsyncProfilerTaskQuery";
 
     private final String taskId;
     private final int duration;
