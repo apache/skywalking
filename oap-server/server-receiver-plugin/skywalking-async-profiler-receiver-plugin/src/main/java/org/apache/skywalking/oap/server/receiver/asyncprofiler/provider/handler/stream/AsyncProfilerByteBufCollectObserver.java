@@ -8,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectType;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerData;
-import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerMetaData;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.JfrAnalyzer;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;

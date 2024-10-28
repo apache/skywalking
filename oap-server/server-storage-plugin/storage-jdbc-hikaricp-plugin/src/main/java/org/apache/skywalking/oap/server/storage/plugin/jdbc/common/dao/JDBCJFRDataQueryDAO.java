@@ -25,7 +25,7 @@ public class JDBCJFRDataQueryDAO implements IJFRDataQueryDAO {
     @Override
     @SneakyThrows
     public List<JFRProfilingDataRecord> getByTaskIdAndInstancesAndEvent(String taskId, List<String> instanceIds, String eventType) throws IOException {
-        if(StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType) || CollectionUtils.isEmpty(instanceIds)) {
+        if (StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType) || CollectionUtils.isEmpty(instanceIds)) {
             return new ArrayList<>();
         }
         List<String> tables = tableHelper.getTablesWithinTTL(AsyncProfilerTaskRecord.INDEX_NAME);

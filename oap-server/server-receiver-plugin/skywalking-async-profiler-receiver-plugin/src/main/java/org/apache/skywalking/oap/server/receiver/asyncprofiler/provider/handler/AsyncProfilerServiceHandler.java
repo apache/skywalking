@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler;
 
-
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
@@ -36,7 +35,6 @@ import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.Jfr
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
-import org.apache.skywalking.oap.server.core.source.JFRProfilingData;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
@@ -48,7 +46,6 @@ import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.
 import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerCollectMetaData;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -106,6 +103,7 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
         logRecord.setOperationType(operationType.getCode());
         logRecord.setOperationTime(System.currentTimeMillis());
         long timestamp = task.getCreateTime() + TimeUnit.SECONDS.toMillis(task.getDuration());
+        logRecord.setTimestamp(timestamp);
         logRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
         RecordStreamProcessor.getInstance().in(logRecord);
     }

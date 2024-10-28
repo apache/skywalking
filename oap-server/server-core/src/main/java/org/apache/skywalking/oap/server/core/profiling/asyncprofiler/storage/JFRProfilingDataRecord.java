@@ -23,7 +23,6 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
-import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -35,7 +34,6 @@ import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventTy
 
 import java.nio.charset.StandardCharsets;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ASYNC_PROFILER_TASK_LOG;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.JFR_PROFILING_DATA;
 
 @Data

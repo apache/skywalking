@@ -23,7 +23,6 @@ import com.google.common.collect.Lists;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.JFRProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -42,7 +41,8 @@ public class BanyanDBJFRDataQueryDAO extends AbstractBanyanDBDAO implements IJFR
             JFRProfilingDataRecord.TASK_ID,
             JFRProfilingDataRecord.INSTANCE_ID,
             JFRProfilingDataRecord.EVENT_TYPE,
-            JFRProfilingDataRecord.UPLOAD_TIME
+            JFRProfilingDataRecord.UPLOAD_TIME,
+            JFRProfilingDataRecord.DATA_BINARY
     );
 
     public BanyanDBJFRDataQueryDAO(BanyanDBStorageClient client) {
@@ -55,7 +55,7 @@ public class BanyanDBJFRDataQueryDAO extends AbstractBanyanDBDAO implements IJFR
             return Lists.newArrayList();
         }
 
-        StreamQueryResponse resp = query(AsyncProfilerTaskRecord.INDEX_NAME, TAGS,
+        StreamQueryResponse resp = query(JFRProfilingDataRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {

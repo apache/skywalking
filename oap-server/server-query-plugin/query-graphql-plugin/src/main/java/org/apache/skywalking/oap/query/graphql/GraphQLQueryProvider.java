@@ -28,8 +28,6 @@ import org.apache.skywalking.oap.query.graphql.resolver.AggregationQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.AlarmQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.AsyncProfilerMutation;
 import org.apache.skywalking.oap.query.graphql.resolver.AsyncProfilerQuery;
-import org.apache.skywalking.oap.query.graphql.resolver.AsyncProfilerMutation;
-import org.apache.skywalking.oap.query.graphql.resolver.AsyncProfilerQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.BrowserLogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.ContinuousProfilingMutation;
 import org.apache.skywalking.oap.query.graphql.resolver.ContinuousProfilingQuery;

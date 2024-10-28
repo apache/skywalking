@@ -11,5 +11,5 @@ public class AsyncProfilerModuleConfig extends ModuleConfig {
      * Used to manage the maximum size of the jfr file that can be received, the unit is Byte
      * default is 30M
      */
-    private int jfrMaxSize = 30*1024*1024;
+    private int jfrMaxSize = 30 * 1024 * 1024;
 }
