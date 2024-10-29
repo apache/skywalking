@@ -30,8 +30,8 @@ setup:
 
 verify:
   retry:
-    count: 20
-    interval: 3s
+    count: 10
+    interval: 10s
   cases:
     - includes:
         - ../profiling-cases.yaml

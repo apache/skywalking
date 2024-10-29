@@ -26,7 +26,7 @@ cases:
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling async create --service-name=e2e-service-provider \
-        --duration=30 --events=cpu,alloc \
+        --duration=20 --events=cpu,alloc \
         --instance-name-list=provider1
     expected: expected/create.yml
   # list task
@@ -36,7 +36,6 @@ cases:
     expected: expected/list.yml
   # get task progress
   - query: |
-      sleep 90
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling async progress --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling async list --service-name=e2e-service-provider | yq e '.tasks[0].id')
     expected: expected/progress.yml

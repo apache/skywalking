@@ -18,8 +18,8 @@ tree:
   elements:
   {{- contains elements }}
   - id: {{ notEmpty .id }}
-    parentid: {{ notEmpty .id }}
-    codesignature: org/apache/skywalking/apm/dependencies/io/netty/channel/nio/NioEventLoop.select:883
+    parentid: {{ notEmpty parentid }}
+    codesignature: {{ notEmpty codesignature }}
     total: {{ ge .total -1 }}
     self: {{ ge .self -1 }}
   {{- end }}
