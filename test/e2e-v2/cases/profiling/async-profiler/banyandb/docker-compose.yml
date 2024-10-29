@@ -13,25 +13,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
+version: '3.8'
 
-setup:
-  env: compose
-  file: docker-compose.yml
-  timeout: 20m
-  init-system-environment: ../../../../script/env
-  steps:
-    - name: set PATH
-      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
-    - name: install yq
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
-    - name: install swctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+services:
+  banyandb:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    networks:
+      - e2e
 
-verify:
-  retry:
-    count: 20
-    interval: 3s
-  cases:
-    - includes:
-        - ../profiling-cases.yaml
+  provider:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: provider
+    depends_on:
+      oap:
+        condition: service_healthy
+    ports:
+      - 9090
+
+  oap:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+    depends_on:
+      banyandb:
+        condition: service_healthy
+    ports:
+      - 12800
+
+networks:
+  e2e:

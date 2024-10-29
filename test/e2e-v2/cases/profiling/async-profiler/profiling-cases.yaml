@@ -26,30 +26,28 @@ cases:
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling async create --service-name=e2e-service-provider \
-        --duration=60 --events=cpu,alloc \
-        --instance-name-slice=provider1
+        --duration=30 --events=cpu,alloc \
+        --instance-name-list=provider1
     expected: expected/create.yml
   # list task
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling async list --service-name=e2e-service-provider \
-        --duration=60 --events=cpu,alloc \
-        --instance-name-slice=provider1
     expected: expected/list.yml
   # get task progress
   - query: |
       sleep 60
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling async list --service-name=e2e-service-provider \
-        --duration=60 --events=cpu,alloc \
-        --instance-name-slice=provider1
+        profiling async progress --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling async list --service-name=e2e-service-provider | yq e '.tasks[0].id')
     expected: expected/progress.yml
-  # get task progress
+  # get task analysis
   - query: |
       sleep 60
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling async list --service-name=e2e-service-provider \
-        --duration=60 --events=cpu,alloc \
-        --instance-name-slice=provider1
-    expected: expected/progress.yml
+        profiling async analysis --service-name=e2e-service-provider \
+        --event=execution_sample \
+        --instance-name-list=provider1 \
+        --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling async list --service-name=e2e-service-provider | yq e '.tasks[0].id')
+
+    expected: expected/analysis.yml
 
