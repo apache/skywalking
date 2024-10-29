@@ -14,15 +14,16 @@
 # limitations under the License.
 
 errorreason: null
-{{- contains . }}
+tasks:
+  {{- contains .tasks }}
 - id: {{ notEmpty .id }}
   serviceid: {{ b64enc "e2e-service-provider" }}.1
   serviceinstanceids:
     - {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-  createtime: {{ gt .starttime 0 }}
+  createtime: {{ gt .createtime 0 }}
   events:
     - CPU
     - ALLOC
-  duration: 60
-  execArgs: null
-{{- end }}
+  duration: {{ ge .duration 0 }}
+  execargs: null
+  {{- end }}

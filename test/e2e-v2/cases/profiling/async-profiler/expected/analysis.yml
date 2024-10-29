@@ -12,3 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+tree:
+  type: EXECUTION_SAMPLE
+  elements:
+  {{- contains elements }}
+  - id: {{ notEmpty .id }}
+    parentid: {{ notEmpty .id }}
+    codesignature: org/apache/skywalking/apm/dependencies/io/netty/channel/nio/NioEventLoop.select:883
+    total: {{ ge .total -1 }}
+    self: {{ ge .self -1 }}
+  {{- end }}

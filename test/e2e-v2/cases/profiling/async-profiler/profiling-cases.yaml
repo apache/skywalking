@@ -36,18 +36,16 @@ cases:
     expected: expected/list.yml
   # get task progress
   - query: |
-      sleep 60
+      sleep 90
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling async progress --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling async list --service-name=e2e-service-provider | yq e '.tasks[0].id')
     expected: expected/progress.yml
   # get task analysis
   - query: |
-      sleep 60
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling async analysis --service-name=e2e-service-provider \
         --event=execution_sample \
         --instance-name-list=provider1 \
         --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling async list --service-name=e2e-service-provider | yq e '.tasks[0].id')
-
     expected: expected/analysis.yml
 
