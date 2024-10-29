@@ -1,4 +1,9 @@
 /*
+ * Copyright The async-profiler authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -16,9 +21,9 @@
  *
  */
 
-/*
- * Copyright The async-profiler authors
- * SPDX-License-Identifier: Apache-2.0
+/**
+ *  Compared with the original, collectMultiEvents method has been added.
+ *  collectMultiEvents is used to support collecting multiple jfr events at one time
  */
 
 package org.apache.skywalking.oap.server.library.jfr.parser.convert;

@@ -1,4 +1,9 @@
 /*
+ * Copyright The async-profiler authors
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,11 +19,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
-
-/*
- * Copyright The async-profiler authors
- * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.apache.skywalking.oap.server.library.jfr.parser.convert;
