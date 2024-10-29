@@ -68,7 +68,7 @@ public class AsyncProfilerQuery implements GraphQLQueryResolver {
         AsyncProfilerStackTree eventFrameTrees = getAsyncProfilerQueryService().queryJfrData(
                 request.getTaskId(), request.getInstanceIds(), request.getEventType()
         );
-        return new AsyncProfilerAnalyzation(null, eventFrameTrees);
+        return new AsyncProfilerAnalyzation(eventFrameTrees);
     }
 
     public AsyncProfilerTaskProgress queryAsyncProfilerTaskProgress(String taskId) throws IOException {

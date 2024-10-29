@@ -16,7 +16,7 @@
 tree:
   type: EXECUTION_SAMPLE
   elements:
-  {{- contains elements }}
+  {{- contains .elements }}
   - id: {{ notEmpty .id }}
     parentid: {{ notEmpty .parentid }}
     codesignature: {{ notEmpty .codesignature }}

@@ -25,6 +25,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class AsyncProfilerAnalyzation {
-    private String errorReason;
     private AsyncProfilerStackTree tree;
 }

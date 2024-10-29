@@ -24,6 +24,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectionResponse;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerData;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilingStatus;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.JfrAnalyzer;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.AsyncProfilerServiceHandler.parseMetaData;
 import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.AsyncProfilerServiceHandler.recordAsyncProfilerTaskLog;
@@ -48,14 +50,14 @@ public class AsyncProfilerFileCollectObserver implements StreamObserver<AsyncPro
     private final SourceReceiver sourceReceiver;
     private final JfrAnalyzer jfrAnalyzer;
     private final int jfrMaxSize;
-    private final StreamObserver<AsyncProfilerFileCollectObserver> responseObserver;
+    private final StreamObserver<AsyncProfilerCollectionResponse> responseObserver;
 
     private AsyncProfilerCollectMetaData taskMetaData;
     private Path tempFile;
     private FileOutputStream fileOutputStream;
 
     public AsyncProfilerFileCollectObserver(IAsyncProfilerTaskQueryDAO taskDAO, JfrAnalyzer jfrAnalyzer,
-                                            StreamObserver<AsyncProfilerFileCollectObserver> responseObserver, SourceReceiver sourceReceiver,
+                                            StreamObserver<AsyncProfilerCollectionResponse> responseObserver, SourceReceiver sourceReceiver,
                                             int jfrMaxSize) {
         this.sourceReceiver = sourceReceiver;
         this.taskDAO = taskDAO;
@@ -67,15 +69,16 @@ public class AsyncProfilerFileCollectObserver implements StreamObserver<AsyncPro
     @Override
     @SneakyThrows
     public void onNext(AsyncProfilerData asyncProfilerData) {
-        if (asyncProfilerData.hasMetaData()) {
+        if (Objects.isNull(taskMetaData) && asyncProfilerData.hasMetaData()) {
             taskMetaData = parseMetaData(asyncProfilerData.getMetaData(), taskDAO);
             AsyncProfilerTask task = taskMetaData.getTask();
             if (AsyncProfilingStatus.PROFILING_SUCCESS.equals(taskMetaData.getType())) {
                 if (jfrMaxSize >= taskMetaData.getContentSize()) {
                     tempFile = Files.createTempFile(task.getId() + taskMetaData.getInstanceId() + System.currentTimeMillis(), ".jfr");
                     fileOutputStream = new FileOutputStream(tempFile.toFile());
+                    responseObserver.onNext(AsyncProfilerCollectionResponse.newBuilder().build());
                 } else {
-                    responseObserver.onError(new StatusRuntimeException(Status.ABORTED));
+                    responseObserver.onNext(AsyncProfilerCollectionResponse.newBuilder().setType(AsyncProfilingStatus.TERMINATED_BY_OVERSIZE).build());
                     recordAsyncProfilerTaskLog(task, taskMetaData.getInstanceId(),
                             AsyncProfilerTaskLogOperationType.JFR_UPLOAD_FILE_TOO_LARGE_ERROR);
                 }

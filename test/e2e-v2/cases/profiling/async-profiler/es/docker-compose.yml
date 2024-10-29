@@ -35,6 +35,7 @@ services:
     extends:
       file: ../../../../script/docker-compose/base-compose.yml
       service: provider
+    privileged: true
     depends_on:
       oap:
         condition: service_healthy
