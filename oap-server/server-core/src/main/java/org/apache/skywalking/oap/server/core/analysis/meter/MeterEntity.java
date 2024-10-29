@@ -61,6 +61,8 @@ public class MeterEntity {
     private String attr3;
     @Setter
     private String attr4;
+    @Setter
+    private String attr5;
 
     private MeterEntity() {
 

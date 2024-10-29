@@ -129,7 +129,7 @@ public class MQEVisitor extends MQEVisitorBase {
                         if (topN <= 0) {
                             throw new IllegalExpressionException("TopN value must be > 0.");
                         }
-                        String[] attrsCondition = new String[5];
+                        String[] attrsCondition = new String[6];
                         if (parent.attributeList() != null) {
                             for (MQEParser.AttributeContext attributeContext : parent.attributeList().attribute()) {
                                 String attrName = attributeContext.attributeName().getText();

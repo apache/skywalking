@@ -6,7 +6,7 @@ A typical case is the `topN` query, when we query the top N services by the metr
 If we want to filter the services by `Layer` or `Group` or other specific conditions, it is impossible to do this with the current metrics fields.
 
 Since 10.2.0, SkyWalking supports the metrics attributes through source decorate. 
-SkyWalking provides additional attributes(`attr0...attr4`) fields to the metrics and source. 
+SkyWalking provides additional attributes(`attr0...attr5`) fields to the metrics and source. 
 By default, these fields are empty, we can fill them by set a specific decorate logic for source. 
 According to the difference between the `OAL` and `MAL`, the usage of decorate is different.
 

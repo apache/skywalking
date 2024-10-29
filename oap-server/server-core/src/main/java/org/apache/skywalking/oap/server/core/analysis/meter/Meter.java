@@ -38,6 +38,7 @@ public abstract class Meter extends Metrics implements WithMetadata {
     protected static final String ATTR2 = "attr2";
     protected static final String ATTR3 = "attr3";
     protected static final String ATTR4 = "attr4";
+    protected static final String ATTR5 = "attr5";
 
     private MetricsMetaInfo metadata = new MetricsMetaInfo("UNKNOWN", DefaultScopeDefine.UNKNOWN);
 
@@ -65,6 +66,11 @@ public abstract class Meter extends Metrics implements WithMetadata {
     @Getter
     @Column(name = ATTR4)
     private String attr4;
+
+    @Setter
+    @Getter
+    @Column(name = ATTR5)
+    private String attr5;
 
     /**
      * @return entity ID to represent this metric object. Typically, meter function should have a String type field, named entityId.
@@ -101,5 +107,6 @@ public abstract class Meter extends Metrics implements WithMetadata {
         attr2 = entity.getAttr2();
         attr3 = entity.getAttr3();
         attr4 = entity.getAttr4();
+        attr5 = entity.getAttr5();
     }
 }
