@@ -104,6 +104,10 @@ public class Service extends Source {
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "attr4", isAttribute = true)
     private String attr4;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr5", isAttribute = true)
+    private String attr5;
 
     public String getTag(String key) {
         return originalTags.get(key);

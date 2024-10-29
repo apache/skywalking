@@ -66,7 +66,7 @@ public class DeepAnalysisTest {
         Assertions.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
-        Assertions.assertEquals(6, source.size());
+        Assertions.assertEquals(7, source.size());
 
         List<DataColumn> persistentFields = result.getPersistentFields();
         Assertions.assertEquals(4, persistentFields.size());

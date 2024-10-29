@@ -91,6 +91,7 @@ ATTR1: 'attr1';
 ATTR2: 'attr2';
 ATTR3: 'attr3';
 ATTR4: 'attr4';
+ATTR5: 'attr5';
 
 // Literals
 INTEGER: Digit+;
