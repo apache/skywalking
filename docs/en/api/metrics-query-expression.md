@@ -235,8 +235,8 @@ top_n(<metric_name>, <top_number>, <order>, <attrs>)
 - `top_number` is the number of the top results, should be a positive integer.
 - `order` is the order of the top results. The value of `order` can be `asc` or `des`. 
 - `attrs` optional, attrs is the attributes of the metrics, could be used to filter the topN results. 
-   SkyWalking supports 5 attrs: `attr0`, `attr1`, `attr2`, `attr3`, `attr4`. 
-   The format is `attr0='value', attr1='value'...attr4='value4'`, could use one or multiple attrs to filter the topN results.
+   SkyWalking supports 6 attrs: `attr0`, `attr1`, `attr2`, `attr3`, `attr4`, `attr5`. 
+   The format is `attr0='value', attr1='value'...attr5='value5'`, could use one or multiple attrs to filter the topN results.
   **Notice**: The `attrs` only support Service metrics for now and should be added in the metrics first, see [Metrics Additional Attributes](../concepts-and-designs/metrics-additional-attributes.md).
 
 For example:
