@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectionResponse;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerData;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerMetaData;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerTaskCommandQuery;
@@ -69,7 +70,7 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
     }
 
     @Override
-    public StreamObserver<AsyncProfilerData> collect(StreamObserver<Commands> responseObserver) {
+    public StreamObserver<AsyncProfilerData> collect(StreamObserver<AsyncProfilerCollectionResponse> responseObserver) {
         return new AsyncProfilerByteBufCollectObserver(taskDAO, jfrAnalyzer, responseObserver, sourceReceiver, jfrMaxSize);
     }
 

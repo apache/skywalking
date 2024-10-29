@@ -20,13 +20,12 @@
 package org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream;
 
 import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.common.v3.Commands;
-import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectType;
+import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectionResponse;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerData;
+import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilingStatus;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.JfrAnalyzer;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
@@ -37,6 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAs
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.AsyncProfilerServiceHandler.parseMetaData;
 import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.AsyncProfilerServiceHandler.recordAsyncProfilerTaskLog;
@@ -47,13 +47,13 @@ public class AsyncProfilerByteBufCollectObserver implements StreamObserver<Async
     private final SourceReceiver sourceReceiver;
     private final JfrAnalyzer jfrAnalyzer;
     private final int jfrMaxSize;
-    private final StreamObserver<Commands> responseObserver;
+    private final StreamObserver<AsyncProfilerCollectionResponse> responseObserver;
 
     private AsyncProfilerCollectMetaData taskMetaData;
     private ByteBuffer buf;
 
     public AsyncProfilerByteBufCollectObserver(IAsyncProfilerTaskQueryDAO taskDAO, JfrAnalyzer jfrAnalyzer,
-                                               StreamObserver<Commands> responseObserver, SourceReceiver sourceReceiver,
+                                               StreamObserver<AsyncProfilerCollectionResponse> responseObserver, SourceReceiver sourceReceiver,
                                                int jfrMaxSize) {
         this.sourceReceiver = sourceReceiver;
         this.taskDAO = taskDAO;
@@ -65,14 +65,16 @@ public class AsyncProfilerByteBufCollectObserver implements StreamObserver<Async
     @Override
     @SneakyThrows
     public void onNext(AsyncProfilerData asyncProfilerData) {
-        if (asyncProfilerData.hasMetaData()) {
+        if (Objects.isNull(taskMetaData) && asyncProfilerData.hasMetaData()) {
             taskMetaData = parseMetaData(asyncProfilerData.getMetaData(), taskDAO);
-            if (AsyncProfilerCollectType.PROFILING_SUCCESS.equals(taskMetaData.getType())) {
+            if (AsyncProfilingStatus.PROFILING_SUCCESS.equals(taskMetaData.getType())) {
                 int size = taskMetaData.getContentSize();
                 if (jfrMaxSize >= size) {
                     buf = ByteBuffer.allocate(size);
+                    // Not setting type means telling the client that it can upload jfr files
+                    responseObserver.onNext(AsyncProfilerCollectionResponse.newBuilder().build());
                 } else {
-                    responseObserver.onError(new StatusRuntimeException(Status.ABORTED));
+                    responseObserver.onNext(AsyncProfilerCollectionResponse.newBuilder().setType(AsyncProfilingStatus.TERMINATED_BY_OVERSIZE).build());
                     recordAsyncProfilerTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(),
                             AsyncProfilerTaskLogOperationType.JFR_UPLOAD_FILE_TOO_LARGE_ERROR);
                 }
@@ -100,7 +102,6 @@ public class AsyncProfilerByteBufCollectObserver implements StreamObserver<Async
     @Override
     @SneakyThrows
     public void onCompleted() {
-        responseObserver.onNext(Commands.newBuilder().build());
         responseObserver.onCompleted();
 
         buf.flip();

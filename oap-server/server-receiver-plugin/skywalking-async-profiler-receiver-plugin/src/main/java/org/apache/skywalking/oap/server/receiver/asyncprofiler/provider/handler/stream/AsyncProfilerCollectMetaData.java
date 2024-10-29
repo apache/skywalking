@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler
 
 import lombok.Builder;
 import lombok.Data;
-import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectType;
+import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilingStatus;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 
 @Data
@@ -31,5 +31,5 @@ public class AsyncProfilerCollectMetaData {
     private String serviceId;
     private String instanceId;
     private int contentSize;
-    private AsyncProfilerCollectType type;
+    private AsyncProfilingStatus type;
 }
