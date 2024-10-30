@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.query.input;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -62,7 +63,7 @@ public class TopNCondition {
      * Attributes for query condition, if the metrics support attributes from
      * {@link org.apache.skywalking.oap.server.core.analysis.ISourceDecorator}.
      */
-    private String[] attributes;
+    private List<AttrCondition> attributes;
 
     /**
      * Sense Scope through metric name.

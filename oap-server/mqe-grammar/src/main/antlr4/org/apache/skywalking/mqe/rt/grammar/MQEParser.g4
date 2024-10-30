@@ -102,5 +102,5 @@ sort_label_values:
 
 attributeName:
     ATTR0 | ATTR1 | ATTR2 | ATTR3 | ATTR4 | ATTR5;
-attribute: attributeName EQ VALUE_STRING;
+attribute: attributeName (EQ | NEQ) VALUE_STRING;
 attributeList: attribute (COMMA attribute)*;
