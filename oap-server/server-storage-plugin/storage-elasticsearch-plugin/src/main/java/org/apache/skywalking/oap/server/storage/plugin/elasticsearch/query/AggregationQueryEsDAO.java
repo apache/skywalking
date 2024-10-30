@@ -30,6 +30,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.T
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.AttrCondition;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
@@ -37,7 +38,6 @@ import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
@@ -65,13 +65,15 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         final SearchBuilder search = Search.builder();
 
         final boolean asc = condition.getOrder().equals(Order.ASC);
-        String[] attributes = condition.getAttributes();
+        List<AttrCondition> attributes = condition.getAttributes();
         if (CollectionUtils.isNotEmpty(attributes)) {
-            for (int i = 0; i < attributes.length; i++) {
-                if (StringUtil.isNotEmpty(attributes[i])) {
-                    boolQuery.must(Query.term(Metrics.ATTR_NAME_PREFIX + i, attributes[i]));
+            attributes.forEach(attr -> {
+                if (attr.isEquals()) {
+                    boolQuery.must(Query.term(attr.getKey(), attr.getValue()));
+                } else {
+                    boolQuery.mustNot(Query.terms(attr.getKey(), attr.getValue()));
                 }
-            }
+            });
         }
 
         if (CollectionUtils.isEmpty(additionalConditions)
