@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SW_AGENT_JAVA_COMMIT=75364241659c28e64557a3edffd53b9a8ae46188
+SW_AGENT_JAVA_COMMIT=54a3372a8fdbfe562659cbee6f679839f1b88ec2
 SW_AGENT_SATELLITE_COMMIT=ea27a3f4e126a24775fe12e2aa2695bcb23d99c3
 SW_AGENT_NGINX_LUA_COMMIT=c3cee4841798a147d83b96a10914d4ac0e11d0aa
 SW_AGENT_NODEJS_COMMIT=4f9a91dad3dfd8cfe5ba8f7bd06b39e11eb5e65e
