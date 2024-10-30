@@ -101,6 +101,6 @@ sort_label_values:
     SORT_LABEL_VALUES;
 
 attributeName:
-    ATTR0 | ATTR1 | ATTR2 | ATTR3 | ATTR4;
+    ATTR0 | ATTR1 | ATTR2 | ATTR3 | ATTR4 | ATTR5;
 attribute: attributeName EQ VALUE_STRING;
 attributeList: attribute (COMMA attribute)*;

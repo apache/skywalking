@@ -62,6 +62,10 @@ public class K8SService extends K8SMetrics {
     @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "attr4", isAttribute = true)
     private String attr4;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr5", isAttribute = true)
+    private String attr5;
 
     @Override
     public int scope() {

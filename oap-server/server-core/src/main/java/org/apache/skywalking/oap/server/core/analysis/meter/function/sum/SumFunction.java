@@ -86,6 +86,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
         metrics.setAttr2(getAttr2());
         metrics.setAttr3(getAttr3());
         metrics.setAttr4(getAttr4());
+        metrics.setAttr5(getAttr5());
         return metrics;
     }
 
@@ -102,6 +103,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
         metrics.setAttr2(getAttr2());
         metrics.setAttr3(getAttr3());
         metrics.setAttr4(getAttr4());
+        metrics.setAttr5(getAttr5());
         return metrics;
     }
 
@@ -137,6 +139,10 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
         if (StringUtil.isNotEmpty(remoteData.getDataStrings(6))) {
             setAttr4(remoteData.getDataStrings(6));
         }
+
+        if (StringUtil.isNotEmpty(remoteData.getDataStrings(7))) {
+            setAttr5(remoteData.getDataStrings(7));
+        }
     }
 
     @Override
@@ -154,6 +160,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
         remoteBuilder.addDataStrings(getAttr2() == null ? Const.EMPTY_STRING : getAttr2());
         remoteBuilder.addDataStrings(getAttr3() == null ? Const.EMPTY_STRING : getAttr3());
         remoteBuilder.addDataStrings(getAttr4() == null ? Const.EMPTY_STRING : getAttr4());
+        remoteBuilder.addDataStrings(getAttr5() == null ? Const.EMPTY_STRING : getAttr5());
         return remoteBuilder;
     }
 
@@ -196,6 +203,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
             metrics.setAttr2((String) converter.get(ATTR2));
             metrics.setAttr3((String) converter.get(ATTR3));
             metrics.setAttr4((String) converter.get(ATTR4));
+            metrics.setAttr5((String) converter.get(ATTR5));
             return metrics;
         }
 
@@ -211,6 +219,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
             converter.accept(ATTR2, storageData.getAttr2());
             converter.accept(ATTR3, storageData.getAttr3());
             converter.accept(ATTR4, storageData.getAttr4());
+            converter.accept(ATTR5, storageData.getAttr5());
         }
     }
 
