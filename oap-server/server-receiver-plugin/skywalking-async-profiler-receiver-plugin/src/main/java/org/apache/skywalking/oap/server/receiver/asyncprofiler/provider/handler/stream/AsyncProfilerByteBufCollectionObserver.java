@@ -20,7 +20,6 @@
 package org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream;
 
 import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -34,10 +33,8 @@ import org.apache.skywalking.oap.server.core.source.JFRProfilingData;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,20 +42,19 @@ import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.h
 import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.AsyncProfilerServiceHandler.recordAsyncProfilerTaskLog;
 
 @Slf4j
-public class AsyncProfilerFileCollectObserver implements StreamObserver<AsyncProfilerData> {
+public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<AsyncProfilerData> {
     private final IAsyncProfilerTaskQueryDAO taskDAO;
     private final SourceReceiver sourceReceiver;
     private final JfrAnalyzer jfrAnalyzer;
     private final int jfrMaxSize;
     private final StreamObserver<AsyncProfilerCollectionResponse> responseObserver;
 
-    private AsyncProfilerCollectMetaData taskMetaData;
-    private Path tempFile;
-    private FileOutputStream fileOutputStream;
+    private AsyncProfilerCollectionMetaData taskMetaData;
+    private ByteBuffer buf;
 
-    public AsyncProfilerFileCollectObserver(IAsyncProfilerTaskQueryDAO taskDAO, JfrAnalyzer jfrAnalyzer,
-                                            StreamObserver<AsyncProfilerCollectionResponse> responseObserver, SourceReceiver sourceReceiver,
-                                            int jfrMaxSize) {
+    public AsyncProfilerByteBufCollectionObserver(IAsyncProfilerTaskQueryDAO taskDAO, JfrAnalyzer jfrAnalyzer,
+                                                  StreamObserver<AsyncProfilerCollectionResponse> responseObserver,
+                                                  SourceReceiver sourceReceiver, int jfrMaxSize) {
         this.sourceReceiver = sourceReceiver;
         this.taskDAO = taskDAO;
         this.jfrAnalyzer = jfrAnalyzer;
@@ -71,23 +67,23 @@ public class AsyncProfilerFileCollectObserver implements StreamObserver<AsyncPro
     public void onNext(AsyncProfilerData asyncProfilerData) {
         if (Objects.isNull(taskMetaData) && asyncProfilerData.hasMetaData()) {
             taskMetaData = parseMetaData(asyncProfilerData.getMetaData(), taskDAO);
-            AsyncProfilerTask task = taskMetaData.getTask();
             if (AsyncProfilingStatus.PROFILING_SUCCESS.equals(taskMetaData.getType())) {
-                if (jfrMaxSize >= taskMetaData.getContentSize()) {
-                    tempFile = Files.createTempFile(task.getId() + taskMetaData.getInstanceId() + System.currentTimeMillis(), ".jfr");
-                    fileOutputStream = new FileOutputStream(tempFile.toFile());
+                int size = taskMetaData.getContentSize();
+                if (jfrMaxSize >= size) {
+                    buf = ByteBuffer.allocate(size);
+                    // Not setting type means telling the client that it can upload jfr files
                     responseObserver.onNext(AsyncProfilerCollectionResponse.newBuilder().build());
                 } else {
                     responseObserver.onNext(AsyncProfilerCollectionResponse.newBuilder().setType(AsyncProfilingStatus.TERMINATED_BY_OVERSIZE).build());
-                    recordAsyncProfilerTaskLog(task, taskMetaData.getInstanceId(),
+                    recordAsyncProfilerTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(),
                             AsyncProfilerTaskLogOperationType.JFR_UPLOAD_FILE_TOO_LARGE_ERROR);
                 }
             } else {
-                recordAsyncProfilerTaskLog(task, taskMetaData.getInstanceId(),
+                recordAsyncProfilerTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(),
                         AsyncProfilerTaskLogOperationType.EXECUTION_TASK_ERROR);
             }
         } else if (asyncProfilerData.hasContent()) {
-            fileOutputStream.write(asyncProfilerData.getContent().toByteArray());
+            asyncProfilerData.getContent().copyTo(buf);
         }
     }
 
@@ -107,13 +103,13 @@ public class AsyncProfilerFileCollectObserver implements StreamObserver<AsyncPro
     @SneakyThrows
     public void onCompleted() {
         responseObserver.onCompleted();
-
-        fileOutputStream.close();
-        parseAndStorageData(taskMetaData, tempFile.toAbsolutePath().toString());
-        tempFile.toFile().delete();
+        if (Objects.nonNull(buf)) {
+            buf.flip();
+            parseAndStorageData(taskMetaData, buf);
+        }
     }
 
-    private void parseAndStorageData(AsyncProfilerCollectMetaData taskMetaData, String fileName) throws IOException {
+    private void parseAndStorageData(AsyncProfilerCollectionMetaData taskMetaData, ByteBuffer buf) throws IOException {
         long uploadTime = System.currentTimeMillis();
         AsyncProfilerTask task = taskMetaData.getTask();
         if (task == null) {
@@ -123,7 +119,7 @@ public class AsyncProfilerFileCollectObserver implements StreamObserver<AsyncPro
 
         recordAsyncProfilerTaskLog(task, taskMetaData.getInstanceId(), AsyncProfilerTaskLogOperationType.EXECUTION_FINISHED);
 
-        List<JFRProfilingData> jfrProfilingData = jfrAnalyzer.parseJfr(fileName);
+        List<JFRProfilingData> jfrProfilingData = jfrAnalyzer.parseJfr(buf);
         for (JFRProfilingData data : jfrProfilingData) {
             data.setTaskId(task.getId());
             data.setInstanceId(taskMetaData.getInstanceId());
@@ -131,5 +127,4 @@ public class AsyncProfilerFileCollectObserver implements StreamObserver<AsyncPro
             sourceReceiver.receive(data);
         }
     }
-
 }

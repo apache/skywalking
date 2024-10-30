@@ -43,8 +43,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.network.trace.component.command.AsyncProfilerTaskCommand;
-import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerByteBufCollectObserver;
-import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerCollectMetaData;
+import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerByteBufCollectionObserver;
+import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerCollectionMetaData;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -71,7 +71,7 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
 
     @Override
     public StreamObserver<AsyncProfilerData> collect(StreamObserver<AsyncProfilerCollectionResponse> responseObserver) {
-        return new AsyncProfilerByteBufCollectObserver(taskDAO, jfrAnalyzer, responseObserver, sourceReceiver, jfrMaxSize);
+        return new AsyncProfilerByteBufCollectionObserver(taskDAO, jfrAnalyzer, responseObserver, sourceReceiver, jfrMaxSize);
     }
 
     @Override
@@ -109,12 +109,12 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
         RecordStreamProcessor.getInstance().in(logRecord);
     }
 
-    public static AsyncProfilerCollectMetaData parseMetaData(AsyncProfilerMetaData metaData, IAsyncProfilerTaskQueryDAO taskDAO) throws IOException {
+    public static AsyncProfilerCollectionMetaData parseMetaData(AsyncProfilerMetaData metaData, IAsyncProfilerTaskQueryDAO taskDAO) throws IOException {
         String taskId = metaData.getTaskId();
         AsyncProfilerTask task = taskDAO.getById(taskId);
         String serviceId = IDManager.ServiceID.buildId(metaData.getService(), true);
         String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, metaData.getServiceInstance());
-        return AsyncProfilerCollectMetaData.builder()
+        return AsyncProfilerCollectionMetaData.builder()
                 .task(task)
                 .serviceId(serviceId)
                 .instanceId(serviceInstanceId)

@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 
 @Data
 @Builder
-public class AsyncProfilerCollectMetaData {
+public class AsyncProfilerCollectionMetaData {
     private AsyncProfilerTask task;
     private String serviceId;
     private String instanceId;
