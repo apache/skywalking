@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
@@ -124,14 +123,13 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
                                     )));
                         }
                         if (CollectionUtils.isNotEmpty(condition.getAttributes())) {
-                            for (int i = 0; i < condition.getAttributes().length; i++) {
-                                if (StringUtil.isNotEmpty(condition.getAttributes()[i])) {
-                                    query.and(eq(
-                                        Metrics.ATTR_NAME_PREFIX + i,
-                                        condition.getAttributes()[i]
-                                    ));
+                            condition.getAttributes().forEach(attr -> {
+                                if (attr.isEquals()) {
+                                    query.and(eq(attr.getKey(), attr.getValue()));
+                                } else {
+                                    query.and(ne(attr.getKey(), attr.getValue()));
                                 }
-                            }
+                            });
                         }
                     }
                 });

@@ -237,7 +237,12 @@ top_n(<metric_name>, <top_number>, <order>, <attrs>)
 - `attrs` optional, attrs is the attributes of the metrics, could be used to filter the topN results. 
    SkyWalking supports 6 attrs: `attr0`, `attr1`, `attr2`, `attr3`, `attr4`, `attr5`. 
    The format is `attr0='value', attr1='value'...attr5='value5'`, could use one or multiple attrs to filter the topN results.
-  **Notice**: The `attrs` only support Service metrics for now and should be added in the metrics first, see [Metrics Additional Attributes](../concepts-and-designs/metrics-additional-attributes.md).
+   The attrs filter also supports not equal filter `!=`, the format is `attr0='value'`.
+
+**Notice**: 
+- The `attrs` only support Service metrics for now and should be added in the metrics first, see [Metrics Additional Attributes](../concepts-and-designs/metrics-additional-attributes.md).
+- When use not equal filter, for example `attr1!='value'`, if the storage is using `MySQL` or other JDBC storage and `attr1 value not exists` in the metrics, 
+the result of `attr1!='value'` will always `false` due to SQL can't compare `NULL`.
 
 For example:
 1. If we want to query the top 10 services with the highest `service_cpm` metric value, we can use the following expression and make sure the `entity` is empty:
