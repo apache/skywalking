@@ -81,7 +81,6 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
 
         // fetch tasks from cache
         AsyncProfilerTask task = taskCache.getAsyncProfilerTask(serviceId);
-//            List<AsyncProfilerTask> taskList = taskDAO.getTaskList(serviceInstanceId, latestUpdateTime, null, 1);
         if (Objects.isNull(task) || task.getCreateTime() <= request.getLastCommandTime() ||
                 (!CollectionUtils.isEmpty(task.getServiceInstanceIds()) && !task.getServiceInstanceIds().contains(serviceInstanceId))) {
             responseObserver.onNext(Commands.newBuilder().build());

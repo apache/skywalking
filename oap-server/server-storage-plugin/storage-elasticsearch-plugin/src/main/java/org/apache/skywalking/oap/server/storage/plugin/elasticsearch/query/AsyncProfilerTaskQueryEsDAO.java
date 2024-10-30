@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -35,12 +37,15 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class AsyncProfilerTaskQueryEsDAO extends EsDAO implements IAsyncProfilerTaskQueryDAO {
+
+    private static final Gson GSON = new Gson();
 
     private final int queryMaxSize;
 
@@ -104,17 +109,21 @@ public class AsyncProfilerTaskQueryEsDAO extends EsDAO implements IAsyncProfiler
 
     private AsyncProfilerTask parseTask(SearchHit data) {
         Map<String, Object> source = data.getSource();
-        // This must be a list
-        List<String> events = (List<String>) source.get(AsyncProfilerTaskRecord.EVENT_TYPES);
 
+        Type listType = new TypeToken<List<String>>() {
+        }.getType();
+        String events = (String) source.get(AsyncProfilerTaskRecord.EVENT_TYPES);
+        List<String> eventList = GSON.fromJson(events, listType);
+        String serviceInstanceIds = (String) source.get(AsyncProfilerTaskRecord.SERVICE_INSTANCE_IDS);
+        List<String> instanceIdList = GSON.fromJson(serviceInstanceIds, listType);
         return AsyncProfilerTask.builder()
                 .id((String) source.get(AsyncProfilerTaskRecord.TASK_ID))
                 .serviceId((String) source.get(AsyncProfilerTaskRecord.SERVICE_ID))
-                .serviceInstanceIds((List<String>) source.get(AsyncProfilerTaskRecord.SERVICE_INSTANCE_IDS))
+                .serviceInstanceIds(instanceIdList)
                 .createTime(((Number) source.get(AsyncProfilerTaskRecord.CREATE_TIME)).longValue())
                 .duration(((Number) source.get(AsyncProfilerTaskRecord.DURATION)).intValue())
                 .execArgs((String) source.get(AsyncProfilerTaskRecord.EXEC_ARGS))
-                .events(AsyncProfilerEventType.valueOfList(events))
+                .events(AsyncProfilerEventType.valueOfList(eventList))
                 .build();
     }
 }

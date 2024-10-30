@@ -6,7 +6,7 @@
 package org.apache.skywalking.oap.server.library.jfr.parser.type;
 
 /**
- * Fast and compact long->Object map.
+ * Fast and compact long to Object map.
  */
 public class Dictionary<T> {
     private static final int INITIAL_CAPACITY = 16;

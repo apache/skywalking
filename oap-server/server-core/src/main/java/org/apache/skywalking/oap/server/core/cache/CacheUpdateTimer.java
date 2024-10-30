@@ -136,8 +136,6 @@ public enum CacheUpdateTimer {
             if (CollectionUtils.isEmpty(taskList)) {
                 return;
             }
-//            List<String> taskIds = taskList.stream().map(AsyncProfilerTask::getId).collect(Collectors.toList());
-//            Map<String, List<AsyncProfilerTaskLogRecord>> taskId2Log = taskCache.getTaskLogQueryDAO().getTaskLogByTaskId(taskIds);
             for (AsyncProfilerTask task : taskList) {
                 taskCache.saveTask(task.getServiceId(), task);
             }

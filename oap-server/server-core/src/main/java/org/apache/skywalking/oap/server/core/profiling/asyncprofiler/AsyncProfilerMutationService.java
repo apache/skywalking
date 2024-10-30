@@ -71,10 +71,10 @@ public class AsyncProfilerMutationService implements Service {
         AsyncProfilerTaskRecord task = new AsyncProfilerTaskRecord();
         task.setTaskId(createTime + Const.ID_CONNECTOR + serviceId);
         task.setServiceId(serviceId);
-        task.setServiceInstanceIds(serviceInstanceIds);
+        task.setServiceInstanceIdsFromList(serviceInstanceIds);
         task.setDuration(duration);
         List<String> rowEvents = events.stream().map(AsyncProfilerEventType::toString).collect(Collectors.toList());
-        task.setEvents(rowEvents);
+        task.setEventsFromList(rowEvents);
         task.setCreateTime(createTime);
         task.setExecArgs(execArgs);
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(createTime));

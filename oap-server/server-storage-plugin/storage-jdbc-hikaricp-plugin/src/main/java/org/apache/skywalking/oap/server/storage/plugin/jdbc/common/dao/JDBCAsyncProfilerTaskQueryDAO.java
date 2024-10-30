@@ -19,6 +19,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
@@ -31,6 +33,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -40,6 +43,7 @@ import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 public class JDBCAsyncProfilerTaskQueryDAO implements IAsyncProfilerTaskQueryDAO {
+    private static final Gson GSON = new Gson();
 
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
@@ -47,9 +51,6 @@ public class JDBCAsyncProfilerTaskQueryDAO implements IAsyncProfilerTaskQueryDAO
     @Override
     @SneakyThrows
     public List<AsyncProfilerTask> getTaskList(String serviceId, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
-        if (StringUtil.isBlank(serviceId)) {
-            return new ArrayList<>();
-        }
         final var results = new ArrayList<AsyncProfilerTask>();
         final var tables = startTimeBucket == null || endTimeBucket == null ?
                 tableHelper.getTablesWithinTTL(AsyncProfilerTaskRecord.INDEX_NAME) :
@@ -61,8 +62,10 @@ public class JDBCAsyncProfilerTaskQueryDAO implements IAsyncProfilerTaskQueryDAO
                     .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(AsyncProfilerTaskRecord.INDEX_NAME);
 
-            sql.append(" and ").append(AsyncProfilerTaskRecord.SERVICE_ID).append("=? ");
-            condition.add(serviceId);
+            if (StringUtil.isNotEmpty(serviceId)) {
+                sql.append(" and ").append(AsyncProfilerTaskRecord.SERVICE_ID).append("=? ");
+                condition.add(serviceId);
+            }
 
             if (startTimeBucket != null) {
                 sql.append(" and ").append(AsyncProfilerTaskRecord.TIME_BUCKET).append(" >= ? ");
@@ -133,15 +136,19 @@ public class JDBCAsyncProfilerTaskQueryDAO implements IAsyncProfilerTaskQueryDAO
     }
 
     private AsyncProfilerTask buildAsyncProfilerTask(ResultSet data) throws SQLException {
-        List<String> events = (List<String>) data.getObject(AsyncProfilerTaskRecord.EVENT_TYPES);
-
+        Type listType = new TypeToken<List<String>>() {
+        }.getType();
+        String events = data.getString(AsyncProfilerTaskRecord.EVENT_TYPES);
+        List<String> eventList = GSON.fromJson(events, listType);
+        String serviceInstanceIds = data.getString(AsyncProfilerTaskRecord.SERVICE_INSTANCE_IDS);
+        List<String> serviceInstanceIdList = GSON.fromJson(serviceInstanceIds, listType);
         return AsyncProfilerTask.builder()
                 .id(data.getString(AsyncProfilerTaskRecord.TASK_ID))
                 .serviceId(data.getString(AsyncProfilerTaskRecord.SERVICE_ID))
-                .serviceInstanceIds((List<String>) data.getObject(AsyncProfilerTaskRecord.SERVICE_INSTANCE_IDS))
+                .serviceInstanceIds(serviceInstanceIdList)
                 .createTime(data.getLong(AsyncProfilerTaskRecord.CREATE_TIME))
                 .duration(data.getInt(AsyncProfilerTaskRecord.DURATION))
-                .events(AsyncProfilerEventType.valueOfList(events))
+                .events(AsyncProfilerEventType.valueOfList(eventList))
                 .execArgs(data.getString(AsyncProfilerTaskRecord.EXEC_ARGS))
                 .build();
     }

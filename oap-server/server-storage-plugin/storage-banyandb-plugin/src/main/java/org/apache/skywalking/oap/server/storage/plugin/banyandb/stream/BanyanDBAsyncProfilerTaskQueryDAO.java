@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
@@ -34,11 +36,14 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 public class BanyanDBAsyncProfilerTaskQueryDAO extends AbstractBanyanDBDAO implements IAsyncProfilerTaskQueryDAO {
+    private static final Gson GSON = new Gson();
+
     private static final Set<String> TAGS = ImmutableSet.of(
             AsyncProfilerTaskRecord.SERVICE_ID,
             AsyncProfilerTaskRecord.SERVICE_INSTANCE_IDS,
@@ -110,15 +115,19 @@ public class BanyanDBAsyncProfilerTaskQueryDAO extends AbstractBanyanDBDAO imple
     }
 
     private AsyncProfilerTask buildAsyncProfilerTask(RowEntity data) {
-        List<String> events = data.getTagValue(AsyncProfilerTaskRecord.EVENT_TYPES);
-
+        Type listType = new TypeToken<List<String>>() {
+        }.getType();
+        String events = data.getTagValue(AsyncProfilerTaskRecord.EVENT_TYPES);
+        List<String> eventList = GSON.fromJson(events, listType);
+        String serviceInstanceIds = data.getTagValue(AsyncProfilerTaskRecord.SERVICE_INSTANCE_IDS);
+        List<String> serviceInstanceIdList = GSON.fromJson(serviceInstanceIds, listType);
         return AsyncProfilerTask.builder()
                 .id(data.getTagValue(AsyncProfilerTaskRecord.TASK_ID))
                 .serviceId(data.getTagValue(AsyncProfilerTaskRecord.SERVICE_ID))
-                .serviceInstanceIds(data.getTagValue(AsyncProfilerTaskRecord.SERVICE_INSTANCE_IDS))
+                .serviceInstanceIds(serviceInstanceIdList)
                 .createTime(((Number) data.getTagValue(AsyncProfilerTaskRecord.CREATE_TIME)).longValue())
                 .duration(((Number) data.getTagValue(AsyncProfilerTaskRecord.DURATION)).intValue())
-                .events(AsyncProfilerEventType.valueOfList(events))
+                .events(AsyncProfilerEventType.valueOfList(eventList))
                 .execArgs(data.getTagValue(AsyncProfilerTaskRecord.EXEC_ARGS))
                 .build();
     }

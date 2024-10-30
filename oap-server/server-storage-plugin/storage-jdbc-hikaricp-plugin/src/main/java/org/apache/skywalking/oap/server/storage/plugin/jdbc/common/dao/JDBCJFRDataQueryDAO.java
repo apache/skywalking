@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.JFRProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
@@ -34,6 +33,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -47,7 +47,7 @@ public class JDBCJFRDataQueryDAO implements IJFRDataQueryDAO {
         if (StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType) || CollectionUtils.isEmpty(instanceIds)) {
             return new ArrayList<>();
         }
-        List<String> tables = tableHelper.getTablesWithinTTL(AsyncProfilerTaskRecord.INDEX_NAME);
+        List<String> tables = tableHelper.getTablesWithinTTL(JFRProfilingDataRecord.INDEX_NAME);
         List<JFRProfilingDataRecord> results = new ArrayList<>();
         for (final var table : tables) {
             List<Object> condition = new ArrayList<>(4);
@@ -82,6 +82,9 @@ public class JDBCJFRDataQueryDAO implements IJFRDataQueryDAO {
     private JFRProfilingDataRecord parseData(ResultSet data) {
         final JFRProfilingDataRecord.Builder builder = new JFRProfilingDataRecord.Builder();
 
-        return builder.storage2Entity(JDBCEntityConverters.toEntity(data));
+        JFRProfilingDataRecord jfrProfilingDataRecord = builder.storage2Entity(JDBCEntityConverters.toEntity(data));
+        byte[] decodeResult = Base64.getDecoder().decode(jfrProfilingDataRecord.getDataBinary());
+        jfrProfilingDataRecord.setDataBinary(decodeResult);
+        return jfrProfilingDataRecord;
     }
 }

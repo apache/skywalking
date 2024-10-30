@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -41,6 +43,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AS
 @Stream(name = AsyncProfilerTaskRecord.INDEX_NAME, scopeId = ASYNC_PROFILER_TASK, builder = AsyncProfilerTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
 @BanyanDB.TimestampColumn(AsyncProfilerTaskRecord.CREATE_TIME)
 public class AsyncProfilerTaskRecord extends NoneStream {
+    private static final Gson GSON = new Gson();
 
     public static final String INDEX_NAME = "async_profiler_task";
     public static final String TASK_ID = "task_id";
@@ -55,7 +58,7 @@ public class AsyncProfilerTaskRecord extends NoneStream {
     @BanyanDB.SeriesID(index = 0)
     private String serviceId;
     @Column(name = SERVICE_INSTANCE_IDS)
-    private List<String> serviceInstanceIds;
+    private String serviceInstanceIds;
     @Column(name = TASK_ID)
     private String taskId;
     @Column(name = CREATE_TIME)
@@ -63,7 +66,7 @@ public class AsyncProfilerTaskRecord extends NoneStream {
     @Column(name = DURATION)
     private int duration;
     @Column(name = EVENT_TYPES)
-    private List<String> events;
+    private String events;
     @Column(name = EXEC_ARGS, storageOnly = true)
     private String execArgs;
 
@@ -77,11 +80,11 @@ public class AsyncProfilerTaskRecord extends NoneStream {
         public AsyncProfilerTaskRecord storage2Entity(final Convert2Entity converter) {
             final AsyncProfilerTaskRecord record = new AsyncProfilerTaskRecord();
             record.setServiceId((String) converter.get(SERVICE_ID));
-            record.setServiceInstanceIds((List<String>) converter.get(SERVICE_INSTANCE_IDS));
+            record.setServiceInstanceIds((String) converter.get(SERVICE_INSTANCE_IDS));
             record.setTaskId((String) converter.get(TASK_ID));
             record.setCreateTime(((Number) converter.get(CREATE_TIME)).longValue());
             record.setDuration(((Number) converter.get(DURATION)).intValue());
-            record.setEvents((List<String>) converter.get(EVENT_TYPES));
+            record.setEvents((String) converter.get(EVENT_TYPES));
             record.setExecArgs((String) converter.get(EXEC_ARGS));
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return record;
@@ -98,5 +101,13 @@ public class AsyncProfilerTaskRecord extends NoneStream {
             converter.accept(EXEC_ARGS, storageData.getExecArgs());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
+    }
+
+    public void setServiceInstanceIdsFromList(List<String> serviceInstanceIds) {
+        this.serviceInstanceIds = GSON.toJson(serviceInstanceIds);
+    }
+
+    public void setEventsFromList(List<String> events) {
+        this.events = GSON.toJson(events);
     }
 }

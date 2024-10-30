@@ -22,7 +22,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskLogRecord;
-import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
 import org.apache.skywalking.oap.server.core.query.AsyncProfilerTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
@@ -68,7 +67,7 @@ public class JDBCAsyncProfilerTaskLogQueryDAO implements IAsyncProfilerTaskLogQu
         List<Object> parameters = new ArrayList<>(2);
         sql.append("select * from ").append(table)
                 .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
-        parameters.add(AsyncProfilerTaskRecord.INDEX_NAME);
+        parameters.add(AsyncProfilerTaskLogRecord.INDEX_NAME);
         sql.append(" order by ").append(AsyncProfilerTaskLogRecord.OPERATION_TIME).append(" desc");
         return new SQLAndParameters(sql.toString(), parameters);
     }
