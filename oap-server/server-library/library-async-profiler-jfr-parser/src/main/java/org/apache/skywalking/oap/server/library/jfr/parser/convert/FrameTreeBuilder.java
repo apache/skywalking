@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.library.jfr.parser.convert;
 
-import java.util.Comparator;
 import java.util.regex.Pattern;
 
 import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_C1_COMPILED;
@@ -27,22 +26,11 @@ import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.
 import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_JIT_COMPILED;
 import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_NATIVE;
 
-public class FrameTreeBuilder implements Comparator<Frame> {
-    private static final Frame[] EMPTY_FRAME_ARRAY = {};
-    private static final String[] FRAME_SUFFIX = {"_[0]", "_[j]", "_[i]", "", "", "_[k]", "_[1]"};
-    private static final byte HAS_SUFFIX = (byte) 0x80;
-    private static final int FLUSH_THRESHOLD = 15000;
-
+public class FrameTreeBuilder {
     private final Arguments args;
-    private final Index<String> cpool = new Index<>(String.class, "");
+    private final Index<String> cpool = new Index<>(String.class, "all");
     private final Frame root = new Frame(0, TYPE_NATIVE);
-    private final StringBuilder outbuf = new StringBuilder(FLUSH_THRESHOLD + 1000);
-    private int[] order;
     private int depth;
-    private int lastLevel;
-    private long lastX;
-    private long lastTotal;
-    private long mintotal;
 
     public FrameTreeBuilder(Arguments args) {
         this.args = args;
@@ -114,11 +102,6 @@ public class FrameTreeBuilder implements Comparator<Frame> {
     public FrameTree build() {
         String[] keys = cpool.keys();
         return FrameTree.buildTree(root, keys);
-    }
-
-    @Override
-    public int compare(Frame f1, Frame f2) {
-        return order[f1.getTitleIndex()] - order[f2.getTitleIndex()];
     }
 
 }

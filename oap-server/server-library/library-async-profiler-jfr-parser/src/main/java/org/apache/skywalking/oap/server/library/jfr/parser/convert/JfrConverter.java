@@ -3,6 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ *  Compared with the original, collectMultiEvents method has been added.
+ *  collectMultiEvents is used to support collecting multiple jfr events at one time
+ */
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -21,25 +26,17 @@
  *
  */
 
-/**
- *  Compared with the original, collectMultiEvents method has been added.
- *  collectMultiEvents is used to support collecting multiple jfr events at one time
- */
-
 package org.apache.skywalking.oap.server.library.jfr.parser.convert;
 
 import org.apache.skywalking.oap.server.library.jfr.parser.type.ClassRef;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.Dictionary;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.JfrReader;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.MethodRef;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.AllocationSample;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.ContendedLock;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.Event;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.EventAggregator;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.EventPair;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.ExecutionSample;
 import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.LiveObject;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -77,39 +74,6 @@ public abstract class JfrConverter extends Classifier {
     }
 
     protected abstract void convertChunk() throws IOException;
-
-    protected EventAggregator collectEvents() throws IOException {
-        EventAggregator agg = new EventAggregator(args.threads, args.total);
-
-        Class<? extends Event> eventClass =
-                args.live ? LiveObject.class :
-                        args.alloc ? AllocationSample.class :
-                                args.lock ? ContendedLock.class : ExecutionSample.class;
-
-        long threadStates = 0;
-        if (args.state != null) {
-            for (String state : args.state.toUpperCase().split(",")) {
-                threadStates |= 1L << toThreadState(state);
-            }
-        } else if (args.cpu) {
-            threadStates = 1L << toThreadState("DEFAULT");
-        } else if (args.wall) {
-            threadStates = ~(1L << toThreadState("DEFAULT"));
-        }
-
-        long startTicks = args.from != 0 ? toTicks(args.from) : Long.MIN_VALUE;
-        long endTicks = args.to != 0 ? toTicks(args.to) : Long.MAX_VALUE;
-
-        for (Event event; (event = jfr.readEvent(eventClass)) != null; ) {
-            if (event.time >= startTicks && event.time <= endTicks) {
-                if (threadStates == 0 || (threadStates & (1L << ((ExecutionSample) event).threadState)) != 0) {
-                    agg.collect(event);
-                }
-            }
-        }
-
-        return agg;
-    }
 
     protected Map<JFREventType, EventAggregator> collectMultiEvents() throws IOException {
         Map<JFREventType, EventAggregator> event2aggMap = new HashMap<>();
@@ -160,17 +124,13 @@ public abstract class JfrConverter extends Classifier {
     }
 
     private static EventAggregator getEventAggregator(JFREventType jfrEventType) {
-        // TODO aggregator default configure
         switch (jfrEventType) {
-            case EXECUTION_SAMPLE:
-                return new EventAggregator(false, false);
             case OBJECT_ALLOCATION_IN_NEW_TLAB:
             case OBJECT_ALLOCATION_OUTSIDE_TLAB:
                 return new EventAggregator(false, true);
             case THREAD_PARK:
                 return new EventAggregator(true, true);
             case JAVA_MONITOR_ENTER:
-                return new EventAggregator(true, false);
             case PROFILER_LIVE_OBJECT:
                 return new EventAggregator(true, false);
             default:
