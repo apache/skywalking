@@ -67,7 +67,7 @@ Wait for async-profiler to complete data collection and upload successfully，We
     4. **operationType**: Contains "NOTIFIED" and "EXECUTION_FINISHED" and "JFR_UPLOAD_FILE_TOO_LARGE_ERROR", "EXECUTION_TASK_ERROR".
     5. **operationTime**: operationTime is the time when the operation occurs.
 
-### Analyze the data
+### Analyze the profiling data
 
 Once some agents completed the task, we can analyze the data through the following query:
 
