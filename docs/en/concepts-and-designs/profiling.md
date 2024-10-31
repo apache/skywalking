@@ -17,10 +17,10 @@ In the SkyWalking landscape, we provided three ways to support profiling within 
 ## In-process profiling
 
 In-process profiling is primarily provided by auto-instrument agents in the VM-based runtime.
-Learn more tech details from the post, [**Use Profiling to Fix the Blind Spot of Distributed
-Tracing**](sdk-profiling.md).
 
 ### Tracing Profiling
+Learn more tech details from the post, [**Use Profiling to Fix the Blind Spot of Distributed
+Tracing**](sdk-profiling.md).
 
 This feature resolves the issue <1> through capture the snapshot of the thread stacks periodically.
 The OAP would aggregate the thread stack per RPC request, and provide a hierarchy graph to indicate the slow methods
