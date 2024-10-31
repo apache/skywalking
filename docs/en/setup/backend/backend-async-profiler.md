@@ -75,7 +75,7 @@ Once we know which instances completed the task, we can then analyze the data by
 2. **instanceIds**: InstanceIds defines the instances to be included for analysis
 3. **eventType**: EventType is the specific JFR Event type to be selected for analysis even if multiple events are included in the JFR file.
 
-After the query, the following data would be returned. With the data, it's easy to generate a flame graph:
+After the query, the following data would be returned to render a flame graph:
 1. **type**: eventType in query parameters.
 2. **elements**: Combined with "id" to determine the hierarchical relationship.
    1. **Id**: Id is the identity of the stack element.
