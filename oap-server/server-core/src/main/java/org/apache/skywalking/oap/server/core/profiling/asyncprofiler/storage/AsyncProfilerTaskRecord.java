@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
