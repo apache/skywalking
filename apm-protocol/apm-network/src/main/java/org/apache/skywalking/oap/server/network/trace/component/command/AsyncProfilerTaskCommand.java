@@ -65,10 +65,9 @@ public class AsyncProfilerTaskCommand extends BaseCommand implements Serializabl
         if (Objects.nonNull(events) && !events.isEmpty()) {
             sb.append("event=")
                     .append(String.join(comma, events))
-                    .append(comma);
         }
         if (execArgs != null && !execArgs.isEmpty()) {
-            sb.append(execArgs);
+            sb.append(comma).append(execArgs);
         }
         this.execArgs = sb.toString();
     }
