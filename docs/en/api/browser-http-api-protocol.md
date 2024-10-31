@@ -78,6 +78,26 @@ OutPut:
 
 Http Status: 204
 
+### POST http://localhost:12800/browser/perfData/resources
+
+Send a resource data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
+
+Input:
+
+```json
+{
+  "name": "index.js",
+  "duration": 600,
+  "size": 100000,
+  "protocol": "h2",
+  "type": "script",
+}
+```
+
+OutPut:
+
+Http Status: 204
+
 ## Error Log Report
 
 Detailed information about data format can be found in [BrowserPerf.proto](https://github.com/apache/skywalking-data-collect-protocol/blob/master/browser/BrowserPerf.proto).
