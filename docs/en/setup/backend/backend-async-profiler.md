@@ -43,7 +43,7 @@ When the Agent receives a Async Profiler task from OAP, it automatically generat
 2. **Type**: Supports "NOTIFIED" and "EXECUTION_FINISHED" and "JFR_UPLOAD_FILE_TOO_LARGE_ERROR", "EXECUTION_TASK_ERROR", with the current log displaying "NOTIFIED".
 3. **Time**: The time when the Agent received the task.
 
-### Wait agent collect data and upload
+### Wait the agent to collect data and upload
 
 At this point, async-profiler will trace the following kinds of events:   
 
