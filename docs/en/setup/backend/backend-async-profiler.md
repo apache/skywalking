@@ -54,7 +54,7 @@ At this point, async-profiler will trace the following kinds of events:
 
 Finally, java agent will upload the jfr file produced by async-profiler to the oap server for online performance analysis.
 
-### Query task progress
+### Query the profiling task progresses
 
 Wait for async-profiler to complete data collection and upload successfully，We can query the execution log of the async-profiler task and the successful and failed instances,which includes the following information:
 
