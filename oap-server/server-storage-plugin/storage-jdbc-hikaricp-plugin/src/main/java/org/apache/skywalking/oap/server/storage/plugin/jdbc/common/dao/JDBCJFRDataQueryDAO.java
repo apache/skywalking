@@ -59,7 +59,7 @@ public class JDBCJFRDataQueryDAO implements IJFRDataQueryDAO {
             sql.append(" and ").append(JFRProfilingDataRecord.EVENT_TYPE).append(" =? ");
             condition.add(eventType);
 
-            if(CollectionUtils.isNotEmpty(instanceIds)) {
+            if (CollectionUtils.isNotEmpty(instanceIds)) {
                 sql.append(" and ").append(JFRProfilingDataRecord.INSTANCE_ID).append(" in (?) ");
                 String joinedInstanceIds = String.join(",", instanceIds);
                 condition.add(joinedInstanceIds);
