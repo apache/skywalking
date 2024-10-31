@@ -80,7 +80,7 @@ Http Status: 204
 
 ### POST http://localhost:12800/browser/perfData/resources
 
-Send a resource data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
+Send a static resources data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
 
 Input:
 
