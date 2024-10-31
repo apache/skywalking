@@ -12,6 +12,7 @@
 * Add Component ID(5023) for the GoZero framework.
 * Support Kong monitoring.
 * Support adding additional attr[0-4] for service level metrics.
+* Support async-profiler feature for performance analysis
 
 #### UI
 

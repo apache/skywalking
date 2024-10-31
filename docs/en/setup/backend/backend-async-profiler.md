@@ -1,4 +1,4 @@
-`# Async Profiler
+# Async Profiler
 
 Async Profiler is bound within the auto-instrument agent and corresponds to [In-Process Profiling](../../concepts-and-designs/profiling.md#in-process-profiling).
 
