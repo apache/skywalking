@@ -30,10 +30,12 @@ import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.JFR
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +47,9 @@ public class JFRDataQueryEsDAO extends EsDAO implements IJFRDataQueryDAO {
 
     @Override
     public List<JFRProfilingDataRecord> getByTaskIdAndInstancesAndEvent(String taskId, List<String> instanceIds, String eventType) {
+        if (StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType)) {
+            return new ArrayList<>();
+        }
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(JFRProfilingDataRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(AsyncProfilerTaskRecord.INDEX_NAME)) {

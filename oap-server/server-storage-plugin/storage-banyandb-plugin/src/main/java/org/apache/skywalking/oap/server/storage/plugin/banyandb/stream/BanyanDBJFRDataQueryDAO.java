@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -51,18 +50,18 @@ public class BanyanDBJFRDataQueryDAO extends AbstractBanyanDBDAO implements IJFR
 
     @Override
     public List<JFRProfilingDataRecord> getByTaskIdAndInstancesAndEvent(String taskId, List<String> instanceIds, String eventType) throws IOException {
-        if (CollectionUtils.isEmpty(instanceIds)) {
-            return Lists.newArrayList();
+        if (StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType)) {
+            return new ArrayList<>();
         }
-
         StreamQueryResponse resp = query(JFRProfilingDataRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {
-                        if (StringUtil.isNotEmpty(taskId)) {
-                            query.and(eq(JFRProfilingDataRecord.TASK_ID, taskId));
+                        query.and(eq(JFRProfilingDataRecord.TASK_ID, taskId));
+                        query.and(eq(JFRProfilingDataRecord.EVENT_TYPE, eventType));
+                        if (CollectionUtils.isNotEmpty(instanceIds)) {
+                            query.and(in(JFRProfilingDataRecord.INSTANCE_ID, instanceIds));
                         }
-                        query.and(in(JFRProfilingDataRecord.INSTANCE_ID, instanceIds));
                     }
                 });
         List<JFRProfilingDataRecord> records = new ArrayList<>(resp.size());

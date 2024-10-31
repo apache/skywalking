@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.JFRProfilingData;
 
-public class JfrProfilingDataDispatcher implements SourceDispatcher<JFRProfilingData> {
+public class JFRProfilingDataDispatcher implements SourceDispatcher<JFRProfilingData> {
     private static final Gson GSON = new Gson();
 
     @Override

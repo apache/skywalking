@@ -44,7 +44,7 @@ public class JDBCJFRDataQueryDAO implements IJFRDataQueryDAO {
     @Override
     @SneakyThrows
     public List<JFRProfilingDataRecord> getByTaskIdAndInstancesAndEvent(String taskId, List<String> instanceIds, String eventType) throws IOException {
-        if (StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType) || CollectionUtils.isEmpty(instanceIds)) {
+        if (StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType)) {
             return new ArrayList<>();
         }
         List<String> tables = tableHelper.getTablesWithinTTL(JFRProfilingDataRecord.INDEX_NAME);
@@ -59,9 +59,11 @@ public class JDBCJFRDataQueryDAO implements IJFRDataQueryDAO {
             sql.append(" and ").append(JFRProfilingDataRecord.EVENT_TYPE).append(" =? ");
             condition.add(eventType);
 
-            sql.append(" and ").append(JFRProfilingDataRecord.INSTANCE_ID).append(" in (?) ");
-            String joinedInstanceIds = String.join(",", instanceIds);
-            condition.add(joinedInstanceIds);
+            if(CollectionUtils.isNotEmpty(instanceIds)) {
+                sql.append(" and ").append(JFRProfilingDataRecord.INSTANCE_ID).append(" in (?) ");
+                String joinedInstanceIds = String.join(",", instanceIds);
+                condition.add(joinedInstanceIds);
+            }
 
             results.addAll(
                     jdbcClient.executeQuery(

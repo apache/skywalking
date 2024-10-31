@@ -33,19 +33,16 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class JfrAnalyzer {
+public class JFRAnalyzer {
     private final ModuleManager moduleManager;
 
-    public JfrAnalyzer(ModuleManager moduleManager) {
+    public JFRAnalyzer(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
     public List<JFRProfilingData> parseJfr(String jfrFileName) throws IOException {
         List<JFRProfilingData> result = Lists.newArrayList();
-        Arguments arguments = new Arguments();
-        // TODO config cpu state
-        arguments.lines = true;
-        arguments.state = "default,runnable,sleeping";
+        Arguments arguments = getArguments();
         Map<JFREventType, FrameTree> event2treeMap = JfrParser.dumpTree(jfrFileName, arguments);
         for (Map.Entry<JFREventType, FrameTree> entry : event2treeMap.entrySet()) {
             JFREventType event = entry.getKey();
@@ -61,10 +58,7 @@ public class JfrAnalyzer {
 
     public List<JFRProfilingData> parseJfr(ByteBuffer buf) throws IOException {
         List<JFRProfilingData> result = Lists.newArrayList();
-        Arguments arguments = new Arguments();
-        // TODO config cpu state
-        arguments.lines = true;
-        arguments.state = "default,runnable,sleeping";
+        Arguments arguments = getArguments();
         Map<JFREventType, FrameTree> event2treeMap = JfrParser.dumpTree(buf, arguments);
         for (Map.Entry<JFREventType, FrameTree> entry : event2treeMap.entrySet()) {
             JFREventType event = entry.getKey();
@@ -78,4 +72,11 @@ public class JfrAnalyzer {
         return result;
     }
 
+    private Arguments getArguments(){
+        Arguments arguments = new Arguments();
+        // for execution_sample(cpu) sampling, all cpu states are currently parsed
+        arguments.lines = true;
+        arguments.state = "default,runnable,sleeping";
+        return arguments;
+    }
 }

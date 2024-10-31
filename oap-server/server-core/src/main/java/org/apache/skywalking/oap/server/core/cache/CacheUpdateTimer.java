@@ -44,6 +44,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 public enum CacheUpdateTimer {
     INSTANCE;
 
+    private AsyncProfilerTaskCache asyncProfilerTaskCache;
+    private IAsyncProfilerTaskQueryDAO asyncProfilerTaskQueryDAO;
+
     private int ttl = 10;
 
     public void start(ModuleDefineHolder moduleDefineHolder, int ttl) {
@@ -122,13 +125,27 @@ public enum CacheUpdateTimer {
         }
     }
 
+    private AsyncProfilerTaskCache getAsyncProfilerTaskCache(ModuleDefineHolder moduleDefineHolder) {
+        if (asyncProfilerTaskCache == null) {
+            asyncProfilerTaskCache = moduleDefineHolder.find(CoreModule.NAME)
+                    .provider()
+                    .getService(AsyncProfilerTaskCache.class);
+        }
+        return asyncProfilerTaskCache;
+    }
+
+    private IAsyncProfilerTaskQueryDAO getAsyncProfilerTaskQueryDAO(ModuleDefineHolder moduleDefineHolder) {
+        if (asyncProfilerTaskQueryDAO == null) {
+            asyncProfilerTaskQueryDAO = moduleDefineHolder.find(StorageModule.NAME)
+                    .provider()
+                    .getService(IAsyncProfilerTaskQueryDAO.class);
+        }
+        return asyncProfilerTaskQueryDAO;
+    }
+
     private void updateAsyncProfilerTask(ModuleDefineHolder moduleDefineHolder) {
-        AsyncProfilerTaskCache taskCache = moduleDefineHolder.find(CoreModule.NAME)
-                .provider()
-                .getService(AsyncProfilerTaskCache.class);
-        IAsyncProfilerTaskQueryDAO taskQueryDAO = moduleDefineHolder.find(StorageModule.NAME)
-                .provider()
-                .getService(IAsyncProfilerTaskQueryDAO.class);
+        AsyncProfilerTaskCache taskCache = getAsyncProfilerTaskCache(moduleDefineHolder);
+        IAsyncProfilerTaskQueryDAO taskQueryDAO = getAsyncProfilerTaskQueryDAO(moduleDefineHolder);
         try {
             List<AsyncProfilerTask> taskList = taskQueryDAO.getTaskList(
                     null, taskCache.getCacheStartTimeBucket(), taskCache.getCacheEndTimeBucket(), null

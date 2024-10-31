@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectionResponse;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerData;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilingStatus;
-import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.JfrAnalyzer;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.JFRAnalyzer;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.source.JFRProfilingData;
@@ -45,14 +45,14 @@ import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.h
 public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<AsyncProfilerData> {
     private final IAsyncProfilerTaskQueryDAO taskDAO;
     private final SourceReceiver sourceReceiver;
-    private final JfrAnalyzer jfrAnalyzer;
+    private final JFRAnalyzer jfrAnalyzer;
     private final int jfrMaxSize;
     private final StreamObserver<AsyncProfilerCollectionResponse> responseObserver;
 
     private AsyncProfilerCollectionMetaData taskMetaData;
     private ByteBuffer buf;
 
-    public AsyncProfilerByteBufCollectionObserver(IAsyncProfilerTaskQueryDAO taskDAO, JfrAnalyzer jfrAnalyzer,
+    public AsyncProfilerByteBufCollectionObserver(IAsyncProfilerTaskQueryDAO taskDAO, JFRAnalyzer jfrAnalyzer,
                                                   StreamObserver<AsyncProfilerCollectionResponse> responseObserver,
                                                   SourceReceiver sourceReceiver, int jfrMaxSize) {
         this.sourceReceiver = sourceReceiver;
