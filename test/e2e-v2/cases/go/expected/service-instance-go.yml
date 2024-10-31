@@ -15,7 +15,6 @@
 # specific language governing permissions and limitations
 # under the License. shadow
 
-debuggingtrace: null
 {{- contains .}}
 - id: {{ notEmpty .id }}
   name: {{ notEmpty .name }}
