@@ -81,10 +81,12 @@ public class JDBCJFRDataQueryDAO implements IJFRDataQueryDAO {
 
     private JFRProfilingDataRecord parseData(ResultSet data) {
         final JFRProfilingDataRecord.Builder builder = new JFRProfilingDataRecord.Builder();
-
         JFRProfilingDataRecord jfrProfilingDataRecord = builder.storage2Entity(JDBCEntityConverters.toEntity(data));
-        byte[] decodeResult = Base64.getDecoder().decode(jfrProfilingDataRecord.getDataBinary());
-        jfrProfilingDataRecord.setDataBinary(decodeResult);
+        byte[] dataBinary = jfrProfilingDataRecord.getDataBinary();
+        if (dataBinary != null) {
+            byte[] decodeResult = Base64.getDecoder().decode(dataBinary);
+            jfrProfilingDataRecord.setDataBinary(decodeResult);
+        }
         return jfrProfilingDataRecord;
     }
 }
