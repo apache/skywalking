@@ -23,6 +23,7 @@
 {{- end }}
 {{- end}}
 
+debuggingtrace: null
 nodes:
 {{- contains .nodes }}
 - id: {{template "genProcessId" "service"}}

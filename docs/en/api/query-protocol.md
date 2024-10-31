@@ -189,9 +189,11 @@ extend type Query {
 Event query fetches the event list based on given sources and time range conditions.
 
 ### Profiling
-SkyWalking offers two types of [profiling](../concepts-and-designs/profiling.md), in-process and out-process, allowing users to create tasks and check their execution status.
+SkyWalking offers two types of [profiling](../concepts-and-designs/profiling.md), in-process(tracing profiling and async-profiler) and out-process(ebpf profiling), allowing users to create tasks and check their execution status.
 
 #### In-process profiling
+
+##### tracing profiling 
 
 ```graphql
 extend type Mutation {
@@ -207,6 +209,24 @@ extend type Query {
     getProfileTaskSegments(taskID: ID!): [ProfiledTraceSegments!]!
     # analyze multiple profiled segments, start and end time use timestamp(millisecond)
     getSegmentsProfileAnalyze(queries: [SegmentProfileAnalyzeQuery!]!): ProfileAnalyzation!
+}
+```
+
+##### async-profiler
+
+```graphql
+extend type Mutation {
+    # Create a new async-profiler task
+    createAsyncProfilerTask(asyncProfilerTaskCreationRequest: AsyncProfilerTaskCreationRequest!): AsyncProfilerTaskCreationResult!
+}
+
+extend type Query {
+    # Query all task lists and sort them in descending order by start time
+    queryAsyncProfilerTaskList(request: AsyncProfilerTaskListRequest!): AsyncProfilerTaskListResult!
+    # Query task progress, including task logs
+    queryAsyncProfilerTaskProgress(taskId: String!): AsyncProfilerTaskProgress!
+    # Query the flame graph produced by async-profiler
+    queryAsyncProfilerAnalyze(request: AsyncProfilerAnalyzationRequest!): AsyncProfilerAnalyzation!
 }
 ```
 

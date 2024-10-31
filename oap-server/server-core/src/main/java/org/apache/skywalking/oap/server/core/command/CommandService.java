@@ -30,9 +30,12 @@ import org.apache.skywalking.oap.server.core.profiling.continuous.storage.Contin
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerEventType;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.network.trace.component.command.AsyncProfilerTaskCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingReportCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicyCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProfilingTaskCommand;
@@ -58,6 +61,15 @@ public class CommandService implements Service {
         return new ProfileTaskCommand(
             serialNumber, task.getId(), task.getEndpointName(), task.getDuration(), task.getMinDurationThreshold(), task
             .getDumpPeriod(), task.getMaxSamplingCount(), task.getStartTime(), task.getCreateTime());
+    }
+
+    public AsyncProfilerTaskCommand newAsyncProfileTaskCommand(AsyncProfilerTask task) {
+        final String serialNumber = UUID.randomUUID().toString();
+        List<String> eventNames = task.getEvents().stream()
+                .map(AsyncProfilerEventType::getName)
+                .collect(Collectors.toList());
+        return new AsyncProfilerTaskCommand(serialNumber, task.getId(), task.getDuration(),
+                eventNames, task.getExecArgs(), task.getCreateTime());
     }
 
     /**

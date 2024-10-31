@@ -161,4 +161,10 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * if enabled, custom routing values will be used, to reduce the number of shards that need to be searched.
      */
     private boolean enableCustomRouting = false;
+
+    /**
+     * Max size of {@link org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask} to be fetched
+     * in a single request.
+     */
+    private int asyncProfilerTaskQueryMaxSize;
 }
