@@ -189,7 +189,7 @@ extend type Query {
 Event query fetches the event list based on given sources and time range conditions.
 
 ### Profiling
-SkyWalking offers three types of [profiling](../concepts-and-designs/profiling.md), in-process(tracing profiling and async-profiler) and out-process(ebpf profiling), allowing users to create tasks and check their execution status.
+SkyWalking offers two types of [profiling](../concepts-and-designs/profiling.md), in-process(tracing profiling and async-profiler) and out-process(ebpf profiling), allowing users to create tasks and check their execution status.
 
 #### In-process profiling
 
