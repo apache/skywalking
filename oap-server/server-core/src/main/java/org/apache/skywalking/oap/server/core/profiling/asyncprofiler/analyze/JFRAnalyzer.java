@@ -72,7 +72,7 @@ public class JFRAnalyzer {
         return result;
     }
 
-    private Arguments getArguments(){
+    private Arguments getArguments() {
         Arguments arguments = new Arguments();
         // for execution_sample(cpu) sampling, all cpu states are currently parsed
         arguments.lines = true;
