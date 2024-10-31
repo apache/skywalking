@@ -7,7 +7,7 @@ When service encounters performance issues (cpu usage, memory allocation, locks)
 When the proxy receives a task, it enables Async Profiler for sampling.
 After sampling is completed, a flame graph will be generated for performance analysis to determine the specific business code line that caused the performance problem.
 
-## Active in the OAP
+## Activate async profiler in the OAP
 OAP and the agent use a brand-new protocol to exchange Async Profiler data, so it is necessary to start OAP with the following configuration:
 
 ```yaml
