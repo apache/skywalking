@@ -7,7 +7,7 @@ When service encounters performance issues (cpu usage, memory allocation, locks)
 When the proxy receives a task, it enables Async Profiler for sampling.
 After sampling is completed, a flame graph will be generated for performance analysis to determine the specific business code line that caused the performance problem.
 
-## Active in the OAP
+## Activate async profiler in the OAP
 OAP and the agent use a brand-new protocol to exchange Async Profiler data, so it is necessary to start OAP with the following configuration:
 
 ```yaml
@@ -25,7 +25,7 @@ To use the Async Profiler feature, please follow these steps:
 3. **Query task progress**: Query the progress of tasks, including analyzing successful and failed instances and task logs
 4. **Analyze the data**: Analyze the JFR data to determine where performance bottlenecks exist in the service.
 
-### Create Async Profiler task
+### Create an Async Profiler task
 
 Create an Async Profiler task to notify some java-agent instances in the execution service to start Async Profiler for data collection.
 
@@ -43,7 +43,7 @@ When the Agent receives a Async Profiler task from OAP, it automatically generat
 2. **Type**: Supports "NOTIFIED" and "EXECUTION_FINISHED" and "JFR_UPLOAD_FILE_TOO_LARGE_ERROR", "EXECUTION_TASK_ERROR", with the current log displaying "NOTIFIED".
 3. **Time**: The time when the Agent received the task.
 
-### Wait agent collect data and upload
+### Wait the agent to collect data and upload
 
 At this point, async-profiler will trace the following kinds of events:   
 
@@ -54,7 +54,7 @@ At this point, async-profiler will trace the following kinds of events:
 
 Finally, java agent will upload the jfr file produced by async-profiler to the oap server for online performance analysis.
 
-### Query task progress
+### Query the profiling task progresses
 
 Wait for async-profiler to complete data collection and upload successfully，We can query the execution log of the async-profiler task and the successful and failed instances,which includes the following information:
 
@@ -67,15 +67,15 @@ Wait for async-profiler to complete data collection and upload successfully，We
     4. **operationType**: Contains "NOTIFIED" and "EXECUTION_FINISHED" and "JFR_UPLOAD_FILE_TOO_LARGE_ERROR", "EXECUTION_TASK_ERROR".
     5. **operationTime**: operationTime is the time when the operation occurs.
 
-### Analyze the data
+### Analyze the profiling data
 
-Once we know which instances completed the task, we can then analyze the data by providing the following query:
+Once some agents completed the task, we can analyze the data through the following query:
 
 1. **taskId**: The task id.
 2. **instanceIds**: InstanceIds defines the instances to be included for analysis
 3. **eventType**: EventType is the specific JFR Event type to be selected for analysis even if multiple events are included in the JFR file.
 
-After the query, the following data would be returned. With the data, it's easy to generate a flame graph:
+After the query, the following data would be returned to render a flame graph:
 1. **type**: eventType in query parameters.
 2. **elements**: Combined with "id" to determine the hierarchical relationship.
    1. **Id**: Id is the identity of the stack element.
