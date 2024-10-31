@@ -268,6 +268,10 @@ They extract level relevant labels from metric labels, then informs the meter-sy
  - `processRelation(detect_point_label, [service_label1...], [instance_label1...], source_process_id_label, dest_process_id_label, component_label)` extracts `DetectPoint` labels from first argument, the label value should be `client` or `server`.
    extracts `Service` labels from the first array argument, extracts `Instance` labels from the second array argument, extracts `ProcessID` labels from the fourth and fifth arguments of the source and destination.
 
+## Decorate function
+`decorate({ me -> me.attr0 = ...})`: Decorate the [MeterEntity](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/meter/MeterEntity.java) with additional attributes. 
+The closure takes the MeterEntity as an argument. This function is used to add additional attributes to the metrics. More details, see [Metrics Additional Attributes](metrics-additional-attributes.md).
+
 ## Configuration file
 
 The OAP can load the configuration at bootstrap. If the new configuration is not well-formed, the OAP fails to start up. The files

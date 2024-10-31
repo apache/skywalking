@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
@@ -117,6 +118,16 @@ public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
             queries.forEach(query -> {
                 sql.append(" and ").append(query.getKey()).append(" = ?");
                 parameters.add(query.getValue());
+            });
+        }
+        if (CollectionUtils.isNotEmpty(metrics.getAttributes())) {
+            metrics.getAttributes().forEach(attr -> {
+                if (attr.isEquals()) {
+                    sql.append(" and ").append(attr.getKey()).append(" = ?");
+                } else {
+                    sql.append(" and ").append(attr.getKey()).append(" != ?");
+                }
+                parameters.add(attr.getValue());
             });
         }
         sql.append(" group by ").append(Metrics.ENTITY_ID);

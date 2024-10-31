@@ -159,6 +159,23 @@ public class PromQLExprQueryVisitorTest {
                 )
             },
             {
+                "MetricsAggregationOpSumParens",
+                PromQLApiHandler.QueryType.RANGE,
+                "(sum by(group) (http_requests_total{service='serviceA', layer='GENERAL'}) + 2) * 2",
+                List.of(
+                    List.of(
+                        new TimeValuePair(TIME_2023022010, "8"),
+                        new TimeValuePair(TIME_2023022011, "12"),
+                        new TimeValuePair(TIME_2023022012, "16")
+                    )
+                ),
+                List.of(
+                    List.of(
+                        new LabelValuePair("group", "g")
+                    )
+                )
+            },
+            {
                 "MetricsAggregationOpAvg",
                 PromQLApiHandler.QueryType.RANGE,
                 "avg by(group) (http_requests_total{service='serviceA', layer='GENERAL'})",

@@ -19,14 +19,20 @@ nodes:
   name: e2e-service-provider
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "localhost:-1" }}.0
   name: localhost:-1
   type: H2
   isreal: false
+  layers:
+    - VIRTUAL_DATABASE
 - id: {{ b64enc "php" }}.1
   name: php
   type: PHP
   isreal: true
+  layers:
+    - GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}

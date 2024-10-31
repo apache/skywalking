@@ -38,7 +38,7 @@ disableStatement
     ;
 
 metricStatement
-    : FROM LR_BRACKET (sourceAttrCast)? source (sourceAttributeStmt+) RR_BRACKET (filterStatement+)? DOT aggregateFunction
+    : FROM LR_BRACKET (sourceAttrCast)? source (sourceAttributeStmt+) RR_BRACKET (filterStatement+)? DOT aggregateFunction (decorateSource)?
     ;
 
 filterStatement
@@ -47,6 +47,10 @@ filterStatement
 
 filterExpression
     : expression
+    ;
+
+decorateSource
+    : DOT DECORATOR LR_BRACKET STRING_LITERAL RR_BRACKET
     ;
 
 source

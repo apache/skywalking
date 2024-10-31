@@ -110,6 +110,8 @@ catalog:
                 path: "/en/setup/backend/backend-apisix-monitoring"
               - name: "AWS API Gateway"
                 path: "/en/setup/backend/backend-aws-api-gateway-monitoring"
+              - name: "Kong Monitoring"
+                path: "/en/setup/backend/backend-kong-monitoring"
           - name: "Database Monitoring"
             catalog:
               - name: "MySQL/MariaDB Server"
@@ -340,6 +342,8 @@ catalog:
         path: "/en/concepts-and-designs/profiling"
       - name : "Service Hierarchy Configuration"
         path: "/en/concepts-and-designs/service-hierarchy-configuration"
+      - name: "Metrics Attributes"
+        path: "/en/concepts-and-designs/metrics-attributes"
   - name: "Security Notice"
     path: "/en/security/readme"
   - name: "Debugging"

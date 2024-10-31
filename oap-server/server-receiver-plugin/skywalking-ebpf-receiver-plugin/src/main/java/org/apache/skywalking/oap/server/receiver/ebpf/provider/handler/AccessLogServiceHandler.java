@@ -91,6 +91,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     protected final NamingControl namingControl;
 
     private final CounterMetrics inCounter;
+    private final CounterMetrics errorStreamCounter;
     private final HistogramMetrics processHistogram;
     private final CounterMetrics dropCounter;
     private final ConcurrentHashMap<String, DropDataReason> dropReasons = new ConcurrentHashMap<>();
@@ -103,13 +104,16 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             .provider()
             .getService(MetricsCreator.class);
         this.inCounter = metricsCreator.createCounter(
-            "k8s_als_in_count", "The count of envoy ALS message received", MetricsTag.EMPTY_KEY,
+            "k8s_als_in_count", "The count of eBPF log entries received", MetricsTag.EMPTY_KEY,
+            MetricsTag.EMPTY_VALUE);
+        this.errorStreamCounter = metricsCreator.createCounter(
+            "k8s_als_error_streams", "The error count of eBPF log streams that OAP failed to process", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE);
         this.processHistogram = metricsCreator.createHistogramMetric(
-            "k8s_als_in_latency", "The process latency of envoy ALS message received", MetricsTag.EMPTY_KEY,
+            "k8s_als_in_latency", "The processing latency of eBPF log streams", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE);
         this.dropCounter = metricsCreator.createCounter(
-            "k8s_als_drop_count", "The count of envoy ALS message dropped", MetricsTag.EMPTY_KEY,
+            "k8s_als_drop_count", "The count of eBPF log entries dropped", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE);
 
         // schedule to print the drop reasons(debug log)
@@ -125,8 +129,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
             @Override
             public void onNext(EBPFAccessLogMessage logMessage) {
-                final HistogramMetrics.Timer timer = processHistogram.createTimer();
-                try {
+                try (final var ignored = processHistogram.createTimer()) {
                     if (isFirst || logMessage.hasNode()) {
                         isFirst = false;
                         node = new NodeInfo(logMessage.getNode());
@@ -158,8 +161,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                     }
                 } catch (Exception e) {
                     log.error("Access log service handler process error.", e);
-                } finally {
-                    timer.finish();
+                    errorStreamCounter.inc();
                 }
             }
 

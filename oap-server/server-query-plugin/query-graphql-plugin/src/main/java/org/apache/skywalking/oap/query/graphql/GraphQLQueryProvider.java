@@ -145,7 +145,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .resolvers(new ContinuousProfilingQuery(getManager()), new ContinuousProfilingMutation(getManager()))
                      .file("query-protocol/record.graphqls")
                      .resolvers(new RecordsQuery(getManager()))
-            .file("query-protocol/hierarchy.graphqls").resolvers(new HierarchyQuery(getManager()));
+                     .file("query-protocol/hierarchy.graphqls").resolvers(new HierarchyQuery(getManager()));
 
         if (config.isEnableOnDemandPodLog()) {
             schemaBuilder
@@ -162,7 +162,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
                                                   .provider()
                                                   .getService(HTTPHandlerRegister.class);
         service.addHandler(
-            new GraphQLQueryHandler(config, schemaBuilder.build().makeExecutableSchema()),
+            new GraphQLQueryHandler(getManager(), config, schemaBuilder.build().makeExecutableSchema()),
             Collections.singletonList(HttpMethod.POST)
         );
     }

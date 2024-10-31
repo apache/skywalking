@@ -82,9 +82,9 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
                                         TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
         TopNQueryResponse resp = null;
         if (condition.getOrder() == Order.DES) {
-            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions);
+            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions, condition.getAttributes());
         } else {
-            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions);
+            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions, condition.getAttributes());
         }
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -121,6 +121,15 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
                                             additionalCondition.getKey(),
                                             additionalCondition.getValue()
                                     )));
+                        }
+                        if (CollectionUtils.isNotEmpty(condition.getAttributes())) {
+                            condition.getAttributes().forEach(attr -> {
+                                if (attr.isEquals()) {
+                                    query.and(eq(attr.getKey(), attr.getValue()));
+                                } else {
+                                    query.and(ne(attr.getKey(), attr.getValue()));
+                                }
+                            });
                         }
                     }
                 });

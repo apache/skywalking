@@ -1,0 +1,157 @@
+[
+  {
+    "id": "Kong-Endpoint",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 13,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "Total bandwidth Trend (ingress/egress) (KB/s)"
+          },
+          "metricConfig": [
+            {
+              "label": "HTTP bandwidth Trend (requests per second)",
+              "unit": "KB/s"
+            }
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_kong_endpoint_http_bandwidth/1024"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Status Trend (requests per second)"
+          },
+          "metricConfig": [
+            {
+              "label": "HTTP Status Trend",
+              "unit": "req/s"
+            }
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_kong_endpoint_http_status"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 8,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_endpoint_kong_latency"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Kong Latency",
+            "unit": "ms"
+          },
+          "metricConfig": [
+            {
+              "label": "Kong Latency",
+              "tips": "Latency added by Kong and enabled plugins for each service/route in Kong"
+            }
+          ]
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "w": 8,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_endpoint_request_latency"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Request Latency",
+            "unit": "ms"
+          },
+          "metricConfig": [
+            {
+              "label": "Request Latency",
+              "tips": "Total latency incurred during requests for each service/route in Kong"
+            }
+          ]
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "w": 8,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "expressions": [
+            "meter_kong_endpoint_upstream_latency"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Upstream Latency",
+            "unit": "ms"
+          },
+          "metricConfig": [
+            {
+              "label": "Upstream Latency",
+              "tips": "Latency added by upstream response for each service/route in Kong"
+            }
+          ]
+        }
+      ],
+      "layer": "KONG",
+      "entity": "Endpoint",
+      "name": "Kong-Endpoint",
+      "isRoot": false,
+      "isDefault": true
+    }
+  }
+]

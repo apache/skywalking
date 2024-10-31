@@ -23,7 +23,9 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.ISourceDecorator;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.SourceDecoratorManager;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
@@ -82,8 +84,41 @@ public class Service extends Source {
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr0", isAttribute = true)
+    private String attr0;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr1", isAttribute = true)
+    private String attr1;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr2", isAttribute = true)
+    private String attr2;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr3", isAttribute = true)
+    private String attr3;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr4", isAttribute = true)
+    private String attr4;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr5", isAttribute = true)
+    private String attr5;
 
     public String getTag(String key) {
         return originalTags.get(key);
+    }
+
+    /**
+     * Get the decorator through given name and invoke.
+     * @param decorator The decorator class simpleName.
+     */
+    public void decorate(String decorator) {
+        ISourceDecorator<ISource> sourceDecorator = SourceDecoratorManager.DECORATOR_MAP.get(decorator);
+        sourceDecorator.decorate(this);
     }
 }

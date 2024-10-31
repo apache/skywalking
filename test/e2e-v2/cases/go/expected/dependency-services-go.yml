@@ -19,14 +19,20 @@ nodes:
   name: e2e-service-provider
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "e2e-service-consumer"}}.1
   name: e2e-service-consumer
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "go-service" }}.1
   name: go-service
   type: Gin
   isreal: true
+  layers:
+    - GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}

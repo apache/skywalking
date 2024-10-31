@@ -5,7 +5,7 @@
       "children": [
         {
           "x": 0,
-          "y": 2,
+          "y": 13,
           "w": 24,
           "h": 52,
           "i": "1",
@@ -180,13 +180,85 @@
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/envoy/als_setting/"
           }
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "101",
+          "type": "Widget",
+          "expressions": [
+            "top_n(service_resp_time,10,des,attr0='MESH')"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Service Avg Response Time (ms)"
+          }
+        },
+        {
+          "x": 18,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "102",
+          "type": "Widget",
+          "expressions": [
+            "top_n(service_cpm,10,des,attr0='MESH')"
+          ],
+          "widget": {
+            "title": "Service Load (calls or packets / min)"
+          },
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          }
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "103",
+          "type": "Widget",
+          "expressions": [
+            "top_n(service_sla,10,asc,attr0='MESH')/100"
+          ],
+          "widget": {
+            "title": "Success Rate"
+          },
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "104",
+          "type": "Widget",
+          "expressions": [
+            "top_n(service_apdex,10,asc,attr0='MESH')/10000"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Service Apdex"
+          }
         }
       ],
       "layer": "MESH",
       "entity": "All",
       "name": "Mesh-Root",
-      "id": "Mesh-Root",
-      "isRoot": true
+      "isRoot": true,
+      "path": "/Service-Mesh/Services"
     }
   }
 ]

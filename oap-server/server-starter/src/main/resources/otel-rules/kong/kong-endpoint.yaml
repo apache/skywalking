@@ -1,0 +1,40 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+filter: "{ tags -> tags.job_name == 'kong-monitoring' }"
+expSuffix: tag({tags -> tags.host_name = 'kong::' + tags.host_name}).endpoint(['host_name'], ['route'], Layer.KONG)
+metricPrefix: meter_kong_endpoint
+metricsRules:
+  # counter
+    # Total bandwidth (ingress/egress) throughput in bytes
+  - name: http_bandwidth
+    exp: kong_bandwidth_bytes.sum(['host_name','direction','route']).rate('PT1M')
+    # HTTP status codes per consumer/service/route in Kong
+  - name: http_status
+    exp: kong_http_requests_total.sum(['host_name','route','code']).rate('PT1M')
+    
+  # histogram
+    # Latency added by Kong and enabled plugins for each service/route in Kong
+  - name: kong_latency
+    exp: kong_kong_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,70,90,99])
+    # Total latency incurred during requests for each service/route in Kong
+  - name: request_latency
+    exp: kong_request_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,70,90,99])
+    # Latency added by upstream response for each service/route in Kong
+  - name: upstream_latency
+    exp: kong_upstream_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,70,90,99])

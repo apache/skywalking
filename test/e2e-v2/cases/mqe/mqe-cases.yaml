@@ -36,11 +36,16 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="abs(service_sla-10300)" --service-name=e2e-service-provider
     expected: expected/func-OP.yml
 
-  # topN-OP-service
+  # topN-OP-service Global
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des)/100"
     expected: expected/topN-OP-service.yml
+    # topN-OP-service Global with attrs
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des,attr0='GENERAL')/100"
+    expected: expected/topN-OP-service.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des,attr0!='Not_GENERAL')/100"
+    expected: expected/topN-OP-service.yml
 
-  # topN-OP-service
+  # topN-OP-isntance
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_instance_sla,3,des)/100" --service-name=e2e-service-provider
     expected: expected/topN-OP-instance.yml
 

@@ -19,8 +19,12 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.ISourceDecorator;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.SourceDecoratorManager;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.K8S_SERVICE;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_CATALOG_NAME;
@@ -38,6 +42,31 @@ public class K8SService extends K8SMetrics {
 
     private DetectPoint detectPoint;
 
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr0", isAttribute = true)
+    private String attr0;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr1", isAttribute = true)
+    private String attr1;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr2", isAttribute = true)
+    private String attr2;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr3", isAttribute = true)
+    private String attr3;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr4", isAttribute = true)
+    private String attr4;
+    @Getter
+    @Setter
+    @ScopeDefaultColumn.DefinedByField(columnName = "attr5", isAttribute = true)
+    private String attr5;
+
     @Override
     public int scope() {
         return K8S_SERVICE;
@@ -46,5 +75,14 @@ public class K8SService extends K8SMetrics {
     @Override
     public void prepare() {
         entityId = IDManager.ServiceID.buildId(name, layer.isNormal());
+    }
+
+    /**
+     * Get the decorator through given name and invoke.
+     * @param decorator The decorator class simpleName.
+     */
+    public void decorate(String decorator) {
+        ISourceDecorator<ISource> sourceDecorator = SourceDecoratorManager.DECORATOR_MAP.get(decorator);
+        sourceDecorator.decorate(this);
     }
 }

@@ -48,3 +48,5 @@ verify:
   cases:
     - includes:
       - ../storage-cases.yaml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des,attr0='GENERAL',attr1!='Not_exist')/100"
+      expected: ../expected/topN-OP-service.yml

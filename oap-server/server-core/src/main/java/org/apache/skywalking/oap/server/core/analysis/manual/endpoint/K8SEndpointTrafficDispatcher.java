@@ -29,6 +29,7 @@ public class K8SEndpointTrafficDispatcher implements SourceDispatcher<K8SEndpoin
         traffic.setTimeBucket(source.getTimeBucket());
         traffic.setName(source.getEndpointName());
         traffic.setServiceId(source.getServiceId());
+        traffic.setLastPingTimestamp(source.getTimeBucket());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }

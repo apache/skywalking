@@ -19,10 +19,14 @@ nodes:
   name: e2e-service-consumer
   type: Tomcat
   isreal: true
+  layers:
+    - GENERAL
 - id: {{ b64enc "provider-py" }}.1
   name: provider-py
   type: Python
   isreal: true
+  layers:
+    - GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}

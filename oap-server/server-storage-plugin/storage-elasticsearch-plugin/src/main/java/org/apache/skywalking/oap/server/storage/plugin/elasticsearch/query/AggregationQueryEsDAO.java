@@ -30,6 +30,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.T
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.AttrCondition;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
@@ -60,27 +61,33 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         final RangeQueryBuilder basicQuery = Query.range(Metrics.TIME_BUCKET)
                                                   .lte(duration.getEndTimeBucket())
                                                   .gte(duration.getStartTimeBucket());
+        final BoolQueryBuilder boolQuery = Query.bool().must(basicQuery);
         final SearchBuilder search = Search.builder();
 
         final boolean asc = condition.getOrder().equals(Order.ASC);
+        List<AttrCondition> attributes = condition.getAttributes();
+        if (CollectionUtils.isNotEmpty(attributes)) {
+            attributes.forEach(attr -> {
+                if (attr.isEquals()) {
+                    boolQuery.must(Query.term(attr.getKey(), attr.getValue()));
+                } else {
+                    boolQuery.mustNot(Query.terms(attr.getKey(), attr.getValue()));
+                }
+            });
+        }
 
         if (CollectionUtils.isEmpty(additionalConditions)
             && IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
-            final BoolQueryBuilder boolQuery =
-                Query.bool()
-                     .must(basicQuery)
-                     .must(Query.term(
+            boolQuery.must(Query.term(
                          IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
                          condition.getName()
                      ));
             search.query(boolQuery);
         } else if (CollectionUtils.isEmpty(additionalConditions)) {
-            search.query(basicQuery);
+            search.query(boolQuery);
         } else if (CollectionUtils.isNotEmpty(additionalConditions)
             && IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
-            final BoolQueryBuilder boolQuery =
-                Query.bool()
-                     .must(Query.term(
+            boolQuery.must(Query.term(
                          IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
                          condition.getName()
                      ));
@@ -89,16 +96,13 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                     additionalCondition.getKey(),
                     additionalCondition.getValue()
                 )));
-            boolQuery.must(basicQuery);
             search.query(boolQuery);
         } else {
-            final BoolQueryBuilder boolQuery = Query.bool();
             additionalConditions.forEach(additionalCondition -> boolQuery
                 .must(Query.terms(
                     additionalCondition.getKey(),
                     additionalCondition.getValue()
                 )));
-            boolQuery.must(basicQuery);
             search.query(boolQuery);
         }
 

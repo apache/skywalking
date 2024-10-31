@@ -240,7 +240,12 @@ public enum Layer {
      * The self observability of SkyWalking Java Agent,
      * which provides the abilities to measure the tracing performance and error statistics of plugins.
      */
-    SO11Y_JAVA_AGENT(39, true);
+    SO11Y_JAVA_AGENT(39, true),
+
+    /**
+     * Kong is Cloud-Native API Gateway and AI Gateway.
+     */
+    KONG(40, true);
 
     private final int value;
     /**

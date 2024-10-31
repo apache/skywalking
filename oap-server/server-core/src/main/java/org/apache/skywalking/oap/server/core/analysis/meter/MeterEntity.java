@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.meter;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -50,6 +51,18 @@ public class MeterEntity {
     private DetectPoint detectPoint;
     private Layer layer;
     private int componentId;
+    @Setter
+    private String attr0;
+    @Setter
+    private String attr1;
+    @Setter
+    private String attr2;
+    @Setter
+    private String attr3;
+    @Setter
+    private String attr4;
+    @Setter
+    private String attr5;
 
     private MeterEntity() {
 

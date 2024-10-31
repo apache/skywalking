@@ -315,6 +315,60 @@
                     "meter_oap_jvm_class_total_unloaded_count",
                     "meter_oap_jvm_class_total_loaded_count"
                   ]
+                },
+                {
+                  "x": 0,
+                  "y": 39,
+                  "w": 6,
+                  "h": 11,
+                  "i": "16",
+                  "type": "Widget",
+                  "expressions": [
+                    "relabels(meter_oap_graphql_query_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "GraphQL Query Latency (ms)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "ns"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 39,
+                  "w": 6,
+                  "h": 11,
+                  "i": "17",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "GraphQL Query Count"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "expressions": [
+                    "meter_oap_instance_graphql_query_count",
+                    "meter_oap_instance_graphql_query_error_count"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Total Count"
+                    },
+                    {
+                      "label": "Error Count"
+                    }
+                  ]
                 }
               ]
             },
@@ -447,7 +501,7 @@
                   ]
                 },
                 {
-                  "x": 6,
+                  "x": 12,
                   "y": 13,
                   "w": 6,
                   "h": 13,
@@ -469,8 +523,8 @@
                   ]
                 },
                 {
-                  "x": 12,
-                  "y": 13,
+                  "x": 6,
+                  "y": 26,
                   "w": 6,
                   "h": 13,
                   "i": "19",
@@ -496,8 +550,8 @@
                   ]
                 },
                 {
-                  "x": 12,
-                  "y": 26,
+                  "x": 0,
+                  "y": 39,
                   "w": 6,
                   "h": 13,
                   "i": "20",
@@ -518,7 +572,7 @@
                   }
                 },
                 {
-                  "x": 0,
+                  "x": 12,
                   "y": 26,
                   "w": 6,
                   "h": 13,
@@ -545,8 +599,8 @@
                   ]
                 },
                 {
-                  "x": 18,
-                  "y": 13,
+                  "x": 0,
+                  "y": 26,
                   "w": 6,
                   "h": 13,
                   "i": "22",
@@ -567,7 +621,7 @@
                   }
                 },
                 {
-                  "x": 6,
+                  "x": 18,
                   "y": 26,
                   "w": 6,
                   "h": 13,
@@ -590,7 +644,7 @@
                 },
                 {
                   "x": 18,
-                  "y": 26,
+                  "y": 13,
                   "w": 6,
                   "h": 13,
                   "i": "24",
@@ -609,6 +663,25 @@
                   "widget": {
                     "title": "OpenTelemetry Logs Latency (ms / min)"
                   }
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "25",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "K8S ALS Log Streams (Per Minute)"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "expressions": [
+                    "meter_oap_instance_k8s_als_streams",
+                    "meter_oap_instance_k8s_als_error_streams"
+                  ]
                 }
               ]
             }

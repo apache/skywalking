@@ -19,18 +19,26 @@ nodes:
   name: productpage.default
   type: http
   isreal: true
+  layers:
+    - CILIUM_SERVICE
 - id: {{ b64enc "details.default"}}.1
   name: details.default
   type: http
   isreal: true
+  layers:
+    - CILIUM_SERVICE
 - id: {{ b64enc "ratings.default" }}.1
   name: ratings.default
   type: http
   isreal: true
+  layers:
+    - CILIUM_SERVICE
 - id: {{ b64enc "reviews.default" }}.1
   name: reviews.default
   type: http
   isreal: true
+  layers:
+    - CILIUM_SERVICE
 {{- end }}
 calls:
 {{- contains .calls }}

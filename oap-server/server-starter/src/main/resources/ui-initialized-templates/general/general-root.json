@@ -5,7 +5,7 @@
       "children": [
         {
           "x": 0,
-          "y": 2,
+          "y": 13,
           "w": 24,
           "h": 52,
           "i": "1",
@@ -194,13 +194,86 @@
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/"
           }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "101",
+          "type": "Widget",
+          "expressions": [
+            "top_n(service_apdex,10,asc,attr0='GENERAL')/10000"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Service Apdex"
+          }
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "102",
+          "type": "Widget",
+          "expressions": [
+            "top_n(service_resp_time,10,des,attr0='GENERAL')"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Service Avg Response Time (ms)"
+          }
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "103",
+          "type": "Widget",
+          "expressions": [
+            "top_n(service_sla,10,asc,attr0='GENERAL')/100"
+          ],
+          "widget": {
+            "title": "Success Rate"
+          },
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          }
+        },
+        {
+          "x": 18,
+          "y": 2,
+          "w": 6,
+          "h": 11,
+          "i": "104",
+          "type": "Widget",
+          "expressions": [
+            "top_n(service_cpm,10,des,attr0='GENERAL')"
+          ],
+          "widget": {
+            "title": "Service Load (calls / min)",
+            "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min)"
+          },
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          }
         }
       ],
-      "id": "General-Root",
       "layer": "GENERAL",
       "entity": "All",
       "name": "General-Root",
-      "isRoot": true
+      "isRoot": true,
+      "path": "/General-Service/Services"
     }
   }
 ]

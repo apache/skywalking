@@ -29,6 +29,7 @@ hierarchy:
   GENERAL:
     APISIX: lower-short-name-remove-ns
     K8S_SERVICE: lower-short-name-remove-ns
+    KONG: lower-short-name-remove-ns
 
   MYSQL:
     K8S_SERVICE: short-name
@@ -61,6 +62,9 @@ hierarchy:
     K8S_SERVICE: short-name
 
   ACTIVEMQ:
+    K8S_SERVICE: short-name
+  
+  KONG:
     K8S_SERVICE: short-name
 
   VIRTUAL_DATABASE:
@@ -110,6 +114,7 @@ layer-levels:
   KAFKA: 2
   PULSAR: 2
   ACTIVEMQ: 2
+  KONG: 2
 
   MESH_DP: 1
   CILIUM_SERVICE: 1

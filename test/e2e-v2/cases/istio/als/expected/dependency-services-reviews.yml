@@ -19,14 +19,20 @@ nodes:
   name: e2e::reviews
   type: http
   isreal: true
+  layers:
+    - MESH
 - id: {{ b64enc "e2e::ratings"}}.1
   name: e2e::ratings
   type: http
   isreal: true
+  layers:
+    - MESH
 - id: {{ b64enc "e2e::productpage" }}.1
   name: e2e::productpage
   type: http
   isreal: true
+  layers:
+    - MESH
 {{- end }}
 calls:
 {{- contains .calls }}

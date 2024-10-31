@@ -83,31 +83,39 @@ public class MaxFunctionTest {
     @Test
     public void testToHour() {
         function.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, LARGE_VALUE);
+        function.accept(meterEntity, SMALL_VALUE);
         function.calculate();
 
         final MaxFunction hourFunction = (MaxFunction) function.toHour();
         hourFunction.calculate();
 
         assertThat(hourFunction.getValue()).isEqualTo(LARGE_VALUE);
+        assertThat(hourFunction.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     @Test
     public void testToDay() {
         function.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, LARGE_VALUE);
+        function.accept(meterEntity, SMALL_VALUE);
         function.calculate();
 
         final MaxFunction dayFunction = (MaxFunction) function.toDay();
         dayFunction.calculate();
         assertThat(dayFunction.getValue()).isEqualTo(LARGE_VALUE);
+        assertThat(dayFunction.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     @Test
     public void testSerialize() {
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, LARGE_VALUE);
         MaxFunction function2 = new MaxFunctionInst();
         function2.deserialize(function.serialize().build());
 
@@ -115,11 +123,14 @@ public class MaxFunctionTest {
         assertThat(function2.getTimeBucket()).isEqualTo(function.getTimeBucket());
         assertThat(function2.getServiceId()).isEqualTo(function.getServiceId());
         assertThat(function2.getValue()).isEqualTo(function.getValue());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     @Test
     public void testBuilder() throws IllegalAccessException, InstantiationException {
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, LARGE_VALUE);
         function.calculate();
         StorageBuilder<MaxFunction> storageBuilder = function.builder().newInstance();
 
@@ -131,6 +142,7 @@ public class MaxFunctionTest {
         MaxFunction function2 = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map));
 
         assertThat(function2.getValue()).isEqualTo(function.getValue());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     private static class MaxFunctionInst extends MaxFunction {

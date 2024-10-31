@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 /**
  * Meter is the abstract parent for all {@link org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction} annotated functions.
@@ -30,7 +33,44 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
  * @since 9.0.0
  */
 public abstract class Meter extends Metrics implements WithMetadata {
+    protected static final String ATTR0 = "attr0";
+    protected static final String ATTR1 = "attr1";
+    protected static final String ATTR2 = "attr2";
+    protected static final String ATTR3 = "attr3";
+    protected static final String ATTR4 = "attr4";
+    protected static final String ATTR5 = "attr5";
+
     private MetricsMetaInfo metadata = new MetricsMetaInfo("UNKNOWN", DefaultScopeDefine.UNKNOWN);
+
+    @Setter
+    @Getter
+    @Column(name = ATTR0)
+    private String attr0;
+
+    @Setter
+    @Getter
+    @Column(name = ATTR1)
+    private String attr1;
+
+    @Setter
+    @Getter
+    @Column(name = ATTR2)
+    private String attr2;
+
+    @Setter
+    @Getter
+    @Column(name = ATTR3)
+    private String attr3;
+
+    @Setter
+    @Getter
+    @Column(name = ATTR4)
+    private String attr4;
+
+    @Setter
+    @Getter
+    @Column(name = ATTR5)
+    private String attr5;
 
     /**
      * @return entity ID to represent this metric object. Typically, meter function should have a String type field, named entityId.
@@ -53,5 +93,20 @@ public abstract class Meter extends Metrics implements WithMetadata {
         // Only read the id from the implementation when needed, to avoid uninitialized cases.
         this.metadata.setId(this.getEntityId());
         return metadata;
+    }
+
+    /**
+     * Decorate the metric with the entity attributes.
+     * Only single value metrics can be decorated.
+     * Because we only support query the decorated condition in top_n query for now.
+     * @param entity The metric entity
+     */
+    protected void decorate(MeterEntity entity) {
+        attr0 = entity.getAttr0();
+        attr1 = entity.getAttr1();
+        attr2 = entity.getAttr2();
+        attr3 = entity.getAttr3();
+        attr4 = entity.getAttr4();
+        attr5 = entity.getAttr5();
     }
 }

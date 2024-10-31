@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
+import io.opentelemetry.proto.metrics.v1.DataPointFlags;
 import io.opentelemetry.proto.metrics.v1.Sum;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint;
 import io.vavr.Function1;
@@ -237,7 +238,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         final Map<String, String> nodeLabels,
         final io.opentelemetry.proto.metrics.v1.Metric metric) {
         if (metric.hasGauge()) {
-            return metric.getGauge().getDataPointsList().stream()
+            return metric.getGauge().getDataPointsList().stream().filter(point -> 
+                (point.getFlags() & DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE) != DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE)
                          .map(point -> new Gauge(
                              metric.getName(),
                              mergeLabels(
@@ -257,7 +259,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             }
             if (sum
                 .getAggregationTemporality() == AGGREGATION_TEMPORALITY_DELTA) {
-                return sum.getDataPointsList().stream()
+                return sum.getDataPointsList().stream().filter(point -> 
+                    (point.getFlags() & DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE) != DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE)
                           .map(point -> new Gauge(
                               metric.getName(),
                               mergeLabels(
@@ -270,7 +273,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                           ));
             }
             if (sum.getIsMonotonic()) {
-                return sum.getDataPointsList().stream()
+                return sum.getDataPointsList().stream().filter(point ->
+                    (point.getFlags() & DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE) != DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE)
                           .map(point -> new Counter(
                               metric.getName(),
                               mergeLabels(
@@ -282,7 +286,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                               point.getTimeUnixNano() / 1000000
                           ));
             } else {
-                return sum.getDataPointsList().stream()
+                return sum.getDataPointsList().stream().filter(point ->
+                    (point.getFlags() & DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE) != DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE)
                           .map(point -> new Gauge(
                               metric.getName(),
                               mergeLabels(
@@ -296,7 +301,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             }
         }
         if (metric.hasHistogram()) {
-            return metric.getHistogram().getDataPointsList().stream()
+            return metric.getHistogram().getDataPointsList().stream().filter(point ->
+                    (point.getFlags() & DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE) != DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE)
                          .map(point -> new Histogram(
                              metric.getName(),
                              mergeLabels(
@@ -313,7 +319,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                          ));
         }
         if (metric.hasExponentialHistogram()) {
-            return metric.getExponentialHistogram().getDataPointsList().stream()
+            return metric.getExponentialHistogram().getDataPointsList().stream().filter(point ->
+                    (point.getFlags() & DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE) != DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE)
                          .map(point -> new Histogram(
                              metric.getName(),
                              mergeLabels(
@@ -333,7 +340,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                          ));
         }
         if (metric.hasSummary()) {
-            return metric.getSummary().getDataPointsList().stream()
+            return metric.getSummary().getDataPointsList().stream().filter(point ->
+                    (point.getFlags() & DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE) != DataPointFlags.FLAG_NO_RECORDED_VALUE_VALUE)
                          .map(point -> new Summary(
                              metric.getName(),
                              mergeLabels(

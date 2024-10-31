@@ -63,6 +63,7 @@ SRC_CILIUM_ENDPOINT: 'CiliumEndpoint';
 SRC_CILIUM_SERVICE_RELATION: 'CiliumServiceRelation';
 SRC_CILIUM_SERVICE_INSTANCE_RELATION: 'CiliumServiceInstanceRelation';
 SRC_CILIUM_ENDPOINT_RELATION: 'CiliumEndpointRelation';
+DECORATOR: 'decorator';
 
 
 // Browser keywords
