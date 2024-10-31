@@ -25,7 +25,7 @@ To use the Async Profiler feature, please follow these steps:
 3. **Query task progress**: Query the progress of tasks, including analyzing successful and failed instances and task logs
 4. **Analyze the data**: Analyze the JFR data to determine where performance bottlenecks exist in the service.
 
-### Create Async Profiler task
+### Create an Async Profiler task
 
 Create an Async Profiler task to notify some java-agent instances in the execution service to start Async Profiler for data collection.
 
