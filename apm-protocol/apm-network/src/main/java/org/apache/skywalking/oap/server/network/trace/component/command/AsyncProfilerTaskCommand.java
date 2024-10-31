@@ -19,12 +19,14 @@
 
 package org.apache.skywalking.oap.server.network.trace.component.command;
 
+import lombok.Getter;
 import org.apache.skywalking.apm.network.common.v3.Command;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
 import java.util.List;
 import java.util.Objects;
 
+@Getter
 public class AsyncProfilerTaskCommand extends BaseCommand implements Serializable, Deserializable<AsyncProfilerTaskCommand> {
     public static final Deserializable<AsyncProfilerTaskCommand> DESERIALIZER = new AsyncProfilerTaskCommand("", "", 0, null, "", 0);
     public static final String NAME = "AsyncProfilerTaskQuery";
@@ -63,8 +65,7 @@ public class AsyncProfilerTaskCommand extends BaseCommand implements Serializabl
         String comma = ",";
         StringBuilder sb = new StringBuilder();
         if (Objects.nonNull(events) && !events.isEmpty()) {
-            sb.append("event=")
-                    .append(String.join(comma, events))
+            sb.append("event=").append(String.join(comma, events));
         }
         if (execArgs != null && !execArgs.isEmpty()) {
             sb.append(comma).append(execArgs);
@@ -113,21 +114,5 @@ public class AsyncProfilerTaskCommand extends BaseCommand implements Serializabl
                 .addArgs(KeyStringValuePair.newBuilder().setKey("ExecArgs").setValue(execArgs))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("CreateTime").setValue(String.valueOf(createTime)));
         return builder;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public String getExecArgs() {
-        return execArgs;
-    }
-
-    public long getCreateTime() {
-        return createTime;
     }
 }
