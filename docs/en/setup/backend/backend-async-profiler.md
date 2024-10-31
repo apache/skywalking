@@ -69,7 +69,7 @@ Wait for async-profiler to complete data collection and upload successfully，We
 
 ### Analyze the data
 
-Once we know which instances completed the task, we can then analyze the data by providing the following query:
+Once some agents completed the task, we can analyze the data through the following query:
 
 1. **taskId**: The task id.
 2. **instanceIds**: InstanceIds defines the instances to be included for analysis
