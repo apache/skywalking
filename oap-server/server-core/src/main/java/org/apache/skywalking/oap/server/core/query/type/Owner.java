@@ -18,33 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 
-/**
- * SelectedRecord is an abstract data element, including id, name, value and a reference id.
- */
-@Setter
-@Getter
-public class SelectedRecord {
-    /**
-     * Literal string name for visualization
-     */
-    private String name;
-    /**
-     * ID represents the owner of this entity.
-     */
-    private String id;
-    /**
-     * Usually an integer value as this is metrics.
-     */
-    private String value;
-    /**
-     * Have value, Only if the record has related trace id. UI should show this as an attached value.
-     */
-    private String refId;
-    /**
-     * The owner entity of this record.
-     */
-    private Owner owner;
+@Data
+public class Owner {
+    private Scope scope;
+    private String serviceID;
+    private String serviceName;
+    private Boolean normal;
+    private String serviceInstanceID;
+    private String serviceInstanceName;
+    private String endpointID;
+    private String endpointName;
 }
