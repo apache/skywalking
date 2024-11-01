@@ -97,6 +97,11 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection.
      */
     private String sslTrustCAPath = "";
+    /**
+     * Max size of {@link org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask} to be fetched
+     * in a single request.
+     */
+    private int asyncProfilerTaskQueryMaxSize;
 
     public String[] getTargetArray() {
         return Iterables.toArray(Splitter.on(",").omitEmptyStrings().trimResults().split(this.targets), String.class);

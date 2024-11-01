@@ -697,6 +697,15 @@ jobs:
 
           - name: Cilium Service
             config: test/e2e-v2/cases/cilium/e2e.yaml
+
+          - name: Async Profiler ES
+            config: test/e2e-v2/cases/profiling/async-profiler/es/e2e.yaml
+          - name: Async Profiler BanyanDB
+            config: test/e2e-v2/cases/profiling/async-profiler/banyandb/e2e.yaml
+          - name: Async Profiler MySQL
+            config: test/e2e-v2/cases/profiling/async-profiler/mysql/e2e.yaml
+          - name: Async Profiler h2
+            config: test/e2e-v2/cases/profiling/async-profiler/h2/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

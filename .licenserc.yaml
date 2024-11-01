@@ -68,6 +68,7 @@ header:
     - '**/src/main/proto/opentelemetry/**'
     - 'oap-server/server-starter/src/main/resources/version.properties'
     - '**/mockito-extensions/**'
+    - 'oap-server/server-library/library-async-profiler-jfr-parser'
 
   comment: on-failure
 

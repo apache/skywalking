@@ -256,6 +256,8 @@ catalog:
             path: "/en/setup/backend/backend-ebpf-profiling"
           - name: "Continuous Profiling"
             path: "/en/setup/backend/backend-continuous-profiling"
+          - name: "Async Profiler"
+            path: "/en/setup/backend/backend-async-profiler"
       - name: "Event"
         path: "/en/concepts-and-designs/event/"
       - name: "Extension"

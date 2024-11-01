@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+debuggingtrace: null
 nodes:
 {{- contains .nodes }}
 - id: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "POST:/users" }}

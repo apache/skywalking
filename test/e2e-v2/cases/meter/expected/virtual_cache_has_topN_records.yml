@@ -26,3 +26,4 @@ results:
   {{- end}}
   {{- end}}
 error: null
+debuggingtrace: null
