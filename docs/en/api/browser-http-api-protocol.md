@@ -86,7 +86,10 @@ Input:
 
 ```json
 {
-  "name": "index.js",
+  "service": "web",
+  "serviceVersion": "v0.0.1",
+  "pagePath": "/index.html",
+  "name": "vue.js",
   "duration": 600,
   "size": 100000,
   "protocol": "h2",
