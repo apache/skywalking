@@ -33,6 +33,10 @@ import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 public class EndpointDependencyBuilder {
     private final RPCTrafficSourceBuilder rpcTrafficSourceBuilder;
 
+    void prepare() {
+        rpcTrafficSourceBuilder.prepare();
+    }
+
     EndpointRelation toEndpointRelation() {
         return rpcTrafficSourceBuilder.toEndpointRelation();
     }
