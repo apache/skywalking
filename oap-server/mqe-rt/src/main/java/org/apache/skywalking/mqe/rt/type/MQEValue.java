@@ -20,10 +20,12 @@
 package org.apache.skywalking.mqe.rt.type;
 
 import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.type.Owner;
 
 @Data
 public class MQEValue {
     private String id;
+    private Owner owner;
     private String value;
     private String traceID;
 

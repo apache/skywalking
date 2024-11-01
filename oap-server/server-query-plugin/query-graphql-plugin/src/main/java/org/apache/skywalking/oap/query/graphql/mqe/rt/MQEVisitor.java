@@ -217,6 +217,7 @@ public class MQEVisitor extends MQEVisitorBase {
             mqeValue.setId(selectedRecord.getName());
             mqeValue.setEmptyValue(false);
             mqeValue.setDoubleValue(Double.parseDouble(selectedRecord.getValue()));
+            mqeValue.setOwner(selectedRecord.getOwner());
             mqeValueList.add(mqeValue);
         });
         MQEValues mqeValues = new MQEValues();

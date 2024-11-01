@@ -43,4 +43,8 @@ public class SelectedRecord {
      * Have value, Only if the record has related trace id. UI should show this as an attached value.
      */
     private String refId;
+    /**
+     * The owner entity of this record.
+     */
+    private Owner owner;
 }
