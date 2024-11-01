@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+debuggingtrace: null
 nodes:
 {{- contains .nodes }}
 - id: {{ b64enc "provider-py-kafka" }}.1_{{ b64enc "provider-py-kafka-instance" }}
