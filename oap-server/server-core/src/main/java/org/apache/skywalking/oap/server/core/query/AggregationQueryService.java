@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.query.type.Owner;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -72,38 +73,56 @@ public class AggregationQueryService implements Service {
         final List<SelectedRecord> selectedRecords = getAggregationQueryDAO().sortMetricsDebuggable(
             condition, valueCName, duration, additionalConditions);
         selectedRecords.forEach(selectedRecord -> {
+            Owner owner = new Owner();
+            owner.setScope(condition.getScope());
+            selectedRecord.setOwner(owner);
             switch (condition.getScope()) {
                 case Service:
-                    selectedRecord.setName(IDManager.ServiceID.analysisId(selectedRecord.getId()).getName());
+                    final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition
+                        = IDManager.ServiceID.analysisId(selectedRecord.getId());
+                    selectedRecord.setName(serviceIDDefinition.getName());
+                    owner.setServiceID(selectedRecord.getId());
+                    owner.setServiceName(serviceIDDefinition.getName());
+                    owner.setNormal(serviceIDDefinition.isReal());
                     break;
                 case ServiceInstance:
                     final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition
                         = IDManager.ServiceInstanceID.analysisId(selectedRecord.getId());
+                    final IDManager.ServiceID.ServiceIDDefinition instanceServiceIDDefinition =
+                        IDManager.ServiceID.analysisId(instanceIDDefinition.getServiceId());
                     /*
                      * Add the service name into the name if this is global top N.
                      */
                     if (StringUtil.isEmpty(condition.getParentService())) {
-                        IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition =
-                            IDManager.ServiceID.analysisId(instanceIDDefinition.getServiceId());
-                        selectedRecord.setName(serviceIDDefinition.getName() + " - " + instanceIDDefinition.getName());
+                        selectedRecord.setName(instanceServiceIDDefinition.getName() + " - " + instanceIDDefinition.getName());
                     } else {
                         selectedRecord.setName(instanceIDDefinition.getName());
                     }
+                    owner.setServiceID(instanceIDDefinition.getServiceId());
+                    owner.setServiceName(instanceServiceIDDefinition.getName());
+                    owner.setNormal(instanceServiceIDDefinition.isReal());
+                    owner.setServiceInstanceID(selectedRecord.getId());
+                    owner.setServiceInstanceName(instanceIDDefinition.getName());
                     break;
                 case Endpoint:
                     final IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition
                         = IDManager.EndpointID.analysisId(selectedRecord.getId());
+                    final IDManager.ServiceID.ServiceIDDefinition endpointServiceIDDefinition =
+                        IDManager.ServiceID.analysisId(endpointIDDefinition.getServiceId());
                     /*
                      * Add the service name into the name if this is global top N.
                      */
                     if (StringUtil.isEmpty(condition.getParentService())) {
-                        IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition =
-                            IDManager.ServiceID.analysisId(endpointIDDefinition.getServiceId());
-                        selectedRecord.setName(serviceIDDefinition.getName()
+                        selectedRecord.setName(endpointServiceIDDefinition.getName()
                                                    + " - " + endpointIDDefinition.getEndpointName());
                     } else {
                         selectedRecord.setName(endpointIDDefinition.getEndpointName());
                     }
+                    owner.setServiceID(endpointIDDefinition.getServiceId());
+                    owner.setServiceName(endpointServiceIDDefinition.getName());
+                    owner.setNormal(endpointServiceIDDefinition.isReal());
+                    owner.setEndpointID(selectedRecord.getId());
+                    owner.setEndpointName(endpointIDDefinition.getEndpointName());
                     break;
                 default:
                     selectedRecord.setName(Const.UNKNOWN);

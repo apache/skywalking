@@ -13,6 +13,7 @@
 * Support Kong monitoring.
 * Support adding additional attr[0-4] for service level metrics.
 * Support async-profiler feature for performance analysis.
+* Add metrics value owner for metrics topN query result.
 
 #### UI
 
