@@ -106,16 +106,12 @@ public @interface BanyanDB {
              * It's suitable for most tag indexing due to a better memory usage ratio and query performance.
              */
             INVERTED,
-            /**
-             * The `TREE` index could be better when there are high cardinalities, such as the `ID` tag and numeric duration tag.
-             * In these cases, it saves much memory space.
-             */
-            TREE;
         }
     }
 
     /**
-     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for BanyanDB.
+     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for
+     * BanyanDB.
      * BanyanDB stream requires a timestamp in milliseconds.
      *
      * @since 9.3.0
