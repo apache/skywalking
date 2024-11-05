@@ -103,6 +103,11 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int asyncProfilerTaskQueryMaxSize;
 
+    private int resultWindowMaxSize = 10000;
+    private int metadataQueryMaxSize = 5000;
+    private int segmentQueryMaxSize = 200;
+    private int profileDataQueryBatchSize = 100;
+
     public String[] getTargetArray() {
         return Iterables.toArray(Splitter.on(",").omitEmptyStrings().trimResults().split(this.targets), String.class);
     }

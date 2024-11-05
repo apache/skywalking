@@ -132,10 +132,10 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                                                   config.getConcurrentWriteThreads()
             ));
         this.registerServiceImplementation(StorageDAO.class, new BanyanDBStorageDAO(client));
-        this.registerServiceImplementation(INetworkAddressAliasDAO.class, new BanyanDBNetworkAddressAliasDAO(client));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(client));
+        this.registerServiceImplementation(INetworkAddressAliasDAO.class, new BanyanDBNetworkAddressAliasDAO(client, this.config));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(client, this.config.getSegmentQueryMaxSize()));
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new BanyanDBBrowserLogQueryDAO(client));
-        this.registerServiceImplementation(IMetadataQueryDAO.class, new BanyanDBMetadataQueryDAO(client));
+        this.registerServiceImplementation(IMetadataQueryDAO.class, new BanyanDBMetadataQueryDAO(client, this.config));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new BanyanDBAlarmQueryDAO(client));
         this.registerServiceImplementation(ILogQueryDAO.class, new BanyanDBLogQueryDAO(client));
         this.registerServiceImplementation(
@@ -155,20 +155,20 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IEventQueryDAO.class, new BanyanDBEventQueryDAO(client));
         this.registerServiceImplementation(ITopologyQueryDAO.class, new BanyanDBTopologyQueryDAO(client));
         this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new BanyanDBEBPFProfilingTaskDAO(client));
-        this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new BanyanDBEBPFProfilingDataDAO(client));
+        this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new BanyanDBEBPFProfilingDataDAO(client, this.config.getProfileDataQueryBatchSize()));
         this.registerServiceImplementation(
             IEBPFProfilingScheduleDAO.class, new BanyanDBEBPFProfilingScheduleQueryDAO(client));
         this.registerServiceImplementation(IContinuousProfilingPolicyDAO.class, new BanyanDBContinuousProfilingPolicyDAO(client));
 
-        this.registerServiceImplementation(IServiceLabelDAO.class, new BanyanDBServiceLabelDAO(client));
+        this.registerServiceImplementation(IServiceLabelDAO.class, new BanyanDBServiceLabelDAO(client, this.config));
         this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new BanyanDBTagAutocompleteQueryDAO(client));
         this.registerServiceImplementation(IHistoryDeleteDAO.class, new BanyanDBHistoryDeleteDAO());
         this.registerServiceImplementation(IMetricsQueryDAO.class, new BanyanDBMetricsQueryDAO(client));
         this.registerServiceImplementation(IAggregationQueryDAO.class, new BanyanDBAggregationQueryDAO(client));
         this.registerServiceImplementation(IRecordsQueryDAO.class, new BanyanDBRecordsQueryDAO(client));
         this.registerServiceImplementation(IZipkinQueryDAO.class, new BanyanDBZipkinQueryDAO(client));
-        this.registerServiceImplementation(ISpanAttachedEventQueryDAO.class, new BanyanDBSpanAttachedEventQueryDAO(client));
-        this.registerServiceImplementation(IHierarchyQueryDAO.class, new BanyanDBHierarchyQueryDAO(client));
+        this.registerServiceImplementation(ISpanAttachedEventQueryDAO.class, new BanyanDBSpanAttachedEventQueryDAO(client, this.config.getProfileDataQueryBatchSize()));
+        this.registerServiceImplementation(IHierarchyQueryDAO.class, new BanyanDBHierarchyQueryDAO(client, this.config));
         this.registerServiceImplementation(
                 IAsyncProfilerTaskQueryDAO.class, new BanyanDBAsyncProfilerTaskQueryDAO(client,
                         this.config.getAsyncProfilerTaskQueryMaxSize()

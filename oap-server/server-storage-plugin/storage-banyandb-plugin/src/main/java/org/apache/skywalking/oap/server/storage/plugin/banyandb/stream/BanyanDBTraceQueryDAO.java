@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.Element;
@@ -70,9 +71,11 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             SegmentRecord.START_TIME,
             SegmentRecord.SEGMENT_ID,
             SegmentRecord.DATA_BINARY);
+    private final int segmentQueryMaxSize;
 
-    public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
+    public BanyanDBTraceQueryDAO(BanyanDBStorageClient client, int segmentQueryMaxSize) {
         super(client);
+        this.segmentQueryMaxSize = segmentQueryMaxSize;
     }
 
     @Override
@@ -105,6 +108,10 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
                 if (StringUtil.isNotEmpty(endpointId)) {
                     query.and(eq(SegmentRecord.ENDPOINT_ID, endpointId));
+                }
+
+                if (!Strings.isNullOrEmpty(traceId)) {
+                    query.and(eq(SegmentRecord.TRACE_ID, traceId));
                 }
 
                 switch (traceState) {
@@ -181,6 +188,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                     @Override
                     public void apply(StreamQuery query) {
                         query.and(eq(SegmentRecord.TRACE_ID, traceId));
+                        query.setLimit(segmentQueryMaxSize);
                     }
                 });
         return buildRecords(resp);
@@ -193,6 +201,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 @Override
                 public void apply(StreamQuery query) {
                     query.and(in(SegmentRecord.SEGMENT_ID, segmentIdList));
+                    query.setLimit(segmentQueryMaxSize);
                 }
             });
         return buildRecords(resp);
@@ -206,6 +215,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 public void apply(StreamQuery query) {
                     query.and(in(SegmentRecord.TRACE_ID, traceIdList));
                     query.and(in(SegmentRecord.SERVICE_INSTANCE_ID, instanceIdList));
+                    query.setLimit(segmentQueryMaxSize);
                 }
             });
         return buildRecords(resp);

@@ -46,9 +46,11 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
         SpanAttachedEventRecord.TRACE_SPAN_ID,
         SpanAttachedEventRecord.DATA_BINARY,
         SpanAttachedEventRecord.TIMESTAMP);
+    private final int batchSize;
 
-    public BanyanDBSpanAttachedEventQueryDAO(BanyanDBStorageClient client) {
+    public BanyanDBSpanAttachedEventQueryDAO(BanyanDBStorageClient client, int profileDataQueryBatchSize) {
         super(client);
+        this.batchSize = profileDataQueryBatchSize;
     }
 
     @Override
@@ -59,6 +61,7 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
                 query.and(in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
                 query.and(eq(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
                 query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.ASC));
+                query.setLimit(batchSize);
             }
         });
 
