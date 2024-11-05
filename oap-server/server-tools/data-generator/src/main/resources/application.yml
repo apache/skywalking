@@ -192,8 +192,16 @@ storage:
     # The number of threads that write data to BanyanDB concurrently.
     # Bigger value can improve the write performance, but also increase the OAP and BanyanDB Server CPU usage.
     concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
+    # The maximum size of dataset when the OAP loads cache, such as network aliases.
+    resultWindowMaxSize: ${SW_STORAGE_BANYANDB_QUERY_MAX_WINDOW_SIZE:10000}
+    # The maximum size of metadata per query.
+    metadataQueryMaxSize: ${SW_STORAGE_BANYANDB_QUERY_MAX_SIZE:10000}
+    # The maximum size of trace segments per query.
+    segmentQueryMaxSize: ${SW_STORAGE_BANYANDB_QUERY_SEGMENT_SIZE:200}
     # The max number of profile task query in a request.
-    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200}
+    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_QUERY_PROFILE_TASK_SIZE:200}
+    # The batch size of query profiling data.
+    profileDataQueryBatchSize: ${SW_STORAGE_BANYANDB_QUERY_PROFILE_DATA_BATCH_SIZE:100}
     # Data is stored in BanyanDB in segments. A segment is a time range of data.
     # The segment interval is the time range of a segment.
     # The value should be less or equal to data TTL relevant settings.

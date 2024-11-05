@@ -16,6 +16,8 @@
 * Add metrics value owner for metrics topN query result.
 * Add naming control for `EndpointDependencyBuilder`.
 * The index type `BanyanDB.IndexRule.IndexType#TREE` is removed. All indices are using `IndexType#INVERTED` now.
+* Add max query size settings to BanyanDB.
+* Fix "BanyanDBTraceQueryDAO.queryBasicTraces" doesn't support querying by "trace_id".
 
 #### UI
 
