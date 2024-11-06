@@ -51,9 +51,9 @@ service_instance_resp_time = from(ServiceInstance.latency).longAvg();
 service_instance_cpm = from(ServiceInstance.*).cpm();
 
 // Endpoint scope metrics
-endpoint_cpm = from(Endpoint.*).cpm();
-endpoint_resp_time = from(Endpoint.latency).longAvg();
-endpoint_sla = from(Endpoint.*).percent(status == true);
+endpoint_cpm = from(Endpoint.*).cpm().decorator("EndpointDecorator");
+endpoint_resp_time = from(Endpoint.latency).longAvg().decorator("EndpointDecorator");
+endpoint_sla = from(Endpoint.*).percent(status == true).decorator("EndpointDecorator");
 endpoint_percentile = from(Endpoint.latency).percentile2(10); // Multiple values including p50, p75, p90, p95, p99
 endpoint_mq_consume_latency = from((str->long)Endpoint.tag["transmission.latency"]).filter(type == RequestType.MQ).filter(tag["transmission.latency"] != null).longAvg();
 

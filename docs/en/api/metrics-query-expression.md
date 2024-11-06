@@ -240,7 +240,7 @@ top_n(<metric_name>, <top_number>, <order>, <attrs>)
    The attrs filter also supports not-equal filter `!=`, the format is `attr0 != 'value'`.
 
 **Notice**: 
-- The `attrs` only support Service metrics for now and should be added in the metrics first, see [Metrics Additional Attributes](../concepts-and-designs/metrics-additional-attributes.md).
+- The `attrs` should be added in the metrics first, see [Metrics Additional Attributes](../concepts-and-designs/metrics-additional-attributes.md).
 - When use not-equal filter, for example `attr1 != 'value'`, if the storage is using `MySQL` or other JDBC storage and `attr1 value is NULL` in the metrics, 
 the result of `attr1 != 'value'` will always `false` and would NOT include this metric in the result due to SQL can't compare `NULL` with the `value`.
 

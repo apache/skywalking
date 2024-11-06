@@ -18,7 +18,10 @@ and the Java Class must follow the following rules:
 - The Class must implement the [ISourceDecorator](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/ISourceDecorator.java) interface.
 - The Class package must be under the `org.apache.skywalking.*`.
 
-SkyWalking provides a default implementation [ServiceDecorator](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/source/ServiceDecorator.java) which set the `attr0` to the service `Layer`.
+### Default Decorator
+SkyWalking provides some default implementation of decorator:
+
+- [ServiceDecorator](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/source/ServiceDecorator.java) which set the `attr0` to the service `Layer`.
 The following OAL metrics had been decorated by the `ServiceDecorator` by default:
 ```text
 // Service scope metrics
@@ -27,6 +30,23 @@ service_sla = from(Service.*).percent(status == true).decorator("ServiceDecorato
 service_cpm = from(Service.*).cpm().decorator("ServiceDecorator");
 service_apdex = from(Service.latency).apdex(name, status).decorator("ServiceDecorator");
 ```
+
+- [EndpointDecorator](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/source/EndpointDecorator.java) which set the `attr0` to the endpoint `Layer`.
+The following OAL metrics had been decorated by the `EndpointDecorator` by default:
+```text
+endpoint_cpm = from(Endpoint.*).cpm().decorator("EndpointDecorator");
+endpoint_resp_time = from(Endpoint.latency).longAvg().decorator("EndpointDecorator");
+endpoint_sla = from(Endpoint.*).percent(status == true).decorator("EndpointDecorator");
+```
+
+- [K8SServiceDecorator](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/source/K8SServiceDecorator.java) which set the `attr0` to the k8s service `Layer`.
+The following OAL metrics had been decorated by the `K8SServiceDecorator` by default:
+```text
+kubernetes_service_http_call_cpm = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").cpm().decorator("K8SServiceDecorator");
+kubernetes_service_http_call_time = from(K8SService.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").longAvg().decorator("K8SServiceDecorator");
+kubernetes_service_http_call_successful_rate = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").percent(protocol.success == true).decorator("K8SServiceDecorator");
+kubernetes_service_apdex = from(K8SService.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").apdex(name, protocol.success).decorator("K8SServiceDecorator");
+```    
 
 ## MAL Source Decorate
 In the MAL script, you can use the [decorate](mal.md#decorate-function) function to decorate the source, and must follow the following rules:
