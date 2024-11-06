@@ -65,7 +65,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         }
 
         // BanyanDB server-side TopN support for metrics pre-aggregation.
-        if (schema.getTopNSpec() != null) {
+        if (schema.getTopNSpec() != null && CollectionUtils.isEmpty(condition.getAttributes())) {
             // 1) no additional conditions
             // 2) additional conditions are all group by tags
             if (CollectionUtils.isEmpty(additionalConditions) ||

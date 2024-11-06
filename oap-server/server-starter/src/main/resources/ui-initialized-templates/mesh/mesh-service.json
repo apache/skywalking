@@ -330,7 +330,8 @@
                   },
                   "expressions": [
                     "top_n(service_instance_cpm,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Mesh-Instance"
                 },
                 {
                   "x": 8,
@@ -348,7 +349,8 @@
                   },
                   "expressions": [
                     "top_n(service_instance_resp_time,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Mesh-Instance"
                 },
                 {
                   "x": 16,
@@ -366,7 +368,8 @@
                   },
                   "expressions": [
                     "top_n(service_instance_sla,10,asc)/100"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Mesh-Instance"
                 },
                 {
                   "x": 16,
@@ -384,7 +387,8 @@
                   },
                   "expressions": [
                     "top_n(endpoint_sla,10,asc)/100"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Mesh-Endpoint"
                 },
                 {
                   "x": 8,
@@ -402,7 +406,8 @@
                   },
                   "expressions": [
                     "top_n(endpoint_resp_time,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Mesh-Endpoint"
                 },
                 {
                   "x": 0,
@@ -420,7 +425,8 @@
                   },
                   "expressions": [
                     "top_n(endpoint_cpm,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Mesh-Endpoint"
                 },
                 {
                   "x": 0,
@@ -718,27 +724,7 @@
       ],
       "layer": "MESH",
       "entity": "Service",
-      "name": "Mesh-Service",
-      "isDefault": true,
-      "expressions": [
-        "avg(service_cpm)",
-        "avg(service_sla/100)",
-        "avg(service_resp_time)"
-      ],
-      "expressionsConfig": [
-        {
-          "unit": "calls / min",
-          "label": "Load"
-        },
-        {
-          "unit": "%",
-          "label": "Success Rate"
-        },
-        {
-          "unit": "ms",
-          "label": "Latency"
-        }
-      ]
+      "name": "Mesh-Service"
     }
   }
 ]

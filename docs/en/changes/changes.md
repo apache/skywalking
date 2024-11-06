@@ -11,7 +11,7 @@
 * Change the endpoint_traffic to updatable for the additional column `last_ping`.
 * Add Component ID(5023) for the GoZero framework.
 * Support Kong monitoring.
-* Support adding additional attr[0-4] for service level metrics.
+* Support adding additional attr[0-5] for service/endpoint level metrics.
 * Support async-profiler feature for performance analysis.
 * Add metrics value owner for metrics topN query result.
 * Add naming control for `EndpointDependencyBuilder`.
@@ -28,6 +28,9 @@
 * Add service global topN widget on `General-Root`, `Mesh-Root`, `K8S-Root` dashboard.
 * Fix initialization dashboards.
 * Update the Kubernetes metrics for reduce multiple metrics calculate in MQE.
+* Support view data value related dashboards in TopList widgets.
+* Add endpoint global topN widget on `General-Root`, `Mesh-Root`.
+
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.

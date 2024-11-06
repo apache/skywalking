@@ -125,8 +125,10 @@ public class OALListener extends OALParserBaseListener {
         current.setSourceDecorator(decoratorNameTrim);
         Map<String, ISourceDecorator<ISource>> map = SourceDecoratorManager.DECORATOR_MAP;
         int currentScopeId = current.getFrom().getSourceScopeId();
-        if (currentScopeId != DefaultScopeDefine.SERVICE && currentScopeId != DefaultScopeDefine.K8S_SERVICE) {
-            throw new IllegalArgumentException("OAL metric: " + current.getMetricsName() + ", decorate source only support service scope.");
+        if (currentScopeId != DefaultScopeDefine.SERVICE
+            && currentScopeId != DefaultScopeDefine.K8S_SERVICE
+            && currentScopeId != DefaultScopeDefine.ENDPOINT) {
+            throw new IllegalArgumentException("OAL metric: " + current.getMetricsName() + ", decorate source not support scope: " + DefaultScopeDefine.nameOf(currentScopeId));
         }
         ISourceDecorator<ISource> decorator = map.get(decoratorNameTrim);
         if (decorator == null) {
