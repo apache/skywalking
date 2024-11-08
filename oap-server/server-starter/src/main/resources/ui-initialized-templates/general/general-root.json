@@ -212,7 +212,10 @@
           "widget": {
             "title": "Service Apdex"
           },
-          "valueRelatedDashboard": "General-Service"
+          "valueRelatedDashboard": "General-Service",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
         },
         {
           "x": 12,
@@ -231,7 +234,10 @@
           "widget": {
             "title": "Service Avg Response Time (ms)"
           },
-          "valueRelatedDashboard": "General-Service"
+          "valueRelatedDashboard": "General-Service",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
         },
         {
           "x": 6,
@@ -250,7 +256,10 @@
             "type": "TopList",
             "color": "purple"
           },
-          "valueRelatedDashboard": "General-Service"
+          "valueRelatedDashboard": "General-Service",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
         },
         {
           "x": 18,
@@ -270,7 +279,10 @@
             "type": "TopList",
             "color": "purple"
           },
-          "valueRelatedDashboard": "General-Service"
+          "valueRelatedDashboard": "General-Service",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
         },
         {
           "x": 0,
@@ -289,7 +301,10 @@
           "widget": {
             "title": "Endpoint Success Rate"
           },
-          "valueRelatedDashboard": "General-Endpoint"
+          "valueRelatedDashboard": "General-Endpoint",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
         },
         {
           "x": 8,
@@ -308,7 +323,10 @@
           "widget": {
             "title": "Endpoint Avg Response Time (ms)"
           },
-          "valueRelatedDashboard": "General-Endpoint"
+          "valueRelatedDashboard": "General-Endpoint",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
         },
         {
           "x": 16,
@@ -328,7 +346,10 @@
             "title": "Endpoint Load (calls / min)",
             "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services"
           },
-          "valueRelatedDashboard": "General-Endpoint"
+          "valueRelatedDashboard": "General-Endpoint",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
         }
       ],
       "layer": "GENERAL",

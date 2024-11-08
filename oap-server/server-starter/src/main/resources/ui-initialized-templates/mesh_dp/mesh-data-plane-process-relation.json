@@ -1827,7 +1827,10 @@
                   },
                   "expressions": [
                     "top_n(sampled_slow_trace_record,50,DES)"
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "refIdType": "traceId"
+                  }
                 },
                 {
                   "x": 8,
@@ -1845,7 +1848,10 @@
                   },
                   "expressions": [
                     "top_n(sampled_status_4xx_trace_record,50,DES)"
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "refIdType": "traceId"
+                  }
                 },
                 {
                   "x": 16,
@@ -1863,7 +1869,10 @@
                   },
                   "expressions": [
                     "top_n(sampled_status_5xx_trace_record,50,DES)"
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "refIdType": "traceId"
+                  }
                 },
                 {
                   "x": 0,

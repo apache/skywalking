@@ -207,6 +207,10 @@
           "expressions": [
             "top_n(kubernetes_service_apdex,10,asc,attr0='K8S_SERVICE')/10000"
           ],
+          "valueRelatedDashboard": "K8S-Service-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
           "graph": {
             "type": "TopList",
             "color": "purple"
@@ -225,6 +229,10 @@
           "expressions": [
             "top_n(kubernetes_service_http_call_successful_rate,10,asc,attr0='K8S_SERVICE')/100"
           ],
+          "valueRelatedDashboard": "K8S-Service-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
           "graph": {
             "type": "TopList",
             "color": "purple"
@@ -243,6 +251,10 @@
           "expressions": [
             "top_n(kubernetes_service_http_call_time,10,des,attr0='K8S_SERVICE')"
           ],
+          "valueRelatedDashboard": "K8S-Service-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
           "graph": {
             "type": "TopList",
             "color": "purple"
@@ -261,6 +273,10 @@
           "expressions": [
             "top_n(kubernetes_service_http_call_cpm,10,des,attr0='K8S_SERVICE')"
           ],
+          "valueRelatedDashboard": "K8S-Service-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
           "graph": {
             "type": "TopList",
             "color": "purple"

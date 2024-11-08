@@ -30,6 +30,7 @@
 * Update the Kubernetes metrics for reduce multiple metrics calculate in MQE.
 * Support view data value related dashboards in TopList widgets.
 * Add endpoint global topN widget on `General-Root`, `Mesh-Root`.
+* Implement owner option for TopList widgets in related trace options.
 
 
 #### Documentation
