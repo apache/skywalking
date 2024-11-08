@@ -485,6 +485,10 @@
                                     "expressions": [
                                         "top_n(meter_activemq_destination_topic_consumer_count,10,des)"
                                     ],
+                                    "valueRelatedDashboard": "ActiveMQ-Destination",
+                                    "relatedTrace": {
+                                        "refIdType": "none"
+                                    },
                                     "graph": {
                                         "type": "TopList",
                                         "color": "purple"

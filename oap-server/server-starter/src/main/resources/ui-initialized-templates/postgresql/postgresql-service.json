@@ -487,7 +487,10 @@
                   },
                   "expressions": [
                     "top_n(top_n_database_statement,10,des)"
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "refIdType": "none"
+                  }
                 }
               ]
             },

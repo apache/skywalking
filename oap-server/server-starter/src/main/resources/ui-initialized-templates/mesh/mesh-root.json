@@ -198,7 +198,10 @@
           "widget": {
             "title": "Service Avg Response Time (ms)"
           },
-          "valueRelatedDashboard": "Mesh-Service"
+          "valueRelatedDashboard": "Mesh-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          }
         },
         {
           "x": 18,
@@ -217,7 +220,10 @@
             "type": "TopList",
             "color": "purple"
           },
-          "valueRelatedDashboard": "Mesh-Service"
+          "valueRelatedDashboard": "Mesh-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          }
         },
         {
           "x": 6,
@@ -236,7 +242,10 @@
             "type": "TopList",
             "color": "purple"
           },
-          "valueRelatedDashboard": "Mesh-Service"
+          "valueRelatedDashboard": "Mesh-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          }
         },
         {
           "x": 0,
@@ -255,7 +264,10 @@
           "widget": {
             "title": "Service Apdex"
           },
-          "valueRelatedDashboard": "Mesh-Service"
+          "valueRelatedDashboard": "Mesh-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          }
         },
         {
           "x": 0,
@@ -272,6 +284,9 @@
             "color": "purple"
           },
           "valueRelatedDashboard": "Mesh-Endpoint",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
           "widget": {
             "title": "Endpoint Success Rate"
           }
@@ -291,6 +306,9 @@
             "color": "purple"
           },
           "valueRelatedDashboard": "Mesh-Endpoint",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
           "widget": {
             "title": "Endpoint Avg Response Time (ms)"
           }
@@ -310,6 +328,9 @@
             "color": "purple"
           },
           "valueRelatedDashboard": "Mesh-Endpoint",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
           "widget": {
             "title": "Endpoint Load (calls or packets / min)"
           }
