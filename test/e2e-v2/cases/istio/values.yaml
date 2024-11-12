@@ -16,7 +16,7 @@
 oap:
   config:
     metadata-service-mapping.yaml: |
-      serviceName: e2e::${LABELS."service.istio.io/canonical-name"}
+      serviceName: e2e::${LABELS."service.istio.io/canonical-name",SERVICE}
       serviceInstanceName: ${NAME}
 
 elasticsearch:

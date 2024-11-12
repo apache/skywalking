@@ -19,6 +19,7 @@
 * Add max query size settings to BanyanDB.
 * Fix "BanyanDBTraceQueryDAO.queryBasicTraces" doesn't support querying by "trace_id".
 * Polish mesh data dispatcher: don't generate Instance/Endpoint metrics if they are empty.
+* Adapt the new metadata standardization in Istio 1.24.
 
 #### UI
 
