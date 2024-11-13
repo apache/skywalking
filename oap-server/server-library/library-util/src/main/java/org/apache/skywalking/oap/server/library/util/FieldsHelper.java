@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
@@ -166,7 +167,7 @@ public class FieldsHelper {
     public void inflate(final Struct metadata, final Object target) {
         final Value empty = Value.newBuilder().setStringValue("-").build();
         final Value root = Value.newBuilder().setStructValue(metadata).build();
-        for (final Map.Entry<String, FieldFormat> entry : fieldNameMapping.entrySet()) {
+        for (final var entry : fieldNameMapping.entrySet()) {
             final FieldFormat fieldFormat = entry.getValue();
             final Object[] values = new String[fieldFormat.properties.size()];
             for (int i = 0; i < fieldFormat.properties.size(); i++) {
@@ -175,7 +176,9 @@ public class FieldsHelper {
                 for (final Field field : property) {
                     Value value = root;
                     for (final String segment : field.dsvSegments) {
-                        value = value.getStructValue().getFieldsOrDefault(segment, empty);
+                        final var fieldMaps = new TreeMap<String, Value>(String.CASE_INSENSITIVE_ORDER);
+                        fieldMaps.putAll(value.getStructValue().getFieldsMap());
+                        value = fieldMaps.getOrDefault(segment, empty);
                     }
                     if (Strings.isNullOrEmpty(value.getStringValue()) || "-".equals(value.getStringValue())) {
                         continue;

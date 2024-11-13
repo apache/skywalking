@@ -33,8 +33,15 @@ spec:
     spec:
       containers:
         - name: trafficgenerator
-          image: elswork/wrk
-          command: ["wrk", "-t1", "-c1", "-d20m", "http://productpage:9080/productpage"]
+          image: alpine/curl:8.9.1
+          command: ["/bin/sh", "-c", "--"]
+          args:
+            - |
+              while true; do
+                curl -s -o /dev/null -w "%{http_code}\n" http://productpage:9080/productpage
+                sleep 1
+              done
           resources:
             requests:
               cpu: 0.1
+
