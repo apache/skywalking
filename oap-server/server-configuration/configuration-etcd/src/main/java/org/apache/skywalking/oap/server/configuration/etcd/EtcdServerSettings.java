@@ -18,7 +18,6 @@
 package org.apache.skywalking.oap.server.configuration.etcd;
 
 import com.google.common.base.Strings;
-import java.util.Arrays;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -45,9 +44,5 @@ public class EtcdServerSettings extends ModuleConfig {
             return namespace + "/";
         }
         return namespace;
-    }
-
-    public String[] getEndpointArray() {
-        return Arrays.stream(endpoints.split("\\s*,\\s*")).toArray(String[]::new);
     }
 }

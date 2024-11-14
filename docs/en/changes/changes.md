@@ -20,7 +20,7 @@
 * Fix "BanyanDBTraceQueryDAO.queryBasicTraces" doesn't support querying by "trace_id".
 * Polish mesh data dispatcher: don't generate Instance/Endpoint metrics if they are empty.
 * Adapt the new metadata standardization in Istio 1.24.
-* Bump up netty to 4.1.115, grpc to 1.68.1, boringssl to 2.0.69.
+* Bump up netty to 4.1.115, grpc to 1.68.1, boringssl to 2.0.69, jetcd to 0.8.3.
 
 #### UI
 

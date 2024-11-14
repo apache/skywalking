@@ -68,7 +68,7 @@ public class EtcdConfigurationIT {
 
     @BeforeEach
     public void before() throws Exception {
-        System.setProperty("etcd.endpoint", "http://127.0.0.1:" + container.getMappedPort(2379));
+        System.setProperty("etcd.endpoint", "127.0.0.1:" + container.getMappedPort(2379));
 
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
@@ -87,7 +87,7 @@ public class EtcdConfigurationIT {
         assertNull(provider.watcher.value());
 
         KV client = Client.builder()
-                          .endpoints("http://localhost:" + container.getMappedPort(2379))
+                          .target("127.0.0.1:" + container.getMappedPort(2379))
                           .namespace(ByteSequence.from("/skywalking/", Charset.defaultCharset()))
                           .build()
                           .getKVClient();
@@ -120,7 +120,7 @@ public class EtcdConfigurationIT {
         assertEquals("{}", provider.groupWatcher.groupItems().toString());
 
         KV client = Client.builder()
-                          .endpoints("http://localhost:" + container.getMappedPort(2379))
+                          .target("localhost:" + container.getMappedPort(2379))
                           .namespace(ByteSequence.from("/skywalking/", Charset.defaultCharset()))
                           .build()
                           .getKVClient();
