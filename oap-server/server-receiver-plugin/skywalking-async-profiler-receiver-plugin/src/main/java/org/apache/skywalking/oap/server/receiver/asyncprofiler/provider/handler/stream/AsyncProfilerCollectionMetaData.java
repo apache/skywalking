@@ -32,4 +32,5 @@ public class AsyncProfilerCollectionMetaData {
     private String instanceId;
     private int contentSize;
     private AsyncProfilingStatus type;
+    private long uploadTime;
 }

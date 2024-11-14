@@ -29,8 +29,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.jfr.parser.convert.FrameTree;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
 
 import java.nio.charset.StandardCharsets;
 
@@ -57,7 +55,7 @@ public class JFRProfilingDataRecord extends Record {
     private String instanceId;
 
     /**
-     * @see JFREventType
+     * @see org.apache.skywalking.oap.server.library.jfr.parser.JFREventType
      */
     @Column(name = EVENT_TYPE)
     private String eventType;
@@ -66,7 +64,7 @@ public class JFRProfilingDataRecord extends Record {
     private long uploadTime;
 
     /**
-     * @see FrameTree
+     * @see org.apache.skywalking.oap.server.library.jfr.parser.FrameTree
      */
     @Column(name = DATA_BINARY, storageOnly = true)
     private byte[] dataBinary;

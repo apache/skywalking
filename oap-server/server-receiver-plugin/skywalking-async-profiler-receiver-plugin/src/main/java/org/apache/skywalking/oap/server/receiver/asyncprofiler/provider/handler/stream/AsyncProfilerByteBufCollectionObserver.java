@@ -23,19 +23,22 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import one.jfr.Arguments;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectionResponse;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerData;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilingStatus;
-import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.JFRAnalyzer;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.source.JFRProfilingData;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.jfr.parser.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.parser.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.JFRParser;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.AsyncProfilerServiceHandler.parseMetaData;
@@ -45,19 +48,17 @@ import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.h
 public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<AsyncProfilerData> {
     private final IAsyncProfilerTaskQueryDAO taskDAO;
     private final SourceReceiver sourceReceiver;
-    private final JFRAnalyzer jfrAnalyzer;
     private final int jfrMaxSize;
     private final StreamObserver<AsyncProfilerCollectionResponse> responseObserver;
 
     private AsyncProfilerCollectionMetaData taskMetaData;
     private ByteBuffer buf;
 
-    public AsyncProfilerByteBufCollectionObserver(IAsyncProfilerTaskQueryDAO taskDAO, JFRAnalyzer jfrAnalyzer,
+    public AsyncProfilerByteBufCollectionObserver(IAsyncProfilerTaskQueryDAO taskDAO,
                                                   StreamObserver<AsyncProfilerCollectionResponse> responseObserver,
                                                   SourceReceiver sourceReceiver, int jfrMaxSize) {
         this.sourceReceiver = sourceReceiver;
         this.taskDAO = taskDAO;
-        this.jfrAnalyzer = jfrAnalyzer;
         this.responseObserver = responseObserver;
         this.jfrMaxSize = jfrMaxSize;
     }
@@ -110,7 +111,6 @@ public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<As
     }
 
     private void parseAndStorageData(AsyncProfilerCollectionMetaData taskMetaData, ByteBuffer buf) throws IOException {
-        long uploadTime = System.currentTimeMillis();
         AsyncProfilerTask task = taskMetaData.getTask();
         if (task == null) {
             log.error("AsyncProfiler instanceId:{} has not been assigned a task but still uploaded data", taskMetaData.getInstanceId());
@@ -119,11 +119,23 @@ public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<As
 
         recordAsyncProfilerTaskLog(task, taskMetaData.getInstanceId(), AsyncProfilerTaskLogOperationType.EXECUTION_FINISHED);
 
-        List<JFRProfilingData> jfrProfilingData = jfrAnalyzer.parseJfr(buf);
-        for (JFRProfilingData data : jfrProfilingData) {
+        parseJFRAndStorage(taskMetaData, buf);
+    }
+
+    public void parseJFRAndStorage(AsyncProfilerCollectionMetaData taskMetaData,
+                                   ByteBuffer buf) throws IOException {
+        AsyncProfilerTask task = taskMetaData.getTask();
+        Arguments arguments = new Arguments();
+        Map<JFREventType, FrameTree> event2treeMap = JFRParser.dumpTree(buf, arguments);
+        for (Map.Entry<JFREventType, FrameTree> entry : event2treeMap.entrySet()) {
+            JFREventType event = entry.getKey();
+            FrameTree tree = entry.getValue();
+            JFRProfilingData data = new JFRProfilingData();
+            data.setEventType(event);
+            data.setFrameTree(tree);
             data.setTaskId(task.getId());
             data.setInstanceId(taskMetaData.getInstanceId());
-            data.setUploadTime(uploadTime);
+            data.setUploadTime(taskMetaData.getUploadTime());
             sourceReceiver.receive(data);
         }
     }

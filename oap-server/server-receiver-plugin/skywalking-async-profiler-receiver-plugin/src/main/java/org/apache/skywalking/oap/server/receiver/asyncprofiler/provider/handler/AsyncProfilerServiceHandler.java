@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.cache.AsyncProfilerTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
-import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.JFRAnalyzer;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
@@ -57,7 +56,6 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
     private final SourceReceiver sourceReceiver;
     private final CommandService commandService;
     private final AsyncProfilerTaskCache taskCache;
-    private final JFRAnalyzer jfrAnalyzer;
     private final int jfrMaxSize;
 
     public AsyncProfilerServiceHandler(ModuleManager moduleManager, int jfrMaxSize) {
@@ -65,13 +63,12 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.commandService = moduleManager.find(CoreModule.NAME).provider().getService(CommandService.class);
         this.taskCache = moduleManager.find(CoreModule.NAME).provider().getService(AsyncProfilerTaskCache.class);
-        this.jfrAnalyzer = new JFRAnalyzer(moduleManager);
         this.jfrMaxSize = jfrMaxSize;
     }
 
     @Override
     public StreamObserver<AsyncProfilerData> collect(StreamObserver<AsyncProfilerCollectionResponse> responseObserver) {
-        return new AsyncProfilerByteBufCollectionObserver(taskDAO, jfrAnalyzer, responseObserver, sourceReceiver, jfrMaxSize);
+        return new AsyncProfilerByteBufCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize);
     }
 
     @Override
@@ -119,6 +116,7 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
                 .instanceId(serviceInstanceId)
                 .type(metaData.getType())
                 .contentSize(metaData.getContentSize())
+                .uploadTime(System.currentTimeMillis())
                 .build();
     }
 }

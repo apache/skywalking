@@ -20,8 +20,8 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Data;
-import org.apache.skywalking.oap.server.library.jfr.parser.convert.FrameTree;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.parser.JFREventType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.JFR_PROFILING_DATA;
 
