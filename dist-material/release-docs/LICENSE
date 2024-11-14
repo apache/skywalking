@@ -226,7 +226,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.17.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.4 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml/classmate/1.5.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos/2.29.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos/2.41.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.auto.service/auto-service-annotations/1.0.1 Apache-2.0
     https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305/3.0.2 Apache-2.0
     https://mvnrepository.com/artifact/com.google.code.gson/gson/2.9.0 Apache-2.0
@@ -290,43 +290,42 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-scheduling/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-storageclass/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/zjsonpatch/0.3.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-api/1.63.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-context/1.63.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-core/1.63.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-grpclb/1.63.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-netty/1.63.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-protobuf/1.63.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-protobuf-lite/1.63.0 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-api/1.68.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-context/1.68.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-core/1.68.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-grpclb/1.68.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-netty/1.68.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-protobuf/1.68.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-protobuf-lite/1.68.1 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-services/1.64.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-stub/1.63.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-util/1.63.0 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-stub/1.68.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-util/1.68.1 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.13.0 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.13.0 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.13.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-dns/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-haproxy/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-common/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-classes-macos/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.52.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.65.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-tcnative-classes/2.0.65.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-epoll/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-kqueue/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-kqueue/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.1.108.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.perfmark/perfmark-api/0.26.0 Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-dns/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-haproxy/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-common/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-classes-macos/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.69.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-tcnative-classes/2.0.69.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-epoll/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-kqueue/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-kqueue/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.1.115.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.perfmark/perfmark-api/0.27.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_common/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot/0.6.0 Apache-2.0
@@ -548,7 +547,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/monaco-editor/v/0.34.1 0.34.1 MIT
     https://npmjs.com/package/nanoid/v/3.3.7 3.3.7 MIT
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.33.0 MIT
-    https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.23 MIT
+    https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.24 MIT
     https://mvnrepository.com/artifact/org.curioswitch.curiostack/protobuf-jackson/2.5.0 MIT
     https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT

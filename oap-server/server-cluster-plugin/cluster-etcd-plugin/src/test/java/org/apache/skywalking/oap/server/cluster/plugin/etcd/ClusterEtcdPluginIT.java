@@ -64,7 +64,7 @@ public class ClusterEtcdPluginIT {
 
     @Container
     public final GenericContainer<?> container =
-        new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.0"))
+        new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.17"))
             .waitingFor(Wait.forLogMessage(".*ready to serve client requests.*", 1))
             .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"))
             .withCommand(
@@ -76,7 +76,7 @@ public class ClusterEtcdPluginIT {
 
     @BeforeEach
     public void before() throws Exception {
-        String baseUrl = "http://" + container.getHost() + ":" + container.getMappedPort(2379);
+        String baseUrl = container.getHost() + ":" + container.getMappedPort(2379);
         System.setProperty("etcd.endpoint", baseUrl);
 
         etcdConfig = new ClusterModuleEtcdConfig();

@@ -43,7 +43,7 @@ public class EtcdConfigWatcherRegister extends FetchingConfigWatcherRegister {
         super(setting.getPeriod());
         ClientBuilder builder = Client.builder()
                                       .authority(setting.getAuthority())
-                                      .endpoints(setting.getEndpointArray());
+                                      .target(setting.getEndpoints());
 
         if (StringUtil.isNotEmpty(setting.getNamespace())) {
             builder.namespace(ByteSequence.from(setting.getNamespace(), Charset.defaultCharset()));

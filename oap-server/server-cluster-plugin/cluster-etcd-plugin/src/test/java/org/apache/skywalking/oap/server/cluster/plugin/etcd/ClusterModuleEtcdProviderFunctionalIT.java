@@ -75,7 +75,7 @@ public class ClusterModuleEtcdProviderFunctionalIT {
         telemetryProvider = mock(NoneTelemetryProvider.class);
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
-        endpoint = "http://" + container.getHost() + ":" + container.getMappedPort(2379);
+        endpoint = container.getHost() + ":" + container.getMappedPort(2379);
     }
 
     @Test
