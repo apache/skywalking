@@ -34,8 +34,8 @@ services:
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
       SW_STORAGE_BANYANDB_TARGETS: banyandb:17912
       SW_CONFIG_ETCD_PERIOD: 1
-      SW_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
-      SW_CLUSTER_ETCD_ENDPOINTS: http://etcd:2379
+      SW_CONFIG_ETCD_ENDPOINTS: etcd:2379
+      SW_CLUSTER_ETCD_ENDPOINTS: etcd:2379
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
       interval: 5s
