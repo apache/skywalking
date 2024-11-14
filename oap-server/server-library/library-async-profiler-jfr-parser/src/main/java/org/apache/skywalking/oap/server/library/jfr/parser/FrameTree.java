@@ -16,16 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.convert;
+package org.apache.skywalking.oap.server.library.jfr.parser;
+
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class FrameTree {
 
-    private String frame;
-    private long total;
-    private long self;
+    private final String frame;
+    private final long total;
+    private final long self;
     private List<FrameTree> children;
 
     public FrameTree(Frame frame, String[] key2frame) {
@@ -51,19 +54,4 @@ public class FrameTree {
         return frameTree;
     }
 
-    public String getFrame() {
-        return frame;
-    }
-
-    public long getTotal() {
-        return total;
-    }
-
-    public long getSelf() {
-        return self;
-    }
-
-    public List<FrameTree> getChildren() {
-        return children;
-    }
 }

@@ -31,9 +31,9 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
-import org.apache.skywalking.oap.server.library.jfr.parser.convert.FrameTree;
-import org.apache.skywalking.oap.server.library.jfr.parser.convert.JfrMergeBuilder;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.parser.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.JFRMergeBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -98,7 +98,7 @@ public class AsyncProfilerQueryService implements Service {
         List<FrameTree> trees = jfrDataList.stream()
                 .map(data -> GSON.fromJson(new String(data.getDataBinary()), FrameTree.class))
                 .collect(Collectors.toList());
-        FrameTree resultTree = new JfrMergeBuilder()
+        FrameTree resultTree = new JFRMergeBuilder()
                 .merge(trees)
                 .build();
         return new AsyncProfilerStackTree(eventType, resultTree);

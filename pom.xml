@@ -175,6 +175,7 @@
         <protoc-gen-grpc-java.plugin.version>1.42.1</protoc-gen-grpc-java.plugin.version>
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <objenesis.version>3.1</objenesis.version>
+        <async-profiler-converter.version>3.0</async-profiler-converter.version>
         <!-- necessary for Java 9+ -->
         <org.apache.tomcat.annotations-api.version>6.0.53</org.apache.tomcat.annotations-api.version>
 
@@ -365,6 +366,12 @@
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
                 <version>${antlr.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.profiler</groupId>
+                <artifactId>async-profiler-converter</artifactId>
+                <version>${async-profiler-converter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -113,7 +113,7 @@ public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<As
         long uploadTime = System.currentTimeMillis();
         AsyncProfilerTask task = taskMetaData.getTask();
         if (task == null) {
-            log.error("AsyncProfiler taskId:{} not found but receive data", task.getId());
+            log.error("AsyncProfiler instanceId:{} has not been assigned a task but still uploaded data", taskMetaData.getInstanceId());
             return;
         }
 

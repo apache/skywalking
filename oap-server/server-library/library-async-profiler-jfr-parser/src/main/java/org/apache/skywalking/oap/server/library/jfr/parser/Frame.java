@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.convert;
+package org.apache.skywalking.oap.server.library.jfr.parser;
 
 import java.util.HashMap;
 
@@ -21,9 +21,7 @@ public class Frame extends HashMap<Integer, Frame> {
     final int key;
     long total;
     long self;
-    long inlined;
-    long c1;
-    long interpreted;
+    long inlined, c1, interpreted;
 
     private Frame(int key) {
         this.key = key;

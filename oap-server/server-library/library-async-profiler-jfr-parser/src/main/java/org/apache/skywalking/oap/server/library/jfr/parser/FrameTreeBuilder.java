@@ -16,65 +16,32 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.convert;
+package org.apache.skywalking.oap.server.library.jfr.parser;
 
-import java.util.regex.Pattern;
+import one.jfr.CallStack;
 
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_C1_COMPILED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_INLINED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_INTERPRETED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_JIT_COMPILED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_NATIVE;
+import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_C1_COMPILED;
+import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_INLINED;
+import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_INTERPRETED;
+import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_JIT_COMPILED;
+import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_NATIVE;
 
 public class FrameTreeBuilder {
-    private final Arguments args;
     private final Index<String> cpool = new Index<>(String.class, "all");
     private final Frame root = new Frame(0, TYPE_NATIVE);
     private int depth;
 
-    public FrameTreeBuilder(Arguments args) {
-        this.args = args;
-    }
-
     public void addSample(CallStack stack, long ticks) {
-        if (excludeStack(stack)) {
-            return;
+        Frame frame = root;
+        int size = stack.getSize();
+        for (int i = 0; i < size; i++) {
+            frame = addChild(frame, stack.getNames()[i], stack.getTypes()[i], ticks);
         }
 
-        Frame frame = root;
-        if (args.reverse) {
-            for (int i = stack.size; --i >= args.skip; ) {
-                frame = addChild(frame, stack.names[i], stack.types[i], ticks);
-            }
-        } else {
-            for (int i = args.skip; i < stack.size; i++) {
-                frame = addChild(frame, stack.names[i], stack.types[i], ticks);
-            }
-        }
         frame.total += ticks;
         frame.self += ticks;
 
-        depth = Math.max(depth, stack.size);
-    }
-
-    private boolean excludeStack(CallStack stack) {
-        Pattern include = args.include;
-        Pattern exclude = args.exclude;
-        if (include == null && exclude == null) {
-            return false;
-        }
-
-        for (int i = 0; i < stack.size; i++) {
-            if (exclude != null && exclude.matcher(stack.names[i]).matches()) {
-                return true;
-            }
-            if (include != null && include.matcher(stack.names[i]).matches()) {
-                if (exclude == null) return false;
-                include = null;
-            }
-        }
-
-        return include != null;
+        depth = Math.max(depth, size);
     }
 
     private Frame addChild(Frame frame, String title, byte type, long ticks) {

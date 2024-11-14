@@ -30,4 +30,11 @@
 
     <artifactId>library-async-profiler-jfr-parser</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>tools.profiler</groupId>
+            <artifactId>async-profiler-converter</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>
