@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package one.jfr;
+package org.apache.skywalking.oap.server.library.jfr.type;
 
 import lombok.Data;
 
@@ -11,5 +11,4 @@ import lombok.Data;
 public class Arguments {
     private boolean threads;
     private boolean classify;
-    private boolean total;
 }

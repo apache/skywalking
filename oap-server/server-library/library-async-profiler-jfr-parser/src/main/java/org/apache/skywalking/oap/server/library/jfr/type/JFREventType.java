@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser;
+package org.apache.skywalking.oap.server.library.jfr.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

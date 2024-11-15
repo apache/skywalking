@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.oap.server.library.jfr.parser;
 
+import org.apache.skywalking.oap.server.library.jfr.type.Frame;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.type.Index;
+
 import java.util.List;
 
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_INTERPRETED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_NATIVE;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_INTERPRETED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_NATIVE;
 
 public class JFRMergeBuilder {
     private final Index<String> cpool = new Index<>(String.class, "");
@@ -52,8 +56,8 @@ public class JFRMergeBuilder {
                 merge0(child, children);
             }
         }
-        frame.total += tree.getTotal();
-        frame.self += tree.getSelf();
+        frame.setTotal(frame.getTotal() + tree.getTotal());
+        frame.setSelf(frame.getSelf() + tree.getSelf());
     }
 
     private Frame addChild(Frame frame, String title) {

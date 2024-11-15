@@ -24,22 +24,28 @@ import one.jfr.event.Event;
 import one.jfr.event.EventAggregator;
 import one.jfr.event.ExecutionSample;
 import one.jfr.event.LiveObject;
-import org.apache.skywalking.oap.server.library.jfr.parser.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.type.Classifier;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_CPP;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_KERNEL;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_NATIVE;
-import static org.apache.skywalking.oap.server.library.jfr.parser.JFREventType.EXECUTION_SAMPLE;
-import static org.apache.skywalking.oap.server.library.jfr.parser.JFREventType.LOCK;
-import static org.apache.skywalking.oap.server.library.jfr.parser.JFREventType.OBJECT_ALLOCATION_IN_NEW_TLAB;
-import static org.apache.skywalking.oap.server.library.jfr.parser.JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB;
-import static org.apache.skywalking.oap.server.library.jfr.parser.JFREventType.PROFILER_LIVE_OBJECT;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_CPP;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_KERNEL;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_NATIVE;
+import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.EXECUTION_SAMPLE;
+import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.LOCK;
+import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.OBJECT_ALLOCATION_IN_NEW_TLAB;
+import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB;
+import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.PROFILER_LIVE_OBJECT;
 
+/**
+ * This class is placed in the one.jfr package because some classes and fields of the async-profiler-converter package
+ * can only be accessed under the same package name, and what we want to do is to expand it, so here we choose to create
+ * a class with the same package name for extension.
+ */
 public abstract class JFRConverter extends Classifier {
 
     protected final JfrReader jfr;
@@ -92,9 +98,11 @@ public abstract class JFRConverter extends Classifier {
         switch (jfrEventType) {
             case EXECUTION_SAMPLE:
                 return new EventAggregator(true, false);
+            case PROFILER_LIVE_OBJECT:
             case OBJECT_ALLOCATION_IN_NEW_TLAB:
             case OBJECT_ALLOCATION_OUTSIDE_TLAB:
             case LOCK:
+            case JAVA_MONITOR_ENTER:
             case THREAD_PARK:
                 return new EventAggregator(true, true);
             default:

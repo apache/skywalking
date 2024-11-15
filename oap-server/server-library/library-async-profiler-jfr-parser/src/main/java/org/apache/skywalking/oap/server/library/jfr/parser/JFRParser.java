@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.library.jfr.parser;
 
-import one.jfr.Arguments;
+import org.apache.skywalking.oap.server.library.jfr.type.Arguments;
 import one.jfr.JfrReader;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

@@ -18,23 +18,28 @@
 
 package org.apache.skywalking.oap.server.library.jfr.parser;
 
-import one.jfr.Arguments;
-import one.jfr.CallStack;
-import one.jfr.Classifier;
+import one.jfr.event.ContendedLock;
+import one.jfr.event.LiveObject;
+import org.apache.skywalking.oap.server.library.jfr.type.Arguments;
+import org.apache.skywalking.oap.server.library.jfr.type.CallStack;
+import org.apache.skywalking.oap.server.library.jfr.type.Classifier;
 import one.jfr.JFRConverter;
 import one.jfr.JfrReader;
 import one.jfr.StackTrace;
 import one.jfr.event.AllocationSample;
 import one.jfr.event.Event;
 import one.jfr.event.EventAggregator;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTreeBuilder;
+import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_INLINED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_KERNEL;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_NATIVE;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_INLINED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_KERNEL;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_NATIVE;
 
 public class JFRToFrameTree extends JFRConverter {
 
@@ -58,7 +63,7 @@ public class JFRToFrameTree extends JFRConverter {
             agg.forEach(new EventAggregator.Visitor() {
                 final CallStack stack = new CallStack();
                 final double ticksToNanos = 1e9 / jfr.ticksPerSec;
-                final boolean scale = args.isTotal() && JFREventType.isLockSample(event) && ticksToNanos != 1.0;
+                final boolean scale = JFREventType.isLockSample(event) && ticksToNanos != 1.0;
 
                 @Override
                 public void visit(Event event, long value) {
@@ -87,6 +92,16 @@ public class JFRToFrameTree extends JFRConverter {
                             AllocationSample allocationSample = (AllocationSample) event;
                             if (allocationSample.classId != 0) {
                                 stack.push(getClassName(allocationSample.classId), ((AllocationSample) event).tlabSize == 0 ? TYPE_KERNEL : TYPE_INLINED);
+                            }
+                        } else if (event instanceof LiveObject) {
+                            LiveObject liveObject = (LiveObject) event;
+                            if (liveObject.classId != 0) {
+                                stack.push(getClassName(liveObject.classId), TYPE_INLINED);
+                            }
+                        } else if (event instanceof ContendedLock) {
+                            ContendedLock contendedLock = (ContendedLock) event;
+                            if (contendedLock.classId != 0) {
+                                stack.push(getClassName(contendedLock.classId), TYPE_INLINED);
                             }
                         }
 

@@ -23,7 +23,7 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import one.jfr.Arguments;
+import org.apache.skywalking.oap.server.library.jfr.type.Arguments;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerCollectionResponse;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilerData;
 import org.apache.skywalking.apm.network.language.asyncprofiler.v10.AsyncProfilingStatus;
@@ -32,8 +32,8 @@ import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOper
 import org.apache.skywalking.oap.server.core.source.JFRProfilingData;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
-import org.apache.skywalking.oap.server.library.jfr.parser.FrameTree;
-import org.apache.skywalking.oap.server.library.jfr.parser.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
 import org.apache.skywalking.oap.server.library.jfr.parser.JFRParser;
 
 import java.io.FileOutputStream;

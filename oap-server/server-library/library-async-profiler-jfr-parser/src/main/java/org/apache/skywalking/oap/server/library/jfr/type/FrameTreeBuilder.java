@@ -16,15 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser;
+package org.apache.skywalking.oap.server.library.jfr.type;
 
-import one.jfr.CallStack;
-
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_C1_COMPILED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_INLINED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_INTERPRETED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_JIT_COMPILED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_NATIVE;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_C1_COMPILED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_INLINED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_INTERPRETED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_JIT_COMPILED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_NATIVE;
 
 public class FrameTreeBuilder {
     private final Index<String> cpool = new Index<>(String.class, "all");

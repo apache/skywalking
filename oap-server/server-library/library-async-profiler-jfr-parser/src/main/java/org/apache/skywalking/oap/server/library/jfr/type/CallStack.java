@@ -3,17 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package one.jfr;
+package org.apache.skywalking.oap.server.library.jfr.type;
 
 import lombok.Getter;
 
 import java.util.Arrays;
 
-/**
- * This class is placed in the one.jfr package because some classes and fields of the async-profiler-converter package
- * can only be accessed under the same package name, and what we want to do is to expand it, so here we choose to create
- * a class with the same package name for extension.
- */
 @Getter
 public class CallStack {
     String[] names = new String[16];
