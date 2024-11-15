@@ -38,10 +38,8 @@ import org.apache.skywalking.oap.server.library.jfr.parser.JFRParser;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 

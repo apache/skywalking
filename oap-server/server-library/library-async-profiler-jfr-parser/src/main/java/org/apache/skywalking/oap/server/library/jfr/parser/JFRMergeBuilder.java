@@ -23,7 +23,6 @@ import java.util.List;
 import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_INTERPRETED;
 import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_NATIVE;
 
-
 public class JFRMergeBuilder {
     private final Index<String> cpool = new Index<>(String.class, "");
     private final Frame root = new Frame(0, TYPE_NATIVE);

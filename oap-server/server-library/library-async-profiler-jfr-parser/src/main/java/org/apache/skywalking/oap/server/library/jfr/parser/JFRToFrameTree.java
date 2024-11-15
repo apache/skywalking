@@ -36,7 +36,6 @@ import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_INL
 import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_KERNEL;
 import static org.apache.skywalking.oap.server.library.jfr.parser.Frame.TYPE_NATIVE;
 
-
 public class JFRToFrameTree extends JFRConverter {
 
     private final Map<JFREventType, FrameTreeBuilder> event2builderMap = new HashMap<>();
