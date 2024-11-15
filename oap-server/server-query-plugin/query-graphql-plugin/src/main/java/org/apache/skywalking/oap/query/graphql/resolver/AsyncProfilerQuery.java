@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskListResult;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskProgress;
+import org.apache.skywalking.oap.server.library.jfr.parser.JFREventType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
@@ -65,7 +66,14 @@ public class AsyncProfilerQuery implements GraphQLQueryResolver {
     }
 
     public AsyncProfilerAnalyzation queryAsyncProfilerAnalyze(AsyncProfilerAnalyzatonRequest request) throws IOException {
-        AsyncProfilerStackTree eventFrameTrees = getAsyncProfilerQueryService().queryJfrData(
+        /**
+         * Due to the replacement of async-profiler-convert package, after JfrReader reads JFR events, it cannot distinguish lock events.
+         * Therefore, JAVA_MONITOR_ENTER and THREAD_PARK events are merged into one during query and parsing.
+         */
+        if (JFREventType.isLockSample(request.getEventType())) {
+            request.setEventType(JFREventType.LOCK);
+        }
+        AsyncProfilerStackTree eventFrameTrees = getAsyncProfilerQueryService().queryJFRData(
                 request.getTaskId(), request.getInstanceIds(), request.getEventType()
         );
         return new AsyncProfilerAnalyzation(eventFrameTrees);
