@@ -36,8 +36,12 @@ import org.apache.skywalking.oap.server.library.jfr.parser.FrameTree;
 import org.apache.skywalking.oap.server.library.jfr.parser.JFREventType;
 import org.apache.skywalking.oap.server.library.jfr.parser.JFRParser;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,18 +49,19 @@ import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.h
 import static org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.AsyncProfilerServiceHandler.recordAsyncProfilerTaskLog;
 
 @Slf4j
-public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<AsyncProfilerData> {
+public class AsyncProfilerFileCollectionObserver implements StreamObserver<AsyncProfilerData> {
     private final IAsyncProfilerTaskQueryDAO taskDAO;
     private final SourceReceiver sourceReceiver;
     private final int jfrMaxSize;
     private final StreamObserver<AsyncProfilerCollectionResponse> responseObserver;
 
     private AsyncProfilerCollectionMetaData taskMetaData;
-    private ByteBuffer buf;
+    private Path tempFile;
+    private FileOutputStream fileOutputStream;
 
-    public AsyncProfilerByteBufCollectionObserver(IAsyncProfilerTaskQueryDAO taskDAO,
-                                                  StreamObserver<AsyncProfilerCollectionResponse> responseObserver,
-                                                  SourceReceiver sourceReceiver, int jfrMaxSize) {
+    public AsyncProfilerFileCollectionObserver(IAsyncProfilerTaskQueryDAO taskDAO,
+                                               StreamObserver<AsyncProfilerCollectionResponse> responseObserver,
+                                               SourceReceiver sourceReceiver, int jfrMaxSize) {
         this.sourceReceiver = sourceReceiver;
         this.taskDAO = taskDAO;
         this.responseObserver = responseObserver;
@@ -68,24 +73,25 @@ public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<As
     public void onNext(AsyncProfilerData asyncProfilerData) {
         if (Objects.isNull(taskMetaData) && asyncProfilerData.hasMetaData()) {
             taskMetaData = parseMetaData(asyncProfilerData.getMetaData(), taskDAO);
+            AsyncProfilerTask task = taskMetaData.getTask();
             if (AsyncProfilingStatus.PROFILING_SUCCESS.equals(taskMetaData.getType())) {
-                int size = taskMetaData.getContentSize();
-                if (jfrMaxSize >= size) {
-                    buf = ByteBuffer.allocate(size);
+                if (jfrMaxSize >= taskMetaData.getContentSize()) {
+                    tempFile = Files.createTempFile(task.getId() + taskMetaData.getInstanceId() + System.currentTimeMillis(), ".jfr");
+                    fileOutputStream = new FileOutputStream(tempFile.toFile());
                     // Not setting type means telling the client that it can upload jfr files
                     responseObserver.onNext(AsyncProfilerCollectionResponse.newBuilder().build());
                 } else {
                     responseObserver.onNext(AsyncProfilerCollectionResponse.newBuilder().setType(AsyncProfilingStatus.TERMINATED_BY_OVERSIZE).build());
                     // The size of the uploaded jfr file exceeds the acceptable range of the oap server
-                    recordAsyncProfilerTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(),
+                    recordAsyncProfilerTaskLog(task, taskMetaData.getInstanceId(),
                             AsyncProfilerTaskLogOperationType.JFR_UPLOAD_FILE_TOO_LARGE_ERROR);
                 }
             } else {
-                recordAsyncProfilerTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(),
+                recordAsyncProfilerTaskLog(task, taskMetaData.getInstanceId(),
                         AsyncProfilerTaskLogOperationType.EXECUTION_TASK_ERROR);
             }
         } else if (asyncProfilerData.hasContent()) {
-            asyncProfilerData.getContent().copyTo(buf);
+            fileOutputStream.write(asyncProfilerData.getContent().toByteArray());
         }
     }
 
@@ -105,13 +111,17 @@ public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<As
     @SneakyThrows
     public void onCompleted() {
         responseObserver.onCompleted();
-        if (Objects.nonNull(buf)) {
-            buf.flip();
-            parseAndStorageData(taskMetaData, buf);
+
+        if (Objects.nonNull(tempFile)) {
+            fileOutputStream.close();
+            parseAndStorageData(taskMetaData, tempFile.toAbsolutePath().toString());
+            if (!tempFile.toFile().delete()) {
+                log.warn("Failed to delete temp JFR file {}", tempFile.toAbsolutePath());
+            }
         }
     }
 
-    private void parseAndStorageData(AsyncProfilerCollectionMetaData taskMetaData, ByteBuffer buf) throws IOException {
+    private void parseAndStorageData(AsyncProfilerCollectionMetaData taskMetaData, String fileName) throws IOException {
         AsyncProfilerTask task = taskMetaData.getTask();
         if (task == null) {
             log.error("AsyncProfiler instanceId:{} has not been assigned a task but still uploaded data", taskMetaData.getInstanceId());
@@ -120,14 +130,14 @@ public class AsyncProfilerByteBufCollectionObserver implements StreamObserver<As
 
         recordAsyncProfilerTaskLog(task, taskMetaData.getInstanceId(), AsyncProfilerTaskLogOperationType.EXECUTION_FINISHED);
 
-        parseJFRAndStorage(taskMetaData, buf);
+        parseJFRAndStorage(taskMetaData, fileName);
     }
 
     public void parseJFRAndStorage(AsyncProfilerCollectionMetaData taskMetaData,
-                                   ByteBuffer buf) throws IOException {
+                                   String fileName) throws IOException {
         AsyncProfilerTask task = taskMetaData.getTask();
         Arguments arguments = new Arguments();
-        Map<JFREventType, FrameTree> event2treeMap = JFRParser.dumpTree(buf, arguments);
+        Map<JFREventType, FrameTree> event2treeMap = JFRParser.dumpTree(fileName, arguments);
         for (Map.Entry<JFREventType, FrameTree> entry : event2treeMap.entrySet()) {
             JFREventType event = entry.getKey();
             FrameTree tree = entry.getValue();

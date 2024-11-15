@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.network.trace.component.command.AsyncProfilerTaskCommand;
 import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerByteBufCollectionObserver;
 import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerCollectionMetaData;
+import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerFileCollectionObserver;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -57,18 +58,22 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
     private final CommandService commandService;
     private final AsyncProfilerTaskCache taskCache;
     private final int jfrMaxSize;
+    private final boolean enableTempFileCollector;
 
-    public AsyncProfilerServiceHandler(ModuleManager moduleManager, int jfrMaxSize) {
+    public AsyncProfilerServiceHandler(ModuleManager moduleManager, int jfrMaxSize, boolean enableTempFileCollector) {
         this.taskDAO = moduleManager.find(StorageModule.NAME).provider().getService(IAsyncProfilerTaskQueryDAO.class);
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.commandService = moduleManager.find(CoreModule.NAME).provider().getService(CommandService.class);
         this.taskCache = moduleManager.find(CoreModule.NAME).provider().getService(AsyncProfilerTaskCache.class);
         this.jfrMaxSize = jfrMaxSize;
+        this.enableTempFileCollector = enableTempFileCollector;
     }
 
     @Override
     public StreamObserver<AsyncProfilerData> collect(StreamObserver<AsyncProfilerCollectionResponse> responseObserver) {
-        return new AsyncProfilerByteBufCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize);
+        return enableTempFileCollector ?
+                new AsyncProfilerFileCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize)
+                : new AsyncProfilerByteBufCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize);
     }
 
     @Override
