@@ -1,19 +1,6 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright The async-profiler authors
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package one.jfr;
@@ -42,6 +29,8 @@ import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.OBJ
 import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.PROFILER_LIVE_OBJECT;
 
 /**
+ * Add collectMultiEvents and getEventAggregator methods to the original code to parse and process multiple events at once
+ * <p>
  * This class is placed in the one.jfr package because some classes and fields of the async-profiler-converter package
  * can only be accessed under the same package name, and what we want to do is to expand it, so here we choose to create
  * a class with the same package name for extension.

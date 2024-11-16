@@ -230,3 +230,4 @@ The text of each license is the standard Apache 2.0 license.
    Classifier.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
    Index.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
    Frame.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
+   JFRConverter.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
