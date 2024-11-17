@@ -43,7 +43,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
-                    <skip>true</skip>
+                    <excludes>
+                        **\/JFRConverter.java,**\/Frame.java,**\/Arguments.java,**\/Index.java,**\/Classifier.java,**\/CallStack.java
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
