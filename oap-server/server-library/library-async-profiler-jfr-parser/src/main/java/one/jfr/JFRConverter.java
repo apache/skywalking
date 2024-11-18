@@ -29,11 +29,9 @@ import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.OBJ
 import static org.apache.skywalking.oap.server.library.jfr.type.JFREventType.PROFILER_LIVE_OBJECT;
 
 /**
- * Add collectMultiEvents and getEventAggregator methods to the original code to parse and process multiple events at once
- * <p>
- * This class is placed in the one.jfr package because some classes and fields of the async-profiler-converter package
- * can only be accessed under the same package name, and what we want to do is to expand it, so here we choose to create
- * a class with the same package name for extension.
+ * JFRConverter is copied from one.jfr.JfrConverter. Because need to
+ * add collectMultiEvents and getEventAggregator methods, to parse 
+ * and process multiple events at one time.
  */
 public abstract class JFRConverter extends Classifier {
 
