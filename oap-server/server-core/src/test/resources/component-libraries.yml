@@ -111,7 +111,7 @@ PostgreSQL:
   languages: Java,C#,Node.js
 GRPC:
   id: 23
-  languages: Java,PHP
+  languages: Java,PHP,Python
 ElasticJob:
   id: 24
   languages: Java
