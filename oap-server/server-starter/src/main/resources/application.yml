@@ -343,9 +343,12 @@ receiver-async-profiler:
     # Used to manage the maximum size of the jfr file that can be received, the unit is Byte, default is 30M
     jfrMaxSize: ${SW_RECEIVER_ASYNC_PROFILER_JFR_MAX_SIZE:31457280}
     # Used to determine whether to receive jfr in memory file or physical file mode
-    # Memory files have fewer local file system limitations, so they are by default. But it costs more memory.
-    # When users need to parse large JFR files(rare case), they could switch to file mode.
-    # For details, please refer to the comments of class AsyncProfilerModuleConfig
+    #
+    # The memory file mode have fewer local file system limitations, so they are by default. But it costs more memory.
+    #
+    # The physical file mode will use less memory when parsing and is more friendly to parsing large files.
+    # However, if the storage of the tmp directory in the container is insufficient, the oap server instance may crash.
+    # It is recommended to use physical file mode when volume mounting is used or the tmp directory has sufficient storage.
     memoryParserEnabled: ${SW_RECEIVER_ASYNC_PROFILER_MEMORY_PARSER_ENABLED:true}
 
 receiver-zabbix:
