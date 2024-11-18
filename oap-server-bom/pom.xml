@@ -79,6 +79,7 @@
         <consul.client.version>1.5.3</consul.client.version>
         <commons-net.version>3.9.0</commons-net.version>
         <maven-core.version>3.9.0</maven-core.version>
+        <async-profiler-converter.version>3.0</async-profiler-converter.version>
     </properties>
 
     <dependencyManagement>
@@ -671,6 +672,12 @@
                 <artifactId>maven-plugin-annotations</artifactId>
                 <version>${maven-core.version}</version>
                 <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.profiler</groupId>
+                <artifactId>async-profiler-converter</artifactId>
+                <version>${async-profiler-converter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

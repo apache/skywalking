@@ -74,8 +74,7 @@ public class JDBCAsyncProfilerTaskLogQueryDAO implements IAsyncProfilerTaskLogQu
 
     private AsyncProfilerTaskLog parseLog(ResultSet data) throws SQLException {
         return AsyncProfilerTaskLog.builder()
-                .id(data.getString("id"))
-                .taskId(data.getString(AsyncProfilerTaskLogRecord.TASK_ID))
+                .id(data.getString(AsyncProfilerTaskLogRecord.TASK_ID))
                 .instanceId(data.getString(AsyncProfilerTaskLogRecord.INSTANCE_ID))
                 .operationType(AsyncProfilerTaskLogOperationType.parse(data.getInt(AsyncProfilerTaskLogRecord.OPERATION_TYPE)))
                 .operationTime(data.getLong(AsyncProfilerTaskLogRecord.OPERATION_TIME))

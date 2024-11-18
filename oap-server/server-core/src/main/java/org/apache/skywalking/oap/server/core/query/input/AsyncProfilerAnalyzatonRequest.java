@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
 
 import java.util.List;
 

@@ -16,29 +16,40 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.convert;
+package org.apache.skywalking.oap.server.library.jfr.parser;
 
-import org.apache.skywalking.oap.server.library.jfr.parser.type.JfrReader;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.StackTrace;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.AllocationSample;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.Event;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.EventAggregator;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
+import one.jfr.event.ContendedLock;
+import one.jfr.event.LiveObject;
+import org.apache.skywalking.oap.server.library.jfr.type.Arguments;
+import org.apache.skywalking.oap.server.library.jfr.type.CallStack;
+import org.apache.skywalking.oap.server.library.jfr.type.Classifier;
+import one.jfr.JFRConverter;
+import one.jfr.JfrReader;
+import one.jfr.StackTrace;
+import one.jfr.event.AllocationSample;
+import one.jfr.event.Event;
+import one.jfr.event.EventAggregator;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTreeBuilder;
+import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_INLINED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_KERNEL;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_NATIVE;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_INLINED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_KERNEL;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_NATIVE;
 
-public class JfrToFrameTree extends JfrConverter {
+public class JFRToFrameTree extends JFRConverter {
 
     private final Map<JFREventType, FrameTreeBuilder> event2builderMap = new HashMap<>();
 
-    public JfrToFrameTree(JfrReader jfr, Arguments args) {
-        super(jfr, args);
+    private final Arguments args;
+
+    public JFRToFrameTree(JfrReader jfr, Arguments arguments) {
+        super(jfr);
+        this.args = arguments;
     }
 
     @Override
@@ -47,43 +58,51 @@ public class JfrToFrameTree extends JfrConverter {
         for (Map.Entry<JFREventType, EventAggregator> entry : event2aggMap.entrySet()) {
             JFREventType event = entry.getKey();
             EventAggregator agg = entry.getValue();
-            FrameTreeBuilder frameTreeBuilder = event2builderMap.computeIfAbsent(event, eventType -> new FrameTreeBuilder(args));
+            FrameTreeBuilder frameTreeBuilder = event2builderMap.computeIfAbsent(event, eventType -> new FrameTreeBuilder());
 
             agg.forEach(new EventAggregator.Visitor() {
                 final CallStack stack = new CallStack();
                 final double ticksToNanos = 1e9 / jfr.ticksPerSec;
-                final boolean scale = args.total && args.lock && ticksToNanos != 1.0;
+                final boolean scale = JFREventType.isLockSample(event) && ticksToNanos != 1.0;
 
                 @Override
                 public void visit(Event event, long value) {
                     StackTrace stackTrace = jfr.stackTraces.get(event.stackTraceId);
                     if (stackTrace != null) {
-                        Arguments args = JfrToFrameTree.this.args;
                         long[] methods = stackTrace.methods;
                         byte[] types = stackTrace.types;
                         int[] locations = stackTrace.locations;
 
-                        if (args.threads) {
+                        if (args.isThreads()) {
                             stack.push(getThreadName(event.tid), TYPE_NATIVE);
                         }
-                        if (args.classify) {
-                            Category category = getCategory(stackTrace);
-                            stack.push(category.title, category.type);
+                        if (args.isClassify()) {
+                            Classifier.Category category = getCategory(stackTrace);
+                            stack.push(category.getTitle(), category.getType());
                         }
                         for (int i = methods.length; --i >= 0; ) {
                             String methodName = getMethodName(methods[i], types[i]);
                             int location;
-                            if (args.lines && (location = locations[i] >>> 16) != 0) {
+                            if ((location = locations[i] >>> 16) != 0) {
                                 methodName += ":" + location;
-                            } else if (args.bci && (location = locations[i] & 0xffff) != 0) {
-                                methodName += "@" + location;
                             }
                             stack.push(methodName, types[i]);
                         }
-                        long classId = event.classId();
-                        if (classId != 0) {
-                            stack.push(getClassName(classId), (event instanceof AllocationSample)
-                                    && ((AllocationSample) event).tlabSize == 0 ? TYPE_KERNEL : TYPE_INLINED);
+                        if (event instanceof AllocationSample) {
+                            AllocationSample allocationSample = (AllocationSample) event;
+                            if (allocationSample.classId != 0) {
+                                stack.push(getClassName(allocationSample.classId), ((AllocationSample) event).tlabSize == 0 ? TYPE_KERNEL : TYPE_INLINED);
+                            }
+                        } else if (event instanceof LiveObject) {
+                            LiveObject liveObject = (LiveObject) event;
+                            if (liveObject.classId != 0) {
+                                stack.push(getClassName(liveObject.classId), TYPE_INLINED);
+                            }
+                        } else if (event instanceof ContendedLock) {
+                            ContendedLock contendedLock = (ContendedLock) event;
+                            if (contendedLock.classId != 0) {
+                                stack.push(getClassName(contendedLock.classId), TYPE_INLINED);
+                            }
                         }
 
                         frameTreeBuilder.addSample(stack, scale ? (long) (value * ticksToNanos) : value);

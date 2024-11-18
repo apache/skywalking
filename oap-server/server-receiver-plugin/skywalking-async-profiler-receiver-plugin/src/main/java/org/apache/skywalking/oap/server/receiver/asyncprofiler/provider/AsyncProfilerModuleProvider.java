@@ -68,7 +68,8 @@ public class AsyncProfilerModuleProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                 .provider()
                 .getService(GRPCHandlerRegister.class);
-        AsyncProfilerServiceHandler asyncProfilerServiceHandler = new AsyncProfilerServiceHandler(getManager(), config.getJfrMaxSize());
+        AsyncProfilerServiceHandler asyncProfilerServiceHandler = new AsyncProfilerServiceHandler(getManager(),
+                config.getJfrMaxSize(), config.isMemoryParserEnabled());
         grpcHandlerRegister.addHandler(asyncProfilerServiceHandler);
     }
 

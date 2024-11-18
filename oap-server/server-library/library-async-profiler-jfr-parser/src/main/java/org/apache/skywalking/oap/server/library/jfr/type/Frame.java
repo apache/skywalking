@@ -3,10 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.convert;
+package org.apache.skywalking.oap.server.library.jfr.type;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 
+@Getter
+@Setter
 public class Frame extends HashMap<Integer, Frame> {
     public static final byte TYPE_INTERPRETED = 0;
     public static final byte TYPE_JIT_COMPILED = 1;
@@ -21,27 +26,25 @@ public class Frame extends HashMap<Integer, Frame> {
     final int key;
     long total;
     long self;
-    long inlined;
-    long c1;
-    long interpreted;
+    long inlined, c1, interpreted;
 
     private Frame(int key) {
         this.key = key;
     }
 
-    Frame(int titleIndex, byte type) {
+    public Frame(int titleIndex, byte type) {
         this(titleIndex | type << TYPE_SHIFT);
     }
 
-    Frame getChild(int titleIndex, byte type) {
+    public Frame getChild(int titleIndex, byte type) {
         return super.computeIfAbsent(titleIndex | type << TYPE_SHIFT, Frame::new);
     }
 
-    int getTitleIndex() {
+    public int getTitleIndex() {
         return key & ((1 << TYPE_SHIFT) - 1);
     }
 
-    byte getType() {
+    public byte getType() {
         if (inlined * 3 >= total) {
             return TYPE_INLINED;
         } else if (c1 * 2 >= total) {
@@ -53,7 +56,7 @@ public class Frame extends HashMap<Integer, Frame> {
         }
     }
 
-    int depth(long cutoff) {
+    public int depth(long cutoff) {
         int depth = 0;
         if (size() > 0) {
             for (Frame child : values()) {

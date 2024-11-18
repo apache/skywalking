@@ -73,8 +73,7 @@ public class BanyanDBAsyncProfilerTaskLogQueryDAO extends AbstractBanyanDBDAO im
         int operationTypeInt = ((Number) data.getTagValue(AsyncProfilerTaskLogRecord.OPERATION_TYPE)).intValue();
         AsyncProfilerTaskLogOperationType operationType = AsyncProfilerTaskLogOperationType.parse(operationTypeInt);
         return AsyncProfilerTaskLog.builder()
-                .id(data.getId())
-                .taskId(data.getTagValue(AsyncProfilerTaskLogRecord.TASK_ID))
+                .id(data.getTagValue(AsyncProfilerTaskLogRecord.TASK_ID))
                 .instanceId(data.getTagValue(AsyncProfilerTaskLogRecord.INSTANCE_ID))
                 .operationType(operationType)
                 .operationTime(((Number) data.getTagValue(AsyncProfilerTaskLogRecord.OPERATION_TIME)).longValue())

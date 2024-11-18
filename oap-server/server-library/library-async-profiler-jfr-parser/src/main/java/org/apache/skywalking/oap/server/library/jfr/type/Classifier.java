@@ -3,20 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.convert;
+package org.apache.skywalking.oap.server.library.jfr.type;
 
-import org.apache.skywalking.oap.server.library.jfr.parser.type.StackTrace;
+import lombok.Getter;
+import one.jfr.StackTrace;
 
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_C1_COMPILED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_CPP;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_INLINED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_INTERPRETED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_JIT_COMPILED;
-import static org.apache.skywalking.oap.server.library.jfr.parser.convert.Frame.TYPE_NATIVE;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_C1_COMPILED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_CPP;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_INLINED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_INTERPRETED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_JIT_COMPILED;
+import static org.apache.skywalking.oap.server.library.jfr.type.Frame.TYPE_NATIVE;
 
-abstract class Classifier {
+public abstract class Classifier {
 
-    enum Category {
+    @Getter
+    public enum Category {
         GC("[gc]", TYPE_CPP),
         JIT("[jit]", TYPE_CPP),
         VM("[vm]", TYPE_CPP),
@@ -32,8 +34,8 @@ abstract class Classifier {
         CLASS_VERIFY("[class_verify]", TYPE_CPP),
         LAMBDA_INIT("[lambda_init]", TYPE_CPP);
 
-        final String title;
-        final byte type;
+        private final String title;
+        private final byte type;
 
         Category(String title, byte type) {
             this.title = title;
@@ -147,5 +149,5 @@ abstract class Classifier {
         return Category.NATIVE;
     }
 
-    protected abstract String getMethodName(long method, byte type);
+    public abstract String getMethodName(long method, byte type);
 }
