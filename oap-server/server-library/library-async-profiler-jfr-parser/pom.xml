@@ -44,8 +44,16 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        **\/JFRConverter.java,**\/Frame.java,**\/Arguments.java,**\/Index.java,**\/Classifier.java,**\/CallStack.java
+                        **\/JFRConverter.java,
+                        **\/Frame.java,
+                        **\/Arguments.java,
+                        **\/Index.java,
+                        **\/Classifier.java,
+                        **\/CallStack.java
                     </excludes>
+                    <includes>
+                        org\/apache\/skywalking\/oap\/server\/library\/jfr\/**\/*.java
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>

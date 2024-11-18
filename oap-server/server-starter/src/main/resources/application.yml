@@ -342,10 +342,11 @@ receiver-async-profiler:
   default:
     # Used to manage the maximum size of the jfr file that can be received, the unit is Byte, default is 30M
     jfrMaxSize: ${SW_RECEIVER_ASYNC_PROFILER_JFR_MAX_SIZE:31457280}
-    # Used to decide whether to use createTempFile or ByteBuf to receive JFR files.
-    # If true, createTempFile is used to receive JFR files, otherwise ByteBuf is used to receive JFR files.
-    # The latter is used by default. For details, please refer to the comments of class AsyncProfilerModuleConfig
-    tempFileReceiverEnabled: ${SW_RECEIVER_ASYNC_PROFILER_TEMP_FILE_RECEIVER_ENABLED:false}
+    # Used to determine whether to receive jfr in memory file or physical file mode
+    # Memory files have fewer local file system limitations, so they are by default. But it costs more memory.
+    # When users need to parse large JFR files(rare case), they could switch to file mode.
+    # For details, please refer to the comments of class AsyncProfilerModuleConfig
+    memoryParserEnabled: ${SW_RECEIVER_ASYNC_PROFILER_MEMORY_PARSER_ENABLED:true}
 
 receiver-zabbix:
   selector: ${SW_RECEIVER_ZABBIX:-}

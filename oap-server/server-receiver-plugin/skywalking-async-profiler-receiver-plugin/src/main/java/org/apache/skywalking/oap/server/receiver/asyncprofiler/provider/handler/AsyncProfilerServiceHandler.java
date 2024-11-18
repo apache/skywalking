@@ -58,22 +58,22 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
     private final CommandService commandService;
     private final AsyncProfilerTaskCache taskCache;
     private final int jfrMaxSize;
-    private final boolean enableTempFileCollector;
+    private final boolean memoryParserEnabled;
 
-    public AsyncProfilerServiceHandler(ModuleManager moduleManager, int jfrMaxSize, boolean enableTempFileCollector) {
+    public AsyncProfilerServiceHandler(ModuleManager moduleManager, int jfrMaxSize, boolean memoryParserEnabled) {
         this.taskDAO = moduleManager.find(StorageModule.NAME).provider().getService(IAsyncProfilerTaskQueryDAO.class);
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.commandService = moduleManager.find(CoreModule.NAME).provider().getService(CommandService.class);
         this.taskCache = moduleManager.find(CoreModule.NAME).provider().getService(AsyncProfilerTaskCache.class);
         this.jfrMaxSize = jfrMaxSize;
-        this.enableTempFileCollector = enableTempFileCollector;
+        this.memoryParserEnabled = memoryParserEnabled;
     }
 
     @Override
     public StreamObserver<AsyncProfilerData> collect(StreamObserver<AsyncProfilerCollectionResponse> responseObserver) {
-        return enableTempFileCollector ?
-                new AsyncProfilerFileCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize)
-                : new AsyncProfilerByteBufCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize);
+        return memoryParserEnabled ?
+                new AsyncProfilerByteBufCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize)
+                : new AsyncProfilerFileCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize);
     }
 
     @Override

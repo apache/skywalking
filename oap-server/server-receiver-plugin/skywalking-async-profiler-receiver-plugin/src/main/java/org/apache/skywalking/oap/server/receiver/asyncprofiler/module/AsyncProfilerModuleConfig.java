@@ -32,16 +32,16 @@ public class AsyncProfilerModuleConfig extends ModuleConfig {
      */
     private int jfrMaxSize = 30 * 1024 * 1024;
     /**
-     * default is false
+     * default is true
      * <p>
-     * If tempFileReceiverEnabled is false, then AsyncProfilerByteBufCollectionObserver will be enabled
+     * If memoryParserEnabled is true, then AsyncProfilerByteBufCollectionObserver will be enabled
      * will use memory to receive jfr files without writing files (this is currently used).
      * This can prevent the oap server from crashing due to no volume mounting.
      * <p>
-     * If tempFileReceiverEnabled is true, then AsyncProfilerFileCollectionObserver will be enabled
+     * If memoryParserEnabled is false, then AsyncProfilerFileCollectionObserver will be enabled
      * which uses createTemp to write files and then reads the files for parsing.
      * The advantage of this is that it reduces memory and prevents the oap server from crashing due to
      * insufficient memory, but it may report an error due to no volume mounting.
      */
-    private boolean tempFileReceiverEnabled = false;
+    private boolean memoryParserEnabled = true;
 }

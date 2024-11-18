@@ -69,7 +69,7 @@ public class AsyncProfilerModuleProvider extends ModuleProvider {
                 .provider()
                 .getService(GRPCHandlerRegister.class);
         AsyncProfilerServiceHandler asyncProfilerServiceHandler = new AsyncProfilerServiceHandler(getManager(),
-                config.getJfrMaxSize(), config.isTempFileReceiverEnabled());
+                config.getJfrMaxSize(), config.isMemoryParserEnabled());
         grpcHandlerRegister.addHandler(asyncProfilerServiceHandler);
     }
 
