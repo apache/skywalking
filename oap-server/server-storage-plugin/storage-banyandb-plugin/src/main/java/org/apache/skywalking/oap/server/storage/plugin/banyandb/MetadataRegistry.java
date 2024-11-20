@@ -28,6 +28,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -93,6 +94,8 @@ public enum MetadataRegistry {
     INSTANCE;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    // BanyanDB group setting aligned with the OAP settings
+    private static final Set<String> GROUP_ALIGNED = new HashSet<>();
     private final Map<String, Schema> registry = new HashMap<>();
 
     private Map<String, GroupSetting> specificGroupSettings = new HashMap<>();
@@ -609,6 +612,16 @@ public enum MetadataRegistry {
             return tagFamilySpecs;
         }
 
+        /**
+         * Check if the group settings need to be updated
+         */
+        private boolean checkGroupUpdate(BanyanDBClient client) throws BanyanDBException {
+            Group g = client.findGroup(this.group);
+            return g.getResourceOpts().getShardNum() != this.shard
+                || g.getResourceOpts().getSegmentInterval().getNum() != this.segmentIntervalDays
+                ||  g.getResourceOpts().getTtl().getNum() != this.ttlDays;
+        }
+
         public boolean checkResourceExistence(BanyanDBClient client) throws BanyanDBException {
             ResourceExist resourceExist;
             Group.Builder gBuilder
@@ -631,36 +644,57 @@ public enum MetadataRegistry {
             switch (kind) {
                 case STREAM:
                     resourceExist = client.existStream(this.group, this.name());
-                    if (!resourceExist.hasGroup()) {
-                        try {
-                            Group g = client.define(gBuilder.setCatalog(Catalog.CATALOG_STREAM).build());
-                            if (g != null) {
-                                log.info("group {} created", g.getMetadata().getName());
+                    gBuilder.setCatalog(Catalog.CATALOG_STREAM).build();
+                    if (!GROUP_ALIGNED.contains(this.group)) {
+                        // create the group if not exist
+                        if (!resourceExist.hasGroup()) {
+                            try {
+                                Group g = client.define(gBuilder.build());
+                                if (g != null) {
+                                    log.info("group {} created", g.getMetadata().getName());
+                                }
+                            } catch (BanyanDBException ex) {
+                                if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                                    log.info("group {} already created by another OAP node", this.group);
+                                } else {
+                                    throw ex;
+                                }
                             }
-                        } catch (BanyanDBException ex) {
-                            if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                                log.info("group {} already created by another OAP node", this.group);
-                            } else {
-                                throw ex;
+                        } else {
+                            // update the group if necessary
+                            if (this.checkGroupUpdate(client)) {
+                                client.update(gBuilder.build());
+                                log.info("group {} updated", this.group);
                             }
                         }
+                        // mark the group as aligned
+                        GROUP_ALIGNED.add(this.group);
                     }
                     return resourceExist.hasResource();
                 case MEASURE:
                     resourceExist = client.existMeasure(this.group, this.name());
-                    try {
+                    gBuilder.setCatalog(Catalog.CATALOG_MEASURE).build();
+                    if (!GROUP_ALIGNED.contains(this.group)) {
                         if (!resourceExist.hasGroup()) {
-                            Group g = client.define(gBuilder.setCatalog(Catalog.CATALOG_MEASURE).build());
-                            if (g != null) {
-                                log.info("group {} created", g.getMetadata().getName());
+                            try {
+                                Group g = client.define(gBuilder.build());
+                                if (g != null) {
+                                    log.info("group {} created", g.getMetadata().getName());
+                                }
+                            } catch (BanyanDBException ex) {
+                                if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                                    log.info("group {} already created by another OAP node", this.group);
+                                } else {
+                                    throw ex;
+                                }
+                            }
+                        } else {
+                            if (this.checkGroupUpdate(client)) {
+                                client.update(gBuilder.build());
+                                log.info("group {} updated", this.group);
                             }
                         }
-                    } catch (BanyanDBException ex) {
-                        if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                            log.info("group {} already created by another OAP node", this.group);
-                        } else {
-                            throw ex;
-                        }
+                        GROUP_ALIGNED.add(this.group);
                     }
                     return resourceExist.hasResource();
                 default:
