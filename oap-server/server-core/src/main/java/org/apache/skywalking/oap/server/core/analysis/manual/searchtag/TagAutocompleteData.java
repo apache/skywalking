@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
     "tagValue",
     "tagType"
 })
+@BanyanDB.IndexMode
 public class TagAutocompleteData extends Metrics {
     public static final String INDEX_NAME = "tag_autocomplete";
     public static final String TAG_KEY = "tag_key";

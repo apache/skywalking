@@ -1,70 +1,115 @@
-
 ## BanyanDB
-[BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community.
-Activate BanyanDB as the storage, and set storage provider to **banyandb**.
 
-The OAP requires BanyanDB 0.7 server. From this version, BanyanDB provides general compatibility.
+[BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community. Activate BanyanDB as the storage by setting the storage provider to **banyandb**.
+
+The OAP requires BanyanDB version **0.7** or later. From this version onwards, BanyanDB provides general compatibility.
+
+### Configuration
 
 ```yaml
 storage:
   banyandb:
     # Targets is the list of BanyanDB servers, separated by commas.
-    # Each target is a BanyanDB server in the format of `host:port` 
-    # If the BanyanDB is deployed as a standalone server, the target should be the IP address or domain name and port of the BanyanDB server.
-    # If the BanyanDB is deployed in a cluster, the targets should be the IP address or domain name and port of the `liaison` nodes, separated by commas.
+    # Each target is a BanyanDB server in the format of `host:port`.
+    # If BanyanDB is deployed as a standalone server, the target should be the IP address or domain name and port of the BanyanDB server.
+    # If BanyanDB is deployed in a cluster, the targets should be the IP address or domain name and port of the `liaison` nodes, separated by commas.
     targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
-    # The max number of records in a bulk write request.
-    # Bigger value can improve the write performance, but also increase the OAP and BanyanDB Server memory usage.
+
+    # The maximum number of records in a bulk write request.
+    # A larger value can improve write performance but also increases OAP and BanyanDB Server memory usage.
     maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:10000}
+
     # The minimum seconds between two bulk flushes.
     # If the data in a bulk is less than maxBulkSize, the data will be flushed after this period.
-    # If the data in a bulk is more than maxBulkSize, the data will be flushed immediately.
-    # Bigger value can reduce the write pressure on BanyanDB Server, but also increase the latency of the data.
+    # If the data in a bulk exceeds maxBulkSize, the data will be flushed immediately.
+    # A larger value can reduce write pressure on BanyanDB Server but increase data latency.
     flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
-    # The timeout seconds of a bulk flush.
+
+    # The timeout in seconds for a bulk flush.
     flushTimeout: ${SW_STORAGE_BANYANDB_FLUSH_TIMEOUT:10}
-    # The shard number of `measure` groups that store the metrics data.
-    metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
-    # The shard number of `stream` groups that store the trace, log and profile data.
-    recordShardsNumber: ${SW_STORAGE_BANYANDB_RECORD_SHARDS_NUMBER:1}
-    # The multiplier of the number of shards of the super dataset.
-    # Super dataset is a special dataset that stores the trace or log data that is too large to be stored in the normal dataset.
-    # If the normal dataset has `n` shards, the super dataset will have `n * superDatasetShardsFactor` shards.
-    # For example, supposing `recordShardsNumber` is 3, and `superDatasetShardsFactor` is 2,
-    # `segment-default` is a normal dataset that has 3 shards, and `segment-minute` is a super dataset that has 6 shards.
-    superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
+
     # The number of threads that write data to BanyanDB concurrently.
-    # Bigger value can improve the write performance, but also increase the OAP and BanyanDB Server CPU usage.
+    # A higher value can improve write performance but also increases CPU usage on both OAP and BanyanDB Server.
     concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
-       # The maximum size of dataset when the OAP loads cache, such as network aliases.
+
+    # The maximum size of the dataset when the OAP loads cache, such as network aliases.
     resultWindowMaxSize: ${SW_STORAGE_BANYANDB_QUERY_MAX_WINDOW_SIZE:10000}
+
     # The maximum size of metadata per query.
     metadataQueryMaxSize: ${SW_STORAGE_BANYANDB_QUERY_MAX_SIZE:10000}
-    # The maximum size of trace segments per query.
+
+    # The maximum number of trace segments per query.
     segmentQueryMaxSize: ${SW_STORAGE_BANYANDB_QUERY_SEGMENT_SIZE:200}
-    # The max number of profile task query in a request.
+
+    # The maximum number of profile task queries in a request.
     profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_QUERY_PROFILE_TASK_SIZE:200}
-    # The batch size of query profiling data.
+
+    # The batch size for querying profile data.
     profileDataQueryBatchSize: ${SW_STORAGE_BANYANDB_QUERY_PROFILE_DATA_BATCH_SIZE:100}
-    # Data is stored in BanyanDB in segments. A segment is a time range of data.
-    # The segment interval is the time range of a segment.
-    # The value should be less or equal to data TTL relevant settings.
-    segmentIntervalDays: ${SW_STORAGE_BANYANDB_SEGMENT_INTERVAL_DAYS:1}
-    # The super dataset segment interval is the time range of a segment in the super dataset.
-    superDatasetSegmentIntervalDays: ${SW_STORAGE_BANYANDB_SUPER_DATASET_SEGMENT_INTERVAL_DAYS:1}
-    # Specific groups settings.
-    # For example, {"group1": {"blockIntervalHours": 4, "segmentIntervalDays": 1}}
-    # Please refer to https://github.com/apache/skywalking-banyandb/blob/${BANYANDB_RELEASE}/docs/crud/group.md#create-operation
-    # for group setting details.
-    specificGroupSettings: ${SW_STORAGE_BANYANDB_SPECIFIC_GROUP_SETTINGS:""}
-    # If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection.
+
+    # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.
     sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
+    
+    # The group settings of record.
+    # `gr` is the short name of the group settings of record.
+    #
+    # The "normal" section defines settings for datasets not specified in "super".
+    # Each dataset will be grouped under a single group named "normal".
+    grNormalShardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_SHARD_NUM:1}
+    grNormalSIDays: ${SW_STORAGE_BANYANDB_GR_NORMAL_SI_DAYS:1}
+    grNormalTTLDays: ${SW_STORAGE_BANYANDB_GR_NORMAL_TTL_DAYS:3}
+    # "super" is a special dataset designed to store trace or log data that is too large for normal datasets.
+    # Each super dataset will be a separate group in BanyanDB, following the settings defined in the "super" section.
+    grSuperShardNum: ${SW_STORAGE_BANYANDB_GR_SUPER_SHARD_NUM:2}
+    grSuperSIDays: ${SW_STORAGE_BANYANDB_GR_SUPER_SI_DAYS:1}
+    grSuperTTLDays: ${SW_STORAGE_BANYANDB_GR_SUPER_TTL_DAYS:3}
+    
+    # The group settings of metrics.
+    # `gm` is the short name of the group settings of metrics.
+    #
+    # OAP stores metrics based its granularity.
+    # Valid values are "day", "hour", and "minute". That means metrics will be stored in the three separate groups.
+    # Non-"minute" are governed by the "core.downsampling" setting.
+    # For example, if "core.downsampling" is set to "hour", the "hour" will be used, while "day" are ignored.
+    gmMinuteShardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_SHARD_NUM:2}
+    gmMinuteSIDays: ${SW_STORAGE_BANYANDB_GM_MINUTE_SI_DAYS:1}
+    gmMinuteTTLDays: ${SW_STORAGE_BANYANDB_GM_MINUTE_TTL_DAYS:7}
+    gmHourShardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_SHARD_NUM:1}
+    gmHourSIDays: ${SW_STORAGE_BANYANDB_GM_HOUR_SI_DAYS:1}
+    gmHourTTLDays: ${SW_STORAGE_BANYANDB_GM_HOUR_TTL_DAYS:15}
+    gmDayShardNum: ${SW_STORAGE_BANYANDB_GM_DAY_SHARD_NUM:1}
+    gmDaySIDays: ${SW_STORAGE_BANYANDB_GM_DAY_SI_DAYS:1}
+    gmDayTTLDays: ${SW_STORAGE_BANYANDB_GM_DAY_TTL_DAYS:30}
+    # If the metrics is marked as "index_mode", the metrics will be stored in the "index" group.
+    # The "index" group is designed to store metrics that are used for indexing without value columns.
+    # Such as `service_traffic`, `network_address_alias`, etc.
+    # "index_mode" requires BanyanDB *0.8.0* or later.
+    gmIndexShardNum: ${SW_STORAGE_BANYANDB_GM_INDEX_SHARD_NUM:1}
+    gmIndexSIDays: ${SW_STORAGE_BANYANDB_GM_INDEX_SI_DAYS:1}
+    gmIndexTTLDays: ${SW_STORAGE_BANYANDB_GM_INDEX_TTL_DAYS:30}
+
 ```
 
-BanyanDB Server supports two installation modes: standalone and cluster. The standalone mode is suitable for small-scale deployments, while the cluster mode is suitable for large-scale deployments.
+### Installation Modes
 
-* Standalone mode: `targets` is the IP address/host name and port of the BanyanDB server.
-* Cluster mode: `targets` is the IP address/host name and port of the `liaison` nodes, separated by commas. `liaison` nodes are the entry points of the BanyanDB cluster.
+BanyanDB Server supports two installation modes:
 
-For more details, please refer to the documents of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/)
-and [BanyanDB Java Client](https://github.com/apache/skywalking-banyandb-java-client) subprojects.
+- **Standalone Mode**: Suitable for small-scale deployments.
+    - **Configuration**: `targets` is the IP address/hostname and port of the BanyanDB server.
+
+- **Cluster Mode**: Suitable for large-scale deployments.
+    - **Configuration**: `targets` is the IP address/hostname and port of the `liaison` nodes, separated by commas. `Liaison` nodes are the entry points of the BanyanDB cluster.
+
+### Group Settings
+
+BanyanDB supports **group settings** to configure storage groups, shards, segment intervals, and TTL (Time-To-Live). The group settings file is a YAML file required when using BanyanDB as the storage.
+
+#### Basic Group Settings
+
+- `ShardNum`: Number of shards in the group. Shards are the basic units of data storage in BanyanDB. Data is distributed across shards based on the hash value of the series ID. Refer to the [BanyanDB Shard](https://skywalking.apache.org/docs/skywalking-banyandb/latest/concept/clustering/#52-data-sharding) documentation for more details.
+- `SIDays`: Interval in days for creating a new segment. Segments are time-based, allowing efficient data retention and querying. `SI` stands for Segment Interval.
+- `TTLDays`: Time-to-live for the data in the group, in days. Data exceeding the TTL will be deleted.
+
+For more details on setting `segmentIntervalDays` and `ttlDays`, refer to the [BanyanDB Rotation](https://skywalking.apache.org/docs/skywalking-banyandb/latest/concept/rotation/) documentation.
+
+For more details, refer to the documentation of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/) and the [BanyanDB Java Client](https://github.com/apache/skywalking-banyandb-java-client) subprojects.

@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
     "entityId",
     "component_id"
 }, callSuper = true)
+@BanyanDB.IndexMode
 public class ProcessRelationClientSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "process_relation_client_side";

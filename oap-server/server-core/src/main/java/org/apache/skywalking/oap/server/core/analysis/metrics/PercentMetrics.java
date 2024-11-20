@@ -45,6 +45,7 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
     @Getter
     @Setter
     @Column(name = MATCH, storageOnly = true)
+    @BanyanDB.MeasureField
     private long match;
 
     @Entrance

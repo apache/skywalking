@@ -38,6 +38,7 @@ import java.util.Objects;
  */
 @Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, builder = TopNDatabaseStatement.Builder.class, processor = TopNStreamProcessor.class)
 @BanyanDB.TimestampColumn(TopN.TIMESTAMP)
+@BanyanDB.IndexMode
 public class TopNDatabaseStatement extends TopN {
     public static final String INDEX_NAME = "top_n_database_statement";
 

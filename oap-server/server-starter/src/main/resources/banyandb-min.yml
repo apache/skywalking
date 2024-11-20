@@ -1,0 +1,10 @@
+record:
+  default:
+    shardNum: 1
+    segmentIntervalDays: 1
+    ttlDays: 3
+metrics:
+  default:
+    shardNum: 1
+    segmentIntervalDays: 8
+    ttlDays: 7

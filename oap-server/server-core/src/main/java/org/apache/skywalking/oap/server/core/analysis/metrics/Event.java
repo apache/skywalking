@@ -48,6 +48,7 @@ import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlan
     callSuper = false,
     of = "uuid"
 )
+@BanyanDB.IndexMode
 public class Event extends Metrics {
 
     public static final String INDEX_NAME = "events";

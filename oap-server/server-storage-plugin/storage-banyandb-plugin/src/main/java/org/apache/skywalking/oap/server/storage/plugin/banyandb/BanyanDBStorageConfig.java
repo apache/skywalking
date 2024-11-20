@@ -54,44 +54,6 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * in a single request.
      */
     private int profileTaskQueryMaxSize;
-    /**
-     * Shards Number for measure/metrics.
-     */
-    private int metricsShardsNumber;
-    /**
-     * Shards Number for a normal record.
-     */
-    private int recordShardsNumber;
-    /**
-     * Shards Factor for a super dataset
-     */
-    private int superDatasetShardsFactor;
-    /**
-     * Default global segment interval for non-super-dataset models.
-     * Unit is day.
-     *
-     * @since 9.4.0
-     */
-    private int segmentIntervalDays;
-    /**
-     * Default global segment interval for super-dataset models.
-     * Unit is day.
-     *
-     * @since 9.4.0
-     */
-    private int superDatasetSegmentIntervalDays;
-    /**
-     * Specify the settings for each group individually. All groups created in BanyanDB can
-     * be found with <a href="https://skywalking.apache.org/docs/skywalking-banyandb/next/crud/group/#list-operation">bydbctl</a>.
-     * <p>
-     * NOTE: setting intervals works for all groups except `measure-default`.
-     * <p>
-     * NOTE: available groups: `measure-default`, `measure-sampled`, `stream-default`
-     * and `stream-*` with names of the super dataset as the suffix.
-     *
-     * @since 9.4.0
-     */
-    private String specificGroupSettings;
 
     /**
      * If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection.
@@ -107,6 +69,29 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private int metadataQueryMaxSize = 5000;
     private int segmentQueryMaxSize = 200;
     private int profileDataQueryBatchSize = 100;
+
+    /**
+     * The configuration of the groups.
+     * @since 10.2.0
+     */
+    private int grNormalShardNum = 1;
+    private int grNormalSIDays = 1;
+    private int grNormalTTLDays = 3;
+    private int grSuperShardNum = 2;
+    private int grSuperSIDays = 1;
+    private int grSuperTTLDays = 3;
+    private int gmMinuteShardNum = 2;
+    private int gmMinuteSIDays = 1;
+    private int gmMinuteTTLDays = 7;
+    private int gmHourShardNum = 1;
+    private int gmHourSIDays = 1;
+    private int gmHourTTLDays = 15;
+    private int gmDayShardNum = 1;
+    private int gmDaySIDays = 1;
+    private int gmDayTTLDays = 30;
+    private int gmIndexShardNum = 1;
+    private int gmIndexSIDays = 1;
+    private int gmIndexTTLDays = 30;
 
     public String[] getTargetArray() {
         return Iterables.toArray(Splitter.on(",").omitEmptyStrings().trimResults().split(this.targets), String.class);
