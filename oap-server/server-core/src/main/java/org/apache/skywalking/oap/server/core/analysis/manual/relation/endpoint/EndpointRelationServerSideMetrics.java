@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -62,6 +63,7 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     private int componentId;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;

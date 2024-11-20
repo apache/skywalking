@@ -83,6 +83,7 @@ public class ZipkinSpanRecord extends Record {
     @Column(name = TRACE_ID)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE}, reserveOriginalColumns = true)
     @ElasticSearch.Routing
+    @ElasticSearch.EnableDocValues
     private String traceId;
     @Setter
     @Getter

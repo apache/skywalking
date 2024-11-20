@@ -64,6 +64,7 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     private long tNum;
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
     @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField

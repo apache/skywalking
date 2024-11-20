@@ -23,6 +23,8 @@
 * Bump up netty to 4.1.115, grpc to 1.68.1, boringssl to 2.0.69.
 * BanyanDB: Support update the Group settings when OAP starting.
 * BanyanDB: Introduce index mode and refactor banyandb group settings.
+* Add [`doc_values`](https://www.elastic.co/guide/en/elasticsearch/reference/current/doc-values.html) for fields
+  that need to be sorted or aggregated in Elasticsearch, and disable all others.
 
 #### UI
 

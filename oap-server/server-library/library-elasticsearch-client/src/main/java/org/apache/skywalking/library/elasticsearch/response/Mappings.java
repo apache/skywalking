@@ -18,7 +18,6 @@
 package org.apache.skywalking.library.elasticsearch.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -44,13 +43,14 @@ public final class Mappings {
 
     @Getter
     @Setter
-    private Map<String, Object> properties = new HashMap<>();
+    private Map<String, Object> properties;
 
     @JsonProperty("_source")
     @Getter
     @Setter
-    private Source source = new Source();
+    private Source source;
 
+    @ToString
     @EqualsAndHashCode
     public static class Source {
         @JsonProperty("excludes")

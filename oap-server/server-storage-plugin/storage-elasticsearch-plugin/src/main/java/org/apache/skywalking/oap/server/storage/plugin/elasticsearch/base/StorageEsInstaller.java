@@ -305,38 +305,40 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     protected Mappings createMapping(Model model) {
-        Map<String, Object> properties = new HashMap<>();
-        Mappings.Source source = new Mappings.Source();
+        final var properties = new HashMap<String, Object>();
+        final var source = new Mappings.Source();
         for (ModelColumn columnDefine : model.getColumns()) {
+            final var elasticSearchExtension = columnDefine.getElasticSearchExtension();
             final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType(),
                 columnDefine.getLength(), columnDefine.isStorageOnly(),
-                columnDefine.getElasticSearchExtension());
-            String columnName = columnDefine.getColumnName().getName();
-            String legacyName = columnDefine.getElasticSearchExtension().getLegacyColumnName();
+                elasticSearchExtension);
+            var columnName = columnDefine.getColumnName().getName();
+            final var legacyName = elasticSearchExtension.getLegacyColumnName();
+            final var columnProperties = new HashMap<>();
             if (config.isLogicSharding() && !Strings.isNullOrEmpty(legacyName)) {
                 columnName = legacyName;
             }
-            if (columnDefine.getElasticSearchExtension().needMatchQuery()) {
+            if (elasticSearchExtension.needMatchQuery()) {
                 String matchCName = MatchCNameBuilder.INSTANCE.build(columnName);
 
-                Map<String, Object> originalColumn = new HashMap<>();
-                originalColumn.put("type", type);
-                originalColumn.put("copy_to", matchCName);
-                properties.put(columnName, originalColumn);
+                columnProperties.put("type", type);
+                columnProperties.put("copy_to", matchCName);
 
                 Map<String, Object> matchColumn = new HashMap<>();
                 matchColumn.put("type", "text");
-                matchColumn.put("analyzer", columnDefine.getElasticSearchExtension().getAnalyzer().getName());
+                matchColumn.put("analyzer", elasticSearchExtension.getAnalyzer().getName());
                 properties.put(matchCName, matchColumn);
             } else {
-                Map<String, Object> column = new HashMap<>();
-                column.put("type", type);
+                columnProperties.put("type", type);
                 // no index parameter is allowed for binary type, since ES 8.0
                 if (columnDefine.isStorageOnly() && !"binary".equals(type)) {
-                    column.put("index", false);
+                    columnProperties.put("index", false);
                 }
-                properties.put(columnName, column);
             }
+            if (!elasticSearchExtension.isDocValuesEnabled()) {
+                columnProperties.put("doc_values", false);
+            }
+            properties.put(columnName, columnProperties);
 
             if (columnDefine.isIndexOnly()) {
                 source.getExcludes().add(columnName);
@@ -365,7 +367,9 @@ public class StorageEsInstaller extends ModelInstaller {
                                     .properties(properties)
                                     .source(source)
                                     .build();
-        log.debug("elasticsearch index template setting: {}", mappings.toString());
+        if (log.isDebugEnabled()) {
+            log.debug("elasticsearch index template setting: {}", mappings.toString());
+        }
 
         return mappings;
     }

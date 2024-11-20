@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 @MetricsFunction(functionName = "longAvg")
 public abstract class LongAvgMetrics extends Metrics implements LongValueHolder {
@@ -46,6 +47,7 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     protected long count;
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
     @BanyanDB.MeasureField
     private long value;
