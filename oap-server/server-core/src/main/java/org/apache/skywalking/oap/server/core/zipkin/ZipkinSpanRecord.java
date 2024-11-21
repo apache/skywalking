@@ -107,6 +107,7 @@ public class ZipkinSpanRecord extends Record {
     private String kind;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP_MILLIS)
     @BanyanDB.NoIndexing
     private long timestampMillis;

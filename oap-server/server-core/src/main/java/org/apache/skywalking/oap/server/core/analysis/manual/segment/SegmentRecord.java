@@ -90,6 +90,7 @@ public class SegmentRecord extends Record {
     private long startTime;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = LATENCY)
     private int latency;
     @Setter

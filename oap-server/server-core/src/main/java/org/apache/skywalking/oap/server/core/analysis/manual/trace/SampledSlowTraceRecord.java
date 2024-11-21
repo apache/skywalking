@@ -61,10 +61,12 @@ public class SampledSlowTraceRecord extends Record {
     private String traceId;
     @Column(name = URI, storageOnly = true)
     private String uri;
+    @ElasticSearch.EnableDocValues
     @Column(name = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
     private long timestamp;
 

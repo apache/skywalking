@@ -57,6 +57,7 @@ public class SpanAttachedEventRecord extends Record {
     @ElasticSearch.EnableDocValues
     @Column(name = START_TIME_SECOND)
     private long startTimeSecond;
+    @ElasticSearch.EnableDocValues
     @Column(name = START_TIME_NANOS)
     private int startTimeNanos;
     @Column(name = EVENT)
@@ -78,6 +79,7 @@ public class SpanAttachedEventRecord extends Record {
     private byte[] dataBinary;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
     @BanyanDB.NoIndexing
     private long timestamp;

@@ -38,6 +38,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Getter
@@ -52,6 +53,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     private String entityId;
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
     private long timestamp;
 
