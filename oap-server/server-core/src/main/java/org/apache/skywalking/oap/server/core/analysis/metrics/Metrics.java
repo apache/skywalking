@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
  * Metrics represents the statistic data, which analysis by OAL script or hard code. It has the lifecycle controlled by
@@ -45,6 +46,7 @@ public abstract class Metrics extends StreamData implements StorageData {
     @Getter
     @Setter
     @Column(name = TIME_BUCKET)
+    @ElasticSearch.EnableDocValues
     private long timeBucket;
 
     /**
