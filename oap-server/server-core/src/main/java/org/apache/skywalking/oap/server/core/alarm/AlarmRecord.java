@@ -78,6 +78,7 @@ public class AlarmRecord extends Record {
     private String id0;
     @Column(name = ID1, storageOnly = true)
     private String id1;
+    @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
     private long startTime;
     @Column(name = ALARM_MESSAGE, length = 512)

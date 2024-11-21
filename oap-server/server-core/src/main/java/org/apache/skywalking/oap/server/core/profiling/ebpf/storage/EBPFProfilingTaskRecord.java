@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -70,6 +71,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     private String processLabelsJson;
     @Column(name = INSTANCE_ID, length = 512)
     private String instanceId;
+    @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
     private long startTime;
     @Column(name = TRIGGER_TYPE)
@@ -78,6 +80,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     private long fixedTriggerDuration;
     @Column(name = TARGET_TYPE)
     private int targetType = EBPFProfilingTargetType.UNKNOWN.value();
+    @ElasticSearch.EnableDocValues
     @Column(name = CREATE_TIME)
     @BanyanDB.NoIndexing
     private long createTime;

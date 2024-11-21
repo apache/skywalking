@@ -84,6 +84,7 @@ public class SegmentRecord extends Record {
     private String endpointId;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
     @BanyanDB.NoIndexing
     private long startTime;

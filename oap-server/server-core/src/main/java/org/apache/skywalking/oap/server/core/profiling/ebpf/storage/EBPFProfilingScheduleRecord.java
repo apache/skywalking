@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -65,6 +66,7 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     private String taskId;
     @Column(name = PROCESS_ID, length = 600)
     private String processId;
+    @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
     private long startTime;
     @Column(name = END_TIME)

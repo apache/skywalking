@@ -60,6 +60,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     @Getter
     @Column(name = COMPONENT_IDS, storageOnly = true)
     @ElasticSearch.Keyword
+    @ElasticSearch.EnableDocValues
     private IntList componentIds = new IntList(3);
     @Setter
     @Getter

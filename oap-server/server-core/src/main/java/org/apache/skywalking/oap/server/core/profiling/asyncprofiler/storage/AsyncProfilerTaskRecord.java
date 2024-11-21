@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -60,6 +61,7 @@ public class AsyncProfilerTaskRecord extends NoneStream {
     private String serviceInstanceIds;
     @Column(name = TASK_ID)
     private String taskId;
+    @ElasticSearch.EnableDocValues
     @Column(name = CREATE_TIME)
     private long createTime;
     @Column(name = DURATION)
