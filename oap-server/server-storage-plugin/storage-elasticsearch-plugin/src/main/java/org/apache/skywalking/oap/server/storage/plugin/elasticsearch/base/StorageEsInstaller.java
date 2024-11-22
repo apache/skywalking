@@ -335,7 +335,7 @@ public class StorageEsInstaller extends ModelInstaller {
                     columnProperties.put("index", false);
                 }
             }
-            if (!elasticSearchExtension.isDocValuesEnabled()) {
+            if (!"text".equals(type) && !elasticSearchExtension.isDocValuesEnabled()) {
                 columnProperties.put("doc_values", false);
             }
             properties.put(columnName, columnProperties);
