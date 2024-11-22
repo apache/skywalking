@@ -52,6 +52,15 @@ public class BanyanDBModelExtension {
     @Setter
     private TopN topN;
 
+    /**
+     * indexMode indicates whether a metric is in the index mode.
+     *
+     * @since 10.2.0
+     */
+    @Getter
+    @Setter
+    private boolean indexMode;
+
     public static class TopN {
         /**
          * lru_size defines how many time_buckets are held in the memory.

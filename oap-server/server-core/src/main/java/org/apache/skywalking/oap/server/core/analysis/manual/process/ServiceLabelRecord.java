@@ -48,6 +48,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
         "serviceId",
         "label"
 })
+@BanyanDB.IndexMode
 public class ServiceLabelRecord extends Metrics {
 
     public static final String INDEX_NAME = "service_label";

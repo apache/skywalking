@@ -50,6 +50,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
     "processId",
     "startTime",
 })
+@BanyanDB.IndexMode
 public class EBPFProfilingScheduleRecord extends Metrics {
 
     public static final String INDEX_NAME = "ebpf_profiling_schedule";

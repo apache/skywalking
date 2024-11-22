@@ -51,6 +51,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
     "name",
 })
 @BanyanDB.StoreIDAsTag
+@BanyanDB.IndexMode
 public class ProcessTraffic extends Metrics {
     public static final String INDEX_NAME = "process_traffic";
     public static final String SERVICE_ID = "service_id";

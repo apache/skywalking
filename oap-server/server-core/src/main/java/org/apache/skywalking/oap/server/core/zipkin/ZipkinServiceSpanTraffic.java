@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
     "serviceName",
     "spanName"
 })
+@BanyanDB.IndexMode
 public class ZipkinServiceSpanTraffic extends Metrics {
 
     public static final String INDEX_NAME = "zipkin_service_span_traffic";
