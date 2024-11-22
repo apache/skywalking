@@ -59,6 +59,7 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     private String destEndpoint;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = COMPONENT_ID, storageOnly = true)
     private int componentId;
     @Setter

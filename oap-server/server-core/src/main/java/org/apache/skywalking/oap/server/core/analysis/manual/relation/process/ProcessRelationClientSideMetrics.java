@@ -72,6 +72,7 @@ public class ProcessRelationClientSideMetrics extends Metrics {
     private String entityId;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = COMPONENT_ID, storageOnly = true)
     @BanyanDB.SeriesID(index = 1)
     private int componentId;
