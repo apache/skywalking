@@ -64,6 +64,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     @Column(name = DUMP_TIME)
     @BanyanDB.NoIndexing
     private long dumpTime;
+    @ElasticSearch.EnableDocValues
     @Column(name = SEQUENCE)
     private int sequence;
     @Column(name = STACK_BINARY)
