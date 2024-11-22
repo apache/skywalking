@@ -54,6 +54,7 @@ public class AsyncProfilerTaskLogRecord extends Record {
     private String instanceId;
     @Column(name = OPERATION_TYPE, storageOnly = true)
     private int operationType;
+    @ElasticSearch.EnableDocValues
     @Column(name = OPERATION_TIME)
     private long operationTime;
     @Getter
