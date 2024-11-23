@@ -2,7 +2,7 @@
 
 BanyanDB employs a Time-To-Live (TTL) mechanism to automatically delete data older than the specified duration. When using BanyanDB as the storage backend, the `recordDataTTL` and `metricsDataTTL` configurations are deprecated. Instead, TTL settings should be configured directly within `storage.banyandb`.
 
-For detailed information, please refer to the [Storage BanyanDB](storages/banyandb.md) documentation.
+For detailed information, please refer to the [Storage BanyanDB](../setup/backend/storages/banyandb.md) documentation.
 
 ## Segment Interval and TTL
 
