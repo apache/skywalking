@@ -121,6 +121,15 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        if (config.getGmDayTTLDays() > config.getGmIndexTTLDays()) {
+            throw new ModuleStartException("gmDayTTLDays must be less than or equal to gmIndexTTLDays");
+        }
+        if (config.getGmHourTTLDays() > config.getGmIndexTTLDays()) {
+            throw new ModuleStartException("gmHourTTLDays must be less than or equal to gmIndexTTLDays");
+        }
+        if (config.getGmMinuteTTLDays() > config.getGmIndexTTLDays()) {
+            throw new ModuleStartException("gmMinuteTTLDays must be less than or equal to gmIndexTTLDays");
+        }
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
         this.client = new BanyanDBStorageClient(config);
