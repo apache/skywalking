@@ -10,3 +10,8 @@ These are the settings for the different types:
     metricsDataTTL: ${SW_CORE_METRICS_DATA_TTL:7} # Unit is day
 ```
 
+## BanyanDB TTL
+
+BanyanDB has a TTL mechanism to automatically delete data that is older than the specified time. When you use BanyanDB as the storage backend, `recordDataTTL` and `metricsDataTTL` are not used. Instead, you should configure the TTL settings in `storage.banyandb`.
+
+Please refer to the [Storage BanyanDB](storages/banyandb.md) document for more information.
