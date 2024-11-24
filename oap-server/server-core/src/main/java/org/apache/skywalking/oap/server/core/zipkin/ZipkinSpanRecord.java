@@ -83,6 +83,7 @@ public class ZipkinSpanRecord extends Record {
     @Column(name = TRACE_ID)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE}, reserveOriginalColumns = true)
     @ElasticSearch.Routing
+    @ElasticSearch.EnableDocValues
     private String traceId;
     @Setter
     @Getter
@@ -106,6 +107,7 @@ public class ZipkinSpanRecord extends Record {
     private String kind;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP_MILLIS)
     @BanyanDB.NoIndexing
     private long timestampMillis;

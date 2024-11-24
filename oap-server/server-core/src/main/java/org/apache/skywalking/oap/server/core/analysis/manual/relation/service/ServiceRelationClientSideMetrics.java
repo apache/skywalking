@@ -60,9 +60,11 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     @Getter
     @Column(name = COMPONENT_IDS, storageOnly = true)
     @ElasticSearch.Keyword
+    @ElasticSearch.EnableDocValues
     private IntList componentIds = new IntList(3);
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;

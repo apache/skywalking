@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
  * TopN data.
@@ -37,6 +38,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Getter
@@ -45,11 +47,13 @@ public abstract class TopN extends Record implements ComparableStorageData {
     private String traceId;
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
     private long timestamp;
 

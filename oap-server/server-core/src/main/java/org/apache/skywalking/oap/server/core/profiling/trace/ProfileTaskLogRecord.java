@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -57,10 +58,12 @@ public class ProfileTaskLogRecord extends Record {
     private String instanceId;
     @Column(name = OPERATION_TYPE, storageOnly = true)
     private int operationType;
+    @ElasticSearch.EnableDocValues
     @Column(name = OPERATION_TIME)
     private long operationTime;
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
     private long timestamp;
 

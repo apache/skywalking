@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -44,7 +45,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
     "tagKey",
     "tagValue",
     "tagType"
-})
+}, callSuper = true)
 @BanyanDB.IndexMode
 public class TagAutocompleteData extends Metrics {
     public static final String INDEX_NAME = "tag_autocomplete";
@@ -55,6 +56,7 @@ public class TagAutocompleteData extends Metrics {
     @Setter
     @Getter
     @Column(name = TAG_KEY)
+    @ElasticSearch.EnableDocValues
     @BanyanDB.SeriesID(index = 1)
     private String tagKey;
     @Setter

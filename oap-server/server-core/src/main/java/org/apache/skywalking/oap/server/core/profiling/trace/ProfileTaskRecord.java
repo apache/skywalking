@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -66,6 +67,7 @@ public class ProfileTaskRecord extends NoneStream {
     private String endpointName;
     @Column(name = TASK_ID)
     private String taskId;
+    @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
     @BanyanDB.NoIndexing
     private long startTime;
@@ -75,6 +77,7 @@ public class ProfileTaskRecord extends NoneStream {
     private int minDurationThreshold;
     @Column(name = DUMP_PERIOD)
     private int dumpPeriod;
+    @ElasticSearch.EnableDocValues
     @Column(name = CREATE_TIME)
     private long createTime;
     @Column(name = MAX_SAMPLING_COUNT)

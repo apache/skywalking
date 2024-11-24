@@ -196,16 +196,17 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 });
 
                 // ElasticSearch extension
-                final ElasticSearch.MatchQuery elasticSearchAnalyzer = field.getAnnotation(
-                    ElasticSearch.MatchQuery.class);
-                final ElasticSearch.Column elasticSearchColumn = field.getAnnotation(ElasticSearch.Column.class);
-                final ElasticSearch.Keyword keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
-                final ElasticSearch.Routing routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
-                ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
+                final var elasticSearchAnalyzer = field.getAnnotation(ElasticSearch.MatchQuery.class);
+                final var elasticSearchColumn = field.getAnnotation(ElasticSearch.Column.class);
+                final var keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
+                final var routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
+                final var enableDocValues = field.getAnnotation(ElasticSearch.EnableDocValues.class);
+                final var elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
                     elasticSearchColumn == null ? null : elasticSearchColumn.legacyName(),
                     keywordColumn != null,
-                    routingColumn != null
+                    routingColumn != null,
+                    enableDocValues != null
                 );
 
                 // BanyanDB extension

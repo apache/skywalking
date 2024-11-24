@@ -23,6 +23,7 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
  * Record storage represents the entity have fully and manually entity definition by hard codes. Most of them are
@@ -35,5 +36,6 @@ public abstract class Record implements StorageData {
     @Getter
     @Setter
     @Column(name = TIME_BUCKET)
+    @ElasticSearch.EnableDocValues
     private long timeBucket;
 }

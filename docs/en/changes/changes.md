@@ -1,5 +1,12 @@
 ## 10.2.0
 
+#### Project
+* Add [`doc_values`](https://www.elastic.co/guide/en/elasticsearch/reference/current/doc-values.html) for fields
+  that need to be sorted or aggregated in Elasticsearch, and disable all others.
+  * This change would not impact the existing deployment and its feature for our official release users.
+  * **Warning** If there are custom query plugins for our Elasticsearch indices, this change could break them as
+    sort queries and aggregation queries which used the unexpected fields are being blocked.
+
 #### OAP Server
 
 * Skip processing OTLP metrics data points with flag `FLAG_NO_RECORDED_VALUE`, which causes exceptional result.
