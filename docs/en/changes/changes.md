@@ -43,6 +43,10 @@
 * Support view data value related dashboards in TopList widgets.
 * Add endpoint global topN widget on `General-Root`, `Mesh-Root`.
 * Implement owner option for TopList widgets in related trace options.
+* Hide entrances to unrelated dashboards in topn list.
+* Split topology metric query to avoid exceeding the maximum query complexity.
+* Fix view metrics related trace and metrics query.
+* Add support collapse span.
 
 
 #### Documentation
