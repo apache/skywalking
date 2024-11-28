@@ -56,6 +56,8 @@ setup:
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=banyandb \
+          --wait \
+          --timeout 20m \
           -f test/e2e-v2/cases/profiling/ebpf/kubernetes-values.yaml
       wait:
         - namespace: istio-system
