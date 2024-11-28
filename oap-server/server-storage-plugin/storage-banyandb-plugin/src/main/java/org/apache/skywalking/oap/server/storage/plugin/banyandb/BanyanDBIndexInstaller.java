@@ -38,6 +38,7 @@ import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException
 import org.apache.skywalking.banyandb.v1.client.metadata.MetadataCache;
 import org.apache.skywalking.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -77,23 +78,28 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             } else {
                 // register models only locally(Schema cache) but not remotely
                 if (model.isRecord()) { // stream
-                    StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(model, config, downSamplingConfigService);
-                    checkStream(streamModel.getStream(), c);
-                    checkIndexRules(streamModel.getIndexRules(), c);
-                    checkIndexRuleBinding(
-                        streamModel.getIndexRules(), metadata.getGroup(), metadata.name(),
-                        BanyandbCommon.Catalog.CATALOG_STREAM, c
-                    );
-                    // Stream not support server side TopN pre-aggregation
+                    StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(
+                        model, config, downSamplingConfigService);
+                    if (!RunningMode.isNoInitMode()) {
+                        checkStream(streamModel.getStream(), c);
+                        checkIndexRules(streamModel.getIndexRules(), c);
+                        checkIndexRuleBinding(
+                            streamModel.getIndexRules(), metadata.getGroup(), metadata.name(),
+                            BanyandbCommon.Catalog.CATALOG_STREAM, c
+                        );
+                        // Stream not support server side TopN pre-aggregation
+                    }
                 } else { // measure
                     MeasureModel measureModel = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, downSamplingConfigService);
-                    checkMeasure(measureModel.getMeasure(), c);
-                    checkIndexRules(measureModel.getIndexRules(), c);
-                    checkIndexRuleBinding(
-                        measureModel.getIndexRules(), metadata.getGroup(), metadata.name(),
-                        BanyandbCommon.Catalog.CATALOG_MEASURE, c
-                    );
-                    checkTopNAggregation(model, c);
+                    if (!RunningMode.isNoInitMode()) {
+                        checkMeasure(measureModel.getMeasure(), c);
+                        checkIndexRules(measureModel.getIndexRules(), c);
+                        checkIndexRuleBinding(
+                            measureModel.getIndexRules(), metadata.getGroup(), metadata.name(),
+                            BanyandbCommon.Catalog.CATALOG_MEASURE, c
+                        );
+                        checkTopNAggregation(model, c);
+                    }
                 }
                 // pre-load remote schema for java client
                 MetadataCache.EntityMetadata remoteMeta = updateSchemaFromServer(metadata, c);
@@ -220,30 +226,32 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             default:
                 throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
         }
-        if (!GROUP_ALIGNED.contains(metadata.getGroup())) {
-            // create the group if not exist
-            if (!resourceExist.hasGroup()) {
-                try {
-                    Group g = client.define(gBuilder.build());
-                    if (g != null) {
-                        log.info("group {} created", g.getMetadata().getName());
+        if (!RunningMode.isNoInitMode()) {
+            if (!GROUP_ALIGNED.contains(metadata.getGroup())) {
+                // create the group if not exist
+                if (!resourceExist.hasGroup()) {
+                    try {
+                        Group g = client.define(gBuilder.build());
+                        if (g != null) {
+                            log.info("group {} created", g.getMetadata().getName());
+                        }
+                    } catch (BanyanDBException ex) {
+                        if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                            log.info("group {} already created by another OAP node", metadata.getGroup());
+                        } else {
+                            throw ex;
+                        }
                     }
-                } catch (BanyanDBException ex) {
-                    if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                        log.info("group {} already created by another OAP node", metadata.getGroup());
-                    } else {
-                        throw ex;
+                } else {
+                    // update the group if necessary
+                    if (this.checkGroup(metadata, client)) {
+                        client.update(gBuilder.build());
+                        log.info("group {} updated", metadata.getGroup());
                     }
                 }
-            } else {
-                // update the group if necessary
-                if (this.checkGroup(metadata, client)) {
-                    client.update(gBuilder.build());
-                    log.info("group {} updated", metadata.getGroup());
-                }
+                // mark the group as aligned
+                GROUP_ALIGNED.add(metadata.getGroup());
             }
-            // mark the group as aligned
-            GROUP_ALIGNED.add(metadata.getGroup());
         }
         return resourceExist.hasResource();
     }
