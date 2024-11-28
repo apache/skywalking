@@ -269,8 +269,16 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             }
             return;
         }
-        client.define(schema.getTopNSpec());
-        log.info("installed TopN schema for measure {}", schema.getMetadata().name());
+        try {
+            client.define(schema.getTopNSpec());
+            log.info("installed TopN schema for measure {}", schema.getMetadata().name());
+        } catch (BanyanDBException ex) {
+            if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                log.info("TopNAggregation {} already created by another OAP node", schema.getTopNSpec());
+            } else {
+                throw ex;
+            }
+        }
     }
 
     /**
@@ -321,8 +329,16 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             IndexRule hisIndexRule = client.findIndexRule(
                 indexRule.getMetadata().getGroup(), indexRule.getMetadata().getName());
             if (hisIndexRule == null) {
-                client.define(indexRule);
-                log.info("new IndexRule created: {}", indexRule);
+                try {
+                    client.define(indexRule);
+                    log.info("new IndexRule created: {}", indexRule);
+                } catch (BanyanDBException ex) {
+                    if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                        log.info("IndexRule {} already created by another OAP node", indexRule);
+                    } else {
+                        throw ex;
+                    }
+                }
             } else {
                 boolean equals = hisIndexRule.toBuilder()
                                              .clearUpdatedAt()
@@ -367,8 +383,16 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                                             .addAllRules(indexRuleNames).build();
         IndexRuleBinding hisIndexRuleBinding = client.findIndexRuleBinding(group, name);
         if (hisIndexRuleBinding == null) {
-            client.define(indexRuleBinding);
-            log.info("new IndexRuleBinding created: {}", indexRuleBinding);
+            try {
+                client.define(indexRuleBinding);
+                log.info("new IndexRuleBinding created: {}", indexRuleBinding);
+            } catch (BanyanDBException ex) {
+                if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                    log.info("IndexRuleBinding {} already created by another OAP node", indexRuleBinding);
+                } else {
+                    throw ex;
+                }
+            }
         } else {
             boolean equals = hisIndexRuleBinding.toBuilder()
                                                 .clearUpdatedAt()
@@ -409,8 +433,16 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         if (schema.getTopNSpec() != null) {
             TopNAggregation topNAggregation = schema.getTopNSpec();
             if (hisTopNAggregation == null) {
-                client.define(topNAggregation);
-                log.info("new TopNAggregation created: {}", topNAggregation);
+                try {
+                    client.define(topNAggregation);
+                    log.info("new TopNAggregation created: {}", topNAggregation);
+                } catch (BanyanDBException ex) {
+                    if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                        log.info("TopNAggregation {} already created by another OAP node", topNAggregation);
+                    } else {
+                        throw ex;
+                    }
+                }
             } else {
                 boolean equals = hisTopNAggregation.toBuilder()
                                                    .clearUpdatedAt()
