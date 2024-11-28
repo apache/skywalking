@@ -70,7 +70,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             // 2) additional conditions are all group by tags
             if (CollectionUtils.isEmpty(additionalConditions) ||
                     additionalConditions.stream().map(KeyValue::getKey).collect(Collectors.toSet())
-                            .equals(ImmutableSet.copyOf(schema.getTopNSpec().getGroupByTagNames()))) {
+                            .equals(ImmutableSet.copyOf(schema.getTopNSpec().getGroupByTagNamesList()))) {
                 return serverSideTopN(condition, schema, spec, timestampRange, additionalConditions);
             }
         }

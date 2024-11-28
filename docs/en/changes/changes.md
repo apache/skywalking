@@ -30,6 +30,7 @@
 * Bump up netty to 4.1.115, grpc to 1.68.1, boringssl to 2.0.69.
 * BanyanDB: Support update the Group settings when OAP starting.
 * BanyanDB: Introduce index mode and refactor banyandb group settings.
+* BanyanDB: Support update the Schema when OAP starting.
 
 #### UI
 

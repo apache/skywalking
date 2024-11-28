@@ -19,12 +19,24 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.IntervalRule;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRuleBinding;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.MetadataCache;
+import org.apache.skywalking.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -36,6 +48,9 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
+    // BanyanDB group setting aligned with the OAP settings
+    private static final Set<String> GROUP_ALIGNED = new HashSet<>();
+
     private final BanyanDBStorageConfig config;
 
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
@@ -56,18 +71,32 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         try {
             final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
             // first check resource existence and create group if necessary
-            final boolean resourceExist = metadata.checkResourceExistence(c);
+            final boolean resourceExist = checkResourceExistence(metadata, c);
             if (!resourceExist) {
                 return false;
             } else {
                 // register models only locally(Schema cache) but not remotely
                 if (model.isRecord()) { // stream
-                    MetadataRegistry.INSTANCE.registerStreamModel(model, config, downSamplingConfigService);
+                    StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(model, config, downSamplingConfigService);
+                    checkStream(streamModel.getStream(), c);
+                    checkIndexRules(streamModel.getIndexRules(), c);
+                    checkIndexRuleBinding(
+                        streamModel.getIndexRules(), metadata.getGroup(), metadata.name(),
+                        BanyandbCommon.Catalog.CATALOG_STREAM, c
+                    );
+                    // Stream not support server side TopN pre-aggregation
                 } else { // measure
-                    MetadataRegistry.INSTANCE.registerMeasureModel(model, config, downSamplingConfigService);
+                    MeasureModel measureModel = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, downSamplingConfigService);
+                    checkMeasure(measureModel.getMeasure(), c);
+                    checkIndexRules(measureModel.getIndexRules(), c);
+                    checkIndexRuleBinding(
+                        measureModel.getIndexRules(), metadata.getGroup(), metadata.name(),
+                        BanyandbCommon.Catalog.CATALOG_MEASURE, c
+                    );
+                    checkTopNAggregation(model, c);
                 }
                 // pre-load remote schema for java client
-                MetadataCache.EntityMetadata remoteMeta = metadata.updateRemoteSchema(c);
+                MetadataCache.EntityMetadata remoteMeta = updateSchemaFromServer(metadata, c);
                 if (remoteMeta == null) {
                     throw new IllegalStateException("inconsistent state: metadata:" + metadata + ", remoteMeta: null");
                 }
@@ -131,7 +160,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     }
                     final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
                     try {
-                        schema.installTopNAggregation(client);
+                        installTopNAggregation(schema, client);
                     } catch (BanyanDBException ex) {
                         if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
                             log.info("Measure schema {}_{} TopN({}) already created by another OAP node",
@@ -146,6 +175,264 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             }
         } catch (BanyanDBException ex) {
             throw new StorageException("fail to create schema " + model.getName(), ex);
+        }
+    }
+
+    /**
+     * Check if the group settings need to be updated
+     */
+    private boolean checkGroup(MetadataRegistry.SchemaMetadata metadata, BanyanDBClient client) throws BanyanDBException {
+        Group g = client.findGroup(metadata.getGroup());
+        return g.getResourceOpts().getShardNum() != metadata.getShard()
+            || g.getResourceOpts().getSegmentInterval().getNum() != metadata.getSegmentIntervalDays()
+            || g.getResourceOpts().getTtl().getNum() != metadata.getTtlDays();
+    }
+
+    private boolean checkResourceExistence(MetadataRegistry.SchemaMetadata metadata,
+                                           BanyanDBClient client) throws BanyanDBException {
+        ResourceExist resourceExist;
+        Group.Builder gBuilder
+            = Group.newBuilder()
+                   .setMetadata(BanyandbCommon.Metadata.newBuilder().setName(metadata.getGroup()))
+                   .setResourceOpts(BanyandbCommon.ResourceOpts.newBuilder()
+                                                               .setShardNum(metadata.getShard())
+                                                               .setSegmentInterval(
+                                                                   IntervalRule.newBuilder()
+                                                                               .setUnit(
+                                                                                   IntervalRule.Unit.UNIT_DAY)
+                                                                               .setNum(
+                                                                                   metadata.getSegmentIntervalDays()))
+                                                               .setTtl(
+                                                                   IntervalRule.newBuilder()
+                                                                               .setUnit(
+                                                                                   IntervalRule.Unit.UNIT_DAY)
+                                                                               .setNum(
+                                                                                   metadata.getTtlDays())));
+        switch (metadata.getKind()) {
+            case STREAM:
+                resourceExist = client.existStream(metadata.getGroup(), metadata.name());
+                gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_STREAM).build();
+                break;
+            case MEASURE:
+                resourceExist = client.existMeasure(metadata.getGroup(), metadata.name());
+                gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_MEASURE).build();
+                break;
+            default:
+                throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
+        }
+        if (!GROUP_ALIGNED.contains(metadata.getGroup())) {
+            // create the group if not exist
+            if (!resourceExist.hasGroup()) {
+                try {
+                    Group g = client.define(gBuilder.build());
+                    if (g != null) {
+                        log.info("group {} created", g.getMetadata().getName());
+                    }
+                } catch (BanyanDBException ex) {
+                    if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                        log.info("group {} already created by another OAP node", metadata.getGroup());
+                    } else {
+                        throw ex;
+                    }
+                }
+            } else {
+                // update the group if necessary
+                if (this.checkGroup(metadata, client)) {
+                    client.update(gBuilder.build());
+                    log.info("group {} updated", metadata.getGroup());
+                }
+            }
+            // mark the group as aligned
+            GROUP_ALIGNED.add(metadata.getGroup());
+        }
+        return resourceExist.hasResource();
+    }
+
+    /**
+     * Update the schema from the banyanDB server side for the java client cache
+     */
+    private MetadataCache.EntityMetadata updateSchemaFromServer(MetadataRegistry.SchemaMetadata metadata, BanyanDBClient client) throws BanyanDBException {
+        switch (metadata.getKind()) {
+            case STREAM:
+                return client.updateStreamMetadataCacheFromSever(metadata.getGroup(), metadata.name());
+            case MEASURE:
+                return client.updateMeasureMetadataCacheFromSever(metadata.getGroup(), metadata.name());
+            default:
+                throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
+        }
+    }
+
+    private void installTopNAggregation(MetadataRegistry.Schema schema, BanyanDBClient client) throws BanyanDBException {
+        if (schema.getTopNSpec() == null) {
+            if (schema.getMetadata().getKind() == MetadataRegistry.Kind.MEASURE) {
+                log.debug("skip null TopN Schema for [{}]", schema.getMetadata().name());
+            }
+            return;
+        }
+        client.define(schema.getTopNSpec());
+        log.info("installed TopN schema for measure {}", schema.getMetadata().name());
+    }
+
+    /**
+     * Check if the measure exists and update it if necessary
+     */
+    private void checkMeasure(Measure measure, BanyanDBClient client) throws BanyanDBException {
+        Measure hisMeasure = client.findMeasure(measure.getMetadata().getGroup(), measure.getMetadata().getName());
+        if (hisMeasure == null) {
+            throw new IllegalStateException("Measure: " + measure.getMetadata().getName() + " exist but can't find it from BanyanDB server");
+        } else {
+            boolean equals = hisMeasure.toBuilder()
+                                       .clearUpdatedAt()
+                                       .clearMetadata()
+                                       .build()
+                                       .equals(measure.toBuilder().clearMetadata().build());
+            if (!equals) {
+                client.update(measure);
+                log.info("update Measure: {} from: {} to: {}", hisMeasure.getMetadata().getName(), hisMeasure, measure);
+            }
+        }
+    }
+
+    /**
+     * Check if the stream exists and update it if necessary
+     */
+    private void checkStream(Stream stream, BanyanDBClient client) throws BanyanDBException {
+        Stream hisStream = client.findStream(stream.getMetadata().getGroup(), stream.getMetadata().getName());
+        if (hisStream == null) {
+            throw new IllegalStateException("Stream: " + stream.getMetadata().getName() + " exist but can't find it from BanyanDB server");
+        } else {
+            boolean equals = hisStream.toBuilder()
+                                      .clearUpdatedAt()
+                                      .clearMetadata()
+                                      .build()
+                                      .equals(stream.toBuilder().clearUpdatedAt().clearMetadata().build());
+            if (!equals) {
+                client.update(stream);
+                log.info("update Stream: {} from: {} to: {}", hisStream.getMetadata().getName(), hisStream, stream);
+            }
+        }
+    }
+
+    /**
+     * Check if the index rules exist and update them if necessary
+     */
+    private void checkIndexRules(List<IndexRule> indexRules, BanyanDBClient client) throws BanyanDBException {
+        for (IndexRule indexRule : indexRules) {
+            IndexRule hisIndexRule = client.findIndexRule(
+                indexRule.getMetadata().getGroup(), indexRule.getMetadata().getName());
+            if (hisIndexRule == null) {
+                client.define(indexRule);
+                log.info("new IndexRule created: {}", indexRule);
+            } else {
+                boolean equals = hisIndexRule.toBuilder()
+                                             .clearUpdatedAt()
+                                             .clearMetadata()
+                                             .build()
+                                             .equals(indexRule.toBuilder().clearUpdatedAt().clearMetadata().build());
+                if (!equals) {
+                    client.update(indexRule);
+                    log.info(
+                        "update IndexRule: {} from: {} to: {}", hisIndexRule.getMetadata().getName(), hisIndexRule,
+                        indexRule
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if the index rule binding exists and update it if necessary.
+     * If the old index rule is not in the index rule binding, delete it.
+     */
+    private void checkIndexRuleBinding(List<IndexRule> indexRules,
+                                       String group,
+                                       String name,
+                                       BanyandbCommon.Catalog catalog,
+                                       BanyanDBClient client) throws BanyanDBException {
+        if (indexRules.isEmpty()) {
+            return;
+        }
+        List<String> indexRuleNames = indexRules.stream().map(indexRule -> indexRule.getMetadata().getName()).collect(
+            Collectors.toList());
+
+        IndexRuleBinding indexRuleBinding = IndexRuleBinding.newBuilder()
+                                                            .setMetadata(BanyandbCommon.Metadata.newBuilder()
+                                                                                                .setGroup(
+                                                                                                    group)
+                                                                                                .setName(name))
+                                                            .setSubject(BanyandbDatabase.Subject.newBuilder()
+                                                                                                .setName(name)
+                                                                                                .setCatalog(
+                                                                                                    catalog))
+                                                            .addAllRules(indexRuleNames).build();
+        IndexRuleBinding hisIndexRuleBinding = client.findIndexRuleBinding(group, name);
+        if (hisIndexRuleBinding == null) {
+            client.define(indexRuleBinding);
+            log.info("new IndexRuleBinding created: {}", indexRuleBinding);
+        } else {
+            boolean equals = hisIndexRuleBinding.toBuilder()
+                                                .clearUpdatedAt()
+                                                .clearMetadata()
+                                                .clearBeginAt()
+                                                .clearExpireAt()
+                                                .build()
+                                                .equals(indexRuleBinding.toBuilder().clearMetadata().build());
+            if (!equals) {
+                // update binding and use the same begin expire time
+                client.update(indexRuleBinding.toBuilder()
+                                              .setBeginAt(hisIndexRuleBinding.getBeginAt())
+                                              .setExpireAt(hisIndexRuleBinding.getExpireAt())
+                                              .build());
+                log.info(
+                    "update IndexRuleBinding: {} from: {} to: {}", hisIndexRuleBinding.getMetadata().getName(),
+                    hisIndexRuleBinding, indexRuleBinding
+                );
+                for (String rule : hisIndexRuleBinding.getRulesList()) {
+                    if (!indexRuleNames.contains(rule)) {
+                        client.deleteIndexRule(group, rule);
+                        log.info("delete deprecated IndexRule: {} from: {}", rule, name);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Check if the TopN aggregation exists and update it if necessary.
+     * If the old TopN aggregation is not in the schema, delete it.
+     */
+    private void checkTopNAggregation(Model model, BanyanDBClient client) throws BanyanDBException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
+        String topNName = MetadataRegistry.Schema.formatTopNName(schema.getMetadata().name());
+        TopNAggregation hisTopNAggregation = client.findTopNAggregation(schema.getMetadata().getGroup(), topNName);
+
+        if (schema.getTopNSpec() != null) {
+            TopNAggregation topNAggregation = schema.getTopNSpec();
+            if (hisTopNAggregation == null) {
+                client.define(topNAggregation);
+                log.info("new TopNAggregation created: {}", topNAggregation);
+            } else {
+                boolean equals = hisTopNAggregation.toBuilder()
+                                                   .clearUpdatedAt()
+                                                   .clearMetadata()
+                                                   .build()
+                                                   .equals(topNAggregation.toBuilder().clearMetadata().build());
+                if (!equals) {
+                    client.update(topNAggregation);
+                    log.info(
+                        "update TopNAggregation: {} from: {} to: {}", hisTopNAggregation.getMetadata().getName(),
+                        hisTopNAggregation, topNAggregation
+                    );
+                }
+            }
+        } else {
+            if (hisTopNAggregation != null) {
+                client.deleteTopNAggregation(schema.getMetadata().getGroup(), topNName);
+                log.info(
+                    "delete deprecated TopNAggregation: {} from group: {}", hisTopNAggregation.getMetadata().getName(),
+                    schema.getMetadata().getGroup()
+                );
+            }
         }
     }
 }
