@@ -56,9 +56,15 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
                     protected void apply(StreamQuery query) {
                         query.and(eq(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
                         if (condition.getOrder() == Order.DES) {
-                            query.setOrderBy(new StreamQuery.OrderBy(valueColumnName, AbstractQuery.Sort.DESC));
+                            query.setOrderBy(new StreamQuery.OrderBy(
+                                MetadataRegistry.getIndexRuleName(modelName, valueColumnName),
+                                AbstractQuery.Sort.DESC
+                            ));
                         } else {
-                            query.setOrderBy(new StreamQuery.OrderBy(valueColumnName, AbstractQuery.Sort.ASC));
+                            query.setOrderBy(
+                                new StreamQuery.OrderBy(MetadataRegistry.getIndexRuleName(modelName, valueColumnName),
+                                                        AbstractQuery.Sort.ASC
+                                ));
                         }
                         query.setLimit(condition.getTopN());
                     }

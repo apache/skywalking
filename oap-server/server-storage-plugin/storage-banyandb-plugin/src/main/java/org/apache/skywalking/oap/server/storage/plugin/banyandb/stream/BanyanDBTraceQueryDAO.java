@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import static java.util.Objects.nonNull;
 
@@ -128,7 +129,10 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                         query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
                         break;
                     case BY_DURATION:
-                        query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.LATENCY, AbstractQuery.Sort.DESC));
+                        query.setOrderBy(new StreamQuery.OrderBy(
+                            MetadataRegistry.getIndexRuleName(SegmentRecord.INDEX_NAME, SegmentRecord.LATENCY),
+                            AbstractQuery.Sort.DESC
+                        ));
                         break;
                 }
 

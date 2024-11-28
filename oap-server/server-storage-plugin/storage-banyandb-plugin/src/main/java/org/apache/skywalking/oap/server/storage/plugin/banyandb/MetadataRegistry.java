@@ -290,10 +290,14 @@ public enum MetadataRegistry {
         }
     }
 
+    public static String getIndexRuleName(String modelName, String tagName) {
+        return StringUtil.join('.', modelName, tagName);
+    }
+
     IndexRule indexRule(String group, String modelName, String tagName, BanyanDB.MatchQuery.AnalyzerType analyzer) {
         IndexRule.Builder builder = IndexRule.newBuilder()
                                              .setMetadata(Metadata.newBuilder().setName(
-                                                 Objects.requireNonNull(StringUtil.join('.', modelName, tagName))).setGroup(group))
+                                                 getIndexRuleName(modelName, tagName)).setGroup(group))
                                              .setType(IndexRule.Type.TYPE_INVERTED).addTags(tagName);
         if (analyzer != null) {
             switch (analyzer) {
