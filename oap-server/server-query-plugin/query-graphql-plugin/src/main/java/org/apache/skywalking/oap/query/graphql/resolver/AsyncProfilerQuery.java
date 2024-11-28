@@ -60,7 +60,7 @@ public class AsyncProfilerQuery implements GraphQLQueryResolver {
 
     public AsyncProfilerTaskListResult queryAsyncProfilerTaskList(AsyncProfilerTaskListRequest request) throws IOException {
         List<AsyncProfilerTask> tasks = getAsyncProfilerQueryService().queryTask(
-                request.getServiceId(), request.getStartTime(), request.getEndTime(), request.getLimit()
+                request.getServiceId(), request.getQueryDuration(), request.getLimit()
         );
         return new AsyncProfilerTaskListResult(null, tasks);
     }
