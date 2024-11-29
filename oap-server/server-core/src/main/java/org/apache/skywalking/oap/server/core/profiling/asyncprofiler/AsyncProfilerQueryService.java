@@ -83,8 +83,8 @@ public class AsyncProfilerQueryService implements Service {
         Long startTimeBucket = null;
         Long endTimeBucket = null;
         if (Objects.nonNull(duration)) {
-            startTimeBucket = duration.getStartTimeBucket();
-            endTimeBucket = duration.getEndTimeBucket();
+            startTimeBucket = duration.getStartTimeBucketInSec();
+            endTimeBucket = duration.getEndTimeBucketInSec();
         }
 
         return getTaskQueryDAO().getTaskList(serviceId, startTimeBucket, endTimeBucket, limit);
