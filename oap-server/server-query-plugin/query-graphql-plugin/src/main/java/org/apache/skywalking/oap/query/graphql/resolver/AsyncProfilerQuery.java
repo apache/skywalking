@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskListResult;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskProgress;
-import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
