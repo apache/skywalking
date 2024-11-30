@@ -35,7 +35,7 @@
 # Component ID priority represents the component is degree of closeness between the library and business codes
 # The higher the atomic number, the higher the priority, which mean it is closer to the business codes,
 # further away from OS kernel or general Computer Science concept.
-# The range of priorities is [0, 100], both sided included. 0 is the highest priority.
+# The range of priorities is [0, 100], both sided included. 0 is the lowest priority.
 # To keep forward compatibility, the default(when not set) priority is 50.
 # For example, a typical priority sequence is TCP < TLS(TCP) < RPC < HTTP < HTTPS < gRPC/SpringMVC/Dubbo
 

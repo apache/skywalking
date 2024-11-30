@@ -49,6 +49,36 @@ H2:
   languages: Java
 ```
 
+## Component Library Priority
+Component ID priority represents the component is degree of closeness between the library and business codes
+The higher the atomic number, the higher the priority, which mean it is closer to the business codes,
+further away from OS kernel or general Computer Science concept.
+
+The range of priorities is [0, 100], both sided included. 0 is the lowest priority.
+To keep forward compatibility, the default(when not set) priority is 50.
+
+For example, a typical priority sequence is TCP < TLS(TCP) < RPC < HTTP < HTTPS < gRPC/SpringMVC/Dubbo
+
+Example:
+```yaml
+Unknown:
+  id: 0
+  language: All
+  priority: 0
+tcp:
+  id: 110
+  languages: Java
+  priority: 10
+https:
+  id: 129
+  languages: ebpf
+  priority: 46
+tls:
+  id: 130
+  languages: ebpf, mesh
+  priority: 11 
+```
+
 ## Remote server mapping
 The remote server will be conjectured by the local component. The mappings are based on names in the component library.
 
