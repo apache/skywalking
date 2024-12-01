@@ -23,6 +23,7 @@ results:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
         value: {{ .value }}
+        owner: null
         traceid: null
       {{- end}}
   {{- end}}

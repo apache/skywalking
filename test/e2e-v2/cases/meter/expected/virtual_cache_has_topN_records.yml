@@ -23,6 +23,7 @@ results:
       - id: {{ notEmpty .id }}
         value: {{ notEmpty .value }}
         traceid: {{ notEmpty .traceid }}
+        owner: null
   {{- end}}
   {{- end}}
 error: null
