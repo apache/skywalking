@@ -22,4 +22,5 @@ results:
       - id: null
         value: "0"
         traceid: null
+        owner: null
 error: null

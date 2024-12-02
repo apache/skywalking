@@ -78,16 +78,16 @@ public class AsyncProfilerTaskCache implements Service {
     }
 
     /**
-     * use for every db query, -5 start time
+     * use for every db query, -5min start time
      */
     public long getCacheStartTimeBucket() {
-        return TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+        return TimeBucket.getRecordTimeBucket(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
     }
 
     /**
-     * use for every db query, +5 end time(because search through task's start time)
+     * use for every db query, +5min end time(because search through task's start time)
      */
     public long getCacheEndTimeBucket() {
-        return TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
+        return TimeBucket.getRecordTimeBucket(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(5));
     }
 }

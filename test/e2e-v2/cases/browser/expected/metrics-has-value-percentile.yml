@@ -25,8 +25,10 @@ results:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
       value: {{ .value }}
+      owner: null
       traceid: null
     - id: {{ notEmpty .id }}
+      owner: null
       value: null
       traceid: null
     {{- end}}
@@ -38,8 +40,10 @@ results:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
       value: {{ .value }}
+      owner: null
       traceid: null
     - id: {{ notEmpty .id }}
+    owner: null
       value: null
       traceid: null
     {{- end}}
@@ -51,8 +55,10 @@ results:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
       value: {{ .value }}
+      owner: null
       traceid: null
     - id: {{ notEmpty .id }}
+      owner: null
       value: null
       traceid: null
     {{- end}}
@@ -64,9 +70,11 @@ results:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
       value: {{ .value }}
+      owner: null
       traceid: null
     - id: {{ notEmpty .id }}
       value: null
+      owner: null
       traceid: null
     {{- end}}
   {{- end}}

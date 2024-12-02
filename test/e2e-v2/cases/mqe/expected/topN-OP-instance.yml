@@ -22,4 +22,5 @@ results:
       - id: provider1
         value: "100"
         traceid: null
+        owner: null
 error: null

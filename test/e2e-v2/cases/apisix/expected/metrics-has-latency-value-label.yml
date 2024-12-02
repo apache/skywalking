@@ -28,9 +28,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -43,9 +45,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -58,9 +62,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -73,9 +79,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -88,9 +96,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -103,9 +113,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -118,9 +130,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -133,9 +147,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -148,9 +164,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -163,9 +181,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -178,9 +198,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 - metric:
     labels:
@@ -193,9 +215,11 @@ results:
     - id: {{ notEmpty .id }}
       value: {{ .value }}
       traceid: null
+      owner: null
     - id: {{ notEmpty .id }}
       value: null
       traceid: null
+      owner: null
     {{- end}}
 {{- end}}
 error: null

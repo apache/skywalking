@@ -22,7 +22,9 @@ results:
       - id: e2e-service-consumer
         value: "100"
         traceid: null
+        owner: null
       - id: e2e-service-provider
         value: "100"
         traceid: null
+        owner: null
 error: null

@@ -820,6 +820,35 @@
               ]
             },
             {
+              "name": "Async Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 46,
+                  "i": "0",
+                  "type": "AsyncProfiling"
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "graph": {
+                    "fontColor": "theme",
+                    "backgroundColor": "theme",
+                    "content": "Async Profiling supported services written in Java with SkyWalking native agents installed.",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": ""
+                  }
+                }
+              ]
+            },
+            {
               "name": "Log",
               "children": [
                 {
