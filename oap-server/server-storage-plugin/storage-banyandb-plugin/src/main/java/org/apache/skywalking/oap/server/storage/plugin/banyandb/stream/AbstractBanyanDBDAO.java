@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.gson.Gson;
+import java.util.Objects;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
@@ -183,9 +184,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                                         AbstractQuery.Sort sort,
                                         List<KeyValue> additionalConditions,
                                         List<AttrCondition> attributes) throws IOException {
-        final TopNQuery q = new TopNQuery(List.of(schema.getMetadata().getGroup()), schema.getTopNSpec().getName(),
-                timestampRange,
-                number, sort);
+        final TopNQuery q = new TopNQuery(List.of(schema.getMetadata().getGroup()), Objects.requireNonNull(
+            schema.getTopNSpec()).getMetadata().getName(),
+                                          timestampRange,
+                                          number, sort);
         q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
         List<PairQueryCondition<?>> conditions = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(additionalConditions)) {

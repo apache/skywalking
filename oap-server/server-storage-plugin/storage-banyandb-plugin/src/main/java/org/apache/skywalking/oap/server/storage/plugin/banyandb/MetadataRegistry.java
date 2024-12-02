@@ -18,25 +18,17 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
-import io.grpc.Status;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.Singular;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Catalog;
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.IntervalRule;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Metadata;
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.ResourceOpts;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.CompressionMethod;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.EncodingMethod;
@@ -50,11 +42,7 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TagSpec;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TagType;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
-import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Duration;
-import org.apache.skywalking.banyandb.v1.client.metadata.MetadataCache;
-import org.apache.skywalking.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -77,7 +65,6 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,9 +77,6 @@ import java.util.stream.Collectors;
 public enum MetadataRegistry {
     INSTANCE;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    // BanyanDB group setting aligned with the OAP settings
-    private static final Set<String> GROUP_ALIGNED = new HashSet<>();
     private final Map<String, Schema> registry = new HashMap<>();
 
     public StreamModel registerStreamModel(Model model, BanyanDBStorageConfig config, DownSamplingConfigService configService) {
@@ -187,13 +171,13 @@ public enum MetadataRegistry {
             schemaBuilder.field(field.getName());
         }
         // parse TopN
-        schemaBuilder.topNSpec(parseTopNSpec(model, schemaMetadata.name()));
+        schemaBuilder.topNSpec(parseTopNSpec(model, schemaMetadata.group, schemaMetadata.name()));
 
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return new MeasureModel(builder.build(), indexRules);
     }
 
-    private TopNSpec parseTopNSpec(final Model model, final String measureName)
+    private TopNAggregation parseTopNSpec(final Model model, final String group, final String measureName)
             throws StorageException {
         if (model.getBanyanDBModelExtension().getTopN() == null) {
             return null;
@@ -208,14 +192,16 @@ public enum MetadataRegistry {
         if (CollectionUtils.isEmpty(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())) {
             throw new StorageException("invalid groupBy tags: " + model.getBanyanDBModelExtension().getTopN().getGroupByTagNames());
         }
-        return TopNSpec.builder()
-                .name(measureName + "_topn")
-                .lruSize(model.getBanyanDBModelExtension().getTopN().getLruSize())
-                .countersNumber(model.getBanyanDBModelExtension().getTopN().getCountersNumber())
-                .fieldName(valueColumnOpt.get().getValueCName())
-                .groupByTagNames(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())
-                .sort(BanyandbModel.Sort.SORT_UNSPECIFIED) // include both TopN and BottomN
-                .build();
+        return TopNAggregation.newBuilder()
+                              .setMetadata(
+                                  Metadata.newBuilder().setGroup(group).setName(Schema.formatTopNName(measureName)))
+                              .setSourceMeasure(Metadata.newBuilder().setGroup(group).setName(measureName))
+                              .setFieldValueSort(BanyandbModel.Sort.SORT_UNSPECIFIED) // include both TopN and BottomN
+                              .setFieldName(valueColumnOpt.get().getValueCName())
+                              .addAllGroupByTagNames(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())
+                              .setCountersNumber(model.getBanyanDBModelExtension().getTopN().getCountersNumber())
+                              .setLruSize(model.getBanyanDBModelExtension().getTopN().getLruSize())
+                              .build();
     }
 
     public Schema findMetadata(final Model model) {
@@ -306,8 +292,8 @@ public enum MetadataRegistry {
 
     IndexRule indexRule(String group, String tagName, BanyanDB.MatchQuery.AnalyzerType analyzer) {
         IndexRule.Builder builder = IndexRule.newBuilder()
-                .setMetadata(Metadata.newBuilder().setName(tagName).setGroup(group))
-                .setType(IndexRule.Type.TYPE_INVERTED).addTags(tagName);
+                                             .setMetadata(Metadata.newBuilder().setName(tagName).setGroup(group))
+                                             .setType(IndexRule.Type.TYPE_INVERTED).addTags(tagName);
         if (analyzer != null) {
             switch (analyzer) {
                 case KEYWORD:
@@ -553,36 +539,6 @@ public enum MetadataRegistry {
             return modelName + "_" + downSampling.getName();
         }
 
-        public Optional<Object> findRemoteSchema(BanyanDBClient client) throws BanyanDBException {
-            try {
-                switch (kind) {
-                    case STREAM:
-                        return Optional.ofNullable(client.findStream(this.group, this.name()));
-                    case MEASURE:
-                        return Optional.ofNullable(client.findMeasure(this.group, this.name()));
-                    default:
-                        throw new IllegalStateException("should not reach here");
-                }
-            } catch (BanyanDBException ex) {
-                if (ex.getStatus().equals(Status.Code.NOT_FOUND)) {
-                    return Optional.empty();
-                }
-
-                throw ex;
-            }
-        }
-
-        public MetadataCache.EntityMetadata updateRemoteSchema(BanyanDBClient client) throws BanyanDBException {
-            switch (kind) {
-                case STREAM:
-                    return client.updateStreamMetadataCacheFromSever(this.group, this.name());
-                case MEASURE:
-                    return client.updateMeasureMetadataCacheFromSever(this.group, this.name());
-                default:
-                    throw new IllegalStateException("should not reach here");
-            }
-        }
-
         private List<TagFamilySpec> extractTagFamilySpec(List<TagMetadata> tagMetadataList, boolean shouldAddID) {
             final String indexFamily = SchemaMetadata.this.indexFamily();
             final String nonIndexFamily = SchemaMetadata.this.nonIndexFamily();
@@ -601,95 +557,6 @@ public enum MetadataRegistry {
             }
 
             return tagFamilySpecs;
-        }
-
-        /**
-         * Check if the group settings need to be updated
-         */
-        private boolean checkGroupUpdate(BanyanDBClient client) throws BanyanDBException {
-            Group g = client.findGroup(this.group);
-            return g.getResourceOpts().getShardNum() != this.shard
-                    || g.getResourceOpts().getSegmentInterval().getNum() != this.segmentIntervalDays
-                    || g.getResourceOpts().getTtl().getNum() != this.ttlDays;
-        }
-
-        public boolean checkResourceExistence(BanyanDBClient client) throws BanyanDBException {
-            ResourceExist resourceExist;
-            Group.Builder gBuilder
-                    = Group.newBuilder()
-                    .setMetadata(Metadata.newBuilder().setName(this.group))
-                    .setResourceOpts(ResourceOpts.newBuilder()
-                            .setShardNum(this.shard)
-                            .setSegmentInterval(
-                                    IntervalRule.newBuilder()
-                                            .setUnit(
-                                                    IntervalRule.Unit.UNIT_DAY)
-                                            .setNum(
-                                                    this.segmentIntervalDays))
-                            .setTtl(
-                                    IntervalRule.newBuilder()
-                                            .setUnit(
-                                                    IntervalRule.Unit.UNIT_DAY)
-                                            .setNum(
-                                                    this.ttlDays)));
-            switch (kind) {
-                case STREAM:
-                    resourceExist = client.existStream(this.group, this.name());
-                    gBuilder.setCatalog(Catalog.CATALOG_STREAM).build();
-                    if (!GROUP_ALIGNED.contains(this.group)) {
-                        // create the group if not exist
-                        if (!resourceExist.hasGroup()) {
-                            try {
-                                Group g = client.define(gBuilder.build());
-                                if (g != null) {
-                                    log.info("group {} created", g.getMetadata().getName());
-                                }
-                            } catch (BanyanDBException ex) {
-                                if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                                    log.info("group {} already created by another OAP node", this.group);
-                                } else {
-                                    throw ex;
-                                }
-                            }
-                        } else {
-                            // update the group if necessary
-                            if (this.checkGroupUpdate(client)) {
-                                client.update(gBuilder.build());
-                                log.info("group {} updated", this.group);
-                            }
-                        }
-                        // mark the group as aligned
-                        GROUP_ALIGNED.add(this.group);
-                    }
-                    return resourceExist.hasResource();
-                case MEASURE:
-                    resourceExist = client.existMeasure(this.group, this.name());
-                    gBuilder.setCatalog(Catalog.CATALOG_MEASURE).build();
-                    if (!GROUP_ALIGNED.contains(this.group)) {
-                        if (!resourceExist.hasGroup()) {
-                            try {
-                                Group g = client.define(gBuilder.build());
-                                if (g != null) {
-                                    log.info("group {} created", g.getMetadata().getName());
-                                }
-                            } catch (BanyanDBException ex) {
-                                if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                                    log.info("group {} already created by another OAP node", this.group);
-                                } else {
-                                    throw ex;
-                                }
-                            }
-                        } else {
-                            if (this.checkGroupUpdate(client)) {
-                                client.update(gBuilder.build());
-                                log.info("group {} updated", this.group);
-                            }
-                        }
-                    }
-                    return resourceExist.hasResource();
-                default:
-                    throw new IllegalStateException("should not reach here");
-            }
         }
 
         /**
@@ -761,50 +628,15 @@ public enum MetadataRegistry {
 
         @Getter
         @Nullable
-        private final TopNSpec topNSpec;
+        private final TopNAggregation topNSpec;
 
         public ColumnSpec getSpec(String columnName) {
             return this.specs.get(columnName);
         }
 
-        public void installTopNAggregation(BanyanDBClient client) throws BanyanDBException {
-            if (this.getTopNSpec() == null) {
-                if (this.metadata.kind == Kind.MEASURE) {
-                    log.debug("skip null TopN Schema for [{}]", metadata.getModelName());
-                }
-                return;
-            }
-            TopNAggregation.Builder builder
-                    = TopNAggregation.newBuilder()
-                    .setMetadata(Metadata.newBuilder()
-                            .setGroup(getMetadata().getGroup())
-                            .setName(this.getTopNSpec().getName()))
-
-                    .setSourceMeasure(Metadata.newBuilder()
-                            .setGroup(getMetadata().getGroup())
-                            .setName(getMetadata().name()))
-                    .setFieldValueSort(this.getTopNSpec().getSort())
-                    .setFieldName(this.getTopNSpec().getFieldName())
-                    .addAllGroupByTagNames(this.getTopNSpec().getGroupByTagNames())
-                    .setCountersNumber(this.getTopNSpec().getCountersNumber())
-                    .setLruSize(this.getTopNSpec().getLruSize());
-            client.define(builder.build());
-            log.info("installed TopN schema for measure {}", getMetadata().name());
+        public static String formatTopNName(String measureName) {
+            return measureName + "_topn";
         }
-    }
-
-    @Builder
-    @EqualsAndHashCode
-    @Getter
-    @ToString
-    public static class TopNSpec {
-        private final String name;
-        @Singular
-        private final List<String> groupByTagNames;
-        private final String fieldName;
-        private final BanyandbModel.Sort sort;
-        private final int lruSize;
-        private final int countersNumber;
     }
 
     @RequiredArgsConstructor
@@ -817,12 +649,5 @@ public enum MetadataRegistry {
 
     public enum ColumnType {
         TAG, FIELD;
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class GroupSetting {
-        private int segmentIntervalDays;
     }
 }
