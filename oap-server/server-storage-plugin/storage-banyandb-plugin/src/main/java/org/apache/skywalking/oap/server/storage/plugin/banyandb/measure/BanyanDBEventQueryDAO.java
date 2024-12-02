@@ -121,14 +121,10 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
                 query.offset(page.getFrom());
                 if (queryOrder == Order.ASC) {
                     query.setOrderBy(
-                        new AbstractQuery.OrderBy(MetadataRegistry.getIndexRuleName(Event.INDEX_NAME, Event.START_TIME),
-                                                  AbstractQuery.Sort.ASC
-                        ));
+                        new AbstractQuery.OrderBy(Event.START_TIME, AbstractQuery.Sort.ASC));
                 } else {
                     query.setOrderBy(
-                        new AbstractQuery.OrderBy(MetadataRegistry.getIndexRuleName(Event.INDEX_NAME, Event.START_TIME),
-                                                  AbstractQuery.Sort.DESC
-                        ));
+                        new AbstractQuery.OrderBy(Event.START_TIME, AbstractQuery.Sort.DESC));
                 }
                 for (final EventQueryCondition condition : conditionList) {
                     List<PairQueryCondition<?>> queryConditions = new ArrayList<>();

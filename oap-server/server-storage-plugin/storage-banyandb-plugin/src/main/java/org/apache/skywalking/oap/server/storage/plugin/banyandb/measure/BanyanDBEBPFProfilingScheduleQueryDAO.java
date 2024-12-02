@@ -59,10 +59,7 @@ import java.util.stream.Collectors;
                  @Override
                  protected void apply(MeasureQuery query) {
                      query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
-                     query.setOrderBy(new AbstractQuery.OrderBy(
-                         MetadataRegistry.getIndexRuleName(EBPFProfilingScheduleRecord.INDEX_NAME,
-                                                           EBPFProfilingScheduleRecord.START_TIME
-                         ), AbstractQuery.Sort.DESC));
+                     query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingScheduleRecord.START_TIME, AbstractQuery.Sort.DESC));
                  }
              }
          );

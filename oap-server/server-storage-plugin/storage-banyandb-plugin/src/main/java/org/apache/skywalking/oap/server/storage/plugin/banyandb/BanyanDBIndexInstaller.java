@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -50,8 +52,8 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
     // BanyanDB group setting aligned with the OAP settings
-    private static final Set<String> GROUP_ALIGNED = new HashSet<>();
-
+    private static final Set<String/*group name*/> GROUP_ALIGNED = new HashSet<>();
+    private static final Map<String/*group name*/, Map<String/*rule name*/, IndexRule>> GROUP_INDEX_RULES = new HashMap<>();
     private final BanyanDBStorageConfig config;
 
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
@@ -82,7 +84,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         model, config, downSamplingConfigService);
                     if (!RunningMode.isNoInitMode()) {
                         checkStream(streamModel.getStream(), c);
-                        checkIndexRules(streamModel.getIndexRules(), c);
+                        checkIndexRules(model.getName(), streamModel.getIndexRules(), c);
                         checkIndexRuleBinding(
                             streamModel.getIndexRules(), metadata.getGroup(), metadata.name(),
                             BanyandbCommon.Catalog.CATALOG_STREAM, c
@@ -93,7 +95,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     MeasureModel measureModel = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, downSamplingConfigService);
                     if (!RunningMode.isNoInitMode()) {
                         checkMeasure(measureModel.getMeasure(), c);
-                        checkIndexRules(measureModel.getIndexRules(), c);
+                        checkIndexRules(model.getName(), measureModel.getIndexRules(), c);
                         checkIndexRuleBinding(
                             measureModel.getIndexRules(), metadata.getGroup(), metadata.name(),
                             BanyandbCommon.Catalog.CATALOG_MEASURE, c
@@ -126,10 +128,15 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     log.info("install stream schema {}", model.getName());
                     final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;
                     try {
+                        client.define(stream);
                         if (CollectionUtils.isNotEmpty(streamModel.getIndexRules())) {
-                            client.define(stream, streamModel.getIndexRules());
-                        } else {
-                            client.define(stream);
+                            for (IndexRule indexRule : streamModel.getIndexRules()) {
+                                defineIndexRule(model.getName(), indexRule, client);
+                            }
+                            defineIndexRuleBinding(
+                                streamModel.getIndexRules(), stream.getMetadata().getGroup(), stream.getMetadata().getName(),
+                                BanyandbCommon.Catalog.CATALOG_STREAM, client
+                            );
                         }
                     } catch (BanyanDBException ex) {
                         if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
@@ -150,10 +157,15 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     log.info("install measure schema {}", model.getName());
                     final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;
                     try {
+                        client.define(measure);
                         if (CollectionUtils.isNotEmpty(measureModel.getIndexRules())) {
-                            client.define(measure, measureModel.getIndexRules());
-                        } else {
-                            client.define(measure);
+                            for (IndexRule indexRule : measureModel.getIndexRules()) {
+                                defineIndexRule(model.getName(), indexRule, client);
+                            }
+                            defineIndexRuleBinding(
+                                measureModel.getIndexRules(), measure.getMetadata().getGroup(), measure.getMetadata().getName(),
+                                BanyandbCommon.Catalog.CATALOG_MEASURE, client
+                            );
                         }
                     } catch (BanyanDBException ex) {
                         if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
@@ -166,7 +178,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     }
                     final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
                     try {
-                        installTopNAggregation(schema, client);
+                        defineTopNAggregation(schema, client);
                     } catch (BanyanDBException ex) {
                         if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
                             log.info("Measure schema {}_{} TopN({}) already created by another OAP node",
@@ -270,7 +282,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         }
     }
 
-    private void installTopNAggregation(MetadataRegistry.Schema schema, BanyanDBClient client) throws BanyanDBException {
+    private void defineTopNAggregation(MetadataRegistry.Schema schema, BanyanDBClient client) throws BanyanDBException {
         if (schema.getTopNSpec() == null) {
             if (schema.getMetadata().getKind() == MetadataRegistry.Kind.MEASURE) {
                 log.debug("skip null TopN Schema for [{}]", schema.getMetadata().name());
@@ -283,6 +295,82 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         } catch (BanyanDBException ex) {
             if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
                 log.info("TopNAggregation {} already created by another OAP node", schema.getTopNSpec());
+            } else {
+                throw ex;
+            }
+        }
+    }
+
+    /**
+     * Check if the index rule conflicts with the exist one.
+     */
+    private void checkIndexRuleConflicts(String modelName, IndexRule indexRule, IndexRule existRule) {
+        if (!existRule.equals(indexRule)) {
+            throw new IllegalStateException(
+                "conflict index rule in model: " + modelName + ": " + indexRule + " vs exist rule: " + existRule);
+        }
+    }
+
+    /**
+     * Check if the index rule has been processed.
+     * If the index rule has been processed, return true.
+     * Otherwise, return false and mark the index rule as processed.
+     */
+    private boolean checkIndexRuleProcessed(String modelName, IndexRule indexRule) {
+        Map<String, IndexRule> rules = GROUP_INDEX_RULES.computeIfAbsent(
+            indexRule.getMetadata().getGroup(), k -> new HashMap<>());
+        IndexRule existRule = rules.get(indexRule.getMetadata().getName());
+        if (existRule != null) {
+            checkIndexRuleConflicts(modelName, indexRule, existRule);
+            return true;
+        } else {
+            rules.put(indexRule.getMetadata().getName(), indexRule);
+            return false;
+        }
+    }
+
+    /**
+     * Define the index rule if not exist and no conflict.
+     */
+    private void defineIndexRule(String modelName,
+                                 IndexRule indexRule,
+                                 BanyanDBClient client) throws BanyanDBException {
+        if (checkIndexRuleProcessed(modelName, indexRule)) {
+            return;
+        }
+        try {
+            client.define(indexRule);
+            log.info("new IndexRule created: {}", indexRule.getMetadata().getName());
+        } catch (BanyanDBException ex) {
+            if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                log.info("IndexRule {} already created by another OAP node", indexRule.getMetadata().getName());
+            } else {
+                throw ex;
+            }
+        }
+    }
+
+    private void defineIndexRuleBinding(List<IndexRule> indexRules,
+                                        String group,
+                                        String name,
+                                        BanyandbCommon.Catalog catalog,
+                                        BanyanDBClient client) throws BanyanDBException {
+        List<String> indexRuleNames = indexRules.stream().map(indexRule -> indexRule.getMetadata().getName()).collect(
+            Collectors.toList());
+        try {
+            client.define(IndexRuleBinding.newBuilder()
+                                          .setMetadata(BanyandbCommon.Metadata.newBuilder()
+                                                                              .setGroup(group)
+                                                                              .setName(name))
+                                          .setSubject(BanyandbDatabase.Subject.newBuilder()
+                                                                              .setName(name)
+                                                                              .setCatalog(catalog))
+                                          .addAllRules(indexRuleNames)
+                                          .build());
+            log.info("new IndexRuleBinding created: {}", name);
+        } catch (BanyanDBException ex) {
+            if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                log.info("IndexRuleBinding {} already created by another OAP node", name);
             } else {
                 throw ex;
             }
@@ -332,8 +420,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     /**
      * Check if the index rules exist and update them if necessary
      */
-    private void checkIndexRules(List<IndexRule> indexRules, BanyanDBClient client) throws BanyanDBException {
+    private void checkIndexRules(String modelName, List<IndexRule> indexRules, BanyanDBClient client) throws BanyanDBException {
         for (IndexRule indexRule : indexRules) {
+            if (checkIndexRuleProcessed(modelName, indexRule)) {
+                return;
+            }
             IndexRule hisIndexRule = client.findIndexRule(
                 indexRule.getMetadata().getGroup(), indexRule.getMetadata().getName());
             if (hisIndexRule == null) {
@@ -419,12 +510,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     "update IndexRuleBinding: {} from: {} to: {}", hisIndexRuleBinding.getMetadata().getName(),
                     hisIndexRuleBinding, indexRuleBinding
                 );
-                for (String rule : hisIndexRuleBinding.getRulesList()) {
-                    if (!indexRuleNames.contains(rule)) {
-                        client.deleteIndexRule(group, rule);
-                        log.info("delete deprecated IndexRule: {} from: {}", rule, name);
-                    }
-                }
             }
         }
     }

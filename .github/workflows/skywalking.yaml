@@ -436,7 +436,7 @@ jobs:
           - name: Log ES 7.17.10
             config: test/e2e-v2/cases/log/es/e2e.yaml
             env: ES_VERSION=7.17.10
-          - name: Log ES 8.8.1 Shardng
+          - name: Log ES 8.8.1 Sharding
             config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
             env: ES_VERSION=8.8.1
           - name: Log BanyanDB

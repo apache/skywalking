@@ -150,7 +150,7 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
 
         if (model.getBanyanDBModelExtension().isStoreIDTag()) {
-            indexRules.add(indexRule(schemaMetadata.group, model.getName(), BanyanDBConverter.ID, null));
+            indexRules.add(indexRule(schemaMetadata.group, BanyanDBConverter.ID, null));
         }
 
         final Measure.Builder builder = Measure.newBuilder();
@@ -290,14 +290,9 @@ public enum MetadataRegistry {
         }
     }
 
-    public static String getIndexRuleName(String modelName, String tagName) {
-        return StringUtil.join('.', modelName, tagName);
-    }
-
-    IndexRule indexRule(String group, String modelName, String tagName, BanyanDB.MatchQuery.AnalyzerType analyzer) {
+    IndexRule indexRule(String group, String tagName, BanyanDB.MatchQuery.AnalyzerType analyzer) {
         IndexRule.Builder builder = IndexRule.newBuilder()
-                                             .setMetadata(Metadata.newBuilder().setName(
-                                                 getIndexRuleName(modelName, tagName)).setGroup(group))
+                                             .setMetadata(Metadata.newBuilder().setName(tagName).setGroup(group))
                                              .setType(IndexRule.Type.TYPE_INVERTED).addTags(tagName);
         if (analyzer != null) {
             switch (analyzer) {
@@ -359,7 +354,7 @@ public enum MetadataRegistry {
             if (col.getBanyanDBExtension().shouldIndex()) {
                 if (!shardingColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
                     tagMetadataList.add(new TagMetadata(
-                            indexRule(group, model.getName(), tagSpec.getName(), col.getBanyanDBExtension().getAnalyzer()), tagSpec));
+                            indexRule(group, tagSpec.getName(), col.getBanyanDBExtension().getAnalyzer()), tagSpec));
                 } else {
                     tagMetadataList.add(new TagMetadata(null, tagSpec));
                 }
@@ -406,7 +401,7 @@ public enum MetadataRegistry {
             if (col.getBanyanDBExtension().shouldIndex()) {
                 if (!shardingColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
                     result.tag(new TagMetadata(
-                            indexRule(group, model.getName(), tagSpec.getName(), col.getBanyanDBExtension().getAnalyzer()), tagSpec));
+                            indexRule(group, tagSpec.getName(), col.getBanyanDBExtension().getAnalyzer()), tagSpec));
                 } else {
                     result.tag(new TagMetadata(null, tagSpec));
                 }
