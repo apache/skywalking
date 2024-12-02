@@ -55,13 +55,14 @@ import java.util.stream.Collectors;
          MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EBPFProfilingScheduleRecord.INDEX_NAME, DownSampling.Minute);
          MeasureQueryResponse resp = query(schema,
                  TAGS,
-                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                     @Override
-                     protected void apply(MeasureQuery query) {
-                         query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
-                         query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingScheduleRecord.START_TIME, AbstractQuery.Sort.DESC));
-                     }
-                 });
+                                           Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
+                 @Override
+                 protected void apply(MeasureQuery query) {
+                     query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
+                     query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingScheduleRecord.START_TIME, AbstractQuery.Sort.DESC));
+                 }
+             }
+         );
 
          return resp.getDataPoints().stream().map(this::buildEBPFProfilingSchedule).collect(Collectors.toList());
      }
