@@ -31,6 +31,7 @@
 * BanyanDB: Support update the Group settings when OAP starting.
 * BanyanDB: Introduce index mode and refactor banyandb group settings.
 * BanyanDB: Support update the Schema when OAP starting.
+* BanyanDB: Speed up OAP booting while initializing BanyanDB.
 
 #### UI
 
