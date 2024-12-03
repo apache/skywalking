@@ -18,7 +18,7 @@ FROM bitnami/kafka:2.4.1
 
 # Download the JMX Prometheus Java Agent and config file
 ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar /etc/jmx_prometheus_javaagent-0.18.0.jar
-ADD https://raw.githubusercontent.com/prometheus/jmx_exporter/main/example_configs/kafka-2_0_0.yml /etc/kafka-2_0_0.yml
+ADD https://raw.githubusercontent.com/prometheus/jmx_exporter/91622ad478015364444e5d63475d1673c09e6268/examples/kafka-2_0_0.yml /etc/kafka-2_0_0.yml
 
 # Set the necessary permissions for the jar and yml
 USER root
