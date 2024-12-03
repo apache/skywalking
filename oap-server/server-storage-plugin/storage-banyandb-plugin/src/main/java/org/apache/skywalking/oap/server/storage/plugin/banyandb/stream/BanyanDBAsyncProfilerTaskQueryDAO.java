@@ -49,7 +49,8 @@ public class BanyanDBAsyncProfilerTaskQueryDAO extends AbstractBanyanDBDAO imple
             AsyncProfilerTaskRecord.TASK_ID,
             AsyncProfilerTaskRecord.CREATE_TIME,
             AsyncProfilerTaskRecord.DURATION,
-            AsyncProfilerTaskRecord.EVENT_TYPES
+            AsyncProfilerTaskRecord.EVENT_TYPES,
+            AsyncProfilerTaskRecord.EXEC_ARGS
     );
 
     private final int queryMaxSize;
