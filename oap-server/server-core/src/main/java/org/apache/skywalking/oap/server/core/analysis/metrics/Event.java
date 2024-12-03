@@ -109,6 +109,7 @@ public class Event extends Metrics {
     private String parameters;
 
     @ElasticSearch.EnableDocValues
+    @BanyanDB.EnableSort
     @Column(name = START_TIME)
     private long startTime;
 

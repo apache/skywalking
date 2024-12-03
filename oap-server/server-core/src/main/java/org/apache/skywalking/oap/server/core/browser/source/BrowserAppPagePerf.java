@@ -40,7 +40,8 @@ public class BrowserAppPagePerf extends BrowserAppPerfSource {
     }
 
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    @ScopeDefaultColumn.BanyanDB(groupByCondInTopN = true)
     private String serviceId;
     @Getter
     @Setter

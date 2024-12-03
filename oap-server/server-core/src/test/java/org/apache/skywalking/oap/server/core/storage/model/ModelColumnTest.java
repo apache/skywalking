@@ -49,7 +49,10 @@ public class ModelColumnTest {
                                              new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
                                                  ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, null, false, false, true),
-                                             new BanyanDBExtension(-1, true, BanyanDB.IndexRule.IndexType.INVERTED, false, BanyanDB.MatchQuery.AnalyzerType.SIMPLE)
+                                             new BanyanDBExtension(
+                                                 -1, true, BanyanDB.IndexRule.IndexType.INVERTED, false,
+                                                 BanyanDB.MatchQuery.AnalyzerType.SIMPLE, true
+                                             )
         );
         Assertions.assertTrue(column.isStorageOnly());
         Assertions.assertEquals("abc", column.getColumnName().getName());
@@ -58,7 +61,10 @@ public class ModelColumnTest {
                                  false, false, true, 200,
                                  new SQLDatabaseExtension(),
                                  new ElasticSearchExtension(ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, null, false, false, true),
-                                 new BanyanDBExtension(-1, true, BanyanDB.IndexRule.IndexType.INVERTED, false, BanyanDB. MatchQuery.AnalyzerType.SIMPLE)
+                                 new BanyanDBExtension(
+                                     -1, true, BanyanDB.IndexRule.IndexType.INVERTED, false,
+                                     BanyanDB.MatchQuery.AnalyzerType.SIMPLE, true
+                                 )
         );
         Assertions.assertTrue(column.isStorageOnly());
         Assertions.assertEquals("abc", column.getColumnName().getName());
@@ -68,7 +74,7 @@ public class ModelColumnTest {
                                  false, false, true, 200,
                                  new SQLDatabaseExtension(),
                                  new ElasticSearchExtension(ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, null, false, false, true),
-                                 new BanyanDBExtension(-1, true, BanyanDB.IndexRule.IndexType.INVERTED, false, BanyanDB.MatchQuery.AnalyzerType.SIMPLE)
+                                 new BanyanDBExtension(-1, true, BanyanDB.IndexRule.IndexType.INVERTED, false, BanyanDB.MatchQuery.AnalyzerType.SIMPLE, true)
         );
         Assertions.assertFalse(column.isStorageOnly());
         Assertions.assertEquals("abc", column.getColumnName().getName());
@@ -82,7 +88,10 @@ public class ModelColumnTest {
                     new SQLDatabaseExtension(),
                     new ElasticSearchExtension(
                             ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, "abc", false, false, true),
-                    new BanyanDBExtension(-1, true, BanyanDB.IndexRule.IndexType.INVERTED, false, BanyanDB.MatchQuery.AnalyzerType.SIMPLE)
+                            new BanyanDBExtension(
+                                -1, true, BanyanDB.IndexRule.IndexType.INVERTED, false,
+                                BanyanDB.MatchQuery.AnalyzerType.SIMPLE, true
+                            )
             );
         });
     }
@@ -95,7 +104,9 @@ public class ModelColumnTest {
                     new SQLDatabaseExtension(),
                     new ElasticSearchExtension(
                             ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, "abc", false, false, true),
-                    new BanyanDBExtension(-1, true, BanyanDB.IndexRule.IndexType.INVERTED, false, BanyanDB.MatchQuery.AnalyzerType.SIMPLE)
+                            new BanyanDBExtension(-1, true, BanyanDB.IndexRule.IndexType.INVERTED, false,
+                                                  BanyanDB.MatchQuery.AnalyzerType.SIMPLE, true
+                            )
             );
         });
     }
@@ -110,7 +121,23 @@ public class ModelColumnTest {
                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, "abc", false, false, true),
                             new BanyanDBExtension(
                                 -1, false, BanyanDB.IndexRule.IndexType.INVERTED, false,
-                                BanyanDB.MatchQuery.AnalyzerType.SIMPLE
+                                BanyanDB.MatchQuery.AnalyzerType.SIMPLE, true
+                            )
+            );
+        });
+    }
+
+    @Test
+    public void testConflictDefinitionEnableSort() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ModelColumn(new ColumnName(c), String.class, String.class,
+                            true, false, false, 200,
+                            new SQLDatabaseExtension(),
+                            new ElasticSearchExtension(
+                                ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, "abc", false, false, true),
+                            new BanyanDBExtension(
+                                -1, false, BanyanDB.IndexRule.IndexType.INVERTED, true,
+                                null, true
                             )
             );
         });

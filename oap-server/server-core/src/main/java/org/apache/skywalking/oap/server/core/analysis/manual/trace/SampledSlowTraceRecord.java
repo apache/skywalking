@@ -62,6 +62,7 @@ public class SampledSlowTraceRecord extends Record {
     @Column(name = URI, storageOnly = true)
     private String uri;
     @ElasticSearch.EnableDocValues
+    @BanyanDB.EnableSort
     @Column(name = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Setter

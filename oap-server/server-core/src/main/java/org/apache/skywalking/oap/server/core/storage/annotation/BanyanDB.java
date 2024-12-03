@@ -208,6 +208,15 @@ public @interface BanyanDB {
     }
 
     /**
+     * EnableSort is used to indicate the IndexRule supports sorting.
+     * @since 10.2.0
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface EnableSort {
+    }
+
+    /**
      * IndexMode is used to indicate the index mode of the metric.
      * All columns in the metric will be stored in the index exclusively.
      *

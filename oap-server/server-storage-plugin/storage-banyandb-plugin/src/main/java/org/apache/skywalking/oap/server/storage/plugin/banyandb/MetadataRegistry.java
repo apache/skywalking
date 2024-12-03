@@ -84,16 +84,16 @@ public enum MetadataRegistry {
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
-        // parse and set sharding keys
-        List<String> shardingColumns = parseEntityNames(modelColumnMap);
-        if (shardingColumns.isEmpty()) {
-            throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
+        // parse and set seriesIDs
+        List<String> seriesIDColumns = parseEntityNames(modelColumnMap);
+        if (seriesIDColumns.isEmpty()) {
+            throw new IllegalStateException("seriesID of model[stream." + model.getName() + "] must not be empty");
         }
         // parse tag metadata
         // this can be used to build both
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
-        List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder, shardingColumns, schemaMetadata.group);
+        List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder, seriesIDColumns, schemaMetadata.group);
         List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags, false);
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
@@ -115,7 +115,7 @@ public enum MetadataRegistry {
         final Stream.Builder builder = Stream.newBuilder();
         builder.setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(schemaMetadata.getGroup())
                 .setName(schemaMetadata.name()));
-        builder.setEntity(BanyandbDatabase.Entity.newBuilder().addAllTagNames(shardingColumns));
+        builder.setEntity(BanyandbDatabase.Entity.newBuilder().addAllTagNames(seriesIDColumns));
         builder.addAllTagFamilies(tagFamilySpecs);
 
         registry.put(schemaMetadata.name(), schemaBuilder.build());
@@ -127,16 +127,16 @@ public enum MetadataRegistry {
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
-        // parse and set sharding keys
-        List<String> shardingColumns = parseEntityNames(modelColumnMap);
-        if (shardingColumns.isEmpty()) {
+        // parse and set seriesIDs
+        List<String> seriesIDColumns = parseEntityNames(modelColumnMap);
+        if (seriesIDColumns.isEmpty()) {
             throw new StorageException("model " + model.getName() + " doesn't contain series id");
         }
         // parse tag metadata
         // this can be used to build both
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
-        MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(model, schemaBuilder, shardingColumns, schemaMetadata.group);
+        MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(model, schemaBuilder, seriesIDColumns, schemaMetadata.group);
         List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags, model.getBanyanDBModelExtension().isStoreIDTag());
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
@@ -150,14 +150,14 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
 
         if (model.getBanyanDBModelExtension().isStoreIDTag()) {
-            indexRules.add(indexRule(schemaMetadata.group, BanyanDBConverter.ID, null));
+            indexRules.add(indexRule(schemaMetadata.group, BanyanDBConverter.ID, false, null));
         }
 
         final Measure.Builder builder = Measure.newBuilder();
         builder.setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(schemaMetadata.getGroup())
                 .setName(schemaMetadata.name()));
         builder.setInterval(downSamplingDuration(model.getDownsampling()).format());
-        builder.setEntity(BanyandbDatabase.Entity.newBuilder().addAllTagNames(shardingColumns));
+        builder.setEntity(BanyandbDatabase.Entity.newBuilder().addAllTagNames(seriesIDColumns));
         builder.addAllTagFamilies(tagFamilySpecs);
         if (model.getBanyanDBModelExtension().isIndexMode()) {
             builder.setIndexMode(true);
@@ -290,10 +290,12 @@ public enum MetadataRegistry {
         }
     }
 
-    IndexRule indexRule(String group, String tagName, BanyanDB.MatchQuery.AnalyzerType analyzer) {
+    IndexRule indexRule(String group, String tagName, boolean enableSort,  BanyanDB.MatchQuery.AnalyzerType analyzer) {
         IndexRule.Builder builder = IndexRule.newBuilder()
                                              .setMetadata(Metadata.newBuilder().setName(tagName).setGroup(group))
                                              .setType(IndexRule.Type.TYPE_INVERTED).addTags(tagName);
+        // *Notice*: here is a reverse logic, if enableSort is true, then setNoSort is false
+        builder.setNoSort(!enableSort);
         if (analyzer != null) {
             switch (analyzer) {
                 case KEYWORD:
@@ -316,20 +318,20 @@ public enum MetadataRegistry {
     }
 
     /**
-     * Parse sharding keys from the {@link Model}
+     * Parse SeriesID from the {@link Model}
      *
      * @param modelColumnMap the mapping between column storageName and {@link ModelColumn}
      * @return a list of column names in strict order
      */
     List<String> parseEntityNames(Map<String, ModelColumn> modelColumnMap) {
-        List<ModelColumn> shardingColumns = new ArrayList<>();
+        List<ModelColumn> seriesIDColumns = new ArrayList<>();
         for (final ModelColumn col : modelColumnMap.values()) {
-            if (col.getBanyanDBExtension().isShardingKey()) {
-                shardingColumns.add(col);
+            if (col.getBanyanDBExtension().isSeriesID()) {
+                seriesIDColumns.add(col);
             }
         }
-        return shardingColumns.stream()
-                .sorted(Comparator.comparingInt(col -> col.getBanyanDBExtension().getShardingKeyIdx()))
+        return seriesIDColumns.stream()
+                .sorted(Comparator.comparingInt(col -> col.getBanyanDBExtension().getSeriesIDIdx()))
                 .map(col -> col.getColumnName().getName())
                 .collect(Collectors.toList());
     }
@@ -341,7 +343,7 @@ public enum MetadataRegistry {
      *
      * @since 9.4.0 Skip {@link Record#TIME_BUCKET}
      */
-    List<TagMetadata> parseTagMetadata(Model model, Schema.SchemaBuilder builder, List<String> shardingColumns, String group) {
+    List<TagMetadata> parseTagMetadata(Model model, Schema.SchemaBuilder builder, List<String> seriesIDColumns, String group) {
         List<TagMetadata> tagMetadataList = new ArrayList<>();
         for (final ModelColumn col : model.getColumns()) {
             final String columnStorageName = col.getColumnName().getStorageName();
@@ -352,9 +354,12 @@ public enum MetadataRegistry {
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
             if (col.getBanyanDBExtension().shouldIndex()) {
-                if (!shardingColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
+                if (!seriesIDColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
                     tagMetadataList.add(new TagMetadata(
-                            indexRule(group, tagSpec.getName(), col.getBanyanDBExtension().getAnalyzer()), tagSpec));
+                        indexRule(
+                            group, tagSpec.getName(), col.getBanyanDBExtension().isEnableSort(),
+                            col.getBanyanDBExtension().getAnalyzer()
+                        ), tagSpec));
                 } else {
                     tagMetadataList.add(new TagMetadata(null, tagSpec));
                 }
@@ -381,7 +386,7 @@ public enum MetadataRegistry {
      *
      * @since 9.4.0 Skip {@link Metrics#TIME_BUCKET}
      */
-    MeasureMetadata parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder, List<String> shardingColumns, String group) {
+    MeasureMetadata parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder, List<String> seriesIDColumns, String group) {
         // skip metric
         MeasureMetadata.MeasureMetadataBuilder result = MeasureMetadata.builder();
         for (final ModelColumn col : model.getColumns()) {
@@ -399,9 +404,12 @@ public enum MetadataRegistry {
             String colName = col.getColumnName().getStorageName();
 
             if (col.getBanyanDBExtension().shouldIndex()) {
-                if (!shardingColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
+                if (!seriesIDColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
                     result.tag(new TagMetadata(
-                            indexRule(group, tagSpec.getName(), col.getBanyanDBExtension().getAnalyzer()), tagSpec));
+                        indexRule(
+                            group, tagSpec.getName(), col.getBanyanDBExtension().isEnableSort(),
+                            col.getBanyanDBExtension().getAnalyzer()
+                        ), tagSpec));
                 } else {
                     result.tag(new TagMetadata(null, tagSpec));
                 }
