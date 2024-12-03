@@ -77,7 +77,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
                 if (ext == null) {
                     return;
                 }
-                if (ext.isShardingKey()) {
+                if (ext.isSeriesID()) {
                     seriesIDColumns.put(c.getColumnName().getName(), new ArrayList<>());
                 }
             });

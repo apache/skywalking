@@ -32,6 +32,7 @@
 * BanyanDB: Introduce index mode and refactor banyandb group settings.
 * BanyanDB: Support update the Schema when OAP starting.
 * BanyanDB: Speed up OAP booting while initializing BanyanDB.
+* BanyanDB: Support `@EnableSort` on the column to enable sorting for `IndexRule` and set the default to false.
 
 #### UI
 

@@ -91,6 +91,7 @@ public class SegmentRecord extends Record {
     @Setter
     @Getter
     @ElasticSearch.EnableDocValues
+    @BanyanDB.EnableSort
     @Column(name = LATENCY)
     private int latency;
     @Setter

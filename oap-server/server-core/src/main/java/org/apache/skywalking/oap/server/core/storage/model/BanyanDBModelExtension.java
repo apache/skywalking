@@ -42,7 +42,7 @@ public class BanyanDBModelExtension {
 
     /**
      * storeIDTag indicates whether a metric stores its ID as a tag.
-     * The installer will create a virtual string ID tag with a tree index rule.
+     * The installer will create a virtual string ID tag without timestamp.
      */
     @Getter
     @Setter

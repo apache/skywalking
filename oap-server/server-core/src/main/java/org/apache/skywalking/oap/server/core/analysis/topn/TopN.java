@@ -39,6 +39,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     @Getter
     @Setter
     @ElasticSearch.EnableDocValues
+    @BanyanDB.EnableSort
     @Column(name = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Getter

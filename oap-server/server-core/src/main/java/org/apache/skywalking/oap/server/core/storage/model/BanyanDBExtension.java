@@ -30,14 +30,14 @@ import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 @RequiredArgsConstructor
 public class BanyanDBExtension {
     /**
-     * Sharding key is used to group time series data per metric of one entity. See {@link
+     * SeriesID is used to group time series data per metric of one entity. See {@link
      * BanyanDB.SeriesID#index()}.
      *
      * @since 9.1.0 moved into BanyanDBExtension
      * @since 9.0.0 added into {@link ModelColumn}
      */
     @Getter
-    private final int shardingKeyIdx;
+    private final int seriesIDIdx;
 
     /**
      * {@link BanyanDB.NoIndexing} exists to override {@link ModelColumn#shouldIndex()}, or be the same as {@link
@@ -64,15 +64,22 @@ public class BanyanDBExtension {
 
     /**
      * The analyzer policy appointed to fuzzy query, especially for BanyanDB.
+     * See {@link BanyanDB.MatchQuery}.
      */
     @Getter
     private final BanyanDB.MatchQuery.AnalyzerType analyzer;
 
     /**
-     * @return true if this column is a part of sharding key
+     * Enable sort for this column. See {@link BanyanDB.EnableSort}.
      */
-    public boolean isShardingKey() {
-        return this.shardingKeyIdx > -1;
+    @Getter
+    private final boolean enableSort;
+
+    /**
+     * @return true if this column is a part of SeriesID
+     */
+    public boolean isSeriesID() {
+        return this.seriesIDIdx > -1;
     }
 
     /**
