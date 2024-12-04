@@ -53,7 +53,7 @@
 * Refactor copy util with Web API.
 * Releases an existing object URL.
 * Optimize Trace Profiling widget.
-* implement Async Profiling widget.
+* Implement Async Profiling widget.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
