@@ -50,7 +50,10 @@
 * Split topology metric query to avoid exceeding the maximum query complexity.
 * Fix view metrics related trace and metrics query.
 * Add support collapse span.
-
+* Refactor copy util with Web API.
+* Releases an existing object URL.
+* Optimize Trace Profiling widget.
+* Implement Async Profiling widget.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
