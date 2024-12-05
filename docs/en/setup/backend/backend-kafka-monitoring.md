@@ -13,7 +13,7 @@ Kafka entity as a `Service` in OAP and on the `Layer: KAFKA`.
 
 ## Setup
 
-1. Setup [prometheus_JMX_Exporter](https://github.com/prometheus/jmx_exporter). This is an example for JMX Exporter configuration [kafka-2_0_0.yml](https://github.com/prometheus/jmx_exporter/blob/main/example_configs/kafka-2_0_0.yml).
+1. Setup [prometheus_JMX_Exporter](https://github.com/prometheus/jmx_exporter). This is an example for JMX Exporter configuration [kafka-2_0_0.yml](https://raw.githubusercontent.com/prometheus/jmx_exporter/91622ad478015364444e5d63475d1673c09e6268/examples/kafka-2_0_0.yml).
 2. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). The example
    for OpenTelemetry Collector configuration, refer
    to [here](../../../../test/e2e-v2/cases/kafka/kafka-monitoring/otel-collector-config.yaml).
