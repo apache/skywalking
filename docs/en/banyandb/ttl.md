@@ -1,6 +1,8 @@
-# Native TTL
+# Progressive TTL
 
-BanyanDB employs a Time-To-Live (TTL) mechanism to automatically delete data older than the specified duration. When using BanyanDB as the storage backend, the `recordDataTTL` and `metricsDataTTL` configurations are deprecated. Instead, TTL settings should be configured directly within `storage.banyandb`.
+Progressive TTL provides a capability to manage data retention with different TTL settings and Segment Creation Policies based on the time granularity of metrics.
+
+BanyanDB employs a Time-To-Live (TTL) mechanism to automatically delete data older than the specified duration. When using BanyanDB as the storage backend, **the `recordDataTTL` and `metricsDataTTL` configurations are deprecated**. Instead, TTL settings should be configured directly within `storage.banyandb`.
 
 For detailed information, please refer to the [Storage BanyanDB](../setup/backend/storages/banyandb.md) documentation.
 
