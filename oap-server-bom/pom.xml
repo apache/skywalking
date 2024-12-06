@@ -73,12 +73,13 @@
         <httpcore.version>4.4.13</httpcore.version>
         <httpasyncclient.version>4.1.5</httpasyncclient.version>
         <commons-compress.version>1.21</commons-compress.version>
-        <banyandb-java-client.version>0.7.0</banyandb-java-client.version>
+        <banyandb-java-client.version>0.8.0-rc0</banyandb-java-client.version>
         <kafka-clients.version>3.4.0</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
         <consul.client.version>1.5.3</consul.client.version>
         <commons-net.version>3.9.0</commons-net.version>
         <maven-core.version>3.9.0</maven-core.version>
+        <async-profiler-converter.version>3.0</async-profiler-converter.version>
     </properties>
 
     <dependencyManagement>
@@ -671,6 +672,12 @@
                 <artifactId>maven-plugin-annotations</artifactId>
                 <version>${maven-core.version}</version>
                 <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.profiler</groupId>
+                <artifactId>async-profiler-converter</artifactId>
+                <version>${async-profiler-converter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

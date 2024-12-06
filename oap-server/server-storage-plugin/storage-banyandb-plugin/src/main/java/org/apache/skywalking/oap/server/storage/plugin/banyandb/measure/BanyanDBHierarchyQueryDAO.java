@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.hierarchy.service.ServiceHierarchyR
 import org.apache.skywalking.oap.server.core.storage.query.IHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
@@ -52,9 +53,11 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
         InstanceHierarchyRelationTraffic.RELATED_INSTANCE_ID,
         InstanceHierarchyRelationTraffic.RELATED_SERVICE_LAYER
     );
+    private final int limit;
 
-    public BanyanDBHierarchyQueryDAO(final BanyanDBStorageClient client) {
+    public BanyanDBHierarchyQueryDAO(final BanyanDBStorageClient client, BanyanDBStorageConfig config) {
         super(client);
+        this.limit = config.getMetadataQueryMaxSize();
     }
 
     @Override
@@ -65,6 +68,7 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
                                           Collections.emptySet(), new QueryBuilder<>() {
                 @Override
                 protected void apply(MeasureQuery query) {
+                    query.limit(limit);
                 }
             }
         );

@@ -16,16 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.type.event;
+package org.apache.skywalking.oap.server.library.jfr.type;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@Data
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
-public class EventPair {
-    private JFREventType type;
-    private Event event;
+public enum JFREventType {
+    UNKNOWN(-1),
+    EXECUTION_SAMPLE(1),
+    JAVA_MONITOR_ENTER(2),
+    THREAD_PARK(3),
+    OBJECT_ALLOCATION_IN_NEW_TLAB(4),
+    OBJECT_ALLOCATION_OUTSIDE_TLAB(5),
+    PROFILER_LIVE_OBJECT(6),
+    // LOCK is a combination of JAVA_MONITOR_ENTER and THREAD_PARK
+    LOCK(6);
+
+    private final int code;
+
+    public static boolean isLockSample(JFREventType type) {
+        return LOCK.equals(type) || JAVA_MONITOR_ENTER.equals(type) || THREAD_PARK.equals(type);
+    }
 }

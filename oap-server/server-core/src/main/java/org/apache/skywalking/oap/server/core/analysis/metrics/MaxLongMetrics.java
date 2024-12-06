@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 @MetricsFunction(functionName = "max")
 public abstract class MaxLongMetrics extends Metrics implements LongValueHolder {
@@ -33,6 +34,7 @@ public abstract class MaxLongMetrics extends Metrics implements LongValueHolder 
 
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
     @BanyanDB.MeasureField
     private long value;

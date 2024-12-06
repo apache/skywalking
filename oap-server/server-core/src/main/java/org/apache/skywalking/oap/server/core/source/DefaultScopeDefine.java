@@ -234,12 +234,18 @@ public class DefaultScopeDefine {
             for (Field field : scopeClassField) {
                 ScopeDefaultColumn.DefinedByField definedByField = field.getAnnotation(
                     ScopeDefaultColumn.DefinedByField.class);
+                ScopeDefaultColumn.BanyanDB banyanDB = field.getAnnotation(
+                    ScopeDefaultColumn.BanyanDB.class);
+                boolean groupByCondInTopN = false;
+                if (banyanDB != null) {
+                    groupByCondInTopN = banyanDB.groupByCondInTopN();
+                }
                 if (definedByField != null) {
                     if (!definedByField.requireDynamicActive() || ACTIVE_EXTRA_MODEL_COLUMNS) {
                         scopeDefaultColumns.add(
                             new ScopeDefaultColumn(
                                 field.getName(), definedByField.columnName(), field.getType(), false,
-                                definedByField.length(), definedByField.groupByCondInTopN(), definedByField.isAttribute()
+                                definedByField.length(), groupByCondInTopN, definedByField.isAttribute()
                             ));
                     }
                 }

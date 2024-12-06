@@ -34,7 +34,7 @@
         <logger name="org.apache.skywalking.oap.server.storage.plugin.elasticsearch" level="DEBUG"/>
         <logger name="org.apache.skywalking.oap.server.core.storage.ttl" level="DEBUG"/>
         <logger name="org.apache.skywalking.library.elasticsearch" level="DEBUG"/>
-        <Root level="INFO">
+        <Root level="DEBUG">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

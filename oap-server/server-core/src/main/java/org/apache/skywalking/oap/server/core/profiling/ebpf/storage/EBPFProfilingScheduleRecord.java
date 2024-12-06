@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -50,6 +51,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
     "processId",
     "startTime",
 })
+@BanyanDB.IndexMode
 public class EBPFProfilingScheduleRecord extends Metrics {
 
     public static final String INDEX_NAME = "ebpf_profiling_schedule";
@@ -64,6 +66,8 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     private String taskId;
     @Column(name = PROCESS_ID, length = 600)
     private String processId;
+    @ElasticSearch.EnableDocValues
+    @BanyanDB.EnableSort
     @Column(name = START_TIME)
     private long startTime;
     @Column(name = END_TIME)

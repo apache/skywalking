@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +66,9 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
         }
 
         final Struct metadata = requireNonNull(extractStructFromNodeFlatBuffer(flatNode));
+        if (log.isDebugEnabled()) {
+            log.debug("Node metadata: {}", metadata);
+        }
         FieldsHelper.forClass(this.getClass().getSuperclass()).inflate(metadata, this);
         appendTags(metadata);
     }
@@ -111,16 +115,26 @@ public class ServiceMetaInfoAdapter extends ServiceMetaInfo {
     public ServiceMetaInfoAdapter(final Struct metadata) {
         FieldsHelper.forClass(this.getClass().getSuperclass()).inflate(requireNonNull(metadata), this);
         appendTags(requireNonNull(metadata));
+        if (log.isDebugEnabled()) {
+            log.info("Metadata is converted to: {}", this);
+        }
     }
 
     private void appendTags(Struct metadata) {
-        final Map<String, Value> fieldsMap = metadata.getFieldsMap();
+        final Map<String, Value> fieldsMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        fieldsMap.putAll(metadata.getFieldsMap());
+        if (log.isDebugEnabled()) {
+            log.debug("Metadata field map: {}", fieldsMap);
+        }
         final List<KeyValue> tags = new ArrayList<>();
         if (fieldsMap.containsKey("NAME")) {
             tags.add(new KeyValue("pod", fieldsMap.get("NAME").getStringValue()));
         }
         if (fieldsMap.containsKey("NAMESPACE")) {
             tags.add(new KeyValue("namespace", fieldsMap.get("NAMESPACE").getStringValue()));
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Converted tags: {}", tags);
         }
         if (!tags.isEmpty()) {
             this.setTags(tags);

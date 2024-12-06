@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
     builder = InstanceHierarchyRelationTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
 @EqualsAndHashCode(callSuper = false)
+@BanyanDB.IndexMode
 public class InstanceHierarchyRelationTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_hierarchy_relation";
     public static final String SERVICE_LAYER = "service_layer";

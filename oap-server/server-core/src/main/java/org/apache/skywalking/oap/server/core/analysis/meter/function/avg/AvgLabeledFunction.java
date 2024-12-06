@@ -50,6 +50,7 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
 
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;

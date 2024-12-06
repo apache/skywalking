@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @EqualsAndHashCode(of = {
     "entityId"
 }, callSuper = true)
+@BanyanDB.IndexMode
 public class ServiceRelationServerSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_relation_server_side";
@@ -61,9 +62,11 @@ public class ServiceRelationServerSideMetrics extends Metrics {
     @Getter
     @Column(name = COMPONENT_IDS, storageOnly = true)
     @ElasticSearch.Keyword
+    @ElasticSearch.EnableDocValues
     private IntList componentIds = new IntList(3);
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;

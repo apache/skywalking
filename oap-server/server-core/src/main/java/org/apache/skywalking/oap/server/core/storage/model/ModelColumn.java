@@ -104,6 +104,11 @@ public class ModelColumn {
             throw new IllegalArgumentException(
                 "The column " + columnName + " should be indexed if require MatchQuery.");
         }
+
+        if (!this.banyanDBExtension.shouldIndex() && this.banyanDBExtension.isEnableSort()) {
+            throw new IllegalArgumentException(
+                "The column " + columnName + " should be indexed if require EnableSort.");
+        }
     }
 
     /**

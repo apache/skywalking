@@ -225,4 +225,9 @@ The text of each license is the standard Apache 2.0 license.
    mvnw files from https://github.com/apache/maven-wrapper Apache 2.0
    svg files from skywalking-ui/src/assets/icons: https://github.com/google/material-design-icons Apache 2.0
    ZipkinQueryHandler.java reference from zipkin2.server.internal.ZipkinQueryApiV2: https://github.com/openzipkin/zipkin  Apache 2.0
-   async-profiler parser files in server-library/library-async-profiler-jfr-parser from https://github.com/async-profiler/async-profiler/tree/v3.0 Apache 2.0
+   Arguments.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
+   CallStack.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
+   Classifier.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
+   Index.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
+   Frame.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0
+   JFRConverter.java in server-library/library-async-profiler-jfr-parser reference from https://github.com/async-profiler/async-profiler/tree/master Apache 2.0

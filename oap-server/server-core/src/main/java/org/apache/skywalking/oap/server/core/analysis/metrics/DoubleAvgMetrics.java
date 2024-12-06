@@ -48,6 +48,7 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     private long count;
     @Getter
     @Setter
+    @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
     @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField

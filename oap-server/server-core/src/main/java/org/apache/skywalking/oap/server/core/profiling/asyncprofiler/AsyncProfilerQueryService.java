@@ -22,18 +22,18 @@ package org.apache.skywalking.oap.server.core.profiling.asyncprofiler;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.JFRProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.query.AsyncProfilerTaskLog;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerStackTree;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
-import org.apache.skywalking.oap.server.library.jfr.parser.convert.FrameTree;
-import org.apache.skywalking.oap.server.library.jfr.parser.convert.JfrMergeBuilder;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.parser.JFRMergeBuilder;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -61,7 +61,7 @@ public class AsyncProfilerQueryService implements Service {
         return taskQueryDAO;
     }
 
-    private IJFRDataQueryDAO getJfrDataQueryDAO() {
+    private IJFRDataQueryDAO getJFRDataQueryDAO() {
         if (dataQueryDAO == null) {
             this.dataQueryDAO = moduleManager.find(StorageModule.NAME)
                     .provider()
@@ -79,26 +79,23 @@ public class AsyncProfilerQueryService implements Service {
         return logQueryDAO;
     }
 
-    public List<AsyncProfilerTask> queryTask(String serviceId, Long startTime, Long endTime, Integer limit) throws IOException {
+    public List<AsyncProfilerTask> queryTask(String serviceId, Duration duration, Integer limit) throws IOException {
         Long startTimeBucket = null;
-        if (Objects.nonNull(startTime)) {
-            startTimeBucket = TimeBucket.getMinuteTimeBucket(startTime);
-        }
-
         Long endTimeBucket = null;
-        if (Objects.nonNull(endTime)) {
-            endTimeBucket = TimeBucket.getMinuteTimeBucket(endTime);
+        if (Objects.nonNull(duration)) {
+            startTimeBucket = duration.getStartTimeBucketInSec();
+            endTimeBucket = duration.getEndTimeBucketInSec();
         }
 
         return getTaskQueryDAO().getTaskList(serviceId, startTimeBucket, endTimeBucket, limit);
     }
 
-    public AsyncProfilerStackTree queryJfrData(String taskId, List<String> instanceIds, JFREventType eventType) throws IOException {
-        List<JFRProfilingDataRecord> jfrDataList = getJfrDataQueryDAO().getByTaskIdAndInstancesAndEvent(taskId, instanceIds, eventType.name());
+    public AsyncProfilerStackTree queryJFRData(String taskId, List<String> instanceIds, JFREventType eventType) throws IOException {
+        List<JFRProfilingDataRecord> jfrDataList = getJFRDataQueryDAO().getByTaskIdAndInstancesAndEvent(taskId, instanceIds, eventType.name());
         List<FrameTree> trees = jfrDataList.stream()
                 .map(data -> GSON.fromJson(new String(data.getDataBinary()), FrameTree.class))
                 .collect(Collectors.toList());
-        FrameTree resultTree = new JfrMergeBuilder()
+        FrameTree resultTree = new JFRMergeBuilder()
                 .merge(trees)
                 .build();
         return new AsyncProfilerStackTree(eventType, resultTree);
@@ -111,7 +108,7 @@ public class AsyncProfilerQueryService implements Service {
 
     private List<AsyncProfilerTaskLog> findMatchedLogs(final String taskID, final List<AsyncProfilerTaskLog> allLogs) {
         return allLogs.stream()
-                .filter(l -> Objects.equals(l.getTaskId(), taskID))
+                .filter(l -> Objects.equals(l.getId(), taskID))
                 .map(this::extendTaskLog)
                 .collect(Collectors.toList());
     }

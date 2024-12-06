@@ -59,13 +59,13 @@ public class AsyncProfilerQuery implements GraphQLQueryResolver {
 
     public AsyncProfilerTaskListResult queryAsyncProfilerTaskList(AsyncProfilerTaskListRequest request) throws IOException {
         List<AsyncProfilerTask> tasks = getAsyncProfilerQueryService().queryTask(
-                request.getServiceId(), request.getStartTime(), request.getEndTime(), request.getLimit()
+                request.getServiceId(), request.getQueryDuration(), request.getLimit()
         );
         return new AsyncProfilerTaskListResult(null, tasks);
     }
 
     public AsyncProfilerAnalyzation queryAsyncProfilerAnalyze(AsyncProfilerAnalyzatonRequest request) throws IOException {
-        AsyncProfilerStackTree eventFrameTrees = getAsyncProfilerQueryService().queryJfrData(
+        AsyncProfilerStackTree eventFrameTrees = getAsyncProfilerQueryService().queryJFRData(
                 request.getTaskId(), request.getInstanceIds(), request.getEventType()
         );
         return new AsyncProfilerAnalyzation(eventFrameTrees);

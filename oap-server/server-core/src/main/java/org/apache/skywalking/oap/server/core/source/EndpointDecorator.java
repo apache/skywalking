@@ -16,21 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.type.event;
+package org.apache.skywalking.oap.server.core.source;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.ISourceDecorator;
 
-@Getter
-@AllArgsConstructor
-public enum JFREventType {
-    UNKNOWN(-1),
-    EXECUTION_SAMPLE(1),
-    JAVA_MONITOR_ENTER(2),
-    THREAD_PARK(3),
-    OBJECT_ALLOCATION_IN_NEW_TLAB(4),
-    OBJECT_ALLOCATION_OUTSIDE_TLAB(5),
-    PROFILER_LIVE_OBJECT(6);
+public class EndpointDecorator implements ISourceDecorator<Endpoint> {
+    @Override
+    public int getSourceScope() {
+        return DefaultScopeDefine.ENDPOINT;
+    }
 
-    private final int code;
+    /**
+     * Set the Layer name to attr0
+     * @param source The source instance to be decorated
+     */
+    @Override
+    public void decorate(final Endpoint source) {
+        source.setAttr0(source.getServiceLayer().name());
+    }
 }

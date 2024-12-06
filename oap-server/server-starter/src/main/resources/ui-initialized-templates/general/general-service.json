@@ -451,7 +451,11 @@
                   },
                   "expressions": [
                     "top_n(service_instance_cpm,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "General-Instance",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 },
                 {
                   "x": 8,
@@ -469,7 +473,11 @@
                   },
                   "expressions": [
                     "top_n(service_instance_resp_time,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "General-Instance",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 },
                 {
                   "x": 16,
@@ -487,7 +495,11 @@
                   },
                   "expressions": [
                     "top_n(service_instance_sla,10,asc)/100"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "General-Instance",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 },
                 {
                   "x": 16,
@@ -505,7 +517,11 @@
                   },
                   "expressions": [
                     "top_n(endpoint_sla,10,asc)/100"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "General-Endpoint",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 },
                 {
                   "x": 8,
@@ -523,7 +539,11 @@
                   },
                   "expressions": [
                     "top_n(endpoint_resp_time,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "General-Endpoint",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 },
                 {
                   "x": 0,
@@ -542,7 +562,11 @@
                   },
                   "expressions": [
                     "top_n(endpoint_cpm,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "General-Endpoint",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 }
               ]
             },
@@ -796,6 +820,35 @@
               ]
             },
             {
+              "name": "Async Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 46,
+                  "i": "0",
+                  "type": "AsyncProfiling"
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "graph": {
+                    "fontColor": "theme",
+                    "backgroundColor": "theme",
+                    "content": "Async Profiling supported services written in Java with SkyWalking native agents installed.",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": ""
+                  }
+                }
+              ]
+            },
+            {
               "name": "Log",
               "children": [
                 {
@@ -820,29 +873,9 @@
           "eventAssociate": true
         }
       ],
-      "name": "General-Service",
       "layer": "GENERAL",
       "entity": "Service",
-      "isDefault": true,
-      "expressions": [
-        "avg(service_cpm)",
-        "avg(service_sla/100)",
-        "avg(service_resp_time)"
-      ],
-      "expressionsConfig": [
-        {
-          "unit": "calls / min",
-          "label": "Load"
-        },
-        {
-          "unit": "%",
-          "label": "Success Rate"
-        },
-        {
-          "unit": "ms",
-          "label": "Latency"
-        }
-      ]
+      "name": "General-Service"
     }
   }
 ]

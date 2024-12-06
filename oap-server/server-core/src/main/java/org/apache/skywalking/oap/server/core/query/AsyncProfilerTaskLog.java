@@ -31,8 +31,8 @@ import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOper
 @AllArgsConstructor
 @Builder
 public class AsyncProfilerTaskLog {
+    // task id
     private String id;
-    private String taskId;
 
     // instance
     private String instanceId;

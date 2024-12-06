@@ -89,6 +89,7 @@ public abstract class AbstractLogRecord extends Record {
     private LongText content;
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
     private long timestamp;
 

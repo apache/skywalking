@@ -28,7 +28,6 @@ import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
-import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerEventType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
@@ -50,7 +49,8 @@ public class BanyanDBAsyncProfilerTaskQueryDAO extends AbstractBanyanDBDAO imple
             AsyncProfilerTaskRecord.TASK_ID,
             AsyncProfilerTaskRecord.CREATE_TIME,
             AsyncProfilerTaskRecord.DURATION,
-            AsyncProfilerTaskRecord.EVENT_TYPES
+            AsyncProfilerTaskRecord.EVENT_TYPES,
+            AsyncProfilerTaskRecord.EXEC_ARGS
     );
 
     private final int queryMaxSize;
@@ -75,7 +75,7 @@ public class BanyanDBAsyncProfilerTaskQueryDAO extends AbstractBanyanDBDAO imple
                     @Override
                     protected void apply(StreamQuery query) {
                         if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(ProfileTaskRecord.SERVICE_ID, serviceId));
+                            query.and(eq(AsyncProfilerTaskRecord.SERVICE_ID, serviceId));
                         }
 
                         if (limit != null) {

@@ -42,6 +42,8 @@ public class ElasticSearchExtension {
 
     private final boolean isRouting;
 
+    private final boolean isDocValuesEnabled;
+
     public boolean needMatchQuery() {
         return analyzer != null;
     }

@@ -106,4 +106,13 @@ public @interface ElasticSearch {
     @Retention(RetentionPolicy.RUNTIME)
     @interface Routing {
     }
+
+    /**
+     * EnableDocValues is used to enable the `doc_values` of the field in the ElasticSearch.
+     * For more information, check https://www.elastic.co/guide/en/elasticsearch/reference/current/doc-values.html
+     */
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface EnableDocValues {
+    }
 }

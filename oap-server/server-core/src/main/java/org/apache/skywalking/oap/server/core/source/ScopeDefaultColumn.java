@@ -68,19 +68,24 @@ public class ScopeDefaultColumn {
         int length() default 256;
 
         /**
-         * Indicate whether this column is a condition for groupBy in the TopN Aggregation.
-         *
-         * @since 9.5.0
-         */
-        boolean groupByCondInTopN() default false;
-
-        /**
          * Indicate whether this column is an attribute.
          * Attributes are optional fields, which are set by the source decorator and can be used for query conditions.
          *
          * @since 10.2.0
          */
         boolean isAttribute() default false;
+    }
+
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface BanyanDB {
+        /**
+         * Indicate whether this column is a condition for groupBy in the TopN Aggregation.
+         *
+         * @since 9.5.0
+         * @since 10.2.0 moved out from {@link DefinedByField} to {@link BanyanDB}
+         */
+        boolean groupByCondInTopN() default false;
     }
 
     @Target({ElementType.TYPE})

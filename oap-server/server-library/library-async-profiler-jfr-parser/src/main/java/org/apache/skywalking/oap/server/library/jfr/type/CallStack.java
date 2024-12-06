@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.apache.skywalking.oap.server.library.jfr.parser.convert;
+package org.apache.skywalking.oap.server.library.jfr.type;
+
+import lombok.Getter;
 
 import java.util.Arrays;
 
+@Getter
 public class CallStack {
     String[] names = new String[16];
     byte[] types = new byte[16];

@@ -77,7 +77,7 @@ public class AsyncProfilerMutationService implements Service {
         task.setEventsFromList(rowEvents);
         task.setCreateTime(createTime);
         task.setExecArgs(execArgs);
-        task.setTimeBucket(TimeBucket.getMinuteTimeBucket(createTime));
+        task.setTimeBucket(TimeBucket.getRecordTimeBucket(createTime));
         NoneStreamProcessor.getInstance().in(task);
 
         return AsyncProfilerTaskCreationResult.builder()

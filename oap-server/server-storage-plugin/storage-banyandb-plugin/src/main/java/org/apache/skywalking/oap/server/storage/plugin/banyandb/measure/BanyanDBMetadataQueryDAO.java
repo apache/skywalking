@@ -51,6 +51,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
@@ -81,9 +82,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             ProcessTraffic.PROFILING_SUPPORT_STATUS);
 
     private static final Gson GSON = new Gson();
+    private final int limit;
 
-    public BanyanDBMetadataQueryDAO(BanyanDBStorageClient client) {
+    public BanyanDBMetadataQueryDAO(BanyanDBStorageClient client, BanyanDBStorageConfig config) {
         super(client);
+        this.limit = config.getMetadataQueryMaxSize();
     }
 
     @Override
@@ -95,6 +98,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
+                        query.limit(limit);
                     }
                 });
 
@@ -125,6 +129,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         }
                         final var minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
                         query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket));
+                        query.limit(limit);
                     }
                 });
 
@@ -170,6 +175,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                             );
                         }
                         query.criteria(or(instanceRelationsQueryConditions));
+                        query.limit(instanceIds.size());
                     }
                 });
         return resp.getDataPoints().stream().map(e -> buildInstance(e, schema)).collect(Collectors.toList());
@@ -200,6 +206,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                             query.and(lte(EndpointTraffic.LAST_PING_TIME_BUCKET, endTimeBucket));
                         }
                         query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
+                        query.limit(limit);
                     }
                 });
 
@@ -230,6 +237,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                             query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, supportStatus.value()));
                         }
                         query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
+                        query.limit(limit);
                     }
                 });
 
@@ -256,6 +264,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         if (!includeVirtual) {
                             query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
                         }
+                        query.limit(limit);
                     }
                 });
 
@@ -280,6 +289,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, startPingTimeBucket));
                         query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, endPingTimeBucket));
                         query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
+                        query.limit(limit);
                     }
                 });
 

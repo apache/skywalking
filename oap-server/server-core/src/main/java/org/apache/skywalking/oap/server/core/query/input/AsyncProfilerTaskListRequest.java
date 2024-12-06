@@ -26,7 +26,6 @@ import lombok.Setter;
 @Setter
 public class AsyncProfilerTaskListRequest {
     private String serviceId;
-    private Long startTime;
-    private Long endTime;
+    private Duration queryDuration;
     private Integer limit;
 }

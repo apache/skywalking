@@ -66,6 +66,7 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
 
     @Setter
     @Getter
+    @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;

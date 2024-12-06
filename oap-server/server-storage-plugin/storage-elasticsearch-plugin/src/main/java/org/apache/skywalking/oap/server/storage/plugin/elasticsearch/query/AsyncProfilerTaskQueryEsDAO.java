@@ -36,7 +36,6 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,14 +88,19 @@ public class AsyncProfilerTaskQueryEsDAO extends EsDAO implements IAsyncProfiler
     }
 
     @Override
-    public AsyncProfilerTask getById(String id) throws IOException {
+    public AsyncProfilerTask getById(String id) {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
+        final BoolQueryBuilder query = Query.bool();
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(AsyncProfilerTaskRecord.INDEX_NAME);
+        if (IndexController.LogicIndicesRegister.isMergedTable(AsyncProfilerTaskRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, AsyncProfilerTaskRecord.INDEX_NAME));
+        }
+        query.must(Query.term(AsyncProfilerTaskRecord.TASK_ID, id));
 
         final SearchBuilder search = Search.builder()
-                .query(Query.bool().must(Query.term(AsyncProfilerTaskRecord.TASK_ID, id)))
+                .query(query)
                 .size(1);
 
         final SearchResponse response = getClient().search(index, search.build());

@@ -13,5 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-serviceName: ${LABELS."service.istio.io/canonical-name",LABELS."app.kubernetes.io/name",LABELS.component,LABELS.app,LABELS.k8s-app}.${NAMESPACE}
+serviceName: ${LABELS."service.istio.io/canonical-name",LABELS."app.kubernetes.io/name",LABELS.component,LABELS.app,LABELS.k8s-app,SERVICE}.${NAMESPACE}
 serviceInstanceName: ${NAME}

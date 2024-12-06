@@ -74,8 +74,7 @@ public class AsyncProfilerTaskLogQueryEsDAO extends EsDAO implements IAsyncProfi
         int operationTypeInt = ((Number) source.get(AsyncProfilerTaskLogRecord.OPERATION_TYPE)).intValue();
         AsyncProfilerTaskLogOperationType operationType = AsyncProfilerTaskLogOperationType.parse(operationTypeInt);
         return AsyncProfilerTaskLog.builder()
-                .id(data.getId())
-                .taskId((String) source.get(AsyncProfilerTaskLogRecord.TASK_ID))
+                .id((String) source.get(AsyncProfilerTaskLogRecord.TASK_ID))
                 .instanceId((String) source.get(AsyncProfilerTaskLogRecord.INSTANCE_ID))
                 .operationType(operationType)
                 .operationTime(((Number) source.get(AsyncProfilerTaskLogRecord.OPERATION_TIME)).longValue())

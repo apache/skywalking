@@ -5,7 +5,7 @@
       "children": [
         {
           "x": 0,
-          "y": 13,
+          "y": 24,
           "w": 24,
           "h": 52,
           "i": "1",
@@ -211,6 +211,10 @@
           },
           "widget": {
             "title": "Service Apdex"
+          },
+          "valueRelatedDashboard": "General-Service",
+          "relatedTrace": {
+            "refIdType": "owner"
           }
         },
         {
@@ -229,6 +233,10 @@
           },
           "widget": {
             "title": "Service Avg Response Time (ms)"
+          },
+          "valueRelatedDashboard": "General-Service",
+          "relatedTrace": {
+            "refIdType": "owner"
           }
         },
         {
@@ -242,11 +250,15 @@
             "top_n(service_sla,10,asc,attr0='GENERAL')/100"
           ],
           "widget": {
-            "title": "Success Rate"
+            "title": "Service Success Rate"
           },
           "graph": {
             "type": "TopList",
             "color": "purple"
+          },
+          "valueRelatedDashboard": "General-Service",
+          "relatedTrace": {
+            "refIdType": "owner"
           }
         },
         {
@@ -266,6 +278,77 @@
           "graph": {
             "type": "TopList",
             "color": "purple"
+          },
+          "valueRelatedDashboard": "General-Service",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 8,
+          "h": 11,
+          "i": "105",
+          "type": "Widget",
+          "expressions": [
+            "top_n(endpoint_sla,10,asc,attr0='GENERAL')/100"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Endpoint Success Rate"
+          },
+          "valueRelatedDashboard": "General-Endpoint",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "w": 8,
+          "h": 11,
+          "i": "106",
+          "type": "Widget",
+          "expressions": [
+            "top_n(endpoint_resp_time,10,des,attr0='GENERAL')"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Endpoint Avg Response Time (ms)"
+          },
+          "valueRelatedDashboard": "General-Endpoint",
+          "relatedTrace": {
+            "refIdType": "owner"
+          }
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "w": 8,
+          "h": 11,
+          "i": "107",
+          "type": "Widget",
+          "expressions": [
+            "top_n(endpoint_cpm,10,des,attr0='GENERAL')"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "widget": {
+            "title": "Endpoint Load (calls / min)",
+            "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services"
+          },
+          "valueRelatedDashboard": "General-Endpoint",
+          "relatedTrace": {
+            "refIdType": "owner"
           }
         }
       ],

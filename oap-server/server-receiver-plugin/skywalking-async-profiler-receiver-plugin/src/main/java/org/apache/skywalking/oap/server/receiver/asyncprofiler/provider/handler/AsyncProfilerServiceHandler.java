@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.cache.AsyncProfilerTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
-import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.analyze.JFRAnalyzer;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
@@ -45,6 +44,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.network.trace.component.command.AsyncProfilerTaskCommand;
 import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerByteBufCollectionObserver;
 import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerCollectionMetaData;
+import org.apache.skywalking.oap.server.receiver.asyncprofiler.provider.handler.stream.AsyncProfilerFileCollectionObserver;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -57,21 +57,23 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
     private final SourceReceiver sourceReceiver;
     private final CommandService commandService;
     private final AsyncProfilerTaskCache taskCache;
-    private final JFRAnalyzer jfrAnalyzer;
     private final int jfrMaxSize;
+    private final boolean memoryParserEnabled;
 
-    public AsyncProfilerServiceHandler(ModuleManager moduleManager, int jfrMaxSize) {
+    public AsyncProfilerServiceHandler(ModuleManager moduleManager, int jfrMaxSize, boolean memoryParserEnabled) {
         this.taskDAO = moduleManager.find(StorageModule.NAME).provider().getService(IAsyncProfilerTaskQueryDAO.class);
         this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         this.commandService = moduleManager.find(CoreModule.NAME).provider().getService(CommandService.class);
         this.taskCache = moduleManager.find(CoreModule.NAME).provider().getService(AsyncProfilerTaskCache.class);
-        this.jfrAnalyzer = new JFRAnalyzer(moduleManager);
         this.jfrMaxSize = jfrMaxSize;
+        this.memoryParserEnabled = memoryParserEnabled;
     }
 
     @Override
     public StreamObserver<AsyncProfilerData> collect(StreamObserver<AsyncProfilerCollectionResponse> responseObserver) {
-        return new AsyncProfilerByteBufCollectionObserver(taskDAO, jfrAnalyzer, responseObserver, sourceReceiver, jfrMaxSize);
+        return memoryParserEnabled ?
+                new AsyncProfilerByteBufCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize)
+                : new AsyncProfilerFileCollectionObserver(taskDAO, responseObserver, sourceReceiver, jfrMaxSize);
     }
 
     @Override
@@ -119,6 +121,7 @@ public class AsyncProfilerServiceHandler extends AsyncProfilerTaskGrpc.AsyncProf
                 .instanceId(serviceInstanceId)
                 .type(metaData.getType())
                 .contentSize(metaData.getContentSize())
+                .uploadTime(System.currentTimeMillis())
                 .build();
     }
 }

@@ -34,12 +34,14 @@ import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.Networ
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter.StorageToMeasure;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 @Slf4j
 public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implements INetworkAddressAliasDAO {
     private final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
+    protected final int limit;
 
     private MetadataRegistry.Schema schema;
 
@@ -47,8 +49,9 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
             NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET,
             NetworkAddressAlias.REPRESENT_SERVICE_ID, NetworkAddressAlias.REPRESENT_SERVICE_INSTANCE_ID);
 
-    public BanyanDBNetworkAddressAliasDAO(final BanyanDBStorageClient client) {
+    public BanyanDBNetworkAddressAliasDAO(final BanyanDBStorageClient client, BanyanDBStorageConfig config) {
         super(client);
+        this.limit = config.getResultWindowMaxSize();
     }
 
     private MetadataRegistry.Schema getSchema() {
@@ -69,6 +72,7 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
                         @Override
                         protected void apply(final MeasureQuery query) {
                             query.and(gte(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET, timeBucket));
+                            query.limit(limit);
                         }
                     }
             );

@@ -19,12 +19,15 @@ results:
       labels: []
     values:
       - id: "1643166540000"
+        owner: null
         value: null
         traceid: null
       - id: "1643166600000"
+        owner: null
         value: "200"
         traceid: null
       - id: "1643166660000"
+        owner: null
         value: null
         traceid: null
 error: null

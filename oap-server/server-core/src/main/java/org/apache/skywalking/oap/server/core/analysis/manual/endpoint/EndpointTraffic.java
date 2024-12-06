@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
     "serviceId",
     "name"
 })
+@BanyanDB.IndexMode
 public class EndpointTraffic extends Metrics {
 
     public static final String INDEX_NAME = "endpoint_traffic";

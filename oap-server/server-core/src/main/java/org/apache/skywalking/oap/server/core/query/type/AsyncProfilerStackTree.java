@@ -23,8 +23,8 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.jfr.parser.convert.FrameTree;
-import org.apache.skywalking.oap.server.library.jfr.parser.type.event.JFREventType;
+import org.apache.skywalking.oap.server.library.jfr.type.FrameTree;
+import org.apache.skywalking.oap.server.library.jfr.type.JFREventType;
 
 import java.util.List;
 import java.util.Objects;

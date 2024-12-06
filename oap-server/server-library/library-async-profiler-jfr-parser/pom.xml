@@ -30,4 +30,30 @@
 
     <artifactId>library-async-profiler-jfr-parser</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>tools.profiler</groupId>
+            <artifactId>async-profiler-converter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        one\/jfr\/*.java,
+                        **\/Frame.java,
+                        **\/Arguments.java,
+                        **\/Index.java,
+                        **\/Classifier.java,
+                        **\/CallStack.java
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

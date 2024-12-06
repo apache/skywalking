@@ -5,7 +5,7 @@
       "children": [
         {
           "x": 0,
-          "y": 13,
+          "y": 25,
           "w": 24,
           "h": 52,
           "i": "1",
@@ -197,6 +197,10 @@
           },
           "widget": {
             "title": "Service Avg Response Time (ms)"
+          },
+          "valueRelatedDashboard": "Mesh-Service",
+          "relatedTrace": {
+            "refIdType": "none"
           }
         },
         {
@@ -215,6 +219,10 @@
           "graph": {
             "type": "TopList",
             "color": "purple"
+          },
+          "valueRelatedDashboard": "Mesh-Service",
+          "relatedTrace": {
+            "refIdType": "none"
           }
         },
         {
@@ -228,11 +236,15 @@
             "top_n(service_sla,10,asc,attr0='MESH')/100"
           ],
           "widget": {
-            "title": "Success Rate"
+            "title": "Service Success Rate"
           },
           "graph": {
             "type": "TopList",
             "color": "purple"
+          },
+          "valueRelatedDashboard": "Mesh-Service",
+          "relatedTrace": {
+            "refIdType": "none"
           }
         },
         {
@@ -251,6 +263,76 @@
           },
           "widget": {
             "title": "Service Apdex"
+          },
+          "valueRelatedDashboard": "Mesh-Service",
+          "relatedTrace": {
+            "refIdType": "none"
+          }
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 8,
+          "h": 12,
+          "i": "105",
+          "type": "Widget",
+          "expressions": [
+            "top_n(endpoint_sla,10,asc,attr0='MESH')/100"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "valueRelatedDashboard": "Mesh-Endpoint",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
+          "widget": {
+            "title": "Endpoint Success Rate"
+          }
+        },
+        {
+          "x": 8,
+          "y": 13,
+          "w": 8,
+          "h": 12,
+          "i": "106",
+          "type": "Widget",
+          "expressions": [
+            "top_n(endpoint_resp_time,10,des,attr0='MESH')"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "valueRelatedDashboard": "Mesh-Endpoint",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
+          "widget": {
+            "title": "Endpoint Avg Response Time (ms)"
+          }
+        },
+        {
+          "x": 16,
+          "y": 13,
+          "w": 8,
+          "h": 12,
+          "i": "107",
+          "type": "Widget",
+          "expressions": [
+            "top_n(endpoint_cpm,10,des,attr0='MESH')"
+          ],
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "valueRelatedDashboard": "Mesh-Endpoint",
+          "relatedTrace": {
+            "refIdType": "none"
+          },
+          "widget": {
+            "title": "Endpoint Load (calls or packets / min)"
           }
         }
       ],

@@ -77,7 +77,7 @@ public class EtcdCoordinator extends ClusterCoordinator {
         }
         this.serviceNameBS = ByteSequence.from(serviceName, Charset.defaultCharset());
         ClientBuilder builder = Client.builder()
-                                      .endpoints(config.getEndpointArray())
+                                      .target(config.getEndpoints())
                                       .authority(config.getAuthority());
         if (StringUtil.isNotEmpty(config.getNamespace())) {
             builder.namespace(ByteSequence.from(config.getNamespace(), Charset.defaultCharset()));

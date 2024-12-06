@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import lombok.extern.slf4j.Slf4j;
 
 import static java.util.concurrent.ForkJoinPool.defaultForkJoinWorkerThreadFactory;
 
@@ -29,6 +30,7 @@ import static java.util.concurrent.ForkJoinPool.defaultForkJoinWorkerThreadFacto
  * The utility class for async GraphQL query.
  * All the async GraphQL query should be wrapped by this class and shared the same executor.
  */
+@Slf4j
 public class AsyncQueryUtils {
     private static final Executor EXECUTOR = new ForkJoinPool(
         Runtime.getRuntime().availableProcessors(), defaultForkJoinWorkerThreadFactory, null, true);
@@ -37,7 +39,8 @@ public class AsyncQueryUtils {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return caller.call();
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                log.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             }
         }, EXECUTOR);

@@ -30,7 +30,11 @@
                   },
                   "expressions": [
                     "top_n(browser_app_single_version_error_rate,10,des)/100"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Browser-Version",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 },
                 {
                   "x": 0,
@@ -48,7 +52,11 @@
                   },
                   "expressions": [
                     "top_n(browser_app_single_version_pv,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Browser-Version",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 },
                 {
                   "x": 16,
@@ -124,7 +132,11 @@
                   },
                   "expressions": [
                     "top_n(browser_app_page_error_sum,10,des)"
-                  ]
+                  ],
+                  "valueRelatedDashboard": "Browser-Page",
+                  "relatedTrace": {
+                    "refIdType": "owner"
+                  }
                 },
                 {
                   "x": 8,
@@ -173,6 +185,10 @@
                   "graph": {
                     "type": "TopList",
                     "color": "purple"
+                  },
+                  "valueRelatedDashboard": "Browser-Page",
+                  "relatedTrace": {
+                    "refIdType": "owner"
                   }
                 },
                 {
@@ -191,6 +207,10 @@
                   "graph": {
                     "type": "TopList",
                     "color": "purple"
+                  },
+                  "valueRelatedDashboard": "Browser-Page",
+                  "relatedTrace": {
+                    "refIdType": "owner"
                   }
                 },
                 {
@@ -209,6 +229,10 @@
                   "graph": {
                     "type": "TopList",
                     "color": "purple"
+                  },
+                  "valueRelatedDashboard": "Browser-Version",
+                  "relatedTrace": {
+                    "refIdType": "owner"
                   }
                 }
               ]
@@ -330,9 +354,7 @@
       "layer": "BROWSER",
       "entity": "Service",
       "name": "Browser-App",
-      "id": "Browser-app",
-      "isRoot": false,
-      "isDefault": true
+      "isRoot": false
     }
   }
 ]

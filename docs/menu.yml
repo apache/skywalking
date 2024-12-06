@@ -198,6 +198,10 @@ catalog:
             path: "/en/setup/backend/backend-telemetry"
           - name: "OAP Health Check"
             path: "/en/setup/backend/backend-health-check"
+      - name: "BanyanDB Exclusive Setup"
+        catalog:
+          - name: "Progressive TTL"
+            path: "/en/banyandb/ttl"
       - name: "Tracing"
         catalog:
           - name: "Trace Sampling"

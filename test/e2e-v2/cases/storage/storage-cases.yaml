@@ -168,3 +168,11 @@ cases:
     expected: expected/topN-OP-service.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des,attr0!='Not_GENERAL')/100"
     expected: expected/topN-OP-service.yml
+  # topN-OP-endpoint Global
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(endpoint_sla,3,des)/100"
+    expected: expected/topN-OP-endpoint.yml
+    # topN-OP-endpoint Global with attrs
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(endpoint_sla,3,des,attr0='GENERAL')/100"
+    expected: expected/topN-OP-endpoint.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(endpoint_sla,3,des,attr0!='Not_GENERAL')/100"
+    expected: expected/topN-OP-endpoint.yml

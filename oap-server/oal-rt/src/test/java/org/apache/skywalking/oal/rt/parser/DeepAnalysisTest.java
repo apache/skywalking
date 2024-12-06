@@ -89,7 +89,7 @@ public class DeepAnalysisTest {
         Assertions.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
-        Assertions.assertEquals(2, source.size());
+        Assertions.assertEquals(8, source.size());
 
         List<DataColumn> persistentFields = result.getPersistentFields();
         Assertions.assertEquals(4, persistentFields.size());
@@ -117,7 +117,7 @@ public class DeepAnalysisTest {
         Assertions.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
-        Assertions.assertEquals(2, source.size());
+        Assertions.assertEquals(8, source.size());
 
         List<DataColumn> persistentFields = result.getPersistentFields();
         Assertions.assertEquals(4, persistentFields.size());

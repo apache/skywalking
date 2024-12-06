@@ -44,6 +44,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
 @EqualsAndHashCode(of = {
     "address"
 })
+@BanyanDB.IndexMode
 public class NetworkAddressAlias extends Metrics {
     public static final String INDEX_NAME = "network_address_alias";
     public static final String ADDRESS = "address";

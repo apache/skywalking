@@ -167,15 +167,21 @@ public class TelemetryDataDispatcher {
 
         if (org.apache.skywalking.apm.network.common.v3.DetectPoint.server.equals(metrics.getDetectPoint())) {
             toTCPService(metrics, minuteTimeBucket);
-            toTCPServiceInstance(metrics, minuteTimeBucket);
-            toTCPServiceInstanceTraffic(metrics, minuteTimeBucket);
+            // Don't generate instance metrics, if no dest instance.
+            if (StringUtil.isNotEmpty(metrics.getDestServiceInstance())) {
+                toTCPServiceInstance(metrics, minuteTimeBucket);
+                toTCPServiceInstanceTraffic(metrics, minuteTimeBucket);
+            }
         }
 
         String sourceService = metrics.getSourceServiceName();
         // Don't generate relation, if no source.
         if (StringUtil.isNotEmpty(sourceService)) {
             toTCPServiceRelation(metrics, minuteTimeBucket);
-            toTCPServiceInstanceRelation(metrics, minuteTimeBucket);
+            // Don't generate instance relation, if no source instance.
+            if (StringUtil.isNotEmpty(metrics.getSourceServiceInstance())) {
+                toTCPServiceInstanceRelation(metrics, minuteTimeBucket);
+            }
         }
     }
 
@@ -184,16 +190,25 @@ public class TelemetryDataDispatcher {
 
         if (org.apache.skywalking.apm.network.common.v3.DetectPoint.server.equals(metrics.getDetectPoint())) {
             toService(metrics, minuteTimeBucket);
-            toServiceInstance(metrics, minuteTimeBucket);
-            toServiceInstanceTraffic(metrics, minuteTimeBucket);
-            toEndpoint(metrics, minuteTimeBucket);
+            // Don't generate instance metrics, if no dest instance.
+            if (StringUtil.isNotEmpty(metrics.getDestServiceInstance())) {
+                toServiceInstance(metrics, minuteTimeBucket);
+                toServiceInstanceTraffic(metrics, minuteTimeBucket);
+            }
+            // Don't generate endpoint metrics, if no endpoint.
+            if (StringUtil.isNotEmpty(metrics.getEndpoint())) {
+                toEndpoint(metrics, minuteTimeBucket);
+            }
         }
 
         String sourceService = metrics.getSourceServiceName();
         // Don't generate relation, if no source.
         if (StringUtil.isNotEmpty(sourceService)) {
             toServiceRelation(metrics, minuteTimeBucket);
-            toServiceInstanceRelation(metrics, minuteTimeBucket);
+            // Don't generate instance relation, if no source instance.
+            if (StringUtil.isNotEmpty(metrics.getSourceServiceInstance())) {
+                toServiceInstanceRelation(metrics, minuteTimeBucket);
+            }
         }
     }
 

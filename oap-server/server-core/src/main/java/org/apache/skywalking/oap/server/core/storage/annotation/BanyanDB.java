@@ -106,16 +106,12 @@ public @interface BanyanDB {
              * It's suitable for most tag indexing due to a better memory usage ratio and query performance.
              */
             INVERTED,
-            /**
-             * The `TREE` index could be better when there are high cardinalities, such as the `ID` tag and numeric duration tag.
-             * In these cases, it saves much memory space.
-             */
-            TREE;
         }
     }
 
     /**
-     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for BanyanDB.
+     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for
+     * BanyanDB.
      * BanyanDB stream requires a timestamp in milliseconds.
      *
      * @since 9.3.0
@@ -209,5 +205,25 @@ public @interface BanyanDB {
              */
             URL
         }
+    }
+
+    /**
+     * EnableSort is used to indicate the IndexRule supports sorting.
+     * @since 10.2.0
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface EnableSort {
+    }
+
+    /**
+     * IndexMode is used to indicate the index mode of the metric.
+     * All columns in the metric will be stored in the index exclusively.
+     *
+     * @since 10.2.0
+     */
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface IndexMode {
     }
 }

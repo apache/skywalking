@@ -31,14 +31,17 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements IServiceLabelDAO {
     private static final Set<String> TAGS = ImmutableSet.of(ServiceLabelRecord.LABEL, ServiceLabelRecord.SERVICE_ID);
+    private final int limit;
 
-    public BanyanDBServiceLabelDAO(final BanyanDBStorageClient client) {
+    public BanyanDBServiceLabelDAO(final BanyanDBStorageClient client, BanyanDBStorageConfig config) {
         super(client);
+        this.limit = config.getMetadataQueryMaxSize();
     }
 
     @Override
@@ -49,6 +52,7 @@ public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements ISer
                     @Override
                     protected void apply(final MeasureQuery query) {
                         query.and(eq(ServiceLabelRecord.SERVICE_ID, serviceId));
+                        query.limit(limit);
                     }
                 }).getDataPoints()
                 .stream()
