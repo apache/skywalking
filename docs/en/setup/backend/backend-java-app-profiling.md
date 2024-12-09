@@ -69,7 +69,7 @@ Finally, the agent will upload the jfr file produced by Async Profiler to the oa
 ### Query the profiling task progresses
 
 Wait for Async Profiler to complete data collection and upload successfully.
-We can query the execution log of the Async Profiler task and the successful and failed instances,which includes the following information:
+We can query the execution logs of the Async Profiler task and the task status, which includes the following information:
 
 1. **successInstanceIds**: SuccessInstanceIds gives instances that have executed the task successfully.
 2. **errorInstanceIds**: ErrorInstanceIds gives instances that failed to execute the task.
