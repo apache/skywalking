@@ -22,6 +22,11 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
@@ -57,12 +62,6 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.Elasti
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic.PropertyUtil.LANGUAGE;
 
@@ -416,14 +415,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             return buildProcess(iterator.next());
         }
         return null;
-    }
-
-    private List<Service> buildServices(SearchResponse response) {
-        List<Service> services = new ArrayList<>();
-        for (SearchHit hit : response.getHits()) {
-            services.add(searchHitServiceFunction.apply(hit));
-        }
-        return services;
     }
 
     private List<ServiceInstance> buildInstances(SearchResponse response) {

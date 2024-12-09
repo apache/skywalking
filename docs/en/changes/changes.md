@@ -30,6 +30,7 @@
 * Bump up netty to 4.1.115, grpc to 1.68.1, boringssl to 2.0.69.
 * BanyanDB: Support update the Group settings when OAP starting.
 * BanyanDB: Introduce index mode and refactor banyandb group settings.
+* BanyanDB: Introduce the new Progressive TTL feature.
 * BanyanDB: Support update the Schema when OAP starting.
 * BanyanDB: Speed up OAP booting while initializing BanyanDB.
 * BanyanDB: Support `@EnableSort` on the column to enable sorting for `IndexRule` and set the default to false.
@@ -50,11 +51,15 @@
 * Split topology metric query to avoid exceeding the maximum query complexity.
 * Fix view metrics related trace and metrics query.
 * Add support collapse span.
-
+* Refactor copy util with Web API.
+* Releases an existing object URL.
+* Optimize Trace Profiling widget.
+* Implement Async Profiling widget.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
 * Improve BanyanDB documentation.
 * Improve component-libraries documentation.
+* Improve configuration-vocabulary documentation.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/224?closed=1)
