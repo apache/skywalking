@@ -248,7 +248,7 @@ jobs:
         with:
           submodules: true
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -276,7 +276,7 @@ jobs:
         with:
           submodules: true
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -310,7 +310,7 @@ jobs:
         with:
           submodules: true
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -731,7 +731,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
@@ -854,7 +854,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: temurin
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
