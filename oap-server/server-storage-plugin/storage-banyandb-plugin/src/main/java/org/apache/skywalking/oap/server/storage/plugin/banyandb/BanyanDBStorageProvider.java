@@ -55,6 +55,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQuery
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTLStatusQuery;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -186,8 +187,11 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                 IAsyncProfilerTaskLogQueryDAO.class, new BanyanDBAsyncProfilerTaskLogQueryDAO(client,
                         this.config.getAsyncProfilerTaskQueryMaxSize()
                 ));
+        this.registerServiceImplementation(IJFRDataQueryDAO.class, new BanyanDBJFRDataQueryDAO(client));
         this.registerServiceImplementation(
-                IJFRDataQueryDAO.class, new BanyanDBJFRDataQueryDAO(client));
+            StorageTTLStatusQuery.class,
+            new BanyanDBTTLStatusQuery(config)
+        );
     }
 
     @Override

@@ -70,10 +70,26 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private int segmentQueryMaxSize = 200;
     private int profileDataQueryBatchSize = 100;
 
-    /**
-     * The configuration of the groups.
-     * @since 10.2.0
-     */
+    // ----------------------------------------
+    // The configuration of the groups.
+    // since 10.2.0
+    // ----------------------------------------
+    // The group settings of record.
+    // `gr` is the short name of the group settings of record.
+    //
+    // The "normal"(`gr...`) section defines settings for datasets not specified in "super".
+    // Each dataset will be grouped under a single group named "normal".
+    // "super"(`grSuper...`) is a special dataset designed to store trace or log data that is too large for normal datasets.
+    // # Each super dataset will be a separate group in BanyanDB, following the settings defined in the "super" section.
+    // ----------------------------------------
+    // The group settings of metrics.
+    // `gm` is the short name of the group settings of metrics.
+    //
+    // OAP stores metrics based its granularity.
+    // Valid values are "day", "hour", and "minute". That means metrics will be stored in the three separate groups.
+    // Non-"minute" are governed by the "core.downsampling" setting.
+    // For example, if "core.downsampling" is set to "hour", the "hour" will be used, while "day" are ignored.
+
     private int grNormalShardNum = 1;
     private int grNormalSIDays = 1;
     private int grNormalTTLDays = 3;

@@ -16,18 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.query.debug;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-public class DebuggingQueryModule extends ModuleDefine {
-    public static final String NAME = "debugging-query";
-
-    public DebuggingQueryModule() {
-        super(NAME);
-    }
-
-    public Class[] services() {
-        return new Class[0];
+public interface StorageTTLStatusQuery extends Service {
+    /**
+     * Get the TTL of the metrics and records data from the selected storage.
+     *
+     * @return null if the storage doesn't support TTL customization. Or return the TTL definition from specific storage
+     * implementation.
+     */
+    default TTLDefinition getTTL() {
+        return null;
     }
 }

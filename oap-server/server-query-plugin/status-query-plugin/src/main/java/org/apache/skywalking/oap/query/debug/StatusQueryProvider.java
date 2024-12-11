@@ -28,28 +28,28 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
-public class DebuggingQueryProvider extends ModuleProvider {
+public class StatusQueryProvider extends ModuleProvider {
     public static final String NAME = "default";
 
-    private DebuggingQueryConfig config;
+    private StatusQueryConfig config;
 
     public String name() {
         return NAME;
     }
 
     public Class<? extends ModuleDefine> module() {
-        return DebuggingQueryModule.class;
+        return StatusQueryModule.class;
     }
 
     public ConfigCreator<? extends ModuleConfig> newConfigCreator() {
-        return new ConfigCreator<DebuggingQueryConfig>() {
+        return new ConfigCreator<StatusQueryConfig>() {
             @Override
-            public Class<DebuggingQueryConfig> type() {
-                return DebuggingQueryConfig.class;
+            public Class<StatusQueryConfig> type() {
+                return StatusQueryConfig.class;
             }
 
             @Override
-            public void onInitialized(final DebuggingQueryConfig initialized) {
+            public void onInitialized(final StatusQueryConfig initialized) {
                 config = initialized;
             }
         };
@@ -65,6 +65,10 @@ public class DebuggingQueryProvider extends ModuleProvider {
                                                   .getService(HTTPHandlerRegister.class);
         service.addHandler(
             new DebuggingHTTPHandler(getManager(), config),
+            Collections.singletonList(HttpMethod.GET)
+        );
+        service.addHandler(
+            new TTLConfigQueryHandler(getManager()),
             Collections.singletonList(HttpMethod.GET)
         );
     }

@@ -16,16 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import lombok.Data;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
-
-        Assertions.assertEquals(48, coreModule.services().length);
-    }
+/**
+ * Metrics TTL includes the definition of the TTL of the metrics-ish data in the storage,
+ * e.g.
+ * 1. The metadata of the service, instance, endpoint, topology map, etc.
+ * 2. Generated metrics data from OAL and MAL engines.
+ *
+ * TTLs for ach granularity metrics are listed separately.
+ */
+@Data
+public class MetricsTTL {
+    private final int minute;
+    private final int hour;
+    private final int day;
 }

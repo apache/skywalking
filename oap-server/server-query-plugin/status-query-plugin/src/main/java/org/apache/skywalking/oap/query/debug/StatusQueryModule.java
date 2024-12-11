@@ -16,16 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.query.debug;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
+public class StatusQueryModule extends ModuleDefine {
+    public static final String NAME = "status-query";
 
-        Assertions.assertEquals(48, coreModule.services().length);
+    public StatusQueryModule() {
+        super(NAME);
+    }
+
+    public Class[] services() {
+        return new Class[0];
     }
 }

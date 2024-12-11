@@ -16,4 +16,4 @@
 #
 #
 
-org.apache.skywalking.oap.query.debug.DebuggingQueryModule
+org.apache.skywalking.oap.query.debug.StatusQueryProvider

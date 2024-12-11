@@ -16,16 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import lombok.Data;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
-
-        Assertions.assertEquals(48, coreModule.services().length);
-    }
+/**
+ * RecordsTTL includes the definition of the TTL of the records data in the storage,
+ * Records include traces, logs, sampled slow SQL statements, HTTP requests(by Rover), alarms, etc.
+ * Super dataset of records are traces and logs, which volume should be much larger.
+ */
+@Data
+public class RecordsTTL {
+    private final int recordTTL;
+    private final int recordSuperDatasetTTL;
 }

@@ -16,17 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.debug;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-
-@Getter
-public class DebuggingQueryConfig extends ModuleConfig {
-    /**
-     * Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
-     *
-     * @since 9.7.0
-     */
-    private String keywords4MaskingSecretsOfConfig = "user,password,token,accessKey,secretKey,authentication";
+/**
+ * The default implementation of {@link StorageTTLStatusQuery}.
+ * This is used when the storage doesn't provide the TTL customization.
+ * Typically, BanyanDB provides advanced progressive TTL configurations.
+ * For more details, visit <a href="https://skywalking.apache.org/docs/main/next/en/banyandb/ttl">Progressive TTL
+ * Documentation</a>.
+ */
+public class DefaultStorageTTLStatusQuery implements StorageTTLStatusQuery {
 }

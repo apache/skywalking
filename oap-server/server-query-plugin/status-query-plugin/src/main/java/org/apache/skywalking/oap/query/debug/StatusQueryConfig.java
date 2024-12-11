@@ -16,16 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.query.debug;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
-
-        Assertions.assertEquals(48, coreModule.services().length);
-    }
+@Getter
+public class StatusQueryConfig extends ModuleConfig {
+    /**
+     * Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
+     *
+     * @since 9.7.0
+     */
+    private String keywords4MaskingSecretsOfConfig = "user,password,token,accessKey,secretKey,authentication";
 }

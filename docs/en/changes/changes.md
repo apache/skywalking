@@ -6,6 +6,7 @@
   * This change would not impact the existing deployment and its feature for our official release users.
   * **Warning** If there are custom query plugins for our Elasticsearch indices, this change could break them as
     sort queries and aggregation queries which used the unexpected fields are being blocked.
+* [Breaking Change] Rename `debugging-query` module to `status-query` module. Relative exposed APIs are **UNCHANGED**. 
 
 #### OAP Server
 
@@ -34,6 +35,7 @@
 * BanyanDB: Support update the Schema when OAP starting.
 * BanyanDB: Speed up OAP booting while initializing BanyanDB.
 * BanyanDB: Support `@EnableSort` on the column to enable sorting for `IndexRule` and set the default to false.
+* Support `Get Effective TTL Configurations` API.
 
 #### UI
 
@@ -61,5 +63,6 @@
 * Improve BanyanDB documentation.
 * Improve component-libraries documentation.
 * Improve configuration-vocabulary documentation.
+* Add `Get Effective TTL Configurations` API documentation.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/224?closed=1)
