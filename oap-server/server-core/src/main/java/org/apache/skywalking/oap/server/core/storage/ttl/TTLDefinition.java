@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.Data;
 
 /**
@@ -25,8 +27,9 @@ import lombok.Data;
  */
 @Data
 public class TTLDefinition {
-    private final MetricsTTL metricsTTL;
-    private final RecordsTTL recordsTTL;
+    private final static Gson GSON = new Gson();
+    private final MetricsTTL metrics;
+    private final RecordsTTL records;
 
     public String generateTTLDefinition() {
         StringBuilder ttlDefinition = new StringBuilder();
@@ -36,15 +39,19 @@ public class TTLDefinition {
         ttlDefinition.append("# 2. Generated metrics data from OAL and MAL engines.\n");
         ttlDefinition.append("#\n");
         ttlDefinition.append("# TTLs for each granularity metrics are listed separately.\n");
-        ttlDefinition.append("metricsTTL.minute=").append(metricsTTL.getMinute()).append("\n");
-        ttlDefinition.append("metricsTTL.hour=").append(metricsTTL.getHour()).append("\n");
-        ttlDefinition.append("metricsTTL.day=").append(metricsTTL.getDay()).append("\n");
+        ttlDefinition.append("metrics.minute=").append(metrics.getMinute()).append("\n");
+        ttlDefinition.append("metrics.hour=").append(metrics.getHour()).append("\n");
+        ttlDefinition.append("metrics.day=").append(metrics.getDay()).append("\n");
         ttlDefinition.append("\n");
         ttlDefinition.append("# Records TTL includes the definition of the TTL of the records data in the storage,\n");
         ttlDefinition.append("# Records include traces, logs, sampled slow SQL statements, HTTP requests(by Rover), alarms, etc.\n");
         ttlDefinition.append("# Super dataset of records are traces and logs, which volume should be much larger.\n");
-        ttlDefinition.append("recordsTTL.recordTTL=").append(recordsTTL.getRecordTTL()).append("\n");
-        ttlDefinition.append("recordsTTL.recordSuperDatasetTTL=").append(recordsTTL.getRecordSuperDatasetTTL()).append("\n");
+        ttlDefinition.append("records.default=").append(records.getValue()).append("\n");
+        ttlDefinition.append("records.superDataset=").append(records.getSuperDataset()).append("\n");
         return ttlDefinition.toString();
+    }
+
+    public String generateTTLDefinitionAsJSONStr() {
+        return GSON.toJson(this);
     }
 }

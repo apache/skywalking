@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.query.debug;
 
+import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.annotation.ExceptionHandler;
 import com.linecorp.armeria.server.annotation.Get;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +48,10 @@ public class TTLConfigQueryHandler {
     }
 
     @Get("/status/config/ttl")
-    public String affectedTTLConfigurations() {
-        return getTTLStatusQuery().getTTL().generateTTLDefinition();
+    public HttpResponse affectedTTLConfigurations(HttpRequest request) {
+        if ("application/json".equalsIgnoreCase(request.headers().get("content-type"))) {
+            return HttpResponse.of(MediaType.JSON_UTF_8, getTTLStatusQuery().getTTL().generateTTLDefinitionAsJSONStr());
+        }
+        return HttpResponse.of(MediaType.PLAIN_TEXT_UTF_8, getTTLStatusQuery().getTTL().generateTTLDefinition());
     }
 }

@@ -2,7 +2,7 @@
 
 Time To Live (TTL) mechanism has different behaviors according to different storage implementations. By default, the
 core module provides two TTL configurations: [`recordDataTTL` and `metricsDataTTL`](../setup/backend/ttl.md).
-But every storage implementation could override these settings and provide its own TTL configurations, for example,
+But some storage implementations could override these settings and provide its own TTL configurations, for example,
 BanyanDB provides its native TTL mechanism to support [progressive TTL](../banyandb/ttl.md) feature.
 
 This API is used to get the unified and effective TTL configurations.
@@ -10,20 +10,39 @@ This API is used to get the unified and effective TTL configurations.
 - HTTP GET method.
 
 ```shell
-> curl http://127.0.0.1:12800/status/config/ttl
+> curl -X GET "http://127.0.0.1:12800/status/config/ttl"
 # Metrics TTL includes the definition of the TTL of the metrics-ish data in the storage,
 # e.g.
 # 1. The metadata of the service, instance, endpoint, topology map, etc.
 # 2. Generated metrics data from OAL and MAL engines.
 #
 # TTLs for each granularity metrics are listed separately.
-metricsTTL.minute=7
-metricsTTL.hour=7
-metricsTTL.day=7
+metrics.minute=7
+metrics.hour=7
+metrics.day=7
 
 # Records TTL includes the definition of the TTL of the records data in the storage,
 # Records include traces, logs, sampled slow SQL statements, HTTP requests(by Rover), alarms, etc.
 # Super dataset of records are traces and logs, which volume should be much larger.
-recordsTTL.recordTTL=3
-recordsTTL.recordSuperDatasetTTL=3
+records.default=3
+records.superDataset=3
+```
+
+This API also provides the response in JSON format, which is more friendly for programmatic usage.
+
+```shell
+> curl -X GET "http://127.0.0.1:12800/status/config/ttl" \
+       -H "Content-Type: application/json"
+
+{
+    "metrics": {
+        "minute": 7,
+        "hour": 7,
+        "day": 7
+    },
+    "records": {
+        "default": 3,
+        "superDataset": 3
+    }
+}
 ```

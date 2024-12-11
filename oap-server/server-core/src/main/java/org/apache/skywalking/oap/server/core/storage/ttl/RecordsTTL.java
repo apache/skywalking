@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 /**
@@ -27,6 +28,7 @@ import lombok.Data;
  */
 @Data
 public class RecordsTTL {
-    private final int recordTTL;
-    private final int recordSuperDatasetTTL;
+    @SerializedName("default")
+    private final int value;
+    private final int superDataset;
 }
