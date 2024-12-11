@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import lombok.Data;
 
 /**
