@@ -52,6 +52,7 @@ import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.RecordQueryService;
+import org.apache.skywalking.oap.server.core.query.TTLStatusQuery;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
@@ -96,7 +97,7 @@ public class CoreModule extends ModuleDefine {
 
         addServerInterface(classes);
         addReceiverInterface(classes);
-        addInsideService(classes);
+        addInternalServices(classes);
         addCacheService(classes);
         addQueryService(classes);
         addProfileService(classes);
@@ -153,6 +154,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(TagAutoCompleteQueryService.class);
         classes.add(RecordQueryService.class);
         classes.add(HierarchyQueryService.class);
+        classes.add(TTLStatusQuery.class);
     }
 
     private void addServerInterface(List<Class> classes) {
@@ -160,7 +162,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(HTTPHandlerRegister.class);
     }
 
-    private void addInsideService(List<Class> classes) {
+    private void addInternalServices(List<Class> classes) {
         classes.add(ModelCreator.class);
         classes.add(IModelManager.class);
         classes.add(ModelManipulator.class);

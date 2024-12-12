@@ -1,14 +1,15 @@
-# Scratch The OAP Config Dump
+# Dump Effective Initial Configurations
 
 SkyWalking OAP behaviors could be controlled through hundreds of configurations. It is hard to know what is the final
-configuration as all the configurations could be overrided by system environments.
+configuration as all the configurations could be override by system environments.
 
-The core config file [application.yml](../../../oap-server/server-starter/src/main/resources/application.yml) lists all
-the configurations
+The core config file [application.yml](../../../oap-server/server-starter/src/main/resources/application.yml) lists all the configurations
 and their default values. However, it is still hard to know the runtime value.
 
-Scratch is a tool to dump the final configuration. It is provided within OAP rest server, which could be accessed
-through HTTP GET `http://{core restHost}:{core restPort}/debugging/config/dump`.
+Dump Effective Initial Configurations API is designed to help users to understand the effective configurations, no matter
+they are initialized in the `application.yml`, or override through system environments.
+- URL, `http://{core restHost}:{core restPort}/debugging/config/dump`
+- HTTP GET method.
 
 ```shell
 > curl http://127.0.0.1:12800/debugging/config/dump

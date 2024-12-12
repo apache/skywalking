@@ -16,17 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.query.debug;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-@Getter
-public class DebuggingQueryConfig extends ModuleConfig {
+public interface StorageTTLStatusQuery extends Service {
     /**
-     * Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
+     * Get the TTL of the metrics and records data from the selected storage.
      *
-     * @since 9.7.0
+     * @return null if the storage doesn't support TTL customization. Or return the TTL definition from specific storage
+     * implementation.
      */
-    private String keywords4MaskingSecretsOfConfig = "user,password,token,accessKey,secretKey,authentication";
+    default TTLDefinition getTTL() {
+        return null;
+    }
 }

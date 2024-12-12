@@ -16,16 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
-
-        Assertions.assertEquals(48, coreModule.services().length);
-    }
+/**
+ * The default implementation of {@link StorageTTLStatusQuery}.
+ * This is used when the storage doesn't provide the TTL customization.
+ * Typically, BanyanDB provides advanced progressive TTL configurations.
+ * For more details, visit <a href="https://skywalking.apache.org/docs/main/next/en/banyandb/ttl">Progressive TTL
+ * Documentation</a>.
+ */
+public class DefaultStorageTTLStatusQuery implements StorageTTLStatusQuery {
 }

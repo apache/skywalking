@@ -16,18 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.query.debug;
+package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import com.google.gson.annotations.SerializedName;
+import lombok.Data;
 
-public class DebuggingQueryModule extends ModuleDefine {
-    public static final String NAME = "debugging-query";
-
-    public DebuggingQueryModule() {
-        super(NAME);
-    }
-
-    public Class[] services() {
-        return new Class[0];
-    }
+/**
+ * RecordsTTL includes the definition of the TTL of the records data in the storage,
+ * Records include traces, logs, sampled slow SQL statements, HTTP requests(by Rover), alarms, etc.
+ * Super dataset of records are traces and logs, which volume should be much larger.
+ */
+@Data
+public class RecordsTTL {
+    @SerializedName("default")
+    private final int value;
+    private final int superDataset;
 }

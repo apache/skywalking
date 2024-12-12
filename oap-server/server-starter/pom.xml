@@ -113,7 +113,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>debugging-query-plugin</artifactId>
+            <artifactId>status-query-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

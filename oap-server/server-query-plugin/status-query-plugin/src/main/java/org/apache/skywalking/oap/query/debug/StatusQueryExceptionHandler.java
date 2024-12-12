@@ -29,7 +29,7 @@ import static com.linecorp.armeria.common.HttpStatus.INTERNAL_SERVER_ERROR;
 import static com.linecorp.armeria.common.MediaType.ANY_TEXT_TYPE;
 
 @Slf4j
-public class DebuggingQueryExceptionHandler implements ExceptionHandlerFunction {
+public class StatusQueryExceptionHandler implements ExceptionHandlerFunction {
     @Override
     public HttpResponse handleException(final ServiceRequestContext ctx, final HttpRequest req, final Throwable cause) {
         String rspMsg = cause.getMessage() != null ? cause.getMessage() : cause.getClass().getSimpleName();

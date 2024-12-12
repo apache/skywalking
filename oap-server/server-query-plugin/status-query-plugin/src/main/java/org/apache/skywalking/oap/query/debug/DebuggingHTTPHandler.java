@@ -85,7 +85,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import zipkin2.Span;
 
 @Slf4j
-@ExceptionHandler(DebuggingQueryExceptionHandler.class)
+@ExceptionHandler(StatusQueryExceptionHandler.class)
 public class DebuggingHTTPHandler {
     private final ServerStatusService serverStatusService;
     private final MetricsExpressionQuery mqeQuery;
@@ -93,9 +93,9 @@ public class DebuggingHTTPHandler {
     private final ZipkinQueryHandler zipkinQueryHandler;
     private final TopologyQuery topologyQuery;
     private final LogQuery logQuery;
-    final DebuggingQueryConfig config;
+    final StatusQueryConfig config;
 
-    public DebuggingHTTPHandler(final ModuleManager manager, final DebuggingQueryConfig config) {
+    public DebuggingHTTPHandler(final ModuleManager manager, final StatusQueryConfig config) {
         serverStatusService = manager.find(CoreModule.NAME)
                                      .provider()
                                      .getService(ServerStatusService.class);
