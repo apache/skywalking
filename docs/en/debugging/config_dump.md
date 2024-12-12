@@ -63,13 +63,3 @@ By default, we mask the config keys through the following configurations.
 # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
 keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
 ```
-
-## Disable The Config Dump Service
-
-By default, this service is open for helping users to debug and diagnose. If you want to disable it, you need to diable the whole
-`debugging-query` module through setting `selector=-`.
-
-```yaml
-debugging-query:
-  selector: ${SW_DEBUGGING_QUERY:-}
-```
