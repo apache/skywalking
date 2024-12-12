@@ -32,7 +32,7 @@ This API also provides the response in JSON format, which is more friendly for p
 
 ```shell
 > curl -X GET "http://127.0.0.1:12800/status/config/ttl" \
-       -H "Content-Type: application/json"
+       -H "Accept: application/json"
 
 {
     "metrics": {
