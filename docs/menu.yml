@@ -336,6 +336,8 @@ catalog:
             path: "/en/api/health-check"
           - name: "Status APIs"
             catalog:
+              - name: "Introduction"
+                path: "/en/status/status_apis"
               - name: "Dump Effective Initial Configurations"
                 path: "/en/debugging/config_dump"
               - name: "Tracing Query Execution"
