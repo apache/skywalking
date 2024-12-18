@@ -52,8 +52,8 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 @Slf4j
 public class BanyanDBIndexInstaller extends ModelInstaller {
     // BanyanDB group setting aligned with the OAP settings
-    private static final Set<String/*group name*/> GROUP_ALIGNED = new HashSet<>();
-    private static final Map<String/*group name*/, Map<String/*rule name*/, IndexRule>> GROUP_INDEX_RULES = new HashMap<>();
+    private final Set<String/*group name*/> groupAligned = new HashSet<>();
+    private final Map<String/*group name*/, Map<String/*rule name*/, IndexRule>> groupIndexRules = new HashMap<>();
     private final BanyanDBStorageConfig config;
 
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
@@ -239,7 +239,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
         }
         if (!RunningMode.isNoInitMode()) {
-            if (!GROUP_ALIGNED.contains(metadata.getGroup())) {
+            if (!groupAligned.contains(metadata.getGroup())) {
                 // create the group if not exist
                 if (!resourceExist.hasGroup()) {
                     try {
@@ -262,7 +262,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     }
                 }
                 // mark the group as aligned
-                GROUP_ALIGNED.add(metadata.getGroup());
+                groupAligned.add(metadata.getGroup());
             }
         }
         return resourceExist.hasResource();
@@ -317,7 +317,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      * Otherwise, return false and mark the index rule as processed.
      */
     private boolean checkIndexRuleProcessed(String modelName, IndexRule indexRule) {
-        Map<String, IndexRule> rules = GROUP_INDEX_RULES.computeIfAbsent(
+        Map<String, IndexRule> rules = groupIndexRules.computeIfAbsent(
             indexRule.getMetadata().getGroup(), k -> new HashMap<>());
         IndexRule existRule = rules.get(indexRule.getMetadata().getName());
         if (existRule != null) {
@@ -457,7 +457,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     /**
      * Check if the index rule binding exists and update it if necessary.
-     * If the old index rule is not in the index rule binding, delete it.
      */
     private void checkIndexRuleBinding(List<IndexRule> indexRules,
                                        String group,
