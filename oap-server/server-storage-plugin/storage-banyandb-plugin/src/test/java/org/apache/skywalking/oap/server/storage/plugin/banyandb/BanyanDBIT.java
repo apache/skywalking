@@ -70,6 +70,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 @Slf4j
 @Testcontainers
@@ -188,13 +189,14 @@ public class BanyanDBIT {
                                               ), ImmutableSet.of("service_id", "tag"),
                                               ImmutableSet.of("value")
         );
-
-        MeasureQueryResponse resp = client.query(query);
-        assertNotNull(resp);
-        assertEquals(1, resp.getDataPoints().size());
-        assertEquals("service1", resp.getDataPoints().get(0).getTagValue("service_id"));
-        assertEquals("tag1", resp.getDataPoints().get(0).getTagValue("tag"));
-        assertEquals(100, (Long) resp.getDataPoints().get(0).getFieldValue("value"));
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+            MeasureQueryResponse resp = client.query(query);
+            assertNotNull(resp);
+            assertEquals(1, resp.getDataPoints().size());
+            assertEquals("service1", resp.getDataPoints().get(0).getTagValue("service_id"));
+            assertEquals("tag1", resp.getDataPoints().get(0).getTagValue("tag"));
+            assertEquals(100, (Long) resp.getDataPoints().get(0).getFieldValue("value"));
+        });
 
         Model updatedModel = models.add(UpdateTestMetric.class, DefaultScopeDefine.SERVICE,
                                         new Storage("testMetric", true, DownSampling.Minute)
@@ -257,19 +259,19 @@ public class BanyanDBIT {
                                               ), ImmutableSet.of("service_id", "tag", "new_tag"),
                                               ImmutableSet.of("value", "new_value")
         );
-
-        MeasureQueryResponse updated_resp = client.query(updatedQuery);
-        assertNotNull(updated_resp);
-        assertEquals(2, updated_resp.getDataPoints().size());
-        assertEquals("service1", resp.getDataPoints().get(0).getTagValue("service_id"));
-        assertEquals("tag1", resp.getDataPoints().get(0).getTagValue("tag"));
-        assertEquals(100, (Long) resp.getDataPoints().get(0).getFieldValue("value"));
-        assertEquals("service2", updated_resp.getDataPoints().get(1).getTagValue("service_id"));
-        assertEquals("tag1", updated_resp.getDataPoints().get(1).getTagValue("tag"));
-        assertEquals("new_tag1", updated_resp.getDataPoints().get(1).getTagValue("new_tag"));
-        assertEquals(101, (Long) updated_resp.getDataPoints().get(1).getFieldValue("value"));
-        assertEquals(1000, (Long) updated_resp.getDataPoints().get(1).getFieldValue("new_value"));
-
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+            MeasureQueryResponse updatedResp = client.query(updatedQuery);
+            assertNotNull(updatedResp);
+            assertEquals(2, updatedResp.getDataPoints().size());
+            assertEquals("service1", updatedResp.getDataPoints().get(0).getTagValue("service_id"));
+            assertEquals("tag1", updatedResp.getDataPoints().get(0).getTagValue("tag"));
+            assertEquals(100, (Long) updatedResp.getDataPoints().get(0).getFieldValue("value"));
+            assertEquals("service2", updatedResp.getDataPoints().get(1).getTagValue("service_id"));
+            assertEquals("tag1", updatedResp.getDataPoints().get(1).getTagValue("tag"));
+            assertEquals("new_tag1", updatedResp.getDataPoints().get(1).getTagValue("new_tag"));
+            assertEquals(101, (Long) updatedResp.getDataPoints().get(1).getFieldValue("value"));
+            assertEquals(1000, (Long) updatedResp.getDataPoints().get(1).getFieldValue("new_value"));
+        });
     }
 
     @Stream(name = "testMetric", scopeId = DefaultScopeDefine.SERVICE,
@@ -315,7 +317,7 @@ public class BanyanDBIT {
         private long value;
         @Column(name = "new_value", storageOnly = true)
         @BanyanDB.MeasureField
-        private long new_value;
+        private long newValue;
 
         static class Builder implements StorageBuilder<StorageData> {
             @Override
