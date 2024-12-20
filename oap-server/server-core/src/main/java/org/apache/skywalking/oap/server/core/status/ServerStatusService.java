@@ -64,6 +64,10 @@ public class ServerStatusService implements Service {
     }
 
     public void rebalancedCluster(long rebalancedTime) {
+        if (!bootingStatus.isBooted()) {
+            return;
+        }
+
         clusterStatus.setRebalancedTime(rebalancedTime);
         manager.find(TelemetryModule.NAME)
                .provider()

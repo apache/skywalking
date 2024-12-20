@@ -31,7 +31,7 @@ public class BootingStatus {
     /**
      * The status of OAP is fully booted successfully.
      */
-    private boolean isBooted = false;
+    private volatile boolean isBooted = false;
     /**
      * The uptime in milliseconds if {@link #isBooted} is true;
      */
