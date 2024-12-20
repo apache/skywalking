@@ -65,7 +65,11 @@ public class ServerStatusService implements Service {
 
     public void rebalancedCluster(long rebalancedTime) {
         if (!bootingStatus.isBooted()) {
-            return;
+            try {
+                bootingStatus.waitUntilBooted();
+            } catch (InterruptedException e) {
+                // ignore
+            }
         }
 
         clusterStatus.setRebalancedTime(rebalancedTime);

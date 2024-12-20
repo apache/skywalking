@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
+import java.util.concurrent.CountDownLatch;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,7 @@ import lombok.Setter;
 @Getter
 @Setter(AccessLevel.PACKAGE)
 public class BootingStatus {
+    private final CountDownLatch bootingLatch = new CountDownLatch(1);
     /**
      * The status of OAP is fully booted successfully.
      */
@@ -36,4 +38,13 @@ public class BootingStatus {
      * The uptime in milliseconds if {@link #isBooted} is true;
      */
     private long uptime = 0;
+
+    public void setBooted(final boolean booted) {
+        isBooted = booted;
+        bootingLatch.countDown();
+    }
+
+    public void waitUntilBooted() throws InterruptedException {
+        bootingLatch.await();
+    }
 }
