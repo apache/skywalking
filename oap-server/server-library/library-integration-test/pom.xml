@@ -19,23 +19,12 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>server-library</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>server-library</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>library-module</module>
-        <module>library-server</module>
-        <module>library-util</module>
-        <module>library-client</module>
-        <module>library-elasticsearch-client</module>
-        <module>library-datacarrier-queue</module>
-        <module>library-kubernetes-support</module>
-        <module>library-async-profiler-jfr-parser</module>
-        <module>library-integration-test</module>
-    </modules>
+    <artifactId>library-integration-test</artifactId>
+
 </project>

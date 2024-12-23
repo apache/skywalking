@@ -50,6 +50,7 @@ import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import org.apache.skywalking.oap.server.library.it.ITVersions;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
@@ -77,7 +78,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 public class BanyanDBIT {
     private static final String REGISTRY = "ghcr.io";
     private static final String IMAGE_NAME = "apache/skywalking-banyandb";
-    private static final String TAG = "5931e826d7f60449b353f2843362c745823d9d04";
+    private static final String TAG = ITVersions.get("SW_BANYANDB_COMMIT");
 
     private static final String IMAGE = REGISTRY + "/" + IMAGE_NAME + ":" + TAG;
     private static MockedStatic<DefaultScopeDefine> DEFAULT_SCOPE_DEFINE_MOCKED_STATIC;
