@@ -77,7 +77,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 public class BanyanDBIT {
     private static final String REGISTRY = "ghcr.io";
     private static final String IMAGE_NAME = "apache/skywalking-banyandb";
-    private static final String TAG = "36584001aa3071eab89b9d811815979521a67a78";
+    private static final String TAG = "6e99ab7e8fed451d24e4d6041ec4c3db7c44f237";
 
     private static final String IMAGE = REGISTRY + "/" + IMAGE_NAME + ":" + TAG;
     private static MockedStatic<DefaultScopeDefine> DEFAULT_SCOPE_DEFINE_MOCKED_STATIC;
