@@ -58,6 +58,7 @@
 * Releases an existing object URL.
 * Optimize Trace Profiling widget.
 * Implement Async Profiling widget.
+* Fix inaccurate data query issue on endpoint topology page.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
