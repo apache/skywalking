@@ -48,5 +48,11 @@
             <groupId>org.apache.skywalking</groupId>
             <artifactId>banyandb-java-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-integration-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
