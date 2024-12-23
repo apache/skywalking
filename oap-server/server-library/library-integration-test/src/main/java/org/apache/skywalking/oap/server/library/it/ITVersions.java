@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class ITVersions {
 
-    static Map<String, String> env = readingEnv("test", "e2e-v2", "script", "env");
+    static Map<String, String> ENV = readingEnv("test", "e2e-v2", "script", "env");
 
     // The prefix of the integration version in the environment file.
     static final String INTERGRATION_PREFIX = "INTEGRATION_";
@@ -38,12 +38,12 @@ public class ITVersions {
     // Get the version from the environment file.
     public static String get(String key) {
         // trying to find the integration version first
-        final String integrationVal = env.get(INTERGRATION_PREFIX + key);
+        final String integrationVal = ENV.get(INTERGRATION_PREFIX + key);
         if (integrationVal != null && integrationVal.length() > 0) {
             return integrationVal;
         }
         // if not found, return the normal version
-        return env.get(key);
+        return ENV.get(key);
     }
 
     private static Map<String, String> readingEnv(String... envFile) {
