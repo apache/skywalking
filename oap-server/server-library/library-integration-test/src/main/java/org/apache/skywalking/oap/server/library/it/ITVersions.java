@@ -32,17 +32,8 @@ public class ITVersions {
 
     static Map<String, String> ENV = readingEnv("test", "e2e-v2", "script", "env");
 
-    // The prefix of the integration version in the environment file.
-    static final String INTERGRATION_PREFIX = "INTEGRATION_";
-
     // Get the version from the environment file.
     public static String get(String key) {
-        // trying to find the integration version first
-        final String integrationVal = ENV.get(INTERGRATION_PREFIX + key);
-        if (integrationVal != null && integrationVal.length() > 0) {
-            return integrationVal;
-        }
-        // if not found, return the normal version
         return ENV.get(key);
     }
 

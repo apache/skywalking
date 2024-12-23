@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-INTEGRATION_SW_BANYANDB_COMMIT=6e99ab7e8fed451d24e4d6041ec4c3db7c44f237
-
 SW_AGENT_JAVA_COMMIT=f0245864e4388a388fe7445b56b6ce7cedc94aaf
 SW_AGENT_SATELLITE_COMMIT=ea27a3f4e126a24775fe12e2aa2695bcb23d99c3
 SW_AGENT_NGINX_LUA_COMMIT=c3cee4841798a147d83b96a10914d4ac0e11d0aa
