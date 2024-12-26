@@ -38,6 +38,7 @@
 * Support `Get Effective TTL Configurations` API.
 * Fix `ServerStatusService.statusWatchers` concurrent modification.
 * Add protection for dynamic config change propagate chain.
+* Add Ruby component IDs.
 
 #### UI
 
