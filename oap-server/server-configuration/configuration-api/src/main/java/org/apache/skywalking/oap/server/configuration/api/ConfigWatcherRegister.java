@@ -37,17 +37,25 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         if (newItemValue == null) {
             if (watcher.value() != null) {
                 // Notify watcher, the new value is null with delete event type.
-                watcher.notify(
-                    new ConfigChangeWatcher.ConfigChangeEvent(null, ConfigChangeWatcher.EventType.DELETE));
+                try {
+                    watcher.notify(
+                        new ConfigChangeWatcher.ConfigChangeEvent(null, ConfigChangeWatcher.EventType.DELETE));
+                } catch (Exception e) {
+                    log.error("notify config change watcher {} failed", watcher, e);
+                }
             } else {
                 // Don't need to notify, stay in null.
             }
         } else {
             if (!newItemValue.equals(watcher.value())) {
-                watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
-                    newItemValue,
-                    ConfigChangeWatcher.EventType.MODIFY
-                ));
+                try {
+                    watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
+                        newItemValue,
+                        ConfigChangeWatcher.EventType.MODIFY
+                    ));
+                } catch (Exception e) {
+                    log.error("notify config change watcher {} failed", watcher, e);
+                }
             } else {
                 // Don't need to notify, stay in the same config value.
             }
@@ -99,7 +107,11 @@ public abstract class ConfigWatcherRegister implements DynamicConfigurationServi
         });
 
         if (changedGroupItems.size() > 0) {
-            watcher.notifyGroup(changedGroupItems);
+            try {
+                watcher.notifyGroup(changedGroupItems);
+            } catch (Exception e) {
+                log.error("notify config change watcher {} failed", watcher, e);
+            }
         }
     }
 

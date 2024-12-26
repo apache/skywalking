@@ -37,7 +37,8 @@
 * BanyanDB: Support `@EnableSort` on the column to enable sorting for `IndexRule` and set the default to false.
 * Support `Get Effective TTL Configurations` API.
 * Fix `ServerStatusService.statusWatchers` concurrent modification.
-* Add Ruby component id.
+* Add protection for dynamic config change propagate chain.
+* Add Ruby component IDs.
 
 #### UI
 
