@@ -63,7 +63,7 @@ ORACLE:
   languages: Java
 Redis:
   id: 7
-  languages: Java,C#,Node.js,PHP,Python
+  languages: Java,C#,Node.js,PHP,Python,Ruby
 Motan:
   id: 8
   languages: Java
@@ -792,6 +792,15 @@ ajax:
 Rust:
   id: 11000
   languages: Rust
+  
+# Ruby components
+# [12000, 13000) for Ruby agent
+Ruby:
+  id: 12000
+  languages: Ruby
+Sinatra:
+  id: 12001
+  languages: Ruby
 
 # Component Server mapping defines the server display names of some components
 # e.g.
