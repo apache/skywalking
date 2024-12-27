@@ -7,6 +7,10 @@
   * **Warning** If there are custom query plugins for our Elasticsearch indices, this change could break them as
     sort queries and aggregation queries which used the unexpected fields are being blocked.
 * [Breaking Change] Rename `debugging-query` module to `status-query` module. Relative exposed APIs are **UNCHANGED**. 
+* [Breaking Change] All jars of the `skywalking-oap-server` are no longer published through maven central. We will only 
+  publish the source tar and binary tar to the website download page, and docker images to docker hub.
+  * **Warning** If you are using the `skywalking-oap-server` as a dependency in your project, you need to download the 
+    source tar from the website and publish them to your private maven repository.
 
 #### OAP Server
 
@@ -69,5 +73,6 @@
 * Improve configuration-vocabulary documentation.
 * Add `Get Effective TTL Configurations` API documentation.
 * Add Status APIs docs.
+* Simplified the release process with removing maven central publish relative processes.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/224?closed=1)

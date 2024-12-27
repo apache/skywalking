@@ -3,52 +3,21 @@ Apache SkyWalking release guide
 If you're a committer, you can learn how to release SkyWalking in The Apache Way and start the voting process by reading this document.
 
 
-## Set up your development environment
-Follow the steps in the [Apache maven deployment environment document](http://www.apache.org/dev/publishing-maven-artifacts.html#dev-env)
-to set gpg tool and encrypt passwords.
+## Prerequisites
+Add your GPG public key into the [SkyWalking GPG KEYS](https://dist.apache.org/repos/dist/release/skywalking/KEYS) file.
+- If you are a PMC member, use your Apache ID and password to log in this svn, and update the file. **Don't override the existing file.**
+- If you are a committer, please ask a PMC member to help you. 
 
-Use the following block as a template and place it in `~/.m2/settings.xml`.
-
-```
-<settings>
-...
-  <servers>
-    <!-- To publish a snapshot of some part of Maven -->
-    <server>
-      <id>apache.snapshots.https</id>
-      <username> <!-- YOUR APACHE LDAP USERNAME --> </username>
-      <password> <!-- YOUR APACHE LDAP PASSWORD (encrypted) --> </password>
-    </server>
-    <!-- To stage a release of some part of Maven -->
-    <server>
-      <id>apache.releases.https</id>
-      <username> <!-- YOUR APACHE LDAP USERNAME --> </username>
-      <password> <!-- YOUR APACHE LDAP PASSWORD (encrypted) --> </password>
-    </server>
-   ...
-  </servers>
-</settings>
-```
-
-## Add your GPG public key
-1. Add your GPG public key into the [SkyWalking GPG KEYS](https://dist.apache.org/repos/dist/release/skywalking/KEYS) file.
-If you are a committer, use your Apache ID and password to log in this svn, and update the file. **Don't override the existing file.**
-1. Upload your GPG public key to the public GPG site, such as [MIT's site](http://pgp.mit.edu:11371/). This site should be in the
-Apache maven staging repository checklist.
-
-## Test your settings
-This step is only for testing purpose. If your env is correctly set, you don't need to check every time.
-```
-./mvnw clean install -Pall (this will build artifacts, sources and sign)
-```
-
-## Prepare for the release
+## Tag for the release
 
 - Set the version number that you are about to release.
 
 ```bash
 export RELEASE_VERSION=x.y.z # (example: RELEASE_VERSION=10.1.0)
 export NEXT_RELEASE_VERSION=x.y.z # (example: NEXT_RELEASE_VERSION=10.2.0)
+export PRODUCT_NAME="apache-skywalking-apm"
+export SOURCE_FILE="dist/${PRODUCT_NAME}-${RELEASE_VERSION}.tar.gz"
+export TARGET_DIR="tools/releasing"
 ```
 
 - Create a new folder for the new release.
@@ -76,42 +45,34 @@ git tag v${RELEASE_VERSION}
 git push origin v${RELEASE_VERSION}
 ```
 
-## Stage the release 
+## Build the binary package
 
 ```bash
-./mvnw flatten:flatten install deploy -DskipTests
+./mvnw install package -DskipTests
+mv "$SOURCE_FILE" "$TARGET_DIR/"
 ```
 
-This command will build, sign, and deploy the release to the Apache staging repository.
-You should be prompted for your GPG passphrase during the deployment process.
-If no prompt is present, you can set the passphrase in the environment variable `MAVEN_GPG_PASSPHRASE`:
+The release will be packaged first as `apache-skywalking-apm-x.y.z.tar.gz` in the `{PROJECT_ROOT}/dist` directory, and 
+then moved to the `tools/releasing` directory.
 
-```bash
-MAVEN_GPG_PASSPHRASE=<your-gpg-passphrase> ./mvnw flatten:flatten install deploy -DskipTests
-```
 
-- The release will be automatically inserted into a temporary staging repository.
-
-`apache-skywalking-apm-x.y.z.tar.gz` with its `.asc` size could be found in https://repository.apache.org/ staging repo.
-Create shasum through `shasum -a 512 apache-skywalking-apm-x.y.z.tar.gz > apache-skywalking-apm-x.y.z.tar.gz.sha512` 
-
-## Build and sign the source code package
+## Build the source code package, sign the source code package and binary package
 ```bash
 cd tools/releasing
-bash create_source_release.sh
+bash create_release_tars.sh
 ```
 
 This script takes care of the following things:
 1. Use `v` + `RELEASE_VERSION` as tag to clone the codes.
 1. Complete `git submodule init/update`.
 1. Exclude all unnecessary files in the target source tar, such as `.git`, `.github`, and `.gitmodules`. See the script for more details.
-1. Execute `gpg` and `shasum 512`. 
+1. Execute `gpg` and `shasum 512` for source tar and binary tar. 
 
 `apache-skywalking-apm-x.y.z-src.tgz` and files ending with `.asc` and `.sha512` may be found in the `tools/releasing` folder.
 
 ## Start the next iteration
 
-Once the release is deployed to the staging repositories, you can start updating the version to the next number and open a pull request.
+Once the binary and source packages are created, you can start updating the version to the next number and open a pull request.
 
 ```bash
 # Update the version to the next snapshot version still in the same branch, such as 10.1.0-release
@@ -130,15 +91,6 @@ git push
 gh pr create --fill # If you have gh cli installed and configured, or open the pull request in https://github.com/apache/skywalking/pulls
 ```
 
-## Locate and download the distribution package in Apache Nexus Staging repositories
-1. Use your Apache ID to log in to `https://repository.apache.org/`.
-1. Go to `https://repository.apache.org/#stagingRepositories`.
-1. Search `skywalking` and find your staging repository.
-1. Close the repository and wait for all checks to pass. In this step, your GPG KEYS will be checked. See the [set PGP document](#add-your-gpg-public-key),
-if you haven't done it before.
-1. Go to `{REPO_URL}/org/apache/skywalking/apache-skywalking-apm/x.y.z`.
-1. Download `.tar.gz` and `.zip` and files ending with `.asc` and `.sha1`.
-
 
 ## Upload to Apache svn
 1. Use your Apache ID to log in to `https://dist.apache.org/repos/dist/dev/skywalking/`.
@@ -148,7 +100,6 @@ if you haven't done it before.
     * See Section "Build and sign the source code package" for more details 
 1. Upload the distribution package to the folder with files ending with `.asc` and `.sha512`.
     * Package name:  `apache-skywalking-bin-x.y.z.tar.gz`.
-    * See Section "Locate and download the distribution package in Apache Nexus Staging repositories" for more details.
     * Create a `.sha512` package: `shasum -a 512 file > file.sha512`
 
 ## Call a vote in dev
@@ -171,10 +122,6 @@ Release Candidate:
  * sha512 checksums
    - sha512xxxxyyyzzz apache-skywalking-apm-x.x.x-src.tgz
    - sha512xxxxyyyzzz apache-skywalking-apm-bin-x.x.x.tar.gz
-
-Maven 2 staging repository:
-
- * https://repository.apache.org/content/repositories/xxxx/org/apache/skywalking/
 
 Release Tag :
 
@@ -206,7 +153,6 @@ Voting will start now (xxxx date) and will remain open for at least 72 hours, Re
 All PMC members and committers should check these before casting +1 votes.
 
 1. Features test.
-1. All artifacts in staging repository are published with `.asc`, `.md5`, and `*sha1` files.
 1. Source code and distribution package (`apache-skywalking-x.y.z-src.tar.gz`, `apache-skywalking-bin-x.y.z.tar.gz`, `apache-skywalking-bin-x.y.z.zip`)
 are found in `https://dist.apache.org/repos/dist/dev/skywalking/x.y.z` with `.asc` and `.sha512`.
 1. `LICENSE` and `NOTICE` are in the source code and distribution package.
@@ -231,15 +177,12 @@ enter your apache password
 ....
 
 ```
-2. Release in the nexus staging repo.
-3. Public download source and distribution tar/zip are located in `http://www.apache.org/dyn/closer.cgi/skywalking/x.y.z/xxx`.
+2. Public download source and distribution tar/zip with asc and sha512 are located in `http://www.apache.org/dyn/closer.cgi/skywalking/x.y.z/xxx`.
 The Apache mirror path is the only release information that we publish.
-4. Public asc and sha512 are located in `https://www.apache.org/dist/skywalking/x.y.z/xxx`.
-5. Public KEYS point to  `https://www.apache.org/dist/skywalking/KEYS`.
-6. Update the website download page. http://skywalking.apache.org/downloads/ . Add a new download source, distribution, sha512, asc, and document
+3. Update the website download page. http://skywalking.apache.org/downloads/ . Add a new download source, distribution, sha512, asc, and document
 links. The links can be found following rules (3) to (6) above.
-7. Add a release event on the website homepage and event page. Announce the public release with changelog or key features.
-8. Send ANNOUNCE email to `dev@skywalking.apache.org`, `announce@apache.org`. The sender should use the Apache email account.
+4. Add a release event on the website homepage and event page. Announce the public release with changelog or key features.
+5. Send ANNOUNCE email to `dev@skywalking.apache.org`, `announce@apache.org`. The sender should use the Apache email account.
 ```
 Mail title: [ANNOUNCE] Apache SkyWalking x.y.z released
 
