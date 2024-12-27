@@ -95,7 +95,6 @@ gh pr create --fill # If you have gh cli installed and configured, or open the p
     * See Section "Build and sign the source code package" for more details 
 1. Upload the distribution package to the folder with files ending with `.asc` and `.sha512`.
     * Package name:  `apache-skywalking-bin-x.y.z.tar.gz`.
-    * See Section "Locate and download the distribution package in Apache Nexus Staging repositories" for more details.
     * Create a `.sha512` package: `shasum -a 512 file > file.sha512`
 
 ## Call a vote in dev
