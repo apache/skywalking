@@ -45,21 +45,11 @@ git push origin v${RELEASE_VERSION}
 ## Stage the release 
 
 ```bash
-./mvnw package -DskipTests
+./mvnw install package -DskipTests
 ```
 
-This command will build, sign, and deploy the release to the Apache staging repository.
-You should be prompted for your GPG passphrase during the deployment process.
-If no prompt is present, you can set the passphrase in the environment variable `MAVEN_GPG_PASSPHRASE`:
+The release will be packaged locally as `apache-skywalking-apm-x.y.z.tar.gz` in the `{PROJECT_ROOT}/dist` directory.
 
-```bash
-MAVEN_GPG_PASSPHRASE=<your-gpg-passphrase> ./mvnw package -DskipTests
-```
-
-- The release will be packaged locally in the `{PROJECT_ROOT}/dist` directory.
-
-`apache-skywalking-apm-x.y.z.tar.gz` with its `.asc` size could be found in https://repository.apache.org/ staging repo.
-Create shasum through `shasum -a 512 apache-skywalking-apm-x.y.z.tar.gz > apache-skywalking-apm-x.y.z.tar.gz.sha512` 
 
 ## Build and sign the source code package
 ```bash
