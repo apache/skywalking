@@ -42,7 +42,7 @@ git tag v${RELEASE_VERSION}
 git push origin v${RELEASE_VERSION}
 ```
 
-## Stage the release 
+## Build the binary package
 
 ```bash
 ./mvnw install package -DskipTests
@@ -67,7 +67,7 @@ This script takes care of the following things:
 
 ## Start the next iteration
 
-Once the release is deployed to the staging repositories, you can start updating the version to the next number and open a pull request.
+Once the binary and source packages are created, you can start updating the version to the next number and open a pull request.
 
 ```bash
 # Update the version to the next snapshot version still in the same branch, such as 10.1.0-release
