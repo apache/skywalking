@@ -15,6 +15,9 @@ Add your GPG public key into the [SkyWalking GPG KEYS](https://dist.apache.org/r
 ```bash
 export RELEASE_VERSION=x.y.z # (example: RELEASE_VERSION=10.1.0)
 export NEXT_RELEASE_VERSION=x.y.z # (example: NEXT_RELEASE_VERSION=10.2.0)
+export PRODUCT_NAME="apache-skywalking-apm"
+export SOURCE_FILE="dist/${PRODUCT_NAME}-${RELEASE_VERSION}.tar.gz"
+export TARGET_DIR="tools/releasing"
 ```
 
 - Create a new folder for the new release.
@@ -46,22 +49,24 @@ git push origin v${RELEASE_VERSION}
 
 ```bash
 ./mvnw install package -DskipTests
+mv "$SOURCE_FILE" "$TARGET_DIR/"
 ```
 
-The release will be packaged locally as `apache-skywalking-apm-x.y.z.tar.gz` in the `{PROJECT_ROOT}/dist` directory.
+The release will be packaged first as `apache-skywalking-apm-x.y.z.tar.gz` in the `{PROJECT_ROOT}/dist` directory, and 
+then moved to the `tools/releasing` directory.
 
 
-## Build and sign the source code package
+## Build the source code package, sign the source code package and binary package
 ```bash
 cd tools/releasing
-bash create_source_release.sh
+bash create_release_tars.sh
 ```
 
 This script takes care of the following things:
 1. Use `v` + `RELEASE_VERSION` as tag to clone the codes.
 1. Complete `git submodule init/update`.
 1. Exclude all unnecessary files in the target source tar, such as `.git`, `.github`, and `.gitmodules`. See the script for more details.
-1. Execute `gpg` and `shasum 512`. 
+1. Execute `gpg` and `shasum 512` for source tar and binary tar. 
 
 `apache-skywalking-apm-x.y.z-src.tgz` and files ending with `.asc` and `.sha512` may be found in the `tools/releasing` folder.
 
