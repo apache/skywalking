@@ -20,7 +20,7 @@
 # This script relies on few environment variables to determine source code package
 # behavior, those variables are:
 #   RELEASE_VERSION -- The version of this source package.
-# For example: RELEASE_VERSION=5.0.0-alpha
+# For example: RELEASE_VERSION=10.0.0
 
 
 RELEASE_VERSION=${RELEASE_VERSION}
@@ -32,7 +32,7 @@ echo "Source tag "${TAG_NAME}
 
 if [ "$RELEASE_VERSION" == "" ]; then
   echo "RELEASE_VERSION environment variable not found, Please setting the RELEASE_VERSION."
-  echo "For example: export RELEASE_VERSION=5.0.0-alpha"
+  echo "For example: export RELEASE_VERSION=10.0.0"
   exit 1
 fi
 
@@ -75,5 +75,7 @@ tar czf ${PRODUCT_NAME}-src.tgz \
     ${PRODUCT_NAME}
 
 gpg --armor --detach-sig ${PRODUCT_NAME}-src.tgz
+gpg --armor --detach-sig ${PRODUCT_NAME}.tgz
 
 shasum -a 512 ${PRODUCT_NAME}-src.tgz > ${PRODUCT_NAME}-src.tgz.sha512
+shasum -a 512 ${PRODUCT_NAME}.tgz > ${PRODUCT_NAME}.tgz.sha512
