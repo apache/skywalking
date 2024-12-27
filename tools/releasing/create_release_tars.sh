@@ -75,7 +75,7 @@ tar czf ${PRODUCT_NAME}-src.tgz \
     ${PRODUCT_NAME}
 
 gpg --armor --detach-sig ${PRODUCT_NAME}-src.tgz
-gpg --armor --detach-sig ${PRODUCT_NAME}.tgz
+gpg --armor --detach-sig ${PRODUCT_NAME}.tar.gz
 
 shasum -a 512 ${PRODUCT_NAME}-src.tgz > ${PRODUCT_NAME}-src.tgz.sha512
-shasum -a 512 ${PRODUCT_NAME}.tgz > ${PRODUCT_NAME}.tgz.sha512
+shasum -a 512 ${PRODUCT_NAME}.tar.gz > ${PRODUCT_NAME}.tar.gz.sha512
