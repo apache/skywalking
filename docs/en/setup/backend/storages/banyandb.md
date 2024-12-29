@@ -85,6 +85,30 @@ BanyanDB Server supports two installation modes:
 - **Standalone Mode**: Suitable for small-scale deployments.
     - **Configuration**: `targets` is the IP address/hostname and port of the BanyanDB server.
 
+Use the docker mode to run BanyanDB containerized. 
+```shell
+docker pull apache/skywalking-banyandb:latest
+
+docker run -d \
+  -p 17912:17912 \
+  -p 17913:17913 \
+  --name banyandb \
+  apache/skywalking-banyandb:latest \
+  standalone
+```
+
+Or use the development builds for latest and unreleased features, all versions are available [here](https://github.com/apache/skywalking-banyandb/pkgs/container/skywalking-banyandb).
+```shell
+docker pull apache/skywalking-banyandb:latest
+
+docker run -d \
+  -p 17912:17912 \
+  -p 17913:17913 \
+  --name banyandb \
+  ghcr.io/apache/skywalking-banyandb:xxxxxx \
+  standalone
+```
+
 - **Cluster Mode**: Suitable for large-scale deployments.
     - **Configuration**: `targets` is the IP address/hostname and port of the `liaison` nodes, separated by commas. `Liaison` nodes are the entry points of the BanyanDB cluster.
 

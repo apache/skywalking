@@ -170,8 +170,6 @@ catalog:
                 path: "/en/setup/backend/backend-storage"
               - name: "BanyanDB"
                 path: "/en/setup/backend/storages/banyandb"
-              - name: "H2"
-                path: "/en/setup/backend/storages/h2"
               - name: "MySQL"
                 path: "/en/setup/backend/storages/mysql"
               - name: "PostgreSQL"
