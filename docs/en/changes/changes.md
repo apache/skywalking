@@ -46,6 +46,7 @@
 * Add protection for dynamic config change propagate chain.
 * Add Ruby component IDs.
 * Add component ID(160) for Caffeine.
+* Fix missing remote endpoint IP address in span query of zipkin query module.
 
 #### UI
 
