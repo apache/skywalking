@@ -131,7 +131,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         this.runningContext = newRunningContext;
         this.alarmRuleRunningRuleMap = newAlarmRuleRunningRuleMap;
         this.exprMetricsMap = newExprMetricsMap;
-        log.info("Update alarm rules to {}", rules);
+        log.debug("Update alarm rules to {}", rules);
     }
 
     @Override

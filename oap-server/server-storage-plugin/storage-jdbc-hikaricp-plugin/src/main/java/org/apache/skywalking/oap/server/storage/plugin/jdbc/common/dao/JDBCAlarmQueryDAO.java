@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -27,7 +28,6 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityConverters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
@@ -88,18 +89,14 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
             final var sqlAndParameters = buildSQL(scopeId, keyword, limit, from, duration, tags, table);
             jdbcClient.executeQuery(sqlAndParameters.sql(), resultSet -> {
                 while (resultSet.next()) {
-                    final var message = new AlarmMessage();
-                    message.setId(resultSet.getString(AlarmRecord.ID0));
-                    message.setId1(resultSet.getString(AlarmRecord.ID1));
-                    message.setMessage(resultSet.getString(AlarmRecord.ALARM_MESSAGE));
-                    message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
-                    message.setScope(Scope.Finder.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
-                    message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
-                    String dataBinaryBase64 = resultSet.getString(AlarmRecord.TAGS_RAW_DATA);
-                    if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
-                        parserDataBinaryBase64(dataBinaryBase64, message.getTags());
+                    AlarmRecord.Builder builder = new AlarmRecord.Builder();
+                    AlarmRecord alarmRecord = builder.storage2Entity(JDBCEntityConverters.toEntity(resultSet));
+                    AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord);
+                    if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
+                        parseDataBinaryBase64(
+                            new String(alarmRecord.getTagsRawData(), Charsets.UTF_8), alarmMessage.getTags());
                     }
-                    alarmMsgs.add(message);
+                    alarmMsgs.add(alarmMessage);
                 }
                 return null;
             }, sqlAndParameters.parameters());

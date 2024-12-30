@@ -17,18 +17,13 @@
  * under the License.
  */
 
-package org.apache.skywalking.mqe.rt.type;
+package org.apache.skywalking.oap.server.core.query.mqe;
 
+import java.util.List;
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.query.type.Owner;
 
 @Data
-public class MQEValue {
-    private String id;
-    private Owner owner;
-    private String value;
-    private String traceID;
-
-    private double doubleValue;
-    private boolean isEmptyValue;
+public class MQEMetric {
+    private String name;
+    private List<MQEValues> results;
 }

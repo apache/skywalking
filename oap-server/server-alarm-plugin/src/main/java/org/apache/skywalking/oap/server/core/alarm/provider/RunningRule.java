@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -39,9 +40,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.skywalking.mqe.rt.exception.ParseErrorListener;
 import org.apache.skywalking.mqe.rt.grammar.MQELexer;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
-import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
-import org.apache.skywalking.mqe.rt.type.MQEValues;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
 import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVisitor;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -224,6 +225,8 @@ public class RunningRule {
                 alarmMessage.setPeriod(this.period);
                 alarmMessage.setTags(this.tags);
                 alarmMessage.setHooks(this.hooks);
+                alarmMessage.setExpression(expression);
+                alarmMessage.setMqeMetricsSnapshot(window.mqeMetricsSnapshot);
                 alarmMessageList.add(alarmMessage);
             }
         });
@@ -243,6 +246,7 @@ public class RunningRule {
         private int silenceCountdown;
         private LinkedList<Map<String, Metrics>> values;
         private ReentrantLock lock = new ReentrantLock();
+        private JsonObject mqeMetricsSnapshot;
 
         public Window(int period, int additionalPeriod) {
             this.additionalPeriod = additionalPeriod;
@@ -395,6 +399,7 @@ public class RunningRule {
                 if (log.isTraceEnabled()) {
                     log.trace("Match expression is {}", expression);
                 }
+                this.mqeMetricsSnapshot = visitor.getMqeMetricsSnapshot();
                 return isMatch == 1;
             } finally {
                 TRACE_CONTEXT.remove();

@@ -17,30 +17,19 @@
  * under the License.
  */
 
-package org.apache.skywalking.mqe.rt.type;
+package org.apache.skywalking.oap.server.core.query.mqe;
 
-public enum ExpressionResultType {
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
 
-    /**
-     * Can't resolve the type of the given expression.
-     */
-    UNKNOWN,
-    /**
-     * A single value
-     */
-    SINGLE_VALUE,
-    /**
-     * A collection of time-series values.
-     * The value could have labels or not.
-     */
-    TIME_SERIES_VALUES,
-    /**
-     * A collection of aggregated values through metric sort function.
-     */
-    SORTED_LIST,
-    /**
-     * A collection of sampled records.
-     * When the original metric type is sampled records.
-     */
-    RECORD_LIST
+@Data
+public class ExpressionResult {
+    private ExpressionResultType type = ExpressionResultType.UNKNOWN;
+    private List<MQEValues> results = new ArrayList<>();
+    private String error;
+    private boolean isLabeledResult = false;
+    private boolean isBoolResult = false;
+    private DebuggingTrace debuggingTrace;
 }

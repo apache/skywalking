@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -71,6 +70,10 @@ public class AlarmStandardPersistence implements AlarmCallback {
             addAutocompleteTags(tags, TimeBucket.getMinuteTimeBucket(message.getStartTime()));
             record.setTagsRawData(gson.toJson(message.getTags()).getBytes(Charsets.UTF_8));
             record.setTagsInString(Tag.Util.toStringList(new ArrayList<>(tags)));
+            AlarmSnapshotRecord snapshot = new AlarmSnapshotRecord();
+            snapshot.setExpression(message.getExpression());
+            snapshot.setMetrics(message.getMqeMetricsSnapshot());
+            record.setSnapshot(gson.toJson(snapshot));
             RecordStreamProcessor.getInstance().in(record);
         });
     }

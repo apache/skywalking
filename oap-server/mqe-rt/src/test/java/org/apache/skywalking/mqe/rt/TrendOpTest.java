@@ -20,8 +20,8 @@ package org.apache.skywalking.mqe.rt;
 
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.operation.TrendOp;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
-import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.junit.jupiter.api.Test;
 

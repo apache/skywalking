@@ -31,7 +31,6 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
-import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
@@ -93,18 +92,11 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
             AlarmRecord alarmRecord = builder.storage2Entity(new ElasticSearchConverter.ToEntity(AlarmRecord.INDEX_NAME, searchHit.getSource()));
-
-            AlarmMessage message = new AlarmMessage();
-            message.setId(String.valueOf(alarmRecord.getId0()));
-            message.setId1(String.valueOf(alarmRecord.getId1()));
-            message.setMessage(alarmRecord.getAlarmMessage());
-            message.setStartTime(alarmRecord.getStartTime());
-            message.setScope(Scope.Finder.valueOf(alarmRecord.getScope()));
-            message.setScopeId(alarmRecord.getScope());
+            AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord);
             if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
-                parserDataBinary(alarmRecord.getTagsRawData(), message.getTags());
+                parseDataBinary(alarmRecord.getTagsRawData(), alarmMessage.getTags());
             }
-            alarms.getMsgs().add(message);
+            alarms.getMsgs().add(alarmMessage);
         }
         return alarms;
     }

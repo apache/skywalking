@@ -32,11 +32,13 @@ public class AlarmMessage {
     private Scope scope;
     private int scopeId;
     private String id;
+    private String name;
     private String message;
     private Long startTime;
     private transient String id1;
     private final List<KeyValue> tags;
     private List<Event> events = new ArrayList<>(2);
+    private AlarmSnapshot snapshot = new AlarmSnapshot();
 
     public AlarmMessage() {
         tags = new ArrayList<>();
