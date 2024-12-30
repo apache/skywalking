@@ -16,6 +16,7 @@
 debuggingtrace: null
 type: SORTED_LIST
 results:
+{{- contains .results }}
   - metric:
       labels: []
     values:
@@ -29,4 +30,5 @@ results:
         traceid: null
         owner: null
       {{- end}}
+{{- end}}
 error: null
