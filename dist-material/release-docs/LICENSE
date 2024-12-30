@@ -576,14 +576,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/org.javassist/javassist/3.25.0-GA MPL-1.1 and LGPL-2.1
 
 ========================================================================
-MPL-2.0 licenses
-========================================================================
-The following components are provided under the MPL-2.0 License. See project link for details.
-The text of each license is also included in licenses/LICENSE-[project].txt.
-
-    https://mvnrepository.com/artifact/com.h2database/h2/2.1.212 MPL-2.0
-
-========================================================================
 Public Domain licenses
 ========================================================================
 The following components are provided under the Public Domain License. See project link for details.

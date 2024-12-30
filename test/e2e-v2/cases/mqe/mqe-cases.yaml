@@ -37,7 +37,7 @@ cases:
     expected: expected/func-OP.yml
 
   # topN-OP-service Global
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des)/100"
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des)"
     expected: expected/topN-OP-service.yml
     # topN-OP-service Global with attrs
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_sla,3,des,attr0='GENERAL')/100"

@@ -20,11 +20,11 @@ results:
       labels: []
     values:
       - id: e2e-service-consumer
-        value: "100"
+        value: "{{ (index (index .results 0).values 0).value }}"
         traceid: null
         owner: null
       - id: e2e-service-provider
-        value: "100"
+        value: "{{ (index (index .results 0).values 1).value }}"
         traceid: null
         owner: null
 error: null

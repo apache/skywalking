@@ -11,6 +11,8 @@
   publish the source tar and binary tar to the website download page, and docker images to docker hub.
   * **Warning** If you are using the `skywalking-oap-server` as a dependency in your project, you need to download the 
     source tar from the website and publish them to your private maven repository.
+* [Breaking Change] Remove H2 as storage option permanently. BanyanDB 0.8(OAP 10.2 required) is easy, stable and 
+  production-ready. Don't need H2 as default storage anymore.
 
 #### OAP Server
 
@@ -46,6 +48,7 @@
 * Add component ID(160) for Caffeine.
 * Alarm: Support store and query the metrics snapshot when the alarm is triggered.
 * Alarm: Remove unused `Alarm Trend` query.
+* Fix missing remote endpoint IP address in span query of zipkin query module.
 
 #### UI
 

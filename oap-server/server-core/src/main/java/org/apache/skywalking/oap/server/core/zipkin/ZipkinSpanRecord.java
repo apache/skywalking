@@ -284,7 +284,7 @@ public class ZipkinSpanRecord extends Record {
         //Build remoteEndpoint
         Endpoint.Builder remoteEndpoint = Endpoint.newBuilder();
         remoteEndpoint.serviceName(record.getRemoteEndpointServiceName());
-        if (!StringUtil.isEmpty(record.getLocalEndpointIPV4())) {
+        if (!StringUtil.isEmpty(record.getRemoteEndpointIPV4())) {
             remoteEndpoint.parseIp(record.getRemoteEndpointIPV4());
         } else {
             remoteEndpoint.parseIp(record.getRemoteEndpointIPV6());
