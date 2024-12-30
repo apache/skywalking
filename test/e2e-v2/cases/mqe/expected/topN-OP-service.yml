@@ -19,6 +19,7 @@ results:
   - metric:
       labels: []
     values:
+      {{- contains .values }}
       - id: e2e-service-consumer
         value: "100"
         traceid: null
@@ -27,4 +28,5 @@ results:
         value: "100"
         traceid: null
         owner: null
+      {{- end}}
 error: null
