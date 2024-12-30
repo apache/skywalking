@@ -45,6 +45,7 @@
 * Add Ruby component IDs.
 * Add component ID(160) for Caffeine.
 * Alarm: Support store and query the metrics snapshot when the alarm is triggered.
+* Alarm: Remove unused `Alarm Trend` query.
 
 #### UI
 
