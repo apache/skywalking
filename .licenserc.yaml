@@ -125,9 +125,6 @@ dependency:
     - name: com.github.luben:zstd-jni
       version: 1.4.3-1
       license: BSD-2-Clause
-    - name: com.h2database:h2
-      version: 2.1.212
-      license: MPL-2.0
     - name: org.antlr:antlr4-runtime
       version: 4.11.1
       license: BSD-3-Clause

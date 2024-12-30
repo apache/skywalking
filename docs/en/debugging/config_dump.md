@@ -43,7 +43,7 @@ in the dump result. For example, the `storage.elasticsearch.password` in the fol
 
 ```yaml
 storage:
-  selector: ${SW_STORAGE:h2}
+  selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
     password: ${SW_ES_PASSWORD:""}
 ```
