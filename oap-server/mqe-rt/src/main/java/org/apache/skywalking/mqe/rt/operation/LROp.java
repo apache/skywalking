@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
-import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
-import org.apache.skywalking.mqe.rt.type.MQEValue;
-import org.apache.skywalking.mqe.rt.type.MQEValues;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValue;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
 @FunctionalInterface

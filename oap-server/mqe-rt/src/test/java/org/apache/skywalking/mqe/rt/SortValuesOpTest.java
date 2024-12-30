@@ -22,7 +22,7 @@ import java.util.Optional;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.operation.SortValuesOp;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -23,7 +23,7 @@ import java.math.RoundingMode;
 import java.util.function.Function;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
 
 public class MathematicalFunctionOp {
     public static ExpressionResult doFunction0Op(ExpressionResult expResult,

@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
-import org.apache.skywalking.mqe.rt.type.MQEValue;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValue;
 
 public class SortValuesOp {
     public static ExpressionResult doSortValuesOp(ExpressionResult expResult,

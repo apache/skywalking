@@ -38,7 +38,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
 import org.apache.skywalking.oap.query.debug.log.DebuggingQueryLogsRsp;
 import org.apache.skywalking.oap.query.debug.mqe.DebuggingMQERsp;
 import org.apache.skywalking.oap.query.debug.topology.DebuggingQueryEndpointTopologyRsp;

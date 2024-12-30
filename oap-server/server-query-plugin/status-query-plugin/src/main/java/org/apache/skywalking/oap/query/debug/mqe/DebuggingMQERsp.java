@@ -21,8 +21,8 @@ package org.apache.skywalking.oap.query.debug.mqe;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
-import org.apache.skywalking.mqe.rt.type.MQEValues;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
 import org.apache.skywalking.oap.query.debug.DebuggingTraceRsp;
 
 @RequiredArgsConstructor

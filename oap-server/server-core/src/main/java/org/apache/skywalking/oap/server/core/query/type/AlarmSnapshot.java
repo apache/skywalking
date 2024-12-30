@@ -17,15 +17,15 @@
  * under the License.
  */
 
-package org.apache.skywalking.mqe.rt.type;
+package org.apache.skywalking.oap.server.core.query.type;
 
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEMetric;
 
 @Data
-public class MQEValues {
-    private Metadata metric = new Metadata();
-
-    private List<MQEValue> values = new ArrayList<>();
+public class AlarmSnapshot {
+    private String expression;
+    private List<MQEMetric> metrics = new ArrayList<>();
 }
