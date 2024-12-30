@@ -27,11 +27,11 @@ import java.util.OptionalDouble;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
-import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
-import org.apache.skywalking.mqe.rt.type.MQEValue;
-import org.apache.skywalking.mqe.rt.type.MQEValues;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValue;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
 
 public class AggregationOp {
     public static ExpressionResult doAggregationOp(ExpressionResult result,

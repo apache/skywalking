@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.expr.rt;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -25,12 +27,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
-import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
-import org.apache.skywalking.mqe.rt.type.MQEValue;
-import org.apache.skywalking.mqe.rt.type.MQEValues;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValue;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
@@ -57,6 +60,12 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
     private final LocalDateTime endTime;
     private final ArrayList<String> windowTimes;
     private final int maxTrendRange;
+    /**
+     * The snapshot of metrics values.
+     */
+    @Getter
+    private final JsonObject mqeMetricsSnapshot;
+    private final static Gson GSON = new Gson();
 
     public AlarmMQEVisitor(final LinkedList<Map<String, Metrics>> metricsValues,
                            final LocalDateTime endTime,
@@ -69,6 +78,7 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
         this.windowSize = metricsValues.size();
         this.windowTimes = initWindowTimes();
         this.maxTrendRange = maxTrendRange;
+        this.mqeMetricsSnapshot = new JsonObject();
         this.initMetricsValues();
     }
 
@@ -119,6 +129,7 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
         }
         result.setResults(mqeValuesList);
         result.setType(ExpressionResultType.TIME_SERIES_VALUES);
+        this.mqeMetricsSnapshot.addProperty(metricName, GSON.toJson(mqeValuesList));
         return result;
     }
 
@@ -222,12 +233,12 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
                 } else {
                     mqeValue.setEmptyValue(true);
                 }
-                DataLabel dataLabel = new DataLabel();
-                dataLabel.put(labelCondition);
-                for (Map.Entry<String, String> label : dataLabel.entrySet()) {
-                    mqeValues.getMetric().getLabels().add(new KeyValue(label.getKey(), label.getValue()));
-                }
                 mqeValues.getValues().add(mqeValue);
+            }
+            DataLabel dataLabel = new DataLabel();
+            dataLabel.put(labelCondition);
+            for (Map.Entry<String, String> label : dataLabel.entrySet()) {
+                mqeValues.getMetric().getLabels().add(new KeyValue(label.getKey(), label.getValue()));
             }
             //Sort labels by key in natural order by default
             mqeValues.getMetric().sortLabelsByKey(Comparator.naturalOrder());

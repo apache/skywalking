@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
-import org.apache.skywalking.mqe.rt.type.MQEValue;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValue;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 
 public class TrendOp {
