@@ -25,6 +25,11 @@
     # before silence alarm list level=CRITICAL,receivers=zhangsan
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql alarm ls --tags level=CRITICAL,receivers=zhangsan
       expected: expected/silence-before-graphql-critical.yml
+    # query auto complete tag key and value
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql alarm autocomplete-keys
+      expected: expected/tag-keys.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql alarm autocomplete-values --key=level
+      expected: expected/tag-values.yml
     # before silence webhook
     - query: curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
       expected: expected/silence-before-webhook.yml
