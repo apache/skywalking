@@ -25,7 +25,7 @@ results:
         value: {{ .value }}
         traceid: null
         owner:
-          scope: {{ .owner.scope }
+          scope: {{ .owner.scope }}
           serviceid: {{ .owner.serviceid }}
           servicename: {{ .owner.servicename }}
           normal: true
