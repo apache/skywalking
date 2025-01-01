@@ -13,18 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-debuggingtrace: null
-type: SORTED_LIST
-results:
-  {{- contains .results }}
-  - metric:
-      labels: []
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        owner: null
-        traceid: null
-      {{- end}}
-  {{- end}}
-error: null
+{{- contains . }}
+- WARNING
+- CRITICAL
+{{- end }}

@@ -22,13 +22,17 @@ results:
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
-        owner: null
         value: "100"
         traceid: null
-      - id: {{ notEmpty .id }}
-        owner: null
-        value: "100"
-        traceid: null
+        owner:
+          scope: Service
+          serviceid: {{ notEmpty .owner.serviceid }}
+          servicename: {{ notEmpty .owner.servicename }}
+          normal: true
+          serviceinstanceid: null
+          serviceinstancename: null
+          endpointid: null
+          endpointname: null
       {{- end }}
   {{- end }}
 error: null

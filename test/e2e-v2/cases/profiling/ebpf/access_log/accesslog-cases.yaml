@@ -89,7 +89,7 @@ cases:
       swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_instance_http_call_cpm --service-name=reviews.default --instance-name=$instance_name
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression="top_n(kubernetes_service_instance_write_l4_time,10,des)" --service-name=details.default
-    expected: expected/metrics-sorted-has-value.yml
+    expected: expected/metrics-sorted-has-value-instance.yml
 
   # service endpoint level metrics
   - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_endpoint_call_cpm --service-name=details.default --endpoint-name=GET:/details/0
@@ -97,7 +97,7 @@ cases:
   - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_endpoint_http_call_cpm --service-name=details.default --endpoint-name=GET:/details/0
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression="top_n(kubernetes_service_endpoint_call_time,10,des)" --service-name=details.default
-    expected: expected/metrics-sorted-has-value.yml
+    expected: expected/metrics-sorted-has-value-endpoint.yml
 
   # service relation metrics
   - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=kubernetes_service_relation_connect_cpm --service-name=productpage.default --dest-service-name=details.default
