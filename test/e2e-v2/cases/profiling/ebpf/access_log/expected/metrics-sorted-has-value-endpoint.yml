@@ -29,8 +29,8 @@ results:
           serviceid: {{ .owner.serviceid }}
           servicename: {{ .owner.servicename }}
           normal: true
-          serviceinstanceid: {{ .owner.serviceinstanceid }}
-          serviceinstancename: {{ .owner.serviceinstancename }}
+          serviceinstanceid: null
+          serviceinstancename: null
           endpointid: {{ .owner.endpointid }}
           endpointname: {{ .owner.endpointname }}
       {{- end}}
