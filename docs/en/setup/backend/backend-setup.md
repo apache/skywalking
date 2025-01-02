@@ -19,7 +19,7 @@ Requirement: **Java 11/17/21**.
 You should set up the database ready before starting the backend. We recommend to use BanyanDB.
 If you want to use other databases, please read the [storage document](backend-storage.md).
 
-Use the docker mode to run BanyanDB containerized, check 
+Use the docker mode to run BanyanDB containerized. 
 ```shell
 # The compatible version number could be found in /config/bydb.dependencies.properties
 export BYDB_VERSION=xxx
