@@ -16,23 +16,31 @@
 debuggingtrace: null
 type: SORTED_LIST
 results:
-  {{- contains .results }}
   - metric:
       labels: []
     values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: "100"
+      - id: "e2e-service-consumer - POST:/users"
+        value: "{{ (index (index .results 0).values 0).value }}"
         traceid: null
         owner:
           scope: Endpoint
-          serviceid: {{ notEmpty .owner.serviceid }}
-          servicename: {{ notEmpty .owner.servicename }}
+          serviceid: {{ b64enc "e2e-service-consumer"}}.1
+          servicename: e2e-service-consumer
           normal: true
           serviceinstanceid: null
           serviceinstancename: null
-          endpointid: {{ notEmpty .owner.endpointid }}
-          endpointname: {{ notEmpty .owner.endpointname }}
-      {{- end }}
-  {{- end }}
+          endpointid: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "POST:/users" }}
+          endpointname: POST:/users
+      - id: "e2e-service-provider - POST:/users"
+        value: "{{ (index (index .results 0).values 1).value }}"
+        traceid: null
+        owner:
+          scope: Endpoint
+          serviceid: {{ b64enc "e2e-service-provider" }}.1
+          servicename: e2e-service-provider
+          normal: true
+          serviceinstanceid: null
+          serviceinstancename: null
+          endpointid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
+          endpointname: POST:/users
 error: null
