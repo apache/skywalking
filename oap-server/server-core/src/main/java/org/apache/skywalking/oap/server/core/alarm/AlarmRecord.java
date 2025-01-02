@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -46,7 +45,6 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(AlarmRecord.START_TIME)
 public class AlarmRecord extends Record {
-    private static final Gson GSON = new Gson();
     public static final String INDEX_NAME = "alarm_record";
     public static final String ADDITIONAL_TAG_TABLE = "alarm_record_tag";
     public static final String SCOPE = "scope";
