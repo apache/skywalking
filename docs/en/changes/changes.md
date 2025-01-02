@@ -49,6 +49,8 @@
 * Alarm: Support store and query the metrics snapshot when the alarm is triggered.
 * Alarm: Remove unused `Alarm Trend` query.
 * Fix missing remote endpoint IP address in span query of zipkin query module.
+* Fix `hierarchy-definition.yml` config file packaged into start.jar wrongly.
+* Add `bydb.dependencies.properties` config file to define server dependency versions.
 
 #### UI
 

@@ -2,7 +2,17 @@
 
 [BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community. Activate BanyanDB as the storage by setting the storage provider to **banyandb**.
 
-The OAP requires BanyanDB version **0.8** or later. From this version onwards, BanyanDB provides general compatibility.
+The BanyanDB server compatibility relies on API and release versions, which are defined in `bydb.dependencies.properties`
+```shell
+# BanyanDB version is the version number of BanyanDB Server release.
+# This is the bundled and tested BanyanDB release version
+bydb.version=x.y
+# BanyanDB API version is the version number of the BanyanDB query APIs
+# OAP server has bundled implementation of BanyanDB Java client.
+# Please check BanyanDB documentation for the API version compatibility.
+# Each `bydb.api.version` could have multiple compatible release version(`bydb.version`).
+bydb.api.version=x.y
+```
 
 ### Configuration
 
@@ -87,13 +97,16 @@ BanyanDB Server supports two installation modes:
 
 Use the docker mode to run BanyanDB containerized. 
 ```shell
-docker pull apache/skywalking-banyandb:latest
+# The compatible version number could be found in /config/bydb.dependencies.properties
+export BYDB_VERSION=xxx
+
+docker pull apache/skywalking-banyandb:{BYDB_VERSION}
 
 docker run -d \
   -p 17912:17912 \
   -p 17913:17913 \
   --name banyandb \
-  apache/skywalking-banyandb:latest \
+  apache/skywalking-banyandb:{BYDB_VERSION} \
   standalone
 ```
 
