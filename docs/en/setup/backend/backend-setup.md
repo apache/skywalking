@@ -24,13 +24,13 @@ Use the docker mode to run BanyanDB containerized.
 # The compatible version number could be found in /config/bydb.dependencies.properties
 export BYDB_VERSION=xxx
 
-docker pull apache/skywalking-banyandb:{BYDB_VERSION}
+docker pull apache/skywalking-banyandb:$BYDB_VERSION
 
 docker run -d \
   -p 17912:17912 \
   -p 17913:17913 \
   --name banyandb \
-  apache/skywalking-banyandb:{BYDB_VERSION} \
+  apache/skywalking-banyandb:$BYDB_VERSION \
   standalone
 ```
 
