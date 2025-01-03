@@ -209,7 +209,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                                                               BanyandbCommon.Metadata.newBuilder()
                                                                                      .setName(
                                                                                          BanyanDBUITemplateManagementDAO.GROUP))
-                                                          .setCatalog(BanyandbCommon.Catalog.CATALOG_UNSPECIFIED)
+                                                          .setCatalog(BanyandbCommon.Catalog.CATALOG_PROPERTY)
                                                           .build());
             this.modelInstaller.start();
 
