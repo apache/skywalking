@@ -124,15 +124,11 @@ public @interface BanyanDB {
 
     /**
      * MeasureField defines a column as a measure's field.
-     * The measure field has a significant difference from no-indexing tag.
-     * The measure fields are stored in another file, but no-indexing tag is stored in the same file with the indexing tags.
+     *
      * <p>
      * Annotated: the column is a measure field.
      * Unannotated: the column is a measure tag.
-     * storageOnly=true: the column is a measure tag that is not indexed.
-     * storageOnly=false: the column is a measure tag that is indexed.
-     * indexOnly=true: the column is a measure tag that is indexed, but not stored.
-     * indexOnly=false: the column is a measure tag that is indexed and stored.
+     * storageOnly=true: the column should be a measure field.
      *
      * @since 9.4.0
      */
