@@ -53,8 +53,8 @@
 * Fix `hierarchy-definition.yml` config file packaged into start.jar wrongly.
 * Add `bydb.dependencies.properties` config file to define server dependency versions.
 * Fix `AvgHistogramPercentileFunction` doesn't have proper field definition for `ranks`.
-* Add installation check for `storageOnly = true` columns. All columns should be `@BanyanDB.MeasureField` or in the
-  index mode entity. Tags are for indexing columns and series IDs only.
+* BanyanDB: Add installation check for `storageOnly = true` columns. All columns should be `@BanyanDB.MeasureField` or
+  in the index mode entity. Tags are for indexing columns and series IDs only.
 
 #### UI
 
