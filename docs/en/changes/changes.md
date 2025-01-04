@@ -51,6 +51,7 @@
 * Fix missing remote endpoint IP address in span query of zipkin query module.
 * Fix `hierarchy-definition.yml` config file packaged into start.jar wrongly.
 * Add `bydb.dependencies.properties` config file to define server dependency versions.
+* Fix `AvgHistogramPercentileFunction` doesn't have proper field definition for `ranks`.
 
 #### UI
 

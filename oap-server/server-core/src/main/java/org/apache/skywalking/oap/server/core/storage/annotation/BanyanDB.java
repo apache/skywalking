@@ -124,6 +124,8 @@ public @interface BanyanDB {
 
     /**
      * MeasureField defines a column as a measure's field.
+     * The measure field has a significant difference from no-indexing tag.
+     * The measure fields are stored in another file, but no-indexing tag is stored in the same file with the indexing tags.
      * <p>
      * Annotated: the column is a measure field.
      * Unannotated: the column is a measure tag.
@@ -219,6 +221,8 @@ public @interface BanyanDB {
     /**
      * IndexMode is used to indicate the index mode of the metric.
      * All columns in the metric will be stored in the index exclusively.
+     * When a field is not used in query condition, only {@link Column#storageOnly()} is allowed.
+     * No {@link MeasureField} is allowed in IndexMode entity,
      *
      * @since 10.2.0
      */
