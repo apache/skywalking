@@ -221,8 +221,8 @@ public @interface BanyanDB {
     /**
      * IndexMode is used to indicate the index mode of the metric.
      * All columns in the metric will be stored in the index exclusively.
-     * When a field is not used in query condition, only {@link Column#storageOnly()} is allowed.
-     * No {@link MeasureField} is allowed in IndexMode entity,
+     * When an entity column is not used in query condition, only {@link Column#storageOnly()} is allowed.
+     * No {@link MeasureField} is allowed for those columns in IndexMode entity.
      *
      * @since 10.2.0
      */
