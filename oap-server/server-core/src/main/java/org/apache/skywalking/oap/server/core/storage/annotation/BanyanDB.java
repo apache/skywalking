@@ -24,7 +24,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 
 /**
  * BanyanDB annotation is a holder including all annotations for BanyanDB storage
@@ -125,7 +127,8 @@ public @interface BanyanDB {
     /**
      * MeasureField defines a column as a measure's field.
      * The measure field has a significant difference from no-indexing tag.
-     * The measure fields are stored in another file, but no-indexing tag is stored in the same file with the indexing tags.
+     * The measure fields are stored in another file, but no-indexing tag is stored in the same file with the indexing
+     * tags.
      * <p>
      * Annotated: the column is a measure field.
      * Unannotated: the column is a measure tag.
@@ -211,6 +214,7 @@ public @interface BanyanDB {
 
     /**
      * EnableSort is used to indicate the IndexRule supports sorting.
+     *
      * @since 10.2.0
      */
     @Target({ElementType.FIELD})
@@ -220,6 +224,30 @@ public @interface BanyanDB {
 
     /**
      * IndexMode is used to indicate the index mode of the metric.
+     * IndexMode metric is a half-time series metric, which means the metric is time relative, and still affected by
+     * metric TTL, but its ID doesn't include time bucket. The entity has a unique name to represent the entity.
+     * <p>
+     * The entity should be a kind of metadata entity, e.g. ServiceTraffic.
+     * The return({@link StorageID} of {@link Metrics#id()} should not include any time relative column.
+     * <pre>
+     * <code>
+     *         return new StorageID().appendMutant(new String[] {
+     *             NAME,
+     *             LAYER
+     *         }, id);
+     * </code>
+     * </pre>
+     * <p>
+     * A metric with complete(not IndexMode) time series data includes the TIME_BUCKET column in the ID.
+     * <pre>
+     * <code>
+     *          return new StorageID()
+     *             .append(TIME_BUCKET, getTimeBucket())
+     *             .append(ENTITY_ID, getEntityId());
+     * </code>
+     * </pre>
+     *
+     * <p>
      * All columns in the metric will be stored in the index exclusively.
      * When an entity column is not used in query condition, only {@link Column#storageOnly()} is allowed.
      * No {@link MeasureField} is allowed for those columns in IndexMode entity.
