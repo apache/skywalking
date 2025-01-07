@@ -40,7 +40,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @EqualsAndHashCode(of = {
     "entityId"
 }, callSuper = true)
-@BanyanDB.IndexMode
 public class ServiceRelationClientSideMetrics extends Metrics {
 
     public static final String INDEX_NAME = "service_relation_client_side";

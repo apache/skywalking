@@ -1,14 +1,15 @@
-# Scratch The OAP Config Dump
+# Dump Effective Initial Configurations
 
 SkyWalking OAP behaviors could be controlled through hundreds of configurations. It is hard to know what is the final
-configuration as all the configurations could be overrided by system environments.
+configuration as all the configurations could be override by system environments.
 
-The core config file [application.yml](../../../oap-server/server-starter/src/main/resources/application.yml) lists all
-the configurations
+The core config file [application.yml](../../../oap-server/server-starter/src/main/resources/application.yml) lists all the configurations
 and their default values. However, it is still hard to know the runtime value.
 
-Scratch is a tool to dump the final configuration. It is provided within OAP rest server, which could be accessed
-through HTTP GET `http://{core restHost}:{core restPort}/debugging/config/dump`.
+Dump Effective Initial Configurations API is designed to help users to understand the effective configurations, no matter
+they are initialized in the `application.yml`, or override through system environments.
+- URL, `http://{core restHost}:{core restPort}/debugging/config/dump`
+- HTTP GET method.
 
 ```shell
 > curl http://127.0.0.1:12800/debugging/config/dump
@@ -42,7 +43,7 @@ in the dump result. For example, the `storage.elasticsearch.password` in the fol
 
 ```yaml
 storage:
-  selector: ${SW_STORAGE:h2}
+  selector: ${SW_STORAGE:elasticsearch}
   elasticsearch:
     password: ${SW_ES_PASSWORD:""}
 ```
@@ -61,14 +62,4 @@ By default, we mask the config keys through the following configurations.
 ```yaml
 # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
 keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
-```
-
-## Disable The Config Dump Service
-
-By default, this service is open for helping users to debug and diagnose. If you want to disable it, you need to diable the whole
-`debugging-query` module through setting `selector=-`.
-
-```yaml
-debugging-query:
-  selector: ${SW_DEBUGGING_QUERY:-}
 ```

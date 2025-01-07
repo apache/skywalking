@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import urllib.parse
 from urllib import request
 
 from skywalking import agent, config

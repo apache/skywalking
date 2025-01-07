@@ -16,8 +16,6 @@
 #
 import time
 
-from urllib import request
-
 from skywalking import agent, config
 
 if __name__ == '__main__':

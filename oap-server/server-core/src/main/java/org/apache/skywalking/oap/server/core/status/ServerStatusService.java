@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -46,7 +46,7 @@ public class ServerStatusService implements Service {
     @Getter
     private ClusterStatus clusterStatus = new ClusterStatus();
 
-    private List<ServerStatusWatcher> statusWatchers = new ArrayList<>();
+    private List<ServerStatusWatcher> statusWatchers = new CopyOnWriteArrayList<>();
 
     private List<ApplicationConfiguration.ModuleConfiguration> configurations;
 

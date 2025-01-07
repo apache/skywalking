@@ -77,6 +77,7 @@ import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.RecordQueryService;
+import org.apache.skywalking.oap.server.core.query.TTLStatusQuery;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
@@ -304,6 +305,13 @@ public class CoreModuleProvider extends ModuleProvider {
             TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager(), moduleConfig));
         this.registerServiceImplementation(RecordQueryService.class, new RecordQueryService(getManager()));
         this.registerServiceImplementation(HierarchyQueryService.class, new HierarchyQueryService(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            TTLStatusQuery.class, new TTLStatusQuery(
+                getManager(),
+                moduleConfig.getMetricsDataTTL(),
+                moduleConfig.getRecordDataTTL()
+            )
+        );
 
         // add profile service implementations
         this.registerServiceImplementation(

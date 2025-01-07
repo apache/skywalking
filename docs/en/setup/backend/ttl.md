@@ -1,4 +1,6 @@
-# TTL
+# Data Lifecycle. Time To Live (TTL)
+Time To Live (TTL) is a mechanism to automatically delete data that is older than the specified time. 
+
 In SkyWalking, there are two types of observability data:
 1. Records include traces, logs, topN sampled statements and alarm. `recordDataTTL` applies to **record** data.
 1. Metrics include all metrics for service, instance, endpoint, and topology map. Metadata(lists of services, instances, or endpoints) also belongs to metrics. `metricsDataTTL` applies to **Metrics** data.
@@ -12,6 +14,9 @@ These are the settings for the different types:
 
 ## BanyanDB TTL
 
-BanyanDB has a TTL mechanism to automatically delete data that is older than the specified time. When you use BanyanDB as the storage backend, `recordDataTTL` and `metricsDataTTL` are not used. Instead, you should configure the TTL settings in `storage.banyandb`.
+BanyanDB has a TTL mechanism to automatically delete data that is older than the specified time. When you use BanyanDB
+as the storage backend, `recordDataTTL` and `metricsDataTTL` are not used. Instead, you should configure the TTL
+settings in `storage.banyandb`.
 
-Please refer to the [Storage BanyanDB](storages/banyandb.md) document for more information.
+Please refer to the [Storage BanyanDB](storages/banyandb.md) and [BanyanDB's Progressive TTL](../../banyandb/ttl.md)
+documents for more information.

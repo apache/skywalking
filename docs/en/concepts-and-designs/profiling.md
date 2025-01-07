@@ -19,9 +19,6 @@ In the SkyWalking landscape, we provided three ways to support profiling within 
 In-process profiling is primarily provided by auto-instrument agents in the VM-based runtime.
 
 ### Tracing Profiling
-Learn more tech details from the post, [**Use Profiling to Fix the Blind Spot of Distributed
-Tracing**](sdk-profiling.md).
-
 This feature resolves the issue <1> through capture the snapshot of the thread stacks periodically.
 The OAP would aggregate the thread stack per RPC request, and provide a hierarchy graph to indicate the slow methods
 based
@@ -30,20 +27,25 @@ on continuous snapshot.
 The period is usually every 10-100 milliseconds, which is not recommended to be less, due to this capture would usually
 cause classical stop-the-world for the VM, which would impact the whole process performance.
 
+Learn more tech details from the post, [**Use Profiling to Fix the Blind Spot of Distributed
+Tracing**](sdk-profiling.md).
+
 For now, Java and Python agents support this.
 
-### Async Profiler
+### Java App Profiling
+
+Java App Profiling uses the [AsyncProfiler](https://github.com/async-profiler/async-profiler) for sampling
 
 Async Profiler is a low overhead sampling profiler for Java that does not suffer from Safepoint bias problem. It features HotSpot-specific APIs to collect stack traces and to track memory allocations. The profiler works with OpenJDK and other Java runtimes based on the HotSpot JVM.
 
-async-profiler can trace the following kinds of events:
+Async Profiler can trace the following kinds of events:
 
-CPU cycles
-Hardware and Software performance counters like cache misses, branch misses, page faults, context switches etc.
-Allocations in Java Heap
-Contented lock attempts, including both Java object monitors and ReentrantLocks
+- CPU cycles
+- Allocations in Java Heap
+- Contented lock attempts, including both Java object monitors and ReentrantLocks
+- and [more](https://github.com/async-profiler/async-profiler/blob/master/docs/ProfilingModes.md)
 
-For now, Java agent support this.
+Only Java agent support this.
 
 ## Out-of-process profiling
 

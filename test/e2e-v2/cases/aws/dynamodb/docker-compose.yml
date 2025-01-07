@@ -25,6 +25,13 @@ services:
     networks:
       e2e:
 
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912
+
   sender:
     image: "eclipse-temurin:8-jre"
     volumes:

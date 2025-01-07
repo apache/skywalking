@@ -27,7 +27,14 @@ services:
     environment:
       - SW_CORE_TOPN_REPORT_PERIOD=1
       - SW_OTEL_RECEIVER=default
-      
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912
+
   mariadb:
     image: mariadb:10.7.3
     networks:

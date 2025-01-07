@@ -109,6 +109,7 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
     @Getter
     @Setter
     @Column(name = RANKS, storageOnly = true)
+    @BanyanDB.MeasureField
     private IntList ranks = new IntList(10);
 
     private boolean isCalculated = false;

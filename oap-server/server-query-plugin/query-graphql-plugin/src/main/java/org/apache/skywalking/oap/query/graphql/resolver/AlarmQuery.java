@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,6 @@ import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
-import org.apache.skywalking.oap.server.core.query.type.AlarmTrend;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.event.Event;
@@ -64,8 +64,11 @@ public class AlarmQuery implements GraphQLQueryResolver {
 
     private TagAutoCompleteQueryService tagQueryService;
 
+    private final DecimalFormat valueFormat = new DecimalFormat();
+
     public AlarmQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
+        this.valueFormat.setGroupingUsed(false);
     }
 
     private AlarmQueryService getQueryService() {
@@ -89,10 +92,6 @@ public class AlarmQuery implements GraphQLQueryResolver {
         return tagQueryService;
     }
 
-    public AlarmTrend getAlarmTrend(final Duration duration) {
-        return new AlarmTrend();
-    }
-
     public CompletableFuture<Alarms> getAlarm(final Duration duration, final Scope scope, final String keyword,
                            final Pagination paging, final List<Tag> tags,
                            final DataFetchingEnvironment env) {
@@ -109,6 +108,18 @@ public class AlarmQuery implements GraphQLQueryResolver {
             }
             Alarms alarms = getQueryService().getAlarm(
                 scopeId, keyword, paging, duration, tags);
+
+            alarms.getMsgs().forEach(msg -> {
+                msg.getSnapshot().getMetrics().forEach(metric -> {
+                    metric.getResults().forEach(mqeValues -> {
+                        mqeValues.getValues().forEach(mqeValue -> {
+                            if (!mqeValue.isEmptyValue()) {
+                                mqeValue.setValue(valueFormat.format(mqeValue.getDoubleValue()));
+                            }
+                        });
+                    });
+                });
+            });
 
             final boolean selectEvents = env.getSelectionSet().contains("**/events/**");
 

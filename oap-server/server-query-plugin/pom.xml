@@ -46,6 +46,6 @@
         <module>zipkin-query-plugin</module>
         <module>promql-plugin</module>
         <module>logql-plugin</module>
-        <module>debugging-query-plugin</module>
+        <module>status-query-plugin</module>
     </modules>
 </project>

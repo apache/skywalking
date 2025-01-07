@@ -3,6 +3,7 @@
 ## Start the storage, OAP and Booster UI with docker-compose
 
 As a quick start, you can use our one-liner script to start ElasticSearch or [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/) as the storage, OAP server and Booster UI, please make sure you have installed Docker.
+The versions of the OAP and BanyanDB images are the latest release versions. 
 
 **Linux, macOS, Windows (WSL)**
 ```shell
@@ -24,24 +25,27 @@ docker compose --project-name=skywalking-quickstart down
 ## Start a `standalone` container with `H2` storage
 
 ```shell
-docker run --name oap --restart always -d apache/skywalking-oap-server:9.7.0
+export RELEASE_VERSION=x.y.z
+docker run --name oap --restart always -d apache/skywalking-oap-server:${RELEASE_VERSION}
 ```
 
 ## Start a `standalone` container with BanyanDB as storage, whose address is `banyandb:17912`
 
 ```shell
-docker run --name oap --restart always -d -e SW_STORAGE=banyandb -e SW_STORAGE_BANYANDB_TARGETS=banyandb:17912 apache/skywalking-oap-server:9.7.0
+export RELEASE_VERSION=x.y.z
+docker run --name oap --restart always -d -e SW_STORAGE=banyandb -e SW_STORAGE_BANYANDB_TARGETS=banyandb:17912 apache/skywalking-oap-server:${RELEASE_VERSION}
 ```
 
 ## Start a `standalone` container with ElasticSearch 7 as storage, whose address is `elasticsearch:9200`
 
 ```shell
-docker run --name oap --restart always -d -e SW_STORAGE=elasticsearch -e SW_STORAGE_ES_CLUSTER_NODES=elasticsearch:9200 apache/skywalking-oap-server:9.7.0
+export RELEASE_VERSION=x.y.z
+docker run --name oap --restart always -d -e SW_STORAGE=elasticsearch -e SW_STORAGE_ES_CLUSTER_NODES=elasticsearch:9200 apache/skywalking-oap-server:${RELEASE_VERSION}
 ```
 
 # Configuration
 
-We could set up environment variables to configure this image. They are defined in [backend-setup](https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-setup/).
+We could set up environment variables to configure this image. They are defined in [backend-setup](backend-setup.md).
 
 # Extend image
 

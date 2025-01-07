@@ -23,6 +23,13 @@ services:
     ports:
       - 12800
 
+  banyandb:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912
+
   php:
     build:
       context: .

@@ -14,19 +14,32 @@ SkyWalking's backend distribution package consists of the following parts:
 
 ## Requirements and default settings
 
-Requirement: **Java 11/17/21**. 
+Requirement: **Java 11/17/21**.
 
-Before you begin, you should understand that the main purpose of the following quickstart is to help you obtain a basic configuration for previews/demos. Performance and long-term running are **NOT** among the purposes of the quickstart.
+You should set up the database ready before starting the backend. We recommend to use BanyanDB.
+If you want to use other databases, please read the [storage document](backend-storage.md).
 
-**For production/QA/tests environments, see [Backend and UI deployment documents](ui-setup.md).**
+Use the docker mode to run BanyanDB containerized. 
+```shell
+# The compatible version number could be found in /config/bydb.dependencies.properties
+export BYDB_VERSION=xxx
 
-You can use `bin/startup.sh` (or cmd) to start up the backend and UI with their default settings, set out as follows:
+docker pull apache/skywalking-banyandb:${BYDB_VERSION}
 
-- Backend storage uses **H2 by default** (for an easier start)
-- Backend listens on `0.0.0.0/11800` for gRPC APIs and `0.0.0.0/12800` for HTTP REST APIs.
+docker run -d \
+  -p 17912:17912 \
+  -p 17913:17913 \
+  --name banyandb \
+  apache/skywalking-banyandb:${BYDB_VERSION} \
+  standalone
+```
 
-In Java, DotNetCore, Node.js, and Istio agents/probes, you should set the gRPC service address to `ip/host:11800`, and IP/host should be where your backend is.
-- UI listens on `8080` port and request `127.0.0.1/12800` to run a GraphQL query.
+You can use `bin/startup.sh` (or cmd) to start up the OAP server and UI with their default settings, 
+OAP listens on `0.0.0.0/11800` for gRPC APIs and `0.0.0.0/12800` for HTTP APIs.
+
+In Java, DotNetCore, Node.js, and Istio agents/probes, you should set the gRPC service address to `ip/host:11800`, and IP/host should be where your OAP is. 
+
+UI listens on `8080` port and request `127.0.0.1/12800` to run a GraphQL query.
 
 ### Interaction
 
@@ -114,12 +127,7 @@ Example:
 
 ```yaml
 storage:
-  selector: mysql # the mysql storage will actually be activated, while the h2 storage takes no effect
-  h2:
-    properties:
-      jdbcUrl: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE}
-      dataSource.user: ${SW_STORAGE_H2_USER:sa}
-    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+  selector: banyandb # the banyandb storage will actually be activated.
   mysql:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?allowMultiQueries=true"}
@@ -130,7 +138,11 @@ storage:
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-  # other configurations
+  banyandb:
+    targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
+    maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:10000}
+    flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
+    flushTimeout: ${SW_STORAGE_BANYANDB_FLUSH_TIMEOUT:10}
 ```
 
 1. **`storage`** is the module.

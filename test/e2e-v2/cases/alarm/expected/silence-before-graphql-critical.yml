@@ -18,6 +18,7 @@ msgs:
   - starttime: {{ gt .starttime 0 }}
     scope: Service
     id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    name: e2e-service-provider
     message: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
     tags:
       - key: level
@@ -38,5 +39,23 @@ msgs:
         starttime: {{ gt .starttime 0 }}
         endtime: {{ gt .endtime 0 }}
         layer: GENERAL
+      {{- end }}
+    snapshot:
+      expression: sum((service_resp_time > 10) * (service_sla > 100)) >= 1
+      metrics:
+      {{- contains .snapshot.metrics }}
+      - name: service_resp_time
+        results:
+        {{- contains .results }}
+        - metric:
+            labels: []
+          values:
+          {{- contains .values }}
+          - id: {{ notEmpty .id }}
+            owner: null
+            value: {{ .value }}
+            traceid: null
+          {{- end }}
+        {{- end }}
       {{- end }}
   {{- end }}

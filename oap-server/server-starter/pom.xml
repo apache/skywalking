@@ -113,7 +113,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>debugging-query-plugin</artifactId>
+            <artifactId>status-query-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -314,6 +314,8 @@
                         <exclude>endpoint-name-grouping.yml</exclude>
                         <exclude>metadata-service-mapping.yaml</exclude>
                         <exclude>trace-sampling-policy-settings.yml</exclude>
+                        <exclude>hierarchy-definition.yml</exclude>
+                        <exclude>bydb.dependencies.properties</exclude>
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
                         <exclude>envoy-metrics-rules/</exclude>

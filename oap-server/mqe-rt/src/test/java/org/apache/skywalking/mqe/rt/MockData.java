@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.mqe.rt;
 
-import org.apache.skywalking.mqe.rt.type.ExpressionResult;
-import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
-import org.apache.skywalking.mqe.rt.type.MQEValue;
-import org.apache.skywalking.mqe.rt.type.MQEValues;
-import org.apache.skywalking.mqe.rt.type.Metadata;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValue;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
+import org.apache.skywalking.oap.server.core.query.mqe.Metadata;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
 public class MockData {

@@ -248,7 +248,7 @@ jobs:
         with:
           submodules: true
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -276,7 +276,7 @@ jobs:
         with:
           submodules: true
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -310,7 +310,7 @@ jobs:
         with:
           submodules: true
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -362,8 +362,6 @@ jobs:
             config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: BanyanDB TLS
             config: test/e2e-v2/cases/storage/banyandb/tls/e2e.yaml
-          - name: Storage H2
-            config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
           - name: Storage PostgreSQL
@@ -395,8 +393,6 @@ jobs:
           - name: Storage ES Sharding
             config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
 
-          - name: Alarm H2
-            config: test/e2e-v2/cases/alarm/h2/e2e.yaml
           - name: Alarm ES
             config: test/e2e-v2/cases/alarm/es/e2e.yaml
           - name: Alarm ES Sharding
@@ -417,15 +413,11 @@ jobs:
 
           - name: Event BanyanDB
             config: test/e2e-v2/cases/event/banyandb/e2e.yaml
-          - name: Event H2
-            config: test/e2e-v2/cases/event/h2/e2e.yaml
           - name: Event ES
             config: test/e2e-v2/cases/event/es/e2e.yaml
           - name: Event MySQL
             config: test/e2e-v2/cases/event/mysql/e2e.yaml
 
-          - name: Log H2
-            config: test/e2e-v2/cases/log/h2/e2e.yaml
           - name: Log MySQL
             config: test/e2e-v2/cases/log/mysql/e2e.yaml
           - name: Log PostgreSQL
@@ -454,8 +446,6 @@ jobs:
 
           - name: Trace Profiling BanyanDB
             config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
-          - name: Trace Profiling H2
-            config: test/e2e-v2/cases/profiling/trace/h2/e2e.yaml
           - name: Trace Profiling ES
             config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
           - name: Trace Profiling ES Sharding
@@ -621,8 +611,6 @@ jobs:
             config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
           - name: Zipkin Opensearch
             config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
-          - name: Zipkin H2
-            config: test/e2e-v2/cases/zipkin/h2/e2e.yaml
           - name: Zipkin Postgres
             config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
           - name: Zipkin Kafka
@@ -677,8 +665,6 @@ jobs:
 
           - name: UI Menu BanyanDB
             config: test/e2e-v2/cases/menu/banyandb/e2e.yaml
-          - name: UI Menu H2
-            config: test/e2e-v2/cases/menu/h2/e2e.yaml
           - name: UI Menu ES
             config: test/e2e-v2/cases/menu/es/e2e.yaml
           - name: UI Menu Sharding ES
@@ -709,8 +695,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/async-profiler/banyandb/e2e.yaml
           - name: Async Profiler MySQL
             config: test/e2e-v2/cases/profiling/async-profiler/mysql/e2e.yaml
-          - name: Async Profiler h2
-            config: test/e2e-v2/cases/profiling/async-profiler/h2/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:
@@ -731,7 +715,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
@@ -854,7 +838,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: temurin
       - name: Cache maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}

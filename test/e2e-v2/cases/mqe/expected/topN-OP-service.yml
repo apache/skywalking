@@ -20,11 +20,27 @@ results:
       labels: []
     values:
       - id: e2e-service-consumer
-        value: "100"
+        value: "{{ (index (index .results 0).values 0).value }}"
         traceid: null
-        owner: null
+        owner:
+          scope: Service
+          serviceid: {{ b64enc "e2e-service-consumer"}}.1
+          servicename: e2e-service-consumer
+          normal: true
+          serviceinstanceid: null
+          serviceinstancename: null
+          endpointid: null
+          endpointname: null
       - id: e2e-service-provider
-        value: "100"
+        value: "{{ (index (index .results 0).values 1).value }}"
         traceid: null
-        owner: null
+        owner:
+          scope: Service
+          serviceid: {{ b64enc "e2e-service-provider"}}.1
+          servicename: e2e-service-provider
+          normal: true
+          serviceinstanceid: null
+          serviceinstancename: null
+          endpointid: null
+          endpointname: null
 error: null

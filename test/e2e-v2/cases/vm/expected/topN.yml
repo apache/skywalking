@@ -19,12 +19,20 @@ results:
   {{- contains .results }}
   - metric:
       labels: []
-    {{- contains .values }}
     values:
+    {{- contains .values }}
       - id: vm-service
-        value: {{ .value }}
+        value: "{{ .value }}"
         traceid: null
-        owner: null
+        owner:
+          scope: Service
+          serviceid: {{ b64enc "vm-service" }}.1
+          servicename: vm-service
+          normal: true
+          serviceinstanceid: null
+          serviceinstancename: null
+          endpointid: null
+          endpointname: null
     {{- end }}
   {{- end }}
 error: null

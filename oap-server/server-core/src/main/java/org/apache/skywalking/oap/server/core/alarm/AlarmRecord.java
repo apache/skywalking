@@ -34,9 +34,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
 import java.util.List;
-
 import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 
@@ -47,7 +45,6 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(AlarmRecord.START_TIME)
 public class AlarmRecord extends Record {
-
     public static final String INDEX_NAME = "alarm_record";
     public static final String ADDITIONAL_TAG_TABLE = "alarm_record_tag";
     public static final String SCOPE = "scope";
@@ -59,6 +56,7 @@ public class AlarmRecord extends Record {
     public static final String RULE_NAME = "rule_name";
     public static final String TAGS = "tags";
     public static final String TAGS_RAW_DATA = "tags_raw_data";
+    public static final String SNAPSHOT = "snapshot";
 
     @Override
     public StorageID id() {
@@ -92,6 +90,8 @@ public class AlarmRecord extends Record {
     private List<String> tagsInString;
     @Column(name = TAGS_RAW_DATA, storageOnly = true, length = Tag.TAG_LENGTH)
     private byte[] tagsRawData;
+    @Column(name = SNAPSHOT, storageOnly = true, length = 50000)
+    private String snapshot;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
         @Override
@@ -106,6 +106,7 @@ public class AlarmRecord extends Record {
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setRuleName((String) converter.get(RULE_NAME));
             record.setTagsRawData(converter.getBytes(TAGS_RAW_DATA));
+            record.setSnapshot((String) converter.get(SNAPSHOT));
             // Don't read the TAGS as they are only for query.
             return record;
         }
@@ -122,6 +123,7 @@ public class AlarmRecord extends Record {
             converter.accept(RULE_NAME, storageData.getRuleName());
             converter.accept(TAGS_RAW_DATA, storageData.getTagsRawData());
             converter.accept(TAGS, storageData.getTagsInString());
+            converter.accept(SNAPSHOT, storageData.getSnapshot());
         }
     }
 }
