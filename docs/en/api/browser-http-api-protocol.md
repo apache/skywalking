@@ -31,7 +31,69 @@ Input:
   "sslTime": 10,
   "ttlTime": 10,
   "firstPackTime": 10,
-  "fmpTime": 10
+}
+```
+
+OutPut:
+
+Http Status: 204
+
+### POST http://localhost:12800/browser/perfData/webVitals
+
+Send a performance data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
+
+Input:
+
+```json
+{
+  "service": "web",
+  "serviceVersion": "v0.0.1",
+  "pagePath": "/index.html",
+  "fmpTime": 10,
+  "clsTime": 10,
+  "lcpTime": 10,
+}
+```
+
+OutPut:
+
+Http Status: 204
+
+### POST http://localhost:12800/browser/perfData/webInteraction
+
+Send a performance data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
+
+Input:
+
+```json
+{
+  "service": "web",
+  "serviceVersion": "v0.0.1",
+  "pagePath": "/index.html",
+  "fidTime": 10,
+}
+```
+
+OutPut:
+
+Http Status: 204
+
+### POST http://localhost:12800/browser/perfData/resources
+
+Send a static resources data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
+
+Input:
+
+```json
+{
+  "service": "web",
+  "serviceVersion": "v0.0.1",
+  "pagePath": "/index.html",
+  "name": "vue.js",
+  "duration": 600,
+  "size": 100000,
+  "protocol": "h2",
+  "type": "script",
 }
 ```
 
