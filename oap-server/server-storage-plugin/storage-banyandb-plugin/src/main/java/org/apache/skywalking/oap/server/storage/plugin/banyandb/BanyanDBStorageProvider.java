@@ -210,6 +210,9 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                                                                                      .setName(
                                                                                          BanyanDBUITemplateManagementDAO.GROUP))
                                                           .setCatalog(BanyandbCommon.Catalog.CATALOG_PROPERTY)
+                                                          .setResourceOpts(BanyandbCommon.ResourceOpts.newBuilder()
+                                                                                       .setShardNum(1)
+                                                                                       .build())
                                                           .build());
             this.modelInstaller.start();
 
