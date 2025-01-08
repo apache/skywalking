@@ -33,7 +33,8 @@ expression
     | mathematical_operator1 L_PAREN expression COMMA parameter R_PAREN #mathematicalOperator1OP
     | trend L_PAREN metric COMMA INTEGER R_PAREN #trendOP
     | logical_operator L_PAREN expressionList R_PAREN #logicalOperatorOP
-    | topN L_PAREN metric COMMA INTEGER COMMA order (COMMA attributeList)? R_PAREN  #topNOP
+    | topN                                                                          #topNOP
+    | topNOf L_PAREN topN (COMMA topN)* COMMA INTEGER COMMA order R_PAREN           #topNOfOP
     | relabels L_PAREN expression COMMA label COMMA replaceLabel R_PAREN #relablesOP
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
     | sort_values L_PAREN expression (COMMA INTEGER)? COMMA order R_PAREN #sortValuesOP
@@ -75,7 +76,8 @@ mathematical_operator1:
 trend:
     INCREASE | RATE;
 
-topN: TOP_N;
+topN: TOP_N L_PAREN metric COMMA INTEGER COMMA order (COMMA attributeList)? R_PAREN;
+topNOf: TOP_N_OF;
 
 logical_operator:
     VIEW_AS_SEQ | IS_PRESENT;

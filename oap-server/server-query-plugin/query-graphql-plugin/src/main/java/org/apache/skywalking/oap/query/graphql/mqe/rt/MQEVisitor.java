@@ -124,8 +124,8 @@ public class MQEVisitor extends MQEVisitorBase {
             Column.ValueDataType dataType = valueColumn.get().getDataType();
             try {
                 if (Column.ValueDataType.COMMON_VALUE == dataType) {
-                    if (ctx.parent instanceof MQEParser.TopNOPContext) {
-                        MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
+                    if (ctx.parent instanceof MQEParser.TopNContext) {
+                        MQEParser.TopNContext parent = (MQEParser.TopNContext) ctx.parent;
                         int topN = Integer.parseInt(parent.INTEGER().getText());
                         if (topN <= 0) {
                             throw new IllegalExpressionException("TopN value must be > 0.");
@@ -170,8 +170,8 @@ public class MQEVisitor extends MQEVisitorBase {
                         queryLabeledMetrics(metricName, queryLabels, this.duration, result);
                     }
                 } else if (Column.ValueDataType.SAMPLED_RECORD == dataType) {
-                    if (ctx.parent instanceof MQEParser.TopNOPContext) {
-                        MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
+                    if (ctx.parent instanceof MQEParser.TopNContext) {
+                        MQEParser.TopNContext parent = (MQEParser.TopNContext) ctx.parent;
                         int topN = Integer.parseInt(parent.INTEGER().getText());
                         if (topN <= 0) {
                             throw new IllegalExpressionException("TopN value must be > 0.");

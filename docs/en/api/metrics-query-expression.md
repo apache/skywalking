@@ -217,6 +217,7 @@ round(service_cpm / 60 , 2)
 The different operators could impact the `ExpressionResultType`, please refer to the above table.
 
 ## TopN Operation
+### TopN Query
 TopN Operation takes an expression and performs calculation to get the TopN of Services/Instances/Endpoints.
 The result depends on the `entity` condition in the query.
 - Global TopN: 
@@ -263,6 +264,25 @@ top_n(service_instance_cpm, 10, des)
 
 ### Result Type
 According to the type of the metric, the `ExpressionResultType` of the expression will be `SORTED_LIST` or `RECORD_LIST`.
+
+### Multiple TopNs Merging
+As the difference between agent and ebpf, some metrics would be separated, e.g. service cpm and k8s service cpm.
+If you want to merge the topN results of these metrics, you can use the `ton_n_of` operation to merge the results. 
+
+expression:
+```text
+ton_n_of(<top_n>, <top_n>, ...,<top_number>, <order>)
+```
+
+- `<top_n>` is the [topN](#topn-query) expression. The result type of those tonN expression should be same, can be `SORTED_LIST` or `RECORD_LIST`, `but can not be mixed`.
+- `<top_number>` is the number of the merged top results, should be a positive integer. 
+- `<order>` is the order of the merged top results. The value of `<order>` can be `asc` or `des`.
+
+for example:
+If we want to get the top 10 services with the highest `service_cpm` and `k8s_service_cpm`, we can use the following expression:
+```text
+ton_n_of(top_n(service_cpm, 10, des), top_n(k8s_service_cpm, 10, des), 10, des)
+```
 
 ## Relabel Operation
 Relabel Operation takes an expression and replaces the label with new label on its results.
