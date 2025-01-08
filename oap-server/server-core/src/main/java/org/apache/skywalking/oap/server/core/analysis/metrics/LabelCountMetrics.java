@@ -58,7 +58,7 @@ public abstract class LabelCountMetrics extends Metrics implements LabeledValueH
     }
 
     @Entrance
-    public final void combine(@Arg String label, @ConstOne long count, @DefaultValue("1024") int maxLabelCount) {
+    public final void combine(@Arg String label, @ConstOne long count, @DefaultValue("50") int maxLabelCount) {
         this.isCalculated = false;
         this.maxLabelCount = maxLabelCount;
         this.dataset.valueAccumulation(label, count, maxLabelCount);

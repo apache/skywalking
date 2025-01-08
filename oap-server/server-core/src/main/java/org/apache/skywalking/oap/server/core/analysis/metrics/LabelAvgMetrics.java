@@ -68,7 +68,7 @@ public abstract class LabelAvgMetrics extends Metrics implements LabeledValueHol
     }
 
     @Entrance
-    public final void combine(@Arg String label, @Arg long count, @DefaultValue("1024") int maxLabelCount) {
+    public final void combine(@Arg String label, @Arg long count, @DefaultValue("50") int maxLabelCount) {
         this.isCalculated = false;
         this.maxLabelCount = maxLabelCount;
         this.summation.valueAccumulation(label, count, maxLabelCount);
