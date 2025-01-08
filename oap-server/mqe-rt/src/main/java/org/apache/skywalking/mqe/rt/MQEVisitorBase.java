@@ -34,6 +34,7 @@ import org.apache.skywalking.mqe.rt.operation.LogicalFunctionOp;
 import org.apache.skywalking.mqe.rt.operation.MathematicalFunctionOp;
 import org.apache.skywalking.mqe.rt.operation.SortLabelValuesOp;
 import org.apache.skywalking.mqe.rt.operation.SortValuesOp;
+import org.apache.skywalking.mqe.rt.operation.TopNOfOp;
 import org.apache.skywalking.mqe.rt.operation.TrendOp;
 import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
@@ -240,7 +241,27 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
         DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = traceContext.createSpan("MQE TopN OP: " + ctx.getText());
         try {
-            return visit(ctx.metric());
+            return visit(ctx.topN().metric());
+        } finally {
+            traceContext.stopSpan(span);
+        }
+    }
+
+    @Override
+    public ExpressionResult visitTopNOfOP(MQEParser.TopNOfOPContext ctx) {
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE TopNOf OP: " + ctx.getText());
+        try {
+            List<MQEParser.TopNContext> topNContexts = ctx.topN();
+            List<ExpressionResult> topNResults = new ArrayList<>();
+            for (MQEParser.TopNContext topNContext : topNContexts) {
+                topNResults.add(visit(topNContext.metric()));
+            }
+            try {
+                return TopNOfOp.doMergeTopNResult(topNResults, Integer.parseInt(ctx.INTEGER().getText()), ctx.order().getStart().getType());
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
         } finally {
             traceContext.stopSpan(span);
         }

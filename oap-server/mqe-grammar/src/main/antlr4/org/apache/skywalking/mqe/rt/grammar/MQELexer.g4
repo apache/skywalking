@@ -64,6 +64,7 @@ RATE:        'rate';
 
 // TopN
 TOP_N:        'top_n';
+TOP_N_OF:     'top_n_of';
 
 // ViewAsSeq
 VIEW_AS_SEQ: 'view_as_seq';
