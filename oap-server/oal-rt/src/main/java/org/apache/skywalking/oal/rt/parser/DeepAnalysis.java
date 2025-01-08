@@ -23,6 +23,7 @@ import org.apache.skywalking.oal.rt.util.TypeCastUtil;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.DefaultValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -123,6 +124,12 @@ public class DeepAnalysis {
                 }
             } else if (annotation instanceof Arg) {
                 entryMethod.addArg(parameterType, result.getAggregationFuncStmt().getNextFuncArg());
+            } else if (annotation instanceof DefaultValue) {
+                if (result.getAggregationFuncStmt().hasNextArg()) {
+                    entryMethod.addArg(parameterType, result.getAggregationFuncStmt().getNextFuncArg());
+                } else {
+                    entryMethod.addArg(parameterType, ((DefaultValue) annotation).value());
+                }
             } else {
                 throw new IllegalArgumentException(
                     "Entrance method:" + entranceMethod + " doesn't the expected annotation.");

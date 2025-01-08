@@ -67,4 +67,8 @@ public class AggregationFuncStmt {
     public Argument getNextFuncArg() {
         return funcArgs.get(argGetIdx++);
     }
+
+    public boolean hasNextArg() {
+        return argGetIdx < funcArgs.size();
+    }
 }

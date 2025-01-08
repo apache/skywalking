@@ -103,9 +103,14 @@ In this case, see `p99`, `p95`, `p90`, `p75`, and `p50` of all incoming requests
 In this case, the p99 value of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
 
 - `labelCount`. The count of the label value.
-> drop_reason_count = from(CiliumService.*).filter(verdict == "dropped").labelCount(dropReason);
+> drop_reason_count = from(CiliumService.*).filter(verdict == "dropped").labelCount(dropReason, 100);
 
-In this case, the count of the drop reason of each Cilium service. 
+In this case, the count of the drop reason of each Cilium service, max support calculate `100` reasons(optional configuration). 
+
+- `labelAvg`. The avg of the label value.
+> drop_reason_avg = from(BrowserResourcePerf.*).labelAvg(name, duration, 100);
+
+In this case, the avg of the duration of each browser resource file, max support calculate `100` resource file(optional configuration).
 
 ## Metrics name
 The metrics name for storage implementor, alarm and query modules. The type inference is supported by core.

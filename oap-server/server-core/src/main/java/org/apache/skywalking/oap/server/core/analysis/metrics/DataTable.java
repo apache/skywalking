@@ -70,8 +70,18 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
      * Accumulate the value with existing value in the same given key.
      */
     public void valueAccumulation(String key, Long value) {
+        this.valueAccumulation(key, value, 0);
+    }
+
+    /**
+     * Accumulate the value with existing value in the same given key, and limit the data size.
+     */
+    public void valueAccumulation(String key, Long value, int maxDataSize) {
         Long element = data.get(key);
         if (element == null) {
+            if (maxDataSize > 0 && data.size() >= maxDataSize) {
+                return;
+            }
             element = value;
         } else {
             element += value;
@@ -155,9 +165,16 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
     }
 
     public DataTable append(DataTable dataTable) {
+        return this.append(dataTable, 0);
+    }
+
+    public DataTable append(DataTable dataTable, int maxDataSize) {
         dataTable.data.forEach((key, value) -> {
             Long current = this.data.get(key);
             if (current == null) {
+                if (maxDataSize > 0 && data.size() >= maxDataSize) {
+                    return;
+                }
                 current = value;
             } else {
                 current += value;
