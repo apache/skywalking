@@ -52,6 +52,7 @@
 * Fix `hierarchy-definition.yml` config file packaged into start.jar wrongly.
 * Add `bydb.dependencies.properties` config file to define server dependency versions.
 * Fix `AvgHistogramPercentileFunction` doesn't have proper field definition for `ranks`.
+* BanyanDB: Support the new Property data module.
 
 #### UI
 

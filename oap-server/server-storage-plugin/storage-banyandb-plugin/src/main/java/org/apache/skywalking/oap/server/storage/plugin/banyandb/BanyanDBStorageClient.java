@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
@@ -78,9 +79,12 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public List<Property> listProperties(String group, String name) throws IOException {
         try {
-            List<Property> properties = this.client.findProperties(group, name);
+             BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
+                            .addGroups(group)
+                            .setContainer(name)
+                    .build());
             this.healthChecker.health();
-            return properties;
+            return resp.getPropertiesList();
         } catch (BanyanDBException ex) {
             if (ex.getStatus().equals(Status.Code.NOT_FOUND)) {
                 this.healthChecker.health();
@@ -94,9 +98,16 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public Property queryProperty(String group, String name, String id) throws IOException {
         try {
-            Property p = this.client.findProperty(group, name, id);
+            BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
+                    .addGroups(group)
+                    .setContainer(name)
+                    .addIds(id)
+                    .build());
             this.healthChecker.health();
-            return p;
+            if (resp.getPropertiesCount() == 0) {
+                return null;
+            }
+            return resp.getProperties(0);
         } catch (BanyanDBException ex) {
             if (ex.getStatus().equals(Status.Code.NOT_FOUND)) {
                 this.healthChecker.health();
@@ -108,24 +119,14 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public DeleteResponse deleteProperty(String group, String name, String id, String... tags) throws IOException {
+    public DeleteResponse deleteProperty(String group, String name, String id) throws IOException {
         try {
-            DeleteResponse result = this.client.deleteProperty(group, name, id, tags);
+            DeleteResponse result = this.client.deleteProperty(group, name, id);
             this.healthChecker.health();
             return result;
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
             throw new IOException("fail to delete property", ex);
-        }
-    }
-
-    public void keepAliveProperty(long leaseId) throws IOException {
-        try {
-            this.client.keepAliveProperty(leaseId);
-            this.healthChecker.health();
-        } catch (BanyanDBException ex) {
-            healthChecker.unHealth(ex);
-            throw new IOException("fail to keep alive property", ex);
         }
     }
 
