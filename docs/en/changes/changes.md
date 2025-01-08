@@ -52,6 +52,7 @@
 * Fix `hierarchy-definition.yml` config file packaged into start.jar wrongly.
 * Add `bydb.dependencies.properties` config file to define server dependency versions.
 * Fix `AvgHistogramPercentileFunction` doesn't have proper field definition for `ranks`.
+* BanyanDB: Support the new Property data module.
 * MQE: Support `top_n_of` function for merging multiple metrics topn query.
 
 #### UI

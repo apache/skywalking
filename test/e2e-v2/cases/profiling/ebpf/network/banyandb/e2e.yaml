@@ -53,7 +53,8 @@ setup:
           --set fullnameOverride=skywalking \
           --set elasticsearch.enabled=false \
           --set banyandb.enabled=true \
-          --set banyandb.standalone.image.tag=${SW_BANYANDB_COMMIT} \
+          --set banyandb.image.tag=${SW_BANYANDB_COMMIT} \
+          --set banyandb.image.repository=ghcr.io/apache/skywalking-banyandb \
           --set oap.replicas=1 \
           --set ui.image.repository=skywalking/ui \
           --set ui.image.tag=latest \
