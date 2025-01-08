@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 import java.util.Objects;
 import java.util.Set;
@@ -42,19 +41,16 @@ public abstract class LabelAvgMetrics extends Metrics implements LabeledValueHol
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(legacyName = "summation")
     @BanyanDB.MeasureField
     protected DataTable summation;
     @Getter
     @Setter
     @Column(name = COUNT, storageOnly = true)
-    @ElasticSearch.Column(legacyName = "count")
     @BanyanDB.MeasureField
     protected DataTable count;
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private DataTable value;
 
