@@ -24,21 +24,21 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
-import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.BrowserPerfDataDecorator;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserPerfDataDecorator;
 
 /**
  * Browser traffic and page Performance related metrics.
  */
 @Slf4j
-public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisListener {
+public class BrowserPerfDataAnalysisListener implements PerfDataAnalysisListener<BrowserPerfDataDecorator> {
     private final SourceReceiver sourceReceiver;
 
-    private final SourceBuilder sourceBuilder;
+    private final BrowserPerfDataSourceBuilder sourceBuilder;
 
-    public MultiScopesPerfDataAnalysisListener(final SourceReceiver sourceReceiver,
-                                               final NamingControl namingControl) {
+    public BrowserPerfDataAnalysisListener(final SourceReceiver sourceReceiver,
+                                           final NamingControl namingControl) {
         this.sourceReceiver = sourceReceiver;
-        this.sourceBuilder = new SourceBuilder(namingControl);
+        this.sourceBuilder = new BrowserPerfDataSourceBuilder(namingControl);
     }
 
     /**
@@ -85,7 +85,7 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
         sourceBuilder.setFmpTime(decorator.getFmpTime());
     }
 
-    public static class Factory implements PerfDataListenerFactory {
+    public static class Factory implements PerfDataListenerFactory<BrowserPerfDataDecorator> {
 
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
@@ -101,9 +101,9 @@ public class MultiScopesPerfDataAnalysisListener implements PerfDataAnalysisList
         }
 
         @Override
-        public PerfDataAnalysisListener create(final ModuleManager moduleManager,
+        public PerfDataAnalysisListener<BrowserPerfDataDecorator> create(final ModuleManager moduleManager,
                                                final BrowserServiceModuleConfig moduleConfig) {
-            return new MultiScopesPerfDataAnalysisListener(sourceReceiver, namingControl);
+            return new BrowserPerfDataAnalysisListener(sourceReceiver, namingControl);
         }
     }
 }

@@ -13,8 +13,6 @@
     source tar from the website and publish them to your private maven repository.
 * [Breaking Change] Remove H2 as storage option permanently. BanyanDB 0.8(OAP 10.2 required) is easy, stable and 
   production-ready. Don't need H2 as default storage anymore.
-* Support `labelAvg` function in the OAL engine.
-* Added `maxLabelCount` parameter in the `labelCount` function of OAL to limit the number of labels can be counted.
 
 #### OAP Server
 
@@ -56,6 +54,9 @@
 * Fix `AvgHistogramPercentileFunction` doesn't have proper field definition for `ranks`.
 * BanyanDB: Support the new Property data module.
 * MQE: Support `top_n_of` function for merging multiple metrics topn query.
+* Support `labelAvg` function in the OAL engine.
+* Added `maxLabelCount` parameter in the `labelCount` function of OAL to limit the number of labels can be counted.
+* Adapt the new Browser API(`/browser/perfData/webVitals`, `/browser/perfData/resources`) protocol.
 
 #### UI
 
@@ -78,6 +79,7 @@
 * Optimize Trace Profiling widget.
 * Implement Async Profiling widget.
 * Fix inaccurate data query issue on endpoint topology page.
+* Update browser dashboard for the new metrics.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
