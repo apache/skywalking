@@ -58,6 +58,7 @@ browser_app_page_load_page_percentile = from(BrowserAppPagePerf.loadPageTime).pe
 browser_app_page_first_pack_percentile = from(BrowserAppPagePerf.firstPackTime).percentile2(10);
 browser_app_page_fmp_percentile = from(BrowserAppPagePerf.fmpTime).percentile2(10);
 
+// Since the web vitals and resource can be load from cache or cross-origin, so the metrics should ignore when the value is 0
 browser_app_resource_duration_avg = from(BrowserAppResourcePerf.*).filter(duration > 0).labelAvg(name, duration);
 browser_app_resource_size_avg = from(BrowserAppResourcePerf.*).filter(size > 0).labelAvg(name, size);
 browser_app_resource_protocol_count = from(BrowserAppResourcePerf.*).labelCount(protocol);
