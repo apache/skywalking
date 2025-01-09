@@ -17,33 +17,25 @@
 
 package org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance;
 
-import java.util.LinkedList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfData;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserPerfDecorator;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.PerfDataAnalysisListener;
 
 @Slf4j
 @RequiredArgsConstructor
 public class PerfDataAnalyzer {
-    private final ModuleManager moduleManager;
-    private final PerfDataParserListenerManager listenerManager;
-    private final BrowserServiceModuleConfig config;
+    private final PerfDataParserListenerManager factory;
 
-    private final List<PerfDataAnalysisListener> analysisListeners = new LinkedList<>();
-
-    public void doAnalysis(BrowserPerfData browserPerfData) {
-        if (StringUtil.isBlank(browserPerfData.getService())) {
+    @SuppressWarnings("unchecked")
+    public <T extends BrowserPerfDecorator> void doAnalysis(T decorator) {
+        if (StringUtil.isBlank(decorator.getService())) {
             return;
         }
 
-        createAnalysisListeners();
+        final PerfDataAnalysisListener<T> listener = (PerfDataAnalysisListener<T>) factory.create(decorator.getClass());
 
-        BrowserPerfDataDecorator decorator = new BrowserPerfDataDecorator(browserPerfData);
         // Use the server side current time.
         long nowMillis = System.currentTimeMillis();
         decorator.setTime(nowMillis);
@@ -56,21 +48,8 @@ public class PerfDataAnalyzer {
             decorator.setPagePath("/");
         }
 
-        notifyListener(decorator);
-
-        notifyListenerToBuild();
+        listener.parse(decorator);
+        listener.build();
     }
 
-    private void notifyListener(BrowserPerfDataDecorator decorator) {
-        analysisListeners.forEach(listener -> listener.parse(decorator));
-    }
-
-    private void notifyListenerToBuild() {
-        analysisListeners.forEach(PerfDataAnalysisListener::build);
-    }
-
-    private void createAnalysisListeners() {
-        listenerManager.getPerfDataListenerFactories()
-                       .forEach(factory -> analysisListeners.add(factory.create(moduleManager, config)));
-    }
 }

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance;
+package org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators;
 
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfData;
 
-public class BrowserPerfDataDecorator {
+public class BrowserPerfDataDecorator implements BrowserPerfDecorator {
     private BrowserPerfData.Builder builder;
 
     public BrowserPerfDataDecorator(final BrowserPerfData browserPerfData) {
