@@ -231,6 +231,25 @@ public class CoreModuleConfig extends ModuleConfig {
     @Getter
     private boolean enableHierarchy = true;
 
+    /**
+     * The int value of the max heap memory usage percent.
+     * The default value is 85%.
+     */
+    @Getter
+    private long maxHeapMemoryUsagePercent = 85;
+    /**
+     * The int value of the max non-heap memory usage percent.
+     * The default value is 85%.
+     */
+    @Getter
+    private long maxNoheapMemoryUsagePercent = 85;
+    /**
+     * The long value of the max no heap memory usage.
+     * The default max value is -1, representing no limit.
+     */
+    @Getter
+    private long maxNoheapMemoryUsage = -1;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }

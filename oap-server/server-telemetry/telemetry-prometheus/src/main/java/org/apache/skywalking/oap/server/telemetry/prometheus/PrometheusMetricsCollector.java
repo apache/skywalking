@@ -23,6 +23,8 @@ import io.prometheus.client.CollectorRegistry;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.skywalking.oap.server.telemetry.api.MetricFamily;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 
@@ -41,5 +43,15 @@ public class PrometheusMetricsCollector implements MetricsCollector {
             }
         }
         return result;
+    }
+
+    @Override
+    public Optional<MetricFamily> find(final String name) {
+        for (final MetricFamily metricFamily : this.collect()) {
+            if (metricFamily.name.equals(name)) {
+                return Optional.of(metricFamily);
+            }
+        }
+        return Optional.empty();
     }
 }

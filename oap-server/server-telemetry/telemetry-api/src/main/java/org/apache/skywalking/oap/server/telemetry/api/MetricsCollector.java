@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.telemetry.api;
 
+import java.util.Optional;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -31,4 +32,12 @@ public interface MetricsCollector extends Service {
      * @return all metrics
      */
     Iterable<MetricFamily> collect();
+
+    /**
+     * Get existing metrics with the given metric name.
+     *
+     * @param name, the metric name
+     * @return the optional metrics with the given metric name
+     */
+    Optional<MetricFamily> find(String name);
 }

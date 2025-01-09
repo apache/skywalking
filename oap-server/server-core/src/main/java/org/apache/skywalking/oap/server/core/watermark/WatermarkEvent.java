@@ -16,24 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.none;
+package org.apache.skywalking.oap.server.core.watermark;
 
-import java.util.Collections;
-import java.util.Optional;
-import org.apache.skywalking.oap.server.telemetry.api.MetricFamily;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
+import lombok.Data;
 
-/**
- * No-op MetricFamily Collector.
- */
-public class MetricsCollectorNoop implements MetricsCollector {
-    @Override
-    public Iterable<MetricFamily> collect() {
-        return Collections.emptyList();
-    }
+@Data
+public class WatermarkEvent {
+    private final Type type;
 
-    @Override
-    public Optional<MetricFamily> find(final String name) {
-        return Optional.empty();
+    public enum Type {
+        HEAP_MEMORY_USAGE_PERCENTAGE,
+        NO_HEAP_MEMORY_USAGE,
+        NO_HEAP_MEMORY_USAGE_PERCENTAGE,
     }
 }

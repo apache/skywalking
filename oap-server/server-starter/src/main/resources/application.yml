@@ -546,7 +546,7 @@ alarm:
   default:
 
 telemetry:
-  selector: ${SW_TELEMETRY:none}
+  selector: ${SW_TELEMETRY:prometheus}
   none:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}

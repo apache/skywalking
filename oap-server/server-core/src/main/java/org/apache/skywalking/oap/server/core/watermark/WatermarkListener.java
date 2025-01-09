@@ -16,24 +16,36 @@
  *
  */
 
-package org.apache.skywalking.oap.server.telemetry.none;
+package org.apache.skywalking.oap.server.core.watermark;
 
-import java.util.Collections;
-import java.util.Optional;
-import org.apache.skywalking.oap.server.telemetry.api.MetricFamily;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
+import java.util.List;
 
 /**
- * No-op MetricFamily Collector.
+ * WatermarkListener is the listener for receiving WatermarkEvent and react to it.
  */
-public class MetricsCollectorNoop implements MetricsCollector {
-    @Override
-    public Iterable<MetricFamily> collect() {
-        return Collections.emptyList();
+public abstract class WatermarkListener {
+    private List<WatermarkEvent.Type> acceptedTypes;
+    private volatile boolean isWatermarkExceeded = false;
+
+    public WatermarkListener() {
+        this(WatermarkEvent.Type.values());
     }
 
-    @Override
-    public Optional<MetricFamily> find(final String name) {
-        return Optional.empty();
+    public WatermarkListener(WatermarkEvent.Type... types) {
+        this.acceptedTypes = List.of(types);
+    }
+
+    void notify(WatermarkEvent.Type event) {
+        if (acceptedTypes.contains(event)) {
+            isWatermarkExceeded = true;
+        }
+    }
+
+    void recovered() {
+        isWatermarkExceeded = false;
+    }
+
+    public boolean isWatermarkExceeded() {
+        return isWatermarkExceeded;
     }
 }
