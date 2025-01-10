@@ -1,7 +1,7 @@
 # Telemetry for backend
 The OAP backend cluster itself is a distributed streaming process system. To assist the Ops team, we provide the telemetry for the OAP backend itself, also known as self-observability (so11y)
 
-By default, the telemetry is disabled by setting `selector` to `prometheus`, like this, which activated the Prometheus telemetry.
+By default, the telemetry is activated as setting `selector` to `prometheus`.
 
 ```yaml
 telemetry:

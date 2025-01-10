@@ -9,7 +9,7 @@ Currently, there are two available strategies for circuit breaking: heap memory 
 ```yaml
 # The int value of the max heap memory usage percent. The default value is 85%.
 maxHeapMemoryUsagePercent: ${SW_CORE_MAX_HEAP_MEMORY_USAGE_PERCENT:85}
-# The long value of the max direct memory usage. The default max value is -1, representing no limit.
+# The long value of the max direct memory usage. The default max value is -1, representing no limit. The unit is in bytes.
 maxDirectMemoryUsage: ${SW_CORE_MAX_DIRECT_MEMORY_USAGE:-1}
 ```
 

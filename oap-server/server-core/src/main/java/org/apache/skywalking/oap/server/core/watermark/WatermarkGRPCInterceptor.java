@@ -24,12 +24,15 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * gRPCWatermarkInterceptor is a gRPC interceptor that checks if the watermark is exceeded before processing the request.
  */
+@Slf4j
 public class WatermarkGRPCInterceptor extends WatermarkListener implements ServerInterceptor {
     public static WatermarkGRPCInterceptor INSTANCE;
+    private long lastTimestampOfWarningOutput = 0;
 
     private WatermarkGRPCInterceptor() {
         super("gRPC-Watermark-Interceptor");
@@ -46,6 +49,7 @@ public class WatermarkGRPCInterceptor extends WatermarkListener implements Serve
                                                               final ServerCallHandler<REQ, RESP> next) {
         if (isWatermarkExceeded()) {
             call.close(Status.RESOURCE_EXHAUSTED.withDescription("Watermark exceeded"), new Metadata());
+            this.logWarning("Watermark exceeded, reject the gRPC request by Circuit Breaking mechanism.");
             return new ServerCall.Listener<REQ>() {
             };
         }
@@ -57,11 +61,20 @@ public class WatermarkGRPCInterceptor extends WatermarkListener implements Serve
             public void onMessage(final REQ message) {
                 if (isWatermarkExceeded()) {
                     call.close(Status.RESOURCE_EXHAUSTED.withDescription("Watermark exceeded"), new Metadata());
+                    logWarning("Watermark exceeded, reject the gRPC request by Circuit Breaking mechanism.");
                     return;
                 }
 
                 super.onMessage(message);
             }
         };
+    }
+
+    private void logWarning(String message) {
+        long currentTimeMillis = System.currentTimeMillis();
+        if (currentTimeMillis - lastTimestampOfWarningOutput > 1000 * 60) {
+            lastTimestampOfWarningOutput = currentTimeMillis;
+            log.warn(message);
+        }
     }
 }

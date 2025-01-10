@@ -69,8 +69,6 @@ public abstract class WatermarkListener {
     protected void beAwareOf(WatermarkEvent.Type event) {
     }
 
-    ;
-
     protected void beAwareOfRecovery() {
         // Do nothing by default.
     }
