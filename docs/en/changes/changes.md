@@ -57,7 +57,7 @@
 * Support `labelAvg` function in the OAL engine.
 * Added `maxLabelCount` parameter in the `labelCount` function of OAL to limit the number of labels can be counted.
 * Adapt the new Browser API(`/browser/perfData/webVitals`, `/browser/perfData/resources`) protocol.
-* Remove redundant code.
+* Add Circuit Breaking mechanism.
 
 #### UI
 
@@ -90,6 +90,7 @@
 * Add `Get Effective TTL Configurations` API documentation.
 * Add Status APIs docs.
 * Simplified the release process with removing maven central publish relative processes.
+* Add Circuit Breaking mechanism doc.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/224?closed=1)

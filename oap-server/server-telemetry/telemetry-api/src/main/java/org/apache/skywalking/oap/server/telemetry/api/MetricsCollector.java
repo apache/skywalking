@@ -31,4 +31,19 @@ public interface MetricsCollector extends Service {
      * @return all metrics
      */
     Iterable<MetricFamily> collect();
+
+    /**
+     * Get the heap memory usage.
+     */
+    long heapMemoryUsage();
+
+    /**
+     * Get the heap memory max.
+     */
+    long heapMemoryMax();
+
+    /**
+     * Get the direct memory usage.
+     */
+    long directMemoryUsage();
 }

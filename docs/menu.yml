@@ -196,6 +196,8 @@ catalog:
             path: "/en/setup/backend/backend-telemetry"
           - name: "OAP Health Check"
             path: "/en/setup/backend/backend-health-check"
+          - name: "Circuit Breaking"
+            path: "/en/setup/backend/circuit-breaking"
       - name: "BanyanDB Exclusive Setup"
         catalog:
           - name: "Progressive TTL"

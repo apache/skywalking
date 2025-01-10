@@ -102,6 +102,8 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
+import org.apache.skywalking.oap.server.core.watermark.WatermarkGRPCInterceptor;
+import org.apache.skywalking.oap.server.core.watermark.WatermarkWatcher;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.core.worker.WorkerInstancesService;
@@ -114,6 +116,7 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
 
 /**
@@ -140,6 +143,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private EndpointNameGroupingRule4OpenapiWatcher endpointNameGroupingRule4OpenapiWatcher;
     private EndpointNameGrouping endpointNameGrouping;
     private HierarchyService hierarchyService;
+    private WatermarkWatcher watermarkWatcher;
 
     public CoreModuleProvider() {
         super();
@@ -379,12 +383,17 @@ public class CoreModuleProvider extends ModuleProvider {
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
         loggingConfigWatcher = new LoggingConfigWatcher(this);
+
+        WatermarkGRPCInterceptor.create();
+        this.watermarkWatcher = new WatermarkWatcher(moduleConfig.getMaxHeapMemoryUsagePercent(),
+                                                     moduleConfig.getMaxDirectMemoryUsage());
     }
 
     @Override
     public void start() throws ModuleStartException {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
+        grpcServer.addInterceptor(WatermarkGRPCInterceptor.INSTANCE);
 
         endpointNameGrouping.startHttpUriRecognitionSvr(
             getManager()
@@ -471,6 +480,8 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(e.getMessage(), e);
         }
         hierarchyService.startAutoMatchingServiceHierarchy();
+
+        watermarkWatcher.start(getManager().find(TelemetryModule.NAME).provider().getService(MetricsCollector.class));
     }
 
     @Override

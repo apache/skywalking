@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
+import org.apache.skywalking.oap.server.core.watermark.WatermarkGRPCInterceptor;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -138,6 +139,7 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
         service.addHandler(handler);
         service.addHandler(new AccessLogServiceGRPCHandlerV3(handler));
         service.addHandler(new SatelliteAccessLogServiceGRPCHandlerV3(handler));
+        service.addFilter(WatermarkGRPCInterceptor.INSTANCE);
     }
 
     @Override

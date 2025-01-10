@@ -18,6 +18,13 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
+import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
+import io.grpc.Status;
+import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -38,13 +45,6 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v2.AccessLogServiceGrpc;
-import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsResponse;
-import io.grpc.Status;
-import io.grpc.stub.StreamObserver;
 
 public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogServiceImplBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccessLogServiceGRPCHandler.class);
@@ -97,7 +97,7 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
 
     @Override
     public StreamObserver<StreamAccessLogsMessage> streamAccessLogs(
-            StreamObserver<StreamAccessLogsResponse> responseObserver) {
+        StreamObserver<StreamAccessLogsResponse> responseObserver) {
         return streamAccessLogs(responseObserver, false);
     }
 
@@ -127,7 +127,8 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
                         LOGGER.debug(
                             "Messaged is identified from Envoy[{}], role[{}] in [{}]. Received msg {}", identifier
                                 .getNode()
-                                .getId(), role, logCase, message);
+                                .getId(), role, logCase, message
+                        );
                     }
 
                     final ServiceMeshMetrics.Builder sourceResult = ServiceMeshMetrics.newBuilder();

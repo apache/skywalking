@@ -16,33 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.server;
+package org.apache.skywalking.oap.server.core.watermark;
 
-import io.grpc.BindableService;
-import io.grpc.ServerInterceptor;
-import io.grpc.ServerServiceDefinition;
-import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
+import lombok.Data;
 
-public class GRPCHandlerRegisterImpl implements GRPCHandlerRegister {
+@Data
+public class WatermarkEvent {
+    private final Type type;
 
-    private final GRPCServer server;
-
-    public GRPCHandlerRegisterImpl(GRPCServer server) {
-        this.server = server;
-    }
-
-    @Override
-    public void addHandler(BindableService handler) {
-        server.addHandler(handler);
-    }
-
-    @Override
-    public void addHandler(ServerServiceDefinition definition) {
-        server.addHandler(definition);
-    }
-
-    @Override
-    public void addFilter(ServerInterceptor interceptor) {
-        server.addInterceptor(interceptor);
+    public enum Type {
+        HEAP_MEMORY_USAGE_PERCENTAGE,
+        DIRECT_HEAP_MEMORY_USAGE,
     }
 }

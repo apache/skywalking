@@ -30,4 +30,19 @@ public class MetricsCollectorNoop implements MetricsCollector {
     public Iterable<MetricFamily> collect() {
         return Collections.emptyList();
     }
+
+    @Override
+    public long heapMemoryUsage() {
+        return 0;
+    }
+
+    @Override
+    public long heapMemoryMax() {
+        return 0;
+    }
+
+    @Override
+    public long directMemoryUsage() {
+        return 0;
+    }
 }
