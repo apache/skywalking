@@ -58,8 +58,8 @@ public class PrometheusMetricsCollector implements MetricsCollector {
             .ifPresent(metricFamily -> {
                 metricFamily.samples.forEach(sample -> {
                     for (int i = 0; i < sample.labelNames.size(); i++) {
-                        if (sample.labelNames.get(i).equals("area") && sample.labelValues.get(i)
-                                                                                         .equals("heap")) {
+                        if (sample.labelNames.get(i).equals("area")
+                            && sample.labelValues.get(i).equals("heap")) {
                             heapMemoryUsed.addAndGet((long) sample.value);
                         }
                     }
@@ -75,8 +75,8 @@ public class PrometheusMetricsCollector implements MetricsCollector {
             .ifPresent(metricFamily -> {
                 metricFamily.samples.forEach(sample -> {
                     for (int i = 0; i < sample.labelNames.size(); i++) {
-                        if (sample.labelNames.get(i).equals("area") && sample.labelValues.get(i)
-                                                                                         .equals("heap")) {
+                        if (sample.labelNames.get(i).equals("area")
+                            && sample.labelValues.get(i).equals("heap")) {
                             heapMemoryMax.addAndGet((long) sample.value);
                         }
                     }
@@ -92,8 +92,8 @@ public class PrometheusMetricsCollector implements MetricsCollector {
             .ifPresent(metricFamily -> {
                 metricFamily.samples.forEach(sample -> {
                     for (int i = 0; i < sample.labelNames.size(); i++) {
-                        if (sample.labelNames.get(i).equals("pool") && sample.labelValues.get(i)
-                                                                                         .equals("direct")) {
+                        if (sample.labelNames.get(i).equals("pool")
+                            && sample.labelValues.get(i).equals("direct")) {
                             directMemoryUsed.addAndGet((long) sample.value);
                         }
                     }
