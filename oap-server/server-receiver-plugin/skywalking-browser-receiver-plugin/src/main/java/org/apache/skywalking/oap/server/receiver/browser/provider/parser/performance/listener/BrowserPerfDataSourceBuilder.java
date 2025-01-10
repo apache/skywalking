@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.core.source.Source;
  * Browser traffic and performance related source.
  */
 @RequiredArgsConstructor
-class SourceBuilder {
+class BrowserPerfDataSourceBuilder {
     private final NamingControl namingControl;
 
     @Getter

@@ -30,6 +30,7 @@ public class BrowserAppPageTrafficDispatcher extends BrowserAppTrafficSourceDisp
         traffic.setTimeBucket(source.getTimeBucket());
         traffic.setName(source.getName());
         traffic.setServiceId(source.getServiceId());
+        traffic.setLastPingTimestamp(source.getTimeBucket());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }

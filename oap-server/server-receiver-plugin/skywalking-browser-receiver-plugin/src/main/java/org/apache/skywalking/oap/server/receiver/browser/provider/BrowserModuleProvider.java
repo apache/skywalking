@@ -36,7 +36,12 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlo
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.ErrorLogRecordListener;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.MultiScopesErrorLogAnalysisListener;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.PerfDataParserListenerManager;
-import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.MultiScopesPerfDataAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserPerfDataDecorator;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserResourcePerfDataDecorator;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserWebVitalsPerfDataDecorator;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.BrowserPerfDataAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.BrowserWebResourcePerfDataAnalysisListener;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.BrowserWebVitalsPerfDataAnalysisListener;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
@@ -117,9 +122,10 @@ public class BrowserModuleProvider extends ModuleProvider {
     }
 
     private PerfDataParserListenerManager perfDataListenerManager() {
-        PerfDataParserListenerManager listenerManager = new PerfDataParserListenerManager();
-        listenerManager.add(new MultiScopesPerfDataAnalysisListener.Factory(getManager(), moduleConfig));
-
+        PerfDataParserListenerManager listenerManager = new PerfDataParserListenerManager(getManager(), moduleConfig);
+        listenerManager.add(BrowserPerfDataDecorator.class, new BrowserPerfDataAnalysisListener.Factory(getManager(), moduleConfig));
+        listenerManager.add(BrowserWebVitalsPerfDataDecorator.class, new BrowserWebVitalsPerfDataAnalysisListener.Factory(getManager(), moduleConfig));
+        listenerManager.add(BrowserResourcePerfDataDecorator.class, new BrowserWebResourcePerfDataAnalysisListener.Factory(getManager(), moduleConfig));
         return listenerManager;
     }
 

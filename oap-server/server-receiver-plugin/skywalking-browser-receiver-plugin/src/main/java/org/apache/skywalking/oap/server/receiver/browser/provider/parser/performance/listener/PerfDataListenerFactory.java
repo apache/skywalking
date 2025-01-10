@@ -19,11 +19,12 @@ package org.apache.skywalking.oap.server.receiver.browser.provider.parser.perfor
 
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserPerfDecorator;
 
 /**
  * BrowserPerfDataListenerFactory implementation creates the listener instances when required. Every
  * BrowserPerfDataListener could have its own creation factory.
  */
-public interface PerfDataListenerFactory {
-    PerfDataAnalysisListener create(ModuleManager moduleManager, BrowserServiceModuleConfig moduleConfig);
+public interface PerfDataListenerFactory<T extends BrowserPerfDecorator> {
+    PerfDataAnalysisListener<T> create(ModuleManager moduleManager, BrowserServiceModuleConfig moduleConfig);
 }
