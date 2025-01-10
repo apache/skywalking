@@ -24,23 +24,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.TerminalFriendlyTable;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 
 @RequiredArgsConstructor
-public class WatermarkWatcher {
+@Slf4j
+public class WatermarkWatcher implements Service {
     private final long maxHeapMemoryUsagePercentThreshold;
-    private final long maxNoHeapMemoryUsagePercentThreshold;
-    private final long maxNoHeapMemoryUsageThreshold;
+    private final long maxDirectHeapMemoryUsageThreshold;
 
     private MetricsCollector so11yCollector;
     /**
-     * Noheap memory max, jvm_memory_max_bytes{area="nonheap"}
-     */
-    private long noheapMemoryMax = 0;
-    /**
      * Noheap memory used, jvm_memory_used_bytes{area="nonheap"}
      */
-    private long noheapMemoryUsed = 0;
+    private long directMemoryUsed = 0;
     /**
      * Heap memory max, jvm_memory_max_bytes{area="heap"}. Use the combination of all available ids of heap memory.
      */
@@ -51,6 +50,7 @@ public class WatermarkWatcher {
     private long heapMemoryUsed = 0;
     private ReentrantLock lock;
     private List<WatermarkListener> listeners;
+    private volatile boolean isLimiting = false;
 
     public void start(MetricsCollector so11yCollector) {
         this.so11yCollector = so11yCollector;
@@ -61,63 +61,87 @@ public class WatermarkWatcher {
     }
 
     private void watch() {
-        so11yCollector.find("jvm_memory_bytes_max")
-                      .ifPresent(metricFamily -> {
-                          metricFamily.samples.forEach(sample -> {
-                              for (int i = 0; i < sample.labelNames.size(); i++) {
-                                  if (sample.labelNames.get(i).equals("area") && sample.labelValues.get(i)
-                                                                                                   .equals("heap")) {
-                                      heapMemoryMax += (long) sample.value;
-                                  } else if (sample.labelNames.get(i).equals("area") && sample.labelValues.get(i)
-                                                                                                          .equals(
-                                                                                                              "nonheap")) {
-                                      noheapMemoryMax = (long) sample.value;
-                                  }
-                              }
-                          });
-                      });
-        so11yCollector.find("jvm_memory_bytes_used")
-                      .ifPresent(metricFamily -> {
-                          metricFamily.samples.forEach(sample -> {
-                              for (int i = 0; i < sample.labelNames.size(); i++) {
-                                  if (sample.labelNames.get(i).equals("area") && sample.labelValues.get(i)
-                                                                                                   .equals("heap")) {
-                                      heapMemoryUsed += (long) sample.value;
-                                  } else if (sample.labelNames.get(i).equals("area") && sample.labelValues.get(i)
-                                                                                                          .equals(
-                                                                                                              "nonheap")) {
-                                      noheapMemoryUsed = (long) sample.value;
-                                  }
-                              }
-                          });
-                      });
-        if (heapMemoryMax <= 0) {
-            // No heap memory metrics found, skip the watermark control.
-            return;
+        this.heapMemoryUsed = so11yCollector.heapMemoryUsage();
+        this.heapMemoryMax = so11yCollector.heapMemoryMax();
+        this.directMemoryUsed = so11yCollector.directMemoryUsage();
+
+        if (log.isDebugEnabled()) {
+            TerminalFriendlyTable table = new TerminalFriendlyTable("Watermark Controller Key Metrics");
+            table.addRow(new TerminalFriendlyTable.Row("Heap Memory Max", String.format("%,d", heapMemoryMax)));
+            table.addRow(new TerminalFriendlyTable.Row("Heap Memory Used", String.format("%,d", heapMemoryUsed)));
+            table.addRow(new TerminalFriendlyTable.Row("Heap Memory Usage Percentage", heapMemoryUsagePercent() + "%"));
+            table.addRow(new TerminalFriendlyTable.Row("Direct Memory Used", String.format("%,d", directMemoryUsed)));
+            log.debug(table.toString());
         }
+
+        boolean isLimitingTriggered = false;
+
+        if (heapMemoryUsagePercent() > maxHeapMemoryUsagePercentThreshold) {
+            this.notify(WatermarkEvent.Type.HEAP_MEMORY_USAGE_PERCENTAGE);
+            isLimitingTriggered = true;
+        }
+
+        if (maxDirectHeapMemoryUsageThreshold > 0 && directMemoryUsed > 0) {
+            if (directMemoryUsed > maxDirectHeapMemoryUsageThreshold) {
+                this.notify(WatermarkEvent.Type.DIRECT_HEAP_MEMORY_USAGE);
+                isLimitingTriggered = true;
+            }
+        }
+
+        if (!isLimitingTriggered && isLimiting) {
+            recovered();
+        }
+    }
+
+    private void notify(WatermarkEvent.Type event) {
+        TerminalFriendlyTable table = new TerminalFriendlyTable("Watermark Controller Key Metrics");
+        table.addRow(new TerminalFriendlyTable.Row("Heap Memory Max", String.format("%,d", heapMemoryMax)));
+        table.addRow(new TerminalFriendlyTable.Row("Heap Memory Used", String.format("%,d", heapMemoryUsed)));
+        table.addRow(new TerminalFriendlyTable.Row("Heap Memory Usage Percentage", heapMemoryUsagePercent() + "%"));
+        table.addRow(new TerminalFriendlyTable.Row("Direct Memory Used", String.format("%,d", directMemoryUsed)));
+        table.addRow(new TerminalFriendlyTable.Row("Event", event.name()));
+
+        isLimiting = true;
+
         lock.lock();
         try {
-            long heapMemoryUsagePercent = heapMemoryUsed * 100 / heapMemoryMax;
-            if (heapMemoryUsagePercent > maxHeapMemoryUsagePercentThreshold) {
-                listeners.forEach(
-                    watermarkListener -> watermarkListener.notify(WatermarkEvent.Type.HEAP_MEMORY_USAGE_PERCENTAGE));
-            }
-            if (noheapMemoryMax > 0) {
-                long noheapMemoryUsagePercent = noheapMemoryUsed * 100 / noheapMemoryMax;
-                if (noheapMemoryUsagePercent > maxNoHeapMemoryUsagePercentThreshold) {
-                    listeners.forEach(
-                        watermarkListener -> watermarkListener.notify(
-                            WatermarkEvent.Type.NO_HEAP_MEMORY_USAGE_PERCENTAGE));
+            listeners.forEach(listener -> {
+                if (listener.notify(event)) {
+                    table.addRow(new TerminalFriendlyTable.Row("Notified Listener", listener.getName()));
                 }
-            }
-            if (maxNoHeapMemoryUsageThreshold > 0) {
-                if (noheapMemoryUsed > maxNoHeapMemoryUsageThreshold) {
-                    listeners.forEach(
-                        watermarkListener -> watermarkListener.notify(WatermarkEvent.Type.NO_HEAP_MEMORY_USAGE));
-                }
-            }
+            });
         } finally {
             lock.unlock();
+        }
+        log.warn(table.toString());
+    }
+
+    private void recovered() {
+        TerminalFriendlyTable table = new TerminalFriendlyTable("Watermark Controller Key Metrics");
+        table.addRow(new TerminalFriendlyTable.Row("Heap Memory Max", String.format("%,d", heapMemoryMax)));
+        table.addRow(new TerminalFriendlyTable.Row("Heap Memory Used", String.format("%,d", heapMemoryUsed)));
+        table.addRow(new TerminalFriendlyTable.Row("Heap Memory Usage Percentage", heapMemoryUsagePercent() + "%"));
+        table.addRow(new TerminalFriendlyTable.Row("Direct Memory Used", String.format("%,d", directMemoryUsed)));
+        table.addRow(new TerminalFriendlyTable.Row("Event", "RECOVERED"));
+
+        isLimiting = false;
+        lock.lock();
+        try {
+            listeners.forEach(listener -> {
+                listener.beAwareOfRecovery();
+                table.addRow(new TerminalFriendlyTable.Row("Notified Listener", listener.getName()));
+            });
+        } finally {
+            lock.unlock();
+        }
+        log.info(table.toString());
+    }
+
+    private long heapMemoryUsagePercent() {
+        if (heapMemoryMax > 0) {
+            return heapMemoryUsed * 100 / heapMemoryMax;
+        } else {
+            return -1;
         }
     }
 

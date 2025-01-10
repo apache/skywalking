@@ -66,6 +66,7 @@ import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
+import org.apache.skywalking.oap.server.core.watermark.WatermarkWatcher;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -108,6 +109,7 @@ public class CoreModule extends ModuleDefine {
 
         classes.add(CommandService.class);
         classes.add(HierarchyService.class);
+        classes.add(WatermarkWatcher.class);
         return classes.toArray(new Class[]{});
     }
 

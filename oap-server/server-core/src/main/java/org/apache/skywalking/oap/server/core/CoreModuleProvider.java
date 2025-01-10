@@ -384,8 +384,8 @@ public class CoreModuleProvider extends ModuleProvider {
         loggingConfigWatcher = new LoggingConfigWatcher(this);
 
         this.watermarkWatcher = new WatermarkWatcher(moduleConfig.getMaxHeapMemoryUsagePercent(),
-                                                     moduleConfig.getMaxNoheapMemoryUsagePercent(),
-                                                     moduleConfig.getMaxNoheapMemoryUsage());
+                                                     moduleConfig.getMaxDirectMemoryUsage());
+        this.registerServiceImplementation(WatermarkWatcher.class, watermarkWatcher);
     }
 
     @Override

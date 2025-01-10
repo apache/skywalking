@@ -26,7 +26,6 @@ public class WatermarkEvent {
 
     public enum Type {
         HEAP_MEMORY_USAGE_PERCENTAGE,
-        NO_HEAP_MEMORY_USAGE,
-        NO_HEAP_MEMORY_USAGE_PERCENTAGE,
+        DIRECT_HEAP_MEMORY_USAGE,
     }
 }

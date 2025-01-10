@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.telemetry.none;
 
 import java.util.Collections;
-import java.util.Optional;
 import org.apache.skywalking.oap.server.telemetry.api.MetricFamily;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 
@@ -33,7 +32,17 @@ public class MetricsCollectorNoop implements MetricsCollector {
     }
 
     @Override
-    public Optional<MetricFamily> find(final String name) {
-        return Optional.empty();
+    public long heapMemoryUsage() {
+        return 0;
+    }
+
+    @Override
+    public long heapMemoryMax() {
+        return 0;
+    }
+
+    @Override
+    public long directMemoryUsage() {
+        return 0;
     }
 }

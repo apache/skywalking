@@ -19,33 +19,66 @@
 package org.apache.skywalking.oap.server.core.watermark;
 
 import java.util.List;
+import lombok.Getter;
 
 /**
  * WatermarkListener is the listener for receiving WatermarkEvent and react to it.
+ * The implementations of this listener has two ways to interact with the WatermarkEvent:
+ * 1. use {@link #isWatermarkExceeded()} to check if the watermark is exceeded.
+ * 2. override {@link #beAwareOf(WatermarkEvent.Type)} to react to the event.
+ *
+ * When the oap recovered from the limiting state, the listener has two ways to be aware of it:
+ * 1. use {@link #isHealthy()} to check if the watermark is recovered.
+ * 2. Be notified by calling {@link #beAwareOfRecovery()}.
  */
 public abstract class WatermarkListener {
+    @Getter
+    private String name;
     private List<WatermarkEvent.Type> acceptedTypes;
     private volatile boolean isWatermarkExceeded = false;
 
-    public WatermarkListener() {
-        this(WatermarkEvent.Type.values());
+    /**
+     * Create a listener that accepts all types of WatermarkEvent.
+     * This should be the default way to create a listener.
+     */
+    public WatermarkListener(String name) {
+        this(name, WatermarkEvent.Type.values());
     }
 
-    public WatermarkListener(WatermarkEvent.Type... types) {
+    public WatermarkListener(String name, WatermarkEvent.Type... types) {
         this.acceptedTypes = List.of(types);
     }
 
-    void notify(WatermarkEvent.Type event) {
+    boolean notify(WatermarkEvent.Type event) {
         if (acceptedTypes.contains(event)) {
             isWatermarkExceeded = true;
+            beAwareOf(event);
+            return true;
         }
+        return false;
     }
 
-    void recovered() {
+    void isHealthy() {
         isWatermarkExceeded = false;
     }
 
     public boolean isWatermarkExceeded() {
         return isWatermarkExceeded;
+    }
+
+    protected void beAwareOf(WatermarkEvent.Type event) {
+    }
+
+    ;
+
+    protected void beAwareOfRecovery() {
+        // Do nothing by default.
+    }
+
+    public static class DefaultListener extends WatermarkListener {
+
+        public DefaultListener(final String name) {
+            super(name);
+        }
     }
 }
