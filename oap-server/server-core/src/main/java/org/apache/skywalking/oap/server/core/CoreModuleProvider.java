@@ -384,9 +384,9 @@ public class CoreModuleProvider extends ModuleProvider {
         ApdexMetrics.setDICT(apdexThresholdConfig);
         loggingConfigWatcher = new LoggingConfigWatcher(this);
 
+        WatermarkGRPCInterceptor.create();
         this.watermarkWatcher = new WatermarkWatcher(moduleConfig.getMaxHeapMemoryUsagePercent(),
                                                      moduleConfig.getMaxDirectMemoryUsage());
-        this.registerServiceImplementation(WatermarkWatcher.class, watermarkWatcher);
     }
 
     @Override

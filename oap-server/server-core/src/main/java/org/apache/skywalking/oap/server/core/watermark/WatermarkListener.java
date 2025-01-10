@@ -74,11 +74,4 @@ public abstract class WatermarkListener {
     protected void beAwareOfRecovery() {
         // Do nothing by default.
     }
-
-    public static class DefaultListener extends WatermarkListener {
-
-        public DefaultListener(final String name) {
-            super(name);
-        }
-    }
 }

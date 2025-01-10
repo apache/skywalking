@@ -25,13 +25,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.module.TerminalFriendlyTable;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 
+/**
+ * WatermarkWatcher is a component to watch the key metrics of the system, and trigger the watermark event when the
+ * system is overloaded.
+ */
 @RequiredArgsConstructor
 @Slf4j
-public class WatermarkWatcher implements Service {
+public class WatermarkWatcher {
     private final long maxHeapMemoryUsagePercentThreshold;
     private final long maxDirectHeapMemoryUsageThreshold;
 
@@ -57,8 +60,7 @@ public class WatermarkWatcher implements Service {
         lock = new ReentrantLock();
         listeners = new ArrayList<>();
 
-        // Create internal listeners to watch the watermark
-        this.addListener(WatermarkGRPCInterceptor.create());
+        this.addListener(WatermarkGRPCInterceptor.INSTANCE);
 
         Executors.newSingleThreadScheduledExecutor()
                  .scheduleWithFixedDelay(this::watch, 0, 10, TimeUnit.SECONDS);

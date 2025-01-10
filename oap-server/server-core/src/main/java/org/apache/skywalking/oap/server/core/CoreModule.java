@@ -27,8 +27,8 @@ import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
-import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
 import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
@@ -66,7 +66,6 @@ import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
-import org.apache.skywalking.oap.server.core.watermark.WatermarkWatcher;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -109,7 +108,6 @@ public class CoreModule extends ModuleDefine {
 
         classes.add(CommandService.class);
         classes.add(HierarchyService.class);
-        classes.add(WatermarkWatcher.class);
         return classes.toArray(new Class[]{});
     }
 

@@ -32,9 +32,6 @@ import org.apache.skywalking.aop.server.receiver.mesh.TelemetryDataDispatcher;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetrics;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.watermark.WatermarkListener;
-import org.apache.skywalking.oap.server.core.watermark.WatermarkWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ALSHTTPAnalysis;
@@ -57,7 +54,6 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
     private final CounterMetrics counter;
     private final HistogramMetrics histogram;
     private final CounterMetrics sourceDispatcherCounter;
-    private final WatermarkListener listener;
 
     public AccessLogServiceGRPCHandler(ModuleManager manager,
                                        EnvoyMetricReceiverConfig config) throws ModuleStartException {
@@ -97,10 +93,6 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             "envoy_als_source_dispatch_count", "The count of envoy ALS metric received", MetricsTag.EMPTY_KEY,
             MetricsTag.EMPTY_VALUE
         );
-
-        final WatermarkWatcher service = manager.find(CoreModule.NAME).provider().getService(WatermarkWatcher.class);
-        listener = new WatermarkListener.DefaultListener("envoy-als");
-        service.addListener(listener);
     }
 
     @Override
@@ -120,10 +112,6 @@ public class AccessLogServiceGRPCHandler extends AccessLogServiceGrpc.AccessLogS
             public void onNext(StreamAccessLogsMessage message) {
                 HistogramMetrics.Timer timer = histogram.createTimer();
                 try {
-                    if (listener.isWatermarkExceeded()) {
-                        return;
-                    }
-
                     if (isFirst || alwaysAnalyzeIdentity && message.hasIdentifier()) {
                         identifier = message.getIdentifier();
                         isFirst = false;
