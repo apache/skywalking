@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegisterImpl;
 import org.apache.skywalking.oap.server.core.server.auth.AuthenticationInterceptor;
+import org.apache.skywalking.oap.server.core.watermark.WatermarkGRPCInterceptor;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -148,6 +149,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
     public void start() {
         if (Objects.nonNull(grpcServer)) {
             grpcServer.addHandler(new HealthCheckServiceHandler());
+            grpcServer.addInterceptor(WatermarkGRPCInterceptor.INSTANCE);
         }
 
         if (Objects.nonNull(receiverGRPCHandlerRegister)) {

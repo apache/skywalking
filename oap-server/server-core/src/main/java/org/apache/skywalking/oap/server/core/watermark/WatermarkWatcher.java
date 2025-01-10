@@ -54,10 +54,14 @@ public class WatermarkWatcher implements Service {
 
     public void start(MetricsCollector so11yCollector) {
         this.so11yCollector = so11yCollector;
-        Executors.newSingleThreadScheduledExecutor()
-                 .scheduleWithFixedDelay(this::watch, 0, 10, TimeUnit.SECONDS);
         lock = new ReentrantLock();
         listeners = new ArrayList<>();
+
+        // Create internal listeners to watch the watermark
+        this.addListener(WatermarkGRPCInterceptor.create());
+
+        Executors.newSingleThreadScheduledExecutor()
+                 .scheduleWithFixedDelay(this::watch, 0, 10, TimeUnit.SECONDS);
     }
 
     private void watch() {

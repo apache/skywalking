@@ -1,11 +1,11 @@
 # Telemetry for backend
 The OAP backend cluster itself is a distributed streaming process system. To assist the Ops team, we provide the telemetry for the OAP backend itself, also known as self-observability (so11y)
 
-By default, the telemetry is disabled by setting `selector` to `none`, like this:
+By default, the telemetry is disabled by setting `selector` to `prometheus`, like this, which activated the Prometheus telemetry.
 
 ```yaml
 telemetry:
-  selector: ${SW_TELEMETRY:none}
+  selector: ${SW_TELEMETRY:prometheus}
   none:
   prometheus:
     host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
@@ -15,7 +15,7 @@ telemetry:
     sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}
 ```
 
-You may also set `Prometheus` to enable them. For more information, refer to the details below.
+Besides the self observability, this supports [OAP circuit breaking](circuit-breaker.md) functionality.
 
 ## Self Observability
 SkyWalking supports exposing telemetry data representing OAP running status through Prometheus endpoint.

@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
+import org.apache.skywalking.oap.server.core.watermark.WatermarkGRPCInterceptor;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -122,6 +123,7 @@ public class EBPFReceiverProvider extends ModuleProvider {
         service.addHandler(new EBPFProfilingServiceHandler(getManager()));
         service.addHandler(new ContinuousProfilingServiceHandler(getManager(), this.config));
         service.addHandler(new AccessLogServiceHandler(getManager()));
+        service.addFilter(WatermarkGRPCInterceptor.INSTANCE);
     }
 
     @Override

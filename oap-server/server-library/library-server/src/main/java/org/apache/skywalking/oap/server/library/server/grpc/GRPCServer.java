@@ -139,7 +139,7 @@ public class GRPCServer implements Server {
         nettyServerBuilder.addService(definition);
     }
 
-    public void addHandler(ServerInterceptor serverInterceptor) {
+    public void addInterceptor(ServerInterceptor serverInterceptor) {
         log.info("Bind interceptor {} into gRPC server {}:{}", serverInterceptor.getClass().getSimpleName(), host, port);
         nettyServerBuilder.intercept(serverInterceptor);
     }

@@ -43,6 +43,6 @@ public class GRPCHandlerRegisterImpl implements GRPCHandlerRegister {
 
     @Override
     public void addFilter(ServerInterceptor interceptor) {
-        server.addHandler(interceptor);
+        server.addInterceptor(interceptor);
     }
 }
