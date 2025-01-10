@@ -13,8 +13,6 @@
     source tar from the website and publish them to your private maven repository.
 * [Breaking Change] Remove H2 as storage option permanently. BanyanDB 0.8(OAP 10.2 required) is easy, stable and 
   production-ready. Don't need H2 as default storage anymore.
-* Support `labelAvg` function in the OAL engine.
-* Added `maxLabelCount` parameter in the `labelCount` function of OAL to limit the number of labels can be counted.
 
 #### OAP Server
 
