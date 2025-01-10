@@ -15,7 +15,7 @@ telemetry:
     sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}
 ```
 
-Besides the self observability, this supports [OAP circuit breaking](circuit-breaker.md) functionality.
+Besides the self observability, this supports [OAP circuit breaking](circuit-breaking.md) functionality.
 
 ## Self Observability
 SkyWalking supports exposing telemetry data representing OAP running status through Prometheus endpoint.
