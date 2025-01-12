@@ -19,8 +19,22 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.ApplyRequest.Strategy;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.DeleteResponse;
+import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
@@ -33,13 +47,6 @@ import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
-import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
-import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
-import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
-import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
-import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.ApplyRequest.Strategy;
-import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.DeleteResponse;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -47,15 +54,13 @@ import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHeal
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * BanyanDBStorageClient is a simple wrapper for the underlying {@link BanyanDBClient},
  * which implement {@link Client} and {@link HealthCheckable}.
  */
+@Slf4j
 public class BanyanDBStorageClient implements Client, HealthCheckable {
+    private static final String[] COMPATIBLE_SERVER_API_VERSIONS = {"0.8"};
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
@@ -70,6 +75,29 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     @Override
     public void connect() throws Exception {
         this.client.connect();
+        BanyandbCommon.APIVersion apiVersion;
+        try {
+            apiVersion = this.client.getAPIVersion();
+        } catch (BanyanDBException e) {
+            final Throwable cause = e.getCause();
+            if (cause instanceof StatusRuntimeException) {
+                final Status status = ((StatusRuntimeException) cause).getStatus();
+                if (Status.Code.UNIMPLEMENTED.equals(status.getCode())) {
+                    log.error("fail to get BanyanDB API version, server version < 0.8 is not supported.");
+                }
+            }
+            throw e;
+        }
+        final boolean isCompatible = Arrays.stream(COMPATIBLE_SERVER_API_VERSIONS)
+                                           .anyMatch(v -> v.equals(apiVersion.getVersion()));
+        final String revision = apiVersion.getRevision();
+        log.info("BanyanDB server API version: {}, revision: {}", apiVersion.getVersion(), revision);
+        if (!isCompatible) {
+            throw new IllegalStateException(
+                "Incompatible BanyanDB server API version: " + apiVersion.getVersion() + ". But accepted versions: "
+                    + String.join(", ", COMPATIBLE_SERVER_API_VERSIONS));
+        }
+
     }
 
     @Override
@@ -79,10 +107,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public List<Property> listProperties(String group, String name) throws IOException {
         try {
-             BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                            .addGroups(group)
-                            .setContainer(name)
-                    .build());
+            BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
+                                                                                                 .addGroups(group)
+                                                                                                 .setContainer(name)
+                                                                                                 .build());
             this.healthChecker.health();
             return resp.getPropertiesList();
         } catch (BanyanDBException ex) {
@@ -99,10 +127,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public Property queryProperty(String group, String name, String id) throws IOException {
         try {
             BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                    .addGroups(group)
-                    .setContainer(name)
-                    .addIds(id)
-                    .build());
+                                                                                                 .addGroups(group)
+                                                                                                 .setContainer(name)
+                                                                                                 .addIds(id)
+                                                                                                 .build());
             this.healthChecker.health();
             if (resp.getPropertiesCount() == 0) {
                 return null;

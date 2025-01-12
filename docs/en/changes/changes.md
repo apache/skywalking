@@ -58,6 +58,7 @@
 * Added `maxLabelCount` parameter in the `labelCount` function of OAL to limit the number of labels can be counted.
 * Adapt the new Browser API(`/browser/perfData/webVitals`, `/browser/perfData/resources`) protocol.
 * Add Circuit Breaking mechanism.
+* BanyanDB: Add support for compatibility checks based on the BanyanDB server's API version.
 
 #### UI
 
