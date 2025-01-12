@@ -13,6 +13,8 @@
     source tar from the website and publish them to your private maven repository.
 * [Breaking Change] Remove H2 as storage option permanently. BanyanDB 0.8(OAP 10.2 required) is easy, stable and 
   production-ready. Don't need H2 as default storage anymore.
+* [Breaking Change] Bump up BanyanDB server version to 0.8.0. This version is not compatible with the previous 
+  versions. Please upgrade the BanyanDB server to 0.8.0 before upgrading OAP to 10.2.0.
 
 #### OAP Server
 
