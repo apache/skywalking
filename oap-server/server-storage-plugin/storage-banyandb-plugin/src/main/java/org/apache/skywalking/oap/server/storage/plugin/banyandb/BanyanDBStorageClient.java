@@ -21,9 +21,11 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
@@ -75,6 +77,22 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     @Override
     public void connect() throws Exception {
         this.client.connect();
+        final Properties properties = new Properties();
+        try (final InputStream resourceAsStream
+                 = BanyanDBStorageClient.class.getClassLoader()
+                                              .getResourceAsStream(
+                                                  "bydb.dependencies.properties")) {
+            if (resourceAsStream == null) {
+                throw new IllegalStateException("bydb.dependencies.properties not found");
+            }
+            properties.load(resourceAsStream);
+        }
+        final String expectedApiVersion = properties.getProperty("bydb.api.version");
+        if (!Arrays.stream(COMPATIBLE_SERVER_API_VERSIONS).anyMatch(v -> v.equals(expectedApiVersion))) {
+            throw new IllegalStateException("Inconsistent versions between bydb.dependencies.properties and codes(" +
+                                                String.join(", ", COMPATIBLE_SERVER_API_VERSIONS) + ").");
+        }
+
         BanyandbCommon.APIVersion apiVersion;
         try {
             apiVersion = this.client.getAPIVersion();
