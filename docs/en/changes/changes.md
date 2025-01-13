@@ -84,6 +84,7 @@
 * Implement Async Profiling widget.
 * Fix inaccurate data query issue on endpoint topology page.
 * Update browser dashboard for the new metrics.
+* Visualize `Snapshot` on `Alerting` page.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
