@@ -78,13 +78,15 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public void connect() throws Exception {
         this.client.connect();
         final Properties properties = new Properties();
-        final InputStream resourceAsStream = BanyanDBStorageClient.class.getClassLoader()
-                                                                        .getResourceAsStream(
-                                                                            "bydb.dependencies.properties");
-        if (resourceAsStream == null) {
-            throw new IllegalStateException("bydb.dependencies.properties not found");
+        try (final InputStream resourceAsStream
+                 = BanyanDBStorageClient.class.getClassLoader()
+                                              .getResourceAsStream(
+                                                  "bydb.dependencies.properties")) {
+            if (resourceAsStream == null) {
+                throw new IllegalStateException("bydb.dependencies.properties not found");
+            }
+            properties.load(resourceAsStream);
         }
-        properties.load(resourceAsStream);
         final String expectedApiVersion = properties.getProperty("bydb.api.version");
         if (!Arrays.stream(COMPATIBLE_SERVER_API_VERSIONS).anyMatch(v -> v.equals(expectedApiVersion))) {
             throw new IllegalStateException("Inconsistent versions between bydb.dependencies.properties and codes(" +
