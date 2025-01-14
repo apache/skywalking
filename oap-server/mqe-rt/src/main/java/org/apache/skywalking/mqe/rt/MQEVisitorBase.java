@@ -29,6 +29,7 @@ import org.apache.skywalking.mqe.rt.grammar.MQEParserBaseVisitor;
 import org.apache.skywalking.mqe.rt.operation.AggregateLabelsOp;
 import org.apache.skywalking.mqe.rt.operation.AggregationOp;
 import org.apache.skywalking.mqe.rt.operation.BinaryOp;
+import org.apache.skywalking.mqe.rt.operation.BoolOp;
 import org.apache.skywalking.mqe.rt.operation.CompareOp;
 import org.apache.skywalking.mqe.rt.operation.LogicalFunctionOp;
 import org.apache.skywalking.mqe.rt.operation.MathematicalFunctionOp;
@@ -60,7 +61,15 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
 
     @Override
     public ExpressionResult visitParensOp(MQEParser.ParensOpContext ctx) {
-        return visit(ctx.expression());
+        ExpressionResult result = visit(ctx.expression());
+        if (result.isBoolResult()) {
+            // The other operation will change the bool result of the expression
+            if (!(ctx.parent instanceof MQEParser.BoolOPContext
+                || ctx.parent instanceof MQEParser.ParensOpContext)) {
+                result.setBoolResult(false);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -342,7 +351,10 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
             int opType = ctx.compare().getStart().getType();
             try {
                 ExpressionResult result = CompareOp.doCompareOP(left, right, opType);
-                if (ctx.parent == null) {
+                // The following operation won't change the bool result of the expression
+                if (ctx.parent == null ||
+                    ctx.parent instanceof MQEParser.ParensOpContext ||
+                    ctx.parent instanceof MQEParser.BoolOPContext) {
                     result.setBoolResult(true);
                 }
                 return result;
@@ -417,6 +429,36 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
             }
             try {
                 return SortLabelValuesOp.doSortLabelValuesOp(result, order, labelNames);
+            } catch (IllegalExpressionException e) {
+                return getErrorResult(e.getMessage());
+            }
+        } finally {
+            traceContext.stopSpan(span);
+        }
+    }
+
+    @Override
+    public ExpressionResult visitBoolOP(MQEParser.BoolOPContext ctx) {
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = traceContext.createSpan("MQE Bool OP: " + ctx.getText());
+        try {
+            ExpressionResult left = visit(ctx.expression(0));
+            if (StringUtil.isNotBlank(left.getError())) {
+                return left;
+            }
+            ExpressionResult right = visit(ctx.expression(1));
+            if (StringUtil.isNotBlank(right.getError())) {
+                return right;
+            }
+            int opType = ctx.bool_operator().getStart().getType();
+            try {
+                ExpressionResult result = BoolOp.doBoolOp(left, right, opType);;
+                if (ctx.parent == null ||
+                    ctx.parent instanceof MQEParser.ParensOpContext ||
+                    ctx.parent instanceof MQEParser.BoolOPContext) {
+                    result.setBoolResult(true);
+                }
+                return result;
             } catch (IllegalExpressionException e) {
                 return getErrorResult(e.getMessage());
             }

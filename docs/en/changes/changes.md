@@ -61,6 +61,7 @@
 * Adapt the new Browser API(`/browser/perfData/webVitals`, `/browser/perfData/resources`) protocol.
 * Add Circuit Breaking mechanism.
 * BanyanDB: Add support for compatibility checks based on the BanyanDB server's API version.
+* MQE: Support `&&(and)`, `||(or)` bool operators.
 
 #### UI
 

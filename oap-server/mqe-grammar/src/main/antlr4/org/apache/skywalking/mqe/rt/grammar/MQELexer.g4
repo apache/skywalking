@@ -46,6 +46,10 @@ LT:          '<';
 GTE:         '>=';
 GT:          '>';
 
+// Bool operators
+AND:         '&&';
+OR:          '||';
+
 // Aggregation operators
 AVG:         'avg';
 COUNT:       'count';

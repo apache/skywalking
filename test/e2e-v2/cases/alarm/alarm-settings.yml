@@ -37,7 +37,7 @@ rules:
     hooks:
       - webhook.none
   comp_rule:
-    expression: sum((service_resp_time > 10) * (service_sla > 100)) >= 1
+    expression: sum((service_resp_time > 10) && (service_sla > 100)) >= 1
     period: 10
     message: Service {name} response time is more than 10ms and sla is more than 1%.
     tags:
