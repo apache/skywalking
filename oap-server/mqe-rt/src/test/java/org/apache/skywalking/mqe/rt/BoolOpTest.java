@@ -52,11 +52,11 @@ public class BoolOpTest {
 
     @Test
     public void boolOpLabeledTest() throws IllegalExpressionException {
-        ExpressionResult left = mockData.newSingleLabeledResult(1,0);
+        ExpressionResult left = mockData.newSingleLabeledResult(1, 0);
         left.setBoolResult(true);
         left.getResults().get(1).getValues().get(0).setEmptyValue(false);
 
-        ExpressionResult right = mockData.newSingleLabeledResult(0,1);
+        ExpressionResult right = mockData.newSingleLabeledResult(0, 1);
         right.getResults().get(0).getValues().get(0).setEmptyValue(false);
         right.setBoolResult(true);
 
@@ -66,11 +66,11 @@ public class BoolOpTest {
         Assertions.assertEquals(0, andResult.getResults().get(1).getValues().get(0).getDoubleValue());
         Assertions.assertEquals(ExpressionResultType.SINGLE_VALUE, andResult.getType());
 
-        left = mockData.newSingleLabeledResult(1,0);
+        left = mockData.newSingleLabeledResult(1, 0);
         left.setBoolResult(true);
         left.getResults().get(1).getValues().get(0).setEmptyValue(false);
 
-        right = mockData.newSingleLabeledResult(0,1);
+        right = mockData.newSingleLabeledResult(0, 1);
         right.getResults().get(0).getValues().get(0).setEmptyValue(false);
         right.setBoolResult(true);
         ExpressionResult orResult = BoolOp.doBoolOp(left, right, MQEParser.OR);

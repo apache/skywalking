@@ -452,7 +452,7 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
             }
             int opType = ctx.bool_operator().getStart().getType();
             try {
-                ExpressionResult result = BoolOp.doBoolOp(left, right, opType);;
+                ExpressionResult result = BoolOp.doBoolOp(left, right, opType);
                 if (ctx.parent == null ||
                     ctx.parent instanceof MQEParser.ParensOpContext ||
                     ctx.parent instanceof MQEParser.BoolOPContext) {

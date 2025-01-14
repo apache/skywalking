@@ -21,7 +21,6 @@ package org.apache.skywalking.mqe.rt.operation;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
-import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
 
 public class BoolOp {
     public static ExpressionResult doBoolOp(ExpressionResult left,
