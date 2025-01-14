@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 @FunctionalInterface
 public interface LROp {
 
-    double apply(double left, double right, int opType);
+    double apply(double left, double right, int opType) throws IllegalExpressionException;
 
     static ExpressionResult doLROp(ExpressionResult left,
                                           ExpressionResult right,
@@ -162,8 +162,8 @@ public interface LROp {
             singleResult.getResults().get(0).getValues().size() != 1) {
             throw new IllegalExpressionException("Many to One, single result is empty or has more than one value.");
         }
-        manyResult.getResults().forEach(mqeValues -> {
-            mqeValues.getValues().forEach(mqeValue -> {
+        for (MQEValues mqeValues : manyResult.getResults()) {
+            for (MQEValue mqeValue : mqeValues.getValues()) {
                 if (!mqeValue.isEmptyValue()) {
                     double newValue = calculate.apply(
                         mqeValue.getDoubleValue(), singleResult.getResults()
@@ -173,8 +173,8 @@ public interface LROp {
                                                                .getDoubleValue(), opType);
                     mqeValue.setDoubleValue(newValue);
                 }
-            });
-        });
+            }
+        }
         return manyResult;
     }
 
@@ -186,8 +186,8 @@ public interface LROp {
             singleResult.getResults().get(0).getValues().size() != 1) {
             throw new IllegalExpressionException("One to Many, single result is empty or has more than one value.");
         }
-        manyResult.getResults().forEach(mqeValues -> {
-            mqeValues.getValues().forEach(mqeValue -> {
+        for (MQEValues mqeValues : manyResult.getResults()) {
+            for (MQEValue mqeValue : mqeValues.getValues()) {
                 if (!mqeValue.isEmptyValue()) {
                     double newValue = calculate.apply(
                         singleResult.getResults()
@@ -199,8 +199,8 @@ public interface LROp {
                     );
                     mqeValue.setDoubleValue(newValue);
                 }
-            });
-        });
+            }
+        }
         return manyResult;
     }
 

@@ -163,6 +163,28 @@ and get result:
 ### Compare Operation Rules and Result Type
 Same as the [Binary Operation Rules](#binary-operation-rules).
 
+## Bool Operation
+Bool Operation takes two `compare` expressions and performs a logical operation on their results.
+The following table lists the bool operations supported by MQE.
+
+Expression:
+```text
+Compare Expression1 <Bool-Operator> Expression2
+```
+**Notice**: The `Bool-Operator` only supports the `compare` expressions, which means the result of the left and right expressions should be `Compare Operation Result`.
+
+| Operator | Definition  |
+|----------|-------------|
+| &&       | logical AND |
+| \|\|     | logical OR  |
+
+For example:
+If we want to query the `service_resp_time` metric value greater than 3000 and `service_cpm` less than 1000, we can use the following expression:
+
+```text
+service_resp_time > 3000 && service_cpm < 1000
+```
+
 ## Aggregation Operation
 Aggregation Operation takes an expression and performs aggregate calculations on its results.
 

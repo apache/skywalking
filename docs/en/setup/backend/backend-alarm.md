@@ -20,7 +20,8 @@ Defines the relation between scope and entity name.
 An alerting rule is made up of the following elements:
 - **Rule name**. A unique name shown in the alarm message. It must end with `_rule`.
 - **Expression**. A [MQE](../../api/metrics-query-expression.md) expression that defines the conditions of the rule.
-The result type must be `SINGLE_VALUE` and the root operation of the expression must be a [Compare Operation](../../api/metrics-query-expression.md#compare-operation) which provides `1`(true) or `0`(false) result.
+The result type must be `SINGLE_VALUE` and the root operation of the expression must be a 
+[Compare Operation](../../api/metrics-query-expression.md#compare-operation) or [Bool Operation](../../api/metrics-query-expression.md#bool-operation) which provides `1`(true) or `0`(false) result.
 When the result is `1`(true), the alarm will be triggered.
 For example, `avg(service_resp_time / 1000) > 1` is a valid expression to indicate the request latency is slower than 1s. The typical illegal expressions are
     - `avg(service_resp_time > 1000) + 1` expression root doesn't use `Compare Operation`
@@ -95,7 +96,7 @@ rules:
       - "slack.custom1"
       - "pagerduty.custom1"
   comp_rule:
-    expression: (avg(service_sla / 100) > 80) * (avg(service_percentile{p='0'}) > 1000) == 1
+    expression: (avg(service_sla / 100) > 80) && (avg(service_percentile{p='0'}) > 1000)
     period: 10
     message: Service {name} avg successful rate is less than 80% and P50 of avg response time is over 1000ms in last 10 minutes.
     tags:

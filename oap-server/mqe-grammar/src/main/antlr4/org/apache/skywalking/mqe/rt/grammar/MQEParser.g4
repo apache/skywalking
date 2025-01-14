@@ -28,6 +28,7 @@ expression
     | expression mulDivMod expression  # mulDivModOp
     | expression addSub expression     # addSubOp
     | expression compare expression    # compareOp
+    | expression bool_operator expression #boolOP
     | aggregation L_PAREN expression R_PAREN # aggregationOp
     | mathematical_operator0 L_PAREN expression R_PAREN #mathematicalOperator0OP
     | mathematical_operator1 L_PAREN expression COMMA parameter R_PAREN #mathematicalOperator1OP
@@ -81,6 +82,9 @@ topNOf: TOP_N_OF;
 
 logical_operator:
     VIEW_AS_SEQ | IS_PRESENT;
+
+bool_operator:
+    AND | OR;
 
 relabels: RELABELS;
 

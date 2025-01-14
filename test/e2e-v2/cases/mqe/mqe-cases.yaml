@@ -28,6 +28,14 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="(service_cpm + 1) > 2" --service-name=e2e-service-provider
     expected: expected/compare-OP.yml
 
+  # bool-OP
+  # SINGLE_VALUE
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="avg(service_cpm + 1) > 2 && avg(service_sla/100) > 95" --service-name=e2e-service-provider
+    expected: expected/bool-OP.yml
+  # TIME_SERIES_VALUES
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="(service_cpm + 1) > 2 && (service_sla/100) > 95" --service-name=e2e-service-provider
+    expected: expected/compare-OP.yml
+
   # aggregation-OP
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="avg(service_sla/100)" --service-name=e2e-service-provider
     expected: expected/aggregation-OP.yml
