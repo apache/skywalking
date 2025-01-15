@@ -27,7 +27,7 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_cpu_percentage --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_jvm_memory_bytes_used --instance-name=http://localhost:1234 --service-name=oap-server
-      expected: expected/metrics-has-value.yml
+      expected: expected/metrics-has-memory-value-label.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_trace_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_metrics_aggregation{level='L1 aggregation'}" --instance-name=http://localhost:1234 --service-name=oap-server
