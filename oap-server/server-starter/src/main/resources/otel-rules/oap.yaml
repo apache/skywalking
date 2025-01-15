@@ -35,7 +35,9 @@ metricsRules:
   - name: instance_cpu_percentage
     exp: (process_cpu_seconds_total * 100).sum(['service', 'host_name']).rate('PT1M')
   - name: instance_jvm_memory_bytes_used
-    exp: jvm_memory_bytes_used.sum(['service', 'host_name'])
+    exp: jvm_memory_bytes_used.sum(['service', 'host_name', 'area'])
+  - name: instance_jvm_buffer_pool_bytes_used
+    exp: jvm_buffer_pool_used_bytes.sum(['service', 'host_name', 'pool'])
   - name: instance_jvm_gc_count
     exp: >
       jvm_gc_collection_seconds_count.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation|PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation')
