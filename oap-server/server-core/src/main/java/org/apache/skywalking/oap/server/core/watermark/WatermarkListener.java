@@ -46,6 +46,7 @@ public abstract class WatermarkListener {
     }
 
     public WatermarkListener(String name, WatermarkEvent.Type... types) {
+        this.name = name;
         this.acceptedTypes = List.of(types);
     }
 
