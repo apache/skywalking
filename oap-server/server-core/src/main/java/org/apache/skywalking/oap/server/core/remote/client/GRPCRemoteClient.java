@@ -57,6 +57,7 @@ public class GRPCRemoteClient implements RemoteClient {
     private CounterMetrics remoteOutCounter;
     private CounterMetrics remoteOutErrorCounter;
     private int remoteTimeout;
+    private long lastRemoteResourceExhaustedTime = 0;
 
     public GRPCRemoteClient(final ModuleDefineHolder moduleDefineHolder,
                             final Address address,
@@ -79,7 +80,8 @@ public class GRPCRemoteClient implements RemoteClient {
                                                  "The number(client side) of inside remote inside aggregate rpc.",
                                                  new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(
                                                      address
-                                                         .toString(), "N")
+                                                         .toString(), "N"
+                                                 )
                                              );
         remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME)
                                                   .provider()
@@ -89,7 +91,8 @@ public class GRPCRemoteClient implements RemoteClient {
                                                       "The error number(client side) of inside remote inside aggregate rpc.",
                                                       new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(
                                                           address
-                                                              .toString(), "N")
+                                                              .toString(), "N"
+                                                      )
                                                   );
     }
 
@@ -196,8 +199,9 @@ public class GRPCRemoteClient implements RemoteClient {
             sleepTotalMillis += sleepMillis;
 
             if (sleepTotalMillis > 60000) {
-                log.warn("Remote client [{}] block times over 60 seconds. Current streaming number {}",
-                         address, concurrentStreamObserverNumber.get()
+                log.warn(
+                    "Remote client [{}] block times over 60 seconds. Current streaming number {}",
+                    address, concurrentStreamObserverNumber.get()
                 );
                 // Reset sleepTotalMillis to avoid too many warn logs.
                 sleepTotalMillis = 0;
@@ -218,6 +222,13 @@ public class GRPCRemoteClient implements RemoteClient {
                                if (Status.CANCELLED.getCode() == status.getCode()) {
                                    if (log.isDebugEnabled()) {
                                        log.debug(throwable.getMessage(), throwable);
+                                   }
+                                   return;
+                               } else if (Status.RESOURCE_EXHAUSTED.getCode() == status.getCode()) {
+                                   if (System.currentTimeMillis() - lastRemoteResourceExhaustedTime > 120_000) {
+                                       // Only output the log every 120 seconds.
+                                       log.warn(throwable.getMessage(), throwable);
+                                       lastRemoteResourceExhaustedTime = System.currentTimeMillis();
                                    }
                                    return;
                                }

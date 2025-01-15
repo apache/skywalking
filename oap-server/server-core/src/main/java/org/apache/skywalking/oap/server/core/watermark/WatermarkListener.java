@@ -24,12 +24,12 @@ import lombok.Getter;
 /**
  * WatermarkListener is the listener for receiving WatermarkEvent and react to it.
  * The implementations of this listener has two ways to interact with the WatermarkEvent:
- * 1. use {@link #isWatermarkExceeded()} to check if the watermark is exceeded.
+ * 1. use {@link #isWatermarkExceeded()} == true to check if the watermark is exceeded.
  * 2. override {@link #beAwareOf(WatermarkEvent.Type)} to react to the event.
  *
  * When the oap recovered from the limiting state, the listener has two ways to be aware of it:
- * 1. use {@link #isHealthy()} to check if the watermark is recovered.
- * 2. Be notified by calling {@link #beAwareOfRecovery()}.
+ * 1. use {@link #isWatermarkExceeded()} == false to check if the watermark is recovered.
+ * 2. Be notified by calling {@link #beAwareOfRecovery()}}.
  */
 public abstract class WatermarkListener {
     @Getter
@@ -58,18 +58,20 @@ public abstract class WatermarkListener {
         return false;
     }
 
-    void isHealthy() {
-        isWatermarkExceeded = false;
-    }
-
     public boolean isWatermarkExceeded() {
         return isWatermarkExceeded;
     }
 
+    /**
+     * Receive the WatermarkEvent and react to it.
+     */
     protected void beAwareOf(WatermarkEvent.Type event) {
     }
 
+    /**
+     * Receive the recovery status and react to it.
+     */
     protected void beAwareOfRecovery() {
-        // Do nothing by default.
+        isWatermarkExceeded = false;
     }
 }
