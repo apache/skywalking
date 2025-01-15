@@ -233,10 +233,10 @@ public class CoreModuleConfig extends ModuleConfig {
 
     /**
      * The int value of the max heap memory usage percent.
-     * The default value is 85%.
+     * The default value is 96%.
      */
     @Getter
-    private long maxHeapMemoryUsagePercent = 85;
+    private long maxHeapMemoryUsagePercent = 96;
 
     /**
      * The long value of the max direct memory usage.
