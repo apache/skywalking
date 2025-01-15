@@ -63,6 +63,7 @@
 * BanyanDB: Add support for compatibility checks based on the BanyanDB server's API version.
 * MQE: Support `&&(and)`, `||(or)` bool operators.
 * OAP self observability: Add JVM heap and direct memory used metrics.
+* Update component IDs for Ruby.
 
 #### UI
 
