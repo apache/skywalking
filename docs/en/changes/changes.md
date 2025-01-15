@@ -46,7 +46,7 @@
 * Support `Get Effective TTL Configurations` API.
 * Fix `ServerStatusService.statusWatchers` concurrent modification.
 * Add protection for dynamic config change propagate chain.
-* Add Ruby component IDs.
+* Add Ruby component IDs(HttpClient=2, Redis=7, Memcached=20, Elasticsearch=47, Ruby=12000, Sinatra=12001).
 * Add component ID(160) for Caffeine.
 * Alarm: Support store and query the metrics snapshot when the alarm is triggered.
 * Alarm: Remove unused `Alarm Trend` query.
@@ -63,7 +63,6 @@
 * BanyanDB: Add support for compatibility checks based on the BanyanDB server's API version.
 * MQE: Support `&&(and)`, `||(or)` bool operators.
 * OAP self observability: Add JVM heap and direct memory used metrics.
-* Update component IDs for Ruby.
 
 #### UI
 
