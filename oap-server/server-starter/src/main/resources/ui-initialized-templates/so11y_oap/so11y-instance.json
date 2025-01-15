@@ -44,7 +44,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Memory (MB)"
+                    "title": "Memory Used (MB)"
                   },
                   "graph": {
                     "type": "Line",
@@ -55,12 +55,13 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "meter_oap_instance_jvm_memory_bytes_used/1024/1024"
+                    "meter_oap_instance_jvm_memory_bytes_used/1024/1024",
+                    ""
                   ]
                 },
                 {
-                  "x": 12,
-                  "y": 0,
+                  "x": 0,
+                  "y": 13,
                   "w": 6,
                   "h": 13,
                   "i": "0",
@@ -100,7 +101,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 13,
+                  "y": 26,
                   "w": 6,
                   "h": 13,
                   "i": "11",
@@ -193,7 +194,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 26,
+                  "y": 39,
                   "w": 6,
                   "h": 13,
                   "i": "15",
@@ -317,10 +318,10 @@
                   ]
                 },
                 {
-                  "x": 0,
+                  "x": 12,
                   "y": 39,
                   "w": 6,
-                  "h": 11,
+                  "h": 13,
                   "i": "16",
                   "type": "Widget",
                   "expressions": [
@@ -347,7 +348,7 @@
                   "x": 6,
                   "y": 39,
                   "w": 6,
-                  "h": 11,
+                  "h": 13,
                   "i": "17",
                   "type": "Widget",
                   "widget": {
@@ -369,6 +370,28 @@
                       "label": "Error Count"
                     }
                   ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "18",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_oap_instance_jvm_buffer_pool_bytes_used/1024/1024"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Buffer Pool Used(MB)"
+                  }
                 }
               ]
             },
@@ -691,23 +714,7 @@
       "layer": "SO11Y_OAP",
       "entity": "ServiceInstance",
       "name": "Self-Observability-OAP-Instance",
-      "id": "Self-Observability-OAP-Instance",
-      "isRoot": false,
-      "isDefault": true,
-      "expressions": [
-        "avg(meter_oap_instance_cpu_percentage)",
-        "avg(meter_oap_instance_persistence_execute_count)"
-      ],
-      "expressionsConfig": [
-        {
-          "unit": "%",
-          "label": "CPU Avg Usage"
-        },
-        {
-          "unit": "count / 5min",
-          "label": "Persistence Count"
-        }
-      ]
+      "isRoot": false
     }
   }
 ]
