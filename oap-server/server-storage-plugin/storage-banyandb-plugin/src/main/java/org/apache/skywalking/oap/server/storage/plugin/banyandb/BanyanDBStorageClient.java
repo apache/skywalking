@@ -125,10 +125,12 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public List<Property> listProperties(String group, String name) throws IOException {
         try {
-            BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                                                                                                 .addGroups(group)
-                                                                                                 .setContainer(name)
-                                                                                                 .build());
+            BanyandbProperty.QueryResponse resp
+                = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
+                                                                 .addGroups(group)
+                                                                 .setContainer(name)
+                                                                 .setLimit(Integer.MAX_VALUE)
+                                                                 .build());
             this.healthChecker.health();
             return resp.getPropertiesList();
         } catch (BanyanDBException ex) {
