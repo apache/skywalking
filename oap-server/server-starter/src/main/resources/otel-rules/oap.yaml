@@ -126,3 +126,7 @@ metricsRules:
     exp: graphql_query_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_graphql_query_error_count
     exp: graphql_query_error_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_watermark_circuit_breaker_break_count
+    exp: watermark_circuit_breaker_break_count.sum(['service', 'host_name', 'listener', 'event'])
+  - name: instance_watermark_circuit_breaker_recover_count
+    exp: watermark_circuit_breaker_recover_count.sum(['service', 'host_name', 'listener'])

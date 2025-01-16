@@ -385,7 +385,8 @@ public class CoreModuleProvider extends ModuleProvider {
         loggingConfigWatcher = new LoggingConfigWatcher(this);
 
         WatermarkGRPCInterceptor.create();
-        this.watermarkWatcher = new WatermarkWatcher(moduleConfig.getMaxHeapMemoryUsagePercent(),
+        this.watermarkWatcher = new WatermarkWatcher(getManager(),
+                                                     moduleConfig.getMaxHeapMemoryUsagePercent(),
                                                      moduleConfig.getMaxDirectMemoryUsage());
     }
 

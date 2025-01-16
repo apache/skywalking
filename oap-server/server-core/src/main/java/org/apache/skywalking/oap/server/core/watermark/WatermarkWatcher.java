@@ -19,14 +19,21 @@
 package org.apache.skywalking.oap.server.core.watermark;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.TerminalFriendlyTable;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * WatermarkWatcher is a component to watch the key metrics of the system, and trigger the watermark event when the
@@ -35,6 +42,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCollector;
 @RequiredArgsConstructor
 @Slf4j
 public class WatermarkWatcher {
+    private final ModuleManager moduleManager;
     private final long maxHeapMemoryUsagePercentThreshold;
     private final long maxDirectHeapMemoryUsageThreshold;
 
@@ -54,12 +62,22 @@ public class WatermarkWatcher {
     private ReentrantLock lock;
     private List<WatermarkListener> listeners;
     private volatile boolean isLimiting = false;
+    private Map<WatermarkEvent.Type, Map<String, CounterMetrics>> breakCounters;
+    private Map<String, CounterMetrics> recoverCounters;
+    private MetricsCreator metricsCreator;
 
     public void start(MetricsCollector so11yCollector) {
         this.so11yCollector = so11yCollector;
         lock = new ReentrantLock();
         listeners = new ArrayList<>();
-
+        breakCounters = new HashMap<>();
+        recoverCounters = new HashMap<>();
+        for (WatermarkEvent.Type type : WatermarkEvent.Type.values()) {
+            breakCounters.put(type, new HashMap<>());
+        }
+        metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
         this.addListener(WatermarkGRPCInterceptor.INSTANCE);
 
         Executors.newSingleThreadScheduledExecutor()
@@ -100,6 +118,9 @@ public class WatermarkWatcher {
     }
 
     private void notify(WatermarkEvent.Type event) {
+        if (isLimiting) {
+            return;
+        }
         TerminalFriendlyTable table = new TerminalFriendlyTable("Watermark Controller Key Metrics");
         table.addRow(new TerminalFriendlyTable.Row("Heap Memory Max", String.format("%,d", heapMemoryMax)));
         table.addRow(new TerminalFriendlyTable.Row("Heap Memory Used", String.format("%,d", heapMemoryUsed)));
@@ -112,9 +133,9 @@ public class WatermarkWatcher {
         lock.lock();
         try {
             listeners.forEach(listener -> {
-                if (listener.notify(event)) {
-                    table.addRow(new TerminalFriendlyTable.Row("Notified Listener", listener.getName()));
-                }
+                listener.notify(event);
+                table.addRow(new TerminalFriendlyTable.Row("Notified Listener", listener.getName()));
+                breakCounters.get(event).get(listener.getName()).inc();
             });
         } finally {
             lock.unlock();
@@ -136,6 +157,7 @@ public class WatermarkWatcher {
             listeners.forEach(listener -> {
                 listener.beAwareOfRecovery();
                 table.addRow(new TerminalFriendlyTable.Row("Notified Listener", listener.getName()));
+                recoverCounters.get(listener.getName()).inc();
             });
         } finally {
             lock.unlock();
@@ -151,10 +173,32 @@ public class WatermarkWatcher {
         }
     }
 
+    private MetricsCreator getMetricsCreator() {
+        if (metricsCreator == null) {
+            metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        }
+        return metricsCreator;
+    }
+
     public void addListener(WatermarkListener listener) {
         lock.lock();
         try {
             listeners.add(listener);
+            MetricsCreator metricsCreator = getMetricsCreator();
+            for (WatermarkEvent.Type type : WatermarkEvent.Type.values()) {
+                breakCounters.get(type).put(listener.getName(), metricsCreator.createCounter(
+                    "watermark_circuit_breaker_break_count", "The number of times the watermark circuit breaker breaks",
+                    new MetricsTag.Keys("listener", "event"),
+                    new MetricsTag.Values(listener.getName(), type.name())
+                ));
+            }
+            recoverCounters.put(listener.getName(), metricsCreator.createCounter(
+                "watermark_circuit_breaker_recover_count", "The number of times the watermark circuit breaker recovers",
+                new MetricsTag.Keys("listener"),
+                new MetricsTag.Values(listener.getName())
+            ));
         } finally {
             lock.unlock();
         }

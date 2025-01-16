@@ -193,8 +193,8 @@
                   ]
                 },
                 {
-                  "x": 0,
-                  "y": 39,
+                  "x": 6,
+                  "y": 26,
                   "w": 6,
                   "h": 13,
                   "i": "15",
@@ -215,7 +215,7 @@
                   ]
                 },
                 {
-                  "x": 6,
+                  "x": 12,
                   "y": 26,
                   "w": 6,
                   "h": 13,
@@ -250,7 +250,7 @@
                   ]
                 },
                 {
-                  "x": 12,
+                  "x": 18,
                   "y": 26,
                   "w": 6,
                   "h": 13,
@@ -285,8 +285,8 @@
                   ]
                 },
                 {
-                  "x": 18,
-                  "y": 26,
+                  "x": 0,
+                  "y": 39,
                   "w": 6,
                   "h": 13,
                   "i": "5",
@@ -391,6 +391,75 @@
                   },
                   "widget": {
                     "title": "Buffer Pool Used(MB)"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 52,
+                  "w": 6,
+                  "h": 13,
+                  "i": "19",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_oap_instance_watermark_circuit_breaker_break_count"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "tips": "The number of times the watermark circuit breaker breaks",
+                    "title": "Watermark Circuit Breaker Break Count"
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 52,
+                  "w": 6,
+                  "h": 13,
+                  "i": "20",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_oap_instance_watermark_circuit_breaker_recover_count"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Watermark Circuit Breaker Recover Count",
+                    "tips": "The number of times the watermark circuit breaker recovers"
+                  }
+                },
+                {
+                  "x": 18,
+                  "y": 39,
+                  "w": 6,
+                  "h": 13,
+                  "i": "21",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_oap_instance_watermark_circuit_breaker_break_count,sum(listener))-meter_oap_instance_watermark_circuit_breaker_recover_count"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Watermark Circuit Breaker Status",
+                    "tips": "The status of circuit breaker listeners, 0 means all recovered from the breaks"
                   }
                 }
               ]

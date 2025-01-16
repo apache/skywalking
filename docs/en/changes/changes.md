@@ -63,6 +63,7 @@
 * BanyanDB: Add support for compatibility checks based on the BanyanDB server's API version.
 * MQE: Support `&&(and)`, `||(or)` bool operators.
 * OAP self observability: Add JVM heap and direct memory used metrics.
+* OAP self observability: Add watermark circuit break/recover metrics.
 
 #### UI
 
@@ -88,6 +89,7 @@
 * Update browser dashboard for the new metrics.
 * Visualize `Snapshot` on `Alerting` page.
 * OAP self observability dashboard: Add JVM heap and direct memory used metrics.
+* OAP self observability dashboard: Add watermark circuit break/recover metrics.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.

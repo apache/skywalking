@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.watermark;
 
-import java.util.List;
 import lombok.Getter;
 
 /**
@@ -34,7 +33,6 @@ import lombok.Getter;
 public abstract class WatermarkListener {
     @Getter
     private String name;
-    private List<WatermarkEvent.Type> acceptedTypes;
     private volatile boolean isWatermarkExceeded = false;
 
     /**
@@ -42,21 +40,12 @@ public abstract class WatermarkListener {
      * This should be the default way to create a listener.
      */
     public WatermarkListener(String name) {
-        this(name, WatermarkEvent.Type.values());
-    }
-
-    public WatermarkListener(String name, WatermarkEvent.Type... types) {
         this.name = name;
-        this.acceptedTypes = List.of(types);
     }
 
-    boolean notify(WatermarkEvent.Type event) {
-        if (acceptedTypes.contains(event)) {
-            isWatermarkExceeded = true;
-            beAwareOf(event);
-            return true;
-        }
-        return false;
+    void notify(WatermarkEvent.Type event) {
+        isWatermarkExceeded = true;
+        beAwareOf(event);
     }
 
     public boolean isWatermarkExceeded() {
