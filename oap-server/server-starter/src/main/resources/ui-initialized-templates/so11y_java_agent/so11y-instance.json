@@ -1,765 +1,201 @@
 [
   {
-    "id": "Self-Observability-OAP-Instance",
+    "id": "Self-Observability-Java-Agent-Instance",
     "configuration": {
       "children": [
         {
           "x": 0,
           "y": 0,
-          "w": 24,
-          "h": 59,
-          "i": "16",
-          "type": "Tab",
-          "children": [
+          "w": 6,
+          "h": 13,
+          "i": "14",
+          "type": "Widget",
+          "widget": {
+            "title": "Tracing Context Creation (Per Minute)",
+            "tips": "The number of created tracing contexts, including a label created_by(value=sampler,propagated)."
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_java_agent_created_tracing_context_count"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "Tracing Context Creation and Completion (Per Minute)",
+            "tips": "The number of created tracing contexts and finished tracing contexts."
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metricConfig": [
             {
-              "name": "Status",
-              "children": [
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "14",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "CPU (%)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "meter_oap_instance_cpu_percentage"
-                  ]
-                },
-                {
-                  "x": 6,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "1",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Memory Used (MB)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "meter_oap_instance_jvm_memory_bytes_used/1024/1024",
-                    ""
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "0",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "GC Count (Per Minute)"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "expressions": [
-                    "meter_oap_instance_jvm_gc_count"
-                  ]
-                },
-                {
-                  "x": 18,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "2",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "GC Time (ms / min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "meter_oap_instance_jvm_gc_time"
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 26,
-                  "w": 6,
-                  "h": 13,
-                  "i": "11",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Aggregation (Per Minute)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "meter_oap_instance_metrics_aggregation"
-                  ]
-                },
-                {
-                  "x": 6,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "6",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Persistence Count (Per Minutes)"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "prepare_count"
-                    },
-                    {
-                      "label": "execute_count"
-                    }
-                  ],
-                  "expressions": [
-                    "meter_oap_instance_persistence_prepare_count",
-                    "meter_oap_instance_persistence_execute_count"
-                  ]
-                },
-                {
-                  "x": 12,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "9",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Persistence Preparing Latency Per Metric Type (ms / 5min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "relabels(meter_oap_instance_persistence_prepare_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ]
-                },
-                {
-                  "x": 18,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "8",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Persistence Execution Latency Per Metric Type (ms / 5min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "relabels(meter_oap_instance_persistence_execute_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ]
-                },
-                {
-                  "x": 6,
-                  "y": 26,
-                  "w": 6,
-                  "h": 13,
-                  "i": "15",
-                  "type": "Widget",
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "Metrics Persistent Cache Count(Per Minute)"
-                  },
-                  "expressions": [
-                    "meter_oap_instance_metrics_persistent_cache"
-                  ]
-                },
-                {
-                  "x": 12,
-                  "y": 26,
-                  "w": 6,
-                  "h": 13,
-                  "i": "7",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Thread Count"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "live"
-                    },
-                    {
-                      "label": "peak"
-                    },
-                    {
-                      "label": "daemon"
-                    }
-                  ],
-                  "expressions": [
-                    "meter_oap_jvm_thread_live_count",
-                    "meter_oap_jvm_thread_peak_count",
-                    "meter_oap_jvm_thread_daemon_count"
-                  ]
-                },
-                {
-                  "x": 18,
-                  "y": 26,
-                  "w": 6,
-                  "h": 13,
-                  "i": "10",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Thread State Count"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "runnable"
-                    },
-                    {
-                      "label": "timed_waiting"
-                    },
-                    {
-                      "label": "blocked"
-                    },
-                    {
-                      "label": "waiting"
-                    }
-                  ],
-                  "expressions": [
-                    "meter_oap_jvm_thread_runnable_count",
-                    "meter_oap_jvm_thread_timed_waiting_count",
-                    "meter_oap_jvm_thread_blocked_count",
-                    "meter_oap_jvm_thread_waiting_count"
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 39,
-                  "w": 6,
-                  "h": 13,
-                  "i": "5",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Class Count"
-                  },
-                  "graph": {
-                    "type": "Area",
-                    "opacity": 0.4,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "loaded"
-                    },
-                    {
-                      "label": "total_unloaded"
-                    },
-                    {
-                      "label": "total_loaded"
-                    }
-                  ],
-                  "expressions": [
-                    "meter_oap_jvm_class_loaded_count",
-                    "meter_oap_jvm_class_total_unloaded_count",
-                    "meter_oap_jvm_class_total_loaded_count"
-                  ]
-                },
-                {
-                  "x": 12,
-                  "y": 39,
-                  "w": 6,
-                  "h": 13,
-                  "i": "16",
-                  "type": "Widget",
-                  "expressions": [
-                    "relabels(meter_oap_graphql_query_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "GraphQL Query Latency (ms)"
-                  },
-                  "metricConfig": [
-                    {
-                      "unit": "ns"
-                    }
-                  ]
-                },
-                {
-                  "x": 6,
-                  "y": 39,
-                  "w": 6,
-                  "h": 13,
-                  "i": "17",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "GraphQL Query Count"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "expressions": [
-                    "meter_oap_instance_graphql_query_count",
-                    "meter_oap_instance_graphql_query_error_count"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "Total Count"
-                    },
-                    {
-                      "label": "Error Count"
-                    }
-                  ]
-                },
-                {
-                  "x": 12,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "18",
-                  "type": "Widget",
-                  "expressions": [
-                    "meter_oap_instance_jvm_buffer_pool_bytes_used/1024/1024"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "Buffer Pool Used(MB)"
-                  }
-                },
-                {
-                  "x": 18,
-                  "y": 39,
-                  "w": 6,
-                  "h": 13,
-                  "i": "19",
-                  "type": "Widget",
-                  "expressions": [
-                    "meter_oap_instance_watermark_circuit_breaker_break_count"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "tips": "Watermark Circuit Breaker Break Count",
-                    "title": "Watermark Circuit Breaker Break Count"
-                  }
-                },
-                {
-                  "x": 0,
-                  "y": 52,
-                  "w": 6,
-                  "h": 13,
-                  "i": "20",
-                  "type": "Widget",
-                  "expressions": [
-                    "meter_oap_instance_watermark_circuit_breaker_recover_count"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "Watermark Circuit Breaker Recover Count",
-                    "tips": "The number of times the watermark circuit breaker recovers"
-                  }
-                }
-              ]
+              "label": "Creation"
             },
             {
-              "name": "Inbound Traffic",
-              "children": [
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "13",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Trace Analysis Count (Per Minute)"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "count"
-                    },
-                    {
-                      "label": "error_count"
-                    }
-                  ],
-                  "expressions": [
-                    "meter_oap_instance_trace_count",
-                    "meter_oap_instance_trace_analysis_error_count"
-                  ]
-                },
-                {
-                  "x": 6,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "4",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Trace Analysis Latency (ms / min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "relabels(meter_oap_instance_trace_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ]
-                },
-                {
-                  "x": 12,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "3",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Mesh Analysis Count (Per Minute)"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "count"
-                    },
-                    {
-                      "label": "error_count"
-                    }
-                  ],
-                  "expressions": [
-                    "meter_oap_instance_mesh_count",
-                    "meter_oap_instance_mesh_analysis_error_count"
-                  ]
-                },
-                {
-                  "x": 18,
-                  "y": 0,
-                  "w": 6,
-                  "h": 13,
-                  "i": "12",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Mesh Analysis Latency (ms / min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "relabels(meter_oap_instance_mesh_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "17",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "K8S ALS Analysis Count (Per Minute)"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "count"
-                    },
-                    {
-                      "label": "drop_count"
-                    }
-                  ],
-                  "expressions": [
-                    "meter_oap_instance_k8s_als_count",
-                    "meter_oap_instance_k8s_als_drop"
-                  ]
-                },
-                {
-                  "x": 12,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "18",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "K8S ALS Analysis Latency (ms / min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "relabels(meter_oap_instance_k8s_als_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ]
-                },
-                {
-                  "x": 6,
-                  "y": 26,
-                  "w": 6,
-                  "h": 13,
-                  "i": "19",
-                  "type": "Widget",
-                  "expressions": [
-                    "meter_oap_otel_metrics_received"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "OpenTelemetry Metrics (Requests / Second)"
-                  },
-                  "metricConfig": [
-                    {
-                      "label": "Received Requests"
-                    }
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 39,
-                  "w": 6,
-                  "h": 13,
-                  "i": "20",
-                  "type": "Widget",
-                  "expressions": [
-                    "meter_oap_otel_logs_received"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "OpenTelemetry Logs (Requests / Second)"
-                  }
-                },
-                {
-                  "x": 12,
-                  "y": 26,
-                  "w": 6,
-                  "h": 13,
-                  "i": "21",
-                  "type": "Widget",
-                  "expressions": [
-                    "meter_oap_otel_spans_received"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "OpenTelemetry Spans (Requests / Second)"
-                  },
-                  "metricConfig": [
-                    {
-                      "unit": "Requests / Second"
-                    }
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 26,
-                  "w": 6,
-                  "h": 13,
-                  "i": "22",
-                  "type": "Widget",
-                  "expressions": [
-                    "relabels(meter_oap_otel_metrics_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "OpenTelemetry Metrics Latency (ms / min)"
-                  }
-                },
-                {
-                  "x": 18,
-                  "y": 26,
-                  "w": 6,
-                  "h": 13,
-                  "i": "23",
-                  "type": "Widget",
-                  "expressions": [
-                    "relabels(meter_oap_otel_spans_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "OpenTelemetry Spans Latency (ms / min)"
-                  }
-                },
-                {
-                  "x": 18,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "24",
-                  "type": "Widget",
-                  "expressions": [
-                    "relabels(meter_oap_otel_logs_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "widget": {
-                    "title": "OpenTelemetry Logs Latency (ms / min)"
-                  }
-                },
-                {
-                  "x": 6,
-                  "y": 13,
-                  "w": 6,
-                  "h": 13,
-                  "i": "25",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "K8S ALS Log Streams (Per Minute)"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "expressions": [
-                    "meter_oap_instance_k8s_als_streams",
-                    "meter_oap_instance_k8s_als_error_streams"
-                  ]
-                }
-              ]
+              "label": "Completion"
             }
+          ],
+          "expressions": [
+            "aggregate_labels(meter_java_agent_created_tracing_context_count,sum)",
+            "meter_java_agent_finished_tracing_context_count"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "Ignored Context Creation (Per Minute)",
+            "tips": "The number of created ignored contexts, including a label created_by(value=sampler,propagated)."
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_java_agent_created_ignored_context_count"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Ignored Context Creation and Completion (Per Minute)",
+            "tips": "The number of created ignored contexts and finished ignored contexts."
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "aggregate_labels(meter_java_agent_created_ignored_context_count,sum)",
+            "meter_java_agent_finished_ignored_context_count"
+          ],
+          "metricConfig": [
+            {
+              "label": "Creation"
+            },
+            {
+              "label": "Completion"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "11",
+          "type": "Widget",
+          "widget": {
+            "title": "Possible Leaked Context (Per Minute)",
+            "tips": "The number of detected leaked contexts, including a label source(value=tracing, ignore)."
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_java_agent_possible_leaked_context_count"
+          ],
+          "metricConfig": [
+            {
+              "label": "count"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "w": 12,
+          "h": 13,
+          "i": "8",
+          "type": "Widget",
+          "widget": {
+            "title": "Interceptor Error Count (Per Minute)",
+            "tips": "The number of errors happened in the interceptor logic, including the label plugin_name and inter_type(constructor, inst, static)."
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_java_agent_interceptor_error_count"
+          ],
+          "metricConfig": [
+            {
+              "label": "count"
+            }
+          ]
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "15",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Tracing Context Execution time (ms)",
+            "tips": "For successfully finished tracing context, it measures every interceptor's time cost."
+          },
+          "expressions": [
+            "relabels(meter_java_agent_tracing_context_execution_time_percentile,p='50,75,90,95,99',p='50,75,90,95,99')/1000000"
           ]
         }
       ],
-      "layer": "SO11Y_OAP",
+      "layer": "SO11Y_JAVA_AGENT",
       "entity": "ServiceInstance",
-      "name": "Self-Observability-OAP-Instance",
+      "name": "Self-Observability-Java-Agent-Instance",
       "isRoot": false
     }
   }
