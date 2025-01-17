@@ -693,3 +693,9 @@ ai-pipeline:
   default:
     uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:}
     uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}
+
+baseline:
+  selector: ${SW_BASELINE:default}
+  default:
+    serviceHost: ${SW_BASELINE_SERVICE_HOST:}
+    servicePort: ${SW_BASELINE_SERVICE_PORT:18080}
