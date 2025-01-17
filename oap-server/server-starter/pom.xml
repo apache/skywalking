@@ -296,6 +296,11 @@
             <artifactId>storage-elasticsearch-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>metrics-baseline</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
