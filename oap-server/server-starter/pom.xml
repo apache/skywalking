@@ -298,7 +298,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-baseline</artifactId>
+            <artifactId>metrics-baseline</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
