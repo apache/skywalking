@@ -1,4 +1,4 @@
-package org.apache.skywalking.oap.server.baseline;/*
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,6 +15,8 @@ package org.apache.skywalking.oap.server.baseline;/*
  * limitations under the License.
  *
  */
+
+package org.apache.skywalking.oap.server.baseline;
 
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
