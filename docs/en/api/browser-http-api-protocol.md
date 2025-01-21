@@ -59,7 +59,7 @@ OutPut:
 
 Http Status: 204
 
-### POST http://localhost:12800/browser/perfData/webInteraction
+### POST http://localhost:12800/browser/perfData/webInteractions
 
 Send a performance data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
 
