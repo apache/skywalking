@@ -36,7 +36,7 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
 
 ### POST http://localhost:12800/browser/perfData/webVitals
 
@@ -57,7 +57,7 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
 
 ### POST http://localhost:12800/browser/perfData/webInteractions
 
@@ -76,7 +76,7 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
 
 ### POST http://localhost:12800/browser/perfData/resources
 
@@ -99,7 +99,7 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
 
 ## Error Log Report
 
@@ -142,7 +142,7 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
 
 ### POST http://localhost:12800/browser/errorLog
 
@@ -167,4 +167,4 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
