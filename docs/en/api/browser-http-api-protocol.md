@@ -66,12 +66,14 @@ Send a performance data object in JSON format. Since client-js 1.0.0, the follow
 Input:
 
 ```json
-{
-  "service": "web",
-  "serviceVersion": "v0.0.1",
-  "pagePath": "/index.html",
-  "inpTime": 10,
-}
+[
+  {
+    "service": "web",
+    "serviceVersion": "v0.0.1",
+    "pagePath": "/index.html",
+    "inpTime": 10,
+  }
+]
 ```
 
 OutPut:
@@ -85,16 +87,18 @@ Send a static resources data object in JSON format. Since client-js 1.0.0, the f
 Input:
 
 ```json
-{
-  "service": "web",
-  "serviceVersion": "v0.0.1",
-  "pagePath": "/index.html",
-  "name": "vue.js",
-  "duration": 600,
-  "size": 100000,
-  "protocol": "h2",
-  "type": "script",
-}
+[
+  {
+    "service": "web",
+    "serviceVersion": "v0.0.1",
+    "pagePath": "/index.html",
+    "name": "vue.js",
+    "duration": 600,
+    "size": 100000,
+    "protocol": "h2",
+    "type": "script",
+  }
+]
 ```
 
 OutPut:
