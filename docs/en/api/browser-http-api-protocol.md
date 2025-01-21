@@ -36,7 +36,7 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
 
 ### POST http://localhost:12800/browser/perfData/webVitals
 
@@ -57,7 +57,26 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
+
+### POST http://localhost:12800/browser/perfData/webInteractions
+
+Send a performance data object in JSON format. Since client-js 1.0.0, the following attached metrics are reported.
+
+Input:
+
+```json
+{
+  "service": "web",
+  "serviceVersion": "v0.0.1",
+  "pagePath": "/index.html",
+  "inpTime": 10,
+}
+```
+
+OutPut:
+
+HTTP Status: 204
 
 ### POST http://localhost:12800/browser/perfData/resources
 
@@ -80,7 +99,7 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
 
 ## Error Log Report
 
@@ -123,7 +142,7 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
 
 ### POST http://localhost:12800/browser/errorLog
 
@@ -148,4 +167,4 @@ Input:
 
 OutPut:
 
-Http Status: 204
+HTTP Status: 204
