@@ -19,12 +19,20 @@
 syntax = "proto3";
 package skywalking.baseline.v3;
 
+import "google/protobuf/empty.proto";
+
 option java_multiple_files = true;
 option java_package = "org.apache.skywalking.apm.baseline.v3";
 
 service AlarmBaselineService {
+    // Query the supported metrics names.
+    rpc querySupportedMetricsNames(google.protobuf.Empty) returns (AlarmBaselineMetricsNames);
     // Query the predicted metrics of the given service.
     rpc queryPredictedMetrics(AlarmBaselineRequest) returns (AlarmBaselineResponse);
+}
+
+message AlarmBaselineMetricsNames {
+    repeated string metricNames = 1;
 }
 
 // The request of the predicted metrics query.
