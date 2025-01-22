@@ -65,6 +65,7 @@
 * OAP self observability: Add JVM heap and direct memory used metrics.
 * OAP self observability: Add watermark circuit break/recover metrics.
 * Add Baseline module for support alarm module query baseline data.
+* BaseLine: Support query baseline metrics names.
 
 #### UI
 
