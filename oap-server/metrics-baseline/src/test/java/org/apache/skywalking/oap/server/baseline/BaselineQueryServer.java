@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.server.baseline;
 
+import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.skywalking.apm.baseline.v3.AlarmBaselineMetricsNames;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineServiceGrpc;
@@ -85,6 +87,14 @@ public class BaselineQueryServer extends AlarmBaselineServiceGrpc.AlarmBaselineS
                 }
             })
             .build());
+    }
+
+    @Override
+    public void querySupportedMetricsNames(Empty request, StreamObserver<AlarmBaselineMetricsNames> responseObserver) {
+        responseObserver.onNext(AlarmBaselineMetricsNames.newBuilder()
+            .addAllMetricNames(VALUE_GENERATOR.keySet())
+            .build());
+        responseObserver.onCompleted();
     }
 
     @Override

@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.server.baseline.service;
 
+import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineMetricPrediction;
+import org.apache.skywalking.apm.baseline.v3.AlarmBaselineMetricsNames;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineRequest;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineResponse;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineServiceGrpc;
@@ -30,8 +32,10 @@ import org.apache.skywalking.apm.baseline.v3.TimeBucketStep;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -46,6 +50,18 @@ public class BaselineQueryServiceImpl implements BaselineQueryService {
         client.connect();
         ManagedChannel channel = client.getChannel();
         stub = AlarmBaselineServiceGrpc.newBlockingStub(channel);
+    }
+
+    @Override
+    public List<String> querySupportedMetrics() {
+        if (stub == null) {
+            return Collections.emptyList();
+        }
+
+        final AlarmBaselineMetricsNames names = stub.querySupportedMetricsNames(Empty.newBuilder().build());
+        return Optional.ofNullable(names)
+            .map(AlarmBaselineMetricsNames::getMetricNamesList)
+            .map(ArrayList::new).orElse(new ArrayList<>(0));
     }
 
     public List<PredictServiceMetrics> queryPredictMetrics(List<ServiceMetrics> serviceMetrics, long startTimeBucket, long endTimeBucket) {

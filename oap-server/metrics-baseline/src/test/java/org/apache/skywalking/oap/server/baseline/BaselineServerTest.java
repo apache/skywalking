@@ -98,4 +98,10 @@ public class BaselineServerTest {
         assertNotNull(metrics);
     }
 
+    @Test
+    public void queryMetricsNames() {
+        final List<String> metrics = queryService.querySupportedMetrics();
+        assertNotNull(metrics);
+    }
+
 }
