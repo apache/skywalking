@@ -24,6 +24,12 @@ import java.util.List;
 
 public interface BaselineQueryService extends Service {
     /**
+     * query supported query baseline metrics names
+     * @return
+     */
+    List<String> querySupportedMetrics();
+
+    /**
      * query predict metrics
      */
     List<PredictServiceMetrics> queryPredictMetrics(List<ServiceMetrics> serviceMetrics, long startTimeBucket, long endTimeBucket);
