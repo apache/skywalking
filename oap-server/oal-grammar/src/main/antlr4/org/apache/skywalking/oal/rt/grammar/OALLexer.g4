@@ -75,6 +75,7 @@ SRC_BROWSER_APP_PAGE_TRAFFIC: 'BrowserAppPageTraffic';
 SRC_BROWSER_APP_SINGLE_VERSION_TRAFFIC: 'BrowserAppSingleVersionTraffic';
 SRC_BROWSER_APP_RESOURCE_PERF: 'BrowserAppResourcePerf';
 SRC_BROWSER_APP_WEB_VITALS_PERF: 'BrowserAppWebVitalsPerf';
+SRC_BROWSER_APP_WEB_INTERACTION_PERF: 'BrowserAppWebInteractionPerf';
 
 // Constructors symbols
 
