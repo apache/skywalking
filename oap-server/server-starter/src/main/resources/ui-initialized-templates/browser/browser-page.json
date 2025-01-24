@@ -84,6 +84,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -157,6 +160,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -230,6 +236,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -303,6 +312,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -376,6 +388,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -449,6 +464,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -525,6 +543,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ],
                   "metricConfig": [
@@ -623,6 +644,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ],
                   "metricConfig": [
@@ -643,7 +667,7 @@
                 {
                   "x": 0,
                   "y": 45,
-                  "w": 8,
+                  "w": 6,
                   "h": 15,
                   "i": "11",
                   "type": "Widget",
@@ -703,13 +727,16 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
                 {
-                  "x": 8,
+                  "x": 6,
                   "y": 45,
-                  "w": 8,
+                  "w": 6,
                   "h": 15,
                   "i": "12",
                   "type": "Widget",
@@ -769,13 +796,16 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
                 {
-                  "x": 16,
+                  "x": 12,
                   "y": 45,
-                  "w": 8,
+                  "w": 6,
                   "h": 15,
                   "i": "13",
                   "type": "Widget",
@@ -835,6 +865,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -901,6 +934,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -967,6 +1003,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -1033,6 +1072,9 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
                     }
                   ]
                 },
@@ -1099,6 +1141,84 @@
                     },
                     {
                       "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 45,
+                  "w": 6,
+                  "h": 15,
+                  "i": "18",
+                  "type": "Widget",
+                  "expressions": [
+                    "relabels(browser_app_web_interaction_inp_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Web Interaction to Next Paint Use Time(ms)"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    },
+                    {
+                      "widgetId": "12-0-3"
+                    },
+                    {
+                      "widgetId": "12-0-4"
+                    },
+                    {
+                      "widgetId": "12-0-8"
+                    },
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-10"
+                    },
+                    {
+                      "widgetId": "12-0-11"
+                    },
+                    {
+                      "widgetId": "12-0-12"
+                    },
+                    {
+                      "widgetId": "12-0-13"
+                    },
+                    {
+                      "widgetId": "12-0-14"
+                    },
+                    {
+                      "widgetId": "12-0-15"
+                    },
+                    {
+                      "widgetId": "12-0-16"
+                    },
+                    {
+                      "widgetId": "12-0-17"
+                    },
+                    {
+                      "widgetId": "12-0-18"
+                    }
+                  ],
+                  "metricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Time"
                     }
                   ]
                 }

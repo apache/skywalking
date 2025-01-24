@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfData;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserResourcePerfData;
+import org.apache.skywalking.apm.network.language.agent.v3.BrowserWebInteractionsPerfData;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserWebVitalsPerfData;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
@@ -33,6 +34,7 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.perform
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.PerfDataAnalyzer;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.PerfDataParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserResourcePerfDataDecorator;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserWebInteractionPerfDataDecorator;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserWebVitalsPerfDataDecorator;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -152,6 +154,21 @@ public class BrowserPerfServiceHTTPHandler {
                     final PerfDataAnalyzer analyzer = new PerfDataAnalyzer(perfDataListenerManager);
                     analyzer.doAnalysis(new BrowserResourcePerfDataDecorator(resource));
                 });
+            return Commands.newBuilder().build();
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+            perfErrorCounter.inc();
+            throw e;
+        }
+    }
+
+    @Post("/browser/perfData/webInteractions")
+    public Commands collectWebInteractionsPerfData(final List<BrowserWebInteractionsPerfData> perfDataList) {
+        try (HistogramMetrics.Timer ignored = perfHistogram.createTimer()) {
+            perfDataList.forEach(perfData -> {
+                final PerfDataAnalyzer analyzer = new PerfDataAnalyzer(perfDataListenerManager);
+                analyzer.doAnalysis(new BrowserWebInteractionPerfDataDecorator(perfData));
+            });
             return Commands.newBuilder().build();
         } catch (Throwable e) {
             log.error(e.getMessage(), e);

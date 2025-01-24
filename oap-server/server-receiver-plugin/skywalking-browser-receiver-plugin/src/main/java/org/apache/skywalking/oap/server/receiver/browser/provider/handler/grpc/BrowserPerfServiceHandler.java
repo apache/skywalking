@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfData;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfServiceGrpc;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserResourcePerfData;
+import org.apache.skywalking.apm.network.language.agent.v3.BrowserWebInteractionsPerfData;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserWebVitalsPerfData;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
@@ -34,6 +35,7 @@ import org.apache.skywalking.oap.server.receiver.browser.provider.parser.perform
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.PerfDataAnalyzer;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.PerfDataParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserResourcePerfDataDecorator;
+import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserWebInteractionPerfDataDecorator;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.decorators.BrowserWebVitalsPerfDataDecorator;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -140,6 +142,25 @@ public class BrowserPerfServiceHandler extends BrowserPerfServiceGrpc.BrowserPer
         try {
             PerfDataAnalyzer analyzer = new PerfDataAnalyzer(perfDataListenerManager);
             analyzer.doAnalysis(new BrowserWebVitalsPerfDataDecorator(request));
+        } catch (Throwable e) {
+            log.error(e.getMessage(), e);
+            perfErrorCounter.inc();
+        } finally {
+            timer.finish();
+            responseObserver.onNext(Commands.newBuilder().build());
+            responseObserver.onCompleted();
+        }
+    }
+
+    @Override
+    public void collectWebInteractionsPerfData(BrowserWebInteractionsPerfData request, StreamObserver<Commands> responseObserver) {
+        if (log.isDebugEnabled()) {
+            log.debug("receive browser web interaction performance data");
+        }
+        HistogramMetrics.Timer timer = perfHistogram.createTimer();
+        try {
+            PerfDataAnalyzer analyzer = new PerfDataAnalyzer(perfDataListenerManager);
+            analyzer.doAnalysis(new BrowserWebInteractionPerfDataDecorator(request));
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             perfErrorCounter.inc();
