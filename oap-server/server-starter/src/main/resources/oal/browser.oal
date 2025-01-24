@@ -68,7 +68,7 @@ browser_app_web_vitals_fmp_avg = from(BrowserAppWebVitalsPerf.fmpTime).filter(fm
 browser_app_web_vitals_cls_avg = from(BrowserAppWebVitalsPerf.clsTime).filter(clsTime > 0).longAvg();
 browser_app_web_vitals_lcp_avg = from(BrowserAppWebVitalsPerf.lcpTime).filter(lcpTime > 0).longAvg();
 
-browser_app_web_interaction_inp_avg = from(BrowserAppWebInteractionPerf.inpTime).longAvg();
+browser_app_web_interaction_inp_percentile = from(BrowserAppWebInteractionPerf.inpTime).percentile2(10);
 
 // Disable unnecessary hard core stream, targeting @Stream#name
 /////////

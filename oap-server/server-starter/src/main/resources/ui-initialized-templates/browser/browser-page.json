@@ -1155,7 +1155,7 @@
                   "i": "18",
                   "type": "Widget",
                   "expressions": [
-                    "browser_app_web_interaction_inp_avg"
+                    "relabels(browser_app_web_interaction_inp_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1166,7 +1166,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Web Interaction to Next Paint Avg Time(ms)"
+                    "title": "Web Interaction to Next Paint Use Time(ms)"
                   },
                   "associate": [
                     {
@@ -1213,6 +1213,12 @@
                     },
                     {
                       "widgetId": "12-0-18"
+                    }
+                  ],
+                  "metricConfig": [
+                    {
+                      "unit": "ms",
+                      "label": "Time"
                     }
                   ]
                 }
