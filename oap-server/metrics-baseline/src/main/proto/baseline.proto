@@ -87,6 +87,7 @@ message AlarmBaselinePredicatedValue {
     }
 }
 
+// The predicted value. It must be minute level. 
 message AlarmBaselineValue {
     // The predicted value.
     int64 value = 1;
