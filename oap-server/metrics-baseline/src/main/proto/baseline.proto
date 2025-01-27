@@ -87,6 +87,7 @@ message AlarmBaselinePredicatedValue {
     }
 }
 
+// The predicted value. The metric values provided within this baseline are at a minute-level granularity. For example, it includes metrics such as the number of visits per minute.
 message AlarmBaselineValue {
     // The predicted value.
     int64 value = 1;
