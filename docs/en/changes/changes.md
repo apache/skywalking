@@ -66,6 +66,7 @@
 * OAP self observability: Add watermark circuit break/recover metrics.
 * Add Baseline module for support alarm module query baseline data.
 * BaseLine: Support query baseline metrics names.
+* Add `Get Node List in the Cluster` API.
 
 #### UI
 
@@ -102,6 +103,7 @@
 * Add Status APIs docs.
 * Simplified the release process with removing maven central publish relative processes.
 * Add Circuit Breaking mechanism doc.
+* Add `Get Node List in the Cluster` API doc.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/224?closed=1)
