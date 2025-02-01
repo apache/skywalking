@@ -29,7 +29,7 @@ ___
 **NOTICE**,
 Before you set up the cluster, please read the [Query Cluster Nodes](../../status/query_cluster_nodes.md) API to understand how to 
 verify the cluster node list. If the nodes don't match the expectation, the cluster is not working properly, there could 
-be many feature impacts, e.g. the metrics could be in accurate and the alarms could not be triggered correctly.
+be many feature impacts, e.g. the metrics could be inaccurate and the alarms could not be triggered correctly.
 ___
 
 # Cloud Native
