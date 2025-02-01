@@ -344,6 +344,8 @@ catalog:
                 path: "/en/debugging/query-tracing"
               - name: "Get Effective TTL Configurations"
                 path: "/en/status/query_ttl_setup"
+              - name: "Get Node List in the Cluster"
+                path: "/en/status/query_cluster_nodes"
   - name: "Customization"
     catalog:
       - name: "Overview"
