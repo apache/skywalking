@@ -1,7 +1,7 @@
 # Redis monitoring
 ## Redis server performance from `redis-exporter`
 SkyWalking leverages redis-exporter for collecting metrics data from Redis. It leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. redis-exporter collect metrics data from Redis.

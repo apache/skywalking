@@ -1,7 +1,7 @@
 # Pulsar monitoring
 
 SkyWalking leverages OpenTelemetry Collector to collect metrics data in Prometheus format from the Pulsar and transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 Kafka entity as a `Service` in OAP and on the `Layer: PULSAR.
 
 ## Data flow

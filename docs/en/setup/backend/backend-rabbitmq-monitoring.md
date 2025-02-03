@@ -2,7 +2,7 @@
 
 SkyWalking leverages `rabbitmq_prometheus` plugin for collecting metrics data from RabbitMQ. It leverages OpenTelemetry
 Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ## Data flow
 

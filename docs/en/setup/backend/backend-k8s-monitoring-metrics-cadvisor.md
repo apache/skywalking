@@ -1,6 +1,6 @@
 # Kubernetes (K8s) monitoring from kube-state-metrics and cAdvisor
 SkyWalking leverages K8s kube-state-metrics (KSM) and cAdvisor for collecting metrics data from K8s. It leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md). This feature requires authorizing the OAP Server to access K8s's `API Server`.
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md). This feature requires authorizing the OAP Server to access K8s's `API Server`.
 
 ## Data flow
 1. K8s kube-state-metrics and cAdvisor collect metrics data from K8s.

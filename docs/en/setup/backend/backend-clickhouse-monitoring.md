@@ -4,7 +4,7 @@
 
 SkyWalking leverages ClickHouse built-in metrics data since v20.1.2.4. It leverages OpenTelemetry Collector to transfer
 the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 

@@ -1,5 +1,5 @@
 # Zabbix Receiver
-The Zabbix receiver accepts metrics of [Zabbix Agent Active Checks protocol](https://www.zabbix.com/documentation/current/manual/appendix/items/activepassive#active_checks) format into the [Meter System](./../../concepts-and-designs/meter.md).
+The Zabbix receiver accepts metrics of [Zabbix Agent Active Checks protocol](https://www.zabbix.com/documentation/current/manual/appendix/items/activepassive#active_checks) format into the [Meter System](./../../concepts-and-designs/mal.md).
 Zabbix Agent is based on GPL-2.0 License, only version `6.x` and below are supported.
 
 ## Module definition

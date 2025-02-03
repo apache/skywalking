@@ -1,6 +1,6 @@
 # Windows Monitoring
 SkyWalking leverages Prometheus windows_exporter to collect metrics data from the Windows and leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 Windows entity as a `Service` in OAP and on the `Layer: OS_WINDOWS`.
 
 ## Data flow
