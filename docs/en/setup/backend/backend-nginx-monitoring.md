@@ -4,7 +4,7 @@ The [nginx-lua-prometheus](https://github.com/knyar/nginx-lua-prometheus) is a l
 and expose them on a separate web page. 
 To use this library, you will need Nginx with [lua-nginx-module](https://github.com/openresty/lua-nginx-module) or directly [OpenResty](https://openresty.org/).
 
-SkyWalking leverages OpenTelemetry Collector to transfer the metrics to [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+SkyWalking leverages OpenTelemetry Collector to transfer the metrics to [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. [nginx-lua-prometheus](https://github.com/knyar/nginx-lua-prometheus) collects metrics from Nginx and expose them to an endpoint.

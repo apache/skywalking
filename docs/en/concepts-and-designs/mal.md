@@ -1,3 +1,8 @@
+# Meter System -- Analysis Metrics and Meters
+Meter system is a metric streaming process system, which focus on processing and analyzing aggregated metrics data.
+Metrics from OpenTelemetry, Zabbix, Prometheus, SkyWalking meter APIs, etc., are all statistics, so they are processed
+by the meter system.
+
 # Meter Analysis Language
 
 The meter system provides a functional analysis language called MAL (Meter Analysis Language) that lets users analyze and

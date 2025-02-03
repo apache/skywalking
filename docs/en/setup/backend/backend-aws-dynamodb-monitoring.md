@@ -1,5 +1,5 @@
 # AWS DynamoDb monitoring
-SkyWalking leverages Amazon Kinesis Data Filehose with [Amazon CloudWatch](https://aws.amazon.com/cn/cloudwatch/) to transfer the metrics into the [Meter System](./../../concepts-and-designs/meter.md).
+SkyWalking leverages Amazon Kinesis Data Filehose with [Amazon CloudWatch](https://aws.amazon.com/cn/cloudwatch/) to transfer the metrics into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. Amazon CloudWatch fetches metrics from DynamoDB and pushes metrics to SkyWalking OAP Server via Amazon Kinesis data firehose.

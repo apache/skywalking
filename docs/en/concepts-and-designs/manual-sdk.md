@@ -8,7 +8,7 @@ Below is the archived list.
 
 ## What are the SkyWalking format and the propagation protocols?
 - [Tracing APIs](../api/trace-data-protocol-v3.md)
-- [Meter APIs](../api/meter.md)
+- [Meter APIs](../api/mal.md)
 - [Logging APIs](../api/log-data-protocol.md)
 
 ## Envoy tracer

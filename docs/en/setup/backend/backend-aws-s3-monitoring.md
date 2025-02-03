@@ -1,6 +1,6 @@
 # AWS Cloud S3 monitoring
 Amazon Simple Storage Service (Amazon S3) is an object storage service. SkyWalking leverages [AWS Kinesis Data Firehose receiver](./aws-firehose-receiver.md) to transfer the CloudWatch metrics of s3 to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. AWS CloudWatch collect metrics for S3, refer to [S3 monitoring with CloudWatch](https://docs.aws.amazon.com/AmazonS3/latest/userguide/cloudwatch-monitoring.html)

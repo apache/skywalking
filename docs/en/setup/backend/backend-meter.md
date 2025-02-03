@@ -2,7 +2,7 @@
 
 The meter receiver accepts the metrics
 of [meter protocol](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Meter.proto)
-into the [meter system](./../../concepts-and-designs/meter.md).
+into the [meter system](./../../concepts-and-designs/mal.md).
 
 ## Module definition
 

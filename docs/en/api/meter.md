@@ -86,6 +86,6 @@ OpenTelemetry collector, Telegraf agents, Zabbix agents could use their native p
 and OAP server would convert metrics into native format and forward them to [Meter Analysis Language](../concepts-and-designs/mal.md) engine.
 
 To learn more about receiving 3rd party formats metrics, see 
-- [Meter receiver](../setup/backend/backend-meter.md)
+- [Meter receiver](../setup/backend/backend-mal.md)
 - [OpenTelemetry receiver](../setup/backend/opentelemetry-receiver.md).
 - [Zabbix receiver](../setup/backend/backend-zabbix.md)

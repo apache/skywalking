@@ -1,7 +1,7 @@
 # APISIX monitoring
 ## APISIX  performance from `apisix prometheus plugin`
 SkyWalking leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) collects metrics data from APSIX.

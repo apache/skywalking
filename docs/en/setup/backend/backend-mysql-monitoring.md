@@ -1,7 +1,7 @@
 # MySQL/MariaDB monitoring
 ## MySQL/MariaDB server performance from `prometheus/mysqld_exporter`
 SkyWalking leverages prometheus/mysqld_exporter for collecting metrics data. It leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. mysqld_exporter collect metrics data from MySQL/MariaDB.

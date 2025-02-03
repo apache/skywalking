@@ -1,7 +1,7 @@
 # PostgreSQL monitoring
 ## PostgreSQL server performance from `postgres-exporter`
 SkyWalking leverages postgres-exporter for collecting metrics data from PostgreSQL. It leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. postgres-exporter collect metrics data from PostgreSQL.

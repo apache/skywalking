@@ -1,6 +1,6 @@
 # AWS Cloud EKS monitoring
 SkyWalking leverages OpenTelemetry Collector with [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. OpenTelemetry Collector fetches metrics from EKS via [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.

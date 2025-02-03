@@ -1,7 +1,7 @@
 # Kafka monitoring
 
 SkyWalking leverages Prometheus JMX Exporter to collect metrics data from the Kafka and leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 Kafka entity as a `Service` in OAP and on the `Layer: KAFKA`.
 
 ## Data flow
