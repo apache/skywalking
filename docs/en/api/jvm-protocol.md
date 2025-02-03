@@ -1,6 +1,6 @@
 # JVM Metrics APIs
 
-**Notice, SkyWalking has provided general available [meter APIs](mal.md) for all kinds of metrics. This API is still supported
+**Notice, SkyWalking has provided general available [meter APIs](meter.md) for all kinds of metrics. This API is still supported
 for forward compatibility only. SkyWalking community would not accept new language specific metric APIs anymore.**
 
 Uplink the JVM metrics, including PermSize, HeapSize, CPU, Memory, etc., every second.
