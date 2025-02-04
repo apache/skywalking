@@ -1,6 +1,6 @@
 # AWS API Gateway monitoring
 Amazon API Gateway is an AWS service for creating, publishing, maintaining, monitoring, and securing REST, HTTP, and WebSocket APIs. SkyWalking leverages [AWS Kinesis Data Firehose receiver](./aws-firehose-receiver.md) to transfer the CloudWatch metrics of API Gateway(HTTP and REST APIs) to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. AWS CloudWatch collect metrics for API Gateway(REST and HTTP APIs), refer to [API Gateway HTTP APIs monitoring with CloudWatch](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-metrics.html) and [API Gateway REST APIs monitoring with CloudWatch](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-metrics-and-dimensions.html)

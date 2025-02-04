@@ -1,10 +1,10 @@
 # Linux Monitoring
 SkyWalking leverages Prometheus node-exporter to collect metrics data from the VMs and leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 
 SkyWalking also provides InfluxDB Telegraf to receive VMs' metrics data by [Telegraf receiver](./telegraf-receiver.md).
-The telegraf receiver plugin receiver, process and convert the metrics, then it send converted metrics to [Meter System](./../../concepts-and-designs/meter.md).
+The telegraf receiver plugin receiver, process and convert the metrics, then it send converted metrics to [Meter System](./../../concepts-and-designs/mal.md).
 VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 
 ## Data flow
@@ -16,7 +16,7 @@ VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 **For Telegraf receiver:**
 1. The InfluxDB Telegraf [input plugins](https://docs.influxdata.com/telegraf/v1.24/plugins/) collects various metrics data from the VMs.
 2. The cpu, mem, system, disk and diskio input plugins should be set in telegraf.conf file.
-2. The InfluxDB Telegraf send `JSON` format metrics by `HTTP` messages to Telegraf Receiver, then pushes converted metrics to the SkyWalking OAP Server [Meter System](./../../concepts-and-designs/meter.md).
+2. The InfluxDB Telegraf send `JSON` format metrics by `HTTP` messages to Telegraf Receiver, then pushes converted metrics to the SkyWalking OAP Server [Meter System](./../../concepts-and-designs/mal.md).
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate ad store the results.
 4. The meter_vm_cpu_average_used metrics indicates the average usage of each CPU core for telegraf receiver.
 

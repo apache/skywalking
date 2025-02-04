@@ -4,7 +4,7 @@
 The [kong-prometheus](https://github.com/Kong/kong/tree/master/kong/plugins/prometheus) is a lua library that can be used with Kong to collect metrics.
 It exposes metrics related to Kong and proxied upstream services in Prometheus exposition format, which can be scraped by a Prometheus Server.
 SkyWalking leverages OpenTelemetry Collector to transfer the metrics to[OpenTelemetry receiver](opentelemetry-receiver.md) 
-and into the [Meter System](./../../concepts-and-designs/meter.md).
+and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
 1. [KONG Prometheus plugin](https://docs.konghq.com/hub/kong-inc/prometheus/) collects metrics data from KONG.

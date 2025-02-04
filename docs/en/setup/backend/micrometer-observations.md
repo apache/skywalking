@@ -1,7 +1,7 @@
 # MicroMeter Observations setup
 
 Micrometer Observation is part of the Micrometer project and contains the Observation API.
-SkyWalking integrates its MicroMeter 1.10 APIs so that it can send metrics to the SkyWalking [Meter System](./../../concepts-and-designs/meter.md).
+SkyWalking integrates its MicroMeter 1.10 APIs so that it can send metrics to the SkyWalking [Meter System](./../../concepts-and-designs/mal.md).
 
 Follow Java agent [Observations docs](https://skywalking.apache.org/docs/skywalking-java/next/en/setup/service-agent/java-agent/application-toolkit-micrometer-1.10/) to set up agent in the Spring first. 
 
