@@ -67,6 +67,7 @@
 * Add Baseline module for support alarm module query baseline data.
 * BaseLine: Support query baseline metrics names.
 * Add `Get Node List in the Cluster` API.
+* Add type descriptor when converting Envoy logs to JSON for persistence, to avoid conversion error.
 
 #### UI
 
