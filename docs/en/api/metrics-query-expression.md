@@ -517,7 +517,7 @@ Otherwise, the result will be empty.
 Otherwise, the result will be empty, which means there is no baseline or predicated value.
 - For now, the predictions aim to every hour.
 And the predicated values provided within this baseline are at a minute-level granularity. 
-For example, it includes metrics such as the number of visits per minute. So if the query step is `MINUTE` and duration is in a same hour, the returned value will be same in every minute.
+As a result, for CPM(calls per minute), when the query step is `MINUTE` and duration is in a full hour, the returned values are same in every minute of this whole hour.
 
 ### Result Type
 TIME_SERIES_VALUES.
