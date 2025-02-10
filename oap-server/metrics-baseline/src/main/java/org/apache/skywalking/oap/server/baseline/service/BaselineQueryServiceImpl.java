@@ -18,8 +18,13 @@
 
 package org.apache.skywalking.oap.server.baseline.service;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.protobuf.Empty;
 import io.grpc.ManagedChannel;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineMetricPrediction;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineMetricsNames;
@@ -29,7 +34,11 @@ import org.apache.skywalking.apm.baseline.v3.AlarmBaselineServiceGrpc;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineServiceMetricName;
 import org.apache.skywalking.apm.baseline.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.baseline.v3.TimeBucketStep;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.util.ArrayList;
@@ -41,8 +50,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BaselineQueryServiceImpl implements BaselineQueryService {
     private AlarmBaselineServiceGrpc.AlarmBaselineServiceBlockingStub stub;
+    private final Cache<String/*timeBucket,serviceName*/, Map<String/*metricName*/, PredictServiceMetrics.PredictMetricsValue>> baselineCache;
 
     public BaselineQueryServiceImpl(String addr, int port) {
+        this.baselineCache = CacheBuilder.newBuilder()
+                                         .expireAfterAccess(1, TimeUnit.HOURS)
+                                         .build();
         if (StringUtil.isEmpty(addr) || port <= 0) {
             return;
         }
@@ -55,6 +68,7 @@ public class BaselineQueryServiceImpl implements BaselineQueryService {
     @Override
     public List<String> querySupportedMetrics() {
         if (stub == null) {
+            log.warn("Baseline service is not set up, return empty list.");
             return Collections.emptyList();
         }
 
@@ -66,6 +80,7 @@ public class BaselineQueryServiceImpl implements BaselineQueryService {
 
     public List<PredictServiceMetrics> queryPredictMetrics(List<ServiceMetrics> serviceMetrics, long startTimeBucket, long endTimeBucket) {
         if (stub == null) {
+            log.warn("Baseline service is not set up, return empty baseline values.");
             return Collections.emptyList();
         }
 
@@ -75,6 +90,58 @@ public class BaselineQueryServiceImpl implements BaselineQueryService {
             log.warn("Query baseline failure", e);
         }
         return Collections.emptyList();
+    }
+
+    public Map<String, PredictServiceMetrics.PredictMetricsValue> queryPredictMetricsFromCache(String serviceName,
+                                                                                               String timeBucketHour) {
+        if (stub == null) {
+            log.warn("Baseline service is not set up, return empty baseline values.");
+            return Collections.emptyMap();
+        }
+        String key = timeBucketHour + Const.COMMA + serviceName;
+        Map<String, PredictServiceMetrics.PredictMetricsValue> baselineValues = this.baselineCache.asMap().get(key);
+
+        if (CollectionUtils.isNotEmpty(baselineValues)) {
+            return baselineValues;
+        }
+        //reload all metrics and timeBucket baseline values for this service
+        List<String> metrics = querySupportedMetrics();
+        ServiceMetrics serviceMetrics = ServiceMetrics.builder()
+                                                      .serviceName(serviceName)
+                                                      .metricsNames(metrics)
+                                                      .build();
+        //todo: need config?
+        long startTimeBucket = TimeBucket.getTimeBucket(
+            System.currentTimeMillis() - TimeUnit.HOURS.toMillis(24), DownSampling.Hour);
+        long endTimeBucket = TimeBucket.getTimeBucket(
+            System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24), DownSampling.Hour);
+        List<PredictServiceMetrics> predictServiceMetricsList = queryPredictMetrics(
+            Collections.singletonList(serviceMetrics), startTimeBucket, endTimeBucket);
+        if (CollectionUtils.isEmpty(predictServiceMetricsList)) {
+            return Collections.emptyMap();
+        }
+        for (String metricName : metrics) {
+            for (PredictServiceMetrics predictServiceMetrics : predictServiceMetricsList) {
+                List<PredictServiceMetrics.PredictMetricsValue> predictMetricsValues = predictServiceMetrics.getMetricsValues()
+                                                                                                            .get(
+                                                                                                                metricName);
+                if (CollectionUtils.isEmpty(predictMetricsValues)) {
+                    continue;
+                }
+                for (PredictServiceMetrics.PredictMetricsValue predictMetricsValue : predictMetricsValues) {
+                    if (predictMetricsValue == null) {
+                        continue;
+                    }
+                    this.baselineCache.asMap()
+                                      .computeIfAbsent(
+                                          predictMetricsValue.getTimeBucket() + Const.COMMA + serviceName,
+                                          k -> new HashMap<>()
+                                      )
+                                      .put(metricName, predictMetricsValue);
+                }
+            }
+        }
+        return this.baselineCache.asMap().getOrDefault(key, Collections.emptyMap());
     }
 
     private List<PredictServiceMetrics> queryPredictMetrics0(List<ServiceMetrics> serviceMetrics, long startTimeBucket, long endTimeBucket) {

@@ -1,0 +1,118 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+syntax = "proto3";
+package skywalking.baseline.v3;
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.apm.baseline.v3";
+
+service AlarmBaselineService {
+    // Query the supported metrics names.
+    rpc querySupportedMetricsNames(google.protobuf.Empty) returns (AlarmBaselineMetricsNames);
+    // Query the predicted metrics of the given service.
+    rpc queryPredictedMetrics(AlarmBaselineRequest) returns (AlarmBaselineResponse);
+}
+
+message AlarmBaselineMetricsNames {
+    repeated string metricNames = 1;
+}
+
+// The request of the predicted metrics query.
+message AlarmBaselineRequest {
+    // The request service metrics names.
+    repeated AlarmBaselineServiceMetricName serviceMetricNames = 1;
+    // The request start TimeBucket.
+    int64 startTimeBucket = 2;
+    // The request end TimeBucket.
+    int64 endTimeBucket = 3;
+    // The step of the TimeBucket.
+    TimeBucketStep step = 4;
+}
+
+enum TimeBucketStep {
+    HOUR = 0;
+}
+
+message AlarmBaselineServiceMetricName {
+    // The service name.
+    string serviceName = 1;
+    // The metrics names.
+    repeated string metricNames = 2;
+}
+
+// The response of the predicted metrics query.
+message AlarmBaselineResponse {
+    repeated AlarmBaselineServiceMetric serviceMetrics = 1;
+}
+
+message AlarmBaselineServiceMetric {
+    // The service name.
+    string serviceName = 1;
+    // The service metrics.
+    repeated AlarmBaselineMetricPrediction predictions = 2;
+}
+
+// The predicted metric.
+message AlarmBaselineMetricPrediction {
+    // The metric name.
+    string name = 1;
+    // The metric predicated values(timeBucket with predicted value).
+    repeated AlarmBaselinePredicatedValue values = 2;
+}
+
+// The predicted metric sample.
+message AlarmBaselinePredicatedValue {
+    int64 timeBucket = 1;
+    oneof value {
+        AlarmBaselineSingleValue singleValue = 2;
+        AlarmBaselineLabeledValue labeledValue = 3;
+    }
+}
+
+// The predicted value. The metric values provided within this baseline are at a minute-level granularity. For example, it includes metrics such as the number of visits per minute.
+message AlarmBaselineValue {
+    // The predicted value.
+    int64 value = 1;
+    // The upper value of the predicted range.
+    int64 upperValue = 2;
+    //  The lower value of the predicted range.
+    int64 lowerValue = 3;
+}
+
+// The predicted single value metric.
+message AlarmBaselineSingleValue {
+    AlarmBaselineValue value = 2;
+}
+
+// The predicted labeled value metric.
+message AlarmBaselineLabeledValue {
+    // label pairs with value.
+    message LabelWithValue {
+        repeated KeyStringValuePair labels = 1;
+        AlarmBaselineValue value = 2;
+    }
+    repeated LabelWithValue values = 1;
+}
+
+message KeyStringValuePair {
+    string key = 1;
+    string value = 2;
+}

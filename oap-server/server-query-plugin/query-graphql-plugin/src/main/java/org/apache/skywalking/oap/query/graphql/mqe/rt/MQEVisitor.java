@@ -73,7 +73,7 @@ public class MQEVisitor extends MQEVisitorBase {
     public MQEVisitor(final ModuleManager moduleManager,
                       final Entity entity,
                       final Duration duration) {
-        super(duration.getStep());
+        super(moduleManager, duration.getStep());
         this.moduleManager = moduleManager;
         this.entity = entity;
         this.duration = duration;
@@ -153,6 +153,18 @@ public class MQEVisitor extends MQEVisitorBase {
                         MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
                         int trendRange = Integer.parseInt(parent.INTEGER().getText());
                         queryMetrics(metricName, getTrendQueryDuration(trendRange), result);
+                    } else if (ctx.parent instanceof MQEParser.BaselineOPContext) {
+                        MQEParser.BaselineOPContext parent = (MQEParser.BaselineOPContext) ctx.parent;
+                        ArrayList<String> times = new ArrayList<>();
+                        for (PointOfTime pointOfTime : duration.assembleDurationPoints()) {
+                            times.add(Long.toString(pointOfTime.getPoint()));
+                        }
+                        List<MQEValues> valuesList = super.queryBaseline(
+                            entity.getServiceName(), metricName, times,
+                            parent.baseline_type().getStart().getType()
+                        );
+                        result.setResults(valuesList);
+                        result.setType(ExpressionResultType.TIME_SERIES_VALUES);
                     } else {
                         queryMetrics(metricName, this.duration, result);
                     }
@@ -166,6 +178,18 @@ public class MQEVisitor extends MQEVisitorBase {
                         MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
                         int trendRange = Integer.parseInt(parent.INTEGER().getText());
                         queryLabeledMetrics(metricName, queryLabels, getTrendQueryDuration(trendRange), result);
+                    } else if (ctx.parent instanceof MQEParser.BaselineOPContext) {
+                        MQEParser.BaselineOPContext parent = (MQEParser.BaselineOPContext) ctx.parent;
+                        ArrayList<String> times = new ArrayList<>();
+                        for (PointOfTime pointOfTime : duration.assembleDurationPoints()) {
+                            times.add(Long.toString(pointOfTime.getPoint()));
+                        }
+                        List<MQEValues> valuesList = super.queryLabeledBaseline(
+                            entity.getServiceName(), metricName, queryLabels, times, parent.baseline_type()
+                                                                                              .getStart()
+                                                                                              .getType());
+                        result.setResults(valuesList);
+                        result.setType(ExpressionResultType.TIME_SERIES_VALUES);
                     } else {
                         queryLabeledMetrics(metricName, queryLabels, this.duration, result);
                     }

@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
 import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
 import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVisitor;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
@@ -86,8 +87,9 @@ public class RunningRule {
     private final ParseTree exprTree;
     // The additional period is used to calculate the trend.
     private final int additionalPeriod;
+    private final ModuleManager moduleManager;
 
-    public RunningRule(AlarmRule alarmRule) {
+    public RunningRule(AlarmRule alarmRule, ModuleManager moduleManager) {
         expression = alarmRule.getExpression();
         this.ruleName = alarmRule.getAlarmRuleName();
         this.includeMetrics = alarmRule.getIncludeMetrics();
@@ -113,6 +115,7 @@ public class RunningRule {
         parser.addErrorListener(new ParseErrorListener());
         this.exprTree = parser.expression();
         this.additionalPeriod = alarmRule.getMaxTrendRange();
+        this.moduleManager = moduleManager;
     }
 
     /**
@@ -139,7 +142,7 @@ public class RunningRule {
         AlarmEntity entity = new AlarmEntity(
             meta.getScope(), meta.getScopeId(), meta.getName(), meta.getId0(), meta.getId1());
 
-        Window window = windows.computeIfAbsent(entity, ignored -> new Window(this.period, this.additionalPeriod));
+        Window window = windows.computeIfAbsent(entity, ignored -> new Window(entity, this.period, this.additionalPeriod));
         window.add(meta.getMetricsName(), metrics);
     }
 
@@ -247,8 +250,10 @@ public class RunningRule {
         private LinkedList<Map<String, Metrics>> values;
         private ReentrantLock lock = new ReentrantLock();
         private JsonObject mqeMetricsSnapshot;
+        private AlarmEntity entity;
 
-        public Window(int period, int additionalPeriod) {
+        public Window(AlarmEntity entity, int period, int additionalPeriod) {
+            this.entity = entity;
             this.additionalPeriod = additionalPeriod;
             this.size = period + additionalPeriod;
             // -1 means silence countdown is not running.
@@ -354,7 +359,7 @@ public class RunningRule {
             int isMatch = 0;
             try {
                 TRACE_CONTEXT.set(new DebuggingTraceContext(expression, false, false));
-                AlarmMQEVisitor visitor = new AlarmMQEVisitor(this.values, this.endTime, this.additionalPeriod);
+                AlarmMQEVisitor visitor = new AlarmMQEVisitor(moduleManager, this.entity, this.values, this.endTime, this.additionalPeriod);
                 ExpressionResult parseResult = visitor.visit(exprTree);
                 if (StringUtil.isNotBlank(parseResult.getError())) {
                     log.error("expression:" + expression + " error: " + parseResult.getError());

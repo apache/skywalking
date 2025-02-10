@@ -37,10 +37,13 @@ services:
     environment:
       SW_STORAGE: elasticsearch
       SW_SEARCHABLE_ALARM_TAG_KEYS: level,receivers
+      SW_BASELINE_SERVICE_HOST: baseline-server
     ports:
       - 12800
     depends_on:
       es:
+        condition: service_healthy
+      baseline-server:
         condition: service_healthy
     volumes:
       - ../alarm-settings.yml:/skywalking/config/alarm-settings.yml
@@ -54,6 +57,21 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+
+  baseline-server:
+    image: "eclipse-temurin:11-jre"
+    volumes:
+      - ../../../java-test-service/e2e-mock-baseline-server/target/e2e-mock-baseline-server-2.0.0.jar:/e2e-mock-baseline-server-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-baseline-server-2.0.0.jar" ]
+    networks:
+      - e2e
+    ports:
+      - 18080
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/18080"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
 
 networks:
   e2e:

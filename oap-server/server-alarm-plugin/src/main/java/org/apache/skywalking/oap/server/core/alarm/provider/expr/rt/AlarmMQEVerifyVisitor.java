@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * Used for verify the alarm expression and get the metrics name when read the alarm rules.
@@ -42,8 +43,8 @@ public class AlarmMQEVerifyVisitor extends MQEVisitorBase {
     private final Set<String> includeMetrics = new HashSet<>();
     private int maxTrendRange = 0;
 
-    public AlarmMQEVerifyVisitor() {
-        super(Step.MINUTE);
+    public AlarmMQEVerifyVisitor(final ModuleManager moduleManager) {
+        super(moduleManager, Step.MINUTE);
     }
 
     @Override

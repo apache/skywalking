@@ -432,7 +432,7 @@ then the expression result is:
 V(T1)-V(T1-2), V(T2)-V(T1-1), V(T3)-V(T1)
 ```
 
-**Note**:
+**Notice**
 * If the calculated metric value is empty, the result will be empty. Assume in the T3 point, the increase value = V(T3)-V(T1), If the metric V(T3) or V(T1) is empty, the result value in T3 will be empty.
 
 ### Result Type
@@ -493,6 +493,34 @@ metric{label1='b', label2='2a'}
 metric{label1='a', label2='2c'}
 metric{label1='a', label2='2a'}
 ```
+
+### Baseline Operation
+Baseline Operation takes an expression and gets the baseline predict values of the input metric.
+
+Expression:
+```text
+baseline(Expression, <baseline_type>)
+```
+
+- `baseline_type` is the type of the baseline predict value. The type can be `value`, `upper`, `lower`.
+
+for example:
+If we want to get the baseline predict `upper` values of the `service_resp_time` metric, we can use the following expression:
+```text
+baseline(service_resp_time, upper)
+```
+
+**Notice**:
+- This feature is required to enable the `baseline module` and deploy a baseline service. And the baseline service should implement the protocol of the [baseline.proto](../../../oap-server/metrics-baseline/src/main/proto/baseline.proto).
+Otherwise, the result will be empty.
+- The baseline operation is only supported by the metrics that support the baseline data, which defined in the baseline service.
+If the metric not supported or has no baseline data, the result will be empty.
+- For now, the time bucket step of the predict value is `HOUR`. 
+And the metric values provided within this baseline are at a minute-level granularity. 
+For example, it includes metrics such as the number of visits per minute. So if the query step is `MINUTE` and duration is in a same hour, the returned value will be same in every minute.
+
+### Result Type
+TIME_SERIES_VALUES.
 
 ## Expression Query Example
 ### Labeled Value Metrics
