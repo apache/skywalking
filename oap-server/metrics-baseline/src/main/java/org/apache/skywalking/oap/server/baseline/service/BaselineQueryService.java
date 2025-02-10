@@ -32,14 +32,14 @@ public interface BaselineQueryService extends Service {
     List<String> querySupportedMetrics();
 
     /**
-     * query predict metrics
+     * query predicted metrics
      */
     List<PredictServiceMetrics> queryPredictMetrics(List<ServiceMetrics> serviceMetrics,
                                                     long startTimeBucket,
                                                     long endTimeBucket);
 
     /**
-     * query predict metrics from cache, return all predict metrics for the given service name and time bucket hour
+     * query predicted metrics from cache, return all predicted metrics for the given service name and time bucket hour
      */
     Map<String, PredictServiceMetrics.PredictMetricsValue> queryPredictMetricsFromCache(String serviceName, String timeBucketHour);
 }

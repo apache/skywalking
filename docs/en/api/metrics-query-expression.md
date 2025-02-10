@@ -495,17 +495,17 @@ metric{label1='a', label2='2a'}
 ```
 
 ### Baseline Operation
-Baseline Operation takes an expression and gets the baseline predict values of the input metric.
+Baseline Operation takes an expression and gets the baseline predicted values of the input metric.
 
 Expression:
 ```text
 baseline(Expression, <baseline_type>)
 ```
 
-- `baseline_type` is the type of the baseline predict value. The type can be `value`, `upper`, `lower`.
+- `baseline_type` is the type of the baseline predicted value. The type can be `value`, `upper`, `lower`.
 
 for example:
-If we want to get the baseline predict `upper` values of the `service_resp_time` metric, we can use the following expression:
+If we want to get the baseline predicted `upper` values of the `service_resp_time` metric, we can use the following expression:
 ```text
 baseline(service_resp_time, upper)
 ```
@@ -515,7 +515,7 @@ baseline(service_resp_time, upper)
 Otherwise, the result will be empty.
 - The baseline operation is only supported by the metrics that support the baseline data, which defined in the baseline service.
 If the metric not supported or has no baseline data, the result will be empty.
-- For now, the time bucket step of the predict value is `HOUR`. 
+- For now, the time bucket step of the predicted value is `HOUR`. 
 And the metric values provided within this baseline are at a minute-level granularity. 
 For example, it includes metrics such as the number of visits per minute. So if the query step is `MINUTE` and duration is in a same hour, the returned value will be same in every minute.
 

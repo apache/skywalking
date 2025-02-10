@@ -78,7 +78,7 @@ public class SlackHookCallbackTest {
         setting2.setTextTemplate(template);
         rules.getSlackSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getSlackSettingsMap().put(setting2.getFormattedName(), setting2);
-        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         SlackhookCallback slackhookCallback = new SlackhookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();

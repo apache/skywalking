@@ -90,7 +90,7 @@ public class DingtalkHookCallbackTest {
         rules.getDingtalkSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getDingtalkSettingsMap().put(setting2.getFormattedName(), setting2);
 
-        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         DingtalkHookCallback dingtalkCallBack = new DingtalkHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
@@ -125,7 +125,7 @@ public class DingtalkHookCallbackTest {
         rules.getDingtalkSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getDingtalkSettingsMap().put(setting2.getFormattedName(), setting2);
 
-        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         DingtalkHookCallback dingtalkCallBack = new DingtalkHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();

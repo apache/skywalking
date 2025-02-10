@@ -618,7 +618,7 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
             case MQEParser.LOWER:
                 return predictSingleValue.getLowerValue();
             default:
-                throw new IllegalArgumentException("Unsupported predict value type: " + valueType);
+                throw new IllegalArgumentException("Unsupported predicted value type: " + valueType);
         }
     }
 

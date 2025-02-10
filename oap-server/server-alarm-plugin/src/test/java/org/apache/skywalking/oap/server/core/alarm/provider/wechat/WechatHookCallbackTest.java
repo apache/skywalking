@@ -79,7 +79,7 @@ public class WechatHookCallbackTest {
         setting2.setTextTemplate(template);
         rules.getWechatSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWechatSettingsMap().put(setting2.getFormattedName(), setting2);
-        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         WechatHookCallback wechatHookCallback = new WechatHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();

@@ -68,7 +68,7 @@ public class RunningRuleTest {
 
     @Test
     public void testInitAndStart() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("mix_rule");
         alarmRule.setExpression("sum((increase(endpoint_cpm,5) + increase(endpoint_percent,2)) > 0) >= 1");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -77,7 +77,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.getMillis());
@@ -99,7 +99,7 @@ public class RunningRuleTest {
 
     @Test
     public void testAlarm() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -108,7 +108,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
@@ -130,7 +130,7 @@ public class RunningRuleTest {
 
     @Test
     public void testAlarmMetricsOutOfDate() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -139,7 +139,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(153).getMillis());
@@ -160,7 +160,7 @@ public class RunningRuleTest {
     public void testLabeledAlarm() throws IllegalExpressionException {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
             "endpoint_labeled", "testColumn", Column.ValueDataType.LABELED_VALUE, 0, Scope.Endpoint.getScopeId());
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setExpression("sum(endpoint_labeled{p='95,99'} > 10) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_labeled");
         assertLabeled(alarmRule, "{p=50},17|{p=99},11", "{p=75},15|{p=95},12|{p=99},12", "{p=90},1|{p=99},20", 1);
@@ -181,7 +181,7 @@ public class RunningRuleTest {
     }
 
     private void multipleMetricsAlarm(String expression, int alarmMsgSize) throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression(expression);
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -191,7 +191,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
         long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
@@ -214,7 +214,7 @@ public class RunningRuleTest {
 
     @Test
     public void testNoAlarm() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent > 75) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -223,7 +223,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         final boolean[] isAlarm = {false};
         AlarmCallback assertCallback = new AlarmCallback() {
@@ -262,7 +262,7 @@ public class RunningRuleTest {
 
     @Test
     public void testSilence() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -271,7 +271,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
@@ -301,7 +301,7 @@ public class RunningRuleTest {
 
     @Test
     public void testExclude() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -311,7 +311,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
@@ -336,7 +336,7 @@ public class RunningRuleTest {
 
     @Test
     public void testIncludeNamesRegex() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 1000) >= 1");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -347,7 +347,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
@@ -372,7 +372,7 @@ public class RunningRuleTest {
 
     @Test
     public void testExcludeNamesRegex() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
+        AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 1000) >= 1");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
@@ -383,7 +383,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
@@ -583,7 +583,7 @@ public class RunningRuleTest {
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
-        RunningRule runningRule = new RunningRule(alarmRule);
+        RunningRule runningRule = new RunningRule(alarmRule, null);
 
         DateTime startTime = DateTime.now();
         long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
