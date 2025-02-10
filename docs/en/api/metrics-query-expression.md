@@ -515,8 +515,8 @@ baseline(service_resp_time, upper)
 Otherwise, the result will be empty.
 - The baseline operation requires the relative metrics declared through baseline service.
 Otherwise, the result will be empty, which means there is no baseline or predicated value.
-- For now, the time bucket step of the predicted value is `HOUR`. 
-And the metric values provided within this baseline are at a minute-level granularity. 
+- For now, the predictions aim to every hour.
+And the predicated values provided within this baseline are at a minute-level granularity. 
 For example, it includes metrics such as the number of visits per minute. So if the query step is `MINUTE` and duration is in a same hour, the returned value will be same in every minute.
 
 ### Result Type
