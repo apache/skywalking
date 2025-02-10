@@ -33,6 +33,7 @@
         <module>e2e-mock-sender</module>
         <module>e2e-protocol</module>
         <module>opentelemetry-proto</module>
+        <module>e2e-mock-baseline-server</module>
     </modules>
 
     <properties>
