@@ -51,7 +51,7 @@ public class RulesReaderTest {
     public void testReadRules() {
         RulesReader reader = new RulesReader(this.getClass()
                 .getClassLoader()
-                .getResourceAsStream("alarm-settings.yml"));
+                .getResourceAsStream("alarm-settings.yml"), null);
         Rules rules = reader.readRules();
 
         List<AlarmRule> ruleList = rules.getRules();

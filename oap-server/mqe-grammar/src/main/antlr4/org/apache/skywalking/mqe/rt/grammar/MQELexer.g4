@@ -98,6 +98,11 @@ ATTR3: 'attr3';
 ATTR4: 'attr4';
 ATTR5: 'attr5';
 
+BASELINE: 'baseline';
+VALUE: 'value';
+UPPER: 'upper';
+LOWER: 'lower';
+
 // Literals
 INTEGER: Digit+;
 DECIMAL: Digit+ DOT Digit+;

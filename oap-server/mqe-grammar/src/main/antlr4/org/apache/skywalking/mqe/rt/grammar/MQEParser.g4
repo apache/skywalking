@@ -40,6 +40,7 @@ expression
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
     | sort_values L_PAREN expression (COMMA INTEGER)? COMMA order R_PAREN #sortValuesOP
     | sort_label_values L_PAREN expression COMMA order COMMA labelNameList R_PAREN #sortLabelValuesOP
+    | baseline L_PAREN metric COMMA baseline_type R_PAREN #baselineOP
     ;
 
 expressionList
@@ -110,3 +111,6 @@ attributeName:
     ATTR0 | ATTR1 | ATTR2 | ATTR3 | ATTR4 | ATTR5;
 attribute: attributeName (EQ | NEQ) VALUE_STRING;
 attributeList: attribute (COMMA attribute)*;
+
+baseline: BASELINE;
+baseline_type: VALUE | UPPER | LOWER;

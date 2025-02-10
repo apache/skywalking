@@ -125,6 +125,21 @@ Currently, metrics from the **Service**, **Service Instance**, **Endpoint**, **S
 
 Submit an issue or a pull request if you want to support any other scopes in Alarm.
 
+### Use the Baseline Predicted Value to trigger the Alarm
+Since 10.2.0, SkyWalking supports using the baseline predicted value in the alarm rule expression. 
+The MQE expression can refer to [Baseline Operation](../../api/metrics-query-expression.md#baseline-operation).
+
+For example, the following rule will compare the service response time with the baseline predicted value in each time bucket, and
+when the service response time is higher than the baseline predicted value in 3 minutes of the last 10 minutes, the alarm will be triggered.
+
+```yaml
+rules:
+  service_resp_time_rule:
+    expression: sum(service_resp_time > baseline(service_resp_time, upper)) > 3
+    period: 10
+    message: Service {name} response time is higher than the baseline predicted value in 3 minutes of last 10 minutes.
+```
+
 ## Hooks
 Hooks are a way to send alarm messages to the outside world. SkyWalking supports multiple hooks of the same type, each hook can support different configurations. 
 For example, you can configure two Slack hooks, one named `default` and set `is-default: true` means this hook will apply on all `Alarm Rules` **without config** `hooks`.

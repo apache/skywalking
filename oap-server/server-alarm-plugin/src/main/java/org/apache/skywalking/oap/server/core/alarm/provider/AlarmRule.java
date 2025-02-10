@@ -25,6 +25,7 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.antlr.v4.runtime.CharStreams;
@@ -40,6 +41,7 @@ import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
 import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVerifyVisitor;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
@@ -47,7 +49,9 @@ import static org.apache.skywalking.oap.server.core.query.type.debugging.Debuggi
 @Data
 @ToString
 @EqualsAndHashCode
+@RequiredArgsConstructor
 public class AlarmRule {
+    private final ModuleManager moduleManager;
     private String alarmRuleName;
     private String expression;
     @Setter(AccessLevel.NONE)
@@ -80,7 +84,7 @@ public class AlarmRule {
         }
         try {
             TRACE_CONTEXT.set(new DebuggingTraceContext(expression, false, false));
-            AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor();
+            AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor(moduleManager);
             ExpressionResult parseResult = visitor.visit(tree);
             if (StringUtil.isNotBlank(parseResult.getError())) {
                 throw new IllegalExpressionException("Expression: " + expression + " error: " + parseResult.getError());

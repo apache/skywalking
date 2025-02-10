@@ -44,7 +44,7 @@ msgs:
       expression: sum(service_percentile{p='50,75,90,95,99'} > 10) >= 3
       metrics:
       {{- contains .snapshot.metrics }}
-      - name: service_percentile
+      - name: service_percentile{p='50,75,90,95,99'}
         results:
           {{- contains .results }}
           - metric:

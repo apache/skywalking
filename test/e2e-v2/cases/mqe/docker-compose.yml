@@ -22,6 +22,13 @@ services:
       service: oap
     volumes:
       - ./oal/core.oal:/skywalking/config/oal/core.oal
+    environment:
+      SW_BASELINE_SERVICE_HOST: baseline-server
+    depends_on:
+      banyandb:
+        condition: service_healthy
+      baseline-server:
+        condition: service_healthy
     ports:
       - 12800
     networks:
@@ -54,5 +61,19 @@ services:
       provider:
         condition: service_healthy
 
+  baseline-server:
+    image: "eclipse-temurin:11-jre"
+    volumes:
+      - ../../java-test-service/e2e-mock-baseline-server/target/e2e-mock-baseline-server-2.0.0.jar:/e2e-mock-baseline-server-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-baseline-server-2.0.0.jar" ]
+    networks:
+      - e2e
+    ports:
+      - 18080
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/18080"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
 networks:
   e2e:

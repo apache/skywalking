@@ -68,6 +68,7 @@
 * BaseLine: Support query baseline metrics names.
 * Add `Get Node List in the Cluster` API.
 * Add type descriptor when converting Envoy logs to JSON for persistence, to avoid conversion error.
+* Bseline: Support query baseline with MQE and use in the Alarm Rule.
 
 #### UI
 

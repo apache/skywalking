@@ -45,7 +45,7 @@ import static org.mockito.Mockito.spy;
 
 public class AlarmRulesWatcherTest {
     @Spy
-    private AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(new Rules(), null);
+    private AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(new Rules(), null, null);
 
     @BeforeEach
     public void setUp() {
@@ -80,9 +80,9 @@ public class AlarmRulesWatcherTest {
     @Test
     public void shouldClearAlarmRulesOnEventDeleted() throws IOException {
         Reader reader = ResourceUtils.read("alarm-settings.yml");
-        Rules defaultRules = new RulesReader(reader).readRules();
+        Rules defaultRules = new RulesReader(reader, null).readRules();
 
-        alarmRulesWatcher = spy(new AlarmRulesWatcher(defaultRules, null));
+        alarmRulesWatcher = spy(new AlarmRulesWatcher(defaultRules, null, null));
 
         alarmRulesWatcher.notify(new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
@@ -98,7 +98,7 @@ public class AlarmRulesWatcherTest {
         Rules rules = new Rules();
         rules.getRules().add(rule);
 
-        alarmRulesWatcher = spy(new AlarmRulesWatcher(rules, null));
+        alarmRulesWatcher = spy(new AlarmRulesWatcher(rules, null, null));
         assertEquals(1, alarmRulesWatcher.getRunningContext().size());
         assertEquals(1, alarmRulesWatcher.getRunningContext().get(rule.getExpression()).size());
 
@@ -122,7 +122,7 @@ public class AlarmRulesWatcherTest {
         Rules rules = new Rules();
         rules.getRules().add(rule);
 
-        alarmRulesWatcher = spy(new AlarmRulesWatcher(rules, null));
+        alarmRulesWatcher = spy(new AlarmRulesWatcher(rules, null, null));
         assertEquals(1, alarmRulesWatcher.getRunningContext().size());
         assertEquals(1, alarmRulesWatcher.getRunningContext().get(rule.getExpression()).size());
 
@@ -146,7 +146,7 @@ public class AlarmRulesWatcherTest {
         Rules rules = new Rules();
         rules.getRules().add(rule);
 
-        alarmRulesWatcher = spy(new AlarmRulesWatcher(rules, null));
+        alarmRulesWatcher = spy(new AlarmRulesWatcher(rules, null, null));
         assertEquals(1, alarmRulesWatcher.getRunningContext().size());
         assertEquals(1, alarmRulesWatcher.getRunningContext().get(rule.getExpression()).size());
 
@@ -167,7 +167,7 @@ public class AlarmRulesWatcherTest {
     }
 
     private AlarmRule newAlarmRule(String name, String expression) throws IllegalExpressionException {
-       AlarmRule alarmRule = new AlarmRule();
+       AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setAlarmRuleName(name);
         alarmRule.setIncludeNames(new ArrayList<String>() {
             {

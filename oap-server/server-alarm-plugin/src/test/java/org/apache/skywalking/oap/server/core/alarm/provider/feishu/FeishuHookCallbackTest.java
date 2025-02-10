@@ -88,7 +88,7 @@ public class FeishuHookCallbackTest {
         rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
-        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
@@ -123,7 +123,7 @@ public class FeishuHookCallbackTest {
         rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
-        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
@@ -158,7 +158,7 @@ public class FeishuHookCallbackTest {
         rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
-        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();

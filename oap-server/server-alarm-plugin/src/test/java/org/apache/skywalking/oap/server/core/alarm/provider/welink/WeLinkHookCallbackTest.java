@@ -89,7 +89,7 @@ public class WeLinkHookCallbackTest {
         rules.getWeLinkSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWeLinkSettingsMap().put(setting2.getFormattedName(), setting2);
 
-        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         WeLinkHookCallback welinkHookCallback = new WeLinkHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();

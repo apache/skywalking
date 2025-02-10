@@ -60,7 +60,7 @@ public class AlarmRuleTest {
 
     @Test
     public void testExpressionVerify() throws IllegalExpressionException {
-        AlarmRule rule = new AlarmRule();
+        AlarmRule rule = new AlarmRule(null);
         //normal common metric
         rule.setExpression("sum(service_percent < 85) >= 3");
         //normal labeled metric

@@ -50,7 +50,7 @@ public class PagerDutyHookCallbackTest {
         rules.getPagerDutySettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getPagerDutySettingsMap().put(setting2.getFormattedName(), setting2);
         PagerDutyHookCallback pagerDutyHookCallback = new PagerDutyHookCallback(
-            new AlarmRulesWatcher(rules, null)
+            new AlarmRulesWatcher(rules, null, null)
         );
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();

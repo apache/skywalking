@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.baseline.service;
 
+import java.util.Map;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 import java.util.List;
@@ -25,12 +26,20 @@ import java.util.List;
 public interface BaselineQueryService extends Service {
     /**
      * query supported query baseline metrics names
+     *
      * @return
      */
     List<String> querySupportedMetrics();
 
     /**
-     * query predict metrics
+     * query predicted metrics
      */
-    List<PredictServiceMetrics> queryPredictMetrics(List<ServiceMetrics> serviceMetrics, long startTimeBucket, long endTimeBucket);
+    List<PredictServiceMetrics> queryPredictMetrics(List<ServiceMetrics> serviceMetrics,
+                                                    long startTimeBucket,
+                                                    long endTimeBucket);
+
+    /**
+     * query predicted metrics from cache, return all predicted metrics for the given service name and time bucket hour
+     */
+    Map<String, PredictServiceMetrics.PredictMetricsValue> queryPredictMetricsFromCache(String serviceName, String timeBucketHour);
 }

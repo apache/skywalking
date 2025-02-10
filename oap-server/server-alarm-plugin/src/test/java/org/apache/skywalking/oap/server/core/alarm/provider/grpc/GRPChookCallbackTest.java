@@ -51,7 +51,7 @@ public class GRPChookCallbackTest {
         rules.getGrpcAlarmSettingMap().put(setting1.getFormattedName(), setting1);
         rules.getGrpcAlarmSettingMap().put(setting2.getFormattedName(), setting2);
 
-        alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         grpcCallback = new GRPCCallback(alarmRulesWatcher);
         mockAlarmMessage(setting1.getFormattedName(), setting2.getFormattedName());
     }
@@ -68,7 +68,7 @@ public class GRPChookCallbackTest {
         GRPCAlarmSetting setting2 = new GRPCAlarmSetting("setting2222222", AlarmHooksType.gRPC, true);
         rules.getGrpcAlarmSettingMap().put(setting1.getFormattedName(), setting1);
         rules.getGrpcAlarmSettingMap().put(setting2.getFormattedName(), setting2);
-        alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
+        alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         grpcCallback = new GRPCCallback(alarmRulesWatcher);
         grpcCallback.doAlarm(alarmMessageList);
     }

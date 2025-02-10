@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 
 /**
@@ -59,8 +60,9 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     private volatile String settingsString;
     private final ReentrantLock lock;
     private final AtomicBoolean notifiedByDynamicConfig;
+    private final ModuleManager moduleManager;
 
-    public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
+    public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider, ModuleManager moduleManager) {
         super(AlarmModule.NAME, provider, "alarm-settings");
         this.runningContext = new HashMap<>();
         this.alarmRuleRunningRuleMap = new HashMap<>();
@@ -68,6 +70,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         this.settingsString = null;
         this.lock = new ReentrantLock();
         this.notifiedByDynamicConfig = new AtomicBoolean(false);
+        this.moduleManager = moduleManager;
         notify(defaultRules);
     }
 
@@ -80,7 +83,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
                 notify(new Rules());
             } else {
                 settingsString = value.getNewValue();
-                RulesReader rulesReader = new RulesReader(new StringReader(value.getNewValue()));
+                RulesReader rulesReader = new RulesReader(new StringReader(value.getNewValue()), moduleManager);
                 Rules rules = rulesReader.readRules();
                 notify(rules);
             }
@@ -115,7 +118,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
              * If there is already an alarm rule that is the same as the new one, we'll reuse its
              * corresponding runningRule, to keep its history metrics
              */
-            RunningRule runningRule = alarmRuleRunningRuleMap.getOrDefault(rule, new RunningRule(rule));
+            RunningRule runningRule = alarmRuleRunningRuleMap.getOrDefault(rule, new RunningRule(rule, moduleManager));
 
             newAlarmRuleRunningRuleMap.put(rule, runningRule);
 
