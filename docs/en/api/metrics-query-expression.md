@@ -514,7 +514,7 @@ baseline(service_resp_time, upper)
 - This feature is required to enable the `baseline module` and deploy a baseline service. And the baseline service should implement the protocol of the [baseline.proto](../../../oap-server/metrics-baseline/src/main/proto/baseline.proto).
 Otherwise, the result will be empty.
 - The baseline operation requires the relative metrics declared through baseline service.
-If the metric not supported or has no baseline data, the result will be empty.
+Otherwise, the result will be empty, which means there is no baseline or predicated value.
 - For now, the time bucket step of the predicted value is `HOUR`. 
 And the metric values provided within this baseline are at a minute-level granularity. 
 For example, it includes metrics such as the number of visits per minute. So if the query step is `MINUTE` and duration is in a same hour, the returned value will be same in every minute.
