@@ -1,0 +1,140 @@
+# Get Alarm Runtime Status
+
+OAP calculate the alarm condition in the memory based on the alarm rules and the metrics data. 
+The following API is used to get the running rules/contexts of the alarm calculation.
+
+## Get Alarm Running Rules
+
+Return the list of alarm running rules.
+
+- URL, `http://{core restHost}:{core restPort}/status/alarm/rules`
+- HTTP GET method.
+
+```json
+{
+  "ruleNames": [
+    "service_percentile_rule",
+    "service_resp_time_rule"
+  ]
+}
+```
+
+## Get Alarm Running Rule Info
+
+Return the detailed information of the alarm running rule.
+
+- URL, `http://{core restHost}:{core restPort}/status/alarm/rules/{ruleName}`
+- HTTP GET method.
+
+```json
+{
+  "ruleName": "service_resp_time_rule",
+  "expression": "sum(service_resp_time > baseline(service_resp_time,upper)) >= 1",
+  "period": 10,
+  "silentPeriod": 10,
+  "additonalPeriod": 0,
+  "includeNames": [
+    "mock_a_service",
+    "mock_b_service",
+    "mock_c_service"
+  ],
+  "excludeNames": [],
+  "includeNamesRegex": "",
+  "excludeNamesRegex": "",
+  "affectedEntities": [],
+  "tags": [
+    {
+      "key": "level",
+      "value": "WARNING"
+    }
+  ],
+  "hooks": [
+    "webhook.default",
+    "wechat.default"
+  ],
+  "includeMetrics": [
+    "service_resp_time"
+  ],
+  "messageFormatter": [
+    [
+      "Response time of service ",
+      " is more than upper baseline in 1 minutes of last 10 minutes."
+    ],
+    [
+      "NAME"
+    ]
+  ]
+}
+```
+
+## Get Alarm Running Context
+
+Return the running context of the alarm rule.
+
+- URL, `http://{core restHost}:{core restPort}/status/alarm/{ruleName}/{entityName}`
+- HTTP GET method.
+
+```json
+{
+  "expression": "sum(service_resp_time > baseline(service_resp_time,upper)) >= 1",
+  "endTime": "2025-02-12T14:39:00.000",
+  "additionalPeriod": 0,
+  "size": 10,
+  "silenceCountdown": 10,
+  "windowValues": [
+    {
+      "index": 0,
+      "metrics": []
+    },
+    {
+      "index": 1,
+      "metrics": []
+    },
+    {
+      "index": 2,
+      "metrics": []
+    },
+    {
+      "index": 3,
+      "metrics": []
+    },
+    {
+      "index": 4,
+      "metrics": []
+    },
+    {
+      "index": 5,
+      "metrics": []
+    },
+    {
+      "index": 6,
+      "metrics": []
+    },
+    {
+      "index": 7,
+      "metrics": [
+        {
+          "timeBucket": 202502121437,
+          "name": "service_resp_time",
+          "value": "6000"
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "metrics": []
+    },
+    {
+      "index": 9,
+      "metrics": []
+    }
+  ],
+  "mqeMetricsSnapshot": {
+    "service_resp_time": "[{\"metric\":{\"labels\":[]},\"values\":[{\"id\":\"202502121430\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121431\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121432\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121433\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121434\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121435\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121436\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121437\",\"doubleValue\":6000.0,\"isEmptyValue\":false},{\"id\":\"202502121438\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121439\",\"doubleValue\":0.0,\"isEmptyValue\":true}]}]",
+    "baseline(service_resp_time,upper)": "[{\"metric\":{\"labels\":[]},\"values\":[{\"id\":\"202502121430\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121431\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121432\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121433\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121434\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121435\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121436\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121437\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121438\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121439\",\"doubleValue\":10.0,\"isEmptyValue\":false}]}]"
+  }
+}
+```
+
+`windowValues` is the original metrics data. The `index` is the index of the window, starting from 0.
+`mqeMetricsSnapshot` is the metrics data in the MQE format. When checking conditions, these data will be calculated according to the expression.

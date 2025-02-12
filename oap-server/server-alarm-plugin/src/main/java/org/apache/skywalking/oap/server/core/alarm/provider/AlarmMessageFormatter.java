@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 
 /**
  * This is a formatter especially for alarm message.
@@ -28,6 +29,7 @@ import java.util.List;
  * <p>
  * - Successful rate of endpoint {name} is lower than 75%
  */
+@Getter
 public class AlarmMessageFormatter {
     private List<String> formatSegments;
     private List<ValueFrom> valueFroms;
@@ -88,7 +90,7 @@ public class AlarmMessageFormatter {
         return message.toString();
     }
 
-    private enum ValueFrom {
+    public enum ValueFrom {
         ID, NAME
     }
 }

@@ -11,6 +11,7 @@ logs and self-observability solutions.
 - [Tracing Query Execution APIs](../debugging/query-tracing.md)
 - [Get Effective TTL Configurations API](query_ttl_setup.md)
 - [Query Cluster Nodes API](query_cluster_nodes.md)
+- [Get Alarm Runtime Status API](query_alarm_runtime_status.md)
 
 If you have a proposal about new status API, please don't hesitate
 to [create a discussion](https://github.com/apache/skywalking/discussions/new?category=ideas).
