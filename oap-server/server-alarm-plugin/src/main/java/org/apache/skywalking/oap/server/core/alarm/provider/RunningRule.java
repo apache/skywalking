@@ -29,8 +29,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +70,7 @@ import static org.apache.skywalking.oap.server.core.query.type.debugging.Debuggi
  * RunningRule represents each rule in running status. Based on the {@link AlarmRule} definition,
  */
 @Slf4j
+@Getter
 public class RunningRule {
     private static DateTimeFormatter TIME_BUCKET_FORMATTER = DateTimeFormat.forPattern("yyyyMMddHHmm");
 
@@ -243,12 +246,17 @@ public class RunningRule {
      * buckets.
      */
     public class Window {
+        @Getter
         private LocalDateTime endTime;
+        @Getter
         private final int additionalPeriod;
+        @Getter
         private final int size;
+        @Getter
         private int silenceCountdown;
         private LinkedList<Map<String, Metrics>> values;
         private ReentrantLock lock = new ReentrantLock();
+        @Getter
         private JsonObject mqeMetricsSnapshot;
         private AlarmEntity entity;
 
@@ -356,6 +364,7 @@ public class RunningRule {
         }
 
         private boolean isMatch() {
+            this.lock.lock();
             int isMatch = 0;
             try {
                 TRACE_CONTEXT.set(new DebuggingTraceContext(expression, false, false));
@@ -407,6 +416,7 @@ public class RunningRule {
                 this.mqeMetricsSnapshot = visitor.getMqeMetricsSnapshot();
                 return isMatch == 1;
             } finally {
+                this.lock.unlock();
                 TRACE_CONTEXT.remove();
             }
         }
@@ -420,6 +430,15 @@ public class RunningRule {
                 }
             }
             return true;
+        }
+
+        public void scanWindowValues(Consumer<LinkedList<Map<String, Metrics>>> scanFunction) {
+            lock.lock();
+            try {
+                scanFunction.accept(values);
+            } finally {
+                lock.unlock();
+            }
         }
 
         private void init() {

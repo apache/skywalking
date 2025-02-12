@@ -346,6 +346,8 @@ catalog:
                 path: "/en/status/query_ttl_setup"
               - name: "Get Node List in the Cluster"
                 path: "/en/status/query_cluster_nodes"
+              - name: "Get Alarm Runtime Status"
+                path: "/en/status/query_alarm_runtime_status"
   - name: "Customization"
     catalog:
       - name: "Overview"
