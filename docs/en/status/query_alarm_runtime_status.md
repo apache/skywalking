@@ -1,7 +1,7 @@
 # Get Alarm Runtime Status
 
-OAP calculate the alarm condition in the memory based on the alarm rules and the metrics data. 
-The following API is used to get the running rules/contexts of the alarm calculation.
+OAP calculates the alarm conditions in the memory based on the alarm rules and the metrics data.
+The following APIs are exposed to make the alerting running kernel visible.
 
 ## Get Alarm Running Rules
 
@@ -41,7 +41,20 @@ Return the detailed information of the alarm running rule.
   "excludeNames": [],
   "includeNamesRegex": "",
   "excludeNamesRegex": "",
-  "affectedEntities": [],
+  "affectedEntities": [
+    {
+      "scope": "SERVICE",
+      "name": "mock_b_service"
+    },
+    {
+      "scope": "SERVICE",
+      "name": "mock_a_service"
+    },
+    {
+      "scope": "SERVICE",
+      "name": "mock_c_service"
+    }
+  ],
   "tags": [
     {
       "key": "level",
@@ -66,6 +79,11 @@ Return the detailed information of the alarm running rule.
   ]
 }
 ```
+
+- `additonalPeriod` is the additional period if the expression includes the [increase/rate function](../api/metrics-query-expression.md#trend-operation).
+This additional period is used to enlarge window size for calculating the trend value.
+- `affectedEntities` is the entities that have metrics data and being calculated by the alarm rule.
+- `messageFormatter` is the message template for the alarm message. The `NAME` will be replaced by the entity name.
 
 ## Get Alarm Running Context
 
@@ -135,6 +153,7 @@ Return the running context of the alarm rule.
   }
 }
 ```
-
+`size` is the window size. Equal to the `period + additionalPeriod`.
+`silenceCountdown` is the countdown of the silence period. -1 means silence countdown is not running.
 `windowValues` is the original metrics data. The `index` is the index of the window, starting from 0.
 `mqeMetricsSnapshot` is the metrics data in the MQE format. When checking conditions, these data will be calculated according to the expression.
