@@ -1,7 +1,7 @@
 # Get Alarm Runtime Status
 
-OAP calculate the alarm condition in the memory based on the alarm rules and the metrics data. 
-The following API is used to get the running rules/contexts of the alarm calculation.
+OAP calculates the alarm conditions in the memory based on the alarm rules and the metrics data. 
+The following APIs are exposed to make the alerting running kernel visible.
 
 ## Get Alarm Running Rules
 
