@@ -69,6 +69,7 @@
 * Add `Get Node List in the Cluster` API.
 * Add type descriptor when converting Envoy logs to JSON for persistence, to avoid conversion error.
 * Bseline: Support query baseline with MQE and use in the Alarm Rule.
+* Bump up netty to 4.11.118 to fix CVE-2025-24970.
 
 #### UI
 
