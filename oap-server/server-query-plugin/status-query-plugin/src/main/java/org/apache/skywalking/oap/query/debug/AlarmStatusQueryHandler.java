@@ -99,11 +99,15 @@ public class AlarmStatusQueryHandler {
 
         JsonArray affectedEntities = new JsonArray();
         runningRuleInfo.add("affectedEntities", affectedEntities);
+        JsonArray msgFormatter = new JsonArray();
         rule.getWindows().keySet().forEach(e -> {
             JsonObject entity = new JsonObject();
             entity.addProperty("scope", e.getScope());
             entity.addProperty("name", e.getName());
             affectedEntities.add(entity);
+            JsonObject msg = new JsonObject();
+            msg.addProperty(e.getName(), rule.getFormatter().format(e));
+            msgFormatter.add(msg);
         });
 
         JsonArray tagList = new JsonArray();
@@ -123,14 +127,7 @@ public class AlarmStatusQueryHandler {
         runningRuleInfo.add("includeMetrics", includeMetricList);
         rule.getIncludeMetrics().forEach(includeMetricList::add);
 
-        JsonArray msgFormatter = new JsonArray();
-        runningRuleInfo.add("messageFormatter", msgFormatter);
-        JsonArray formatSegments = new JsonArray();
-        msgFormatter.add(formatSegments);
-        rule.getFormatter().getFormatSegments().forEach(formatSegments::add);
-        JsonArray valueFroms = new JsonArray();
-        msgFormatter.add(valueFroms);
-        rule.getFormatter().getValueFroms().forEach(valueFrom -> valueFroms.add(valueFrom.name()));
+        runningRuleInfo.add("formattedMessages", msgFormatter);
 
         return HttpResponse.of(MediaType.JSON_UTF_8, runningRuleInfo.toString());
     }

@@ -68,14 +68,16 @@ Return the detailed information of the alarm running rule.
   "includeMetrics": [
     "service_resp_time"
   ],
-  "messageFormatter": [
-    [
-      "Response time of service ",
-      " is more than upper baseline in 1 minutes of last 10 minutes."
-    ],
-    [
-      "NAME"
-    ]
+  "formattedMessages": [
+    {
+      "mock_b_service": "Response time of service mock_b_service is more than upper baseline in 1 minutes of last 10 minutes."
+    },
+    {
+      "mock_a_service": "Response time of service mock_a_service is more than upper baseline in 1 minutes of last 10 minutes."
+    },
+    {
+      "mock_c_service": "Response time of service mock_c_service is more than upper baseline in 1 minutes of last 10 minutes."
+    }
   ]
 }
 ```
@@ -83,7 +85,7 @@ Return the detailed information of the alarm running rule.
 - `additonalPeriod` is the additional period if the expression includes the [increase/rate function](../api/metrics-query-expression.md#trend-operation).
 This additional period is used to enlarge window size for calculating the trend value.
 - `affectedEntities` is the entities that have metrics data and being calculated by the alarm rule.
-- `messageFormatter` is the message template for the alarm message. The `NAME` will be replaced by the entity name.
+- `formattedMessages` is the result message according to the message template and the affected entities.
 
 ## Get Alarm Running Context
 
@@ -95,7 +97,7 @@ Return the running context of the alarm rule.
 ```json
 {
   "expression": "sum(service_resp_time > baseline(service_resp_time,upper)) >= 1",
-  "endTime": "2025-02-12T14:39:00.000",
+  "endTime": "2025-02-12T13:39:00.000",
   "additionalPeriod": 0,
   "size": 10,
   "silenceCountdown": 10,
