@@ -17,6 +17,9 @@
     },
     {
       "pattern": "^http://people.apache.org/committer-index.html"
+    },
+    {
+      "pattern": "^http://www.gnu.org/software/libc/documentation.html"
     }
   ],
   "timeout": "10s",
