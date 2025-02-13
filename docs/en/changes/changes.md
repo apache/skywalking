@@ -110,6 +110,7 @@
 * Add Circuit Breaking mechanism doc.
 * Add `Get Node List in the Cluster` API doc.
 * Remove `meter.md` doc, because `mal.md` has covered all the content.
+* Merge `browser-http-api-protocol.md` doc into `browser-protocol.md`.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/224?closed=1)
