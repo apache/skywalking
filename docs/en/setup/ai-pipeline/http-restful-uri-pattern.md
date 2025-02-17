@@ -11,6 +11,19 @@ In this pipeline, OAP has the capabilities to cache the URI candidates with occu
 and push the data to 3rd party for further analysis. Then OAP would pull the analyzed results for
 processing the further telemetry traffic.
 
+## Make sure the `ai-pipeline` module activated.
+
+The ai-pipeline module is activated by default for the latest release. Make sure you have these configurations when upgrade
+from a previous version.
+
+```yaml
+ai-pipeline:
+  selector: ${SW_AI_PIPELINE:default}
+  default:
+    uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:}
+    uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}
+```
+
 ## Set up OAP to connect remote URI recognition server
 `uriRecognitionServerAddr` and `uriRecognitionServerPort` are the configurations to set up the remote URI recognition server.
 
