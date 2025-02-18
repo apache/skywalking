@@ -40,9 +40,9 @@ import org.apache.skywalking.mqe.rt.operation.SortLabelValuesOp;
 import org.apache.skywalking.mqe.rt.operation.SortValuesOp;
 import org.apache.skywalking.mqe.rt.operation.TopNOfOp;
 import org.apache.skywalking.mqe.rt.operation.TrendOp;
-import org.apache.skywalking.oap.server.baseline.BaselineModule;
-import org.apache.skywalking.oap.server.baseline.service.BaselineQueryService;
-import org.apache.skywalking.oap.server.baseline.service.PredictServiceMetrics;
+import org.apache.skywalking.oap.server.ai.pipeline.AIPipelineModule;
+import org.apache.skywalking.oap.server.ai.pipeline.services.BaselineQueryService;
+import org.apache.skywalking.oap.server.ai.pipeline.services.PredictServiceMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
@@ -87,7 +87,7 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
 
     private BaselineQueryService getBaselineQueryService() {
         if (baselineQueryService == null) {
-            this.baselineQueryService = moduleManager.find(BaselineModule.NAME)
+            this.baselineQueryService = moduleManager.find(AIPipelineModule.NAME)
                                                     .provider()
                                                     .getService(BaselineQueryService.class);
         }

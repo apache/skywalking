@@ -16,16 +16,40 @@
  *
  */
 
-package org.apache.skywalking.oap.server.baseline.service;
+package org.apache.skywalking.oap.server.ai.pipeline.services;
 
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
-public class ServiceMetrics {
+public class PredictServiceMetrics {
     private String serviceName;
-    private List<String> metricsNames;
+    private Map<String, List<PredictMetricsValue>> metricsValues;
+
+    @Data
+    @Builder
+    public static class PredictMetricsValue {
+        private long timeBucket;
+        private PredictSingleValue singleValue;
+        private List<PredictLabelValue> labeledValue;
+    }
+
+    @Data
+    @Builder
+    public static class PredictSingleValue {
+        private long value;
+        private long upperValue;
+        private long lowerValue;
+    }
+
+    @Data
+    @Builder
+    public static class PredictLabelValue {
+        private Map<String, String> labels;
+        private PredictSingleValue value;
+    }
 }

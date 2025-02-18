@@ -16,17 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.baseline;
+package org.apache.skywalking.oap.server.core.config.group.ai;
 
 import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.RequiredArgsConstructor;
 
-public class BaselineModuleConfig extends ModuleConfig {
-    @Setter
-    @Getter
-    private String serviceHost = "";
-    @Setter
-    @Getter
-    private int servicePort = 0;
+@RequiredArgsConstructor
+@Getter
+public class HttpUriPattern {
+    /**
+     * Quick match URI pattern. {var} represents a variable part in the URI.
+     *
+     * /product/{var} is the pattern for /product/1, /product/2
+     */
+    private final String pattern;
 }

@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>metrics-baseline</artifactId>
+            <artifactId>ai-pipeline</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

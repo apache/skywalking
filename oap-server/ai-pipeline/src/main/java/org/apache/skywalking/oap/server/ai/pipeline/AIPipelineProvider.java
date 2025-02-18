@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.ai.pipeline;
 
+import org.apache.skywalking.oap.server.ai.pipeline.services.BaselineQueryService;
+import org.apache.skywalking.oap.server.ai.pipeline.services.BaselineQueryServiceImpl;
 import org.apache.skywalking.oap.server.ai.pipeline.services.HttpUriRecognitionService;
-import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -56,25 +59,31 @@ public class AIPipelineProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        final HttpUriRecognitionService httpUriRecognitionService = new HttpUriRecognitionService(
-            aiPipelineConfig.getUriRecognitionServerAddr(),
-            aiPipelineConfig.getUriRecognitionServerPort()
-        );
-        this.registerServiceImplementation(HttpUriRecognition.class, httpUriRecognitionService);
+        this.registerServiceImplementation(BaselineQueryService.class, new BaselineQueryServiceImpl(
+            aiPipelineConfig.getBaselineServerAddr(),
+            aiPipelineConfig.getBaselineServerPort()
+        ));
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-
+        final HttpUriRecognitionService httpUriRecognitionService = new HttpUriRecognitionService(
+            aiPipelineConfig.getUriRecognitionServerAddr(),
+            aiPipelineConfig.getUriRecognitionServerPort()
+        );
+        getManager().find(CoreModule.NAME).provider()
+            .getService(EndpointNameGroupService.class)
+            .startHttpUriRecognitionSvr(httpUriRecognitionService);
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-
     }
 
     @Override
     public String[] requiredModules() {
-        return new String[0];
+        return new String[] {
+            CoreModule.NAME
+        };
     }
 }

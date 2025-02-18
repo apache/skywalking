@@ -16,17 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.ai.pipeline.services.api;
+package org.apache.skywalking.oap.server.core.config.group.ai;
 
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
  * HttpUriRecognition is a service to recognize the patterns of HTTP URIs
  */
-public interface HttpUriRecognition extends Service {
+public interface HttpUriRecognition {
 
     /**
      * @return true if the service is initialized and active.

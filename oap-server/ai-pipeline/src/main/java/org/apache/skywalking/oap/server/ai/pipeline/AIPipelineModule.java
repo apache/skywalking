@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.ai.pipeline;
 
-import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
+import org.apache.skywalking.oap.server.ai.pipeline.services.BaselineQueryService;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 public class AIPipelineModule extends ModuleDefine {
@@ -30,8 +30,6 @@ public class AIPipelineModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[]{
-            HttpUriRecognition.class
-        };
+        return new Class[]{BaselineQueryService.class};
     }
 }

@@ -16,18 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.ai.pipeline.services.api;
+package org.apache.skywalking.oap.server.ai.pipeline.services;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
-@RequiredArgsConstructor
-@Getter
-public class HttpUriPattern {
-    /**
-     * Quick match URI pattern. {var} represents a variable part in the URI.
-     *
-     * /product/{var} is the pattern for /product/1, /product/2
-     */
-    private final String pattern;
+import java.util.List;
+
+@Data
+@Builder
+public class ServiceMetrics {
+    private String serviceName;
+    private List<String> metricsNames;
 }

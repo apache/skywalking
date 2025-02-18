@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.baseline.service;
+package org.apache.skywalking.oap.server.ai.pipeline.services;
 
 import java.util.Map;
 import org.apache.skywalking.oap.server.library.module.Service;

@@ -16,17 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.server.baseline;
-
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.util.MutableHandlerRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.baseline.service.BaselineQueryServiceImpl;
-import org.apache.skywalking.oap.server.baseline.service.PredictServiceMetrics;
-import org.apache.skywalking.oap.server.baseline.service.ServiceMetrics;
+import org.apache.skywalking.oap.server.ai.pipeline.services.BaselineQueryServiceImpl;
+import org.apache.skywalking.oap.server.ai.pipeline.services.PredictServiceMetrics;
+import org.apache.skywalking.oap.server.ai.pipeline.services.ServiceMetrics;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.junit.jupiter.api.AfterEach;
