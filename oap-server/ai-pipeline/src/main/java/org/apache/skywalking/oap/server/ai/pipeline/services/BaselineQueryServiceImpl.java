@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.baseline.service;
+package org.apache.skywalking.oap.server.ai.pipeline.services;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

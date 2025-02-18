@@ -16,19 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.baseline;
-
 import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import lombok.Builder;
 import lombok.Data;
-import org.apache.skywalking.apm.baseline.v3.AlarmBaselineMetricsNames;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.apm.baseline.v3.AlarmBaselineServiceGrpc;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineLabeledValue;
+import org.apache.skywalking.apm.baseline.v3.AlarmBaselineMetricsNames;
+import org.apache.skywalking.apm.baseline.v3.AlarmBaselineServiceGrpc;
 import org.apache.skywalking.apm.baseline.v3.AlarmBaselineValue;
 import org.apache.skywalking.apm.baseline.v3.KeyStringValuePair;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 
 import java.util.ArrayList;
 import java.util.Calendar;

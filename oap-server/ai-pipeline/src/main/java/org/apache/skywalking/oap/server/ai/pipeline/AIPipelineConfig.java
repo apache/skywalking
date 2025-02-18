@@ -27,4 +27,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class AIPipelineConfig extends ModuleConfig {
     private String uriRecognitionServerAddr;
     private int uriRecognitionServerPort = 17128;
+    private String baselineServerAddr;
+    private int baselineServerPort = 18080;
 }
