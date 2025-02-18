@@ -59,16 +59,16 @@ browser_app_page_first_pack_percentile = from(BrowserAppPagePerf.firstPackTime).
 browser_app_page_fmp_percentile = from(BrowserAppPagePerf.fmpTime).percentile2(10);
 
 // Since the web vitals and resource can be load from cache or cross-origin, so the metrics should ignore when the value is 0
-browser_app_resource_duration_avg = from(BrowserAppResourcePerf.*).filter(duration > 0).labelAvg(name, duration);
-browser_app_resource_size_avg = from(BrowserAppResourcePerf.*).filter(size > 0).labelAvg(name, size);
+browser_app_resource_duration_avg = from(BrowserAppResourcePerf.*).labelAvg(name, duration);
+browser_app_resource_size_avg = from(BrowserAppResourcePerf.*).labelAvg(name, size);
 browser_app_resource_protocol_count = from(BrowserAppResourcePerf.*).labelCount(protocol);
 browser_app_resource_type_count = from(BrowserAppResourcePerf.*).labelCount(type);
 
-browser_app_web_vitals_fmp_avg = from(BrowserAppWebVitalsPerf.fmpTime).filter(fmpTime > 0).longAvg();
-browser_app_web_vitals_cls_avg = from(BrowserAppWebVitalsPerf.clsTime).filter(clsTime > 0).longAvg();
-browser_app_web_vitals_lcp_avg = from(BrowserAppWebVitalsPerf.lcpTime).filter(lcpTime > 0).longAvg();
+browser_app_web_vitals_fmp_avg = from(BrowserAppWebVitalsPerf.fmpTime).filter(fmpTime >= 0).longAvg();
+browser_app_web_vitals_cls_avg = from(BrowserAppWebVitalsPerf.clsTime).filter(clsTime >= 0).longAvg();
+browser_app_web_vitals_lcp_avg = from(BrowserAppWebVitalsPerf.lcpTime).filter(lcpTime >= 0).longAvg();
 
-browser_app_web_interaction_inp_percentile = from(BrowserAppWebInteractionPerf.inpTime).percentile2(10);
+browser_app_web_interaction_inp_percentile = from(BrowserAppWebInteractionPerf.inpTime).filter(inpTime >= 0).percentile2(10);
 
 // Disable unnecessary hard core stream, targeting @Stream#name
 /////////
