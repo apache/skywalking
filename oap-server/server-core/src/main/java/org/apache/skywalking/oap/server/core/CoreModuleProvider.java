@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import org.apache.skywalking.oap.server.ai.pipeline.AIPipelineModule;
-import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
@@ -48,6 +46,7 @@ import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointNameGroupingRule4OpenapiWatcher;
@@ -190,6 +189,7 @@ public class CoreModuleProvider extends ModuleProvider {
             endpointNameGrouping
         );
         this.registerServiceImplementation(NamingControl.class, namingControl);
+        this.registerServiceImplementation(EndpointNameGroupService.class, endpointNameGrouping);
         MeterEntity.setNamingControl(namingControl);
         try {
             endpointNameGroupingRuleWatcher = new EndpointNameGroupingRuleWatcher(
@@ -396,11 +396,7 @@ public class CoreModuleProvider extends ModuleProvider {
         grpcServer.addHandler(new HealthCheckServiceHandler());
         grpcServer.addInterceptor(WatermarkGRPCInterceptor.INSTANCE);
 
-        endpointNameGrouping.startHttpUriRecognitionSvr(
-            getManager()
-                .find(AIPipelineModule.NAME)
-                .provider()
-                .getService(HttpUriRecognition.class),
+        endpointNameGrouping.prepareForHTTPUrlRecognition(
             getService(MetadataQueryService.class),
             moduleConfig.getSyncPeriodHttpUriRecognitionPattern(),
             moduleConfig.getTrainingPeriodHttpUriRecognitionPattern(),
@@ -490,7 +486,6 @@ public class CoreModuleProvider extends ModuleProvider {
         return new String[] {
             TelemetryModule.NAME,
             ConfigurationModule.NAME,
-            AIPipelineModule.NAME
         };
     }
 }

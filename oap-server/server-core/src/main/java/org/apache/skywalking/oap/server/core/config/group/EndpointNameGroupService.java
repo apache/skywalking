@@ -16,21 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.server.baseline;
+package org.apache.skywalking.oap.server.core.config.group;
 
-import org.apache.skywalking.oap.server.baseline.service.BaselineQueryService;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.core.config.group.ai.HttpUriRecognition;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-public class BaselineModule extends ModuleDefine {
-    public static final String NAME = "baseline";
-
-    public BaselineModule() {
-        super(NAME);
-    }
-
-    @Override
-    public Class[] services() {
-        return new Class[]{BaselineQueryService.class};
-    }
-
+public interface EndpointNameGroupService extends Service {
+    /**
+     * Start the HTTP URL Recognition service to group endpoint name
+     */
+    void startHttpUriRecognitionSvr(final HttpUriRecognition httpUriRecognitionSvr);
 }

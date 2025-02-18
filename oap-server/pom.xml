@@ -49,7 +49,6 @@
         <module>ai-pipeline</module>
         <module>mqe-grammar</module>
         <module>mqe-rt</module>
-        <module>metrics-baseline</module>
     </modules>
 
     <profiles>

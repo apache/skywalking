@@ -28,8 +28,8 @@ import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionReque
 import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionResponse;
 import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionServiceGrpc;
 import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionSyncRequest;
-import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
-import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
+import org.apache.skywalking.oap.server.core.config.group.ai.HttpUriPattern;
+import org.apache.skywalking.oap.server.core.config.group.ai.HttpUriRecognition;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
