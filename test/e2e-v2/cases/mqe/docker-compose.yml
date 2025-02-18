@@ -23,7 +23,7 @@ services:
     volumes:
       - ./oal/core.oal:/skywalking/config/oal/core.oal
     environment:
-      SW_BASELINE_SERVICE_HOST: baseline-server
+      SW_API_PIPELINE_BASELINE_SERVICE_HOST: baseline-server
     depends_on:
       banyandb:
         condition: service_healthy
