@@ -511,7 +511,7 @@ baseline(service_resp_time, upper)
 ```
 
 **Notice**:
-- This feature is required to enable the `baseline module` and deploy a baseline service. And the baseline service should implement the protocol of the [baseline.proto](../../../oap-server/ai-pipeline/src/main/proto/baseline.proto).
+- This feature is required to enable the [Metrics Baseline Calculation](../setup/ai-pipeline/metrics-baseline-integration.md) and deploy a remote service.
 Otherwise, the result will be empty.
 - The baseline operation requires the relative metrics declared through baseline service.
 Otherwise, the result will be empty, which means there is no baseline or predicated value.

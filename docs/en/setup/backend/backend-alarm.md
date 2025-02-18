@@ -140,6 +140,9 @@ rules:
     message: Service {name} response time is higher than the baseline predicted value in 3 minutes of last 10 minutes.
 ```
 
+Note, the baseline predicted value is calculated based on the historical data of the same time window in the past, which
+is through [AI powered baseline calculation](../ai-pipeline/metrics-baseline-integration.md).
+
 ## Hooks
 Hooks are a way to send alarm messages to the outside world. SkyWalking supports multiple hooks of the same type, each hook can support different configurations. 
 For example, you can configure two Slack hooks, one named `default` and set `is-default: true` means this hook will apply on all `Alarm Rules` **without config** `hooks`.

@@ -276,6 +276,8 @@ catalog:
                 path: "/en/setup/ai-pipeline/introduction"
               - name: "HTTP Restful URI recognition"
                 path: "/en/setup/ai-pipeline/http-restful-uri-pattern"
+              - name: "Metrics Baseline Calculation and Alerting"
+                path: "/en/setup/ai-pipeline/metrics-baseline-integration"
       - name: "UI Setup"
         catalog:
           - name: "Native UI"
