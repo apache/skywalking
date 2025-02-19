@@ -60,9 +60,9 @@ msgs:
       {{- end }}
   - starttime: {{ gt .starttime 0 }}
     scope: Service
-    id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
-    name: e2e-service-provider
-    message: Response time of service e2e-service-provider is more than baseline in 1 minutes of last 10 minutes.
+    id: ZTJlLXRlc3QtZGVzdC1zZXJ2aWNl.1
+    name: e2e-test-dest-service
+    message: Response time of service e2e-test-dest-service is more than baseline in 1 minutes of last 10 minutes.
     tags:
       - key: level
         value: CRITICAL
@@ -72,7 +72,7 @@ msgs:
       {{- contains .events }}
       - uuid: {{ notEmpty .uuid }}
         source:
-          service: e2e-service-provider
+          service: e2e-test-dest-service
           serviceinstance: ""
           endpoint: ""
         name: Alarm
@@ -81,10 +81,10 @@ msgs:
         parameters: []
         starttime: {{ gt .starttime 0 }}
         endtime: {{ gt .endtime 0 }}
-        layer: GENERAL
+        layer: MESH
       {{- end }}
     snapshot:
-      expression: sum(service_resp_time > baseline(service_resp_time,upper)) >= 1
+      expression: sum(service_resp_time > baseline(service_resp_time,lower)) >= 1
       metrics:
       {{- contains .snapshot.metrics }}
       - name: service_resp_time
@@ -100,7 +100,7 @@ msgs:
             traceid: null
           {{- end }}
         {{- end }}
-      - name: baseline(service_resp_time,upper)
+      - name: baseline(service_resp_time,lower)
         results:
         {{- contains .results }}
         - metric:
@@ -109,7 +109,7 @@ msgs:
           {{- contains .values }}
           - id: {{ notEmpty .id }}
             owner: null
-            value: 10
+            value: "1999"
             traceid: null
           {{- end }}
         {{- end }}

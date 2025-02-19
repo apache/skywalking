@@ -17,13 +17,22 @@
     # service list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: expected/service.yml
+    - query: |
+        curl -s -XPOST http://${sender_host}:${sender_9093}/sendMetrics4Predict/7 > /dev/null;
+        sleep 10;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_resp_time --service-name=e2e-test-dest-service
+      expected: expected/metrics-has-value.yml
     # before silence alarm list WARNING,receivers=lisi
     - query: |
         sleep 5;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql alarm ls --tags level=WARNING,receivers=lisi
       expected: expected/silence-before-graphql-warn.yml
     # before silence alarm list level=CRITICAL,receivers=zhangsan
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql alarm ls --tags level=CRITICAL,receivers=zhangsan
+    - query: |
+        sleep 10;
+        curl -s -XPOST http://${sender_host}:${sender_9093}/sendMetrics4Predict/1 > /dev/null; # still trigger the service mesh traffic for keep it have traffic
+        sleep 10;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql alarm ls --tags level=CRITICAL,receivers=zhangsan
       expected: expected/silence-before-graphql-critical.yml
     # query auto complete tag key and value
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql alarm autocomplete-keys

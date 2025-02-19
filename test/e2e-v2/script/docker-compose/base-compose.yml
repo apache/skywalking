@@ -114,5 +114,19 @@ services:
       timeout: 60s
       retries: 120
 
+  baseline-predictor:
+    image: "ghcr.io/skyapm/skypredictor:${SW_PREDICTOR_COMMIT}"
+    networks:
+      - e2e
+    expose:
+      - 18080
+    environment:
+      BASELINE_FETCH_SERVER_ENDPOINT: http://oap:12800
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/18080" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
 networks:
   e2e:
