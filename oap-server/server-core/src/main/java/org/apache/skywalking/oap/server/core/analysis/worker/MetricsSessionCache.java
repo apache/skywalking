@@ -85,7 +85,7 @@ public class MetricsSessionCache {
      * eventual consistency of writing, which means database server could respond
      * {@link SessionCacheCallback#onInsertCompleted()} but ends of writing failure caused by crashing.
      * This fail-safe mechanism would require the cache of this kind of metric must be read through
-     * {@link IMetricsDAO#multiGet(Model, List)} which guaranteed data existing.
+     * {@link IMetricsDAO#multiGet(Model, List)} which guaranteed data existence.
      */
     public void cacheAfterFlush(Metrics metrics) {
         if (supportUpdate) {
