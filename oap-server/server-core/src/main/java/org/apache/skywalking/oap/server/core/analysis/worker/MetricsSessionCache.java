@@ -78,7 +78,7 @@ public class MetricsSessionCache {
 
     /**
      * This method relies on the response of database flush callback.
-     * Push the data into the in-memory cache for all metrics except {@link MetricsExtension#supportUpdate()} labelled
+     * Push the data into the in-memory cache for all metrics except {@link MetricsExtension#supportUpdate()} labeled
      * as false.
      * Because those data(e.g. {@link ServiceTraffic}) is one-time writing in the whole TTL period, and some
      * database(e.g. BanyanDB) has in-memory cache at the server side to improve performance but trade off the 100%
