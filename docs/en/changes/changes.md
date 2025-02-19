@@ -71,6 +71,7 @@
 * Bump up netty to 4.11.118 to fix CVE-2025-24970.
 * Add `Get Alarm Runtime Status` API.
 * Add `lock` when query the Alarm metrics window values.
+* Add a fail-safe mechanism to prevent traffic metrics inconsistent between in-memory and database server.
 
 #### UI
 
