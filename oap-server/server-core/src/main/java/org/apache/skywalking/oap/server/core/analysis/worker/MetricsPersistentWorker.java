@@ -107,7 +107,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
                             long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
-        this.sessionCache = new MetricsSessionCache(storageSessionTimeout);
+        this.sessionCache = new MetricsSessionCache(storageSessionTimeout, supportUpdate);
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = Optional.ofNullable(nextAlarmWorker);
         this.nextExportWorker = Optional.ofNullable(nextExportWorker);
