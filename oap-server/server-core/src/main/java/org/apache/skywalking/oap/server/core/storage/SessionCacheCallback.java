@@ -40,7 +40,7 @@ public class SessionCacheCallback {
         if (isFailed) {
             return;
         }
-        sessionCache.put(metrics);
+        sessionCache.cacheAfterFlush(metrics);
     }
 
     public void onUpdateFailure() {
