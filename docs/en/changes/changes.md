@@ -15,7 +15,7 @@
   production-ready. Don't need H2 as default storage anymore.
 * [Breaking Change] Bump up BanyanDB server version to 0.8.0. This version is not compatible with the previous 
   versions. Please upgrade the BanyanDB server to 0.8.0 before upgrading OAP to 10.2.0.
-* Bump up npm to v22.14.0 for the latest UI(booster-ui) compiling. 
+* Bump up nodejs to v22.14.0 for the latest UI(booster-ui) compiling. 
 
 #### OAP Server
 
