@@ -41,7 +41,7 @@ jobs:
         with:
           submodules: true
       - name: Check license header
-        uses: apache/skywalking-eyes@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
+        uses: apache/skywalking-eyes@477772b7ef382b9024ac89676ebe6cbb26165a4f
 
   code-style:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
