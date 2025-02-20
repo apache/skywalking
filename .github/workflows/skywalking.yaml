@@ -404,6 +404,13 @@ jobs:
           - name: Alarm BanyanDB
             config: test/e2e-v2/cases/alarm/banyandb/e2e.yaml
 
+          - name: Baseline ES
+            config: test/e2e-v2/cases/baseline/es/e2e.yaml
+          - name: Alarm ES Sharding
+            config: test/e2e-v2/cases/baseline/es/es-sharding/e2e.yaml
+          - name: Alarm BanyanDB
+            config: test/e2e-v2/cases/baseline/banyandb/e2e.yaml
+
           - name: TTL ES 7.16.3
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
             env: ES_VERSION=7.16.3

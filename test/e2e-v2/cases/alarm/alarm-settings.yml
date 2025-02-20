@@ -43,15 +43,6 @@ rules:
     tags:
       level: CRITICAL
       receivers: zhangsan
-  baseline_rule:
-    expression: sum(service_resp_time > baseline(service_resp_time,lower)) >= 1
-    period: 10
-    message: Response time of service {name} is more than baseline in 1 minutes of last 10 minutes.
-    tags:
-      level: CRITICAL
-      receivers: zhangsan
-    hooks:
-      - webhook.none
 
 hooks:
   webhook:
