@@ -16,18 +16,16 @@
 version: '2.1'
 
 services:
-  mysql:
-    image: mysql/mysql-server:8.0.13
+  es:
+    image: elastic/elasticsearch:7.15.0
+    expose:
+      - 9200
     networks:
       - e2e
-    expose:
-      - 3306
     environment:
-      - MYSQL_ROOT_PASSWORD=root@1234
-      - MYSQL_DATABASE=swtest
-      - MYSQL_ROOT_HOST=%
+      - discovery.type=single-node
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -37,13 +35,13 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
-      SW_STORAGE: mysql
+      SW_STORAGE: elasticsearch
       SW_SEARCHABLE_ALARM_TAG_KEYS: level,receivers
-    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
+      SW_API_PIPELINE_BASELINE_SERVICE_HOST: baseline-predictor
     ports:
       - 12800
     depends_on:
-      mysql:
+      es:
         condition: service_healthy
     volumes:
       - ../alarm-settings.yml:/skywalking/config/alarm-settings.yml
@@ -58,5 +56,47 @@ services:
       oap:
         condition: service_healthy
 
+  baseline-predictor:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: baseline-predictor
+    networks:
+      - e2e
+    ports:
+      - 18080
+    environment:
+      BASELINE_FETCH_METRICS: service_resp_time,service_percentile
+      BASELINE_FETCH_CRON: "* * * * *"
+      BASELINE_FETCH_SERVER_ENDPOINT: http://oap:12800
+      BASELINE_FETCH_SERVER_LAYERS: MESH
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/18080" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  sender:
+    image: "eclipse-temurin:8-jre"
+    volumes:
+      - ./../../../java-test-service/e2e-mock-sender/target/e2e-mock-sender-2.0.0.jar:/e2e-mock-sender-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-sender-2.0.0.jar" ]
+    environment:
+      OAP_HOST: oap
+      OAP_GRPC_PORT: 11800
+    networks:
+      - e2e
+    ports:
+      - 9093
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 9093" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap:
+        condition: service_healthy
 networks:
   e2e:
