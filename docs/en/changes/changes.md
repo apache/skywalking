@@ -73,6 +73,7 @@
 * Add `Get Alarm Runtime Status` API.
 * Add `lock` when query the Alarm metrics window values.
 * Add a fail-safe mechanism to prevent traffic metrics inconsistent between in-memory and database server.
+* Check index bound before getting data from `RemoteData` to avoid `IndexOutOfBoundsException`.
 
 #### UI
 

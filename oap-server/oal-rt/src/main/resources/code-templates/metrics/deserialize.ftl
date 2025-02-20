@@ -1,6 +1,6 @@
 public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData remoteData) {
 <#list serializeFields.stringFields as field>
-    if (remoteData.getDataStrings(${field?index}) != "") {
+    if (remoteData.getDataStringsCount() > ${field?index} && !com.google.common.base.Strings.isNullOrEmpty(remoteData.getDataStrings(${field?index}))) {
         ${field.setter}(remoteData.getDataStrings(${field?index}));
     }
 </#list>
