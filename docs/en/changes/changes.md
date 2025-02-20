@@ -99,6 +99,9 @@
 * Visualize `Snapshot` on `Alerting` page.
 * OAP self observability dashboard: Add JVM heap and direct memory used metrics.
 * OAP self observability dashboard: Add watermark circuit break/recover metrics.
+* Fix repetitive names in router.
+* Bump up dependencies.
+* Implement the legend selector in metrics charts.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
