@@ -17,9 +17,9 @@ msgs:
   {{- contains .msgs }}
   - starttime: {{ gt .starttime 0 }}
     scope: Service
-    id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
-    name: e2e-service-provider
-    message: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
+    id: ZTJlLXRlc3QtZGVzdC1zZXJ2aWNl.1
+    name: e2e-test-dest-service
+    message: Response time of service e2e-test-dest-service is more than baseline in 1 minutes of last 10 minutes.
     tags:
       - key: level
         value: CRITICAL
@@ -27,21 +27,21 @@ msgs:
         value: zhangsan
     events:
       {{- contains .events }}
-      - uuid: {{ notEmpty .uuid}}
+      - uuid: {{ notEmpty .uuid }}
         source:
-          service: e2e-service-provider
+          service: e2e-test-dest-service
           serviceinstance: ""
           endpoint: ""
         name: Alarm
         type: ""
-        message: {{ notEmpty .message}}
+        message: {{ notEmpty .message }}
         parameters: []
         starttime: {{ gt .starttime 0 }}
         endtime: {{ gt .endtime 0 }}
-        layer: GENERAL
+        layer: MESH
       {{- end }}
     snapshot:
-      expression: sum((service_resp_time > 10) && (service_sla > 100)) >= 1
+      expression: sum(service_resp_time > baseline(service_resp_time,lower)) >= 1
       metrics:
       {{- contains .snapshot.metrics }}
       - name: service_resp_time
@@ -54,6 +54,19 @@ msgs:
           - id: {{ notEmpty .id }}
             owner: null
             value: {{ .value }}
+            traceid: null
+          {{- end }}
+        {{- end }}
+      - name: baseline(service_resp_time,lower)
+        results:
+        {{- contains .results }}
+        - metric:
+            labels: []
+          values:
+          {{- contains .values }}
+          - id: {{ notEmpty .id }}
+            owner: null
+            value: "1999"
             traceid: null
           {{- end }}
         {{- end }}
