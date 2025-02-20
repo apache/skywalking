@@ -15,7 +15,6 @@
   production-ready. Don't need H2 as default storage anymore.
 * [Breaking Change] Bump up BanyanDB server version to 0.8.0. This version is not compatible with the previous 
   versions. Please upgrade the BanyanDB server to 0.8.0 before upgrading OAP to 10.2.0.
-* Bump up nodejs to v22.14.0 for the latest UI(booster-ui) compiling. 
 
 #### OAP Server
 
@@ -99,6 +98,9 @@
 * Visualize `Snapshot` on `Alerting` page.
 * OAP self observability dashboard: Add JVM heap and direct memory used metrics.
 * OAP self observability dashboard: Add watermark circuit break/recover metrics.
+* Fix repetitive names in router.
+* Bump up dependencies.
+* Implement the legend selector in metrics charts.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
