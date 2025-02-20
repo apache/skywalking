@@ -101,7 +101,7 @@
                 <version>${frontend-maven-plugin.version}</version>
                 <configuration>
                     <workingDirectory>${ui.path}</workingDirectory>
-                    <nodeVersion>v16.14.0</nodeVersion>
+                    <nodeVersion>v22.14.0</nodeVersion>
                 </configuration>
                 <executions>
                     <execution>
