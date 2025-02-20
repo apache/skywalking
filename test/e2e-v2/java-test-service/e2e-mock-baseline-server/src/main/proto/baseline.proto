@@ -17,7 +17,7 @@
  */
 
 syntax = "proto3";
-package skywalking.baseline.v3;
+package skywalking.v3;
 
 import "google/protobuf/empty.proto";
 

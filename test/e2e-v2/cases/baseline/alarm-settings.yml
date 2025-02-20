@@ -13,40 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
-services:
-  banyandb:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: banyandb
-    networks:
-      - e2e
-
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    environment:
-      SW_STORAGE: banyandb
-      SW_SEARCHABLE_ALARM_TAG_KEYS: level,receivers
-    ports:
-      - 12800
-    depends_on:
-      banyandb:
-        condition: service_healthy
-    volumes:
-      - ../alarm-settings.yml:/skywalking/config/alarm-settings.yml
-
-  provider:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: provider
-    ports:
-      - 9090
-    depends_on:
-      oap:
-        condition: service_healthy
-
-networks:
-  e2e:
+rules:
+  baseline_rule:
+    expression: sum(service_resp_time > baseline(service_resp_time,lower)) >= 1
+    period: 10
+    message: Response time of service {name} is more than baseline in 1 minutes of last 10 minutes.
+    tags:
+      level: CRITICAL
+      receivers: zhangsan

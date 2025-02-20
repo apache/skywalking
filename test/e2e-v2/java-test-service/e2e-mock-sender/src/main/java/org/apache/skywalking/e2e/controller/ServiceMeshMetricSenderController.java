@@ -88,6 +88,43 @@ public class ServiceMeshMetricSenderController {
         return "Metrics send success!";
     }
 
+    @PostMapping("/sendMetrics4Predict/{days}")
+    public String sendMetrics4Predict(@PathVariable("days") int days) throws Exception {
+        final HTTPServiceMeshMetric.Builder builder =
+            HTTPServiceMeshMetric
+                .newBuilder()
+                .setSourceServiceName("e2e-test-source-service")
+                .setSourceServiceInstance("e2e-test-source-service-instance")
+                .setDestServiceName("e2e-test-dest-service")
+                .setDestServiceInstance("e2e-test-dest-service-instance")
+                .setEndpoint("e2e/test")
+                .setLatency(2000)
+                .setResponseCode(200)
+                .setStatus(SUCCESS)
+                .setProtocol(Protocol.HTTP)
+                .setDetectPoint(DetectPoint.server);
+
+        final LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
+        LocalDateTime startTime = now.minusDays(days + 1);
+
+        while (!startTime.isAfter(now)) {
+            startTime = startTime.plusMinutes(1);
+            final LocalDateTime endTime = startTime.plusMinutes(1);
+            sendMetrics(ServiceMeshMetrics
+                .newBuilder()
+                .setHttpMetrics(
+                    HTTPServiceMeshMetrics
+                        .newBuilder()
+                        .addMetrics(
+                            builder
+                                .setStartTime(startTime.toEpochSecond(ZoneOffset.UTC) * 1000)
+                                .setEndTime(endTime.toEpochSecond(ZoneOffset.UTC) * 1000)))
+                .build());
+        }
+
+        return "Metrics send success!";
+    }
+
     void sendMetrics(final ServiceMeshMetrics metrics) throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
 
