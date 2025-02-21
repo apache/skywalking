@@ -117,24 +117,33 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                     String nextWorkerName = message.getNextWorkerName();
                     RemoteData remoteData = message.getRemoteData();
 
-                    try {
-                        RemoteHandleWorker handleWorker = workerInstanceGetter.get(nextWorkerName);
-                        if (handleWorker != null) {
-                            AbstractWorker nextWorker = handleWorker.getWorker();
-                            StreamData streamData = handleWorker.getStreamDataClass().newInstance();
-                            streamData.deserialize(remoteData);
-                            nextWorker.in(streamData);
-                        } else {
-                            remoteInTargetNotFoundCounter.inc();
-                            LOGGER.warn(
-                                "Work name [{}] not found. Check OAL script, make sure they are same in the whole cluster.",
-                                nextWorkerName
-                            );
+                    RemoteHandleWorker handleWorker = workerInstanceGetter.get(nextWorkerName);
+                    if (handleWorker != null) {
+                        AbstractWorker nextWorker = handleWorker.getWorker();
+                        StreamData streamData;
+                        try {
+                            streamData = handleWorker.getStreamDataClass().newInstance();
+                        } catch (Throwable t) {
+                            remoteInErrorCounter.inc();
+                            LOGGER.error(t.getMessage(), t);
+                            return;
                         }
-                    } catch (Throwable t) {
-                        remoteInErrorCounter.inc();
-                        LOGGER.error(t.getMessage(), t);
+                        try {
+                            streamData.deserialize(remoteData);
+                        } catch (Throwable t) {
+                            remoteInErrorCounter.inc();
+                            LOGGER.error("Can't deserialize data {}, this data is discarded.", message, t);
+                            return;
+                        }
+                        nextWorker.in(streamData);
+                    } else {
+                        remoteInTargetNotFoundCounter.inc();
+                        LOGGER.warn(
+                            "Data is discarded due to worker not found. Check OAL/MAL script, make sure they are aligned in the whole cluster. The data is {}",
+                            message
+                        );
                     }
+
                 } finally {
                     timer.finish();
                 }
