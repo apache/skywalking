@@ -38,7 +38,7 @@ msgs:
         parameters: []
         starttime: {{ gt .starttime 0 }}
         endtime: {{ gt .endtime 0 }}
-        layer: MESH
+        layer: {{ notEmpty .layer }}
       {{- end }}
     snapshot:
       expression: sum(service_resp_time > baseline(service_resp_time,lower)) >= 1
