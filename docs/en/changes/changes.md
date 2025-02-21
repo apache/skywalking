@@ -73,6 +73,7 @@
 * Add `Get Alarm Runtime Status` API.
 * Add `lock` when query the Alarm metrics window values.
 * Add a fail-safe mechanism to prevent traffic metrics inconsistent between in-memory and database server.
+* Add more clear logs when oap-cluster-internal data(metrics/traffic) format is inconsistent.
 
 #### UI
 
