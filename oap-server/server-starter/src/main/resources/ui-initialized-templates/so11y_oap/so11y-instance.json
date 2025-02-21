@@ -401,7 +401,7 @@
                   "i": "19",
                   "type": "Widget",
                   "expressions": [
-                    "meter_oap_instance_watermark_circuit_breaker_break_count"
+                    "meter_oap_instance_watermark_circuit_breaker_break_count - min(meter_oap_instance_watermark_circuit_breaker_break_count)"
                   ],
                   "graph": {
                     "type": "Line",
@@ -412,7 +412,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "tips": "The number of times the watermark circuit breaker breaks",
+                    "tips": "The number of times the watermark circuit breaker breaks in the query time window",
                     "title": "Watermark Circuit Breaker Break Count"
                   }
                 },
@@ -424,7 +424,7 @@
                   "i": "20",
                   "type": "Widget",
                   "expressions": [
-                    "meter_oap_instance_watermark_circuit_breaker_recover_count"
+                    "meter_oap_instance_watermark_circuit_breaker_recover_count - min(meter_oap_instance_watermark_circuit_breaker_recover_count)"
                   ],
                   "graph": {
                     "type": "Line",
@@ -436,7 +436,7 @@
                   },
                   "widget": {
                     "title": "Watermark Circuit Breaker Recover Count",
-                    "tips": "The number of times the watermark circuit breaker recovers"
+                    "tips": "The number of times the watermark circuit breaker recovers in the query time window"
                   }
                 },
                 {
