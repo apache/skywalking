@@ -122,6 +122,7 @@ services:
       - 18080
     environment:
       BASELINE_FETCH_SERVER_ENDPOINT: http://oap:12800
+      LOGGING_LEVEL: DEBUG
     healthcheck:
       test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/18080" ]
       interval: 5s
