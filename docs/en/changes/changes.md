@@ -103,6 +103,7 @@
 * Implement the legend selector in metrics charts.
 * Fix repetitive names in router.
 * Bump up dependencies.
+* Fixes tooltips cannot completely display metrics information.
 
 #### Documentation
 * Update release document to adopt newly added revision-based process.
