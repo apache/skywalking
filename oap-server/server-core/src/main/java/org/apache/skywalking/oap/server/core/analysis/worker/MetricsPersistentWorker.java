@@ -57,6 +57,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implements ServerStatusWatcher {
     private final Model model;
+    private final long storageSessionTimeout;
     private final MetricsSessionCache sessionCache;
     private final IMetricsDAO metricsDAO;
     private final Optional<AbstractWorker<Metrics>> nextAlarmWorker;
@@ -107,6 +108,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
                             long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
+        this.storageSessionTimeout = storageSessionTimeout;
         this.sessionCache = new MetricsSessionCache(storageSessionTimeout, supportUpdate);
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = Optional.ofNullable(nextAlarmWorker);
@@ -388,8 +390,13 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         // for the specific minute of booted successfully, the metrics are expected to load from database when
         // it doesn't exist in the cache.
         if (timeOfLatestStabilitySts > 0 &&
-            metrics.getTimeBucket() > timeOfLatestStabilitySts
-            && cached == null) {
+            metrics.getTimeBucket() > timeOfLatestStabilitySts) {
+            final long currentTimeMillis = System.currentTimeMillis();
+            long metricsTimestamp = TimeBucket.getTimestamp(metrics.getTimeBucket());
+            if (currentTimeMillis - metricsTimestamp > storageSessionTimeout) {
+                return null;
+            }
+
             // Return metrics as input to avoid reading from database.
             return metrics;
         }
