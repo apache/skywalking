@@ -379,16 +379,16 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
 
         // When
         // (1) the time bucket of the server's latest stability status is provided
-        //     1.1 the OAP has booted successfully
-        //     1.2 the current dimensionality is in minute
-        //     1.3 the OAP cluster is rebalanced due to scaling
-        // (2) the metrics are from the time after the timeOfLatestStabilitySts
-        // (3) the metrics don't exist in the cache
-        // the kernel should NOT try to load it from the database.
+        //     1.1 The OAP has booted successfully
+        //     1.2 The current dimensionality is in minute(timeOfLatestStabilitySts = 0 for other dimensionalities)
+        //     1.3 The OAP cluster is rebalanced due to scaling
+        // (2) the metrics are from the time after the timeOfLatestStabilitySts.
+        // (3) the metrics don't exist in the cache.
+        //The kernel should NOT try to load it from the database.
         //
-        // Notice, about condition (2),
-        // for the specific minute of booted successfully, the metrics are expected to load from database when
-        // it doesn't exist in the cache.
+        // Notice, about the condition (2),
+        // For the specific minutes of metrics before booted, rebalanced(cluster) and expired from cache, 
+        // they are expected to load from the database when don't exist in the cache.
         if (timeOfLatestStabilitySts > 0 &&
             metrics.getTimeBucket() > timeOfLatestStabilitySts) {
             final long currentTimeMillis = System.currentTimeMillis();
