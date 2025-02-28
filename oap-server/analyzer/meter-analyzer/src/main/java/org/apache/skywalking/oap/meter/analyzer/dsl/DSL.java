@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableList;
 import groovy.lang.Binding;
+import groovy.lang.GString;
 import groovy.lang.GroovyShell;
 import groovy.util.DelegatingScript;
 import java.lang.reflect.Array;
@@ -78,6 +79,8 @@ public final class DSL {
                          .add(DetectPoint.class)
                          .add(Layer.class)
                          .add(ProcessRegistry.class)
+                         .add(GString.class)
+                         .add(String.class)
                 .build());
         cc.addCompilationCustomizers(secureASTCustomizer);
 

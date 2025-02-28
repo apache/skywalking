@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.log.analyzer.dsl;
 
 import com.google.common.collect.ImmutableList;
+
+import groovy.lang.GString;
 import groovy.lang.GroovyShell;
 import groovy.transform.CompileStatic;
 import groovy.util.DelegatingScript;
@@ -78,6 +80,7 @@ public class DSL {
                          .add(Map.class)
                          .add(List.class)
                          .add(Array.class)
+                         .add(GString.class)
                          .add(String.class)
                          .add(ProcessRegistry.class)
                          .build());

@@ -37,7 +37,7 @@ public class ExpressionParsingTest {
         return Arrays.asList(new Object[][] {
             {
                 "all",
-                "(foo - 1).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'], Layer.GENERAL).downsampling(LATEST)",
+                "(foo - 1).tag({ tags -> tags.new_name = \"${tags['tag1']}|${tags['tag2']}\".toString() }).tagEqual('bar', '1').sum(['tt']).irate().histogram().histogram_percentile([50,99]).service(['rr'], Layer.GENERAL).downsampling(LATEST)",
                 ExpressionParsingContext.builder()
                                         .samples(Collections.singletonList("foo"))
                                         .scopeType(ScopeType.SERVICE)
