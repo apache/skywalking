@@ -211,6 +211,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public BanyandbProperty.QueryResponse query(BanyandbProperty.QueryRequest request) throws IOException {
+        try {
+            BanyandbProperty.QueryResponse response = this.client.query(request);
+            this.healthChecker.health();
+            return response;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to query property", ex);
+        }
+    }
+
     /**
      * PropertyStore.Strategy is default to {@link Strategy#STRATEGY_MERGE}
      */
