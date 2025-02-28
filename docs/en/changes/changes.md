@@ -75,6 +75,7 @@
 * Add a fail-safe mechanism to prevent traffic metrics inconsistent between in-memory and database server.
 * Add more clear logs when oap-cluster-internal data(metrics/traffic) format is inconsistent.
 * Optimize metrics cache loading when trace latency greater than cache timeout. 
+* Allow calling `lang.groovy.GString` in DSL.
 
 #### UI
 
