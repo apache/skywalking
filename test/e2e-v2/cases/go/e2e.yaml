@@ -114,3 +114,29 @@ verify:
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service | yq e '.[0].name' - ) \
            --service-name=go-service --dest-instance-name=provider1 --dest-service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
+    # agent so11y
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_sw_go_created_tracing_context_count --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service | yq e '.[0].name' - ) \
+        --service-name=go-service
+      expected: expected/metrics-has-value-label-created_by.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_sw_go_finished_tracing_context_count --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service | yq e '.[0].name' - ) \
+        --service-name=go-service
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_sw_go_created_ignored_context_count --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service | yq e '.[0].name' - ) \
+        --service-name=go-service
+      expected: expected/metrics-has-value-label-created_by.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_sw_go_finished_ignored_context_count --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service | yq e '.[0].name' - ) \
+        --service-name=go-service
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_sw_go_tracing_context_execution_time_percentile --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service | yq e '.[0].name' - ) \
+        --service-name=go-service
+      expected: expected/metrics-has-value-label-percentile.yml

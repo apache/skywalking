@@ -39,7 +39,13 @@ func main() {
 		res, err := http.Post(upstream, "text/html", nil)
 		if err != nil {
 			context.Status(http.StatusInternalServerError)
-			log.Printf("unable to do http request error: %v \n", err)
+			log.Printf("request UPSTREAM_URL error: %v \n", err)
+			return
+		}
+		_, err = http.Get("http://localhost:8080/ignored.html")
+		if err != nil {
+			context.Status(http.StatusInternalServerError)
+			log.Printf("request ignored.html error: %v \n", err)
 			return
 		}
 		defer res.Body.Close()
@@ -51,6 +57,10 @@ func main() {
 		}
 		context.Status(res.StatusCode)
 		context.Writer.Write(body)
+	})
+
+	engine.Handle("GET", "/ignored.html", func(context *gin.Context) {
+		context.String(200, "Nobody cares me.")
 	})
 
 	_ = engine.Run(":8080")

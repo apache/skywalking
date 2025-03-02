@@ -245,7 +245,13 @@ public enum Layer {
     /**
      * Kong is Cloud-Native API Gateway and AI Gateway.
      */
-    KONG(40, true);
+    KONG(40, true),
+
+    /**
+     * The self observability of SkyWalking Go Agent,
+     * which provides the abilities to measure the tracing performance and error statistics of plugins.
+     */
+    SO11Y_GO_AGENT(41, true);
 
     private final int value;
     /**

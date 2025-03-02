@@ -34,6 +34,7 @@ nodes:
   isreal: true
   layers:
     - GENERAL
+    - SO11Y_GO_AGENT
 {{- end }}
 calls:
 {{- contains .calls }}
