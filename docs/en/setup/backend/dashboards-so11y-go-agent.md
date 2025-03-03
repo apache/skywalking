@@ -1,11 +1,11 @@
 # Go Agent self observability dashboard
 
-SkyWalking go agent reports itself metrics by Meter APIS in order to measure tracing performance.
+SkyWalking go agent reports its metrics using Meter APIS to measure tracing performance.
 it also provides a dashboard to visualize the agent metrics.
 
 ## Data flow
 1. SkyWalking go agent reports metrics data internally and automatically.
-2. SkyWalking OAP accept these meters through native protocols.
+2. SkyWalking OAP receives these meters through native protocols.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ## Set up
