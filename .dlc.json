@@ -20,6 +20,9 @@
     },
     {
       "pattern": "^http://www.gnu.org/software/libc/documentation.html"
+    },
+    {
+      "pattern": "^https://x.com/AsfSkyWalking"
     }
   ],
   "timeout": "10s",
