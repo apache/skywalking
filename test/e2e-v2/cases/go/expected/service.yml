@@ -22,6 +22,14 @@
   layers:
     - VIRTUAL_DATABASE
 
+- id: {{ b64enc "e2e-service-consumer" }}.1
+  name: e2e-service-consumer
+  group: ""
+  shortname: e2e-service-consumer
+  normal: true
+  layers:
+    - GENERAL
+
 - id: {{ b64enc "e2e-service-provider" }}.1
   name: e2e-service-provider
   group: ""
@@ -37,5 +45,5 @@
   normal: true
   layers:
     - GENERAL
-    - SO11Y_GO_AGENT  
+    - SO11Y_GO_AGENT
 {{- end }}
