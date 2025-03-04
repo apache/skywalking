@@ -76,6 +76,7 @@
 * Add more clear logs when oap-cluster-internal data(metrics/traffic) format is inconsistent.
 * Optimize metrics cache loading when trace latency greater than cache timeout. 
 * Allow calling `lang.groovy.GString` in DSL.
+* BanyanDB: fix alarm query result without sort. 
 
 #### UI
 
