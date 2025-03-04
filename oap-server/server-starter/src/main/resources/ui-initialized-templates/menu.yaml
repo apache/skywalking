@@ -252,3 +252,8 @@ menus:
         description: The Java Agent for Apache SkyWalking, which provides the native tracing/metrics/logging/event/profiling abilities for Java projects.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/dashboards-so11y-java-agent/
         i18nKey: self_observability_java_agent
+      - title: SkyWalking Go Agent
+        layer: SO11Y_GO_AGENT
+        description: The Go Agent for Apache SkyWalking, which provides the native tracing/metrics/logging abilities for Golang projects.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/dashboards-so11y-go-agent/
+        i18nKey: self_observability_go_agent
