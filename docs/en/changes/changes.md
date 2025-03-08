@@ -77,6 +77,7 @@
 * Optimize metrics cache loading when trace latency greater than cache timeout. 
 * Allow calling `lang.groovy.GString` in DSL.
 * BanyanDB: fix alarm query result without sort. 
+* Add a component ID for Virtual thread executor
 
 #### UI
 

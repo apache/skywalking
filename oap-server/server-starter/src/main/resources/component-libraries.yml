@@ -532,6 +532,9 @@ DNS:
 Caffeine:
   id: 160
   languages: Java
+ThreadPerTask-executor:
+  id: 161
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
