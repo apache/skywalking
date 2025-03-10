@@ -77,7 +77,8 @@
 * Optimize metrics cache loading when trace latency greater than cache timeout. 
 * Allow calling `lang.groovy.GString` in DSL.
 * BanyanDB: fix alarm query result without sort. 
-* Add a component ID for Virtual thread executor
+* Add a component ID for Virtual thread executor.
+* Add more model installation log info for OAP storage initialization.
 
 #### UI
 

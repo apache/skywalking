@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
@@ -38,20 +40,29 @@ public abstract class ModelInstaller implements ModelCreator.CreatingListener {
     @Override
     public void whenCreating(Model model) throws StorageException {
         if (RunningMode.isNoInitMode()) {
-            while (!isExists(model)) {
-                try {
-                    log.info(
-                        "table: {} does not exist. OAP is running in 'no-init' mode, waiting... retry 3s later.",
-                        model.getName()
-                    );
-                    Thread.sleep(3000L);
-                } catch (InterruptedException e) {
-                    log.error(e.getMessage());
+            while (true) {
+                InstallInfo info = isExists(model);
+                if (!info.isAllExist()) {
+                    try {
+                        log.info(
+                            "install info: {}.table for model: [{}] not all required resources exist. OAP is running in 'no-init' mode, waiting create or update... retry 3s later.",
+                            info.buildInstallInfoMsg(), model.getName()
+                        );
+                        Thread.sleep(3000L);
+                    } catch (InterruptedException e) {
+                        log.error(e.getMessage());
+                    }
+                } else {
+                    break;
                 }
             }
         } else {
-            if (!isExists(model)) {
-                log.info("table: {} does not exist", model.getName());
+            InstallInfo info = isExists(model);
+            if (!info.isAllExist()) {
+                log.info(
+                    "install info: {}. table for model: [{}] not all required resources exist, creating or updating...",
+                    info.buildInstallInfoMsg(), model.getName()
+                );
                 createTable(model);
             }
         }
@@ -74,10 +85,35 @@ public abstract class ModelInstaller implements ModelCreator.CreatingListener {
     /**
      * Check whether the storage entity exists. Need to implement based on the real storage.
      */
-    public abstract boolean isExists(Model model) throws StorageException;
+    public abstract InstallInfo isExists(Model model) throws StorageException;
 
     /**
      * Create the storage entity. All creations should be after the {@link #isExists(Model)} check.
      */
     public abstract void createTable(Model model) throws StorageException;
+
+    @Getter
+    @Setter
+    public abstract static class InstallInfo {
+        private final String modelName;
+        private final boolean timeSeries;
+        private final boolean superDataset;
+        private final String modelType;
+        private boolean allExist;
+
+        protected InstallInfo(Model model) {
+            this.modelName = model.getName();
+            this.timeSeries = model.isTimeSeries();
+            this.superDataset = model.isSuperDataset();
+            if (model.isMetric()) {
+                this.modelType = "metric";
+            } else if (model.isRecord()) {
+                this.modelType = "record";
+            } else {
+                this.modelType = "unknown";
+            }
+        }
+
+        public abstract String buildInstallInfoMsg();
+    }
 }

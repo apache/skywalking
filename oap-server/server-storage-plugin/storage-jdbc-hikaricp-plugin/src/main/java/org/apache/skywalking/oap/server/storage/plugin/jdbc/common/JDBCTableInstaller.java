@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 
 import com.google.gson.JsonObject;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
@@ -64,14 +66,16 @@ public class JDBCTableInstaller extends ModelInstaller {
 
     @Override
     @SneakyThrows
-    public boolean isExists(Model model) {
+    public InstallInfo isExists(Model model) {
+        InstallInfoJDBC installInfo = new InstallInfoJDBC(model);
         TableMetaInfo.addModel(model);
 
         final var table = TableHelper.getLatestTableForWrite(model);
-
+        installInfo.setTableName(table);
         final var jdbcClient = (JDBCClient) client;
         if (!jdbcClient.tableExists(table)) {
-            return false;
+            installInfo.setAllExist(false);
+            return installInfo;
         }
 
         final var databaseColumns = getDatabaseColumns(table);
@@ -81,8 +85,9 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .map(ModelColumn::getColumnName)
                 .map(ColumnName::getStorageName)
                 .anyMatch(not(databaseColumns::contains));
-
-        return !isAnyColumnNotCreated;
+        installInfo.setAllColumnsExist(isAnyColumnNotCreated);
+        installInfo.setAllExist(!isAnyColumnNotCreated);
+        return installInfo;
     }
 
     @Override
@@ -276,5 +281,31 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .append(columnDefinitions.stream().collect(joining(", ", " (", ");")));
 
         executeSQL(sql);
+    }
+
+    @Getter
+    @Setter
+    private static class InstallInfoJDBC extends InstallInfo {
+        private String tableName;
+        private boolean tableExist;
+        private boolean allColumnsExist;
+
+        protected InstallInfoJDBC(Model model) {
+            super(model);
+        }
+
+        @Override
+        public String buildInstallInfoMsg() {
+            return "InstallInfoJDBC{" +
+                "modelName=" + getModelName() +
+                ", modelType=" + getModelType() +
+                ", timeSeries=" + isTimeSeries() +
+                ", superDataset=" + isSuperDataset() +
+                ", tableName=" + tableName +
+                ", allResourcesExist=" + isAllExist() +
+                " [tableExist=" + tableExist +
+                ", allColumnsExist=" + allColumnsExist +
+                "]}";
+        }
     }
 }
