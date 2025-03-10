@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
@@ -41,6 +43,7 @@ import org.apache.skywalking.banyandb.v1.client.metadata.MetadataCache;
 import org.apache.skywalking.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -62,21 +65,31 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     @Override
-    public boolean isExists(Model model) throws StorageException {
+    public InstallInfo isExists(Model model) throws StorageException {
+        InstallInfoBanyanDB installInfo = new InstallInfoBanyanDB(model);
+        installInfo.setDownSampling(model.getDownsampling());
         if (!model.isTimeSeries()) {
-            return true;
+            installInfo.setTableName(model.getName());
+            installInfo.setAllExist(true);
+            return installInfo;
         }
         final DownSamplingConfigService downSamplingConfigService = moduleManager.find(CoreModule.NAME)
                                                          .provider()
                                                          .getService(DownSamplingConfigService.class);
         final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(
             model, config, downSamplingConfigService);
+        installInfo.setTableName(metadata.name());
+        installInfo.setKind(metadata.getKind());
+        installInfo.setGroup(metadata.getGroup());
         try {
             final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
             // first check resource existence and create group if necessary
-            final boolean resourceExist = checkResourceExistence(metadata, c);
-            if (!resourceExist) {
-                return false;
+            final ResourceExist resourceExist = checkResourceExistence(metadata, c);
+            installInfo.setGroupExist(resourceExist.hasGroup());
+            installInfo.setTableExist(resourceExist.hasResource());
+            if (!resourceExist.hasResource()) {
+                installInfo.setAllExist(false);
+                return installInfo;
             } else {
                 // register models only locally(Schema cache) but not remotely
                 if (model.isRecord()) { // stream
@@ -108,7 +121,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 if (remoteMeta == null) {
                     throw new IllegalStateException("inconsistent state: metadata:" + metadata + ", remoteMeta: null");
                 }
-                return true;
+                installInfo.setAllExist(true);
+                return installInfo;
             }
         } catch (BanyanDBException ex) {
             throw new StorageException("fail to check existence", ex);
@@ -206,7 +220,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             || g.getResourceOpts().getTtl().getNum() != metadata.getTtlDays();
     }
 
-    private boolean checkResourceExistence(MetadataRegistry.SchemaMetadata metadata,
+    private ResourceExist checkResourceExistence(MetadataRegistry.SchemaMetadata metadata,
                                            BanyanDBClient client) throws BanyanDBException {
         ResourceExist resourceExist;
         Group.Builder gBuilder
@@ -265,7 +279,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 groupAligned.add(metadata.getGroup());
             }
         }
-        return resourceExist.hasResource();
+        return resourceExist;
     }
 
     /**
@@ -557,6 +571,38 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     schema.getMetadata().getGroup()
                 );
             }
+        }
+    }
+
+    @Getter
+    @Setter
+    private static class InstallInfoBanyanDB extends InstallInfo {
+        private DownSampling downSampling;
+        private String tableName;
+        private MetadataRegistry.Kind kind;
+        private String group;
+        private boolean tableExist;
+        private boolean groupExist;
+
+        protected InstallInfoBanyanDB(Model model) {
+            super(model);
+        }
+
+        @Override
+        public String buildInstallInfoMsg() {
+            return "InstallInfoBanyanDB{" +
+                "modelName=" + getModelName() +
+                ", modelType=" + getModelType() +
+                ", timeSeries=" + isTimeSeries() +
+                ", superDataset=" + isSuperDataset() +
+                ", downSampling=" + downSampling.name() +
+                ", tableName=" + tableName +
+                ", kind=" + kind.name() +
+                ", group=" + group +
+                ", allResourcesExist=" + isAllExist() +
+                " [groupExist=" + groupExist +
+                ", tableExist=" + tableExist +
+                "]}";
         }
     }
 }
