@@ -67,7 +67,7 @@
         <postgresql.version>42.4.4</postgresql.version>
         <jetcd.version>0.6.1</jetcd.version>
         <testcontainers.version>1.17.6</testcontainers.version>
-        <armeria.version>1.29.3</armeria.version>
+        <armeria.version>1.32.0</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <httpasyncclient.version>4.1.5</httpasyncclient.version>

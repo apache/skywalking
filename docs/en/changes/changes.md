@@ -79,6 +79,7 @@
 * BanyanDB: fix alarm query result without sort. 
 * Add a component ID for Virtual thread executor.
 * Add more model installation log info for OAP storage initialization.
+* Bump Armeria to 1.32.0 and some transitive dependencies.
 
 #### UI
 
