@@ -83,7 +83,14 @@
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}/../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/oap-libs</directory>
+            <directory>${project.basedir}/../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/</directory>
+            <includes>
+                <include>tool-profile-snapshot-exporter-${project.version}.jar</include>
+            </includes>
+            <outputDirectory>oap-libs</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/oap-libs/</directory>
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
