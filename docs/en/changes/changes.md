@@ -79,6 +79,7 @@
 * BanyanDB: fix alarm query result without sort. 
 * Add a component ID for Virtual thread executor.
 * Add more model installation log info for OAP storage initialization.
+* BanyanDB: Separate the storage configuration to an independent file: `bydb.yaml`.
 
 #### UI
 

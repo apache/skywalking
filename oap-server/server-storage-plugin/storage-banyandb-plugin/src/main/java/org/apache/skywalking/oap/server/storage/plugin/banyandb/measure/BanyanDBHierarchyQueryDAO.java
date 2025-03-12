@@ -57,7 +57,7 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
 
     public BanyanDBHierarchyQueryDAO(final BanyanDBStorageClient client, BanyanDBStorageConfig config) {
         super(client);
-        this.limit = config.getMetadataQueryMaxSize();
+        this.limit = config.getGlobal().getMetadataQueryMaxSize();
     }
 
     @Override
