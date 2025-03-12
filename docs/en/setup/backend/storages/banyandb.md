@@ -26,7 +26,7 @@ In the `application.yml` file, select the BanyanDB storage provider:
 
 ```yaml
 storage:
-  banyandb:
+  selector: ${SW_STORAGE:banyandb}
 ```
 
 Since 10.2.0, the banyandb configuration is separated to an independent configuration file: `bydb.yaml`:
