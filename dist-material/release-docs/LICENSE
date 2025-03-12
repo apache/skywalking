@@ -346,8 +346,8 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.apache.groovy/groovy/4.0.15 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpasyncclient/4.1.5 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient/4.5.13 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore/4.4.13 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore-nio/4.4.13 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore/4.4.16 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore-nio/4.4.16 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/3.4.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api/2.17.1 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core/2.17.1 Apache-2.0
