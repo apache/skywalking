@@ -61,6 +61,7 @@
                 <include>trace-sampling-policy-settings.yml</include>
                 <include>hierarchy-definition.yml</include>
                 <include>bydb.dependencies.properties</include>
+                <include>bydb.yml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
                 <include>envoy-metrics-rules/**</include>

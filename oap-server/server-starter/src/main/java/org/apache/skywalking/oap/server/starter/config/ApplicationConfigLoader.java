@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.apache.skywalking.oap.server.library.util.YamlConfigLoaderUtils.replacePropertyAndLog;
+
 /**
  * Initialize collector settings with following sources. Use application.yml as primary setting, and fix missing setting
  * by default settings in application-default.yml.
@@ -92,12 +94,12 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                                         Properties subProperties = new Properties();
                                         ((Map<String, ?>) propertyValue).forEach((key, value) -> {
                                             subProperties.put(key, value);
-                                            replacePropertyAndLog(key, value, subProperties, providerName);
+                                            replacePropertyAndLog(key, value, subProperties, providerName, yaml);
                                         });
                                         properties.put(propertyName, subProperties);
                                     } else {
                                         properties.put(propertyName, propertyValue);
-                                        replacePropertyAndLog(propertyName, propertyValue, properties, providerName);
+                                        replacePropertyAndLog(propertyName, propertyValue, properties, providerName, yaml);
                                     }
                                 });
                             }
@@ -114,36 +116,6 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             }
         } catch (FileNotFoundException e) {
             throw new ConfigFileNotFoundException(e.getMessage(), e);
-        }
-    }
-
-    private void replacePropertyAndLog(final String propertyName, final Object propertyValue, final Properties target,
-                                       final Object providerName) {
-        final String valueString = PropertyPlaceholderHelper.INSTANCE
-            .replacePlaceholders(String.valueOf(propertyValue), target);
-        if (valueString.trim().length() == 0) {
-            target.replace(propertyName, valueString);
-            log.info("Provider={} config={} has been set as an empty string", providerName, propertyName);
-        } else {
-            // Use YAML to do data type conversion.
-            final Object replaceValue = convertValueString(valueString);
-            if (replaceValue != null) {
-                target.replace(propertyName, replaceValue);
-            }
-        }
-    }
-
-    private Object convertValueString(String valueString) {
-        try {
-            Object replaceValue = yaml.load(valueString);
-            if (replaceValue instanceof String || replaceValue instanceof Integer || replaceValue instanceof Long || replaceValue instanceof Boolean || replaceValue instanceof ArrayList) {
-                return replaceValue;
-            } else {
-                return valueString;
-            }
-        } catch (Exception e) {
-            log.warn("yaml convert value type error, use origin values string. valueString={}", valueString, e);
-            return valueString;
         }
     }
 
