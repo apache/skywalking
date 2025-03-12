@@ -115,21 +115,23 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
             @Override
             public void onInitialized(final BanyanDBStorageConfig initialized) {
-                config = initialized;
             }
         };
     }
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        if (config.getGmDayTTLDays() > config.getGmIndexTTLDays()) {
-            throw new ModuleStartException("gmDayTTLDays must be less than or equal to gmIndexTTLDays");
+        // load banyandb config
+        config = new BanyanDBConfigLoader(this).loadConfig();
+
+        if (config.getMetricsDay().getTtl() > config.getMetadata().getTtl()) {
+            throw new ModuleStartException("metricsDay ttl must be less than or equal to metadata ttl");
         }
-        if (config.getGmHourTTLDays() > config.getGmIndexTTLDays()) {
-            throw new ModuleStartException("gmHourTTLDays must be less than or equal to gmIndexTTLDays");
+        if (config.getMetricsHour().getTtl() > config.getMetadata().getTtl()) {
+            throw new ModuleStartException("metricsHour must be less than or equal to metadata ttl");
         }
-        if (config.getGmMinuteTTLDays() > config.getGmIndexTTLDays()) {
-            throw new ModuleStartException("gmMinuteTTLDays must be less than or equal to gmIndexTTLDays");
+        if (config.getMetricsMin().getTtl() > config.getMetadata().getTtl()) {
+            throw new ModuleStartException("metricsMin must be less than or equal to metadata ttl");
         }
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
@@ -138,34 +140,34 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
         // Stream
         this.registerServiceImplementation(
-            IBatchDAO.class, new BanyanDBBatchDAO(client, config.getMaxBulkSize(), config.getFlushInterval(),
-                                                  config.getConcurrentWriteThreads()
+            IBatchDAO.class, new BanyanDBBatchDAO(client, config.getGlobal().getMaxBulkSize(), config.getGlobal().getFlushInterval(),
+                                                  config.getGlobal().getConcurrentWriteThreads()
             ));
         this.registerServiceImplementation(StorageDAO.class, new BanyanDBStorageDAO(client));
         this.registerServiceImplementation(INetworkAddressAliasDAO.class, new BanyanDBNetworkAddressAliasDAO(client, this.config));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(client, this.config.getSegmentQueryMaxSize()));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(client, this.config.getGlobal().getSegmentQueryMaxSize()));
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new BanyanDBBrowserLogQueryDAO(client));
         this.registerServiceImplementation(IMetadataQueryDAO.class, new BanyanDBMetadataQueryDAO(client, this.config));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new BanyanDBAlarmQueryDAO(client));
         this.registerServiceImplementation(ILogQueryDAO.class, new BanyanDBLogQueryDAO(client));
         this.registerServiceImplementation(
             IProfileTaskQueryDAO.class, new BanyanDBProfileTaskQueryDAO(client,
-                                                                        this.config.getProfileTaskQueryMaxSize()
+                                                                        this.config.getGlobal().getProfileTaskQueryMaxSize()
             ));
         this.registerServiceImplementation(
             IProfileTaskLogQueryDAO.class, new BanyanDBProfileTaskLogQueryDAO(client,
-                                                                              this.config.getProfileTaskQueryMaxSize()
+                                                                              this.config.getGlobal().getProfileTaskQueryMaxSize()
             ));
         this.registerServiceImplementation(
             IProfileThreadSnapshotQueryDAO.class, new BanyanDBProfileThreadSnapshotQueryDAO(client,
-                                                                                            this.config.getProfileTaskQueryMaxSize()
+                                                                                            this.config.getGlobal().getProfileTaskQueryMaxSize()
             ));
         this.registerServiceImplementation(UITemplateManagementDAO.class, new BanyanDBUITemplateManagementDAO(client));
         this.registerServiceImplementation(UIMenuManagementDAO.class, new BanyanDBUIMenuManagementDAO(client));
         this.registerServiceImplementation(IEventQueryDAO.class, new BanyanDBEventQueryDAO(client));
         this.registerServiceImplementation(ITopologyQueryDAO.class, new BanyanDBTopologyQueryDAO(client));
         this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new BanyanDBEBPFProfilingTaskDAO(client));
-        this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new BanyanDBEBPFProfilingDataDAO(client, this.config.getProfileDataQueryBatchSize()));
+        this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new BanyanDBEBPFProfilingDataDAO(client, this.config.getGlobal().getProfileDataQueryBatchSize()));
         this.registerServiceImplementation(
             IEBPFProfilingScheduleDAO.class, new BanyanDBEBPFProfilingScheduleQueryDAO(client));
         this.registerServiceImplementation(IContinuousProfilingPolicyDAO.class, new BanyanDBContinuousProfilingPolicyDAO(client));
@@ -177,15 +179,15 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IAggregationQueryDAO.class, new BanyanDBAggregationQueryDAO(client));
         this.registerServiceImplementation(IRecordsQueryDAO.class, new BanyanDBRecordsQueryDAO(client));
         this.registerServiceImplementation(IZipkinQueryDAO.class, new BanyanDBZipkinQueryDAO(client));
-        this.registerServiceImplementation(ISpanAttachedEventQueryDAO.class, new BanyanDBSpanAttachedEventQueryDAO(client, this.config.getProfileDataQueryBatchSize()));
+        this.registerServiceImplementation(ISpanAttachedEventQueryDAO.class, new BanyanDBSpanAttachedEventQueryDAO(client, this.config.getGlobal().getProfileDataQueryBatchSize()));
         this.registerServiceImplementation(IHierarchyQueryDAO.class, new BanyanDBHierarchyQueryDAO(client, this.config));
         this.registerServiceImplementation(
                 IAsyncProfilerTaskQueryDAO.class, new BanyanDBAsyncProfilerTaskQueryDAO(client,
-                        this.config.getAsyncProfilerTaskQueryMaxSize()
+                        this.config.getGlobal().getAsyncProfilerTaskQueryMaxSize()
                 ));
         this.registerServiceImplementation(
                 IAsyncProfilerTaskLogQueryDAO.class, new BanyanDBAsyncProfilerTaskLogQueryDAO(client,
-                        this.config.getAsyncProfilerTaskQueryMaxSize()
+                        this.config.getGlobal().getAsyncProfilerTaskQueryMaxSize()
                 ));
         this.registerServiceImplementation(IJFRDataQueryDAO.class, new BanyanDBJFRDataQueryDAO(client));
         this.registerServiceImplementation(

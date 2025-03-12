@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Enumeration;
-import java.util.Properties;
 import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.skywalking.oap.server.library.util.YamlConfigLoaderUtils.copyProperties;
 
 /**
  * A module definition.
@@ -111,40 +110,6 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
             throw new ModuleConfigException(this.name() + " module config transport to config bean failure.", e);
         }
         loadedProvider.prepare();
-    }
-
-    private void copyProperties(ModuleConfig dest, Properties src, String moduleName,
-                                String providerName) throws IllegalAccessException {
-        if (dest == null) {
-            return;
-        }
-        Enumeration<?> propertyNames = src.propertyNames();
-        while (propertyNames.hasMoreElements()) {
-            String propertyName = (String) propertyNames.nextElement();
-            Class<? extends ModuleConfig> destClass = dest.getClass();
-            try {
-                Field field = getDeclaredField(destClass, propertyName);
-                field.setAccessible(true);
-                field.set(dest, src.get(propertyName));
-            } catch (NoSuchFieldException e) {
-                LOGGER.warn(
-                    propertyName + " setting is not supported in " + providerName + " provider of " + moduleName + " module");
-            }
-        }
-    }
-
-    private Field getDeclaredField(Class<?> destClass, String fieldName) throws NoSuchFieldException {
-        if (destClass != null) {
-            Field[] fields = destClass.getDeclaredFields();
-            for (Field field : fields) {
-                if (field.getName().equals(fieldName)) {
-                    return field;
-                }
-            }
-            return getDeclaredField(destClass.getSuperclass(), fieldName);
-        }
-
-        throw new NoSuchFieldException();
     }
 
     @Override

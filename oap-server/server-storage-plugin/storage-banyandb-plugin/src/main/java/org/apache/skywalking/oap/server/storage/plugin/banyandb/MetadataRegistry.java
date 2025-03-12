@@ -466,17 +466,17 @@ public enum MetadataRegistry {
                     model.getName(),
                     Kind.STREAM,
                     model.getDownsampling(),
-                    model.isSuperDataset() ? config.getGrSuperShardNum() : config.getGrNormalShardNum(),
-                    model.isSuperDataset() ? config.getGrSuperSIDays() : config.getGrNormalSIDays(),
-                    model.isSuperDataset() ? config.getGrSuperTTLDays() : config.getGrNormalTTLDays());
+                    model.isSuperDataset() ? config.getRecordsSuper().getShardNum() : config.getRecordsNormal().getShardNum(),
+                    model.isSuperDataset() ? config.getRecordsSuper().getSegmentInterval() : config.getRecordsNormal().getSegmentInterval(),
+                    model.isSuperDataset() ? config.getRecordsSuper().getTtl() : config.getRecordsNormal().getTtl());
         }
 
         if (model.getBanyanDBModelExtension().isIndexMode()) {
             return new SchemaMetadata("index", model.getName(), Kind.MEASURE,
                     model.getDownsampling(),
-                    config.getGmIndexShardNum(),
-                    config.getGmIndexSIDays(),
-                    config.getGmIndexTTLDays());
+                    config.getMetadata().getShardNum(),
+                    config.getMetadata().getSegmentInterval(),
+                    config.getMetadata().getTtl());
         }
 
         switch (model.getDownsampling()) {
@@ -485,9 +485,9 @@ public enum MetadataRegistry {
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),
-                        config.getGmMinuteShardNum(),
-                        config.getGmMinuteSIDays(),
-                        config.getGmMinuteTTLDays());
+                        config.getMetricsMin().getShardNum(),
+                        config.getMetricsMin().getSegmentInterval(),
+                        config.getMetricsMin().getTtl());
             case Hour:
                 if (!configService.shouldToHour()) {
                     throw new UnsupportedOperationException("downsampling to hour is not supported");
@@ -496,9 +496,9 @@ public enum MetadataRegistry {
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),
-                        config.getGmHourShardNum(),
-                        config.getGmHourSIDays(),
-                        config.getGmHourTTLDays());
+                        config.getMetricsHour().getShardNum(),
+                        config.getMetricsHour().getSegmentInterval(),
+                        config.getMetricsHour().getTtl());
             case Day:
                 if (!configService.shouldToDay()) {
                     throw new UnsupportedOperationException("downsampling to day is not supported");
@@ -507,9 +507,9 @@ public enum MetadataRegistry {
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),
-                        config.getGmDayShardNum(),
-                        config.getGmDaySIDays(),
-                        config.getGmDayTTLDays());
+                        config.getMetricsDay().getShardNum(),
+                        config.getMetricsDay().getSegmentInterval(),
+                        config.getMetricsDay().getTtl());
             default:
                 throw new UnsupportedOperationException("unsupported downSampling interval:" + model.getDownsampling());
         }
