@@ -188,7 +188,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
      */
     @Override
     public void in(Metrics metrics) {
-        if (metricsDAO.isExpiredCache(model, metrics, System.currentTimeMillis(), metricsDataTTL)) {
+        final var isExpired = metricsDAO.isExpiredCache(model, metrics, System.currentTimeMillis(), metricsDataTTL);
+        // Not going to expose this as a configuration, only for testing purpose
+        final var isTestingTTL = "true".equalsIgnoreCase(System.getenv("TESTING_TTL"));
+        if (isExpired && !isTestingTTL) {
             log.debug("Receiving expired metrics: {}, time: {}, ignored", metrics.id(), metrics.getTimeBucket());
             return;
         }
