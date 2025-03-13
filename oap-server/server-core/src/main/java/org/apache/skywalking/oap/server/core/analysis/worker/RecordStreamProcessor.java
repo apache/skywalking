@@ -64,7 +64,7 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         final var recordTimestamp = TimeBucket.getTimestamp(record.getTimeBucket(), DownSampling.Minute);
         final var isExpired = now - recordTimestamp > TimeUnit.DAYS.toMicros(recordDataTTL);
         if (isExpired) {
-            log.warn("Receiving expired record: {}, time: {}, ignored", record.id(), record.getTimeBucket());
+            log.debug("Receiving expired record: {}, time: {}, ignored", record.id(), record.getTimeBucket());
             return;
         }
         RecordPersistentWorker worker = workers.get(record.getClass());

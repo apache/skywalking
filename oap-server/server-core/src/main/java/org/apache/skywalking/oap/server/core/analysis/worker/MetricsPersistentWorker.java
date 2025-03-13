@@ -189,7 +189,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
     @Override
     public void in(Metrics metrics) {
         if (metricsDAO.isExpiredCache(model, metrics, System.currentTimeMillis(), metricsDataTTL)) {
-            log.warn("Receiving expired metrics: {}, time: {}, ignored", metrics.id(), metrics.getTimeBucket());
+            log.debug("Receiving expired metrics: {}, time: {}, ignored", metrics.id(), metrics.getTimeBucket());
             return;
         }
         aggregationCounter.inc();
