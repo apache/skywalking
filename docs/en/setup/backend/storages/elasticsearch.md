@@ -162,7 +162,7 @@ And also you can [specify the settings for each index individually.](#specify-se
 #### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
 
-For example, set [translog](https://www.elastic.co/guide/en/elasticsearch/reference/master/index-modules-translog.html) settings:
+For example, set [translog](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-translog.html) settings:
 
 ```yaml
 storage:

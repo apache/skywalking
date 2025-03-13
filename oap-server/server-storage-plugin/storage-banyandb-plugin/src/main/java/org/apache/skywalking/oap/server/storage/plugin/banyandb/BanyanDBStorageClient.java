@@ -69,9 +69,9 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public BanyanDBStorageClient(BanyanDBStorageConfig config) {
         Options options = new Options();
-        options.setSslTrustCAPath(config.getSslTrustCAPath());
+        options.setSslTrustCAPath(config.getGlobal().getSslTrustCAPath());
         this.client = new BanyanDBClient(config.getTargetArray(), options);
-        this.flushTimeout = config.getFlushTimeout();
+        this.flushTimeout = config.getGlobal().getFlushTimeout();
     }
 
     @Override
@@ -208,6 +208,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
             throw new IOException("fail to query topn", ex);
+        }
+    }
+
+    public BanyandbProperty.QueryResponse query(BanyandbProperty.QueryRequest request) throws IOException {
+        try {
+            BanyandbProperty.QueryResponse response = this.client.query(request);
+            this.healthChecker.health();
+            return response;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to query property", ex);
         }
     }
 

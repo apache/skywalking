@@ -86,7 +86,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     public BanyanDBMetadataQueryDAO(BanyanDBStorageClient client, BanyanDBStorageConfig config) {
         super(client);
-        this.limit = config.getMetadataQueryMaxSize();
+        this.limit = config.getGlobal().getMetadataQueryMaxSize();
     }
 
     @Override

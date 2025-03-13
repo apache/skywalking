@@ -100,7 +100,7 @@ public class BanyanDBIT {
     protected void setUpConnection() throws Exception {
         log.info("create BanyanDB client and try to connect");
         config = new BanyanDBStorageConfig();
-        config.setTargets(banyanDB.getHost() + ":" + banyanDB.getMappedPort(GRPC_PORT));
+        config.getGlobal().setTargets(banyanDB.getHost() + ":" + banyanDB.getMappedPort(GRPC_PORT));
         client = new BanyanDBStorageClient(config);
         client.connect();
     }
@@ -134,10 +134,10 @@ public class BanyanDBIT {
         //test Group install
         BanyandbCommon.Group group = client.client.findGroup(DownSampling.Minute.getName());
         assertEquals(BanyandbCommon.Catalog.CATALOG_MEASURE, group.getCatalog());
-        assertEquals(config.getGmMinuteSIDays(), group.getResourceOpts().getSegmentInterval().getNum());
-        assertEquals(config.getGmMinuteShardNum(), group.getResourceOpts().getShardNum());
+        assertEquals(config.getMetricsMin().getSegmentInterval(), group.getResourceOpts().getSegmentInterval().getNum());
+        assertEquals(config.getMetricsMin().getShardNum(), group.getResourceOpts().getShardNum());
         assertEquals(BanyandbCommon.IntervalRule.Unit.UNIT_DAY, group.getResourceOpts().getSegmentInterval().getUnit());
-        assertEquals(config.getGmMinuteTTLDays(), group.getResourceOpts().getTtl().getNum());
+        assertEquals(config.getMetricsMin().getTtl(), group.getResourceOpts().getTtl().getNum());
         assertEquals(BanyandbCommon.IntervalRule.Unit.UNIT_DAY, group.getResourceOpts().getTtl().getUnit());
 
         installer.createTable(model);
@@ -202,9 +202,9 @@ public class BanyanDBIT {
         Model updatedModel = models.add(UpdateTestMetric.class, DefaultScopeDefine.SERVICE,
                                         new Storage("testMetric", true, DownSampling.Minute)
         );
-        config.setGmMinuteShardNum(config.getGmDayShardNum() + 1);
-        config.setGmMinuteSIDays(config.getGmDaySIDays() + 2);
-        config.setGmMinuteTTLDays(config.getGmDayTTLDays() + 3);
+        config.getMetricsMin().setShardNum(config.getMetricsDay().getShardNum() + 1);
+        config.getMetricsMin().setSegmentInterval(config.getMetricsDay().getSegmentInterval() + 2);
+        config.getMetricsMin().setTtl(config.getMetricsDay().getTtl() + 3);
         BanyanDBIndexInstaller newInstaller = new BanyanDBIndexInstaller(client, moduleManager, config);
         newInstaller.isExists(updatedModel);
         //test Group update

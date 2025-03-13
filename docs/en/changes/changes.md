@@ -74,6 +74,13 @@
 * Add `lock` when query the Alarm metrics window values.
 * Add a fail-safe mechanism to prevent traffic metrics inconsistent between in-memory and database server.
 * Add more clear logs when oap-cluster-internal data(metrics/traffic) format is inconsistent.
+* Optimize metrics cache loading when trace latency greater than cache timeout. 
+* Allow calling `lang.groovy.GString` in DSL.
+* BanyanDB: fix alarm query result without sort. 
+* Add a component ID for Virtual thread executor.
+* Add more model installation log info for OAP storage initialization.
+* BanyanDB: Separate the storage configuration to an independent file: `bydb.yaml`.
+* Bump Armeria to 1.32.0 and some transitive dependencies.
 
 #### UI
 

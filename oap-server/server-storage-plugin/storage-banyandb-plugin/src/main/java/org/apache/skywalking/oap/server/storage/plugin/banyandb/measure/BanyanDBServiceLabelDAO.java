@@ -41,7 +41,7 @@ public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements ISer
 
     public BanyanDBServiceLabelDAO(final BanyanDBStorageClient client, BanyanDBStorageConfig config) {
         super(client);
-        this.limit = config.getMetadataQueryMaxSize();
+        this.limit = config.getGlobal().getMetadataQueryMaxSize();
     }
 
     @Override
