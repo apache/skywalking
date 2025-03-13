@@ -21,11 +21,14 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
@@ -38,11 +41,18 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class RecordStreamProcessor implements StreamProcessor<Record> {
 
     private final static RecordStreamProcessor PROCESSOR = new RecordStreamProcessor();
 
     private Map<Class<? extends Record>, RecordPersistentWorker> workers = new HashMap<>();
+
+    @Setter
+    private int recordDataTTL;
 
     public static RecordStreamProcessor getInstance() {
         return PROCESSOR;
@@ -50,6 +60,13 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
 
     @Override
     public void in(Record record) {
+        final var now = System.currentTimeMillis();
+        final var recordTimestamp = TimeBucket.getTimestamp(record.getTimeBucket(), DownSampling.Minute);
+        final var isExpired = now - recordTimestamp > TimeUnit.DAYS.toMicros(recordDataTTL);
+        if (isExpired) {
+            log.warn("Receiving expired record: {}, time: {}, ignored", record.id(), record.getTimeBucket());
+            return;
+        }
         RecordPersistentWorker worker = workers.get(record.getClass());
         if (worker != null) {
             worker.in(record);
