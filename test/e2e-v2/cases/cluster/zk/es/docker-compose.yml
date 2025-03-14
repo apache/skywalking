@@ -59,7 +59,7 @@ services:
       SW_CLUSTER_INTERNAL_COM_PORT: 11800
       SW_CORE_DATA_KEEPER_EXECUTE_PERIOD: 100
       SW_TELEMETRY: prometheus
-      TESTING_TTL: true
+      TESTING_TTL: "true"
     ports:
       - 1234
     depends_on:

@@ -43,7 +43,7 @@ services:
       SW_STORAGE_ES_FLUSH_INTERVAL: 1
       SW_CORE_PERSISTENT_PERIOD: 1
       SW_CORE_METRICS_DATA_TTL: 7
-      TESTING_TTL: true
+      TESTING_TTL: "true"
     depends_on:
       es:
         condition: service_healthy
