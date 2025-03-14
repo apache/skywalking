@@ -20,6 +20,8 @@ services:
     image: elastic/elasticsearch:7.15.0
     expose:
       - 9200
+    ports:
+      - 9200:9200
     networks:
       - e2e
     environment:

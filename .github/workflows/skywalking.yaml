@@ -329,7 +329,7 @@ jobs:
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
-    needs: [docker]
+    needs: [docker, dist-tar]
     runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
     timeout-minutes: 60
     env:
@@ -715,6 +715,11 @@ jobs:
         run: |
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
+      - uses: actions/download-artifact@v4
+        name: Download distribution tar
+        with:
+          name: dist
+          path: dist
       - name: Login to ghcr
         uses: docker/login-action@v3
         with:

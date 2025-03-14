@@ -1,0 +1,36 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+  cases:
+    # dump the profiling data
+    - query: | 
+        cd dist && tar -zxf *.tar.gz && cd apache-skywalking-apm-bin && \
+        mkdir -p export && \
+        taskid=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' -) \
+        traceid=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$taskid | yq e '.[0] | .traceid' - \
+        ) \
+        SW_STORAGE=elasticsearch bash tools/profile-exporter/profile_exporter.sh --taskid=$taskid --traceid=$traceid ./export 2>&1 | \
+          yq -o yaml --null-input '.log_output = (loadstr("/dev/stdin") | split("\n") | map(select(. != "")))' > output.yaml && \
+        cat output.yaml
+      expected: expected/profile-dump-process.yml
+    - query: |
+        traceid=$(swctl --display yaml --base-url="http://${oap_host}:${oap_12800}/graphql" profiling trace segment-list --task-id="$taskid" | yq e '.[0] | .traceid' -); \
+        [ -d "./export/$traceid/work" ] && [ "$(ls -A "./export/$traceid/work" 2>/dev/null)" ] && echo "success" || echo "failure"
+      expected: expected/profile-dump-result.yml
+
+
