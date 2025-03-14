@@ -15,5 +15,5 @@
 
 log_output:
   {{- range .log_output }}
-    - {{ notEmpty . }}
+    - "{{ notEmpty . }}"
   {{- end }}
