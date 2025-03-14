@@ -23,26 +23,41 @@ import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
+import org.apache.skywalking.oap.server.core.cache.AsyncProfilerTaskCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
+import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
+import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
+import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerMutationService;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerQueryService;
+import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingMutationService;
+import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingMutationService;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
+import org.apache.skywalking.oap.server.core.query.HierarchyQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
+import org.apache.skywalking.oap.server.core.query.RecordQueryService;
+import org.apache.skywalking.oap.server.core.query.TTLStatusQuery;
+import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
@@ -52,6 +67,7 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
@@ -121,6 +137,10 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
+        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager(), moduleConfig));
+        moduleConfig.setEnableHierarchy(false);
+        this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
+        this.registerServiceImplementation(HierarchyService.class, new HierarchyService(getManager(), moduleConfig));
         this.registerServiceImplementation(
                 DownSamplingConfigService.class, new DownSamplingConfigService(Collections.emptyList()));
 
@@ -171,8 +191,39 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         // Management
         this.registerServiceImplementation(UITemplateManagementService.class, new UITemplateManagementService(getManager()));
+        this.registerServiceImplementation(
+            UIMenuManagementService.class, new UIMenuManagementService(getManager(), moduleConfig));
 
         this.registerServiceImplementation(EventQueryService.class, new EventQueryService(getManager()));
+        this.registerServiceImplementation(RecordQueryService.class, new RecordQueryService(getManager()));
+        this.registerServiceImplementation(HierarchyQueryService.class, new HierarchyQueryService(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            TTLStatusQuery.class, new TTLStatusQuery(
+                getManager(),
+                moduleConfig.getMetricsDataTTL(),
+                moduleConfig.getRecordDataTTL()
+            )
+        );
+        this.registerServiceImplementation(
+            TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            AsyncProfilerMutationService.class, new AsyncProfilerMutationService(getManager()));
+        this.registerServiceImplementation(
+            AsyncProfilerQueryService.class, new AsyncProfilerQueryService(getManager()));
+        this.registerServiceImplementation(
+            AsyncProfilerTaskCache.class, new AsyncProfilerTaskCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            EBPFProfilingMutationService.class, new EBPFProfilingMutationService(getManager()));
+        this.registerServiceImplementation(
+            EBPFProfilingQueryService.class,
+            new EBPFProfilingQueryService(getManager(), moduleConfig, this.storageModels)
+        );
+        this.registerServiceImplementation(
+            ContinuousProfilingMutationService.class, new ContinuousProfilingMutationService(getManager()));
+        this.registerServiceImplementation(
+            ContinuousProfilingQueryService.class, new ContinuousProfilingQueryService(getManager()));
+        this.registerServiceImplementation(EndpointNameGroupService.class, new EndpointNameGrouping());
+
     }
 
     @Override

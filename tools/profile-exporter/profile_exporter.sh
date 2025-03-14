@@ -44,6 +44,7 @@ done
 
 # prepare paths
 oap_libs_dir="${exporter_dir}/../../oap-libs"
+oap_config="${exporter_dir}/../../config"
 exporter_log_file="${exporter_dir}/profile_exporter_log4j2.xml"
 tool_application_config="${exporter_dir}/application.yml"
 [[ ! -f ${tool_application_config} ]] \
@@ -70,7 +71,7 @@ JAVA_OPTS=" -Xms256M -Xmx512M"
 _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java
 
-CLASSPATH="${work_dir}/config:$CLASSPATH"
+CLASSPATH="${work_dir}/config:${oap_config}:$CLASSPATH"
 for i in "${oap_libs_dir}"/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"
