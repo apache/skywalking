@@ -54,6 +54,9 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
     @Setter
     private int recordDataTTL;
 
+    // Not going to expose this as a configuration, only for testing purpose
+    private final boolean isTestingTTL = "true".equalsIgnoreCase(System.getenv("TESTING_TTL"));
+
     public static RecordStreamProcessor getInstance() {
         return PROCESSOR;
     }
@@ -63,8 +66,6 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         final var now = System.currentTimeMillis();
         final var recordTimestamp = TimeBucket.getTimestamp(record.getTimeBucket(), DownSampling.Minute);
         final var isExpired = now - recordTimestamp > TimeUnit.DAYS.toMicros(recordDataTTL);
-        // Not going to expose this as a configuration, only for testing purpose
-        final var isTestingTTL = "true".equalsIgnoreCase(System.getenv("TESTING_TTL"));
         if (isExpired && !isTestingTTL) {
             log.debug("Receiving expired record: {}, time: {}, ignored", record.id(), record.getTimeBucket());
             return;
