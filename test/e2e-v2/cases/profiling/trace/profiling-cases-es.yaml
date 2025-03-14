@@ -28,9 +28,11 @@
             ) | yq e '.[0] | .traceid' - \
           ) \
           ./export > log.txt && \
-          yq -n '{"log_content": load_str("log.txt") | split("\n") | .[:-1]}'
+          yq -n '{"log_output": load_str("log.txt") | split("\n") | .[:-1]}'
       expected: expected/profile-dump-process.yml
     - query: |
+        cd dist/apache-skywalking-apm-bin && \
+        taskid=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' -) \
         traceid=$(swctl --display yaml --base-url="http://${oap_host}:${oap_12800}/graphql" profiling trace segment-list --task-id="$taskid" | yq e '.[0] | .traceid' -); \
         [ -d "./export/$traceid/work" ] && [ "$(ls -A "./export/$traceid/work" 2>/dev/null)" ] && echo "success" || echo "failure"
       expected: expected/profile-dump-result.yml
