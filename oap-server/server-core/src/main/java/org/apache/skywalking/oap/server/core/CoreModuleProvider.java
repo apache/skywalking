@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.metrics.ApdexMetrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.AsyncProfilerTaskCache;
@@ -379,6 +380,7 @@ public class CoreModuleProvider extends ModuleProvider {
         metricsStreamProcessor.setL1FlushPeriod(moduleConfig.getL1FlushPeriod());
         metricsStreamProcessor.setStorageSessionTimeout(moduleConfig.getStorageSessionTimeout());
         metricsStreamProcessor.setMetricsDataTTL(moduleConfig.getMetricsDataTTL());
+        RecordStreamProcessor.getInstance().setRecordDataTTL(moduleConfig.getRecordDataTTL());
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
