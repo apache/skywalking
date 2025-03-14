@@ -20,16 +20,15 @@
     - query: | 
         cd dist && tar -zxf *.tar.gz && cd apache-skywalking-apm-bin && \
         mkdir -p export && \
-        SW_STORAGE=elasticsearch bash tools/profile-exporter/profile_exporter.sh \ 
+        SW_STORAGE=elasticsearch bash tools/profile-exporter/profile_exporter.sh \
           --taskid=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' -) \
           --traceid=$( \
             swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
               swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
             ) | yq e '.[0] | .traceid' - \
           ) \
-          ./export 2>&1 | \
-          yq -o yaml --null-input '.log_output = (loadstr("/dev/stdin") | split("\n") | map(select(. != "")))' > output.yaml && \
-        cat output.yaml
+          ./export > log.txt && \
+          yq -n '{"log_content": load_str("log.txt") | split("\n") | .[:-1]}'
       expected: expected/profile-dump-process.yml
     - query: |
         traceid=$(swctl --display yaml --base-url="http://${oap_host}:${oap_12800}/graphql" profiling trace segment-list --task-id="$taskid" | yq e '.[0] | .traceid' -); \
