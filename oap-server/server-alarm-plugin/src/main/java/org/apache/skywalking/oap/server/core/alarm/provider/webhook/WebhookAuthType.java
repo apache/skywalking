@@ -21,8 +21,6 @@ package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Arrays;
-
 /**
  * Webhook authentication type
  */
@@ -32,11 +30,5 @@ public enum WebhookAuthType {
 
     BEARER("Bearer");
 
-    private final String type;
-    public static WebhookAuthType typeOf(String type) {
-        return Arrays.stream(values())
-                .filter(v -> v.getType().equals(type))
-                .findFirst()
-                .orElse(null);
-    }
+    private final String value;
 }

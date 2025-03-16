@@ -55,7 +55,7 @@ public class WebhookSettings extends AlarmHookSettings {
         private final String credentials;
 
         public void validate() {
-            if (WebhookAuthType.typeOf(type) == null) {
+            if (Arrays.stream(WebhookAuthType.values()).noneMatch(v -> v.getValue().equals(type))) {
                 throw new IllegalArgumentException("Unsupported authorization: " + type);
             }
             if (StringUtil.isEmpty(credentials)) {
