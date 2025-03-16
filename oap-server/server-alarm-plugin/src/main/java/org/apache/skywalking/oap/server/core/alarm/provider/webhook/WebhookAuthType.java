@@ -30,5 +30,14 @@ public enum WebhookAuthType {
 
     BEARER("Bearer");
 
-    private final String value;
+    private final String name;
+
+    public static WebhookAuthType nameOf(String name) {
+        for (WebhookAuthType type : values()) {
+            if (type.name.equals(name)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unsupported webhook authentication: " + name);
+    }
 }

@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookAuthType;
 import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -166,8 +167,7 @@ public class RulesReader {
             if (authorizationConf != null) {
                 String type = authorizationConf.get("type");
                 String credentials = authorizationConf.get("credentials");
-                WebhookSettings.Authorization authorization = WebhookSettings.Authorization.builder().type(type).credentials(credentials).build();
-                authorization.validate();
+                WebhookSettings.Authorization authorization = new WebhookSettings.Authorization(WebhookAuthType.nameOf(type), credentials);
                 settings.setAuthorization(authorization);
             }
             rules.getWebhookSettingsMap().put(settings.getFormattedName(), settings);

@@ -58,11 +58,9 @@ public class WebhookCallbackTest {
                 }
                 if (elements.size() == 1) {
                     COUNTER.incrementAndGet();
-                    return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+                    return HttpResponse.of(HttpStatus.OK);
                 }
                 return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
-
-
             })));
         }
     };
@@ -76,7 +74,7 @@ public class WebhookCallbackTest {
         setting1.setUrls(remoteEndpoints);
         WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.webhook, false);
         setting2.setUrls(remoteEndpoints);
-        setting2.setAuthorization(WebhookSettings.Authorization.builder().type(WebhookAuthType.BEARER.getValue()).credentials("dummy_token").build());
+        setting2.setAuthorization(new WebhookSettings.Authorization(WebhookAuthType.BEARER, "dummy_token"));
         rules.getWebhookSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWebhookSettingsMap().put(setting2.getFormattedName(), setting2);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);

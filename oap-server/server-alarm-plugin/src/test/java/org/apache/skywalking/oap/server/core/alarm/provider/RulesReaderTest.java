@@ -75,7 +75,7 @@ public class RulesReaderTest {
         WebhookSettings rulesWebhooks = rules.getWebhookSettingsMap().get(AlarmHooksType.webhook.name() + ".default");
         Assertions.assertEquals(2, rulesWebhooks.getUrls().size());
         Assertions.assertEquals("http://127.0.0.1/go-wechat/", rulesWebhooks.getUrls().get(1));
-        Assertions.assertEquals("Bearer", rulesWebhooks.getAuthorization().getType());
+        Assertions.assertEquals("Bearer", rulesWebhooks.getAuthorization().getType().getName());
         Assertions.assertEquals("dummy_token", rulesWebhooks.getAuthorization().getCredentials());
 
         GRPCAlarmSetting grpcAlarmSetting = rules.getGrpcAlarmSettingMap().get(AlarmHooksType.gRPC.name() + ".default");

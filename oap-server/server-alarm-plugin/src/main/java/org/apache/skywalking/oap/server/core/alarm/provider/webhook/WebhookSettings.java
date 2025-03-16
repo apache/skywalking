@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
 import java.util.*;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,7 +35,6 @@ public class WebhookSettings extends AlarmHookSettings {
     private List<String> urls = new ArrayList<>();
     private Authorization authorization;
 
-
     public WebhookSettings(final String name,
                            final AlarmHooksType type,
                            final boolean isDefault) {
@@ -44,30 +42,30 @@ public class WebhookSettings extends AlarmHookSettings {
 
     }
 
-    @Builder
     @Data
     @ToString
     public static class Authorization {
         /**
          * @see WebhookAuthType
          */
-        private final String type;
-        private final String credentials;
+        private WebhookAuthType type;
+        private String credentials;
 
-        public void validate() {
-            if (Arrays.stream(WebhookAuthType.values()).noneMatch(v -> v.getValue().equals(type))) {
-                throw new IllegalArgumentException("Unsupported authorization: " + type);
-            }
+        public Authorization(final WebhookAuthType type, final String credentials) {
             if (StringUtil.isEmpty(credentials)) {
                 throw new IllegalArgumentException("Credentials cannot be null or empty");
             }
+            this.type = type;
+            this.credentials = credentials;
         }
     }
 
     public Map<String, String> getAuthHeaders(){
         HashMap<String, String> headers = new HashMap<>();
         if (authorization != null){
-            headers.put("Authorization", "Bearer " + this.authorization.credentials);
+            if(authorization.getType() == WebhookAuthType.BEARER){
+                headers.put("Authorization", "Bearer " + this.authorization.credentials);
+            }
         }
         return headers;
     }
