@@ -118,7 +118,7 @@ jobs:
       - name: Filter OAP
         id: filter-oap
         # The GHA version is pinned by infra (2024-03-17)
-        uses: tj-actions/changed-files@v43.0.0
+        uses: tj-actions/changed-files@v46
         with:
           files_ignore: |
             **/*.{md,txt}
