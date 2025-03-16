@@ -33,7 +33,10 @@ public enum WebhookAuthType {
     BEARER("Bearer");
 
     private final String type;
-    public static boolean validate(String type) {
-        return type != null && Arrays.stream(values()).anyMatch(v -> v.getType().equals(type));
+    public static WebhookAuthType typeOf(String type) {
+        return Arrays.stream(values())
+                .filter(v -> v.getType().equals(type))
+                .findFirst()
+                .orElse(null);
     }
 }
