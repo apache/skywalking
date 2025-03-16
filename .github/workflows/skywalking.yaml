@@ -107,6 +107,10 @@ jobs:
     if: github.event_name != 'schedule'
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4 # required for push event
+        with:
+          fetch-depth: 0
+          submodules: true
 
   dist-tar:
     if: |
