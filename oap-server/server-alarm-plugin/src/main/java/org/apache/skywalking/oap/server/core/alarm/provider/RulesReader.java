@@ -166,7 +166,7 @@ public class RulesReader {
             if (authorizationConf != null) {
                 String type = authorizationConf.getOrDefault("type", "");
                 String credentials = authorizationConf.getOrDefault("credentials", "");
-                WebhookSettings.Authorization authorization = new WebhookSettings.Authorization(type, credentials);
+                WebhookSettings.Authorization authorization = WebhookSettings.Authorization.builder().type(type).credentials(credentials).build();
                 settings.setAuthorization(authorization);
             }
             rules.getWebhookSettingsMap().put(settings.getFormattedName(), settings);

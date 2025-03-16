@@ -76,7 +76,7 @@ public class WebhookCallbackTest {
         setting1.setUrls(remoteEndpoints);
         WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.webhook, false);
         setting2.setUrls(remoteEndpoints);
-        setting2.setAuthorization(new WebhookSettings.Authorization(WebhookAuthType.BEARER.getType(), "dummy_token"));
+        setting2.setAuthorization(WebhookSettings.Authorization.builder().type(WebhookAuthType.BEARER.getType()).credentials("dummy_token").build());
         rules.getWebhookSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWebhookSettingsMap().put(setting2.getFormattedName(), setting2);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
