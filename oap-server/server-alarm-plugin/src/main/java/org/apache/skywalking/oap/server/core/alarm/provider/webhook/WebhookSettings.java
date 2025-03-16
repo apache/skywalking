@@ -18,7 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 import lombok.Getter;
