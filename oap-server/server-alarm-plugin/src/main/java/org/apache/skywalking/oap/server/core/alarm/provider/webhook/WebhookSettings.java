@@ -48,9 +48,6 @@ public class WebhookSettings extends AlarmHookSettings {
     @Data
     @ToString
     public static class Authorization {
-        /**
-         * @see WebhookAuthType
-         */
         private WebhookAuthType type;
         private String credentials;
 
