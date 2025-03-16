@@ -27,6 +27,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Setter
 @Getter
@@ -52,6 +53,15 @@ public class WebhookSettings extends AlarmHookSettings {
          */
         private final String type;
         private final String credentials;
+
+        public void validate() {
+            if (!WebhookAuthType.validate(type)) {
+                throw new IllegalArgumentException("Unsupported authorization: " + type);
+            }
+            if (StringUtil.isEmpty(credentials)) {
+                throw new IllegalArgumentException("Credentials cannot be null or empty");
+            }
+        }
     }
 
     public Map<String, String> getAuthHeaders(){
