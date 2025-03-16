@@ -162,6 +162,13 @@ public class RulesReader {
             if (urls != null) {
                 settings.getUrls().addAll(urls);
             }
+            Map<String, String> authorizationConf = (Map<String, String>)config.get("authorization");
+            if (authorizationConf != null) {
+                String type = authorizationConf.getOrDefault("type", "");
+                String credentials = authorizationConf.getOrDefault("credentials", "");
+                WebhookSettings.Authorization authorization = new WebhookSettings.Authorization(type, credentials);
+                settings.setAuthorization(authorization);
+            }
             rules.getWebhookSettingsMap().put(settings.getFormattedName(), settings);
             if (settings.isDefault()) {
                 this.defaultHooks.add(settings.getFormattedName());

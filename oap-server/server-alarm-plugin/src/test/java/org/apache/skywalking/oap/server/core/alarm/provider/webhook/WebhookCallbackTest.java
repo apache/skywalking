@@ -22,9 +22,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.RequestHeaders;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
@@ -33,31 +33,37 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WebhookCallbackTest {
-    private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean();
+    private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean(true);
     private static final AtomicInteger COUNTER = new AtomicInteger();
 
     @RegisterExtension
     public static final ServerExtension SERVER = new ServerExtension() {
         @Override
         protected void configure(ServerBuilder sb) {
-            sb.service("/webhook/receiveAlarm", (ctx, req) -> HttpResponse.from(
-                req.aggregate().thenApply(r -> {
-                    final String content = r.content().toStringUtf8();
-                    final JsonArray elements = new Gson().fromJson(content, JsonArray.class);
-                    if (elements.size() == 1) {
-                        COUNTER.getAndIncrement();
-                        IS_SUCCESS.set(true);
-                        return HttpResponse.of(HttpStatus.OK);
-                    }
-
+            sb.service("/webhook/receiveAlarm", (ctx, req) -> HttpResponse.from(req.aggregate().thenApply(r -> {
+                final String content = r.content().toStringUtf8();
+                final RequestHeaders headers = r.headers();
+                final JsonArray elements = new Gson().fromJson(content, JsonArray.class);
+                String authorization = headers.get("Authorization");
+                if (authorization != null && !"Bearer dummy_token".equals(authorization)) {
+                    IS_SUCCESS.set(false);
+                    return HttpResponse.of(HttpStatus.UNAUTHORIZED);
+                }
+                if (elements.size() == 1) {
+                    COUNTER.incrementAndGet();
                     return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
-                }))
-            );
+                }
+                return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+
+
+            })));
         }
     };
 
@@ -70,6 +76,7 @@ public class WebhookCallbackTest {
         setting1.setUrls(remoteEndpoints);
         WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.webhook, false);
         setting2.setUrls(remoteEndpoints);
+        setting2.setAuthorization(new WebhookSettings.Authorization(WebhookAuthType.BEARER.getType(), "dummy_token"));
         rules.getWebhookSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWebhookSettingsMap().put(setting2.getFormattedName(), setting2);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
@@ -88,7 +95,6 @@ public class WebhookCallbackTest {
         anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         webhookCallback.doAlarm(alarmMessages);
-
         Assertions.assertTrue(IS_SUCCESS.get());
         Assertions.assertEquals(2, COUNTER.get());
     }

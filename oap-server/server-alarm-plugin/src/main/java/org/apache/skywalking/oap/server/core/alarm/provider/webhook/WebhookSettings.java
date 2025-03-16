@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,10 +32,33 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 @ToString
 public class WebhookSettings extends AlarmHookSettings {
     private List<String> urls = new ArrayList<>();
+    private Authorization authorization;
+
 
     public WebhookSettings(final String name,
                            final AlarmHooksType type,
                            final boolean isDefault) {
         super(name, type, isDefault);
+
+    }
+
+    @AllArgsConstructor
+    @Setter
+    @Getter
+    @ToString
+    public static class Authorization {
+        /**
+         * @see WebhookAuthType
+         */
+        private final String type;
+        private final String credentials;
+    }
+
+    public Map<String, String> getAuthHeaders(){
+        HashMap<String, String> headers = new HashMap<>();
+        if (authorization != null){
+            headers.put("Authorization", "Bearer " + this.authorization.credentials);
+        }
+        return headers;
     }
 }

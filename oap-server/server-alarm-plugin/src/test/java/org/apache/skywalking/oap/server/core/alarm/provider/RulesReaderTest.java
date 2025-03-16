@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSetting
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookAuthType;
 import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
@@ -74,6 +75,8 @@ public class RulesReaderTest {
         WebhookSettings rulesWebhooks = rules.getWebhookSettingsMap().get(AlarmHooksType.webhook.name() + ".default");
         Assertions.assertEquals(2, rulesWebhooks.getUrls().size());
         Assertions.assertEquals("http://127.0.0.1/go-wechat/", rulesWebhooks.getUrls().get(1));
+        Assertions.assertEquals("Bearer", rulesWebhooks.getAuthorization().getType());
+        Assertions.assertEquals("dummy_token", rulesWebhooks.getAuthorization().getCredentials());
 
         GRPCAlarmSetting grpcAlarmSetting = rules.getGrpcAlarmSettingMap().get(AlarmHooksType.gRPC.name() + ".default");
         assertNotNull(grpcAlarmSetting);

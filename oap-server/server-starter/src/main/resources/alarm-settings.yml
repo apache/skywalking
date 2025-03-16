@@ -47,6 +47,10 @@ hooks:
 #      urls:
 #        - http://127.0.0.1/notify/
 #        - http://127.0.0.1/go-wechat/
+#      # If you need Http authentication, Currently supported type: Bearer.
+#      authorization:
+#        type: Bearer
+#        credentials: dummy_token
 #
 #  gRPC:
 #    default:

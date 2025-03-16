@@ -189,6 +189,10 @@ webhook:
     urls:
       - http://ip:port/xxx
       - http://ip:port/yyy
+    # If you need Http authentication, Currently supported type: Bearer.
+    authorization:
+      type: Bearer
+      credentials: dummy_token
 ```
 
 The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage>` with the following key information:
