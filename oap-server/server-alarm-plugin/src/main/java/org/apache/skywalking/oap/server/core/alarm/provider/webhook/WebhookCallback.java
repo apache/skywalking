@@ -56,7 +56,7 @@ public class WebhookCallback extends HttpAlarmCallback {
             }
             for (final var url : setting.getUrls()) {
                 try {
-                    post(URI.create(url), gson.toJson(messages), Map.of());
+                    post(URI.create(url), gson.toJson(messages), setting.getHeaders());
                 } catch (Exception e) {
                     log.error("Failed to send alarm message to Webhook: {}", url, e);
                 }
