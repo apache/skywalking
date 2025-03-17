@@ -192,16 +192,19 @@ webhook:
     custom1:
       urls:
         - http://127.0.0.1/custom1
+      # headers config is provided to add custom configurations or authentications that are required from the server side.
       headers:
         Authorization: Bearer bearer_token
     custom2:
       urls:
         - http://127.0.0.1/custom2
+      # headers config is provided to add custom configurations or authentications that are required from the server 
       headers:
         Authorization: Basic basic_token
     custom3:
       urls:
         - http://127.0.0.1/internal-hook
+      # headers config is provided to add custom configurations or authentications that are required from the server 
       headers:
         x-company-token: whatever-token-defined-internally-within-the-company
         x-company-header: arbitrary-additional-http-headers
