@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookAuthType;
 import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -158,18 +157,12 @@ public class RulesReader {
             Map<String, Object> config = (Map<String, Object>) v;
             WebhookSettings settings = new WebhookSettings(
                 k.toString(), AlarmHooksType.webhook, (Boolean) config.getOrDefault("is-default", false));
-
             List<String> urls = (List<String>) config.get("urls");
             if (urls != null) {
                 settings.getUrls().addAll(urls);
             }
-            Map<String, String> authorizationConf = (Map<String, String>) config.get("authorization");
-            if (authorizationConf != null) {
-                String type = authorizationConf.get("type");
-                String credentials = authorizationConf.get("credentials");
-                WebhookSettings.Authorization authorization = new WebhookSettings.Authorization(WebhookAuthType.nameOf(type), credentials);
-                settings.setAuthorization(authorization);
-            }
+            Map<String, String> headers = (Map<String, String>) config.getOrDefault("headers", new HashMap<>());
+            settings.setHeaders(headers);
             rules.getWebhookSettingsMap().put(settings.getFormattedName(), settings);
             if (settings.isDefault()) {
                 this.defaultHooks.add(settings.getFormattedName());

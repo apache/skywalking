@@ -84,7 +84,7 @@
 * Bump Armeria to 1.32.0 and some transitive dependencies.
 * Skip persisting metrics/record data that have been expired.
 * Fix the issue of missing Last Ping data.
-* Add bearer auth configuration for http webhook.
+* Add Http headers configuration for webhook.
 
 #### UI
 

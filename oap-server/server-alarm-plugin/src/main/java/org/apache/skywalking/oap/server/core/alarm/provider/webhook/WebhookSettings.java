@@ -18,55 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Setter
 @Getter
 @ToString
 public class WebhookSettings extends AlarmHookSettings {
     private List<String> urls = new ArrayList<>();
-    private Authorization authorization;
+    private Map<String, String> headers = new HashMap<>();
 
     public WebhookSettings(final String name,
                            final AlarmHooksType type,
                            final boolean isDefault) {
         super(name, type, isDefault);
-
-    }
-
-    @Data
-    @ToString
-    public static class Authorization {
-        private WebhookAuthType type;
-        private String credentials;
-
-        public Authorization(final WebhookAuthType type, final String credentials) {
-            if (StringUtil.isEmpty(credentials)) {
-                throw new IllegalArgumentException("Credentials cannot be null or empty");
-            }
-            this.type = type;
-            this.credentials = credentials;
-        }
-    }
-
-    public Map<String, String> getAuthHeaders() {
-        HashMap<String, String> headers = new HashMap<>();
-        if (authorization != null) {
-            if (authorization.getType() == WebhookAuthType.BEARER) {
-                headers.put("Authorization", "Bearer " + this.authorization.credentials);
-            }
-        }
-        return headers;
     }
 }

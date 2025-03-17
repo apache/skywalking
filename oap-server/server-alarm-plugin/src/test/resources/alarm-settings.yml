@@ -66,15 +66,12 @@ hooks:
       urls:
         - http://127.0.0.1/notify/
         - http://127.0.0.1/go-wechat/
-      authorization:
-        type: Bearer
-        credentials: dummy_token
     custom1:
       urls:
         - http://127.0.0.1/custom1
-      authorization:
-        type: Bearer
-        credentials: dummy_token
+      headers:
+        Authorization: Bearer bearer_token
+        x-company-header: arbitrary-additional-http-headers
 
   gRPC:
     default:
