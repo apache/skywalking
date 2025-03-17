@@ -16,6 +16,7 @@
 * [Breaking Change] Bump up BanyanDB server version to 0.8.0. This version is not compatible with the previous 
   versions. Please upgrade the BanyanDB server to 0.8.0 before upgrading OAP to 10.2.0.
 * Bump up nodejs to v22.14.0 for the latest UI(booster-ui) compiling. 
+* Migrate tj-actions/changed-files to dorny/paths-filter.
 
 #### OAP Server
 
@@ -82,6 +83,7 @@
 * BanyanDB: Separate the storage configuration to an independent file: `bydb.yaml`.
 * Bump Armeria to 1.32.0 and some transitive dependencies.
 * Skip persisting metrics/record data that have been expired.
+* Fix the issue of missing Last Ping data.
 * Add bearer auth configuration for http webhook.
 
 #### UI
