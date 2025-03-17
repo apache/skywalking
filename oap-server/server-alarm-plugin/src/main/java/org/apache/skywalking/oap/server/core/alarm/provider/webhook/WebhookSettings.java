@@ -60,10 +60,10 @@ public class WebhookSettings extends AlarmHookSettings {
         }
     }
 
-    public Map<String, String> getAuthHeaders(){
+    public Map<String, String> getAuthHeaders() {
         HashMap<String, String> headers = new HashMap<>();
-        if (authorization != null){
-            if(authorization.getType() == WebhookAuthType.BEARER){
+        if (authorization != null) {
+            if (authorization.getType() == WebhookAuthType.BEARER) {
                 headers.put("Authorization", "Bearer " + this.authorization.credentials);
             }
         }

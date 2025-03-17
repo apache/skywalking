@@ -163,7 +163,7 @@ public class RulesReader {
             if (urls != null) {
                 settings.getUrls().addAll(urls);
             }
-            Map<String, String> authorizationConf = (Map<String, String>)config.get("authorization");
+            Map<String, String> authorizationConf = (Map<String, String>) config.get("authorization");
             if (authorizationConf != null) {
                 String type = authorizationConf.get("type");
                 String credentials = authorizationConf.get("credentials");

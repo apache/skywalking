@@ -23,7 +23,6 @@ import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSetting
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookAuthType;
 import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
