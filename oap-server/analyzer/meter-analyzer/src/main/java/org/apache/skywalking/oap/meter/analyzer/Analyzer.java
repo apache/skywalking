@@ -291,6 +291,7 @@ public class Analyzer {
             endpointTraffic.setName(entity.getEndpointName());
             endpointTraffic.setServiceId(entity.serviceId());
             endpointTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            endpointTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
             MetricsStreamProcessor.getInstance().in(endpointTraffic);
         }
     }
