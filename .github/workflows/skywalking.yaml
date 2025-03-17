@@ -120,6 +120,7 @@ jobs:
         uses: dorny/paths-filter@b2feaf19c27470162a626bd6fa8438ae5b263721
         with:
           list-files: 'shell'
+          predicate-quantifier: 'every'
           filters: |
             oap:
             - '!**/*.md'
