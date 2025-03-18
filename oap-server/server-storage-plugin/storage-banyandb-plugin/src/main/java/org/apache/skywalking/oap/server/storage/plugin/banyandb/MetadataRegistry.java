@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Metadata;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Property;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.CompressionMethod;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.EncodingMethod;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.FieldSpec;
@@ -175,6 +176,32 @@ public enum MetadataRegistry {
 
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return new MeasureModel(builder.build(), indexRules);
+    }
+
+    public PropertyModel registerPropertyModel(Model model) {
+        final SchemaMetadata schemaMetadata = parseMetadata(model, null, null);
+        Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
+        Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
+                .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
+        // parse and set seriesIDs
+        List<String> seriesIDColumns = parseEntityNames(modelColumnMap);
+        if (seriesIDColumns.isEmpty()) {
+            throw new IllegalStateException("seriesID of model[property." + model.getName() + "] must not be empty");
+        }
+        List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder, seriesIDColumns, schemaMetadata.group);
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags, false);
+        // iterate over tagFamilySpecs to save tag names
+        for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
+            for (final TagSpec tagSpec : tagFamilySpec.getTagsList()) {
+                schemaBuilder.tag(tagSpec.getName());
+            }
+        }
+        final Property.Builder builder = Property.newBuilder();
+        builder.setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(schemaMetadata.getGroup())
+                .setName(schemaMetadata.name()));
+
+        registry.put(schemaMetadata.name(), schemaBuilder.build());
+        return new PropertyModel(builder.build());
     }
 
     private TopNAggregation parseTopNSpec(final Model model, final String group, final String measureName)
@@ -461,6 +488,9 @@ public enum MetadataRegistry {
     }
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, DownSamplingConfigService configService) {
+        if (!model.isTimeSeries()) {
+            return new SchemaMetadata("sw", model.getName(), Kind.Property, DownSampling.None, 1, 0, 0);
+        }
         if (model.isRecord()) { // stream
             return new SchemaMetadata(model.isSuperDataset() ? model.getName() : "normal",
                     model.getName(),
@@ -600,7 +630,7 @@ public enum MetadataRegistry {
     }
 
     public enum Kind {
-        MEASURE, STREAM;
+        MEASURE, STREAM, Property;
     }
 
     @RequiredArgsConstructor
