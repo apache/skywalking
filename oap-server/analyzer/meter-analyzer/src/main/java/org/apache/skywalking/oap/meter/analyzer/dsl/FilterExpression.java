@@ -51,4 +51,8 @@ public class FilterExpression {
         }
         return sampleFamilies;
     }
+
+    public SampleFamily filter(SampleFamily sampleFamily) {
+        return sampleFamily.filter(filterClosure);
+    }
 }
