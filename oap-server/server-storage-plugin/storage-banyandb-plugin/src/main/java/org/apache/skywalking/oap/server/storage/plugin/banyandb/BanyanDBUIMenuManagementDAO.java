@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
-import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenu;
@@ -50,23 +49,19 @@ public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements 
     @Override
     public void saveMenu(UIMenu menu) throws IOException {
         Property property = Property.newBuilder()
-                                    .setMetadata(BanyandbProperty.Metadata.newBuilder().setId(menu.getMenuId())
-                                                                          .setContainer(
-                                                                              BanyandbCommon.Metadata.newBuilder()
-                                                                                                     .setGroup(GROUP)
-                                                                                                     .setName(
-                                                                                                         UIMenu.INDEX_NAME)))
-
+                                    .setMetadata(
+                                        BanyandbCommon.Metadata.newBuilder().setGroup(GROUP).setName(UIMenu.INDEX_NAME))
+                                    .setId(menu.getMenuId())
                                     .addTags(TagAndValue.newStringTag(UIMenu.CONFIGURATION, menu.getConfigurationJson())
                                                         .build())
                                     .addTags(TagAndValue.newLongTag(UIMenu.UPDATE_TIME, menu.getUpdateTime()).build())
                                     .build();
-        this.getClient().define(property);
+        this.getClient().apply(property);
     }
 
     public UIMenu parse(Property property) {
         UIMenu menu = new UIMenu();
-        menu.setMenuId(property.getMetadata().getId());
+        menu.setMenuId(property.getId());
 
         for (BanyandbModel.Tag tag : property.getTagsList()) {
             TagAndValue<?> tagAndValue = TagAndValue.fromProtobuf(tag);

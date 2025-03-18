@@ -206,16 +206,6 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.client.registerChecker(healthChecker);
         try {
             this.client.connect();
-            this.client.defineIfEmpty(BanyandbCommon.Group.newBuilder()
-                                                          .setMetadata(
-                                                              BanyandbCommon.Metadata.newBuilder()
-                                                                                     .setName(
-                                                                                         BanyanDBUITemplateManagementDAO.GROUP))
-                                                          .setCatalog(BanyandbCommon.Catalog.CATALOG_PROPERTY)
-                                                          .setResourceOpts(BanyandbCommon.ResourceOpts.newBuilder()
-                                                                                       .setShardNum(1)
-                                                                                       .build())
-                                                          .build());
             this.modelInstaller.start();
 
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);

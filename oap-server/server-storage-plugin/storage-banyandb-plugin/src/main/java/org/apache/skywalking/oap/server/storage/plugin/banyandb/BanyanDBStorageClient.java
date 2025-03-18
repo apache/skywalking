@@ -128,7 +128,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
             BanyandbProperty.QueryResponse resp
                 = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
                                                                  .addGroups(group)
-                                                                 .setContainer(name)
+                                                                 .setName(name)
                                                                  .setLimit(Integer.MAX_VALUE)
                                                                  .build());
             this.healthChecker.health();
@@ -148,7 +148,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         try {
             BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
                                                                                                  .addGroups(group)
-                                                                                                 .setContainer(name)
+                                                                                                 .setName(name)
                                                                                                  .addIds(id)
                                                                                                  .build());
             this.healthChecker.health();
@@ -225,7 +225,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     /**
      * PropertyStore.Strategy is default to {@link Strategy#STRATEGY_MERGE}
      */
-    public void define(Property property) throws IOException {
+    public void apply(Property property) throws IOException {
         try {
             this.client.apply(property);
             this.healthChecker.health();
@@ -235,7 +235,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public void define(Property property, Strategy strategy) throws IOException {
+    public void apply(Property property, Strategy strategy) throws IOException {
         try {
             this.client.apply(property, strategy);
             this.healthChecker.health();
