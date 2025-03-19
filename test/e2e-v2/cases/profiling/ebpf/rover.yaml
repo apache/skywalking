@@ -59,7 +59,7 @@ spec:
       containers:
         - name: skywalking-rover
           # SkyWalking Rover image path
-          image: ghcr.io/apache/skywalking-rover/skywalking-rover:6bbd39aa701984482330d9dfb4dbaaff0527d55c
+          image: ghcr.io/apache/skywalking-rover/skywalking-rover:${SW_ROVER_COMMIT}
           imagePullPolicy: IfNotPresent
           securityContext:
             capabilities:
