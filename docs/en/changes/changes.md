@@ -16,6 +16,7 @@
 * [Breaking Change] Bump up BanyanDB server version to 0.8.0. This version is not compatible with the previous 
   versions. Please upgrade the BanyanDB server to 0.8.0 before upgrading OAP to 10.2.0.
 * Bump up nodejs to v22.14.0 for the latest UI(booster-ui) compiling. 
+* Migrate tj-actions/changed-files to dorny/paths-filter.
 
 #### OAP Server
 
@@ -74,6 +75,16 @@
 * Add `lock` when query the Alarm metrics window values.
 * Add a fail-safe mechanism to prevent traffic metrics inconsistent between in-memory and database server.
 * Add more clear logs when oap-cluster-internal data(metrics/traffic) format is inconsistent.
+* Optimize metrics cache loading when trace latency greater than cache timeout. 
+* Allow calling `lang.groovy.GString` in DSL.
+* BanyanDB: fix alarm query result without sort. 
+* Add a component ID for Virtual thread executor.
+* Add more model installation log info for OAP storage initialization.
+* BanyanDB: Separate the storage configuration to an independent file: `bydb.yaml`.
+* Bump Armeria to 1.32.0 and some transitive dependencies.
+* Skip persisting metrics/record data that have been expired.
+* Fix the issue of missing Last Ping data.
+* Add HTTP headers configuration for the alarm webhook.
 
 #### UI
 

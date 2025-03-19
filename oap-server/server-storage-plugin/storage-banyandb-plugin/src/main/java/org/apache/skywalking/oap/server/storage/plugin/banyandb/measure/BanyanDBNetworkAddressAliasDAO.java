@@ -51,7 +51,7 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
 
     public BanyanDBNetworkAddressAliasDAO(final BanyanDBStorageClient client, BanyanDBStorageConfig config) {
         super(client);
-        this.limit = config.getResultWindowMaxSize();
+        this.limit = config.getGlobal().getResultWindowMaxSize();
     }
 
     private MetadataRegistry.Schema getSchema() {

@@ -35,3 +35,4 @@ verify:
   cases:
     - includes:
         - ../profiling-cases.yaml
+        - ../profiling-cases-es.yaml

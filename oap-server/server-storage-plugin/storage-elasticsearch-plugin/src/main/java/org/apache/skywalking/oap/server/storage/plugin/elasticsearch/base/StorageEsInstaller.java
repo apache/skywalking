@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.response.Index;
@@ -81,12 +82,15 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     @Override
-    public boolean isExists(Model model) throws StorageException {
+    public InstallInfo isExists(Model model) throws StorageException {
+        InstallInfoES installInfo = new InstallInfoES(model, config);
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
         IndexController.LogicIndicesRegister.registerRelation(model, tableName);
+        installInfo.setTableName(esClient.formatIndexName(tableName));
         if (!model.isTimeSeries()) {
             boolean exist = esClient.isExistsIndex(tableName);
+            installInfo.setTableExist(exist);
             if (exist) {
                 Optional<Index> index = esClient.getIndex(tableName);
                 Mappings historyMapping = index.map(Index::getMappings).orElseGet(Mappings::new);
@@ -97,15 +101,21 @@ public class StorageEsInstaller extends ModelInstaller {
                     // or updating field types, it just cares about whether the data can be ingested without
                     // reporting errors.
                     exist = structures.containsFieldNames(tableName, createMapping(model));
+                    installInfo.setAllFieldsExist(exist);
                 } else {
                     boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
-                    exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
+                    installInfo.setAllFieldsExist(containsMapping);
+                    boolean containsSetting = structures.compareIndexSetting(tableName, createSetting(model));
+                    installInfo.setAllIndexSettingsExist(containsSetting);
+                    exist = containsMapping && containsSetting;
                 }
             }
-            return exist;
+            installInfo.setAllExist(exist);
+            return installInfo;
         }
 
         boolean templateExists = esClient.isExistsTemplate(tableName);
+        installInfo.setTableExist(templateExists);
         final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
 
         if ((templateExists && template.isEmpty()) || (!templateExists && template.isPresent())) {
@@ -123,12 +133,17 @@ public class StorageEsInstaller extends ModelInstaller {
             // because the no-init mode OAP server doesn't take responsibility for index settings.
             if (RunningMode.isNoInitMode()) {
                 exist = structures.containsFieldNames(tableName, createMapping(model));
+                installInfo.setAllFieldsExist(exist);
             } else {
                 boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
-                exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
+                installInfo.setAllFieldsExist(containsMapping);
+                boolean containsSetting = structures.compareIndexSetting(tableName, createSetting(model));
+                installInfo.setAllIndexSettingsExist(containsSetting);
+                exist = containsMapping && containsSetting;
             }
         }
-        return exist;
+        installInfo.setAllExist(exist);
+        return installInfo;
     }
 
     @Override
@@ -372,5 +387,39 @@ public class StorageEsInstaller extends ModelInstaller {
         }
 
         return mappings;
+    }
+
+    @Getter
+    @Setter
+    public static class InstallInfoES extends InstallInfo {
+        private String tableName;
+        private boolean tableExist;
+        private boolean allFieldsExist;
+        private boolean allIndexSettingsExist;
+        private StorageModuleElasticsearchConfig config;
+
+        protected InstallInfoES(Model model, StorageModuleElasticsearchConfig config) {
+            super(model);
+            this.config = config;
+        }
+
+        @Override
+        public String buildInstallInfoMsg() {
+            String tableNameMsg = isTimeSeries() ? "indexTemplateName=" + tableName : "indexName=" + tableName;
+            String tableExistMsg = isTimeSeries() ? "indexTemplateExists=" + tableExist : "indexExists=" + tableExist;
+            return "InstallInfoES:{" +
+                "modelName=" + getModelName() +
+                ", modelType=" + getModelType() +
+                ", timeSeries=" + isTimeSeries() +
+                ", superDataset=" + isSuperDataset() +
+                ", logicSharding=" + config.isLogicSharding() +
+                ", indexNamespace=" + config.getNamespace() +
+                ", " + tableNameMsg +
+                ", allResourcesExist=" + isAllExist() +
+                " [" + tableExistMsg +
+                ", allFieldsExist=" + allFieldsExist +
+                ", allIndexSettingsExist=" + allIndexSettingsExist +
+                "]}";
+        }
     }
 }

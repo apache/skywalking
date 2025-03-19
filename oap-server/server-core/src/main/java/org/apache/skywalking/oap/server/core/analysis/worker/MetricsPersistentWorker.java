@@ -57,6 +57,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implements ServerStatusWatcher {
     private final Model model;
+    private final long storageSessionTimeout;
     private final MetricsSessionCache sessionCache;
     private final IMetricsDAO metricsDAO;
     private final Optional<AbstractWorker<Metrics>> nextAlarmWorker;
@@ -101,12 +102,16 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
      */
     private volatile long timeOfLatestStabilitySts = 0;
 
+    // Not going to expose this as a configuration, only for testing purpose
+    private final boolean isTestingTTL = "true".equalsIgnoreCase(System.getenv("TESTING_TTL"));
+
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
                             MetricsTransWorker transWorker, boolean supportUpdate,
                             long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
+        this.storageSessionTimeout = storageSessionTimeout;
         this.sessionCache = new MetricsSessionCache(storageSessionTimeout, supportUpdate);
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = Optional.ofNullable(nextAlarmWorker);
@@ -186,6 +191,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
      */
     @Override
     public void in(Metrics metrics) {
+        final var isExpired = metricsDAO.isExpiredCache(model, metrics, System.currentTimeMillis(), metricsDataTTL);
+        if (isExpired && !isTestingTTL) {
+            log.debug("Receiving expired metrics: {}, time: {}, ignored", metrics.id(), metrics.getTimeBucket());
+            return;
+        }
         aggregationCounter.inc();
         dataCarrier.produce(metrics);
     }
@@ -377,19 +387,24 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
 
         // When
         // (1) the time bucket of the server's latest stability status is provided
-        //     1.1 the OAP has booted successfully
-        //     1.2 the current dimensionality is in minute
-        //     1.3 the OAP cluster is rebalanced due to scaling
-        // (2) the metrics are from the time after the timeOfLatestStabilitySts
-        // (3) the metrics don't exist in the cache
-        // the kernel should NOT try to load it from the database.
+        //     1.1 The OAP has booted successfully
+        //     1.2 The current dimensionality is in minute(timeOfLatestStabilitySts = 0 for other dimensionalities)
+        //     1.3 The OAP cluster is rebalanced due to scaling
+        // (2) the metrics are from the time after the timeOfLatestStabilitySts.
+        // (3) the metrics don't exist in the cache.
+        //The kernel should NOT try to load it from the database.
         //
-        // Notice, about condition (2),
-        // for the specific minute of booted successfully, the metrics are expected to load from database when
-        // it doesn't exist in the cache.
+        // Notice, about the condition (2),
+        // For the specific minutes of metrics before booted, rebalanced(cluster) and expired from cache, 
+        // they are expected to load from the database when don't exist in the cache.
         if (timeOfLatestStabilitySts > 0 &&
-            metrics.getTimeBucket() > timeOfLatestStabilitySts
-            && cached == null) {
+            metrics.getTimeBucket() > timeOfLatestStabilitySts) {
+            final long currentTimeMillis = System.currentTimeMillis();
+            long metricsTimestamp = TimeBucket.getTimestamp(metrics.getTimeBucket());
+            if (currentTimeMillis - metricsTimestamp > storageSessionTimeout) {
+                return null;
+            }
+
             // Return metrics as input to avoid reading from database.
             return metrics;
         }

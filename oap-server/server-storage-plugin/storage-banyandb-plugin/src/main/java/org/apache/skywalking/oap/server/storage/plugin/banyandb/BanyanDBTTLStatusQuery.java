@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import org.apache.skywalking.oap.server.core.storage.ttl.MetricsTTL;
+import org.apache.skywalking.oap.server.core.storage.ttl.RecordsTTL;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTLStatusQuery;
 import org.apache.skywalking.oap.server.core.storage.ttl.TTLDefinition;
 
@@ -29,15 +31,18 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     private final int gmDayTTLDays;
 
     public BanyanDBTTLStatusQuery(BanyanDBStorageConfig config) {
-        grNormalTTLDays = config.getGrNormalTTLDays();
-        grSuperTTLDays = config.getGrSuperTTLDays();
-        gmMinuteTTLDays = config.getGmMinuteTTLDays();
-        gmHourTTLDays = config.getGmHourTTLDays();
-        gmDayTTLDays = config.getGmDayTTLDays();
+        grNormalTTLDays = config.getRecordsNormal().getTtl();
+        grSuperTTLDays = config.getRecordsSuper().getTtl();
+        gmMinuteTTLDays = config.getMetricsMin().getTtl();
+        gmHourTTLDays = config.getMetricsHour().getTtl();
+        gmDayTTLDays = config.getMetricsDay().getTtl();
     }
 
     @Override
     public TTLDefinition getTTL() {
-        return null;
+        return new TTLDefinition(
+            new MetricsTTL(gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
+            new RecordsTTL(grNormalTTLDays, grSuperTTLDays)
+        );
     }
 }
