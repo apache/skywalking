@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.RequestHeaders;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
@@ -33,9 +33,13 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WebhookCallbackTest {
     private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean();
@@ -45,19 +49,30 @@ public class WebhookCallbackTest {
     public static final ServerExtension SERVER = new ServerExtension() {
         @Override
         protected void configure(ServerBuilder sb) {
-            sb.service("/webhook/receiveAlarm", (ctx, req) -> HttpResponse.from(
-                req.aggregate().thenApply(r -> {
-                    final String content = r.content().toStringUtf8();
-                    final JsonArray elements = new Gson().fromJson(content, JsonArray.class);
-                    if (elements.size() == 1) {
-                        COUNTER.getAndIncrement();
+            sb.service("/webhook/receiveAlarm", (ctx, req) -> HttpResponse.from(req.aggregate().thenApply(r -> {
+                final String content = r.content().toStringUtf8();
+                final RequestHeaders headers = r.headers();
+                List<AlarmMessage> alarmMessages = new Gson().fromJson(content, new TypeToken<ArrayList<AlarmMessage>>() {
+                }.getType());
+                if (alarmMessages.size() != 1) {
+                    IS_SUCCESS.set(false);
+                    return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+                if (Objects.equals(alarmMessages.get(0).getId0(), "1")) {
+                    IS_SUCCESS.set(true);
+                    COUNTER.incrementAndGet();
+                    return HttpResponse.of(HttpStatus.OK);
+                } else if (Objects.equals(alarmMessages.get(0).getId0(), "2")) {
+                    if (Objects.equals(headers.get("Authorization"), "Bearer bearer_token")
+                            && Objects.equals(headers.get("x-company-header"), "arbitrary-additional-http-headers")) {
                         IS_SUCCESS.set(true);
+                        COUNTER.incrementAndGet();
                         return HttpResponse.of(HttpStatus.OK);
                     }
-
-                    return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
-                }))
-            );
+                }
+                IS_SUCCESS.set(false);
+                return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+            })));
         }
     };
 
@@ -72,16 +87,19 @@ public class WebhookCallbackTest {
         setting2.setUrls(remoteEndpoints);
         rules.getWebhookSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWebhookSettingsMap().put(setting2.getFormattedName(), setting2);
+        setting2.setHeaders(ImmutableMap.of("Authorization", " Bearer bearer_token", "x-company-header", "arbitrary-additional-http-headers"));
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         WebhookCallback webhookCallback = new WebhookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
+        alarmMessage.setId0("1");
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessage.getHooks().add(setting1.getFormattedName());
         alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
+        anotherAlarmMessage.setId0("2");
         anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
         anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");

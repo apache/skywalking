@@ -84,6 +84,7 @@
 * Bump Armeria to 1.32.0 and some transitive dependencies.
 * Skip persisting metrics/record data that have been expired.
 * Fix the issue of missing Last Ping data.
+* Add HTTP headers configuration for the alarm webhook.
 
 #### UI
 
