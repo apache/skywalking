@@ -374,4 +374,11 @@ public class Analyzer {
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
+    public boolean filter(SampleFamily sampleFamily) {
+        if (filterExpression == null) {
+            return true;
+        }
+        return !filterExpression.filter(sampleFamily).equals(SampleFamily.EMPTY);
+    }
+
 }

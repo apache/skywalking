@@ -127,4 +127,15 @@ public class MetricConvert {
                 "failed to execute init expression: " + exp + ", error:" + result.getError());
         }
     }
+
+    /**
+     * Filter {@link SampleFamily} to verify the job name for OpenTelemetry metrics.
+     */
+    public boolean shouldConvert(SampleFamily sampleFamily) {
+        if (analyzers.isEmpty() || sampleFamily == null) {
+            return false;
+        }
+
+        return analyzers.get(0).filter(sampleFamily);
+    }
 }
