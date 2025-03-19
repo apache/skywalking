@@ -47,6 +47,22 @@ hooks:
 #      urls:
 #        - http://127.0.0.1/notify/
 #        - http://127.0.0.1/go-wechat/
+#    custom1:
+#      urls:
+#        - http://127.0.0.1/custom1
+#      headers:
+#        Authorization: Bearer bearer_token
+#    custom2:
+#      urls:
+#        - http://127.0.0.1/custom2
+#      headers:
+#        Authorization: Basic basic_token
+#    custom3:
+#      urls:
+#        - http://127.0.0.1/internal-hook
+#      headers:
+#        x-company-token: whatever-token-defined-internally-within-the-company
+#        x-company-header: arbitrary-additional-http-headers
 #
 #  gRPC:
 #    default:

@@ -19,7 +19,10 @@
 package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,6 +34,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 @ToString
 public class WebhookSettings extends AlarmHookSettings {
     private List<String> urls = new ArrayList<>();
+    private Map<String, String> headers = new HashMap<>();
 
     public WebhookSettings(final String name,
                            final AlarmHooksType type,

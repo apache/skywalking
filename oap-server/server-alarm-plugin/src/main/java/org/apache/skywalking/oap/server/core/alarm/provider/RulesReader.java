@@ -157,11 +157,12 @@ public class RulesReader {
             Map<String, Object> config = (Map<String, Object>) v;
             WebhookSettings settings = new WebhookSettings(
                 k.toString(), AlarmHooksType.webhook, (Boolean) config.getOrDefault("is-default", false));
-
             List<String> urls = (List<String>) config.get("urls");
             if (urls != null) {
                 settings.getUrls().addAll(urls);
             }
+            Map<String, String> headers = (Map<String, String>) config.getOrDefault("headers", new HashMap<>());
+            settings.setHeaders(headers);
             rules.getWebhookSettingsMap().put(settings.getFormattedName(), settings);
             if (settings.isDefault()) {
                 this.defaultHooks.add(settings.getFormattedName());
