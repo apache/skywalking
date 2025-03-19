@@ -117,7 +117,7 @@ jobs:
           submodules: true
       - name: Filter
         id: filter
-        uses: dorny/paths-filter@b2feaf19c27470162a626bd6fa8438ae5b263721
+        uses: dorny/paths-filter@v3
         with:
           list-files: 'shell'
           predicate-quantifier: 'every'
