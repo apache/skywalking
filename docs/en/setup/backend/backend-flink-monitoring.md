@@ -1,16 +1,32 @@
-# Support Flink Monitoring
-## Motivation
-Apache Flink is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams. Now that Skywalking can monitor OpenTelemetry metrics, I want to add Flink monitoring via the OpenTelemetry Collector, which fetches metrics from its own Http Endpoint
-to expose metrics data for Prometheus.
+# Flink monitoring
 
-## Architecture Graph
-There is no significant architecture-level change.
+## Flink server performance from built-in metrics data
+SkyWalking leverages OpenTelemetry Collector to transfer the flink metrics to
+[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
 
-## Proposed Changes
-Flink expose its metrics via HTTP endpoint to OpenTelemetry collector, using SkyWalking openTelemetry receiver to receive these metrics。
-Provide cluster, instance, and endpoint dimensions monitoring.
+## Data flow
 
-### Flink Cluster Supported Metrics
+1. Configure Flink jobManager and TaskManager to expose metrics data for scraping from Prometheus.
+2. OpenTelemetry Collector fetches metrics from Flink jobManager and TaskManager through Prometheus endpoint, and pushes metrics to SkyWalking OAP Server via
+   OpenTelemetry gRPC exporter.
+3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to
+   filter/calculate/aggregate and store the results.
+
+## Setup
+
+1. Set up [built-in prometheus endpoint](https://nightlies.apache.org/flink/flink-docs-release-2.0-preview1/docs/deployment/metric_reporters/#prometheus).
+2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker).
+   Please note that the OpenTelemetry Collector uses the job_name label by default, which may conflict with the job_name label in Flink. 
+   Please modify the Flink label name in the configuration to avoid this conflict, you can refer to [here](../../../../test/e2e-v2/cases/flink/otel-collector-config.yaml)
+   for details on Prometheus Receiver in OpenTelemetry Collector.
+3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
+
+## Flink Monitoring
+
+Flink monitoring provides multidimensional metrics monitoring of Flink cluster as `Layer: Flink` `Service` in
+the OAP. In each cluster, the taskManager is represented as `Instance` and the job is represented as `Endpoint`.
+
+### Flink service Supported Metrics
 
 | Monitoring Panel              | Unit  | Metric Name                                           | Description                                                                                       | Data Source      |
 |-------------------------------|-------|-------------------------------------------------------|---------------------------------------------------------------------------------------------------|------------------|
@@ -34,13 +50,12 @@ Provide cluster, instance, and endpoint dimensions monitoring.
 | JVM G1 Old Generation Count   | Count | meter_flink_jobManager_jvm_all_garbageCollector_count | The number of the jobManager JVM all garbageCollector count.                                      | Flink JobManager |
 | JVM All GarbageCollector Time | ms    | meter_flink_jobManager_jvm_all_garbageCollector_time  | The time spent performing garbage collection for the given (or all) collector for the jobManager. | Flink JobManager |
 
-
-### Flink taskManager Supported Metrics
+### Flink instance Supported Metrics
 
 | Monitoring Panel                 | Unit    | Metric Name                                              | Description                                                                                                                                                                                        | Data Source       |
 |----------------------------------|---------|----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
 | JVM CPU Load                     | %       | meter_flink_taskManager_jvm_cpu_load                     | The number of the JVM CPU load.                                                                                                                                                                    | Flink TaskManager |
-| JVM Thread Count                 | Count   | meter_flink_taskManager_jvm_thread_count                 | The total number of JVM live threads.                                                                                                                                                              | Flink TaskManager |
+| JVM Thread Count                 | Count   | meter_flink_taskManager_jvm_thread_count                 | The total number of JVM threads.                                                                                                                                                                   | Flink TaskManager |
 | JVM Memory Heap Used             | MB      | meter_flink_taskManager_jvm_memory_heap_used             | The amount of JVM memory heap used.                                                                                                                                                                | Flink TaskManager |
 | JVM Memory NonHeap Used          | MB      | meter_flink_taskManager_jvm_memory_nonHeap_used          | The amount of JVM nonHeap memory used.                                                                                                                                                             | Flink TaskManager |
 | JVM CPU Time                     | ms      | meter_flink_taskManager_jvm_cpu_time                     | The CPU time used by the JVM.                                                                                                                                                                      | Flink TaskManager |
@@ -62,8 +77,7 @@ Provide cluster, instance, and endpoint dimensions monitoring.
 | IdleTimeMsPerSecond              | ms      | meter_flink_taskManager_idleTimeMsPerSecond              | The time this task is idle (has no data to process) per second. Idle time excludes back pressured time, so if the task is back pressured it is not idle.                                           | Flink TaskManager |
 | BusyTimeMsPerSecond              | ms      | meter_flink_taskManager_busyTimeMsPerSecond              | The time this task is busy (neither idle nor back pressured) per second. Can be NaN, if the value could not be calculated.                                                                         | Flink TaskManager |
 
-
-### Flink Job Supported Metrics
+### Flink Endpoint Supported Metrics
 
 | Monitoring Panel        | Unit    | Metric Name                             | Description                                                                                                                                                            | Data Source       |
 |-------------------------|---------|-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
@@ -83,12 +97,9 @@ Provide cluster, instance, and endpoint dimensions monitoring.
 | LastCheckpointSize      | Bytes   | meter_flink_job_lastCheckpointSize      | The checkPointed size of the last checkpoint (in bytes), this metric could be different from lastCheckpointFullSize if incremental checkpoint or changelog is enabled. | Flink JobManager  |
 | LastCheckpointDuration  | ms      | meter_flink_job_lastCheckpointDuration  | The time it took to complete the last checkpoint.                                                                                                                      | Flink JobManager  |
 
-## Imported Dependencies libs and their licenses.
-No new dependency.
+## Customizations
 
-## Compatibility
-no breaking changes.
-
-## General usage docs
-
-This feature is out of the box.
+You can customize your own metrics/expression/dashboard panel.
+The metrics definition and expression rules are found
+in `otel-rules/flink/flink-jobManager.yaml, otel-rules/flink/flink-taskManager.yaml, otel-rules/flink/flink-job.yaml`.
+The Flink dashboard panel configurations are found in `ui-initialized-templates/flink`.
