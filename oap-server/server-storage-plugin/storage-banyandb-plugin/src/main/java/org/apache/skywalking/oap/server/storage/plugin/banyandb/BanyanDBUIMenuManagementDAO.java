@@ -31,7 +31,6 @@ import java.io.IOException;
 
 @Slf4j
 public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements UIMenuManagementDAO {
-    public static final String GROUP = "sw";
 
     public BanyanDBUIMenuManagementDAO(BanyanDBStorageClient client) {
         super(client);
@@ -39,7 +38,7 @@ public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements 
 
     @Override
     public UIMenu getMenu(String id) throws IOException {
-        Property p = getClient().queryProperty(GROUP, UIMenu.INDEX_NAME, id);
+        Property p = getClient().queryProperty(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, UIMenu.INDEX_NAME, id);
         if (p == null) {
             return null;
         }
@@ -50,7 +49,7 @@ public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements 
     public void saveMenu(UIMenu menu) throws IOException {
         Property property = Property.newBuilder()
                                     .setMetadata(
-                                        BanyandbCommon.Metadata.newBuilder().setGroup(GROUP).setName(UIMenu.INDEX_NAME))
+                                        BanyandbCommon.Metadata.newBuilder().setGroup(BanyanDBStorageConfig.PROPERTY_GROUP_NAME).setName(UIMenu.INDEX_NAME))
                                     .setId(menu.getMenuId())
                                     .addTags(TagAndValue.newStringTag(UIMenu.CONFIGURATION, menu.getConfigurationJson())
                                                         .build())

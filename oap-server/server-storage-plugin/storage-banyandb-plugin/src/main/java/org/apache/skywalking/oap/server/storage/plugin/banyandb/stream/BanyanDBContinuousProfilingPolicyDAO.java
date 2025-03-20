@@ -26,6 +26,7 @@ import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO implements IContinuousProfilingPolicyDAO {
-    private static final String GROUP = "sw";
 
     public BanyanDBContinuousProfilingPolicyDAO(BanyanDBStorageClient client) {
         super(client);
@@ -52,7 +52,7 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
     public Property applyAll(ContinuousProfilingPolicy policy) {
         return Property.newBuilder()
                        .setMetadata(BanyandbCommon.Metadata.newBuilder()
-                           .setGroup(GROUP)
+                           .setGroup(BanyanDBStorageConfig.PROPERTY_GROUP_NAME)
                            .setName(ContinuousProfilingPolicy.INDEX_NAME))
             .setId(policy.id().build())
             .addTags(TagAndValue.newStringTag(ContinuousProfilingPolicy.UUID, policy.getUuid()).build())
@@ -64,7 +64,7 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
     public List<ContinuousProfilingPolicy> queryPolicies(List<String> serviceIdList) throws IOException {
         return serviceIdList.stream().map(s -> {
             try {
-                return getClient().queryProperty(GROUP, ContinuousProfilingPolicy.INDEX_NAME, s);
+                return getClient().queryProperty(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, ContinuousProfilingPolicy.INDEX_NAME, s);
             } catch (IOException e) {
                 log.warn("query policy error", e);
                 return null;

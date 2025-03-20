@@ -244,21 +244,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         ResourceExist resourceExist;
         Group.Builder gBuilder
             = Group.newBuilder()
-                   .setMetadata(BanyandbCommon.Metadata.newBuilder().setName(metadata.getGroup()))
-                   .setResourceOpts(BanyandbCommon.ResourceOpts.newBuilder()
-                                                               .setShardNum(metadata.getShard())
-                                                               .setSegmentInterval(
-                                                                   IntervalRule.newBuilder()
-                                                                               .setUnit(
-                                                                                   IntervalRule.Unit.UNIT_DAY)
-                                                                               .setNum(
-                                                                                   metadata.getSegmentIntervalDays()))
-                                                               .setTtl(
-                                                                   IntervalRule.newBuilder()
-                                                                               .setUnit(
-                                                                                   IntervalRule.Unit.UNIT_DAY)
-                                                                               .setNum(
-                                                                                   metadata.getTtlDays())));
+                   .setMetadata(BanyandbCommon.Metadata.newBuilder().setName(metadata.getGroup()));
         BanyandbCommon.ResourceOpts.Builder optsBuilder = BanyandbCommon.ResourceOpts.newBuilder().setShardNum(metadata.getShard());
 
         switch (metadata.getKind()) {
@@ -294,7 +280,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 resourceExist = client.existMeasure(metadata.getGroup(), metadata.name());
                 gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_MEASURE).build();
                 break;
-            case Property:
+            case PROPERTY:
                 resourceExist = client.existProperty(metadata.getGroup(), metadata.name());
                 gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_PROPERTY).build();
                 break;
