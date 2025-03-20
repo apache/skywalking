@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
