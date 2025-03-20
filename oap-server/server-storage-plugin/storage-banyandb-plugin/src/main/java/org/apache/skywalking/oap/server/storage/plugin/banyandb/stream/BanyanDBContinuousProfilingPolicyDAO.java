@@ -21,12 +21,12 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
-import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO implements IContinuousProfilingPolicyDAO {
-    private static final String GROUP = "sw";
 
     public BanyanDBContinuousProfilingPolicyDAO(BanyanDBStorageClient client) {
         super(client);
@@ -44,7 +43,7 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
     @Override
     public void savePolicy(ContinuousProfilingPolicy policy) throws IOException {
         try {
-            this.getClient().define(applyAll(policy));
+            this.getClient().apply(applyAll(policy));
         } catch (IOException e) {
             log.error("fail to save policy", e);
         }
@@ -52,11 +51,10 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
 
     public Property applyAll(ContinuousProfilingPolicy policy) {
         return Property.newBuilder()
-                       .setMetadata(BanyandbProperty.Metadata.newBuilder()
-                                                             .setId(policy.id().build())
-                                                             .setContainer(BanyandbCommon.Metadata.newBuilder()
-                                                                               .setGroup(GROUP)
-                                                                               .setName(ContinuousProfilingPolicy.INDEX_NAME)))
+                       .setMetadata(BanyandbCommon.Metadata.newBuilder()
+                           .setGroup(BanyanDBStorageConfig.PROPERTY_GROUP_NAME)
+                           .setName(ContinuousProfilingPolicy.INDEX_NAME))
+            .setId(policy.id().build())
             .addTags(TagAndValue.newStringTag(ContinuousProfilingPolicy.UUID, policy.getUuid()).build())
             .addTags(TagAndValue.newStringTag(ContinuousProfilingPolicy.CONFIGURATION_JSON, policy.getConfigurationJson()).build())
                        .build();
@@ -66,14 +64,14 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
     public List<ContinuousProfilingPolicy> queryPolicies(List<String> serviceIdList) throws IOException {
         return serviceIdList.stream().map(s -> {
             try {
-                return getClient().queryProperty(GROUP, ContinuousProfilingPolicy.INDEX_NAME, s);
+                return getClient().queryProperty(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, ContinuousProfilingPolicy.INDEX_NAME, s);
             } catch (IOException e) {
                 log.warn("query policy error", e);
                 return null;
             }
         }).filter(Objects::nonNull).map(properties -> {
             final ContinuousProfilingPolicy policy = new ContinuousProfilingPolicy();
-            policy.setServiceId(properties.getMetadata().getId());
+            policy.setServiceId(properties.getId());
             for (BanyandbModel.Tag tag : properties.getTagsList()) {
                 TagAndValue<?> tagAndValue = TagAndValue.fromProtobuf(tag);
                 if (tagAndValue.getTagName().equals(ContinuousProfilingPolicy.CONFIGURATION_JSON)) {
