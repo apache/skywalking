@@ -128,14 +128,11 @@ public class MetricConvert {
         }
     }
 
-    /**
-     * Filter {@link SampleFamily} to verify the job name for OpenTelemetry metrics.
-     */
-    public boolean shouldConvert(SampleFamily sampleFamily) {
-        if (analyzers.isEmpty() || sampleFamily == null) {
+    public boolean shouldConvert(ImmutableMap<String, SampleFamily> sampleFamilies) {
+        if (analyzers.isEmpty() || sampleFamilies.isEmpty()) {
             return false;
         }
 
-        return analyzers.get(0).filter(sampleFamily);
+        return analyzers.get(0).filter(sampleFamilies);
     }
 }

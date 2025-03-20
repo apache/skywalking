@@ -374,11 +374,17 @@ public class Analyzer {
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
-    public boolean filter(SampleFamily sampleFamily) {
+    public boolean filter(ImmutableMap<String, SampleFamily> sampleFamilies) {
         if (filterExpression == null) {
             return true;
         }
-        return !filterExpression.filter(sampleFamily).equals(SampleFamily.EMPTY);
+
+        for (Map.Entry<String, SampleFamily> entry : sampleFamilies.entrySet()) {
+            if (!filterExpression.filter(entry.getValue()).equals(SampleFamily.EMPTY)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

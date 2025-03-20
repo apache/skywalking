@@ -131,9 +131,9 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         if (sampleFamilies.isEmpty()) {
             return;
         }
-        SampleFamily firstValue = sampleFamilies.values().iterator().next();
+
         for (MetricConvert converter : converters) {
-            if (converter.shouldConvert(firstValue)) {
+            if (converter.shouldConvert(sampleFamilies)) {
                 converter.toMeter(sampleFamilies);
             }
         }
