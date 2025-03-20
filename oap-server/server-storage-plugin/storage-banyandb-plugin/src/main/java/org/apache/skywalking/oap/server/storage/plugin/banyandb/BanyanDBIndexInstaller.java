@@ -119,7 +119,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         throw new IllegalStateException("inconsistent state: metadata:" + metadata + ", remoteMeta: null");
                     }
                 } else {
-                    PropertyModel propertyModel = MetadataRegistry.INSTANCE.registerPropertyModel(model);
+                    PropertyModel propertyModel = MetadataRegistry.INSTANCE.registerPropertyModel(model, config);
                     if (!RunningMode.isNoInitMode()) {
                         checkProperty(propertyModel.getProperty(), c);
                     }
@@ -210,7 +210,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     }
                 }
             } else {
-                PropertyModel propertyModel = MetadataRegistry.INSTANCE.registerPropertyModel(model);
+                PropertyModel propertyModel = MetadataRegistry.INSTANCE.registerPropertyModel(model, config);
                 Property property = propertyModel.getProperty();
                 log.info("install property schema {}", model.getName());
                 final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;

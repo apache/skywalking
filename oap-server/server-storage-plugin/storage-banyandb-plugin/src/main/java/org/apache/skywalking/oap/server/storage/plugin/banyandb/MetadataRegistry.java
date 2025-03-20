@@ -179,8 +179,8 @@ public enum MetadataRegistry {
         return new MeasureModel(builder.build(), indexRules);
     }
 
-    public PropertyModel registerPropertyModel(Model model) {
-        final SchemaMetadata schemaMetadata = parseMetadata(model, null, null);
+    public PropertyModel registerPropertyModel(Model model, BanyanDBStorageConfig config) {
+        final SchemaMetadata schemaMetadata = parseMetadata(model, config, null);
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder, Collections.emptyList(), schemaMetadata.group);
         final Property.Builder builder = Property.newBuilder();
