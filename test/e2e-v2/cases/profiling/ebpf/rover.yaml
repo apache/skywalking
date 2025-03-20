@@ -93,8 +93,12 @@ spec:
               value: "${SERVICE_NAME_EXP}"
             - name: ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_K8S_SERVICE_INSTANCE_NAME
               value: "test-instance"
-            - name: ROVER_HOST_MAPPING
-              value: /host
+            - name: ROVER_HOST_PROC_MAPPING
+              value: /host/proc
+            - name: ROVER_HOST_ETC_MAPPING
+              value: /host/etc
+            - name: ROVER_PROFILING_ACTIVE
+              value: "false"
       hostPID: true
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet

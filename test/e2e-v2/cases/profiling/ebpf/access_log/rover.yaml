@@ -90,8 +90,10 @@ spec:
               value: "false"
             - name: ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_ACTIVE
               value: "false"
-            - name: ROVER_HOST_MAPPING
-              value: /host
+            - name: ROVER_HOST_PROC_MAPPING
+              value: /host/proc
+            - name: ROVER_HOST_ETC_MAPPING
+              value: /host/etc
             - name: ROVER_ACCESS_LOG_ACTIVE
               value: "true"
             - name: ROVER_ACCESS_LOG_FLUSH_PERIOD
