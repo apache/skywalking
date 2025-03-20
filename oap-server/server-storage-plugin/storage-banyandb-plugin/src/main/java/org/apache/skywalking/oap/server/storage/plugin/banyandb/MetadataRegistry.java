@@ -477,7 +477,7 @@ public enum MetadataRegistry {
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, DownSamplingConfigService configService) {
         if (!model.isTimeSeries()) {
-            return new SchemaMetadata(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, model.getName(), Kind.PROPERTY, DownSampling.None, 1, 0, 0);
+            return new SchemaMetadata(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, model.getName(), Kind.PROPERTY, DownSampling.None, config.getProperty().getShardNum(), 0, 0);
         }
         if (model.isRecord()) { // stream
             return new SchemaMetadata(model.isSuperDataset() ? model.getName() : "normal",
