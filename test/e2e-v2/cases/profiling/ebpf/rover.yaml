@@ -98,7 +98,7 @@ spec:
             - name: ROVER_HOST_ETC_MAPPING
               value: /host/etc
             - name: ROVER_PROFILING_ACTIVE
-              value: "false"
+              value: "true"
       hostPID: true
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
