@@ -27,6 +27,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 @Setter
 public class BanyanDBStorageConfig extends ModuleConfig {
+
+    public static final String PROPERTY_GROUP_NAME = "property";
+
     private Global global = new Global();
     private RecordsNormal recordsNormal = new RecordsNormal();
     private RecordsSuper recordsSuper = new RecordsSuper();
@@ -34,6 +37,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private MetricsHour metricsHour = new MetricsHour();
     private MetricsDay metricsDay = new MetricsDay();
     private Metadata metadata = new Metadata();
+    private Property property = new Property();
 
     public String[] getTargetArray() {
         return Iterables.toArray(
@@ -167,5 +171,14 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int shardNum = 2;
         private int segmentInterval = 15;
         private int ttl = 15;
+    }
+
+    /**
+     * The group settings of UI and profiling.
+     */
+    @Getter
+    @Setter
+    public static class Property {
+        private int shardNum = 1;
     }
 }

@@ -59,7 +59,7 @@ spec:
       containers:
         - name: skywalking-rover
           # SkyWalking Rover image path
-          image: ghcr.io/apache/skywalking-rover/skywalking-rover:29ef115f29d5597f64d3745e7b191d57cc853848
+          image: ghcr.io/apache/skywalking-rover/skywalking-rover:${SW_ROVER_COMMIT}
           imagePullPolicy: IfNotPresent
           securityContext:
             capabilities:
@@ -90,8 +90,10 @@ spec:
               value: "false"
             - name: ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_ACTIVE
               value: "false"
-            - name: ROVER_HOST_MAPPING
-              value: /host
+            - name: ROVER_HOST_PROC_MAPPING
+              value: /host/proc
+            - name: ROVER_HOST_ETC_MAPPING
+              value: /host/etc
             - name: ROVER_ACCESS_LOG_ACTIVE
               value: "true"
             - name: ROVER_ACCESS_LOG_FLUSH_PERIOD

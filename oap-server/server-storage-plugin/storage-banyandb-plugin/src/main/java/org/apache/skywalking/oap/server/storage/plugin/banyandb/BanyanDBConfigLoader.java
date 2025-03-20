@@ -111,6 +111,10 @@ public class BanyanDBConfigLoader {
                 config.getMetadata(), (Properties) groups.get("metadata"),
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
+            copyProperties(
+                config.getProperty(), (Properties) groups.get("property"),
+                moduleProvider.getModule().name(), moduleProvider.name()
+            );
         } catch (IllegalAccessException e) {
             throw new ModuleStartException("Failed to load BanyanDB configuration.", e);
         }
