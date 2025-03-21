@@ -87,3 +87,7 @@ groups:
     shardNum: ${SW_STORAGE_BANYANDB_GM_INDEX_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_GM_INDEX_SI_DAYS:15}
     ttl: ${SW_STORAGE_BANYANDB_GM_INDEX_TTL_DAYS:15}
+
+  # The group settings of property, such as UI and profiling.
+  property:
+    shardNum: ${SW_STORAGE_BANYANDB_GP_PROPERTY_SHARD_NUM:1}

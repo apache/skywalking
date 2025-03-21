@@ -85,6 +85,7 @@
 * Skip persisting metrics/record data that have been expired.
 * Fix the issue of missing Last Ping data.
 * Add HTTP headers configuration for the alarm webhook.
+* Bump up BanyanDB java client to 0.8.0-rc3.
 
 #### UI
 
