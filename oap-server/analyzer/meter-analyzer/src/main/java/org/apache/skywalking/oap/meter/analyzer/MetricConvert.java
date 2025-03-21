@@ -128,6 +128,11 @@ public class MetricConvert {
         }
     }
 
+    /**
+     * Because all analyzers share the same filter expression, we use one analyzer to filter all sampleFamilies.
+     * If one SampleFamily passes the check, the process should continue. If none of the sampleFamilies pass the filter,
+     * no further processing will be performed.
+     */
     public boolean shouldConvert(ImmutableMap<String, SampleFamily> sampleFamilies) {
         if (analyzers.isEmpty() || sampleFamilies.isEmpty()) {
             return false;
