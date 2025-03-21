@@ -129,9 +129,10 @@ public class MetricConvert {
     }
 
     /**
-     * Because all analyzers share the same filter expression, we use one analyzer to filter all sampleFamilies.
-     * If one SampleFamily passes the check, the process should continue. If none of the sampleFamilies pass the filter,
-     * no further processing will be performed.
+     * Because all analyzers share the same filter expression, we do pre-check to filter all SampleFamily(s).
+     * If one SampleFamily could pass the check, the process should continue. 
+     * Otherwise, no further processing will be performed.
+     * By this, we could improve the extra payload to do this filter check repeatedly.
      */
     public boolean shouldConvert(ImmutableMap<String, SampleFamily> sampleFamilies) {
         if (analyzers.isEmpty() || sampleFamilies.isEmpty()) {
