@@ -86,6 +86,7 @@
 * Fix the issue of missing Last Ping data.
 * Add HTTP headers configuration for the alarm webhook.
 * Bump up BanyanDB java client to 0.8.0-rc3.
+* Add a pre-check to optimize performance for the OTEL metrics analyzer.
 
 #### UI
 

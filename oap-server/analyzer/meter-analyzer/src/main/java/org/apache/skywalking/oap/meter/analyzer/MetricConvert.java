@@ -127,4 +127,18 @@ public class MetricConvert {
                 "failed to execute init expression: " + exp + ", error:" + result.getError());
         }
     }
+
+    /**
+     * Because all analyzers share the same filter expression, we do pre-check to filter all SampleFamily(s).
+     * If one SampleFamily could pass the check, the process should continue. 
+     * Otherwise, no further processing will be performed.
+     * By this, we could improve the extra payload to do this filter check repeatedly.
+     */
+    public boolean shouldConvert(ImmutableMap<String, SampleFamily> sampleFamilies) {
+        if (analyzers.isEmpty() || sampleFamilies.isEmpty()) {
+            return false;
+        }
+
+        return analyzers.get(0).filter(sampleFamilies);
+    }
 }

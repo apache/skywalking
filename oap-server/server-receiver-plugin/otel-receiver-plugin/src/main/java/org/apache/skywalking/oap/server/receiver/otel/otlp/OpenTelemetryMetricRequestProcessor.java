@@ -121,8 +121,21 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                                .flatMap(tryIt -> MetricConvert.log(tryIt, "Convert OTEL metric to prometheus metric"))
                            )
                 );
-                converters.forEach(convert -> convert.toMeter(sampleFamilies));
+
+                convertSampleFamiliesToMeter(sampleFamilies);
             });
+        }
+    }
+
+    private void convertSampleFamiliesToMeter(ImmutableMap<String, SampleFamily> sampleFamilies) {
+        if (sampleFamilies.isEmpty()) {
+            return;
+        }
+
+        for (MetricConvert converter : converters) {
+            if (converter.shouldConvert(sampleFamilies)) {
+                converter.toMeter(sampleFamilies);
+            }
         }
     }
 
