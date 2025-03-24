@@ -488,11 +488,9 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@interactjs/snappers/v/1.10.17 1.10.17 MIT
     https://npmjs.com/package/@interactjs/types/v/1.10.17 1.10.17 MIT
     https://npmjs.com/package/@interactjs/utils/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@intlify/core-base/v/9.2.2 9.2.2 MIT
-    https://npmjs.com/package/@intlify/devtools-if/v/9.2.2 9.2.2 MIT
-    https://npmjs.com/package/@intlify/message-compiler/v/9.2.2 9.2.2 MIT
-    https://npmjs.com/package/@intlify/shared/v/9.2.2 9.2.2 MIT
-    https://npmjs.com/package/@intlify/vue-devtools/v/9.2.2 9.2.2 MIT
+    https://npmjs.com/package/@intlify/core-base/v/9.14.3 9.14.3 MIT
+    https://npmjs.com/package/@intlify/message-compiler/v/9.14.3 9.14.3 MIT
+    https://npmjs.com/package/@intlify/shared/v/9.14.3 9.14.3 MIT
     https://npmjs.com/package/@popperjs/core/v/2.11.7 2.11.7 MIT
     https://npmjs.com/package/@types/hammerjs/v/2.0.41 2.0.41 MIT
     https://npmjs.com/package/@types/lodash/v/4.14.191 4.14.191 MIT
@@ -503,7 +501,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@vue/compiler-sfc/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/@vue/compiler-sfc/node_modules/magic-string/v/0.25.9 0.25.9 MIT
     https://npmjs.com/package/@vue/compiler-ssr/v/3.2.45 3.2.45 MIT
-    https://npmjs.com/package/@vue/devtools-api/v/6.4.5 6.4.5 MIT
+    https://npmjs.com/package/@vue/devtools-api/v/6.6.4 6.6.4 MIT
     https://npmjs.com/package/@vue/reactivity/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/@vue/reactivity-transform/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/@vue/reactivity-transform/node_modules/magic-string/v/0.25.9 0.25.9 MIT
