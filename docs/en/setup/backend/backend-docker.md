@@ -22,12 +22,6 @@ To tear down the cluster, run the following command:
 ```shell
 docker compose --project-name=skywalking-quickstart down
 ```
-## Start a `standalone` container with `H2` storage
-
-```shell
-export RELEASE_VERSION=x.y.z
-docker run --name oap --restart always -d apache/skywalking-oap-server:${RELEASE_VERSION}
-```
 
 ## Start a `standalone` container with BanyanDB as storage, whose address is `banyandb:17912`
 
