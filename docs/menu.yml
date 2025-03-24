@@ -424,6 +424,8 @@ catalog:
         path: "/en/changes/changes"
       - name: "10.x Releases"
         catalog:
+        - name: "10.2.0"
+          path: "/en/changes/changes-10.2.0"
         - name: "10.1.0"
           path: "/en/changes/changes-10.1.0"
         - name: "10.0.1"
