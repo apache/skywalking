@@ -256,4 +256,4 @@ We hosted the [SkyWalking Quick Start script](https://skywalking.apache.org/docs
 which is a shell script that helps users to download and start SkyWalking quickly.
 The versions of OAP and BanyanDB are hard-coded in the script, so you need to update the versions in the script.
 
-Update the versions [here](https://github.com/apache/skywalking-website/blob/master/content/quickstart-docker.sh#L23-L24)
+Update the versions for [shell script](https://github.com/apache/skywalking-website/blob/master/content/quickstart-docker.sh#L23-L24) and [powershell script](https://github.com/apache/skywalking-website/blob/master/content/quickstart-docker.ps1#L18-L19).
