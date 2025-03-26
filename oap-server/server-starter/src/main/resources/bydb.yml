@@ -65,13 +65,13 @@ groups:
     # The settings for the "warm" stage.
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SI_DAYS:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SI_DAYS:2}
       ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_TTL_DAYS:7}
       nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMA_WARML_NODE_SELECTOR:"type=warm"}
     # The settings for the "cold" stage.
     cold:
       shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SI_DAYS:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SI_DAYS:3}
       ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_TTL_DAYS:30}
       nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMA_COLD_NODE_SELECTO:"type=cold"}
   # "super" is a special dataset designed to store trace or log data that is too large for normal datasets.
@@ -106,12 +106,12 @@ groups:
     enableColdStage: ${SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_COLD_STAGE:true}
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SI_DAYS:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SI_DAYS:3}
       ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_TTL_DAYS:15}
       nodeSelector: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_NODE_SELECTOR:"type=warm"}
     cold:
       shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SI_DAYS:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SI_DAYS:5}
       ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_TTL_DAYS:60}
       nodeSelector: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_NODE_SELECTOR:"type=cold"}
   metricsHour:
@@ -122,12 +122,12 @@ groups:
     enableColdStage: ${SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_COLD_STAGE:true}
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SI_DAYS:5}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SI_DAYS:7}
       ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_TTL_DAYS:30}
       nodeSelector: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_NODE_SELECTOR:"type=warm"}
     cold:
       shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_SI_DAYS:5}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_SI_DAYS:15}
       ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_TTL_DAYS:120}
       nodeSelector: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_NODE_SELECTOR:"type=cold"}
   metricsDay:
