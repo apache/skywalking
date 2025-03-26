@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,17 +122,13 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int shardNum;
         private int segmentInterval;
         private int ttl;
-        private String enabledAdditionalStages;
-        private String defaultQueryStages;
-        private List<Stage> lifecycleStages = new ArrayList<>(2);
+        private boolean enableWarmStage = false;
+        private boolean enableColdStage = false;
+        private List<String> defaultQueryStages = new ArrayList<>(2);
+        private List<Stage> additionalLifecycleStages = new ArrayList<>(2);
 
-        public List<String> getEnabledAdditionalStages() {
-            return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(
-                enabledAdditionalStages));
-        }
-
-        public List<String> getDefaultQueryStages() {
-            return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(defaultQueryStages));
+        public GroupResource() {
+            defaultQueryStages.add(StageName.hot.name());
         }
     }
 

@@ -241,12 +241,12 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             return true;
         }
 
-        if (g.getResourceOpts().getStagesCount() != metadata.getResource().getLifecycleStages().size()) {
+        if (g.getResourceOpts().getStagesCount() != metadata.getResource().getAdditionalLifecycleStages().size()) {
             return true;
         }
         for (int i = 0; i < g.getResourceOpts().getStagesCount(); i++) {
             BanyandbCommon.LifecycleStage stage = g.getResourceOpts().getStages(i);
-            BanyanDBStorageConfig.Stage stageConfig = metadata.getResource().getLifecycleStages().get(i);
+            BanyanDBStorageConfig.Stage stageConfig = metadata.getResource().getAdditionalLifecycleStages().get(i);
             if (!stage.getName().equals(stageConfig.getName().name())
                 || stage.getShardNum() != stageConfig.getShardNum()
                 || stage.getSegmentInterval().getNum() != stageConfig.getSegmentInterval()
@@ -307,8 +307,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             default:
                 throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
         }
-        if (CollectionUtils.isNotEmpty(metadata.getResource().getLifecycleStages())) {
-            for (BanyanDBStorageConfig.Stage stage : metadata.getResource().getLifecycleStages()) {
+        if (CollectionUtils.isNotEmpty(metadata.getResource().getAdditionalLifecycleStages())) {
+            for (BanyanDBStorageConfig.Stage stage : metadata.getResource().getAdditionalLifecycleStages()) {
                 optsBuilder.addStages(
                     BanyandbCommon.LifecycleStage.newBuilder()
                                                  .setName(stage.getName().name())

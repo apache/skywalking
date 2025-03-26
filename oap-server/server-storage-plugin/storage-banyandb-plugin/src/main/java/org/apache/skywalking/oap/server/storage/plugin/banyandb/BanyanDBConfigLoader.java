@@ -20,15 +20,12 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import java.io.FileNotFoundException;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -77,56 +74,35 @@ public class BanyanDBConfigLoader {
                 config.getRecordsNormal(), recordsNormal,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
-            config.getRecordsNormal()
-                  .setLifecycleStages(copyStages(
-                      "recordsNormal", recordsNormal, config.getRecordsNormal().getEnabledAdditionalStages(),
-                      config.getRecordsNormal().getDefaultQueryStages()
-                  ));
+            copyStages(recordsNormal, config.getRecordsNormal());
 
             Properties recordsSupper = (Properties) groups.get("recordsSuper");
             copyProperties(
                 config.getRecordsSuper(), recordsSupper,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
-            config.getRecordsSuper()
-                  .setLifecycleStages(
-                      copyStages(
-                          "recordsSuper", recordsSupper, config.getRecordsSuper().getEnabledAdditionalStages(),
-                          config.getRecordsSuper().getDefaultQueryStages()
-                      ));
+            copyStages(recordsSupper, config.getRecordsSuper());
 
             Properties metricsMin = (Properties) groups.get("metricsMin");
             copyProperties(
                 config.getMetricsMin(), metricsMin,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
-            config.getMetricsMin()
-                  .setLifecycleStages(copyStages(
-                      "metricsMin", metricsMin, config.getMetricsMin().getEnabledAdditionalStages(),
-                      config.getMetricsMin().getDefaultQueryStages()
-                  ));
+            copyStages(metricsMin, config.getMetricsMin());
 
             Properties metricsHour = (Properties) groups.get("metricsHour");
             copyProperties(
                 config.getMetricsHour(), metricsHour,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
-            config.getMetricsHour()
-                  .setLifecycleStages(copyStages(
-                      "metricsHour", metricsHour, config.getMetricsHour().getEnabledAdditionalStages(),
-                      config.getMetricsHour().getDefaultQueryStages()
-                  ));
+            copyStages(metricsHour, config.getMetricsHour());
 
             Properties metricsDay = (Properties) groups.get("metricsDay");
             copyProperties(
                 config.getMetricsDay(), metricsDay,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
-            config.getMetricsDay()
-                  .setLifecycleStages(copyStages(
-                      "metricsDay", metricsDay, config.getMetricsDay().getEnabledAdditionalStages(),
-                      config.getMetricsDay().getDefaultQueryStages()
-                  ));
+            copyStages(metricsDay, config.getMetricsDay());
 
             copyProperties(
                 config.getMetadata(), (Properties) groups.get("metadata"),
@@ -159,43 +135,28 @@ public class BanyanDBConfigLoader {
         return properties;
     }
 
-    private List<BanyanDBStorageConfig.Stage> copyStages(final String configName,
-                                                         final Properties group,
-                                                         final List<String> stagesNames,
-                                                         final List<String> defaultQueryStages) throws IllegalAccessException {
-        if (CollectionUtils.isNotEmpty(defaultQueryStages)) {
-            for (String stageName : defaultQueryStages) {
-                if (BanyanDBStorageConfig.StageName.hot.name().equals(stageName)) {
-                    continue;
-                }
-                if (CollectionUtils.isEmpty(stagesNames) || !stagesNames.contains(stageName)) {
-                    throw new IllegalArgumentException("Group configuration: " + configName + ": " + group.toString() + " [defaultQueryStages] error, the stages [" + stageName + "] is not in [enabledStages].");
-                }
-            }
+    private void copyStages(final Properties group,
+                            final BanyanDBStorageConfig.GroupResource groupResource) throws IllegalAccessException {
+        if (groupResource.isEnableWarmStage()) {
+            BanyanDBStorageConfig.Stage warm = new BanyanDBStorageConfig.Stage();
+            warm.setName(BanyanDBStorageConfig.StageName.warm);
+            copyProperties(
+                warm, (Properties) group.get(BanyanDBStorageConfig.StageName.warm.name()),
+                moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            groupResource.getAdditionalLifecycleStages().add(warm);
+            groupResource.getDefaultQueryStages().add(BanyanDBStorageConfig.StageName.warm.name());
         }
 
-        if (CollectionUtils.isNotEmpty(stagesNames)) {
-           List<BanyanDBStorageConfig.Stage> stages = new ArrayList<>(stagesNames.size());
-            if (stagesNames.contains(BanyanDBStorageConfig.StageName.warm.name())) {
-                BanyanDBStorageConfig.Stage warm = new BanyanDBStorageConfig.Stage();
-                warm.setName(BanyanDBStorageConfig.StageName.warm);
-                copyProperties(
-                    warm, (Properties) group.get(BanyanDBStorageConfig.StageName.warm.name()),
-                    moduleProvider.getModule().name(), moduleProvider.name()
-                );
-                stages.add(warm);
-            } else if (stagesNames.contains(BanyanDBStorageConfig.StageName.cold.name())) {
-                BanyanDBStorageConfig.Stage cold = new BanyanDBStorageConfig.Stage();
-                cold.setName(BanyanDBStorageConfig.StageName.cold);
-                copyProperties(
-                    cold, (Properties) group.get(BanyanDBStorageConfig.StageName.cold.name()),
-                    moduleProvider.getModule().name(), moduleProvider.name()
-                );
-                stages.add(cold);
-            }
-           return stages;
-       } else {
-           return List.of();
-       }
+        if (groupResource.isEnableColdStage()) {
+            BanyanDBStorageConfig.Stage cold = new BanyanDBStorageConfig.Stage();
+            cold.setName(BanyanDBStorageConfig.StageName.cold);
+            cold.setClose(true);
+            copyProperties(
+                cold, (Properties) group.get(BanyanDBStorageConfig.StageName.cold.name()),
+                moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            groupResource.getAdditionalLifecycleStages().add(cold);
+        }
     }
 }
