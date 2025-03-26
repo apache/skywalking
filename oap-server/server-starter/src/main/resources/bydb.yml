@@ -60,8 +60,8 @@ groups:
     # If the "cold" stage is enabled and "warm" stage is disabled, the data will be moved to the "cold" stage after the TTL of the "hot" stage.
     # If both "warm" and "cold" stages are enabled, the data will be moved to the "warm" stage after the TTL of the "hot" stage, and then to the "cold" stage after the TTL of the "warm" stage.
     # OAP will query the data from the "hot and warm" stage by default if the "warm" stage is enabled.
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_NORMAL_ENABLE_WARM_STAGE:true}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GR_NORMAL_ENABLE_COLD_STAGE:true}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_NORMAL_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_GR_NORMAL_ENABLE_COLD_STAGE:false}
     # The settings for the "warm" stage.
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SHARD_NUM:1}
@@ -80,8 +80,8 @@ groups:
     shardNum: ${SW_STORAGE_BANYANDB_GR_SUPER_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_GR_SUPER_SI_DAYS:1}
     ttl: ${SW_STORAGE_BANYANDB_GR_SUPER_TTL_DAYS:3}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_SUPER_ENABLE_WARM_STAGE:true}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GR_SUPER_ENABLE_COLD_STAGE:true}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_SUPER_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_GR_SUPER_ENABLE_COLD_STAGE:false}
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_GR_SUPER_WARM_SHARD_NUM:2}
       segmentInterval: ${SW_STORAGE_BANYANDB_GR_SUPER_WARM_SI_DAYS:1}
@@ -102,8 +102,8 @@ groups:
     shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_SI_DAYS:1}
     ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_TTL_DAYS:7}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_WARM_STAGE:true}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_COLD_STAGE:true}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_COLD_STAGE:false}
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SHARD_NUM:2}
       segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SI_DAYS:3}
@@ -118,8 +118,8 @@ groups:
     shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_SHARD_NUM:1}
     segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_SI_DAYS:5}
     ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_TTL_DAYS:15}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_WARM_STAGE:true}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_COLD_STAGE:true}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_COLD_STAGE:false}
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SHARD_NUM:1}
       segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SI_DAYS:7}
@@ -134,8 +134,8 @@ groups:
     shardNum: ${SW_STORAGE_BANYANDB_GM_DAY_SHARD_NUM:1}
     segmentInterval: ${SW_STORAGE_BANYANDB_GM_DAY_SI_DAYS:15}
     ttl: ${SW_STORAGE_BANYANDB_GM_DAY_TTL_DAYS:15}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_DAY_ENABLE_WARM_STAGE:true}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GM_DAY_ENABLE_COLD_STAGE:true}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_DAY_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_GM_DAY_ENABLE_COLD_STAGE:false}
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_SHARD_NUM:1}
       segmentInterval: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_SI_DAYS:15}
