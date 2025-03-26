@@ -19,7 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
@@ -94,6 +97,46 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     // The configuration of the groups.
     // since 10.2.0
 
+    @Getter
+    @Setter
+    public static class Stage {
+        private StageName name;
+        // Node selector specifying target nodes for this stage.
+        // Optional; if provided, it must be a non-empty string.
+        private String nodeSelector;
+        private int shardNum;
+        private int segmentInterval;
+        private int ttl;
+        // Indicates whether segments that are no longer live should be closed.
+        private boolean close = false;
+    }
+
+    public enum StageName {
+        hot,
+        warm,
+        cold;
+    }
+
+    @Getter
+    @Setter
+    public static class GroupResource {
+        private int shardNum;
+        private int segmentInterval;
+        private int ttl;
+        private String enabledAdditionalStages;
+        private String defaultQueryStages;
+        private List<Stage> lifecycleStages = new ArrayList<>(2);
+
+        public List<String> getEnabledAdditionalStages() {
+            return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(
+                enabledAdditionalStages));
+        }
+
+        public List<String> getDefaultQueryStages() {
+            return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(defaultQueryStages));
+        }
+    }
+
     //The group settings of records.
     /**
      * The RecordsNormal defines settings for datasets not specified in "super".
@@ -101,10 +144,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    public static class RecordsNormal {
-        private int shardNum = 1;
-        private int segmentInterval = 1;
-        private int ttl = 3;
+    public static class RecordsNormal extends BanyanDBStorageConfig.GroupResource {
     }
 
     /**
@@ -113,10 +153,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    public static class RecordsSuper {
-        private int shardNum = 2;
-        private int segmentInterval = 1;
-        private int ttl = 3;
+    public static class RecordsSuper extends BanyanDBStorageConfig.GroupResource {
     }
 
     // The group settings of metrics.
@@ -131,10 +168,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    public static class MetricsMin {
-        private int shardNum = 2;
-        private int segmentInterval = 1;
-        private int ttl = 7;
+    public static class MetricsMin extends BanyanDBStorageConfig.GroupResource {
     }
 
     /**
@@ -142,10 +176,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    public static class MetricsHour {
-        private int shardNum = 1;
-        private int segmentInterval = 5;
-        private int ttl = 15;
+    public static class MetricsHour extends BanyanDBStorageConfig.GroupResource {
     }
 
     /**
@@ -153,10 +184,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    public static class MetricsDay {
-        private int shardNum = 1;
-        private int segmentInterval = 15;
-        private int ttl = 15;
+    public static class MetricsDay extends BanyanDBStorageConfig.GroupResource {
     }
 
     /**
@@ -167,10 +195,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    public static class Metadata {
-        private int shardNum = 2;
-        private int segmentInterval = 15;
-        private int ttl = 15;
+    public static class Metadata extends BanyanDBStorageConfig.GroupResource {
     }
 
     /**
@@ -178,7 +203,6 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    public static class Property {
-        private int shardNum = 1;
+    public static class Property extends BanyanDBStorageConfig.GroupResource {
     }
 }

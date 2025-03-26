@@ -4,6 +4,8 @@
 
 #### OAP Server
 
+* BanyanDB: Support `hot/warm/cold` stages configuration.
+
 #### UI
 
 #### Documentation

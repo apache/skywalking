@@ -234,9 +234,29 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      */
     private boolean checkGroup(MetadataRegistry.SchemaMetadata metadata, BanyanDBClient client) throws BanyanDBException {
         Group g = client.findGroup(metadata.getGroup());
-        return g.getResourceOpts().getShardNum() != metadata.getShard()
-            || g.getResourceOpts().getSegmentInterval().getNum() != metadata.getSegmentIntervalDays()
-            || g.getResourceOpts().getTtl().getNum() != metadata.getTtlDays();
+
+        if (g.getResourceOpts().getShardNum() != metadata.getResource().getShardNum()
+            || g.getResourceOpts().getSegmentInterval().getNum() != metadata.getResource().getSegmentInterval()
+            || g.getResourceOpts().getTtl().getNum() != metadata.getResource().getTtl()) {
+            return true;
+        }
+
+        if (g.getResourceOpts().getStagesCount() != metadata.getResource().getLifecycleStages().size()) {
+            return true;
+        }
+        for (int i = 0; i < g.getResourceOpts().getStagesCount(); i++) {
+            BanyandbCommon.LifecycleStage stage = g.getResourceOpts().getStages(i);
+            BanyanDBStorageConfig.Stage stageConfig = metadata.getResource().getLifecycleStages().get(i);
+            if (!stage.getName().equals(stageConfig.getName().name())
+                || stage.getShardNum() != stageConfig.getShardNum()
+                || stage.getSegmentInterval().getNum() != stageConfig.getSegmentInterval()
+                || stage.getTtl().getNum() != stageConfig.getTtl()
+                || !stage.getNodeSelector().equals(stageConfig.getNodeSelector())
+                || stage.getClose() != stageConfig.isClose()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ResourceExist checkResourceExistence(MetadataRegistry.SchemaMetadata metadata,
@@ -245,7 +265,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         Group.Builder gBuilder
             = Group.newBuilder()
                    .setMetadata(BanyandbCommon.Metadata.newBuilder().setName(metadata.getGroup()));
-        BanyandbCommon.ResourceOpts.Builder optsBuilder = BanyandbCommon.ResourceOpts.newBuilder().setShardNum(metadata.getShard());
+        BanyandbCommon.ResourceOpts.Builder optsBuilder = BanyandbCommon.ResourceOpts.newBuilder().setShardNum(metadata.getResource().getShardNum());
 
         switch (metadata.getKind()) {
             case STREAM:
@@ -254,13 +274,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     .setUnit(
                         IntervalRule.Unit.UNIT_DAY)
                     .setNum(
-                        metadata.getSegmentIntervalDays()))
+                        metadata.getResource().getSegmentInterval()))
                 .setTtl(
                     IntervalRule.newBuilder()
                         .setUnit(
                             IntervalRule.Unit.UNIT_DAY)
                         .setNum(
-                            metadata.getTtlDays()));
+                            metadata.getResource().getTtl()));
                 resourceExist = client.existStream(metadata.getGroup(), metadata.name());
                 gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_STREAM).build();
                 break;
@@ -270,13 +290,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                             .setUnit(
                                 IntervalRule.Unit.UNIT_DAY)
                             .setNum(
-                                metadata.getSegmentIntervalDays()))
+                                metadata.getResource().getSegmentInterval()))
                     .setTtl(
                         IntervalRule.newBuilder()
                             .setUnit(
                                 IntervalRule.Unit.UNIT_DAY)
                             .setNum(
-                                metadata.getTtlDays()));
+                                metadata.getResource().getTtl()));
                 resourceExist = client.existMeasure(metadata.getGroup(), metadata.name());
                 gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_MEASURE).build();
                 break;
@@ -286,6 +306,27 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 break;
             default:
                 throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
+        }
+        if (CollectionUtils.isNotEmpty(metadata.getResource().getLifecycleStages())) {
+            for (BanyanDBStorageConfig.Stage stage : metadata.getResource().getLifecycleStages()) {
+                optsBuilder.addStages(
+                    BanyandbCommon.LifecycleStage.newBuilder()
+                                                 .setName(stage.getName().name())
+                                                 .setShardNum(stage.getShardNum())
+                                                 .setSegmentInterval(
+                                                     IntervalRule.newBuilder().setUnit(IntervalRule.Unit.UNIT_DAY)
+                                                                 .setNum(stage.getSegmentInterval()))
+                                                 .setTtl(
+                                                     IntervalRule.newBuilder()
+                                                                 .setUnit(
+                                                                     IntervalRule.Unit.UNIT_DAY)
+                                                                 .setNum(
+                                                                     stage.getTtl()))
+                                                 .setNodeSelector(stage.getNodeSelector())
+                                                 .setClose(stage.isClose())
+                    //todo: set the default query stages
+                );
+            }
         }
         gBuilder.setResourceOpts(optsBuilder.build());
         if (!RunningMode.isNoInitMode()) {

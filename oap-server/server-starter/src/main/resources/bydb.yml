@@ -52,15 +52,41 @@ groups:
   # The "normal" section defines settings for datasets not specified in "super".
   # Each dataset will be grouped under a single group named "normal".
   recordsNormal:
+    # The settings for the default "hot" stage.
     shardNum:  ${SW_STORAGE_BANYANDB_GR_NORMAL_SHARD_NUM:1}
     segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_SI_DAYS:1}
     ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_TTL_DAYS:3}
+    # Enable the additional stages. The "hot" stage is always enabled by default.
+    enabledAdditionalStages: ${SW_STORAGE_BANYANDB_GR_NORMAL_ENABLED_ADDITIONAL_STAGES:"warm,cold"}
+    defaultQueryStages: ${SW_STORAGE_BANYANDB_GR_NORMAL_DEFAULT_QUERY_STAGES:"hot,warm"}
+    warm:
+      shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_TTL_DAYS:3}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMA_WARML_NODE_SELECTOR:"type=warm"}
+    cold:
+      shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_TTL_DAYS:3}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMA_COLD_NODE_SELECTO:"type=cold"}
   # "super" is a special dataset designed to store trace or log data that is too large for normal datasets.
   # Each super dataset will be a separate group in BanyanDB, following the settings defined in the "super" section.
   recordsSuper:
     shardNum: ${SW_STORAGE_BANYANDB_GR_SUPER_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_GR_SUPER_SI_DAYS:1}
     ttl: ${SW_STORAGE_BANYANDB_GR_SUPER_TTL_DAYS:3}
+    enabledAdditionalStages: ${SW_STORAGE_BANYANDB_GR_SUPER_ENABLED_ADDITIONAL_STAGES:"warm,cold"}
+    defaultQueryStages: ${SW_STORAGE_BANYANDB_GR_SUPER_DEFAULT_QUERY_STAGES:"hot,warm"}
+    warm:
+      shardNum: ${SW_STORAGE_BANYANDB_GR_SUPER_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GR_SUPER_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_GR_SUPER_WARM_TTL_DAYS:3}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GR_SUPER_WARM_NODE_SELECTOR:"type=warm"}
+    cold:
+      shardNum: ${SW_STORAGE_BANYANDB_GR_SUPER_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GR_SUPER_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_GR_SUPER_COLD_TTL_DAYS:3}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GR_SUPER_COLD_NODE_SELECTOR:"type=cold"}
   # The group settings of metrics.
   #
   # OAP stores metrics based its granularity.
@@ -71,14 +97,50 @@ groups:
     shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_SI_DAYS:1}
     ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_TTL_DAYS:7}
+    enabledAdditionalStages: ${SW_STORAGE_BANYANDB_GM_MINUTE_ENABLED_ADDITIONAL_STAGES:"warm,cold"}
+    defaultQueryStages: ${SW_STORAGE_BANYANDB_GM_MINUTE_DEFAULT_QUERY_STAGES:"hot,warm"}
+    warm:
+      shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_TTL_DAYS:7}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_NODE_SELECTOR:"type=warm"}
+    cold:
+      shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_TTL_DAYS:7}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_NODE_SELECTOR:"type=cold"}
   metricsHour:
     shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_SHARD_NUM:1}
     segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_SI_DAYS:5}
     ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_TTL_DAYS:15}
+    enabledAdditionalStages: ${SW_STORAGE_BANYANDB_GM_HOUR_ENABLED_ADDITIONAL_STAGES:"warm,cold"}
+    defaultQueryStages: ${SW_STORAGE_BANYANDB_GM_HOUR_DEFAULT_QUERY_STAGES:"hot,warm"}
+    warm:
+      shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SI_DAYS:5}
+      ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_TTL_DAYS:15}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_NODE_SELECTOR:"type=warm"}
+    cold:
+      shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_SI_DAYS:5}
+      ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_TTL_DAYS:15}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_NODE_SELECTOR:"type=cold"}
   metricsDay:
     shardNum: ${SW_STORAGE_BANYANDB_GM_DAY_SHARD_NUM:1}
     segmentInterval: ${SW_STORAGE_BANYANDB_GM_DAY_SI_DAYS:15}
     ttl: ${SW_STORAGE_BANYANDB_GM_DAY_TTL_DAYS:15}
+    enabledAdditionalStages: ${SW_STORAGE_BANYANDB_GM_DAY_ENABLED_ADDITIONAL_STAGES:"warm,cold"}
+    defaultQueryStages: ${SW_STORAGE_BANYANDB_GM_DAY_DEFAULT_QUERY_STAGES:"hot,warm"}
+    warm:
+      shardNum: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_SI_DAYS:15}
+      ttl: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_TTL_DAYS:15}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_NODE_SELECTOR:"type=warm"}
+    cold:
+      shardNum: ${SW_STORAGE_BANYANDB_GM_DAY_COLD_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_DAY_COLD_SI_DAYS:15}
+      ttl: ${SW_STORAGE_BANYANDB_GM_DAY_COLD_TTL_DAYS:15}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GM_DAY_COLD_NODE_SELECTOR:"type=cold"}
   # If the metrics is marked as "index_mode", the metrics will be stored in the "index" group.
   # The "index" group is designed to store metrics that are used for indexing without value columns.
   # Such as `service_traffic`, `network_address_alias`, etc.
