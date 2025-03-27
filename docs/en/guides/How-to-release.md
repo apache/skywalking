@@ -8,89 +8,35 @@ Add your GPG public key into the [SkyWalking GPG KEYS](https://dist.apache.org/r
 - If you are a PMC member, use your Apache ID and password to log in this svn, and update the file. **Don't override the existing file.**
 - If you are a committer, please ask a PMC member to help you. 
 
-## Tag for the release
+## Create artifacts for the release
 
-- Set the version number that you are about to release.
+- Create a new empty folder to do the release work.
+- Set the version numbers and run the release script file [`tools/releasing/create_release_tars.sh`](https://github.com/apache/skywalking/blob/master/tools/releasing/create_release_tars.sh)
 
 ```bash
 export RELEASE_VERSION=x.y.z # (example: RELEASE_VERSION=10.1.0)
 export NEXT_RELEASE_VERSION=x.y.z # (example: NEXT_RELEASE_VERSION=10.2.0)
-export PRODUCT_NAME="apache-skywalking-apm"
-export SOURCE_FILE="dist/${PRODUCT_NAME}-${RELEASE_VERSION}.tar.gz"
-export TARGET_DIR="tools/releasing"
+curl -Ls https://raw.githubusercontent.com/apache/skywalking/refs/heads/master/tools/releasing/create_release_tars.sh | bash -
 ```
 
-- Create a new folder for the new release.
+After all the steps are completed, you will have the following files in the folder:
 
-```bash
-git clone https://github.com/apache/skywalking.git
-cd skywalking
-git checkout -b ${RELEASE_VERSION}-release # Create a branch for new release, such as 10.1.0-release
-git submodule init
-git submodule update
+```text
+apache-skywalking-apm-${RELEASE_VERSION}-bin.tar.gz
+apache-skywalking-apm-${RELEASE_VERSION}-bin.tar.gz.asc
+apache-skywalking-apm-${RELEASE_VERSION}-bin.tar.gz.sha512
+apache-skywalking-apm-${RELEASE_VERSION}-src.tar.gz
+apache-skywalking-apm-${RELEASE_VERSION}-src.tar.gz.asc
+apache-skywalking-apm-${RELEASE_VERSION}-src.tar.gz.sha512
 ```
-
-- Update the property `revision` in `pom.xml` file, and commit it.
-
-```bash
-./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${RELEASE_VERSION}
-git add pom.xml
-git commit -m "Prepare for release ${RELEASE_VERSION}"
-```
-
-- Tag the commit and push it to the upstream.
-
-```bash
-git tag v${RELEASE_VERSION}
-git push origin v${RELEASE_VERSION}
-```
-
-## Build the binary package
-
-```bash
-./mvnw install package -DskipTests
-mv "$SOURCE_FILE" "$TARGET_DIR/"
-```
-
-The release will be packaged first as `apache-skywalking-apm-x.y.z.tar.gz` in the `{PROJECT_ROOT}/dist` directory, and 
-then moved to the `tools/releasing` directory.
-
-
-## Build the source code package, sign the source code package and binary package
-```bash
-cd tools/releasing
-bash create_release_tars.sh
-```
-
-This script takes care of the following things:
-1. Use `v` + `RELEASE_VERSION` as tag to clone the codes.
-1. Complete `git submodule init/update`.
-1. Exclude all unnecessary files in the target source tar, such as `.git`, `.github`, and `.gitmodules`. See the script for more details.
-1. Execute `gpg` and `shasum 512` for source tar and binary tar. 
-
-`apache-skywalking-apm-x.y.z-src.tgz` and files ending with `.asc` and `.sha512` may be found in the `tools/releasing` folder.
 
 ## Start the next iteration
 
 Once the binary and source packages are created, you can start updating the version to the next number and open a pull request.
 
 ```bash
-# Update the version to the next snapshot version still in the same branch, such as 10.1.0-release
-./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${NEXT_RELEASE_VERSION}-SNAPSHOT
-git add pom.xml
-git commit -m "Start next iteration ${NEXT_RELEASE_VERSION}"
+curl -Ls https://raw.githubusercontent.com/apache/skywalking/refs/heads/master/tools/releasing/start_next_version.sh | bash -
 ```
-
-Update the change log files for the next iteration.
-* Rename [latest changes](../changes/changes.md) to `changes-{RELEASE_VERSION}.md`.
-* Reset the [latest changes](../changes/changes.md) to the new version.
-* Update Changelog in the `menu.yml` to link to `changes-{RELEASE_VERSION}.md`.
-
-```bash
-git push
-gh pr create --fill # If you have gh cli installed and configured, or open the pull request in https://github.com/apache/skywalking/pulls
-```
-
 
 ## Upload to Apache svn
 1. Use your Apache ID to log in to `https://dist.apache.org/repos/dist/dev/skywalking/`.
