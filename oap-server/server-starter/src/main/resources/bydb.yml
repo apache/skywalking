@@ -67,13 +67,13 @@ groups:
       shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SHARD_NUM:1}
       segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SI_DAYS:2}
       ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_TTL_DAYS:7}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMA_WARML_NODE_SELECTOR:"type=warm"}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_NODE_SELECTOR:"type=warm"}
     # The settings for the "cold" stage.
     cold:
       shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SHARD_NUM:1}
       segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SI_DAYS:3}
       ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_TTL_DAYS:30}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMA_COLD_NODE_SELECTO:"type=cold"}
+      nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_NODE_SELECTOR:"type=cold"}
   # "super" is a special dataset designed to store trace or log data that is too large for normal datasets.
   # Each super dataset will be a separate group in BanyanDB, following the settings defined in the "super" section.
   recordsSuper:
