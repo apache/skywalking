@@ -35,18 +35,18 @@ For both standard and super datasets:
 
 Configure `SIDays` and `TTLDays` based on data retention and query requirements. Recommended settings include:
 
-| Group          | `SIDays` | `TTLDays` |
-|----------------|----------|-----------|
-| Minute (`gmMinute`) | 1        | 7         |
-| Hour (`gmHour`)     | 5        | 15        |
-| Day (`gmDay`)       | 15       | 15        |
-| Index (`gmIndex`)   | 15       | 15        |
+| Group                  | `SIDays` | `TTLDays` |
+|------------------------|----------|-----------|
+| Minute (`metricsMin`)  | 1        | 7         |
+| Hour (`metricsHour`)   | 5        | 15        |
+| Day (`metricsDay`)     | 15       | 15        |
+| Index (`metadata`)     | 15       | 15        |
 
 **Group Descriptions:**
 
-- **Minute (`gmMinute`)**: Stores metrics with a 1-minute granularity. Suitable for recent data queries requiring minute-level detail. Consequently, it has shorter `SIDays` and `TTLDays` compared to other groups.
-- **Hour (`gmHour`)**: Stores metrics with a 1-hour granularity. Designed for queries that need hour-level detail over a longer period than minute-level data.
-- **Day (`gmDay`)**: Stores metrics with a 1-day granularity. This group handles the longest segment intervals and TTLs among all granularity groups.
-- **Index (`gmIndex`)**: Stores metrics used solely for indexing without value columns. Since queries often scan all segments in the `index` group, it shares the same `SIDays` and `TTLDays` as the `day` group to optimize performance. This group's `TTL` must be set to the **max** value of all groups.
+- **Minute (`metricsMin`)**: Stores metrics with a 1-minute granularity. Suitable for recent data queries requiring minute-level detail. Consequently, it has shorter `SIDays` and `TTLDays` compared to other groups.
+- **Hour (`metricsHour`)**: Stores metrics with a 1-hour granularity. Designed for queries that need hour-level detail over a longer period than minute-level data.
+- **Day (`metricsDay`)**: Stores metrics with a 1-day granularity. This group handles the longest segment intervals and TTLs among all granularity groups.
+- **Index (`metadata`)**: Stores metrics used solely for indexing without value columns. Since queries often scan all segments in the `index` group, it shares the same `SIDays` and `TTLDays` as the `day` group to optimize performance. This group's `TTL` must be set to the **max** value of all groups.
 
 For more details on configuring `segmentIntervalDays` and `ttlDays`, refer to the [BanyanDB Rotation](https://skywalking.apache.org/docs/skywalking-banyandb/latest/concept/rotation/) documentation.
