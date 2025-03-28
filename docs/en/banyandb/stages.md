@@ -1,15 +1,15 @@
-# Lifecycle Stages
+# Data Lifecycle Stages(Hot/Warm/Cold)
 
 Lifecycle Stages provide a mechanism to optimize storage costs and query performance based on the time granularity of records/metrics,
 specially if you require keep mass of data for a long time.
 
-The strategy of lifecycle stages is hot, warm and cold. Each stage has different TTL settings and Segment Creation Policies.
+The data lifecycle includes hot, warm, and cold stages. Each stage has different TTL settings and Segment Creation Policies.
 Each group of records/metrics can be automatically migrated and stored in different stages according to the configuration.
 
 ## Stages Definition
-- **hot**: The default first stage for storing data. The data is the newest and most frequently queried.
-- **warm**: Optional, the second stage for storing data. The data is less frequently queried than the hot stage.
-- **cold**: Optional, the third stage for storing data. The data is rarely queried and is stored for a long time.
+- **hot**: The default first stage for storing data. The data is the newest, can be updated(metrics), and is most frequently queried.
+- **warm**: Optional, the second stage for storing data. The data is less frequently queried than the hot stage, can't be updated, and still performs well.
+- **cold**: Optional, the third stage for storing data. The data is rarely queried and is stored for a long time. The query performance is significantly lower than the hot/warm stages data.
 
 If necessary, you also can jump the warm stage, and only use hot and cold stages. Then the data will be moved to the cold stage after the TTL of the hot stage.
 
