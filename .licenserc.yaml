@@ -69,6 +69,7 @@ header:
     - 'oap-server/server-starter/src/main/resources/version.properties'
     - '**/mockito-extensions/**'
     - 'oap-server/server-library/library-async-profiler-jfr-parser'
+    - 'docs/en/changes/changes.tpl'
 
   comment: on-failure
 

@@ -205,7 +205,7 @@ catalog:
           - name: "Progressive TTL"
             path: "/en/banyandb/ttl"
           - name: "Data Lifecycle Stages(Hot/Warm/Cold)"
-            path: "/en/banyandb/lifecycle-stages"
+            path: "/en/banyandb/stages"
       - name: "Tracing"
         catalog:
           - name: "Trace Sampling"

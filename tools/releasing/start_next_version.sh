@@ -33,10 +33,10 @@ if [ "$RELEASE_VERSION" == "" ] || [ "$NEXT_RELEASE_VERSION" == "" ]; then
   exit 1
 fi
 
-PRODUCT_NAME="apache-skywalking-apm"
-TAG=v${RELEASE_VERSION}
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-MVN=${MVN:-./mvnw}
+if ! command -v yq &> /dev/null; then
+  echo "yq is not installed. Please install yq first."
+  exit 1
+fi
 
 if [ -d "skywalking" ]; then
   rm -rf skywalking
@@ -48,43 +48,33 @@ git clone --recurse-submodules -j4 --depth 1 https://github.com/apache/skywalkin
 echo "Checking out the release branch ${RELEASE_VERSION}-release..."
 git checkout -b ${RELEASE_VERSION}-release
 
-log_file=$(mktemp)
-echo "Setting the release version ${RELEASE_VERSION} in pom.xml, log file: ${log_file}"
-${MVN} versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${RELEASE_VERSION} > ${log_file} 2>&1
+echo "Setting the next release version ${NEXT_RELEASE_VERSION} in pom.xml..."
+./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${NEXT_RELEASE_VERSION}-SNAPSHOT
 
 echo "Committing the pom.xml changes..."
 git add pom.xml
-git commit -m "Prepare for release ${RELEASE_VERSION}"
+git commit -m "Update the next release version to ${NEXT_RELEASE_VERSION}-SNAPSHOT"
 
-echo "Creating the release tag ${TAG}..."
-git tag ${TAG}
+echo "Moving the changelog file..."
+mv docs/en/changes/changes.md docs/en/changes-$RELEASE_VERSION.md
 
-echo "Pushing the release tag ${TAG} to the remote repository..."
-git push --set-upstream origin ${TAG}
+echo "Updating the changelog file..."
+cat docs/en/changes/changes.tpl | sed "s/NEXT_RELEASE_VERSION/${NEXT_RELEASE_VERSION}/g" > docs/en/changes/changes.md
 
-log_file=$(mktemp)
-echo "Generating a static version.properties, log file: ${log_file}"
-${MVN} -q -pl oap-server/server-starter -am initialize \
-       -DgenerateGitPropertiesFilename="$(pwd)/oap-server/server-starter/src/main/resources/version.properties" > ${log_file} 2>&1
+echo "Committing the changelog files..."
+git add docs
+git commit -m "Update the changelog files"
 
-echo "Creating the release source artifacts..."
-tar czf "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz \
-    --exclude .git \
-    --exclude .DS_Store \
-    --exclude .github \
-    --exclude .gitignore \
-    --exclude .gitmodules \
-    --exclude .mvn/wrapper/maven-wrapper.jar \
-    .
+echo "Updating the menu.yml file..."
+new_menu_file=$(mktemp)
+major_version=$(echo ${RELEASE_VERSION} | cut -d. -f1)
+yq '(.catalog[] | select(.name=="Changelog") | .catalog[] | select(.name=="'"${major_version}.x Releases"'") | .catalog) |= [{ "name": "'"${RELEASE_VERSION}"'", "path": "/en/changes/changes-'${RELEASE_VERSION}'" }] + .' docs/menu.yml > ${new_menu_file}
+mv ${new_menu_file} docs/menu.yml
+git add docs
+git commit -m "Update the menu.yml file"
 
-log_file=$(mktemp)
-echo "Building the release binary artifacts, log file: ${log_file}"
-${MVN} install package -DskipTests > ${log_file} 2>&1
-mv dist/${PRODUCT_NAME}-bin.tar.gz "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
+echo "Pushing the changes to the remote repository..."
+git push --set-upstream origin ${RELEASE_VERSION}-release
 
-cd "${SCRIPT_DIR}"
-gpg --armor --detach-sig ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz
-gpg --armor --detach-sig ${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
-
-shasum -a 512 ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz > ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz.sha512
-shasum -a 512 ${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz > ${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz.sha512
+echo "Opening the PR..."
+open https://github.com/apache/skywalking/pull/new/${RELEASE_VERSION}-release
