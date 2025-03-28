@@ -7,9 +7,9 @@ The data lifecycle includes hot, warm, and cold stages. Each stage has different
 Each group of records/metrics can be automatically migrated and stored in different stages according to the configuration.
 
 ## Stages Definition
-- **hot**: The default first stage for storing data. The data is the newest, can be updated(metrics), and is most frequently queried.
-- **warm**: Optional, the second stage for storing data. The data is less frequently queried than the hot stage, can't be updated, and still performs well.
-- **cold**: Optional, the third stage for storing data. The data is rarely queried and is stored for a long time. The query performance is significantly lower than the hot/warm stages data.
+- **hot**: The default first stage of data storage. The data is the newest, can be updated(metrics), and is most frequently queried.
+- **warm**: Optional, the second stage of data storage. The data is less frequently queried than the hot stage, can't be updated, and still performs well.
+- **cold**: Optional, the third stage of data storage. The data is rarely queried and is stored for a long time. The query performance is significantly lower than the hot/warm stages data.
 
 If necessary, you also can jump the warm stage, and only use hot and cold stages. Then the data will be moved to the cold stage after the TTL of the hot stage.
 
