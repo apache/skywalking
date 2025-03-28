@@ -57,26 +57,8 @@ public class BanyanDBConfigLoader {
 
         Map<String, Properties> configProperties = new HashMap<>();
         configMap.forEach((part, c) -> {
-            final Properties properties = new Properties();
             if (c != null) {
-                for (Map.Entry<String, ?> entry : c.entrySet()) {
-                    String propertyName = entry.getKey();
-                    Object propertyValue = entry.getValue();
-                    if (propertyValue instanceof Map) {
-                        Properties subProperties = new Properties();
-                        for (Map.Entry<String, ?> e : ((Map<String, ?>) propertyValue).entrySet()) {
-                            String key = e.getKey();
-                            Object value = e.getValue();
-                            subProperties.put(key, value);
-                            replacePropertyAndLog(key, value, subProperties, this.moduleProvider.name(), yaml);
-                        }
-                        properties.put(propertyName, subProperties);
-                    } else {
-                        properties.put(propertyName, propertyValue);
-                        replacePropertyAndLog(
-                            propertyName, propertyValue, properties, this.moduleProvider.name(), yaml);
-                    }
-                }
+                final Properties properties = parseConfig(c);
                 configProperties.put(part, properties);
             }
         });
@@ -87,26 +69,41 @@ public class BanyanDBConfigLoader {
                 moduleProvider.name()
             );
             Properties groups = configProperties.get("groups");
+            Properties recordsNormal = (Properties) groups.get("recordsNormal");
             copyProperties(
-                config.getRecordsNormal(), (Properties) groups.get("recordsNormal"),
+                config.getRecordsNormal(), recordsNormal,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
+            copyStages(recordsNormal, config.getRecordsNormal());
+
+            Properties recordsSupper = (Properties) groups.get("recordsSuper");
             copyProperties(
-                config.getRecordsSuper(), (Properties) groups.get("recordsSuper"),
+                config.getRecordsSuper(), recordsSupper,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
+            copyStages(recordsSupper, config.getRecordsSuper());
+
+            Properties metricsMin = (Properties) groups.get("metricsMin");
             copyProperties(
-                config.getMetricsMin(), (Properties) groups.get("metricsMin"),
+                config.getMetricsMin(), metricsMin,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
+            copyStages(metricsMin, config.getMetricsMin());
+
+            Properties metricsHour = (Properties) groups.get("metricsHour");
             copyProperties(
-                config.getMetricsHour(), (Properties) groups.get("metricsHour"),
+                config.getMetricsHour(), metricsHour,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
+            copyStages(metricsHour, config.getMetricsHour());
+
+            Properties metricsDay = (Properties) groups.get("metricsDay");
             copyProperties(
-                config.getMetricsDay(), (Properties) groups.get("metricsDay"),
+                config.getMetricsDay(), metricsDay,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
+            copyStages(metricsDay, config.getMetricsDay());
+
             copyProperties(
                 config.getMetadata(), (Properties) groups.get("metadata"),
                 moduleProvider.getModule().name(), moduleProvider.name()
@@ -119,5 +116,47 @@ public class BanyanDBConfigLoader {
             throw new ModuleStartException("Failed to load BanyanDB configuration.", e);
         }
         return config;
+    }
+
+    private Properties parseConfig(final Map<String, ?> config) {
+        final Properties properties = new Properties();
+        for (Map.Entry<String, ?> entry : config.entrySet()) {
+            String propertyName = entry.getKey();
+            Object propertyValue = entry.getValue();
+            if (propertyValue instanceof Map) {
+                Properties subProperties = parseConfig((Map<String, ?>) propertyValue);
+                properties.put(propertyName, subProperties);
+            } else {
+                properties.put(propertyName, propertyValue);
+                replacePropertyAndLog(
+                    propertyName, propertyValue, properties, this.moduleProvider.name(), yaml);
+            }
+        }
+        return properties;
+    }
+
+    private void copyStages(final Properties group,
+                            final BanyanDBStorageConfig.GroupResource groupResource) throws IllegalAccessException {
+        if (groupResource.isEnableWarmStage()) {
+            BanyanDBStorageConfig.Stage warm = new BanyanDBStorageConfig.Stage();
+            warm.setName(BanyanDBStorageConfig.StageName.warm);
+            copyProperties(
+                warm, (Properties) group.get(BanyanDBStorageConfig.StageName.warm.name()),
+                moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            groupResource.getAdditionalLifecycleStages().add(warm);
+            groupResource.getDefaultQueryStages().add(BanyanDBStorageConfig.StageName.warm.name());
+        }
+
+        if (groupResource.isEnableColdStage()) {
+            BanyanDBStorageConfig.Stage cold = new BanyanDBStorageConfig.Stage();
+            cold.setName(BanyanDBStorageConfig.StageName.cold);
+            cold.setClose(true);
+            copyProperties(
+                cold, (Properties) group.get(BanyanDBStorageConfig.StageName.cold.name()),
+                moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            groupResource.getAdditionalLifecycleStages().add(cold);
+        }
     }
 }

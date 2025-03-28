@@ -16,4 +16,4 @@
 FROM bitnami/fluentd:1.12.1
 
 ## Install output kafka plugins
-RUN fluent-gem install 'fluent-plugin-kafka'
+RUN fluent-gem install fluent-plugin-kafka -v 0.19.3

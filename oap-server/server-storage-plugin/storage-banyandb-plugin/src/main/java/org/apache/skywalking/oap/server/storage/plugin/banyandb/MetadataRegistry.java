@@ -477,24 +477,20 @@ public enum MetadataRegistry {
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, DownSamplingConfigService configService) {
         if (!model.isTimeSeries()) {
-            return new SchemaMetadata(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, model.getName(), Kind.PROPERTY, DownSampling.None, config.getProperty().getShardNum(), 0, 0);
+            return new SchemaMetadata(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, model.getName(), Kind.PROPERTY, DownSampling.None, config.getProperty());
         }
         if (model.isRecord()) { // stream
             return new SchemaMetadata(model.isSuperDataset() ? model.getName() : "normal",
                     model.getName(),
                     Kind.STREAM,
                     model.getDownsampling(),
-                    model.isSuperDataset() ? config.getRecordsSuper().getShardNum() : config.getRecordsNormal().getShardNum(),
-                    model.isSuperDataset() ? config.getRecordsSuper().getSegmentInterval() : config.getRecordsNormal().getSegmentInterval(),
-                    model.isSuperDataset() ? config.getRecordsSuper().getTtl() : config.getRecordsNormal().getTtl());
+                    model.isSuperDataset() ? config.getRecordsSuper() : config.getRecordsNormal());
         }
 
         if (model.getBanyanDBModelExtension().isIndexMode()) {
             return new SchemaMetadata("index", model.getName(), Kind.MEASURE,
                     model.getDownsampling(),
-                    config.getMetadata().getShardNum(),
-                    config.getMetadata().getSegmentInterval(),
-                    config.getMetadata().getTtl());
+                    config.getMetadata());
         }
 
         switch (model.getDownsampling()) {
@@ -503,9 +499,7 @@ public enum MetadataRegistry {
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),
-                        config.getMetricsMin().getShardNum(),
-                        config.getMetricsMin().getSegmentInterval(),
-                        config.getMetricsMin().getTtl());
+                        config.getMetricsMin());
             case Hour:
                 if (!configService.shouldToHour()) {
                     throw new UnsupportedOperationException("downsampling to hour is not supported");
@@ -514,9 +508,7 @@ public enum MetadataRegistry {
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),
-                        config.getMetricsHour().getShardNum(),
-                        config.getMetricsHour().getSegmentInterval(),
-                        config.getMetricsHour().getTtl());
+                        config.getMetricsHour());
             case Day:
                 if (!configService.shouldToDay()) {
                     throw new UnsupportedOperationException("downsampling to day is not supported");
@@ -525,9 +517,7 @@ public enum MetadataRegistry {
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),
-                        config.getMetricsDay().getShardNum(),
-                        config.getMetricsDay().getSegmentInterval(),
-                        config.getMetricsDay().getTtl());
+                        config.getMetricsDay());
             default:
                 throw new UnsupportedOperationException("unsupported downSampling interval:" + model.getDownsampling());
         }
@@ -547,9 +537,7 @@ public enum MetadataRegistry {
          * down-sampling of the {@link Model}
          */
         private final DownSampling downSampling;
-        private final int shard;
-        private final int segmentIntervalDays;
-        private final int ttlDays;
+        private final BanyanDBStorageConfig.GroupResource resource;
 
         /**
          * Format the entity name for BanyanDB
