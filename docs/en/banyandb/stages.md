@@ -59,20 +59,20 @@ sequenceDiagram
   Data(T0) ->> Hot Data(TTL1): Input
   Hot Data(TTL1) -->+ Hot Data(TTL1): TTL1
   Hot Data(TTL1) ->>- Warm Data(TTL2): Migrate
-  Warm Data(TTL2) -->+ Warm Data(TTL2): TTL2 - TTL1
+  Warm Data(TTL2) -->+ Warm Data(TTL2): TTL2
   Warm Data(TTL2) ->>- Cold Data(TTL3): Migrate
-  Cold Data(TTL3) -->+ Cold Data(TTL3): TTL3 - TTL2
+  Cold Data(TTL3) -->+ Cold Data(TTL3): TTL3
   Cold Data(TTL3) ->>- Deleted: Delete
   Data(T0) --> Hot Data(TTL1): Live TTL1 Days
-  Data(T0) --> Warm Data(TTL2): Live TTL2 Days
-  Data(T0) --> Cold Data(TTL3): Live TTL3 Days
+  Data(T0) --> Warm Data(TTL2): Live TTL1+TTL2 Days
+  Data(T0) --> Cold Data(TTL3): Live TTL1+TTL2+TTL3 Days
 ```
 
 - When the data is input, it will be stored in the hot stage and live for `TTL1` days.
-- After `TTL1` days, the data will be migrated to the warm stage and live until `TTL2` days. **It means data will in this stage for (TTL2 - TTL1) days**.
-- After `TTL2` days, the data will be migrated to the cold stage and live until `TTL3` days. **It means data will in this stage for (TTL3 - TTL2) days**.
+- After `TTL1` days, the data will be migrated to the warm stage and live for `TTL2` days.
+- After `TTL2` days, the data will be migrated to the cold stage and live for `TTL3` days.
 - After `TTL3` days, the data will be deleted.
-- The data will live for `TTL3` days in total.
+- The data will live for `TTL1+TTL2+TTL3` days in total.
 
 ## Querying
 - According to the lifecycle stages configuration, OAP will query the data from the `hot and warm` stage by default if the `warm` stage is enabled.
