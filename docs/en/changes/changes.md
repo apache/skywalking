@@ -5,6 +5,7 @@
 #### OAP Server
 
 * BanyanDB: Support `hot/warm/cold` stages configuration.
+* Fix query continues profiling policies error when the policy is already in the cache.
 
 #### UI
 

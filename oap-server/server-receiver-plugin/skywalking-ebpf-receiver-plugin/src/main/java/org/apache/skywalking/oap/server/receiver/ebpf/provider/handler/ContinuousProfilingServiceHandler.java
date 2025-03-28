@@ -112,6 +112,12 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
                 }
             }
 
+            // if no service need to check from DB then return empty
+            if (serviceIdList.isEmpty()) {
+                sendEmptyCommands(responseObserver);
+                return;
+            }
+
             // query the policies which not in the cache
             final List<ContinuousProfilingPolicy> queriedFromDB = policyDAO.queryPolicies(serviceIdList);
             for (ContinuousProfilingPolicy dbPolicy : queriedFromDB) {
