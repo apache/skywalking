@@ -36,17 +36,29 @@ public class TTLDefinition {
         ttlDefinition.append("# e.g.\n");
         ttlDefinition.append("# 1. The metadata of the service, instance, endpoint, topology map, etc.\n");
         ttlDefinition.append("# 2. Generated metrics data from OAL and MAL engines.\n");
+        ttlDefinition.append("# 3. Banyandb storage provides Data Lifecycle Stages(Hot/Warm/Cold).\n");
         ttlDefinition.append("#\n");
         ttlDefinition.append("# TTLs for each granularity metrics are listed separately.\n");
+        ttlDefinition.append("#\n");
+        ttlDefinition.append("# Cover hot and warm data for BanyanDB.\n");
         ttlDefinition.append("metrics.minute=").append(metrics.getMinute()).append("\n");
         ttlDefinition.append("metrics.hour=").append(metrics.getHour()).append("\n");
         ttlDefinition.append("metrics.day=").append(metrics.getDay()).append("\n");
+        ttlDefinition.append("# Cold data for BanyanDB, '-1' means no cold stage.\n");
+        ttlDefinition.append("metrics.minute.cold=").append(metrics.getColdMinute()).append("\n");
+        ttlDefinition.append("metrics.hour.cold=").append(metrics.getColdHour()).append("\n");
+        ttlDefinition.append("metrics.day.cold=").append(metrics.getColdDay()).append("\n");
         ttlDefinition.append("\n");
         ttlDefinition.append("# Records TTL includes the definition of the TTL of the records data in the storage,\n");
         ttlDefinition.append("# Records include traces, logs, sampled slow SQL statements, HTTP requests(by Rover), alarms, etc.\n");
         ttlDefinition.append("# Super dataset of records are traces and logs, which volume should be much larger.\n");
+        ttlDefinition.append("#\n");
+        ttlDefinition.append("# Cover hot and warm data for BanyanDB.\n");
         ttlDefinition.append("records.default=").append(records.getValue()).append("\n");
         ttlDefinition.append("records.superDataset=").append(records.getSuperDataset()).append("\n");
+        ttlDefinition.append("# Cold data for BanyanDB, '-1' means no cold stage.\n");
+        ttlDefinition.append("records.default.cold=").append(records.getColdValue()).append("\n");
+        ttlDefinition.append("records.superDataset.cold=").append(records.getColdSuperDataset()).append("\n");
         return ttlDefinition.toString();
     }
 

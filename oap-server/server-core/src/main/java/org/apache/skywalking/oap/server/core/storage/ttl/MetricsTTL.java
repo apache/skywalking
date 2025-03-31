@@ -33,4 +33,8 @@ public class MetricsTTL {
     private final int minute;
     private final int hour;
     private final int day;
+    // -1 means no cold stage.
+    private int coldMinute = -1;
+    private int coldHour = -1;
+    private int coldDay = -1;
 }
