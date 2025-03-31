@@ -31,4 +31,7 @@ public class RecordsTTL {
     @SerializedName("default")
     private final int value;
     private final int superDataset;
+    // -1 means no cold stage.
+    private int coldValue = -1;
+    private int coldSuperDataset = -1;
 }

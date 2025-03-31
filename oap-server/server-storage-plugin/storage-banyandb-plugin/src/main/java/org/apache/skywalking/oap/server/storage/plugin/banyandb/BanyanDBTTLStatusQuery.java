@@ -24,11 +24,17 @@ import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTLStatusQuery;
 import org.apache.skywalking.oap.server.core.storage.ttl.TTLDefinition;
 
 public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
-    private final int grNormalTTLDays;
-    private final int grSuperTTLDays;
-    private final int gmMinuteTTLDays;
-    private final int gmHourTTLDays;
-    private final int gmDayTTLDays;
+    private int grNormalTTLDays;
+    private int grSuperTTLDays;
+    // -1 means no cold stage.
+    private int grColdNormalTTLDays = -1;
+    private int grColdSuperTTLDays = -1;
+    private int gmMinuteTTLDays;
+    private int gmHourTTLDays;
+    private int gmDayTTLDays;
+    private int gmColdMinuteTTLDays = -1;
+    private int gmColdHourTTLDays = -1;
+    private int gmColdDayTTLDays = -1;
 
     public BanyanDBTTLStatusQuery(BanyanDBStorageConfig config) {
         grNormalTTLDays = config.getRecordsNormal().getTtl();
@@ -36,13 +42,54 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
         gmMinuteTTLDays = config.getMetricsMin().getTtl();
         gmHourTTLDays = config.getMetricsHour().getTtl();
         gmDayTTLDays = config.getMetricsDay().getTtl();
+        config.getRecordsNormal().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                grNormalTTLDays = grNormalTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                grColdNormalTTLDays = stage.getTtl();
+            }
+        });
+        config.getRecordsSuper().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                grSuperTTLDays = grSuperTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                grColdSuperTTLDays = stage.getTtl();
+            }
+        });
+        config.getMetricsMin().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                gmMinuteTTLDays = gmMinuteTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                gmColdMinuteTTLDays = stage.getTtl();
+            }
+        });
+        config.getMetricsHour().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                gmHourTTLDays = gmHourTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                gmColdHourTTLDays = stage.getTtl();
+            }
+        });
+        config.getMetricsDay().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                gmDayTTLDays = gmDayTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                gmColdDayTTLDays = stage.getTtl();
+            }
+        });
     }
 
     @Override
     public TTLDefinition getTTL() {
-        return new TTLDefinition(
+        TTLDefinition definition = new TTLDefinition(
             new MetricsTTL(gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
             new RecordsTTL(grNormalTTLDays, grSuperTTLDays)
         );
+        definition.getRecords().setColdValue(grColdNormalTTLDays);
+        definition.getRecords().setColdSuperDataset(grColdSuperTTLDays);
+        definition.getMetrics().setColdMinute(gmColdMinuteTTLDays);
+        definition.getMetrics().setColdHour(gmColdHourTTLDays);
+        definition.getMetrics().setColdDay(gmColdDayTTLDays);
+        return definition;
     }
 }
