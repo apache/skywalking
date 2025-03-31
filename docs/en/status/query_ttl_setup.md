@@ -24,7 +24,7 @@ This API is used to get the unified and effective TTL configurations.
 metrics.minute=7
 metrics.hour=15
 metrics.day=15
-# Cold data for BanyanDB, '-1' means no cold stage.
+# Cold data, '-1' represents no cold stage data.
 metrics.minute.cold=-1
 metrics.hour.cold=-1
 metrics.day.cold=-1
@@ -36,9 +36,10 @@ metrics.day.cold=-1
 # Cover hot and warm data for BanyanDB.
 records.default=3
 records.superDataset=3
-# Cold data for BanyanDB, '-1' means no cold stage.
-records.default.cold=3
-records.superDataset.cold=3
+# Cold data, '-1' represents no cold stage data.
+records.default.cold=-1
+records.superDataset.cold=-1
+
 ```
 
 This API also provides the response in JSON format, which is more friendly for programmatic usage.
@@ -47,7 +48,6 @@ This API also provides the response in JSON format, which is more friendly for p
 > curl -X GET "http://127.0.0.1:12800/status/config/ttl" \
        -H "Accept: application/json"
 
-{
 {
     "metrics": {
         "minute": 7,
@@ -60,9 +60,8 @@ This API also provides the response in JSON format, which is more friendly for p
     "records": {
         "default": 3,
         "superDataset": 3,
-        "coldValue": 3,
-        "coldSuperDataset": 3
+        "coldValue": -1,
+        "coldSuperDataset": -1
     }
-}
 }
 ```

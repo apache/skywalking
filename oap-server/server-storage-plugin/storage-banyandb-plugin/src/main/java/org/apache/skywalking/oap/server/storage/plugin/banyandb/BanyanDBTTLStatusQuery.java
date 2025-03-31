@@ -85,8 +85,8 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
             new MetricsTTL(gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
             new RecordsTTL(grNormalTTLDays, grSuperTTLDays)
         );
-        definition.getRecords().setColdValue(grNormalTTLDays);
-        definition.getRecords().setColdSuperDataset(grSuperTTLDays);
+        definition.getRecords().setColdValue(grColdNormalTTLDays);
+        definition.getRecords().setColdSuperDataset(grColdSuperTTLDays);
         definition.getMetrics().setColdMinute(gmColdMinuteTTLDays);
         definition.getMetrics().setColdHour(gmColdHourTTLDays);
         definition.getMetrics().setColdDay(gmColdDayTTLDays);
