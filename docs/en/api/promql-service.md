@@ -270,6 +270,7 @@ GET|POST /api/v1/series
 | end       | end, format: RFC3399 or unix_timestamp in seconds   | yes     | no       |
 | limit     | integer, maximum number of returned series          | yes     | yes      |
 
+**For metadata metrics**:
 **Note: SkyWalking's metadata exists in the following metrics(traffics):**
 
 | Name             | Require Labels | Optional Labels          | Support Label Match                                 |
@@ -278,7 +279,12 @@ GET|POST /api/v1/series
 | instance_traffic | layer, service | service_instance, limit  | =, (only service_instance label support !=, =~, !~) |
 | endpoint_traffic | layer, service | endpoint, keyword, limit | =, (only endpoint label support !=, =~, !~)         |
 
-**If the `limit` is not set by parameter or label, the default value is 100.**
+- **=**: Label value equal to the provided string.
+- **!=**: Label value not equal to the provided string.
+- **=~**: Label value regex-match the provided string.
+- **!~**: Label value do not regex-match the provided string
+
+**If the `limit` is not set by parameter or label, the default value is 100.If the `limit` also set in the query parameter, will return the min number of the two.**
 
 For example:
 ```text
@@ -288,7 +294,6 @@ or
 ```text
 /api/v1/series?match[]=service_traffic{layer='GENERAL', limit='5'}&start=1677479336&end=1677479636
 ```
-If the `limit` also set in the query parameter, will return the min number of the two.
 
 Result:
 ```json
@@ -422,7 +427,7 @@ Result:
 }
 ```
 
-For metadata metrics:
+**For metadata metrics**:
 
 | Name             | Require Labels | Optional Labels          | Support Label Match                                 |
 |------------------|----------------|--------------------------|-----------------------------------------------------|
@@ -430,10 +435,21 @@ For metadata metrics:
 | instance_traffic | layer, service | service_instance, limit  | =, (only service_instance label support !=, =~, !~) |
 | endpoint_traffic | layer, service | endpoint, keyword, limit | =, (only endpoint label support !=, =~, !~)         |
 
+- **=**: Label value equal to the provided string.
+- **!=**: Label value not equal to the provided string.
+- **=~**: Label value regex-match the provided string.
+- **!~**: Label value do not regex-match the provided string
+
+**If the `limit` is not set by parameter or label, the default value is 100. And If the `limit` also set in the query parameter, will return the min number of the two.**
+
 For example:
 - If you want to query the label values of the `service` label in the `service_traffic` metric:
 ```text
-/api/v1/label/service/values?match[]=service_traffic{layer='GENERAL', service='agent::songs|agent::recommendation'}
+/api/v1/label/service/values?match[]=service_traffic{layer='GENERAL', service='agent::songs|agent::recommendation'}&limit=1
+```
+or
+```text
+/api/v1/label/service/values?match[]=service_traffic{layer='GENERAL', service='agent::songs|agent::recommendation',limit='1'}
 ```
 - If you want to query the label values of the `service_instance` label in the `instance_traffic` metric:
 ```text
