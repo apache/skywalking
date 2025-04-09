@@ -279,12 +279,12 @@ GET|POST /api/v1/series
 | instance_traffic | layer, service | service_instance, limit  | =, (only service_instance label support !=, =~, !~) |
 | endpoint_traffic | layer, service | endpoint, keyword, limit | =, (only endpoint label support !=, =~, !~)         |
 
-- **=**: Label value equal to the provided string.
-- **!=**: Label value not equal to the provided string.
+- **=**: Label value equals the provided string.
+- **!=**: Label value does not equal the provided string.
 - **=~**: Label value regex-match the provided string.
-- **!~**: Label value do not regex-match the provided string
+- **!~**: Label value does not regex-match the provided string
 
-**If the `limit` is not set by parameter or label, the default value is 100.If the `limit` also set in the query parameter, will return the min number of the two.**
+**If the `limit` is not set by parameter or label, the default value is 100. If the `limit ' is also set in the query parameter, it returns the minimum of the two.**
 
 For example:
 ```text
