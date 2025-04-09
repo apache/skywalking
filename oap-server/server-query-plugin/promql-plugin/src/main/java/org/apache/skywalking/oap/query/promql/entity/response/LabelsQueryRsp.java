@@ -26,5 +26,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class LabelsQueryRsp extends QueryResponse {
-    private final List<String> data = new ArrayList<>();
+    private List<String> data = new ArrayList<>();
 }

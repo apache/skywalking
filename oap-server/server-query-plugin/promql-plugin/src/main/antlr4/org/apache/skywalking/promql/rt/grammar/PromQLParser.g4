@@ -50,9 +50,11 @@ metricRange:     metricInstant L_BRACKET DURATION R_BRACKET;
 
 labelName:       NAME_STRING;
 labelValue:      VALUE_STRING;
-label:           labelName EQ labelValue;
+label:           labelName matchOp labelValue;
 labelList:       label (COMMA label)*;
 labelNameList:   labelName (COMMA labelName)*;
+
+matchOp:        EQ | NEQ | RM | NRM;
 
 numberLiteral:   NUMBER;
 

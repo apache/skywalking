@@ -60,6 +60,7 @@ import org.apache.skywalking.oap.query.promql.entity.ResultStatus;
 import org.apache.skywalking.oap.query.promql.entity.response.MetricRspData;
 import org.apache.skywalking.oap.query.promql.entity.response.MetadataQueryRsp;
 import org.apache.skywalking.oap.query.promql.entity.response.MetricType;
+import org.apache.skywalking.oap.query.promql.entity.response.QueryFormatRsp;
 import org.apache.skywalking.oap.query.promql.entity.response.QueryResponse;
 import org.apache.skywalking.oap.query.promql.entity.response.ResultType;
 import org.apache.skywalking.oap.query.promql.entity.response.ScalarRspData;
@@ -188,12 +189,14 @@ public class PromQLApiHandler {
     public HttpResponse labels(
         @Param("match[]") Optional<String> match,
         @Param("start") Optional<String> start,
-        @Param("end") Optional<String> end) throws IOException {
+        @Param("end") Optional<String> end,
+        @Param("limit") Optional<Integer> limit) throws IOException {
         LabelsQueryRsp response = new LabelsQueryRsp();
         long endTS = System.currentTimeMillis();
         if (end.isPresent()) {
             endTS = formatTimestamp2Millis(end.get());
         }
+        int limitNum = limit.orElse(100);
         Duration duration = getDayDurationFromTimestamp(endTS);
         if (match.isPresent()) {
             MatcherSetResult parseResult;
@@ -219,12 +222,17 @@ public class PromQLApiHandler {
                 if (metaData.isMultiIntValues()) {
                     response.getData().remove(DataLabel.GENERAL_LABEL_NAME);
                 }
+            } else if (ServiceTraffic.INDEX_NAME.equals(metricName) || InstanceTraffic.INDEX_NAME.equals(metricName)
+                || EndpointTraffic.INDEX_NAME.equals(metricName)) {
+                response.getData().addAll(buildLabelNamesForTraffic(metricName));
             }
         } else {
             Arrays.stream(LabelName.values()).forEach(label -> {
                 response.getData().add(label.getLabel());
             });
         }
+        List<String> result = response.getData().stream().limit(limitNum).collect(Collectors.toList());
+        response.setData(result);
         response.setStatus(ResultStatus.SUCCESS);
         return jsonResponse(response);
     }
@@ -241,7 +249,8 @@ public class PromQLApiHandler {
         @Param("label_name") String labelName,
         @Param("match[]") Optional<String> match,
         @Param("start") Optional<String> start,
-        @Param("end") Optional<String> end) throws IOException {
+        @Param("end") Optional<String> end,
+        @Param("limit") Optional<Integer> limit) throws IOException {
         LabelValuesQueryRsp response = new LabelValuesQueryRsp();
         response.setStatus(ResultStatus.SUCCESS);
         long endTS = System.currentTimeMillis();
@@ -249,20 +258,21 @@ public class PromQLApiHandler {
             endTS = formatTimestamp2Millis(end.get());
         }
         Duration duration = getDayDurationFromTimestamp(endTS);
+        int limitNum = limit.orElse(100);
 
         //general labels
         if (LabelName.NAME.getLabel().equals(labelName)) {
-            getMetricsMetadataQueryService().listMetrics("").forEach(definition -> {
+            getMetricsMetadataQueryService().listMetrics("").stream().limit(limitNum).forEach(definition -> {
                 response.getData().add(definition.getName());
             });
             return jsonResponse(response);
         } else if (LabelName.LAYER.getLabel().equals(labelName)) {
-            for (Layer layer : Layer.values()) {
+            for (Layer layer : Arrays.stream(Layer.values()).limit(limitNum).collect(Collectors.toList())) {
                 response.getData().add(layer.name());
             }
             return jsonResponse(response);
         } else if (LabelName.SCOPE.getLabel().equals(labelName)) {
-            for (Scope scope : Scope.values()) {
+            for (Scope scope : Arrays.stream(Scope.values()).limit(limitNum).collect(Collectors.toList())) {
                 response.getData().add(scope.name());
             }
             return jsonResponse(response);
@@ -283,41 +293,27 @@ public class PromQLApiHandler {
                 metricName);
             if (valueColumn.isPresent() && Column.ValueDataType.LABELED_VALUE == valueColumn.get().getDataType()) {
                 List<MetricsValues> matchedMetrics = getMatcherMetricsValues(parseResult, duration);
-                response.getData().addAll(buildLabelValuesFromQuery(matchedMetrics, labelName));
+                response.getData().addAll(buildLabelValuesFromQuery(matchedMetrics, labelName).stream().limit(limitNum).collect(Collectors.toList()));
             } else {
                 // Make compatible with Grafana 11 when use old config variables
                 // e.g. query service list config: `label_values(service_traffic{layer='$layer'}, service)`
                 // Grafana 11 will query this API by default rather than `/api/v1/series`(< 11)
+                limitNum = getLimitNum(limit, parseResult);
                 if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
-                    String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
-                    if (StringUtil.isNotBlank(serviceName)) {
-                        Service service = metadataQuery.findService(serviceName).join();
+                    queryServiceTraffic(parseResult, limitNum).forEach(service -> {
                         response.getData().add(service.getName());
-                    } else {
-                        List<Service> services = metadataQuery.listServices(
-                            parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
-                        services.forEach(service -> {
-                            response.getData().add(service.getName());
-                        });
-                    }
+                    });
                 } else if (Objects.equals(metricName, InstanceTraffic.INDEX_NAME)) {
                     String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
                     String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
-                    List<ServiceInstance> instances = metadataQuery.listInstances(
-                        duration, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal())).join();
-                    instances.forEach(instance -> {
+                    queryInstanceTraffic(parseResult, duration, layer, serviceName, limitNum).forEach(instance -> {
                         response.getData().add(instance.getName());
                     });
                 } else if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
                     String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
                     String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
                     String keyword = parseResult.getLabelMap().getOrDefault(LabelName.KEYWORD.getLabel(), "");
-                    String limit = parseResult.getLabelMap().getOrDefault(LabelName.LIMIT.getLabel(), "100");
-                    List<Endpoint> endpoints = metadataQuery.findEndpoint(
-                        keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()),
-                        Integer.parseInt(limit), duration
-                    ).join();
-                    endpoints.forEach(endpoint -> {
+                    queryEndpointTraffic(parseResult, duration, layer, serviceName, keyword, limitNum).forEach(endpoint -> {
                         response.getData().add(endpoint.getName());
                     });
                 }
@@ -333,7 +329,8 @@ public class PromQLApiHandler {
     public HttpResponse series(
         @Param("match[]") String match,
         @Param("start") String start,
-        @Param("end") String end) throws IOException {
+        @Param("end") String end,
+        @Param("limit") Optional<Integer> limit) throws IOException {
         long startTS = formatTimestamp2Millis(start);
         long endTS = formatTimestamp2Millis(end);
         Duration duration = DurationUtils.timestamp2Duration(startTS, endTS);
@@ -350,41 +347,27 @@ public class PromQLApiHandler {
         String metricName = parseResult.getMetricName();
         Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
             metricName);
+        int limitNum = getLimitNum(limit, parseResult);
         if (valueColumn.isPresent()) {
             ValueColumnMetadata.ValueColumn metaData = valueColumn.get();
             Scope scope = Scope.Finder.valueOf(metaData.getScopeId());
             Column.ValueDataType dataType = metaData.getDataType();
             response.getData().add(buildMetaMetricInfo(metricName, scope, dataType));
         } else if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
-            String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
-            if (StringUtil.isNotBlank(serviceName)) {
-                Service service = metadataQuery.findService(serviceName).join();
+            queryServiceTraffic(parseResult, limitNum).forEach(service -> {
                 response.getData().add(buildMetricInfoFromTraffic(metricName, service));
-            } else {
-                List<Service> services = metadataQuery.listServices(
-                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
-                services.forEach(service -> {
-                    response.getData().add(buildMetricInfoFromTraffic(metricName, service));
-                });
-            }
+            });
         } else if (Objects.equals(metricName, InstanceTraffic.INDEX_NAME)) {
             String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
             String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
-            List<ServiceInstance> instances = metadataQuery.listInstances(
-                duration, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal())).join();
-            instances.forEach(instance -> {
+            queryInstanceTraffic(parseResult, duration, layer, serviceName, limitNum).forEach(instance -> {
                 response.getData().add(buildMetricInfoFromTraffic(metricName, instance));
             });
         } else if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
             String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
             String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
             String keyword = parseResult.getLabelMap().getOrDefault(LabelName.KEYWORD.getLabel(), "");
-            String limit = parseResult.getLabelMap().getOrDefault(LabelName.LIMIT.getLabel(), "100");
-            List<Endpoint> endpoints = metadataQuery.findEndpoint(
-                keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()),
-                Integer.parseInt(limit), duration
-            ).join();
-            endpoints.forEach(endpoint -> {
+            queryEndpointTraffic(parseResult, duration, layer, serviceName, keyword, limitNum).forEach(endpoint -> {
                 response.getData().add(buildMetricInfoFromTraffic(metricName, endpoint));
             });
         }
@@ -467,6 +450,7 @@ public class PromQLApiHandler {
         @Param("timeout") Optional<String> timeout) throws IOException {
         long startTS = formatTimestamp2Millis(start);
         long endTS = formatTimestamp2Millis(end);
+        //OAP downsample data by min/hour/day step, and generate step query condition automatically by the time range.
         Duration duration = DurationUtils.timestamp2Duration(startTS, endTS);
         ExprQueryRsp response = new ExprQueryRsp();
         PromQLLexer lexer = new PromQLLexer(
@@ -507,6 +491,15 @@ public class PromQLApiHandler {
             response.setError(parseResult.getErrorInfo());
         }
         return jsonResponse(response);
+    }
+
+    @Get
+    @Post
+    @Path("/api/v1/format_query")
+    public HttpResponse query_range(@Param("query") String query) throws IOException {
+        QueryFormatRsp rsp = new QueryFormatRsp();
+        rsp.setData(query.replaceAll("\\s", ""));
+        return jsonResponse(rsp);
     }
 
     @Get
@@ -613,6 +606,17 @@ public class PromQLApiHandler {
                 labelNames.add(LabelName.ENDPOINT.getLabel());
                 labelNames.add(LabelName.PARENT_SERVICE.getLabel());
                 break;
+        }
+        return labelNames;
+    }
+
+    private List<String> buildLabelNamesForTraffic(String metricName) {
+        List<String> labelNames = new ArrayList<>();
+        labelNames.add(LabelName.LAYER.getLabel());
+        labelNames.add(LabelName.LIMIT.getLabel());
+        labelNames.add(LabelName.SERVICE.getLabel());
+        if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
+            labelNames.add(LabelName.KEYWORD.getLabel());
         }
         return labelNames;
     }
@@ -725,6 +729,100 @@ public class PromQLApiHandler {
         }).collect(Collectors.toList());
 
         return getMetricsQueryService().readLabeledMetricsValuesWithoutEntity(metricName, matchLabels, duration);
+    }
+
+    private int getLimitNum(Optional<Integer> limitParam, MatcherSetResult parseResult) {
+        String limitLabel = parseResult.getLabelMap().getOrDefault(LabelName.LIMIT.getLabel(), "100");
+        int limitNum = Integer.parseInt(limitLabel);
+        if (limitParam.isPresent()) {
+            limitNum = Integer.min(limitParam.get(), Integer.parseInt(limitLabel));
+        }
+        return limitNum;
+    }
+
+    private List<Service> queryServiceTraffic(MatcherSetResult parseResult, int limitNum) {
+        List<Service> result = new ArrayList<>();
+        MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
+        if (matcher != null) {
+            String serviceName = matcher.getMatchString();
+            if (matcher.getMatchOp() == PromQLParser.EQ) {
+                Service service = metadataQuery.findService(serviceName).join();
+                if (service != null) {
+                    result.add(service);
+                }
+            } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
+                List<Service> services = metadataQuery.listServices(
+                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
+                services.stream().filter(s -> !s.getName().equals(serviceName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.RM) {
+                List<Service> services = metadataQuery.listServices(
+                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
+                services.stream().filter(s -> s.getName().matches(serviceName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NRM) {
+                List<Service> services = metadataQuery.listServices(
+                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
+                services.stream().filter(s -> !s.getName().matches(serviceName)).limit(limitNum).forEach(result::add);
+            }
+        } else {
+            List<Service> services = metadataQuery.listServices(
+                parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
+            services.stream().limit(limitNum).forEach(result::add);
+        }
+        return result;
+    }
+
+    private List<ServiceInstance> queryInstanceTraffic(MatcherSetResult parseResult,
+                                                       Duration duration,
+                                                       String layer,
+                                                       String serviceName,
+                                                       int limitNum) {
+        List<ServiceInstance> result = new ArrayList<>();
+        MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
+        List<ServiceInstance> instances = metadataQuery.listInstances(
+            duration, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal())).join();
+        if (matcher != null) {
+            String instanceName = matcher.getMatchString();
+            if (matcher.getMatchOp() == PromQLParser.EQ) {
+                instances.stream().filter(n -> n.getName().equals(instanceName)).findFirst().ifPresent(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
+                instances.stream().filter(n -> !n.getName().equals(instanceName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.RM) {
+                instances.stream().filter(n -> n.getName().matches(instanceName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NRM) {
+                instances.stream().filter(n -> !n.getName().matches(instanceName)).limit(limitNum).forEach(result::add);
+            }
+        } else {
+            instances.stream().limit(limitNum).forEach(result::add);
+        }
+        return result;
+    }
+
+    private List<Endpoint> queryEndpointTraffic(MatcherSetResult parseResult,
+                                                Duration duration,
+                                                String layer,
+                                                String serviceName,
+                                                String keyword,
+                                                int limitNum) {
+        List<Endpoint> result = new ArrayList<>();
+        List<Endpoint> endpoints = metadataQuery.findEndpoint(
+            keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()), limitNum, duration
+        ).join();
+        MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
+        if (matcher != null) {
+            String endpointName = matcher.getMatchString();
+            if (matcher.getMatchOp() == PromQLParser.EQ) {
+                endpoints.stream().filter(e -> e.getName().equals(endpointName)).findFirst().ifPresent(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
+                endpoints.stream().filter(e -> !e.getName().equals(endpointName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.RM) {
+                endpoints.stream().filter(e -> e.getName().matches(endpointName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NRM) {
+                endpoints.stream().filter(e -> !e.getName().matches(endpointName)).limit(limitNum).forEach(result::add);
+            }
+        } else {
+            endpoints.stream().limit(limitNum).forEach(result::add);
+        }
+        return result;
     }
 
     public enum QueryType {

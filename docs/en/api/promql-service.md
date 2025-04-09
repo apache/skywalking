@@ -268,11 +268,27 @@ GET|POST /api/v1/series
 | match[]   | series selector                                     | yes     | no       |
 | start     | start, format: RFC3399 or unix_timestamp in seconds | yes     | no       |
 | end       | end, format: RFC3399 or unix_timestamp in seconds   | yes     | no       |
+| limit     | integer, maximum number of returned series          | yes     | yes      |
+
+**Note: SkyWalking's metadata exists in the following metrics(traffics):**
+
+| Name             | Require Labels | Optional Labels          | Support Label Match                                 |
+|------------------|----------------|--------------------------|-----------------------------------------------------|
+| service_traffic  | layer          | service, limit           | =, (only service label support !=, =~, !~)          |
+| instance_traffic | layer, service | service_instance, limit  | =, (only service_instance label support !=, =~, !~) |
+| endpoint_traffic | layer, service | endpoint, keyword, limit | =, (only endpoint label support !=, =~, !~)         |
+
+**If the `limit` is not set by parameter or label, the default value is 100.**
 
 For example:
 ```text
-/api/v1/series?match[]=service_traffic{layer='GENERAL'}&start=1677479336&end=1677479636
+/api/v1/series?match[]=service_traffic{layer='GENERAL'}&start=1677479336&end=1677479636&limit=5
 ```
+or
+```text
+/api/v1/series?match[]=service_traffic{layer='GENERAL', limit='5'}&start=1677479336&end=1677479636
+```
+If the `limit` also set in the query parameter, will return the min number of the two.
 
 Result:
 ```json
@@ -313,10 +329,23 @@ Result:
 }
 ```
 
-**Note: SkyWalking's metadata exists in the following metrics(traffics):**
-- service_traffic
-- instance_traffic
-- endpoint_traffic
+- You can use the `service` label to filter the service_traffic result.
+```text
+/api/v1/series?match[]=service_traffic{layer='GENERAL', service='agent::songs'}&start=1677479336&end=1677479636
+```
+use regex:
+```text
+/api/v1/series?match[]=service_traffic{layer='GENERAL', service=~'agent::songs|agent::recommendation'}&start=1677479336&end=1677479636
+```
+- You can use the `service_instance` label to filter the instance_traffic result.
+```text
+/api/v1/series?match[]=service_traffic{layer='GENERAL', service='agent::songs', service_instance=~'instance1|instance2'}&start=1677479336&end=1677479636
+```
+- You can use the `endpoint` label to filter the endpoint_traffic result.
+```text
+/api/v1/series?match[]=service_traffic{layer='GENERAL', service='agent::songs', endpoint=~'endpoint1|endpoint2'}&start=1677479336&end=1677479636
+```
+
 
 #### Getting label names
 [Prometheus Docs Reference](https://prometheus.io/docs/prometheus/latest/querying/api/#getting-label-names)
@@ -330,6 +359,7 @@ GET|POST /api/v1/labels
 | match[]   | series selector                                                                 | yes     | yes      |
 | start     | start, format: RFC3399 or unix_timestamp in seconds                             | **no**  | yes      |
 | end       | end timestamp, if end time is not present, use current time as default end time | yes     | yes      |
+| limit     | integer, maximum number of returned labels, default 100                         | yes     | yes      |
 
 For example:
 ```text
@@ -363,11 +393,12 @@ GET /api/v1/label/<label_name>/values
 | match[]   | series selector                                                                                                     | yes     | yes      |
 | start     | start, format: RFC3399 or unix_timestamp in seconds                                                                 | **no**  | yes      |
 | end       | end, format: RFC3399 or unix_timestamp in seconds, if end time is not present, use current time as default end time | yes     | yes      |
+| limit     | integer, maximum number of returned label values, default 100                                                       | yes     | yes      |
 
 For example:
 ```text
 /api/v1/label/__name__/values
-```
+``` 
 
 Result:
 ```json
@@ -389,6 +420,28 @@ Result:
     ...
   ]
 }
+```
+
+For metadata metrics:
+
+| Name             | Require Labels | Optional Labels          | Support Label Match                                 |
+|------------------|----------------|--------------------------|-----------------------------------------------------|
+| service_traffic  | layer          | service, limit           | =, (only service label support !=, =~, !~)          |
+| instance_traffic | layer, service | service_instance, limit  | =, (only service_instance label support !=, =~, !~) |
+| endpoint_traffic | layer, service | endpoint, keyword, limit | =, (only endpoint label support !=, =~, !~)         |
+
+For example:
+- If you want to query the label values of the `service` label in the `service_traffic` metric:
+```text
+/api/v1/label/service/values?match[]=service_traffic{layer='GENERAL', service='agent::songs|agent::recommendation'}
+```
+- If you want to query the label values of the `service_instance` label in the `instance_traffic` metric:
+```text
+/api/v1/label/service_instance/values?match[]=instance_traffic{layer='GENERAL', service='agent::songs', service_instance='instance1|instance2'}
+```
+- If you want to query the label values of the `endpoint` label in the `endpoint_traffic` metric:
+```text
+/api/v1/label/endpoint/values?match[]=endpoint_traffic{layer='GENERAL', service='agent::songs', endpoint='endpoint1|endpoint2'}
 ```
 
 #### Querying metric metadata

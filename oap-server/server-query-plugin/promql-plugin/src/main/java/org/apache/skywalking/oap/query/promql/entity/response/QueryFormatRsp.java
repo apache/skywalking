@@ -16,24 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.query.promql.rt.result;
+package org.apache.skywalking.oap.query.promql.entity.response;
 
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MatcherSetResult extends ParseResult {
-    private String metricName;
-    private NameMatcher nameMatcher;
-    private Map<String, String> labelMap = new HashMap<>();
-
-    @Data
-    public static class NameMatcher {
-        public final String trafficName;
-        public final String matchString;
-        public final int matchOp;
-    }
+public class QueryFormatRsp extends QueryResponse {
+    private String data;
 }

@@ -17,12 +17,22 @@ cases:
   # traffics query
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_traffic{layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-traffic.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_traffic{layer="GENERAL"}&limit=1&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/service-traffic-limit.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_traffic{layer="GENERAL",limit="1"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/service-traffic-limit.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_traffic{layer="GENERAL",service=~".*-provider"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/service-traffic-limit.yml
     #RFC3399
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_traffic{layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date -u +%Y-%m-%dT%H:%M:%S.111Z)
     expected: expected/service-traffic.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=instance_traffic{layer="GENERAL", service="e2e-service-provider"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=instance_traffic{layer="GENERAL", service="e2e-service-provider"}&limit=1&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/instance-traffic.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=endpoint_traffic{layer="GENERAL", service="e2e-service-provider", keyword="POST:/users"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=instance_traffic{layer="GENERAL", service="e2e-service-provider", service_instance=~"provider1|provider2"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/instance-traffic.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=endpoint_traffic{layer="GENERAL", service="e2e-service-provider", keyword="POST:/users"}&limit=1&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/endpoint-traffic.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=endpoint_traffic{layer="GENERAL", service="e2e-service-provider", endpoint=~"^POST:.*"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/endpoint-traffic.yml
   # metrics series
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_cpm&start='$(($(date +%s)-1800))'&end='$(date +%s)
@@ -31,6 +41,23 @@ cases:
     expected: expected/instance-metric-series.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=endpoint_cpm&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/endpoint-metric-series.yml
+  # traffic names query
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/service/values -d 'match[]=service_traffic{layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date -u +%Y-%m-%dT%H:%M:%S.111Z)
+    expected: expected/service-names.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/service/values -d 'match[]=service_traffic{layer="GENERAL",limit="1"}&start='$(($(date +%s)-1800))'&end='$(date -u +%Y-%m-%dT%H:%M:%S.111Z)
+    expected: expected/service-names-limit.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/service/values -d 'match[]=service_traffic{layer="GENERAL"}&limit=1'
+    expected: expected/service-names-limit.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/service/values -d 'match[]=service_traffic{layer="GENERAL",service=~".*-provider"}'
+    expected: expected/service-names-limit.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/service_instance/values -d 'match[]=instance_traffic{layer="GENERAL", service="e2e-service-provider"}&limit=1'
+    expected: expected/instance-names.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/service_instance/values -d 'match[]=instance_traffic{layer="GENERAL", service="e2e-service-provider", service_instance=~"provider1|provider2"}&limit=1'
+    expected: expected/instance-names.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/endpoint/values -d 'match[]=endpoint_traffic{layer="GENERAL", service="e2e-service-provider", keyword="POST:/users"}&limit=1'
+    expected: expected/endpoint-names.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/endpoint/values -d 'match[]=endpoint_traffic{layer="GENERAL", service="e2e-service-provider", endpoint=~"^POST:.*"}'
+    expected: expected/endpoint-names.yml
   # metrics names query
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/label/__name__/values
     expected: expected/metrics-names.yml
