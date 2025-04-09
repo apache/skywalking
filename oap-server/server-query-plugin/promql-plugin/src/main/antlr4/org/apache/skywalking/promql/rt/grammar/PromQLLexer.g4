@@ -32,6 +32,11 @@ L_BRACE:     '{';
 R_BRACE:     '}';
 EQ:          '=';
 
+//regex-match
+RM:          '=~';
+//regex-not-match
+NRM:         '!~';
+
 // Scalar Binary operators
 SUB:         '-';
 ADD:         '+';

@@ -20,15 +20,12 @@ services:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: oap
-    environment:
-      SW_STORAGE: elasticsearch
-      SW_STORAGE_ES_CLUSTER_NODES: es:9200
     volumes:
       - ./oal/core.oal:/skywalking/config/oal/core.oal
     ports:
       - 9090
     depends_on:
-      es:
+      banyandb:
         condition: service_healthy
     networks:
       - e2e
@@ -57,21 +54,12 @@ services:
       provider:
         condition: service_healthy
 
-  es:
-    image: elastic/elasticsearch:7.10.2
+  banyandb:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: banyandb
     ports:
-      - 9200:9200
-    networks:
-      - e2e
-    environment:
-      - discovery.type=single-node
-      - cluster.routing.allocation.disk.threshold_enabled=false
-      - xpack.security.enabled=false
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+      - 17912
 
 
 networks:

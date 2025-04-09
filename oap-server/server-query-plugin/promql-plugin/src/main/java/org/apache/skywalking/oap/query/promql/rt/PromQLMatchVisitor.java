@@ -19,8 +19,12 @@
 package org.apache.skywalking.oap.query.promql.rt;
 
 import java.util.Map;
+import org.apache.skywalking.oap.query.promql.entity.LabelName;
 import org.apache.skywalking.oap.query.promql.rt.result.MatcherSetResult;
 import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.apache.skywalking.promql.rt.grammar.PromQLParserBaseVisitor;
 
@@ -38,7 +42,17 @@ public class PromQLMatchVisitor extends PromQLParserBaseVisitor<MatcherSetResult
                 String labelName = labelCtx.labelName().getText();
                 String labelValue = labelCtx.labelValue().getText();
                 String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
-                labelMap.put(labelName, labelValueTrim);
+                if ((metricName.equals(ServiceTraffic.INDEX_NAME) && LabelName.SERVICE.getLabel().equals(labelName))
+                    || ((metricName.equals(InstanceTraffic.INDEX_NAME)) && LabelName.SERVICE_INSTANCE.getLabel()
+                                                                                                     .equals(labelName))
+                    || ((metricName.equals(EndpointTraffic.INDEX_NAME)) && LabelName.ENDPOINT.getLabel()
+                                                                                             .equals(labelName))) {
+                    result.setNameMatcher(
+                        new MatcherSetResult.NameMatcher(
+                            metricName, labelValueTrim, labelCtx.matchOp().getStart().getType()));
+                } else {
+                    labelMap.put(labelName, labelValueTrim);
+                }
             }
         }
         return result;
