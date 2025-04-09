@@ -67,6 +67,7 @@ import org.apache.skywalking.oap.query.promql.entity.response.ScalarRspData;
 import org.apache.skywalking.oap.query.promql.entity.response.SeriesQueryRsp;
 import org.apache.skywalking.oap.query.promql.rt.PromOpUtils;
 import org.apache.skywalking.oap.query.promql.rt.PromQLMatchVisitor;
+import org.apache.skywalking.oap.query.promql.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.query.promql.rt.exception.ParseErrorListener;
 import org.apache.skywalking.oap.query.promql.rt.result.MatcherSetResult;
 import org.apache.skywalking.oap.query.promql.rt.result.MetricsRangeResult;
@@ -295,27 +296,33 @@ public class PromQLApiHandler {
                 List<MetricsValues> matchedMetrics = getMatcherMetricsValues(parseResult, duration);
                 response.getData().addAll(buildLabelValuesFromQuery(matchedMetrics, labelName).stream().limit(limitNum).collect(Collectors.toList()));
             } else {
-                // Make compatible with Grafana 11 when use old config variables
-                // e.g. query service list config: `label_values(service_traffic{layer='$layer'}, service)`
-                // Grafana 11 will query this API by default rather than `/api/v1/series`(< 11)
-                limitNum = getLimitNum(limit, parseResult);
-                if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
-                    queryServiceTraffic(parseResult, limitNum).forEach(service -> {
-                        response.getData().add(service.getName());
-                    });
-                } else if (Objects.equals(metricName, InstanceTraffic.INDEX_NAME)) {
-                    String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
+                try {
+                    // Make compatible with Grafana 11 when use old config variables
+                    // e.g. query service list config: `label_values(service_traffic{layer='$layer'}, service)`
+                    // Grafana 11 will query this API by default rather than `/api/v1/series`(< 11)
+                    limitNum = getLimitNum(limit, parseResult);
                     String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
-                    queryInstanceTraffic(parseResult, duration, layer, serviceName, limitNum).forEach(instance -> {
-                        response.getData().add(instance.getName());
-                    });
-                } else if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
-                    String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
-                    String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
-                    String keyword = parseResult.getLabelMap().getOrDefault(LabelName.KEYWORD.getLabel(), "");
-                    queryEndpointTraffic(parseResult, duration, layer, serviceName, keyword, limitNum).forEach(endpoint -> {
-                        response.getData().add(endpoint.getName());
-                    });
+                    if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
+                        queryServiceTraffic(parseResult, layer, limitNum).forEach(service -> {
+                            response.getData().add(service.getName());
+                        });
+                    } else if (Objects.equals(metricName, InstanceTraffic.INDEX_NAME)) {
+                        String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
+                        queryInstanceTraffic(parseResult, duration, layer, serviceName, limitNum).forEach(instance -> {
+                            response.getData().add(instance.getName());
+                        });
+                    } else if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
+                        String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
+                        String keyword = parseResult.getLabelMap().getOrDefault(LabelName.KEYWORD.getLabel(), "");
+                        queryEndpointTraffic(parseResult, duration, layer, serviceName, keyword, limitNum).forEach(
+                            endpoint -> {
+                                response.getData().add(endpoint.getName());
+                            });
+                    }
+                } catch (IllegalExpressionException e) {
+                    response.setStatus(ResultStatus.ERROR);
+                    response.setErrorType(ErrorType.BAD_DATA);
+                    response.setError(e.getMessage());
                 }
             }
         }
@@ -353,23 +360,31 @@ public class PromQLApiHandler {
             Scope scope = Scope.Finder.valueOf(metaData.getScopeId());
             Column.ValueDataType dataType = metaData.getDataType();
             response.getData().add(buildMetaMetricInfo(metricName, scope, dataType));
-        } else if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
-            queryServiceTraffic(parseResult, limitNum).forEach(service -> {
-                response.getData().add(buildMetricInfoFromTraffic(metricName, service));
-            });
-        } else if (Objects.equals(metricName, InstanceTraffic.INDEX_NAME)) {
-            String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
-            String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
-            queryInstanceTraffic(parseResult, duration, layer, serviceName, limitNum).forEach(instance -> {
-                response.getData().add(buildMetricInfoFromTraffic(metricName, instance));
-            });
-        } else if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
-            String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
-            String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
-            String keyword = parseResult.getLabelMap().getOrDefault(LabelName.KEYWORD.getLabel(), "");
-            queryEndpointTraffic(parseResult, duration, layer, serviceName, keyword, limitNum).forEach(endpoint -> {
-                response.getData().add(buildMetricInfoFromTraffic(metricName, endpoint));
-            });
+        } else {
+            try {
+                String layer = parseResult.getLabelMap().get(LabelName.LAYER.getLabel());
+                if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
+                    queryServiceTraffic(parseResult, layer, limitNum).forEach(service -> {
+                        response.getData().add(buildMetricInfoFromTraffic(metricName, service));
+                    });
+                } else if (Objects.equals(metricName, InstanceTraffic.INDEX_NAME)) {
+                    String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
+                    queryInstanceTraffic(parseResult, duration, layer, serviceName, limitNum).forEach(instance -> {
+                        response.getData().add(buildMetricInfoFromTraffic(metricName, instance));
+                    });
+                } else if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
+                    String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE.getLabel());
+                    String keyword = parseResult.getLabelMap().getOrDefault(LabelName.KEYWORD.getLabel(), "");
+                    queryEndpointTraffic(parseResult, duration, layer, serviceName, keyword, limitNum).forEach(
+                        endpoint -> {
+                            response.getData().add(buildMetricInfoFromTraffic(metricName, endpoint));
+                        });
+                }
+            } catch (IllegalExpressionException e) {
+                response.setStatus(ResultStatus.ERROR);
+                response.setErrorType(ErrorType.BAD_DATA);
+                response.setError(e.getMessage());
+            }
         }
 
         response.setStatus(ResultStatus.SUCCESS);
@@ -740,7 +755,10 @@ public class PromQLApiHandler {
         return limitNum;
     }
 
-    private List<Service> queryServiceTraffic(MatcherSetResult parseResult, int limitNum) {
+    private List<Service> queryServiceTraffic(MatcherSetResult parseResult, String layer, int limitNum) throws IllegalExpressionException {
+        if (StringUtil.isBlank(layer)) {
+            throw new IllegalExpressionException("label {layer} should not be empty.");
+        }
         List<Service> result = new ArrayList<>();
         MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
         if (matcher != null) {
@@ -751,16 +769,13 @@ public class PromQLApiHandler {
                     result.add(service);
                 }
             } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
-                List<Service> services = metadataQuery.listServices(
-                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
+                List<Service> services = metadataQuery.listServices(layer).join();
                 services.stream().filter(s -> !s.getName().equals(serviceName)).limit(limitNum).forEach(result::add);
             } else if (matcher.getMatchOp() == PromQLParser.RM) {
-                List<Service> services = metadataQuery.listServices(
-                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
+                List<Service> services = metadataQuery.listServices(layer).join();
                 services.stream().filter(s -> s.getName().matches(serviceName)).limit(limitNum).forEach(result::add);
             } else if (matcher.getMatchOp() == PromQLParser.NRM) {
-                List<Service> services = metadataQuery.listServices(
-                    parseResult.getLabelMap().get(LabelName.LAYER.getLabel())).join();
+                List<Service> services = metadataQuery.listServices(layer).join();
                 services.stream().filter(s -> !s.getName().matches(serviceName)).limit(limitNum).forEach(result::add);
             }
         } else {
@@ -775,7 +790,13 @@ public class PromQLApiHandler {
                                                        Duration duration,
                                                        String layer,
                                                        String serviceName,
-                                                       int limitNum) {
+                                                       int limitNum) throws IllegalExpressionException {
+        if (StringUtil.isBlank(layer)) {
+            throw new IllegalExpressionException("label {layer} should not be empty.");
+        }
+        if (StringUtil.isBlank(serviceName)) {
+            throw new IllegalExpressionException("label {service} should not be empty.");
+        }
         List<ServiceInstance> result = new ArrayList<>();
         MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
         List<ServiceInstance> instances = metadataQuery.listInstances(
@@ -802,7 +823,13 @@ public class PromQLApiHandler {
                                                 String layer,
                                                 String serviceName,
                                                 String keyword,
-                                                int limitNum) {
+                                                int limitNum) throws IllegalExpressionException {
+        if (StringUtil.isBlank(layer)) {
+            throw new IllegalExpressionException("label {layer} should not be empty.");
+        }
+        if (StringUtil.isBlank(serviceName)) {
+            throw new IllegalExpressionException("label {service} should not be empty.");
+        }
         List<Endpoint> result = new ArrayList<>();
         List<Endpoint> endpoints = metadataQuery.findEndpoint(
             keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()), limitNum, duration
