@@ -14,6 +14,7 @@
 #### Documentation
 
 * BanyanDB: Add `Data Lifecycle Stages(Hot/Warm/Cold)` documentation.
+* Add `SWIP-9 Support flink monitoring`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/230?closed=1)
 
