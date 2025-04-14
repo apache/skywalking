@@ -11,6 +11,8 @@
 
 #### UI
 
+* Enhance the trace `List/Tree/Table` graph to support displaying multiple refs of spans and distinguishing different parents.
+
 #### Documentation
 
 * BanyanDB: Add `Data Lifecycle Stages(Hot/Warm/Cold)` documentation.
