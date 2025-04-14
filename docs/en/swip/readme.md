@@ -68,7 +68,7 @@ All accepted and proposed SWIPs can be found in [here](https://github.com/apache
 
 ## Known SWIPs
 
-Next SWIP Number: 9
+Next SWIP Number: 10
 
 ### Accepted SWIPs
 
