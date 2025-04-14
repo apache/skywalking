@@ -61,3 +61,6 @@ for identification of the metric data.
 | Metrics of RocketMQ                     | otel-rules/rocketmq/rocketmq-cluster.yaml           | rocketmq-exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                                 |
 | Metrics of RocketMQ                     | otel-rules/rocketmq/rocketmq-broker.yaml            | rocketmq-exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                                 |
 | Metrics of RocketMQ                     | otel-rules/rocketmq/rocketmq-topic.yaml             | rocketmq-exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                                 |
+| Metrics of Flink                        | otel-rules/flink/flink-jobManager.yaml              | flink jobManager -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                                 |
+| Metrics of Flink                        | otel-rules/flink/flink-taskManager.yaml             | flink taskManager -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                                |
+| Metrics of Flink                        | otel-rules/flink/flink-job.yaml                     | flink jobManager &  flink taskManager-> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server             |
