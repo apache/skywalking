@@ -8,6 +8,7 @@
 * Fix query continues profiling policies error when the policy is already in the cache.
 * Support `hot/warm/cold` stages TTL query in the status API.
 * PromQL Service: traffic query support `limit` and regex match.
+* Fix an edge case of HashCodeSelector(Integer#MIN_VALUE causes ArrayIndexOutOfBoundsException).
 
 #### UI
 
