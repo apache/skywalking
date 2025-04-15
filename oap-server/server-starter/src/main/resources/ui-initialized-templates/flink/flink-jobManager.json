@@ -403,7 +403,7 @@
                   "widget": {
                     "name": "JVM G1 Young Generation Count",
                     "title": "JVM G1 Young Generation Count Increase (Per Minute)",
-                    "tips": "The incremental number of the jobManager JVM g1 young generation count per minute"
+                    "tips": "The incremental number of the jobManager JVM G1 young generation count per minute"
                   }
                 },
                 {
@@ -432,7 +432,7 @@
                   "widget": {
                     "name": "JVM G1 Old Generation Count",
                     "title": "JVM G1 Old Generation Count Increase (Per Minute)",
-                    "tips": "The incremental number of the jobManager JVM g1 old generation count per minute"
+                    "tips": "The incremental number of the jobManager JVM G1 old generation count per minute"
                   }
                 },
                 {
@@ -453,7 +453,7 @@
                   "widget": {
                     "name": "JVM G1 Young Generation Time",
                     "title": "JVM G1 Young Generation Time(ms) Increase (Per Minute)",
-                    "tips": "The incremental time of the jobManager JVM g1 young generation per minute"
+                    "tips": "The incremental time of the jobManager JVM G1 young generation per minute"
                   },
                   "graph": {
                     "type": "Line",
@@ -490,7 +490,7 @@
                   "widget": {
                     "name": "JVM G1 Old Generation Time",
                     "title": "JVM G1 Old Generation Time(ms) Increase (Per Minute)",
-                    "tips": "The incremental time of the jobManager JVM g1 old generation per minute"
+                    "tips": "The incremental time of the jobManager JVM G1 old generation per minute"
                   }
                 },
                 {
