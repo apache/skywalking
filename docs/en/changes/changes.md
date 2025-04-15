@@ -2,7 +2,7 @@
 
 #### Project
 
-* Bump up BanyanDB dependency(server and java-client) to 0.9.0.
+* Bump up BanyanDB dependency version(server and java-client) to 0.9.0.
 
 #### OAP Server
 
