@@ -27,7 +27,7 @@ public class HashCodeSelector implements RemoteClientSelector {
     @Override
     public RemoteClient select(List<RemoteClient> clients, StreamData streamData) {
         int size = clients.size();
-        int selectIndex = Math.abs(streamData.remoteHashCode()) % size;
+        int selectIndex = Math.abs(streamData.remoteHashCode() % size);
         return clients.get(selectIndex);
     }
 }
