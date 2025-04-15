@@ -139,9 +139,9 @@
             "showYAxis": true
           },
           "widget": {
-            "title": "JVM CPU Time(ms)",
+            "title": "JVM CPU Time(ms) Increase (Per Minute)",
             "name": "JVM CPU Time",
-            "tips": "The CPU time used by the JVM"
+            "tips": "The CPU time used by the JVM increase per minute"
           }
         },
         {
@@ -283,8 +283,8 @@
           },
           "widget": {
             "name": "NumRecordsIn",
-            "title": "NumRecordsIn",
-            "tips": "The total number of records this task has received."
+            "title": "NumRecordsIn Increase (Per Minute)",
+            "tips": "The incremental number of records this task has received per minute."
           }
         },
         {
@@ -312,8 +312,8 @@
           ],
           "widget": {
             "name": "NumRecordsOut",
-            "title": "NumRecordsOut",
-            "tips": "The total number of records this task has emitted."
+            "title": "NumRecordsOut Increase (Per Minute)",
+            "tips": "The incremental number of records this task has emitted per minute."
           }
         },
         {

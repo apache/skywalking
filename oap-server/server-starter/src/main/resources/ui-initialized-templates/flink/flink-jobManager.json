@@ -230,8 +230,8 @@
                   },
                   "widget": {
                     "name": "Task Managers Slots Available",
-                    "tips": "Task Managers Slots Available",
-                    "title": "The number of available slots"
+                    "tips": "The number of available slots",
+                    "title": "Task Managers Slots Available"
                   }
                 },
                 {
@@ -258,9 +258,9 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "JVM CPU Time(ms)",
+                    "title": "JVM CPU Time(ms) Increase (Per Minute)",
                     "name": "JVM CPU Time",
-                    "tips": "The jobManager CPU time used by the JVM"
+                    "tips": "The jobManager CPU time used by the JVM increase per minute"
                   }
                 },
                 {
@@ -402,8 +402,8 @@
                   ],
                   "widget": {
                     "name": "JVM G1 Young Generation Count",
-                    "title": "JVM G1 Young Generation Count",
-                    "tips": "The number of the jobManager JVM g1 young generation count"
+                    "title": "JVM G1 Young Generation Count Increase (Per Minute)",
+                    "tips": "The incremental number of the jobManager JVM g1 young generation count per minute"
                   }
                 },
                 {
@@ -431,8 +431,8 @@
                   },
                   "widget": {
                     "name": "JVM G1 Old Generation Count",
-                    "title": "JVM G1 Old Generation Count",
-                    "tips": "The number of the jobManager JVM g1 old generation count"
+                    "title": "JVM G1 Old Generation Count Increase (Per Minute)",
+                    "tips": "The incremental number of the jobManager JVM g1 old generation count per minute"
                   }
                 },
                 {
@@ -452,8 +452,8 @@
                   ],
                   "widget": {
                     "name": "JVM G1 Young Generation Time",
-                    "title": "JVM G1 Young Generation Time(ms)",
-                    "tips": "The time of the jobManager JVM g1 young generation"
+                    "title": "JVM G1 Young Generation Time(ms) Increase (Per Minute)",
+                    "tips": "The incremental time of the jobManager JVM g1 young generation per minute"
                   },
                   "graph": {
                     "type": "Line",
@@ -489,8 +489,8 @@
                   },
                   "widget": {
                     "name": "JVM G1 Old Generation Time",
-                    "title": "JVM G1 Old Generation Time(ms)",
-                    "tips": "The time of the jobManager JVM g1 old generation"
+                    "title": "JVM G1 Old Generation Time(ms) Increase (Per Minute)",
+                    "tips": "The incremental time of the jobManager JVM g1 old generation per minute"
                   }
                 },
                 {
@@ -518,8 +518,8 @@
                   },
                   "widget": {
                     "name": "JVM All GarbageCollector Count",
-                    "title": "JVM All GarbageCollector Count",
-                    "tips": "The number of the jobManager JVM all garbageCollector count"
+                    "title": "JVM All GarbageCollector Count Increase (Per Minute)",
+                    "tips": "The number of the jobManager JVM all garbageCollector count increase per minute"
                   }
                 },
                 {
@@ -547,8 +547,8 @@
                   ],
                   "widget": {
                     "name": "JVM All GarbageCollector Time",
-                    "title": "JVM All GarbageCollector Time(ms)",
-                    "tips": "The time spent performing garbage collection for the given (or all) collector for the jobManager"
+                    "title": "JVM All GarbageCollector Time(ms) Increase (Per Minute)",
+                    "tips": "The incremental time spent performing garbage collection for the given (or all) collector for the jobManager per minute"
                   }
                 }
               ]
