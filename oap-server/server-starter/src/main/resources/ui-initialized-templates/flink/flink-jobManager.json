@@ -231,7 +231,7 @@
                   "widget": {
                     "name": "Task Managers Slots Available",
                     "tips": "The number of available slots",
-                    "title": "Task Managers Slots Available"
+                    "title": "Available Slots"
                   }
                 },
                 {
