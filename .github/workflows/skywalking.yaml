@@ -490,7 +490,7 @@ jobs:
               base: test/e2e-v2/cases/profiling/ebpf/offcpu/
               file: Dockerfile.file
               name: test/offcpu:test
-            runs-on: ubuntu-20.04
+            runs-on: ubuntu-24.04
 
           - name: eBPF Profiling Network BanyanDB
             config: test/e2e-v2/cases/profiling/ebpf/network/banyandb/e2e.yaml
@@ -576,7 +576,7 @@ jobs:
           - name: Rover with Istio Process 1.15.0
             config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
             env: ISTIO_VERSION=1.15.0
-            runs-on: ubuntu-20.04
+            runs-on: ubuntu-24.04
 
           - name: Satellite
             config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
@@ -760,7 +760,7 @@ jobs:
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false

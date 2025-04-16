@@ -62,7 +62,7 @@ import org.apache.skywalking.oap.server.library.util.HealthChecker;
  */
 @Slf4j
 public class BanyanDBStorageClient implements Client, HealthCheckable {
-    private static final String[] COMPATIBLE_SERVER_API_VERSIONS = {"0.8"};
+    private static final String[] COMPATIBLE_SERVER_API_VERSIONS = {"0.9"};
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
