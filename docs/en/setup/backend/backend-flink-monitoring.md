@@ -6,7 +6,7 @@ SkyWalking leverages OpenTelemetry Collector to transfer the flink metrics to
 
 ## Data flow
 
-1. Configure Flink jobManager and TaskManager to expose metrics data for scraping from Prometheus.
+1. Configure Flink jobManager and TaskManager to expose metrics data for scraping through Prometheus endpoint.
 2. OpenTelemetry Collector fetches metrics from Flink jobManager and TaskManager through Prometheus endpoint, and pushes metrics to SkyWalking OAP Server via
    OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to
