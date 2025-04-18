@@ -78,6 +78,30 @@ public @interface BanyanDB {
     }
 
     /**
+     * ShardingKey is used to group time series data per metric in one place. Optional. Only support Measure Tag.
+     * If ShardingKey is not set, the default ShardingKey is based on the combination of 'name' and 'entity' according to the {@link SeriesID}.
+     * <p>
+     * The typical scenario to specify the ShardingKey to the Group tag when the metric generate a TopNAggregation:
+     * If not set, the default data distribution based on the combination of 'name' and 'entity', can lead to performance issues when calculating the 'TopNAggregation'.
+     * This is because each shard only has a subset of the top-n list, and the query process has to be responsible for aggregating those lists to obtain the final result.
+     * This introduces overhead in terms of querying performance and disk usage.
+     *
+     * @since 10.3.0
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface ShardingKey {
+        /**
+         * Relative sharding tag
+         * <p>
+         * The index number determines the order of the column placed in the ShardingKey.
+         *
+         * @return non-negative if this column be used for sharding. -1 means not as a sharding key
+         */
+        int index() default -1;
+    }
+
+    /**
      * Force disabling indexing declare through {@link Column}.
      * In BanyanDB, some additional conditions could be done in server memory, no indexing required in this case.
      *

@@ -39,6 +39,9 @@ public class BanyanDBExtension {
     @Getter
     private final int seriesIDIdx;
 
+    @Getter
+    private final int shardingKeyIdx;
+
     /**
      * {@link BanyanDB.NoIndexing} exists to override {@link ModelColumn#shouldIndex()}, or be the same as {@link
      * ModelColumn#shouldIndex()}.
@@ -80,6 +83,13 @@ public class BanyanDBExtension {
      */
     public boolean isSeriesID() {
         return this.seriesIDIdx > -1;
+    }
+
+    /**
+     * @return true if this column is a part of sharding key
+     */
+    public boolean isShardingKey() {
+        return this.shardingKeyIdx > -1;
     }
 
     /**

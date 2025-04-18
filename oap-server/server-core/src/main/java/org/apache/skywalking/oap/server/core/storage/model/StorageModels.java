@@ -58,11 +58,15 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         DefaultScopeDefine.nameOf(scopeId);
 
         List<ModelColumn> modelColumns = new ArrayList<>();
-        SeriesIDChecker checker = new SeriesIDChecker();
+        SeriesIDChecker seriesIDChecker = new SeriesIDChecker();
+        ShardingKeyChecker shardingKeyChecker = new ShardingKeyChecker();
         SQLDatabaseModelExtension sqlDBModelExtension = new SQLDatabaseModelExtension();
         BanyanDBModelExtension banyanDBModelExtension = new BanyanDBModelExtension();
         ElasticSearchModelExtension elasticSearchModelExtension = new ElasticSearchModelExtension();
-        retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension, banyanDBModelExtension);
+        retrieval(
+            aClass, storage.getModelName(), modelColumns, scopeId, seriesIDChecker, shardingKeyChecker, sqlDBModelExtension,
+            banyanDBModelExtension
+        );
         // Add extra column for additional entities
         if (aClass.isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)
             || aClass.isAnnotationPresent(SQLDatabase.MultipleExtraColumn4AdditionalEntity.class)) {
@@ -106,7 +110,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         // Set routing rules for ElasticSearch
         elasticSearchModelExtension.setRouting(storage.getModelName(), modelColumns);
 
-        checker.check(storage.getModelName());
+        seriesIDChecker.check(storage.getModelName());
+        shardingKeyChecker.check(storage.getModelName());
 
         Model model = new Model(
             storage.getModelName(),
@@ -153,7 +158,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                            final String modelName,
                            final List<ModelColumn> modelColumns,
                            final int scopeId,
-                           SeriesIDChecker checker,
+                           SeriesIDChecker seriesIDChecker,
+                           ShardingKeyChecker shardingKeyChecker,
                            final SQLDatabaseModelExtension sqlDBModelExtension,
                            final BanyanDBModelExtension banyanDBModelExtension) {
         if (log.isDebugEnabled()) {
@@ -212,6 +218,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 // BanyanDB extension
                 final BanyanDB.SeriesID banyanDBSeriesID = field.getAnnotation(
                     BanyanDB.SeriesID.class);
+                final BanyanDB.ShardingKey banyanDBShardingKey = field.getAnnotation(
+                    BanyanDB.ShardingKey.class);
                 final BanyanDB.NoIndexing banyanDBNoIndex = field.getAnnotation(
                     BanyanDB.NoIndexing.class);
                 final BanyanDB.IndexRule banyanDBIndexRule = field.getAnnotation(
@@ -227,6 +235,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 final boolean shouldIndex = (banyanDBNoIndex == null) && !column.storageOnly();
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
                     banyanDBSeriesID == null ? -1 : banyanDBSeriesID.index(),
+                    banyanDBShardingKey == null ? -1 : banyanDBShardingKey.index(),
                     shouldIndex,
                     banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType(),
                     banyanDBMeasureField != null,
@@ -255,7 +264,10 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     banyanDBExtension
                 );
                 if (banyanDBExtension.isSeriesID()) {
-                    checker.accept(modelName, modelColumn);
+                    seriesIDChecker.accept(modelName, modelColumn);
+                }
+                if (banyanDBExtension.isShardingKey()) {
+                    shardingKeyChecker.accept(modelName, modelColumn);
                 }
 
                 if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.class)) {
@@ -282,7 +294,10 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelName, modelColumns, scopeId, checker, sqlDBModelExtension, banyanDBModelExtension);
+            retrieval(
+                clazz.getSuperclass(), modelName, modelColumns, scopeId, seriesIDChecker, shardingKeyChecker,
+                sqlDBModelExtension, banyanDBModelExtension
+            );
         }
     }
 
@@ -355,6 +370,42 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 final ModelColumn modelColumn = keys.get(i);
                 if (modelColumn == null) {
                     throw new IllegalStateException("seriesID index=" + i + " is missing in " + modelName);
+                }
+            }
+        }
+    }
+
+    private static class ShardingKeyChecker {
+        private final ArrayList<ModelColumn> keys = new ArrayList<>();
+
+        /**
+         * @throws IllegalStateException if sharding key indices are conflicting.
+         */
+        private void accept(String modelName, ModelColumn modelColumn) throws IllegalStateException {
+            final int idx = modelColumn.getBanyanDBExtension().getShardingKeyIdx();
+            while (idx + 1 > keys.size()) {
+                keys.add(null);
+            }
+            ModelColumn exist = keys.get(idx);
+            if (exist != null) {
+                throw new IllegalStateException(
+                    modelName + "'s "
+                        + "Column [" + exist.getColumnName() + "] and column [" + modelColumn.getColumnName()
+                        + " are conflicting with sharding key index=" + modelColumn.getBanyanDBExtension()
+                                                                                   .getShardingKeyIdx());
+            }
+            keys.set(idx, modelColumn);
+        }
+
+        /**
+         * @param modelName model name of the entity
+         * @throws IllegalStateException if sharding key indices are not continuous
+         */
+        private void check(String modelName) throws IllegalStateException {
+            for (int i = 0; i < keys.size(); i++) {
+                final ModelColumn modelColumn = keys.get(i);
+                if (modelColumn == null) {
+                    throw new IllegalStateException("sharding key index=" + i + " is missing in " + modelName);
                 }
             }
         }

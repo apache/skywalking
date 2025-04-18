@@ -203,9 +203,9 @@ public class OALClassGenerator {
                 annotationsAttribute.addAnnotation(columnAnnotation);
                 if (field.isID()) {
                     // Add SeriesID = 0 annotation to ID field.
-                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
-                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
-                    annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
+                    Annotation banyanSeriesIDAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
+                    banyanSeriesIDAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
+                    annotationsAttribute.addAnnotation(banyanSeriesIDAnnotation);
 
                     // Entity id field should enable doc values.
                     final var enableDocValuesAnnotation = new Annotation(ElasticSearch.EnableDocValues.class.getName(), constPool);
@@ -215,6 +215,10 @@ public class OALClassGenerator {
                 if (field.isGroupByCondInTopN()) {
                     Annotation banyanTopNAggregationAnnotation = new Annotation(BanyanDB.TopNAggregation.class.getName(), constPool);
                     annotationsAttribute.addAnnotation(banyanTopNAggregationAnnotation);
+                    // If TopN, add ShardingKey to group field.
+                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.ShardingKey.class.getName(), constPool);
+                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
+                    annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
 
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
