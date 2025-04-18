@@ -232,6 +232,16 @@ menus:
         description: Provide ActiveMQ monitoring through OpenTelemetry's Prometheus Receiver.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-activemq-monitoring/
         i18nKey: mq_activemq
+  - title: Data Processing Engine
+    icon: data_processing_engine
+    description: A data processing engine is a system designed to efficiently process, transform, and analyze large-scale data in real time or batch mode.
+    i18nKey: data_processing_engine
+    menus:
+      - title: Flink
+        layer: FLINK
+        description: Provide Flink monitoring through OpenTelemetry's Prometheus Receiver.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-flink-monitoring/
+        i18nKey: data_processing_engine_flink
   - title: Self Observability
     icon: self_observability
     description: Self Observability provides the observabilities for running components and servers from the SkyWalking ecosystem.
@@ -257,13 +267,3 @@ menus:
         description: The Go Agent for Apache SkyWalking, which provides the native tracing/metrics/logging abilities for Golang projects.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/dashboards-so11y-go-agent/
         i18nKey: self_observability_go_agent
-  - title: Data Processing Engine
-    icon: data_processing_engine
-    description: A data processing engine is a system designed to efficiently process, transform, and analyze large-scale data in real time or batch mode.
-    i18nKey: data_processing_engine
-    menus:
-      - title: Flink
-        layer: FLINK
-        description: Provide Flink monitoring through OpenTelemetry's Prometheus Receiver.
-        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-flink-monitoring/
-        i18nKey: data_processing_engine_flink
