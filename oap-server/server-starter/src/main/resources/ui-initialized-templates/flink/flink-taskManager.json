@@ -1,0 +1,641 @@
+[
+  {
+    "id": "Flink-TaskManager",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 8,
+          "h": 15,
+          "i": "3",
+          "type": "Widget",
+          "id": "3",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_jvm_cpu_load/10"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "JVM CPU Load",
+            "title": "JVM CPU load(%)",
+            "tips": "The number of the JVM CPU load"
+          }
+        },
+        {
+          "x": 16,
+          "y": 0,
+          "w": 8,
+          "h": 15,
+          "i": "4",
+          "type": "Widget",
+          "id": "4",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_jvm_thread_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "JVM thread count",
+            "title": "JVM Thread Count",
+            "tips": "The total number of JVM live threads"
+          }
+        },
+        {
+          "x": 0,
+          "y": 15,
+          "w": 8,
+          "h": 17,
+          "i": "5",
+          "type": "Widget",
+          "id": "5",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_jvm_memory_heap_used/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "JVM Memory Heap Used",
+            "title": "JVM Memory Heap Used(MB)",
+            "tips": "The amount of jvm memory heap used"
+          }
+        },
+        {
+          "x": 0,
+          "y": 32,
+          "w": 8,
+          "h": 16,
+          "i": "7",
+          "type": "Widget",
+          "id": "7",
+          "moved": false,
+          "expressions": [
+            "(meter_flink_taskManager_jvm_memory_nonHeap_used)/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "JVM Memory NonHeap Used",
+            "title": "JVM Memory NonHeap Used(MB)",
+            "tips": "The amount of JVM nonHeap memory used"
+          }
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "w": 8,
+          "h": 15,
+          "i": "13",
+          "type": "Widget",
+          "id": "13",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_jvm_cpu_time/1000/1000"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "JVM CPU Time(ms) Increase (Per Minute)",
+            "name": "JVM CPU Time",
+            "tips": "The CPU time used by the JVM increase per minute"
+          }
+        },
+        {
+          "x": 8,
+          "y": 15,
+          "w": 8,
+          "h": 17,
+          "i": "14",
+          "type": "Widget",
+          "id": "14",
+          "moved": false,
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "(meter_flink_taskManager_jvm_memory_heap_available)/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true,
+            "showUnit": true
+          },
+          "widget": {
+            "name": "JVM Memory Heap Available",
+            "title": "JVM Memory Heap Available(MB)",
+            "tips": "The amount of available JVM memory Heap"
+          }
+        },
+        {
+          "x": 8,
+          "y": 32,
+          "w": 8,
+          "h": 16,
+          "i": "15",
+          "type": "Widget",
+          "id": "15",
+          "moved": false,
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "(meter_flink_taskManager_jvm_memory_nonHeap_available)/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "JVM Memory NonHeap Available",
+            "title": "JVM Memory NonHeap Available(MB)",
+            "tips": "The amount of available JVM memory nonHeap"
+          }
+        },
+        {
+          "x": 16,
+          "y": 32,
+          "w": 8,
+          "h": 16,
+          "i": "16",
+          "type": "Widget",
+          "id": "16",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_jvm_memory_metaspace_used/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "JVM Memory Metaspace Used",
+            "title": "JVM Memory Metaspace Used(MB)",
+            "tips": "The amount of Used JVM metaspace memory"
+          }
+        },
+        {
+          "x": 16,
+          "y": 15,
+          "w": 8,
+          "h": 17,
+          "i": "17",
+          "type": "Widget",
+          "id": "17",
+          "moved": false,
+          "expressions": [
+            "(meter_flink_taskManager_jvm_memory_metaspace_available)/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "JVM Metaspace Available(MB)",
+            "tips": "The amount of Available JVM Metaspace Memory",
+            "name": "JVM Metaspace Available"
+          }
+        },
+        {
+          "x": 0,
+          "y": 120,
+          "w": 12,
+          "h": 18,
+          "i": "18",
+          "type": "Widget",
+          "id": "18",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_numRecordsIn"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "NumRecordsIn",
+            "title": "NumRecordsIn Increase (Per Minute)",
+            "tips": "The incremental number of records this task has received per minute."
+          }
+        },
+        {
+          "x": 12,
+          "y": 120,
+          "w": 12,
+          "h": 18,
+          "i": "19",
+          "type": "Widget",
+          "id": "19",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_taskManager_numRecordsOut"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "NumRecordsOut",
+            "title": "NumRecordsOut Increase (Per Minute)",
+            "tips": "The incremental number of records this task has emitted per minute."
+          }
+        },
+        {
+          "x": 0,
+          "y": 138,
+          "w": 12,
+          "h": 18,
+          "i": "20",
+          "type": "Widget",
+          "id": "20",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_numBytesInPerSecond"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "NumBytesInPerSecond",
+            "title": "NumBytesInPerSecond",
+            "tips": "The number of bytes received per second"
+          }
+        },
+        {
+          "x": 12,
+          "y": 138,
+          "w": 12,
+          "h": 18,
+          "i": "21",
+          "type": "Widget",
+          "id": "21",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_numBytesOutPerSecond"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "NumBytesOutPerSecond",
+            "title": "NumBytesOutPerSecond",
+            "tips": "The number of bytes this task emits per second"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        },
+        {
+          "x": 8,
+          "y": 48,
+          "w": 8,
+          "h": 18,
+          "i": "22",
+          "type": "Widget",
+          "id": "22",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_netty_usedMemory/1024/1024"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "Netty UsedMemory",
+            "title": "Netty UsedMemory(MB)",
+            "tips": "The amount of used netty memory"
+          }
+        },
+        {
+          "x": 0,
+          "y": 48,
+          "w": 8,
+          "h": 18,
+          "i": "23",
+          "type": "Widget",
+          "id": "23",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_netty_availableMemory/1024/1024"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "Netty AvailableMemory",
+            "title": "Netty AvailableMemory(MB)",
+            "tips": "The amount of available netty memory"
+          }
+        },
+        {
+          "x": 16,
+          "y": 48,
+          "w": 8,
+          "h": 18,
+          "i": "24",
+          "type": "Widget",
+          "id": "24",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_isBackPressured"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "IsBackPressured",
+            "title": "IsBackPressured",
+            "tips": "Whether the task is back-pressured."
+          }
+        },
+        {
+          "x": 0,
+          "y": 102,
+          "w": 12,
+          "h": 18,
+          "i": "25",
+          "type": "Widget",
+          "id": "25",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_inPoolUsage*10"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "InPoolUsage",
+            "title": "InPoolUsage(%)",
+            "tips": "An estimate of the input buffers usage. (ignores LocalInputChannels)"
+          }
+        },
+        {
+          "x": 12,
+          "y": 102,
+          "w": 12,
+          "h": 18,
+          "i": "26",
+          "type": "Widget",
+          "id": "26",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_taskManager_outPoolUsage"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "OutPoolUsage",
+            "title": "OutPoolUsage(%)",
+            "tips": "An estimate of the output buffers usage. The pool usage can be > 100% if overdraft buffers are being used."
+          }
+        },
+        {
+          "x": 12,
+          "y": 84,
+          "w": 12,
+          "h": 18,
+          "i": "27",
+          "type": "Widget",
+          "id": "27",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_softBackPressuredTimeMsPerSecond"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "SoftBackPressuredTimeMsPerSecond",
+            "title": "SoftBackPressuredTimeMsPerSecond(ms)",
+            "tips": "The time this task is softly back pressured per second.Softly back pressured task will be still responsive and capable of for example triggering unaligned checkpoints."
+          }
+        },
+        {
+          "x": 0,
+          "y": 84,
+          "w": 12,
+          "h": 18,
+          "i": "28",
+          "type": "Widget",
+          "id": "28",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_taskManager_hardBackPressuredTimeMsPerSecond"
+          ],
+          "typesOfMQE": [
+            "UNKNOWN"
+          ],
+          "widget": {
+            "name": "HardBackPressuredTimeMsPerSecond",
+            "title": "HardBackPressuredTimeMsPerSecond(ms)",
+            "tips": "The time this task is back pressured in a hard way per second.During hard back pressured task is completely blocked and unresponsive preventing for example unaligned checkpoints from triggering."
+          }
+        },
+        {
+          "x": 0,
+          "y": 66,
+          "w": 12,
+          "h": 18,
+          "i": "29",
+          "type": "Widget",
+          "id": "29",
+          "moved": false,
+          "expressions": [
+            "meter_flink_taskManager_idleTimeMsPerSecond"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "IdleTimeMsPerSecond",
+            "title": "IdleTimeMsPerSecond(ms)",
+            "tips": "The time this task is idle (has no data to process) per second. Idle time excludes back pressured time, so if the task is back pressured it is not idle."
+          }
+        },
+        {
+          "x": 12,
+          "y": 66,
+          "w": 12,
+          "h": 18,
+          "i": "30",
+          "type": "Widget",
+          "id": "30",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_taskManager_busyTimeMsPerSecond"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "BusyTimeMsPerSecond",
+            "title": "BusyTimeMsPerSecond(ms)",
+            "tips": "The time this task is busy (neither idle nor back pressured) per second. Can be NaN, if the value could not be calculated."
+          }
+        }
+      ],
+      "layer": "FLINK",
+      "entity": "ServiceInstance",
+      "name": "Flink-TaskManager",
+      "id": "Flink-TaskManager"
+    }
+  }
+]

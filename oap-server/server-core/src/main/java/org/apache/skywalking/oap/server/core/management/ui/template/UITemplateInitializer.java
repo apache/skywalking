@@ -79,6 +79,7 @@ public class UITemplateInitializer {
         Layer.SO11Y_JAVA_AGENT.name(),
         Layer.KONG.name(),
         Layer.SO11Y_GO_AGENT.name(),
+        Layer.FLINK.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

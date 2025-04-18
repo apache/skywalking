@@ -1,0 +1,410 @@
+[
+  {
+    "id": "Flink-Job",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 10,
+          "i": "2",
+          "type": "Widget",
+          "expressions": [
+            "latest(meter_flink_job_runningTime)/1000/60"
+          ],
+          "widget": {
+            "name": "Job RunningTime",
+            "title": "Job RunningTime",
+            "tips": "The job running time"
+          },
+          "metricConfig": [
+            {
+              "unit": "min"
+            }
+          ],
+          "graph": {
+            "type": "Card",
+            "fontSize": 20,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "id": "2",
+          "moved": false
+        },
+        {
+          "x": 4,
+          "y": 10,
+          "w": 4,
+          "h": 10,
+          "i": "3",
+          "type": "Widget",
+          "expressions": [
+            "latest(meter_flink_job_restart_number)"
+          ],
+          "widget": {
+            "name": "Job Restart Number",
+            "title": "Job Restart Number",
+            "tips": "The number of job restart"
+          },
+          "graph": {
+            "type": "Card",
+            "fontSize": 20,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "id": "3",
+          "moved": false
+        },
+        {
+          "x": 0,
+          "y": 10,
+          "w": 4,
+          "h": 10,
+          "i": "4",
+          "type": "Widget",
+          "id": "4",
+          "moved": false,
+          "graph": {
+            "type": "Card",
+            "fontSize": 20,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "expressions": [
+            "latest(meter_flink_job_restartingTime)/1000/60"
+          ],
+          "metricConfig": [
+            {
+              "unit": "min"
+            }
+          ],
+          "widget": {
+            "name": "Job RestartingTime",
+            "title": "Job RestartingTime",
+            "tips": "The job restarting Time"
+          }
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "w": 4,
+          "h": 10,
+          "i": "5",
+          "type": "Widget",
+          "id": "5",
+          "moved": false,
+          "expressions": [
+            "latest(meter_flink_job_cancellingTime)/1000/60"
+          ],
+          "metricConfig": [
+            {
+              "unit": "min"
+            }
+          ],
+          "graph": {
+            "type": "Card",
+            "fontSize": 20,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "name": "Job CancellingTime",
+            "title": "Job CancellingTime",
+            "tips": "The job cancelling time"
+          }
+        },
+        {
+          "x": 0,
+          "y": 36,
+          "w": 8,
+          "h": 16,
+          "i": "6",
+          "type": "Widget",
+          "id": "6",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_job_checkpoints_total"
+          ],
+          "widget": {
+            "name": "Job Checkpoints Total",
+            "title": "Job Checkpoints Total",
+            "tips": "The total number of checkpoints"
+          }
+        },
+        {
+          "x": 0,
+          "y": 20,
+          "w": 8,
+          "h": 16,
+          "i": "7",
+          "type": "Widget",
+          "id": "7",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_job_checkpoints_failed"
+          ],
+          "widget": {
+            "name": "Checkpoints Failed",
+            "title": "Checkpoints Failed",
+            "tips": "The number of failed checkpoints"
+          }
+        },
+        {
+          "x": 8,
+          "y": 20,
+          "w": 8,
+          "h": 16,
+          "i": "8",
+          "type": "Widget",
+          "id": "8",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_job_checkpoints_completed"
+          ],
+          "widget": {
+            "name": "Checkpoints Completed",
+            "title": "Checkpoints Completed",
+            "tips": "The number of completed checkpoints"
+          }
+        },
+        {
+          "x": 16,
+          "y": 20,
+          "w": 8,
+          "h": 16,
+          "i": "9",
+          "type": "Widget",
+          "id": "9",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_job_checkpoints_inProgress"
+          ],
+          "widget": {
+            "name": "Checkpoints InProgress",
+            "title": "Checkpoints InProgress",
+            "tips": "The number of inProgress checkpoints"
+          }
+        },
+        {
+          "x": 8,
+          "y": 0,
+          "w": 16,
+          "h": 20,
+          "i": "10",
+          "type": "Widget",
+          "id": "10",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_job_currentEmitEventTimeLag"
+          ],
+          "widget": {
+            "name": "CurrentEmitEventTimeLag",
+            "title": "CurrentEmitEventTimeLag(ms)",
+            "tips": "The latency between a data record's event time and its emission time from the source."
+          }
+        },
+        {
+          "x": 0,
+          "y": 52,
+          "w": 12,
+          "h": 18,
+          "i": "11",
+          "type": "Widget",
+          "id": "11",
+          "moved": false,
+          "expressions": [
+            "meter_flink_job_numRecordsIn"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "NumRecordsIn",
+            "title": "NumRecordsIn",
+            "tips": "The total number of records this operator/task has received."
+          }
+        },
+        {
+          "x": 12,
+          "y": 52,
+          "w": 12,
+          "h": 18,
+          "i": "12",
+          "type": "Widget",
+          "id": "12",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_job_numRecordsOut"
+          ],
+          "widget": {
+            "name": "NumRecordsOut",
+            "title": "NumRecordsOut",
+            "tips": "The total number of records this operator/task has emitted."
+          }
+        },
+        {
+          "x": 0,
+          "y": 70,
+          "w": 12,
+          "h": 16,
+          "i": "13",
+          "type": "Widget",
+          "id": "13",
+          "moved": false,
+          "expressions": [
+            "meter_flink_job_numBytesInPerSecond"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "NumBytesInPerSecond",
+            "title": "NumBytesInPerSecond",
+            "tips": "The number of bytes this task received per second."
+          }
+        },
+        {
+          "x": 12,
+          "y": 70,
+          "w": 12,
+          "h": 16,
+          "i": "14",
+          "type": "Widget",
+          "id": "14",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_job_numBytesOutPerSecond"
+          ],
+          "widget": {
+            "name": "NumBytesOutPerSecond",
+            "title": "NumBytesOutPerSecond",
+            "tips": "The number of bytes this task emits per second."
+          }
+        },
+        {
+          "x": 16,
+          "y": 36,
+          "w": 8,
+          "h": 16,
+          "i": "15",
+          "type": "Widget",
+          "id": "15",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_flink_job_lastCheckpointSize"
+          ],
+          "widget": {
+            "name": "LastCheckpointSize",
+            "title": "LastCheckpointSize(Bytes)",
+            "tips": "The checkPointed size of the last checkpoint (in bytes), this metric could be different from lastCheckpointFullSize if incremental checkpoint or changelog is enabled."
+          }
+        },
+        {
+          "x": 8,
+          "y": 36,
+          "w": 8,
+          "h": 16,
+          "i": "16",
+          "type": "Widget",
+          "id": "16",
+          "moved": false,
+          "expressions": [
+            "meter_flink_job_lastCheckpointDuration"
+          ],
+          "widget": {
+            "name": "LastCheckpointDuration",
+            "title": "LastCheckpointDuration(ms)",
+            "tips": "The time it took to complete the last checkpoint."
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        }
+      ],
+      "layer": "FLINK",
+      "entity": "Endpoint",
+      "name": "Flink-Job",
+      "id": "Flink-Job"
+    }
+  }
+]

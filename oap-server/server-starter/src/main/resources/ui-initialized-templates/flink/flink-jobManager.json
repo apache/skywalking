@@ -1,0 +1,639 @@
+[
+  {
+    "id": "Flink-JobManager",
+    "configuration":{
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 77,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 3,
+                  "h": 8,
+                  "i": "1",
+                  "type": "Widget",
+                  "id": "0-0-1",
+                  "moved": false,
+                  "expressions": [
+                    "latest(meter_flink_jobManager_running_job_number)"
+                  ],
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 19,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "name": "Running Jobs",
+                    "title": "Running Jobs",
+                    "tips": "The number of running jobs"
+                  }
+                },
+                {
+                  "x": 3,
+                  "y": 8,
+                  "w": 3,
+                  "h": 8,
+                  "i": "2",
+                  "type": "Widget",
+                  "id": "0-0-2",
+                  "moved": false,
+                  "expressions": [
+                    "latest(meter_flink_jobManager_taskManagers_registered_number)"
+                  ],
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 20,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "title": "TaskManagers",
+                    "tips": "The number of taskManagers",
+                    "name": "TaskManagers"
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 9,
+                  "h": 16,
+                  "i": "3",
+                  "type": "Widget",
+                  "id": "0-0-3",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_cpu_load/10"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "JVM CPU Load",
+                    "title": "JVM CPU load(%)",
+                    "tips": "The number of the JVM CPU load"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 71,
+                  "w": 8,
+                  "h": 18,
+                  "i": "4",
+                  "type": "Widget",
+                  "id": "0-0-4",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_thread_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "JVM Thread Count",
+                    "title": "JVM Thread Count",
+                    "tips": "The total number of the jobManager JVM live threads"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 71,
+                  "w": 8,
+                  "h": 18,
+                  "i": "5",
+                  "type": "Widget",
+                  "id": "0-0-5",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_memory_heap_used/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "JVM Memory Heap Used",
+                    "title": "JVM Memory Heap Used(MB)",
+                    "tips": "The amount of the jobManager JVM memory heap used"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 89,
+                  "w": 12,
+                  "h": 21,
+                  "i": "7",
+                  "type": "Widget",
+                  "id": "0-0-7",
+                  "moved": false,
+                  "expressions": [
+                    "(meter_flink_jobManager_jvm_memory_nonHeap_used)/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "JVM Memory NonHeap Used",
+                    "title": "JVM Memory NonHeap Used(MB)",
+                    "tips": "The amount of the jobManager JVM nonHeap memory used"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 8,
+                  "w": 3,
+                  "h": 8,
+                  "i": "8",
+                  "type": "Widget",
+                  "id": "0-0-8",
+                  "moved": false,
+                  "expressions": [
+                    "latest(meter_flink_jobManager_taskManagers_slots_total)"
+                  ],
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 20,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "name": "Task Managers Slots Total",
+                    "title": "Total Slots",
+                    "tips": "The number of total slots"
+                  }
+                },
+                {
+                  "x": 3,
+                  "y": 0,
+                  "w": 3,
+                  "h": 8,
+                  "i": "9",
+                  "type": "Widget",
+                  "id": "0-0-9",
+                  "moved": false,
+                  "expressions": [
+                    "latest(meter_flink_jobManager_taskManagers_slots_available)"
+                  ],
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 20,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "name": "Task Managers Slots Available",
+                    "tips": "The number of available slots",
+                    "title": "Available Slots"
+                  }
+                },
+                {
+                  "x": 15,
+                  "y": 0,
+                  "w": 9,
+                  "h": 16,
+                  "i": "13",
+                  "type": "Widget",
+                  "id": "0-0-13",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_cpu_time/1000/1000"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "JVM CPU Time(ms) Increase (Per Minute)",
+                    "name": "JVM CPU Time",
+                    "tips": "The jobManager CPU time used by the JVM increase per minute"
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 71,
+                  "w": 8,
+                  "h": 18,
+                  "i": "14",
+                  "type": "Widget",
+                  "id": "0-0-14",
+                  "moved": false,
+                  "metricConfig": [
+                    {
+                      "unit": "MB"
+                    }
+                  ],
+                  "expressions": [
+                    "(meter_flink_jobManager_jvm_memory_heap_available)/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true,
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "name": "JVM Memory Heap Available",
+                    "title": "JVM Memory Heap Available(MB)",
+                    "tips": "The amount of the jobManager available JVM memory Heap"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 89,
+                  "w": 12,
+                  "h": 21,
+                  "i": "15",
+                  "type": "Widget",
+                  "id": "0-0-15",
+                  "moved": false,
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "(meter_flink_jobManager_jvm_memory_nonHeap_available)/1024/1024)"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "widget": {
+                    "name": "JVM Memory NoHeap Available",
+                    "title": "JVM Memory NoHeap Available(MB)",
+                    "tips": "The amount of the jobManager available JVM memory noHeap"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 110,
+                  "w": 12,
+                  "h": 19,
+                  "i": "16",
+                  "type": "Widget",
+                  "id": "0-0-16",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_memory_metaspace_used/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "JVM Memory Metaspace Used",
+                    "title": "JVM Memory Metaspace Used(MB)",
+                    "tips": "The amount of the jobManager Used JVM metaspace memory"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 110,
+                  "w": 12,
+                  "h": 19,
+                  "i": "17",
+                  "type": "Widget",
+                  "id": "0-0-17",
+                  "moved": false,
+                  "expressions": [
+                    "(meter_flink_jobManager_jvm_memory_metaspace_available)/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "UNKNOWN"
+                  ],
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "JVM Metaspace Available(MB)",
+                    "tips": "The amount of the jobManager available JVM Metaspace Memory",
+                    "name": "JVM Metaspace Available"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 35,
+                  "w": 12,
+                  "h": 18,
+                  "i": "18",
+                  "type": "Widget",
+                  "id": "0-0-18",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_g1_young_generation_count"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "widget": {
+                    "name": "JVM G1 Young Generation Count",
+                    "title": "JVM G1 Young Generation Count Increase (Per Minute)",
+                    "tips": "The incremental number of the jobManager JVM G1 young generation count per minute"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 53,
+                  "w": 12,
+                  "h": 18,
+                  "i": "19",
+                  "type": "Widget",
+                  "id": "0-0-19",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_g1_old_generation_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "JVM G1 Old Generation Count",
+                    "title": "JVM G1 Old Generation Count Increase (Per Minute)",
+                    "tips": "The incremental number of the jobManager JVM G1 old generation count per minute"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 35,
+                  "w": 12,
+                  "h": 18,
+                  "i": "20",
+                  "type": "Widget",
+                  "id": "0-0-20",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_g1_young_generation_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "widget": {
+                    "name": "JVM G1 Young Generation Time",
+                    "title": "JVM G1 Young Generation Time(ms) Increase (Per Minute)",
+                    "tips": "The incremental time of the jobManager JVM G1 young generation per minute"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 53,
+                  "w": 12,
+                  "h": 18,
+                  "i": "21",
+                  "type": "Widget",
+                  "id": "0-0-21",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_g1_old_generation_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "JVM G1 Old Generation Time",
+                    "title": "JVM G1 Old Generation Time(ms) Increase (Per Minute)",
+                    "tips": "The incremental time of the jobManager JVM G1 old generation per minute"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 16,
+                  "w": 12,
+                  "h": 19,
+                  "i": "22",
+                  "type": "Widget",
+                  "id": "0-0-22",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_all_garbageCollector_count"
+                  ],
+                  "typesOfMQE": [
+                    "UNKNOWN"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "JVM All GarbageCollector Count",
+                    "title": "JVM All GarbageCollector Count Increase (Per Minute)",
+                    "tips": "The number of the jobManager JVM all garbageCollector count increase per minute"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 16,
+                  "w": 12,
+                  "h": 19,
+                  "i": "23",
+                  "type": "Widget",
+                  "id": "0-0-23",
+                  "moved": false,
+                  "expressions": [
+                    "meter_flink_jobManager_jvm_all_garbageCollector_time"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "typesOfMQE": [
+                    "UNKNOWN"
+                  ],
+                  "widget": {
+                    "name": "JVM All GarbageCollector Time",
+                    "title": "JVM All GarbageCollector Time(ms) Increase (Per Minute)",
+                    "tips": "The incremental time spent performing garbage collection for the given (or all) collector for the jobManager per minute"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "TaskManager",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 30,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "Flink-TaskManager",
+                    "fontSize": 12
+                  },
+                  "id": "0-1-0",
+                  "moved": false
+                }
+              ]
+            },
+            {
+              "name": "Job",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 15,
+                  "h": 32,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "EndpointList",
+                    "dashboardName": "Flink-Job",
+                    "fontSize": 12
+                  },
+                  "widget": {
+                    "name": "Job List",
+                    "title": "Job List"
+                  },
+                  "expressions": [],
+                  "id": "0-2-0",
+                  "moved": false
+                },
+                {
+                  "x": 15,
+                  "y": 0,
+                  "w": 9,
+                  "h": 32,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "top_n(meter_flink_job_runningTime,10,des)"
+                  ],
+                  "valueRelatedDashboard": "Flink-Job",
+                  "relatedTrace": {
+                    "refIdType": "none"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "color": "purple"
+                  },
+                  "widget": {
+                    "title": "Top10 runningTime job",
+                    "tips": "Top10 runningTime job"
+                  },
+                  "id": "0-2-1",
+                  "moved": false
+                }
+              ]
+            }
+          ],
+          "id": "0",
+          "activedTabIndex": 0,
+          "moved": false
+        }
+      ],
+      "layer": "FLINK",
+      "entity": "Service",
+      "name": "Flink-JobManager",
+      "id": "Flink-JobManager",
+      "isRoot": false
+    }
+  }
+]

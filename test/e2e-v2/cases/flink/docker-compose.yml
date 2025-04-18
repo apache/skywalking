@@ -1,0 +1,102 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "3"
+
+services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - "12800:12800"
+    networks:
+      - e2e
+
+  banyandb:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912
+
+  jobmanager:
+    image: flink:2.0-preview1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9260
+    ports:
+      - "8081:8081"
+      - "9260:9260"
+    command: jobmanager
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - e2e
+
+  taskmanager:
+    image: flink:2.0-preview1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9261
+    depends_on:
+      jobmanager:
+        condition: service_healthy
+    ports:
+      - "9261:9261"
+    command: taskmanager
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9261/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - e2e
+
+  executeJob:
+    image: flink:2.0-preview1
+    depends_on:
+      taskmanager:
+        condition: service_healthy
+    command: >
+      bash -c "
+      ./bin/flink run -m jobmanager:8081 examples/streaming/WindowJoin.jar"
+    networks:
+      - e2e
+
+  otel-collector:
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

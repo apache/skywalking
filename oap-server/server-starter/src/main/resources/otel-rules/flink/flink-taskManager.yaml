@@ -1,0 +1,89 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'flink-taskManager-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'flink::' + tags.cluster}).instance(['cluster'], ['taskManager_node'], Layer.FLINK)
+metricPrefix: meter_flink_taskManager
+metricsRules:
+
+  # jvm
+  - name: jvm_cpu_load
+    exp: flink_taskmanager_Status_JVM_CPU_Load.sum(['cluster','taskManager_node'])*1000
+  - name: jvm_cpu_time
+    exp: flink_taskmanager_Status_JVM_CPU_Time.sum(['cluster','taskManager_node']).increase('PT1M')
+  - name: jvm_memory_heap_used
+    exp: flink_taskmanager_Status_JVM_Memory_Heap_Used.sum(['cluster','taskManager_node'])
+  - name: jvm_memory_heap_available
+    exp: flink_taskmanager_Status_JVM_Memory_Heap_Max.sum(['cluster','taskManager_node'])-flink_taskmanager_Status_JVM_Memory_Heap_Used.sum(['cluster','taskManager_node'])
+  - name: jvm_thread_count
+    exp: flink_taskmanager_Status_JVM_Threads_Count.sum(['cluster','taskManager_node'])
+  - name: jvm_memory_metaspace_available
+    exp: flink_taskmanager_Status_JVM_Memory_Metaspace_Max.sum(['cluster','taskManager_node'])-flink_taskmanager_Status_JVM_Memory_Metaspace_Used.sum(['cluster','taskManager_node'])
+  - name: jvm_memory_metaspace_used
+    exp: flink_taskmanager_Status_JVM_Memory_Metaspace_Used.sum(['cluster','taskManager_node'])
+
+  - name: jvm_memory_nonHeap_used
+    exp: flink_taskmanager_Status_JVM_Memory_NonHeap_Used.sum(['cluster','taskManager_node'])
+  - name: jvm_memory_nonHeap_available
+    exp: flink_taskmanager_Status_JVM_Memory_NonHeap_Max.sum(['cluster','taskManager_node'])-flink_taskmanager_Status_JVM_Memory_NonHeap_Used.sum(['cluster','taskManager_node'])
+
+#  # records
+  - name: numRecordsIn
+    exp: flink_taskmanager_job_task_numRecordsIn.sum(['cluster','taskManager_node','flink_job_name','task_name']).increase('PT1M')
+  - name: numRecordsOut
+    exp: flink_taskmanager_job_task_numRecordsOut.sum(['cluster','taskManager_node','flink_job_name','task_name']).increase('PT1M')
+  - name: numBytesInPerSecond
+    exp: flink_taskmanager_job_task_numBytesInPerSecond.sum(['cluster','taskManager_node','flink_job_name','task_name'])
+  - name: numBytesOutPerSecond
+    exp: flink_taskmanager_job_task_numBytesOutPerSecond.sum(['cluster','taskManager_node','flink_job_name','task_name'])
+#
+#  # network
+  - name: netty_usedMemory
+    exp: flink_taskmanager_Status_Shuffle_Netty_UsedMemory.sum(['cluster','taskManager_node'])
+  - name: netty_availableMemory
+    exp: flink_taskmanager_Status_Shuffle_Netty_AvailableMemory.sum(['cluster','taskManager_node'])
+  - name: inPoolUsage
+    exp: flink_taskmanager_job_task_Shuffle_Netty_Input_Buffers_inPoolUsage.sum(['cluster','taskManager_node','flink_job_name','task_name'])*100
+  - name: outPoolUsage
+    exp: flink_taskmanager_job_task_Shuffle_Netty_Output_Buffers_outPoolUsage.sum(['cluster','taskManager_node','flink_job_name','task_name'])*100
+
+  # backPressured
+  - name: isBackPressured
+    exp: flink_taskmanager_job_task_isBackPressured.sum(['cluster','taskManager_node','flink_job_name','task_name'])
+  - name: idleTimeMsPerSecond
+    exp: flink_taskmanager_job_task_idleTimeMsPerSecond.sum(['cluster','taskManager_node','flink_job_name','task_name'])
+  - name: busyTimeMsPerSecond
+    exp: flink_taskmanager_job_task_busyTimeMsPerSecond.sum(['cluster','taskManager_node','flink_job_name','task_name'])
+  - name: softBackPressuredTimeMsPerSecond
+    exp: flink_taskmanager_job_task_softBackPressuredTimeMsPerSecond.sum(['cluster','taskManager_node','flink_job_name','task_name'])
+  - name: hardBackPressuredTimeMsPerSecond
+    exp: flink_taskmanager_job_task_hardBackPressuredTimeMsPerSecond.sum(['cluster','taskManager_node','flink_job_name','task_name'])
+
+

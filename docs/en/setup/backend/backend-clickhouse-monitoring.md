@@ -21,7 +21,7 @@ the metrics to
    .
 2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on
    Prometheus Receiver in OpenTelemetry Collector, refer
-   to [here](../../../../test/e2e-v2/cases/mysql/prometheus-mysql-exporter/otel-collector-config.yaml).
+   to [here](../../../../test/e2e-v2/cases/clickhouse/clickhouse-prometheus-endpoint/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ### ClickHouse Monitoring

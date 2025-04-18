@@ -664,6 +664,8 @@ jobs:
             config: test/e2e-v2/cases/activemq/e2e.yaml
           - name: Kong
             config: test/e2e-v2/cases/kong/e2e.yaml
+          - name: Flink
+            config: test/e2e-v2/cases/flink/e2e.yaml
 
           - name: UI Menu BanyanDB
             config: test/e2e-v2/cases/menu/banyandb/e2e.yaml

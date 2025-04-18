@@ -11,6 +11,7 @@
 * Support `hot/warm/cold` stages TTL query in the status API.
 * PromQL Service: traffic query support `limit` and regex match.
 * Fix an edge case of HashCodeSelector(Integer#MIN_VALUE causes ArrayIndexOutOfBoundsException).
+* Support Flink monitoring.
 
 #### UI
 
