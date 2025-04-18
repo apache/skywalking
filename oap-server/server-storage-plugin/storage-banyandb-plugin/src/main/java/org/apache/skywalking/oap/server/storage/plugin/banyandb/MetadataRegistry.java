@@ -131,6 +131,7 @@ public enum MetadataRegistry {
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
         // parse and set seriesIDs
         List<String> seriesIDColumns = parseEntityNames(modelColumnMap);
+        List<String> shardingKeyColumns = parseShardingKeyNames(modelColumnMap);
         if (seriesIDColumns.isEmpty()) {
             throw new StorageException("model " + model.getName() + " doesn't contain series id");
         }
@@ -160,6 +161,9 @@ public enum MetadataRegistry {
                 .setName(schemaMetadata.name()));
         builder.setInterval(downSamplingDuration(model.getDownsampling()).format());
         builder.setEntity(BanyandbDatabase.Entity.newBuilder().addAllTagNames(seriesIDColumns));
+        if (CollectionUtils.isNotEmpty(shardingKeyColumns)) {
+            builder.setShardingKey(BanyandbDatabase.ShardingKey.newBuilder().addAllTagNames(shardingKeyColumns));
+        }
         builder.addAllTagFamilies(tagFamilySpecs);
         if (model.getBanyanDBModelExtension().isIndexMode()) {
             builder.setIndexMode(true);
@@ -347,6 +351,19 @@ public enum MetadataRegistry {
         }
         return seriesIDColumns.stream()
                 .sorted(Comparator.comparingInt(col -> col.getBanyanDBExtension().getSeriesIDIdx()))
+                .map(col -> col.getColumnName().getName())
+                .collect(Collectors.toList());
+    }
+
+    List<String> parseShardingKeyNames(Map<String, ModelColumn> modelColumnMap) {
+        List<ModelColumn> shardingKeyColumns = new ArrayList<>();
+        for (final ModelColumn col : modelColumnMap.values()) {
+            if (col.getBanyanDBExtension().isShardingKey()) {
+                shardingKeyColumns.add(col);
+            }
+        }
+        return shardingKeyColumns.stream()
+                .sorted(Comparator.comparingInt(col -> col.getBanyanDBExtension().getShardingKeyIdx()))
                 .map(col -> col.getColumnName().getName())
                 .collect(Collectors.toList());
     }

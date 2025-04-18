@@ -12,6 +12,7 @@
 * PromQL Service: traffic query support `limit` and regex match.
 * Fix an edge case of HashCodeSelector(Integer#MIN_VALUE causes ArrayIndexOutOfBoundsException).
 * Support Flink monitoring.
+* BanyanDB: Support `@ShardingKey` for Measure tags and set to TopNAggregation group tag by default.
 
 #### UI
 
