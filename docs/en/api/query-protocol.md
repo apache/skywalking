@@ -48,6 +48,10 @@ extend type Query {
     estimateProcessScale(serviceId: ID!, labels: [String!]!): Long!
 
     getTimeInfo: TimeInfo
+    # Get the TTL info of records
+    getRecordsTTL: RecordsTTL
+    # Get the TTL info of metrics
+    getMetricsTTL: MetricsTTL
 }
 ```
 
@@ -156,6 +160,8 @@ extend type Query {
     queryBasicTraces(condition: TraceQueryCondition, debug: Boolean): TraceBrief
     # Read the specific trace ID with given trace ID
     queryTrace(traceId: ID!, debug: Boolean): Trace
+    # Only for BanyanDB, can be used to query the trace in the cold stage.
+    queryTraceFromColdStage(traceId: ID!, duration: Duration!, debug: Boolean): Trace
     # Read the list of searchable keys
     queryTraceTagAutocompleteKeys(duration: Duration!):[String!]
     # Search the available value options of the given key.
@@ -305,6 +311,8 @@ input Duration {
     start: String!
     end: String!
     step: Step!
+    # Only for BanyanDB, the flag to query from cold stage, default is false.
+    coldStage: Boolean
 }
 
 enum Step {

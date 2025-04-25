@@ -30,10 +30,8 @@ import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -63,16 +61,9 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
     public Events queryEvents(EventQueryCondition condition) throws Exception {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(Event.INDEX_NAME, DownSampling.Minute);
         final Duration time = condition.getTime();
-        TimestampRange tsRange = null;
-        if (time != null) {
-            long startTB = time.getStartTimeBucketInSec();
-            long endTB = time.getEndTimeBucketInSec();
-            if (startTB > 0 && endTB > 0) {
-                tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
-            }
-        }
-        MeasureQueryResponse resp = query(schema, TAGS,
-                Collections.emptySet(), tsRange, buildQuery(Collections.singletonList(condition)));
+        boolean isColdStage = time != null && time.isColdStage();
+        MeasureQueryResponse resp = query(isColdStage, schema, TAGS,
+                Collections.emptySet(), getTimestampRange(time), buildQuery(Collections.singletonList(condition)));
         Events events = new Events();
         if (resp.size() == 0) {
             return events;
@@ -88,16 +79,9 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(Event.INDEX_NAME, DownSampling.Minute);
         // Duration should be same for all conditions
         final Duration time = conditionList.get(0).getTime();
-        TimestampRange tsRange = null;
-        if (time != null) {
-            long startTB = time.getStartTimeBucketInSec();
-            long endTB = time.getEndTimeBucketInSec();
-            if (startTB > 0 && endTB > 0) {
-                tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
-            }
-        }
-        MeasureQueryResponse resp = query(schema, TAGS,
-                Collections.emptySet(), tsRange, buildQuery(conditionList));
+        boolean isColdStage = time != null && time.isColdStage();
+        MeasureQueryResponse resp = query(isColdStage, schema, TAGS,
+                Collections.emptySet(), getTimestampRange(time), buildQuery(conditionList));
         Events events = new Events();
         if (resp.size() == 0) {
             return events;

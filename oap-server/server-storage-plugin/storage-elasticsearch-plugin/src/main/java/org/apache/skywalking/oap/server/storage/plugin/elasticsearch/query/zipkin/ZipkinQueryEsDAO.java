@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.zipkin;
 
+import javax.annotation.Nullable;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -129,7 +130,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<Span> getTrace(final String traceId) {
+    public List<Span> getTrace(final String traceId, @Nullable final  Duration duration) {
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME);
         BoolQueryBuilder query = Query.bool().must(Query.term(ZipkinSpanRecord.TRACE_ID, traceId));
         SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
@@ -216,11 +217,11 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                 traceIds.add((String) idBucket.get("key"));
             }
         }
-        return getTraces(traceIds);
+        return getTraces(traceIds, duration);
     }
 
     @Override
-    public List<List<Span>> getTraces(final Set<String> traceIds) {
+    public List<List<Span>> getTraces(final Set<String> traceIds, @Nullable final Duration duration) {
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME);
         BoolQueryBuilder query = Query.bool().must(Query.terms(ZipkinSpanRecord.TRACE_ID, new ArrayList<>(traceIds)));
         SearchBuilder search = Search.builder().query(query).sort(ZipkinSpanRecord.TIMESTAMP_MILLIS, Sort.Order.DESC)

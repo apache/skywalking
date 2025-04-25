@@ -188,13 +188,13 @@ public class ProfileTaskQueryService implements Service {
 
     public List<SegmentRecord> getTaskSegments(String taskId) throws IOException {
         final List<String> profiledSegmentIdList = getProfileThreadSnapshotQueryDAO().queryProfiledSegmentIdList(taskId);
-        return getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList);
+        return getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList, null);
     }
 
     public List<ProfiledTraceSegments> getProfileTaskSegments(String taskId) throws IOException {
         // query all profiled segments
         final List<String> profiledSegmentIdList = getProfileThreadSnapshotQueryDAO().queryProfiledSegmentIdList(taskId);
-        final List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList);
+        final List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList, null);
         if (CollectionUtils.isEmpty(segmentRecords)) {
             return Collections.emptyList();
         }
@@ -215,7 +215,7 @@ public class ProfileTaskQueryService implements Service {
         }
         final List<SegmentRecord> traceRelatedSegments = getTraceQueryDAO().queryByTraceIdWithInstanceId(
             new ArrayList<>(traceIdList),
-            new ArrayList<>(instanceIdList));
+            new ArrayList<>(instanceIdList), null);
 
         // group by the traceId + service instanceId
         final Map<String, List<SegmentRecord>> instanceTraceWithSegments = traceRelatedSegments.stream().filter(s -> {

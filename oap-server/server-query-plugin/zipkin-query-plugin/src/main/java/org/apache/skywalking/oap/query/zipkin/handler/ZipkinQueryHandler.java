@@ -187,12 +187,12 @@ public class ZipkinQueryHandler {
             if (StringUtil.isEmpty(traceId)) {
                 return AggregatedHttpResponse.of(BAD_REQUEST, ANY_TEXT_TYPE, "traceId is empty or null");
             }
-            List<Span> trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()));
+            List<Span> trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()), null);
             if (CollectionUtils.isEmpty(trace)) {
                 return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
             }
             appendEventsDebuggable(trace, getSpanAttachedEventQueryDAO().querySpanAttachedEventsDebuggable(
-                SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(traceId)));
+                SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(traceId), null));
             return response(SpanBytesEncoder.JSON_V2.encodeList(trace));
         } finally {
             if (traceContext != null && debuggingSpan != null) {
@@ -266,7 +266,7 @@ public class ZipkinQueryHandler {
             }
         }
 
-        List<List<Span>> traces = getZipkinQueryDAO().getTraces(normalizeTraceIds);
+        List<List<Span>> traces = getZipkinQueryDAO().getTraces(normalizeTraceIds, null);
         appendEventsToTraces(traces);
         return response(encodeTraces(traces));
     }
@@ -365,7 +365,7 @@ public class ZipkinQueryHandler {
         }
 
         final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType.ZIPKIN,
-            new ArrayList<>(traceIdWithSpans.keySet()));
+            new ArrayList<>(traceIdWithSpans.keySet()), null);
         final Map<String, List<SpanAttachedEventRecord>> traceEvents = records.stream().collect(Collectors.groupingBy(SpanAttachedEventRecord::getRelatedTraceId));
         for (Map.Entry<String, List<SpanAttachedEventRecord>> entry : traceEvents.entrySet()) {
             appendEventsDebuggable(traceIdWithSpans.get(entry.getKey()), entry.getValue());

@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
@@ -87,7 +88,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     public List<String> getServiceNames() throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
-            query(schema,
+            query(false, schema,
                   SERVICE_TRAFFIC_TAGS,
                   Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
 
@@ -108,7 +109,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     public List<String> getRemoteServiceNames(final String serviceName) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceRelationTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
-            query(schema,
+            query(false, schema,
                   REMOTE_SERVICE_TRAFFIC_TAGS,
                   Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
 
@@ -132,7 +133,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     public List<String> getSpanNames(final String serviceName) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceSpanTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
-            query(schema,
+            query(false, schema,
                   SPAN_TRAFFIC_TAGS,
                   Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
 
@@ -153,9 +154,10 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     }
 
     @Override
-    public List<Span> getTrace(final String traceId) throws IOException {
+    public List<Span> getTrace(final String traceId, @Nullable final Duration duration) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
         StreamQueryResponse resp =
-            query(ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS,
+            query(isColdStage, ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, getTimestampRange(duration),
                   new QueryBuilder<StreamQuery>() {
 
                       @Override
@@ -197,13 +199,14 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
             scrollEndTime = spans.get(spans.size() - 1).getTimestampMillis();
         }
 
-        return getTraces(traceIds);
+        return getTraces(traceIds, duration);
     }
 
     private List<ZipkinSpanRecord> getSpans(final QueryRequest request,
                                     Duration duration,
                                     long scrollEndTime,
                                     int limit) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
         final long startTimeMillis = duration.getStartTimestamp();
         TimestampRange tsRange = null;
         if (startTimeMillis > 0 && scrollEndTime > 0) {
@@ -245,7 +248,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                 query.setLimit(limit);
             }
         };
-        StreamQueryResponse resp = query(ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, tsRange, queryBuilder);
+        StreamQueryResponse resp = query(isColdStage, ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, tsRange, queryBuilder);
         List<ZipkinSpanRecord> spans = new ArrayList<>(); //needs to keep order here
         for (final RowEntity rowEntity : resp.getElements()) {
             ZipkinSpanRecord spanRecord = new ZipkinSpanRecord.Builder().storage2Entity(
@@ -256,13 +259,14 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     }
 
     @Override
-    public List<List<Span>> getTraces(final Set<String> traceIds) throws IOException {
+    public List<List<Span>> getTraces(final Set<String> traceIds, @Nullable final Duration duration) throws IOException {
         if (CollectionUtils.isEmpty(traceIds)) {
             return Collections.EMPTY_LIST;
         }
+        final boolean isColdStage = duration != null && duration.isColdStage();
         List<AbstractCriteria> conditions = new ArrayList<>(traceIds.size());
         StreamQueryResponse resp =
-            queryDebuggable(ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, null,
+            queryDebuggable(isColdStage, ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, getTimestampRange(duration),
                   new QueryBuilder<StreamQuery>() {
 
                       @Override

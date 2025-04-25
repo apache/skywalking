@@ -62,7 +62,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
                                                         long taskStartTime, long latestUpdateTime) throws IOException {
         List<EBPFProfilingTaskRecord> tasks = new ArrayList<>();
         for (final String serviceId : serviceIdList) {
-            StreamQueryResponse resp = query(EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
+            StreamQueryResponse resp = query(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {
@@ -85,7 +85,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
                                                        EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
         List<EBPFProfilingTaskRecord> tasks = new ArrayList<>();
         for (final EBPFProfilingTargetType targetType : targetTypes) {
-            StreamQueryResponse resp = query(EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
+            StreamQueryResponse resp = query(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {
@@ -111,7 +111,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
 
     @Override
     public List<EBPFProfilingTaskRecord> getTaskRecord(String id) throws IOException {
-        StreamQueryResponse resp = query(EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
+        StreamQueryResponse resp = query(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
             new QueryBuilder<StreamQuery>() {
                 @Override
                 protected void apply(StreamQuery query) {

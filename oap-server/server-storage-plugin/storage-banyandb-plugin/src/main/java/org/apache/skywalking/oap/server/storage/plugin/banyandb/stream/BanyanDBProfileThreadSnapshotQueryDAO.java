@@ -79,7 +79,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     @Override
     public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
-        StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
+        StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
                 TAGS_BASIC,
                 new QueryBuilder<StreamQuery>() {
                     @Override
@@ -115,7 +115,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
-        StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
+        StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
                 TAGS_ALL,
                 new QueryBuilder<StreamQuery>() {
                     @Override
@@ -136,7 +136,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     }
 
     private int querySequenceWithAgg(AggType aggType, String segmentId, long start, long end) throws IOException {
-        StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
+        StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
                 TAGS_ALL, new TimestampRange(start, end),
                 new QueryBuilder<StreamQuery>() {
                     @Override

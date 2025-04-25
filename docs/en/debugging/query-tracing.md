@@ -41,7 +41,8 @@ which could be accessed through HTTP GET `http://{core restHost}:{core restPort}
 | expression          | The MQE query expression                                                    | Yes                |               
 | startTime           | The start time of the query                                                 | Yes                |               
 | endTime             | The end time of the query                                                   | Yes                |               
-| step                | The query step                                                              | Yes                |               
+| step                | The query step                                                              | Yes                |  
+| coldStage           | Only for BanyanDB, the flag to query from cold stage, default is false.     | No                 |  
 | service             | The service name                                                            | Yes                |               
 | serviceLayer        | The service layer name                                                      | Yes                |               
 | serviceInstance     | The service instance name                                                   | No                 |               
@@ -182,22 +183,23 @@ childSpans:
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/queryBasicTraces?{parameters}`.
 - Parameters
 
-  | Field             | Description                                                   | Required           |
-  |-------------------|---------------------------------------------------------------|--------------------|
-  | startTime         | The start time of the query                                   | Yes                |               
-  | endTime           | The end time of the query                                     | Yes                |               
-  | step              | The query step                                                | Yes                |               
-  | service           | The service name                                              | Yes                |               
-  | serviceLayer      | The service layer name                                        | Yes                |               
-  | serviceInstance   | The service instance name                                     | No                 |               
-  | endpoint          | The endpoint name                                             | No                 |               
-  | minTraceDuration  | The minimum duration of the trace                             | No                 |               
-  | maxTraceDuration  | The maximum duration of the trace                             | No                 |               
-  | traceState        | The state of the trace, `ALL`, `SUCCESS`, `ERROR`             | Yes                |               
-  | queryOrder        | The order of the query result, `BY_START_TIME`, `BY_DURATION` | Yes                |               
-  | tags              | The tags of the trace, `key1=value1,key2=value2`              | No                 |  
-  | pageNum           | The page number of the query result                           | Yes                |
-  | pageSize          | The page size of the query result                             | Yes                |
+  | Field              | Description                                                               | Required |
+  |--------------------|---------------------------------------------------------------------------|----------|
+  | startTime          | The start time of the query                                               | Yes      |               
+  | endTime            | The end time of the query                                                 | Yes      |               
+  | step               | The query step                                                            | Yes      |  
+  | coldStage          | Only for BanyanDB, the flag to query from cold stage, default is false.   | No       | 
+  | service            | The service name                                                          | Yes      |               
+  | serviceLayer       | The service layer name                                                    | Yes      |               
+  | serviceInstance    | The service instance name                                                 | No       |               
+  | endpoint           | The endpoint name                                                         | No       |               
+  | minTraceDuration   | The minimum duration of the trace                                         | No       |               
+  | maxTraceDuration   | The maximum duration of the trace                                         | No       |               
+  | traceState         | The state of the trace, `ALL`, `SUCCESS`, `ERROR`                         | Yes      |               
+  | queryOrder         | The order of the query result, `BY_START_TIME`, `BY_DURATION`             | Yes      |               
+  | tags               | The tags of the trace, `key1=value1,key2=value2`                          | No       |  
+  | pageNum            | The page number of the query result                                       | Yes      |
+  | pageSize           | The page size of the query result                                         | Yes      |
 
 The time and step parameters are follow the [Duration](../api/query-protocol.md#duration) format.
 
@@ -235,6 +237,19 @@ spans:
 debuggingTrace:
 ...
 ```
+
+#### Tracing SkyWalking API queryTraceFromColdStage
+Only for BanyanDB, can be used to query the trace in the cold stage.
+
+- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/trace/queryTraceFromColdStage?{parameters}`.
+- Parameters
+
+  | Field           | Description                      | Required        |
+  |-----------------|----------------------------------|-----------------|
+  | traceId         | The ID of the trace              | Yes             |
+  | startTime       | The start time of the query      | Yes             |               
+  | endTime         | The end time of the query        | Yes             |               
+  | step            | The query step                   | Yes             |
 
 ### Tracing Zipkin Trace Query
 
@@ -299,12 +314,13 @@ debuggingTrace:
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getGlobalTopology?{parameters}`.
 - Parameters
 
-  | Field             | Description                                                   | Required |
-  |-------------------|---------------------------------------------------------------|----------|
-  | startTime         | The start time of the query                                   | Yes      |               
-  | endTime           | The end time of the query                                     | Yes      |               
-  | step              | The query step                                                | Yes      |               
-  | serviceLayer      | The service layer name                                        | No       |
+  | Field         | Description                                                             | Required |
+  |---------------|-------------------------------------------------------------------------|----------|
+  | startTime     | The start time of the query                                             | Yes      |               
+  | endTime       | The end time of the query                                               | Yes      |               
+  | step          | The query step                                                          | Yes      | 
+  | coldStage     | Only for BanyanDB, the flag to query from cold stage, default is false. | No       | 
+  | serviceLayer  | The service layer name                                                  | No       |
 
 - Example
 ```shell
@@ -326,13 +342,14 @@ debuggingTrace:
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getServicesTopology?{parameters}`.
 - Parameters
 
-  | Field        | Description                                                                 | Required |
-  |--------------|-----------------------------------------------------------------------------|----------|
-  | startTime    | The start time of the query                                                 | Yes      |               
-  | endTime      | The end time of the query                                                   | Yes      |               
-  | step         | The query step                                                              | Yes      |               
-  | serviceLayer | The service layer name                                                      | Yes      |
-  | services     | The services names list, separate by comma `mock_a_service, mock_b_service` | Yes      |
+  | Field         | Description                                                                 | Required |
+  |---------------|-----------------------------------------------------------------------------|----------|
+  | startTime     | The start time of the query                                                 | Yes      |               
+  | endTime       | The end time of the query                                                   | Yes      |               
+  | step          | The query step                                                              | Yes      |
+  | coldStage     | Only for BanyanDB, the flag to query from cold stage, default is false.     | No       | 
+  | serviceLayer  | The service layer name                                                      | Yes      |
+  | services      | The services names list, separate by comma `mock_a_service, mock_b_service` | Yes      |
 
 - Example
 ```shell
@@ -354,15 +371,16 @@ debuggingTrace:
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getServiceInstanceTopology?{parameters}`.
 - Parameters
 
-  | Field              | Description                        | Required |
-  |--------------------|------------------------------------|----------|
-  | startTime          | The start time of the query        | Yes      |               
-  | endTime            | The end time of the query          | Yes      |               
-  | step               | The query step                     | Yes      |               
-  | clientService      | The client side service name       | Yes      |
-  | serverService      | The server side service name       | Yes      |
-  | clientServiceLayer | The client side service layer name | Yes      |
-  | serverServiceLayer | The server side service layer name | Yes      |
+  | Field              | Description                                                             | Required |
+  |--------------------|-------------------------------------------------------------------------|----------|
+  | startTime          | The start time of the query                                             | Yes      |               
+  | endTime            | The end time of the query                                               | Yes      |               
+  | step               | The query step                                                          | Yes      |  
+  | coldStage          | Only for BanyanDB, the flag to query from cold stage, default is false. | No       | 
+  | clientService      | The client side service name                                            | Yes      |
+  | serverService      | The server side service name                                            | Yes      |
+  | clientServiceLayer | The client side service layer name                                      | Yes      |
+  | serverServiceLayer | The server side service layer name                                      | Yes      |
 
 - Example
 ```shell
@@ -384,14 +402,15 @@ debuggingTrace:
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getEndpointDependencies?{parameters}`.
 - Parameters
 
-  | Field        | Description                                                                 | Required |
-  |--------------|-----------------------------------------------------------------------------|----------|
-  | startTime    | The start time of the query                                                 | Yes      |               
-  | endTime      | The end time of the query                                                   | Yes      |               
-  | step         | The query step                                                              | Yes      |   
-  | service      | The service name                                                            | Yes      |
-  | serviceLayer | The service layer name                                                      | Yes      |
-  | endpoint     | The endpoint name                                                           | Yes      |
+  | Field          | Description                                                             | Required |
+  |----------------|-------------------------------------------------------------------------|----------|
+  | startTime      | The start time of the query                                             | Yes      |               
+  | endTime        | The end time of the query                                               | Yes      |               
+  | step           | The query step                                                          | Yes      |  
+  | coldStage      | Only for BanyanDB, the flag to query from cold stage, default is false. | No       | 
+  | service        | The service name                                                        | Yes      |
+  | serviceLayer   | The service layer name                                                  | Yes      |
+  | endpoint       | The endpoint name                                                       | Yes      |
 
 - Example
 - Example
@@ -414,14 +433,15 @@ debuggingTrace:
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getProcessTopology?{parameters}`.
 - Parameters
 
-  | Field         | Description                                                                 | Required |
-  |---------------|-----------------------------------------------------------------------------|----------|
-  | startTime     | The start time of the query                                                 | Yes      |               
-  | endTime       | The end time of the query                                                   | Yes      |               
-  | step          | The query step                                                              | Yes      |   
-  | service       | The service name                                                            | Yes      |
-  | serviceLayer  | The service layer name                                                      | Yes      |
-  | instance      | The instance name                                                           | Yes      |
+  | Field        | Description                                                             | Required |
+  |--------------|-------------------------------------------------------------------------|----------|
+  | startTime    | The start time of the query                                             | Yes      |               
+  | endTime      | The end time of the query                                               | Yes      |               
+  | step         | The query step                                                          | Yes      | 
+  | coldStage    | Only for BanyanDB, the flag to query from cold stage, default is false. | No       | 
+  | service      | The service name                                                        | Yes      |
+  | serviceLayer | The service layer name                                                  | Yes      |
+  | instance     | The instance name                                                       | Yes      |
 
 - Example
 ```shell
@@ -445,24 +465,25 @@ debuggingTrace:
  URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/log/queryLogs?{parameters}`.
  Parameters
 
-  | Field                      | Description                                                    | Required                       |
-  |----------------------------|----------------------------------------------------------------|--------------------------------|
-  | startTime                  | The start time of the query                                    | Yes, unless traceId not empty  |               
-  | endTime                    | The end time of the query                                      | Yes, unless traceId not empty  |               
-  | step                       | The query step                                                 | Yes, unless traceId not empty  |  
-  | service                    | The service name                                               | No, require serviceLayer       |               
-  | serviceLayer               | The service layer name                                         | No                             |  
-  | serviceInstance            | The service instance name                                      | No, require service            |               
-  | endpoint                   | The endpoint name                                              | No, require service            |               
-  | traceId                    | The trace ID                                                   | No                             |               
-  | segmentId                  | The segment ID                                                 | No, require traceId            |
-  | spanId                     | The span ID                                                    | No, require traceId            | 
-  | queryOrder                 | The order of the query result, `ASC`, `DES`                    | No, default `DES`              |               
-  | tags                       | The tags of the trace, `key1=value1,key2=value2`               | No                             |  
-  | pageNum                    | The page number of the query result                            | Yes                            |
-  | pageSize                   | The page size of the query result                              | Yes                            |
-  | keywordsOfContent          | The keywords of the log content, `keyword1,keyword2`           | No                             |
-  | excludingKeywordsOfContent | The excluding keywords of the log content, `keyword1,keyword2` | No                             |
+  | Field                      | Description                                                             | Required                      |
+  |----------------------------|-------------------------------------------------------------------------|-------------------------------|
+  | startTime                  | The start time of the query                                             | Yes, unless traceId not empty |               
+  | endTime                    | The end time of the query                                               | Yes, unless traceId not empty |               
+  | step                       | The query step                                                          | Yes, unless traceId not empty | 
+  | coldStage                  | Only for BanyanDB, the flag to query from cold stage, default is false. | No                            | 
+  | service                    | The service name                                                        | No, require serviceLayer      |               
+  | serviceLayer               | The service layer name                                                  | No                            |  
+  | serviceInstance            | The service instance name                                               | No, require service           |               
+  | endpoint                   | The endpoint name                                                       | No, require service           |               
+  | traceId                    | The trace ID                                                            | No                            |               
+  | segmentId                  | The segment ID                                                          | No, require traceId           |
+  | spanId                     | The span ID                                                             | No, require traceId           | 
+  | queryOrder                 | The order of the query result, `ASC`, `DES`                             | No, default `DES`             |               
+  | tags                       | The tags of the trace, `key1=value1,key2=value2`                        | No                            |  
+  | pageNum                    | The page number of the query result                                     | Yes                           |
+  | pageSize                   | The page size of the query result                                       | Yes                           |
+  | keywordsOfContent          | The keywords of the log content, `keyword1,keyword2`                    | No                            |
+  | excludingKeywordsOfContent | The excluding keywords of the log content, `keyword1,keyword2`          | No                            |
 
 - Example
 ```shell

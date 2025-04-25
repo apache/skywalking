@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
@@ -48,8 +47,6 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
-
-import static java.util.Objects.nonNull;
 
 @Slf4j
 public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMetricsQueryDAO {
@@ -133,22 +130,13 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
                                                     final String valueColumnName,
                                                     final List<KeyValue> labels,
                                                     final Duration duration) throws IOException {
-        long startTB = 0;
-        long endTB = 0;
-        if (nonNull(duration)) {
-            startTB = duration.getStartTimeBucketInSec();
-            endTB = duration.getEndTimeBucketInSec();
-        }
-        TimestampRange timestampRange = null;
-        if (startTB > 0 && endTB > 0) {
-            timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
-        }
+        final boolean isColdStage = duration != null && duration.isColdStage();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(metricsName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }
         MeasureQueryResponse resp = query(
-            schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), timestampRange,
+            isColdStage, schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), getTimestampRange(duration),
             new QueryBuilder<MeasureQuery>() {
                 @Override
                 protected void apply(MeasureQuery query) {
@@ -214,10 +202,9 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
     }
 
     private Map<Long, DataPoint> queryByEntityID(MetadataRegistry.Schema schema, String valueColumnName, Duration duration, String entityID) throws IOException {
-        TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
-
+        final boolean isColdStage = duration != null && duration.isColdStage();
         Map<Long, DataPoint> map = new HashMap<>();
-        MeasureQueryResponse resp = queryDebuggable(schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), getTimestampRange(duration), new QueryBuilder<MeasureQuery>() {
             @Override
             protected void apply(MeasureQuery query) {
                 query.and(eq(Metrics.ENTITY_ID, entityID));

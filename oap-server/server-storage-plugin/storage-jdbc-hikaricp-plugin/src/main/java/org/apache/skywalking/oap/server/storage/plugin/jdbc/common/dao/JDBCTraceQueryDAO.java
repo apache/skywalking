@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
+import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -232,7 +233,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
+    public List<SegmentRecord> queryByTraceId(String traceId, @Nullable Duration duration) throws IOException {
         final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
 
@@ -253,7 +254,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
 
     @SneakyThrows
     @Override
-    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList, @Nullable Duration duration) throws IOException {
         final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
         final ArrayList<String> conditions = new ArrayList<>();
@@ -278,7 +279,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
 
     @SneakyThrows
     @Override
-    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException {
+    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList, @Nullable Duration duration) throws IOException {
         final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
         final ArrayList<String> conditions = new ArrayList<>();

@@ -34,6 +34,7 @@ public class Duration {
     private String start;
     private String end;
     private Step step;
+    private boolean coldStage = false;
 
     /**
      * See {@link DurationUtils#convertToTimeBucket(Step, String)}

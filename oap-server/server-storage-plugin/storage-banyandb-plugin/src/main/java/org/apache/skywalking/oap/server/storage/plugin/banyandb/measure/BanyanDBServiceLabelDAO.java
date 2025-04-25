@@ -47,7 +47,7 @@ public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements ISer
     @Override
     public List<String> queryAllLabels(String serviceId) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceLabelRecord.INDEX_NAME, DownSampling.Minute);
-        return query(schema, TAGS,
+        return query(false, schema, TAGS,
                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(final MeasureQuery query) {

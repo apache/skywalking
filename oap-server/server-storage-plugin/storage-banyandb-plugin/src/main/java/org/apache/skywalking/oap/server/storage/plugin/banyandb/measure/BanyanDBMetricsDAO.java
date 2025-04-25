@@ -125,7 +125,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         }
 
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
-        MeasureQueryResponse resp = query(schema, schema.getTags(), schema.getFields(), timestampRange, new QueryBuilder<MeasureQuery>() {
+        MeasureQueryResponse resp = query(false, schema, schema.getTags(), schema.getFields(), timestampRange, new QueryBuilder<MeasureQuery>() {
                 @Override
             protected void apply(MeasureQuery query) {
                 seriesIDColumns.entrySet().forEach(entry -> {

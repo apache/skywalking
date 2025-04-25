@@ -20,14 +20,13 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import javax.annotation.Nullable;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.Element;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -48,8 +47,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import static java.util.Objects.nonNull;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
     private static final Set<String> BASIC_TAGS = ImmutableSet.of(SegmentRecord.TRACE_ID,
@@ -80,12 +77,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
     @Override
     public TraceBrief queryBasicTraces(Duration duration, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
-        long startSecondTB = 0;
-        long endSecondTB = 0;
-        if (nonNull(duration)) {
-            startSecondTB = duration.getStartTimeBucketInSec();
-            endSecondTB = duration.getEndTimeBucketInSec();
-        }
+        final boolean isColdStage = duration != null && duration.isColdStage();
         final QueryBuilder<StreamQuery> q = new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
@@ -145,15 +137,9 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             }
         };
 
-        TimestampRange tsRange = null;
-
-        if (startSecondTB > 0 && endSecondTB > 0) {
-            tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
-        }
-
-        StreamQueryResponse resp = queryDebuggable(SegmentRecord.INDEX_NAME,
-                BASIC_TAGS,
-                tsRange, q);
+        StreamQueryResponse resp = queryDebuggable(isColdStage, SegmentRecord.INDEX_NAME,
+                                                   BASIC_TAGS,
+                                                   getTimestampRange(duration), q);
 
         TraceBrief traceBrief = new TraceBrief();
 
@@ -182,9 +168,10 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     }
 
     @Override
-    public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        StreamQueryResponse resp = queryDebuggable(SegmentRecord.INDEX_NAME, TAGS, null,
-                new QueryBuilder<StreamQuery>() {
+    public List<SegmentRecord> queryByTraceId(String traceId, @Nullable Duration duration) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
+        StreamQueryResponse resp = queryDebuggable(isColdStage, SegmentRecord.INDEX_NAME, TAGS, getTimestampRange(duration),
+            new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
                         query.and(eq(SegmentRecord.TRACE_ID, traceId));
@@ -195,8 +182,9 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     }
 
     @Override
-    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
-        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME, TAGS,
+    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList, @Nullable Duration duration) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
+        StreamQueryResponse resp = query(isColdStage, SegmentRecord.INDEX_NAME, TAGS, getTimestampRange(duration),
             new QueryBuilder<StreamQuery>() {
                 @Override
                 public void apply(StreamQuery query) {
@@ -208,8 +196,9 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     }
 
     @Override
-    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException {
-        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME, TAGS,
+    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList, @Nullable Duration duration) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
+        StreamQueryResponse resp = query(isColdStage, SegmentRecord.INDEX_NAME, TAGS, getTimestampRange(duration),
             new QueryBuilder<StreamQuery>() {
                 @Override
                 public void apply(StreamQuery query) {
