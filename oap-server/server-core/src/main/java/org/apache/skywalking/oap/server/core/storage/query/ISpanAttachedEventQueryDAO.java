@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
+import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -28,7 +30,10 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ISpanAttachedEventQueryDAO extends Service {
-    default List<SpanAttachedEventRecord> querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    default List<SpanAttachedEventRecord> querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -41,7 +46,7 @@ public interface ISpanAttachedEventQueryDAO extends Service {
                        .append(traceIds);
                 span.setMsg(builder.toString());
             }
-            return querySpanAttachedEvents(type, traceIds);
+            return querySpanAttachedEvents(type, traceIds, duration);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -49,5 +54,8 @@ public interface ISpanAttachedEventQueryDAO extends Service {
         }
     }
 
-    List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException;
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException;
 }

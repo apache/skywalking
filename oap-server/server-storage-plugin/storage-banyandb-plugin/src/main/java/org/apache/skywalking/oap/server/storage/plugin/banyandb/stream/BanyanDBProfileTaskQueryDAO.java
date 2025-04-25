@@ -67,7 +67,7 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
         if (endTimeBucket != null) {
             endTS = TimeBucket.getTimestamp(endTimeBucket);
         }
-        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME, TAGS, new TimestampRange(startTS, endTS),
+        StreamQueryResponse resp = query(false, ProfileTaskRecord.INDEX_NAME, TAGS, new TimestampRange(startTS, endTS),
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {
@@ -101,7 +101,7 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
 
     @Override
     public ProfileTask getById(String id) throws IOException {
-        StreamQueryResponse resp = query(ProfileTaskRecord.INDEX_NAME, TAGS,
+        StreamQueryResponse resp = query(false, ProfileTaskRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {

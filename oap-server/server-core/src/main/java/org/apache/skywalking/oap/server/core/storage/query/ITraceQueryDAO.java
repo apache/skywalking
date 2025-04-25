@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 
 import java.io.IOException;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -88,7 +89,10 @@ public interface ITraceQueryDAO extends Service {
         }
     }
 
-    default List<SegmentRecord> queryByTraceIdDebuggable(String traceId) throws IOException {
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    default List<SegmentRecord> queryByTraceIdDebuggable(String traceId, @Nullable Duration duration) throws IOException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -99,7 +103,7 @@ public interface ITraceQueryDAO extends Service {
                        .append(traceId);
                 span.setMsg(builder.toString());
             }
-            return queryByTraceId(traceId);
+            return queryByTraceId(traceId, duration);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -120,14 +124,23 @@ public interface ITraceQueryDAO extends Service {
                                 QueryOrder queryOrder,
                                 final List<Tag> tags) throws IOException;
 
-    List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
-
-    List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException;
-
-    List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException;
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    List<SegmentRecord> queryByTraceId(String traceId, @Nullable Duration duration) throws IOException;
 
     /**
-     * This method gives more flexible for 3rd trace without segment concept, which can't search data through {@link #queryByTraceId(String)}
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList, @Nullable Duration duration) throws IOException;
+
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList, @Nullable Duration duration) throws IOException;
+
+    /**
+     * This method gives more flexible for 3rd trace without segment concept, which can't search data through {@link #queryByTraceId(String, Duration)}
      */
     List<Span> doFlexibleTraceQuery(String traceId) throws IOException;
 }

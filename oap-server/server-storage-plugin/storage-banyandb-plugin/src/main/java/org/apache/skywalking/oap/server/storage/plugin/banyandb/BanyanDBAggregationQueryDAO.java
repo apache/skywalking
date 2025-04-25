@@ -52,8 +52,8 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
     @Override
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = condition.getName();
-        final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
@@ -71,20 +71,21 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             if (CollectionUtils.isEmpty(additionalConditions) ||
                     additionalConditions.stream().map(KeyValue::getKey).collect(Collectors.toSet())
                             .equals(ImmutableSet.copyOf(schema.getTopNSpec().getGroupByTagNamesList()))) {
-                return serverSideTopN(condition, schema, spec, timestampRange, additionalConditions);
+                return serverSideTopN(isColdStage, condition, schema, spec, getTimestampRange(duration), additionalConditions);
             }
         }
 
-        return directMetricsTopN(condition, schema, valueColumnName, spec, timestampRange, additionalConditions);
+        return directMetricsTopN(isColdStage, condition, schema, valueColumnName, spec, getTimestampRange(duration), additionalConditions);
     }
 
-    List<SelectedRecord> serverSideTopN(TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
+    //todo: query cold stage
+    List<SelectedRecord> serverSideTopN(boolean isColdStage, TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
                                         TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
         TopNQueryResponse resp = null;
         if (condition.getOrder() == Order.DES) {
-            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions, condition.getAttributes());
+            resp = topNQueryDebuggable(isColdStage, schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions, condition.getAttributes());
         } else {
-            resp = topNQueryDebuggable(schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions, condition.getAttributes());
+            resp = topNQueryDebuggable(isColdStage, schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions, condition.getAttributes());
         }
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -103,9 +104,9 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         return topNList;
     }
 
-    List<SelectedRecord> directMetricsTopN(TopNCondition condition, MetadataRegistry.Schema schema, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
+    List<SelectedRecord> directMetricsTopN(boolean isColdStage, TopNCondition condition, MetadataRegistry.Schema schema, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
                                            TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
-        MeasureQueryResponse resp = queryDebuggable(schema, TAGS, Collections.singleton(valueColumnName),
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {

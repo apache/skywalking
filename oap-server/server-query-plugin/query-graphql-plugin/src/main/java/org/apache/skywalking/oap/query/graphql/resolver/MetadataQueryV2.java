@@ -28,12 +28,15 @@ import org.apache.skywalking.oap.query.graphql.type.TimeInfo;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.TTLStatusQuery;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
 import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
+import org.apache.skywalking.oap.server.core.storage.ttl.MetricsTTL;
+import org.apache.skywalking.oap.server.core.storage.ttl.RecordsTTL;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
@@ -47,6 +50,7 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private MetadataQueryService metadataQueryService;
+    private TTLStatusQuery ttlStatusQuery;
 
     public MetadataQueryV2(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -59,6 +63,15 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
                                                      .getService(MetadataQueryService.class);
         }
         return metadataQueryService;
+    }
+
+    private TTLStatusQuery getTTLStatusQuery() {
+        if (ttlStatusQuery == null) {
+            ttlStatusQuery = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(TTLStatusQuery.class);
+        }
+        return ttlStatusQuery;
     }
 
     public CompletableFuture<Set<String>> listLayers() {
@@ -114,5 +127,13 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
         timeInfo.setCurrentTimestamp(date.getTime());
         timeInfo.setTimezone(timezoneFormat.format(date));
         return timeInfo;
+    }
+
+    public RecordsTTL getRecordsTTL() {
+        return getTTLStatusQuery().getTTL().getRecords();
+    }
+
+    public MetricsTTL getMetricsTTL() {
+        return getTTLStatusQuery().getTTL().getMetrics();
     }
 }

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
@@ -142,7 +143,10 @@ public class TraceQueryService implements Service {
         }
     }
 
-    public Trace queryTrace(final String traceId) throws IOException {
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    public Trace queryTrace(final String traceId, @Nullable final Duration duration) throws IOException {
         DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -152,7 +156,7 @@ public class TraceQueryService implements Service {
                 msg.append("Condition: TraceId: ").append(traceId);
                 span.setMsg(msg.toString());
             }
-            return invokeQueryTrace(traceId);
+            return invokeQueryTrace(traceId, duration);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -160,10 +164,10 @@ public class TraceQueryService implements Service {
         }
     }
 
-    private Trace invokeQueryTrace(final String traceId) throws IOException {
+    private Trace invokeQueryTrace(final String traceId, @Nullable final Duration duration) throws IOException {
         Trace trace = new Trace();
 
-        List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceIdDebuggable(traceId);
+        List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryByTraceIdDebuggable(traceId, duration);
         if (segmentRecords.isEmpty()) {
             trace.getSpans().addAll(getTraceQueryDAO().doFlexibleTraceQuery(traceId));
         } else {
@@ -192,7 +196,7 @@ public class TraceQueryService implements Service {
 
         if (CollectionUtils.isNotEmpty(sortedSpans)) {
             final List<SpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().
-                querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType.SKYWALKING, Arrays.asList(traceId));
+                querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType.SKYWALKING, Arrays.asList(traceId), duration);
             appendAttachedEventsToSpanDebuggable(sortedSpans, spanAttachedEvents);
         }
 

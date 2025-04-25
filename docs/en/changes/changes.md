@@ -8,11 +8,12 @@
 
 * BanyanDB: Support `hot/warm/cold` stages configuration.
 * Fix query continues profiling policies error when the policy is already in the cache.
-* Support `hot/warm/cold` stages TTL query in the status API.
+* Support `hot/warm/cold` stages TTL query in the status API and graphQL API.
 * PromQL Service: traffic query support `limit` and regex match.
 * Fix an edge case of HashCodeSelector(Integer#MIN_VALUE causes ArrayIndexOutOfBoundsException).
 * Support Flink monitoring.
 * BanyanDB: Support `@ShardingKey` for Measure tags and set to TopNAggregation group tag by default.
+* BanyanDB: Support cold stage data query for metrics/traces/logs.
 
 #### UI
 

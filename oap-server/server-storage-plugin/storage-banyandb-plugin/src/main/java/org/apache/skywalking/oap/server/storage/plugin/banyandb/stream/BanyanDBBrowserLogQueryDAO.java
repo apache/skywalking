@@ -22,8 +22,6 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -32,7 +30,6 @@ import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
@@ -53,15 +50,9 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId,
                                                   BrowserErrorCategory category, Duration duration,
                                                   int limit, int from) throws IOException {
-        long startSecondTB = duration.getStartTimeBucketInSec();
-        long endSecondTB = duration.getEndTimeBucketInSec();
-        TimestampRange tsRange = null;
-        if (startSecondTB > 0 && endSecondTB > 0) {
-            tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
-        }
-
-        StreamQueryResponse resp = query(BrowserErrorLogRecord.INDEX_NAME, TAGS,
-                tsRange, new QueryBuilder<StreamQuery>() {
+        final boolean isColdStage = duration != null && duration.isColdStage();
+        StreamQueryResponse resp = query(isColdStage, BrowserErrorLogRecord.INDEX_NAME, TAGS,
+                getTimestampRange(duration), new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
                         if (StringUtil.isNotEmpty(serviceId)) {

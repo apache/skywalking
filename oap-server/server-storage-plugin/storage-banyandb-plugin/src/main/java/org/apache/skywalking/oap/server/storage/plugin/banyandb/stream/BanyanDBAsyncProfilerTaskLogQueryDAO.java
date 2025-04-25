@@ -54,7 +54,7 @@ public class BanyanDBAsyncProfilerTaskLogQueryDAO extends AbstractBanyanDBDAO im
 
     @Override
     public List<AsyncProfilerTaskLog> getTaskLogList() throws IOException {
-        StreamQueryResponse resp = query(AsyncProfilerTaskLogRecord.INDEX_NAME, TAGS,
+        StreamQueryResponse resp = query(false, AsyncProfilerTaskLogRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {

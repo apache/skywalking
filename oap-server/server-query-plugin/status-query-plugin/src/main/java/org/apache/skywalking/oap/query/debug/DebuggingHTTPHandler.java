@@ -120,6 +120,7 @@ public class DebuggingHTTPHandler {
                                  @Param("startTime") String startTime,
                                  @Param("endTime") String endTime,
                                  @Param("step") String step,
+                                 @Param("coldStage") Optional<Boolean> coldStage,
                                  @Param("service") String service,
                                  @Param("serviceLayer") String serviceLayer,
                                  @Param("serviceInstance") Optional<String> serviceInstance,
@@ -148,6 +149,7 @@ public class DebuggingHTTPHandler {
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
+        coldStage.ifPresent(duration::setColdStage);
         ExpressionResult expressionResult = mqeQuery.execExpression(expression, entity, duration, true, dumpStorageRsp).join();
         DebuggingTrace execTrace = expressionResult.getDebuggingTrace();
         DebuggingMQERsp result = new DebuggingMQERsp(
@@ -168,6 +170,7 @@ public class DebuggingHTTPHandler {
                                    @Param("startTime") String startTime,
                                    @Param("endTime") String endTime,
                                    @Param("step") String step,
+                                   @Param("coldStage") Optional<Boolean> coldStage,
                                    @Param("minTraceDuration") Optional<Integer> minDuration,
                                    @Param("maxTraceDuration") Optional<Integer> maxDuration,
                                    @Param("traceState") String traceState,
@@ -185,6 +188,7 @@ public class DebuggingHTTPHandler {
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
+        coldStage.ifPresent(duration::setColdStage);
         Pagination pagination = new Pagination();
         pagination.setPageNum(pageNum);
         pagination.setPageSize(pageSize);
@@ -221,6 +225,26 @@ public class DebuggingHTTPHandler {
     @Get("/debugging/query/trace/queryTrace")
     public String queryTrace(@Param("traceId") String traceId) {
         Trace trace = traceQuery.queryTrace(traceId, true).join();
+        DebuggingQueryTraceRsp result = new DebuggingQueryTraceRsp(
+            trace.getSpans(), transformTrace(trace.getDebuggingTrace()));
+        return transToYAMLString(result);
+    }
+
+    /**
+     * Only for BanyanDB, can be used to query the trace in the cold stage.
+     */
+    @SneakyThrows
+    @Get("/debugging/query/trace/queryTraceFromColdStage")
+    public String queryTraceFromColdStage(@Param("traceId") String traceId,
+                                          @Param("startTime") String startTime,
+                                          @Param("endTime") String endTime,
+                                          @Param("step") String step) {
+        Duration duration = new Duration();
+        duration.setStart(startTime);
+        duration.setEnd(endTime);
+        duration.setStep(Step.valueOf(step));
+        duration.setColdStage(true);
+        Trace trace = traceQuery.queryTraceFromColdStage(traceId, duration, true).join();
         DebuggingQueryTraceRsp result = new DebuggingQueryTraceRsp(
             trace.getSpans(), transformTrace(trace.getDebuggingTrace()));
         return transToYAMLString(result);
@@ -293,11 +317,13 @@ public class DebuggingHTTPHandler {
     public String getGlobalTopology(@Param("startTime") String startTime,
                                  @Param("endTime") String endTime,
                                  @Param("step") String step,
+                                 @Param("coldStage") Optional<Boolean> coldStage,
                                  @Param("serviceLayer") Optional<String> serviceLayer) {
         Duration duration = new Duration();
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
+        coldStage.ifPresent(duration::setColdStage);
         Topology topology = topologyQuery.getGlobalTopology(duration, serviceLayer.orElse(null), true).join();
         DebuggingQueryServiceTopologyRsp result = new DebuggingQueryServiceTopologyRsp(
             topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
@@ -309,13 +335,14 @@ public class DebuggingHTTPHandler {
     public String getServicesTopology(@Param("startTime") String startTime,
                                     @Param("endTime") String endTime,
                                     @Param("step") String step,
+                                    @Param("coldStage") Optional<Boolean> coldStage,
                                     @Param("serviceLayer") String serviceLayer,
                                     @Param("services") String services) {
         Duration duration = new Duration();
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
-
+        coldStage.ifPresent(duration::setColdStage);
         List<String> ids = Arrays.stream(services.split(Const.COMMA))
                                  .map(name -> IDManager.ServiceID.buildId(name, Layer.nameOf(serviceLayer).isNormal()))
                                  .collect(Collectors.toList());
@@ -330,6 +357,7 @@ public class DebuggingHTTPHandler {
     public String getServiceInstanceTopology(@Param("startTime") String startTime,
                                              @Param("endTime") String endTime,
                                              @Param("step") String step,
+                                             @Param("coldStage") Optional<Boolean> coldStage,
                                              @Param("clientService") String clientService,
                                              @Param("serverService") String serverService,
                                              @Param("clientServiceLayer") String clientServiceLayer,
@@ -338,6 +366,7 @@ public class DebuggingHTTPHandler {
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
+        coldStage.ifPresent(duration::setColdStage);
         String clientServiceId = IDManager.ServiceID.buildId(clientService, Layer.nameOf(clientServiceLayer).isNormal());
         String serverServiceId = IDManager.ServiceID.buildId(serverService, Layer.nameOf(serverServiceLayer).isNormal());
         ServiceInstanceTopology topology = topologyQuery.getServiceInstanceTopology(clientServiceId, serverServiceId, duration, true).join();
@@ -351,6 +380,7 @@ public class DebuggingHTTPHandler {
     public String getEndpointDependencies(@Param("startTime") String startTime,
                                           @Param("endTime") String endTime,
                                           @Param("step") String step,
+                                          @Param("coldStage") Optional<Boolean> coldStage,
                                           @Param("service") String service,
                                           @Param("serviceLayer") String serviceLayer,
                                           @Param("endpoint") String endpoint) {
@@ -358,6 +388,7 @@ public class DebuggingHTTPHandler {
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
+        coldStage.ifPresent(duration::setColdStage);
         String endpointId = IDManager.EndpointID.buildId(
             IDManager.ServiceID.buildId(service, Layer.nameOf(serviceLayer).isNormal()), endpoint);
         EndpointTopology topology = topologyQuery.getEndpointDependencies(endpointId, duration, true).join();
@@ -371,6 +402,7 @@ public class DebuggingHTTPHandler {
     public String getProcessTopology(@Param("startTime") String startTime,
                                      @Param("endTime") String endTime,
                                      @Param("step") String step,
+                                     @Param("coldStage") Optional<Boolean> coldStage,
                                      @Param("service") String service,
                                      @Param("serviceLayer") String serviceLayer,
                                      @Param("instance") String process) {
@@ -378,6 +410,7 @@ public class DebuggingHTTPHandler {
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
+        coldStage.ifPresent(duration::setColdStage);
         String instanceId = IDManager.ServiceInstanceID.buildId(
             IDManager.ServiceID.buildId(service, Layer.nameOf(serviceLayer).isNormal()), process);
         ProcessTopology topology = topologyQuery.getProcessTopology(instanceId, duration, true).join();
@@ -395,6 +428,7 @@ public class DebuggingHTTPHandler {
                             @Param("startTime") Optional<String> startTime,
                             @Param("endTime") Optional<String> endTime,
                             @Param("step") Optional<String> step,
+                            @Param("coldStage") Optional<Boolean> coldStage,
                             @Param("traceId") Optional<String> traceId,
                             @Param("segmentId") Optional<String> segmentId,
                             @Param("spanId") Optional<Integer> spanId,
@@ -420,6 +454,7 @@ public class DebuggingHTTPHandler {
             duration.setStart(startTime.get());
             duration.setEnd(endTime.get());
             duration.setStep(Step.valueOf(step.get()));
+            coldStage.ifPresent(duration::setColdStage);
             condition.setQueryDuration(duration);
         }
 

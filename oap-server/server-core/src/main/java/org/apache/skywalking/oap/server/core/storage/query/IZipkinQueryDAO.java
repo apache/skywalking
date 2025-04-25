@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
+import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
@@ -52,7 +53,10 @@ public interface IZipkinQueryDAO extends DAO {
         }
     }
 
-    default List<Span> getTraceDebuggable(final String traceId) throws IOException {
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    default List<Span> getTraceDebuggable(final String traceId, @Nullable final Duration duration) throws IOException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -60,7 +64,7 @@ public interface IZipkinQueryDAO extends DAO {
                 span = traceContext.createSpan("Query Dao: getTrace");
                 span.setMsg("Condition: TraceId: " + traceId);
             }
-            return getTrace(traceId);
+            return getTrace(traceId, duration);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -74,9 +78,18 @@ public interface IZipkinQueryDAO extends DAO {
 
     List<String> getSpanNames(final String serviceName) throws IOException;
 
-    List<Span> getTrace(final String traceId) throws IOException;
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    List<Span> getTrace(final String traceId, @Nullable final Duration duration) throws IOException;
 
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
     List<List<Span>> getTraces(final QueryRequest request, final Duration duration) throws IOException;
 
-    List<List<Span>> getTraces(final Set<String> traceIds) throws IOException;
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    List<List<Span>> getTraces(final Set<String> traceIds, @Nullable final Duration duration) throws IOException;
 }

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -147,7 +148,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<Span> getTrace(final String traceId) {
+    public List<Span> getTrace(final String traceId, @Nullable final Duration duration) {
         final var tables = tableHelper.getTablesWithinTTL(ZipkinSpanRecord.INDEX_NAME);
         final var trace = new ArrayList<Span>();
 
@@ -264,12 +265,12 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             }, condition.toArray(new Object[0]));
         }
 
-        return getTraces(traceIds);
+        return getTraces(traceIds, duration);
     }
 
     @Override
     @SneakyThrows
-    public List<List<Span>> getTraces(final Set<String> traceIds) {
+    public List<List<Span>> getTraces(final Set<String> traceIds, final Duration duration) {
         if (CollectionUtils.isEmpty(traceIds)) {
             return new ArrayList<>();
         }

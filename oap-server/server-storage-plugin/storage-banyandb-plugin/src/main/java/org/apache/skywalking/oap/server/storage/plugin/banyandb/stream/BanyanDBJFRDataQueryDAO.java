@@ -53,7 +53,7 @@ public class BanyanDBJFRDataQueryDAO extends AbstractBanyanDBDAO implements IJFR
         if (StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType)) {
             return new ArrayList<>();
         }
-        StreamQueryResponse resp = query(JFRProfilingDataRecord.INDEX_NAME, TAGS,
+        StreamQueryResponse resp = query(false, JFRProfilingDataRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {

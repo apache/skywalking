@@ -117,7 +117,28 @@ public class TraceQuery implements GraphQLQueryResolver {
             DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
             DebuggingSpan span = traceContext.createSpan("Query trace");
             try {
-                Trace trace = getQueryService().queryTrace(traceId);
+                Trace trace = getQueryService().queryTrace(traceId, null);
+                if (debug) {
+                    trace.setDebuggingTrace(traceContext.getExecTrace());
+                }
+                return trace;
+            } finally {
+                traceContext.stopSpan(span);
+                traceContext.stopTrace();
+                TRACE_CONTEXT.remove();
+            }
+        });
+    }
+
+    public CompletableFuture<Trace> queryTraceFromColdStage(final String traceId, Duration duration, boolean debug) {
+        duration.setColdStage(true);
+        return queryAsync(() -> {
+            DebuggingTraceContext traceContext = new DebuggingTraceContext(
+                "TraceId: " + traceId, debug, false);
+            DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
+            DebuggingSpan span = traceContext.createSpan("Query trace from cold stage");
+            try {
+                Trace trace = getQueryService().queryTrace(traceId, duration);
                 if (debug) {
                     trace.setDebuggingTrace(traceContext.getExecTrace());
                 }

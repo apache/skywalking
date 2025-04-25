@@ -324,9 +324,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                                                      stage.getTtl()))
                                                  .setNodeSelector(stage.getNodeSelector())
                                                  .setClose(stage.isClose())
-                    //todo: set the default query stages
                 );
             }
+        }
+        if (CollectionUtils.isNotEmpty(metadata.getResource().getDefaultQueryStages())) {
+            optsBuilder.addAllDefaultStages(metadata.getResource().getDefaultQueryStages());
         }
         gBuilder.setResourceOpts(optsBuilder.build());
         if (!RunningMode.isNoInitMode()) {

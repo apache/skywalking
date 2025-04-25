@@ -23,7 +23,6 @@ import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -47,11 +46,11 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
 
     @Override
     public List<Record> readRecords(RecordCondition condition, String valueColumnName, Duration duration) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = condition.getName();
-        final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
         final Set<String> tags = ImmutableSet.of(TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID, valueColumnName);
-        StreamQueryResponse resp = queryDebuggable(modelName, tags,
-                timestampRange, new QueryBuilder<StreamQuery>() {
+        StreamQueryResponse resp = queryDebuggable(isColdStage, modelName, tags,
+                getTimestampRange(duration), new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {
                         query.and(eq(TopN.ENTITY_ID, condition.getParentEntity().buildId()));

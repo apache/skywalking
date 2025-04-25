@@ -88,7 +88,7 @@ public class ProfiledBasicInfo {
             profiledSegment.setDuration(segment.getLatency());
 
             // query spans
-            Trace trace = traceQueryService.queryTrace(config.getTraceId());
+            Trace trace = traceQueryService.queryTrace(config.getTraceId(), null);
             List<Span> profiledSegmentSpans = trace.getSpans().stream().filter(s -> Objects.equals(s.getSegmentId(), segmentId)).collect(Collectors.toList());
             if (CollectionUtils.isEmpty(profiledSegmentSpans)) {
                 throw new IllegalArgumentException("Current segment cannot found any span");

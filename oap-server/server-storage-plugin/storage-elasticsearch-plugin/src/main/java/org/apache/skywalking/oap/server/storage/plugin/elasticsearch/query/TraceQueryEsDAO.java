@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
@@ -178,7 +179,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     }
 
     @Override
-    public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
+    public List<SegmentRecord> queryByTraceId(String traceId, @Nullable Duration duration) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
 
@@ -196,7 +197,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     }
 
     @Override
-    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList, @Nullable Duration duration) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
 
@@ -212,7 +213,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     }
 
     @Override
-    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException {
+    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList, @Nullable Duration duration) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
 

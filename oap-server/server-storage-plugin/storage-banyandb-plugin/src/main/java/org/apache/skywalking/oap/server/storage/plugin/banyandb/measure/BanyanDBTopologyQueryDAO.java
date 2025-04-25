@@ -32,10 +32,8 @@ import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -53,8 +51,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
-
-import static java.util.Objects.nonNull;
 
 public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITopologyQueryDAO {
 
@@ -110,25 +106,16 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     List<Call.CallDetail> queryServiceRelation(Duration duration,
                                                QueryBuilder<MeasureQuery> queryBuilder,
                                                DetectPoint detectPoint) throws IOException {
-        long startTB = 0;
-        long endTB = 0;
-        if (nonNull(duration)) {
-            startTB = duration.getStartTimeBucketInSec();
-            endTB = duration.getEndTimeBucketInSec();
-        }
-        TimestampRange timestampRange = null;
-        if (startTB > 0 && endTB > 0) {
-            timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
-        }
+        final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceRelationServerSideMetrics.INDEX_NAME :
                 ServiceRelationClientSideMetrics.INDEX_NAME;
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
-        MeasureQueryResponse resp = queryDebuggable(schema,
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(
                         ServiceRelationClientSideMetrics.COMPONENT_IDS,
                         Metrics.ENTITY_ID
                 ),
-                Collections.emptySet(), timestampRange, queryBuilder
+                Collections.emptySet(), getTimestampRange(duration), queryBuilder
         );
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -193,24 +180,15 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     List<Call.CallDetail> queryInstanceRelation(Duration duration,
                                                 QueryBuilder<MeasureQuery> queryBuilder,
                                                 DetectPoint detectPoint) throws IOException {
-        long startTB = 0;
-        long endTB = 0;
-        if (nonNull(duration)) {
-            startTB = duration.getStartTimeBucketInSec();
-            endTB = duration.getEndTimeBucketInSec();
-        }
-        TimestampRange timestampRange = null;
-        if (startTB > 0 && endTB > 0) {
-            timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
-        }
+        final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceInstanceRelationServerSideMetrics.INDEX_NAME :
                 ServiceInstanceRelationClientSideMetrics.INDEX_NAME;
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
-        MeasureQueryResponse resp = queryDebuggable(schema,
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(
                         Metrics.ENTITY_ID
                 ),
-                Collections.emptySet(), timestampRange, queryBuilder
+                Collections.emptySet(), getTimestampRange(duration), queryBuilder
         );
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -259,22 +237,13 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     List<Call.CallDetail> queryEndpointRelation(Duration duration,
                                                 QueryBuilder<MeasureQuery> queryBuilder,
                                                 DetectPoint detectPoint) throws IOException {
-        long startTB = 0;
-        long endTB = 0;
-        if (nonNull(duration)) {
-            startTB = duration.getStartTimeBucketInSec();
-            endTB = duration.getEndTimeBucketInSec();
-        }
-        TimestampRange timestampRange = null;
-        if (startTB > 0 && endTB > 0) {
-            timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
-        }
+        final boolean isColdStage = duration != null && duration.isColdStage();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EndpointRelationServerSideMetrics.INDEX_NAME, duration.getStep());
-        MeasureQueryResponse resp = queryDebuggable(schema,
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(
                         Metrics.ENTITY_ID
                 ),
-                Collections.emptySet(), timestampRange, queryBuilder
+                Collections.emptySet(), getTimestampRange(duration), queryBuilder
         );
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -292,23 +261,14 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     List<Call.CallDetail> queryProcessRelation(Duration duration,
                                                String serviceInstanceId,
                                                DetectPoint detectPoint) throws IOException {
-        long startTB = 0;
-        long endTB = 0;
-        if (nonNull(duration)) {
-            startTB = duration.getStartTimeBucketInSec();
-            endTB = duration.getEndTimeBucketInSec();
-        }
-        TimestampRange timestampRange = null;
-        if (startTB > 0 && endTB > 0) {
-            timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
-        }
+        final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME :
                 ProcessRelationClientSideMetrics.INDEX_NAME;
         // process relation only has minute data
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, DownSampling.Minute);
-        MeasureQueryResponse resp = queryDebuggable(schema,
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID),
-                Collections.emptySet(), timestampRange, new QueryBuilder<MeasureQuery>() {
+                Collections.emptySet(), getTimestampRange(duration), new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.and(eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId));

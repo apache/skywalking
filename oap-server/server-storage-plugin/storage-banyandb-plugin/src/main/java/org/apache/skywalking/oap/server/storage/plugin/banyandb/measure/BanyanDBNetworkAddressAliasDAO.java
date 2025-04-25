@@ -65,6 +65,7 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
         try {
             MeasureQueryResponse resp = query(
+                false,
                     getSchema(),
                     TAGS,
                     Collections.emptySet(),

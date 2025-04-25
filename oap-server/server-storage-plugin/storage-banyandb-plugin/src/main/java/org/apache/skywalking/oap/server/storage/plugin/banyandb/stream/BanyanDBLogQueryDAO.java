@@ -22,9 +22,7 @@ import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -38,14 +36,11 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import static java.util.Objects.nonNull;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord} is a stream
@@ -72,12 +67,7 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                           TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
                           Duration duration, List<Tag> tags, List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
-        long startTB = 0;
-        long endTB = 0;
-        if (nonNull(duration)) {
-            startTB = duration.getStartTimeBucketInSec();
-            endTB = duration.getEndTimeBucketInSec();
-        }
+        final boolean isColdStage = duration != null && duration.isColdStage();
         final QueryBuilder<StreamQuery> query = new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
@@ -113,12 +103,7 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             }
         };
 
-        TimestampRange tsRange = null;
-        if (startTB > 0 && endTB > 0) {
-            tsRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
-        }
-
-        StreamQueryResponse resp = queryDebuggable(LogRecord.INDEX_NAME, TAGS, tsRange, query);
+        StreamQueryResponse resp = queryDebuggable(isColdStage, LogRecord.INDEX_NAME, TAGS, getTimestampRange(duration), query);
 
         Logs logs = new Logs();
 

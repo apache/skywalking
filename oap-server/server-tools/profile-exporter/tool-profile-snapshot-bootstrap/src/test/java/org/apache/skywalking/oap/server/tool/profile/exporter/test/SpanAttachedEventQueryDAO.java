@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.tool.profile.exporter.test;
 
+import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 
 import java.io.IOException;
@@ -27,7 +29,7 @@ import java.util.List;
 
 public class SpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO {
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException {
         return null;
     }
 }

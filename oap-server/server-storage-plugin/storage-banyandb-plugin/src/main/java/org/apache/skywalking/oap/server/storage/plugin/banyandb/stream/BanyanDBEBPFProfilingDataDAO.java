@@ -51,7 +51,7 @@ public class BanyanDBEBPFProfilingDataDAO extends AbstractBanyanDBDAO implements
     public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
         List<EBPFProfilingDataRecord> records = new ArrayList<>();
         for (final String scheduleId : scheduleIdList) {
-            StreamQueryResponse resp = query(EBPFProfilingDataRecord.INDEX_NAME,
+            StreamQueryResponse resp = query(false, EBPFProfilingDataRecord.INDEX_NAME,
                     TAGS,
                     new QueryBuilder<StreamQuery>() {
                         @Override

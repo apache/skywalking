@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
+import javax.annotation.Nullable;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -54,8 +56,11 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
     }
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
-        final StreamQueryResponse resp = queryDebuggable(SpanAttachedEventRecord.INDEX_NAME, TAGS, null, new QueryBuilder<StreamQuery>() {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
+        final StreamQueryResponse resp = queryDebuggable(
+            isColdStage, SpanAttachedEventRecord.INDEX_NAME, TAGS, getTimestampRange(duration),
+            new QueryBuilder<StreamQuery>() {
             @Override
             protected void apply(StreamQuery query) {
                 query.and(in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
