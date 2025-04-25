@@ -79,13 +79,13 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
     }
 
     //todo: query cold stage
-    List<SelectedRecord> serverSideTopN(boolean coldStage, TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
+    List<SelectedRecord> serverSideTopN(boolean isColdStage, TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
                                         TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
         TopNQueryResponse resp = null;
         if (condition.getOrder() == Order.DES) {
-            resp = topNQueryDebuggable(coldStage, schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions, condition.getAttributes());
+            resp = topNQueryDebuggable(isColdStage, schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.DESC, additionalConditions, condition.getAttributes());
         } else {
-            resp = topNQueryDebuggable(coldStage, schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions, condition.getAttributes());
+            resp = topNQueryDebuggable(isColdStage, schema, timestampRange, condition.getTopN(), AbstractQuery.Sort.ASC, additionalConditions, condition.getAttributes());
         }
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -104,9 +104,9 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         return topNList;
     }
 
-    List<SelectedRecord> directMetricsTopN(boolean coldStage, TopNCondition condition, MetadataRegistry.Schema schema, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
+    List<SelectedRecord> directMetricsTopN(boolean isColdStage, TopNCondition condition, MetadataRegistry.Schema schema, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
                                            TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
-        MeasureQueryResponse resp = queryDebuggable(coldStage, schema, TAGS, Collections.singleton(valueColumnName),
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {

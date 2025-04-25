@@ -66,14 +66,14 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         super(client);
     }
 
-    protected StreamQueryResponse query(boolean coldStage,
+    protected StreamQueryResponse query(boolean isColdStage,
                                         String streamModelName,
                                         Set<String> tags,
                                         QueryBuilder<StreamQuery> builder) throws IOException {
-        return this.query(coldStage, streamModelName, tags, null, builder);
+        return this.query(isColdStage, streamModelName, tags, null, builder);
     }
 
-    protected StreamQueryResponse query(boolean coldStage,
+    protected StreamQueryResponse query(boolean isColdStage,
                                         String streamModelName,
                                         Set<String> tags,
                                         TimestampRange timestampRange,
@@ -88,7 +88,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         } else {
             query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tags);
         }
-        if (coldStage) {
+        if (isColdStage) {
             query.setStages(Set.of(BanyanDBStorageConfig.StageName.cold.name()));
         }
 
@@ -100,7 +100,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(query);
     }
 
-    protected StreamQueryResponse queryDebuggable(boolean coldStage,
+    protected StreamQueryResponse queryDebuggable(boolean isColdStage,
                                                   String modelName,
                                                   Set<String> tags,
                                                   TimestampRange timestampRange,
@@ -122,10 +122,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                        .append(", TimestampRange: ")
                        .append(timestampRange)
                        .append(", Is cold data query: ")
-                       .append(coldStage);
+                       .append(isColdStage);
                 span.setMsg(builder.toString());
             }
-            StreamQueryResponse response = query(coldStage, modelName, tags, timestampRange, queryBuilder);
+            StreamQueryResponse response = query(isColdStage, modelName, tags, timestampRange, queryBuilder);
             if (traceContext != null && traceContext.isDumpStorageRsp()) {
                 builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getElements()));
                 span.setMsg(builder.toString());
@@ -155,7 +155,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return topNQuery(schema, timestampRange, number, AbstractQuery.Sort.ASC, additionalConditions, attributes);
     }
 
-    protected TopNQueryResponse topNQueryDebuggable(boolean coldStage,
+    protected TopNQueryResponse topNQueryDebuggable(boolean isColdStage,
                                                     MetadataRegistry.Schema schema,
                                                     TimestampRange timestampRange,
                                                     int number,
@@ -182,7 +182,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                        .append(", Attributes: ")
                        .append(attributes)
                        .append(", Is cold data query: ")
-                       .append(coldStage);
+                       .append(isColdStage);
                 span.setMsg(builder.toString());
             }
             TopNQueryResponse response = topNQuery(schema, timestampRange, number, sort, additionalConditions, attributes);
@@ -229,7 +229,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(q);
     }
 
-    protected MeasureQueryResponse queryDebuggable(boolean coldStage,
+    protected MeasureQueryResponse queryDebuggable(boolean isColdStage,
                                                    MetadataRegistry.Schema schema,
                                                    Set<String> tags,
                                                    Set<String> fields,
@@ -251,10 +251,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                        .append(", TimestampRange: ")
                        .append(timestampRange)
                        .append(", Is cold data query: ")
-                       .append(coldStage);
+                       .append(isColdStage);
                 span.setMsg(builder.toString());
             }
-            MeasureQueryResponse response = query(coldStage, schema, tags, fields, timestampRange, queryBuilder);
+            MeasureQueryResponse response = query(isColdStage, schema, tags, fields, timestampRange, queryBuilder);
             if (traceContext != null && traceContext.isDumpStorageRsp()) {
                 builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getDataPoints()));
                 span.setMsg(builder.toString());
@@ -268,15 +268,15 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         }
     }
 
-    protected MeasureQueryResponse query(boolean coldStage,
+    protected MeasureQueryResponse query(boolean isColdStage,
                                          MetadataRegistry.Schema schema,
                                          Set<String> tags,
                                          Set<String> fields,
                                          QueryBuilder<MeasureQuery> builder) throws IOException {
-        return query(coldStage, schema, tags, fields, null, builder);
+        return query(isColdStage, schema, tags, fields, null, builder);
     }
 
-    protected MeasureQueryResponse query(boolean coldStage,
+    protected MeasureQueryResponse query(boolean isColdStage,
                                          MetadataRegistry.Schema schema,
                                          Set<String> tags,
                                          Set<String> fields,
@@ -291,7 +291,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         } else {
             query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tags, fields);
         }
-        if (coldStage) {
+        if (isColdStage) {
             query.setStages(Set.of(BanyanDBStorageConfig.StageName.cold.name()));
         }
 
