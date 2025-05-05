@@ -127,7 +127,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         if (size == 0) {
             size = 1;
         }
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 20);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 200);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {
