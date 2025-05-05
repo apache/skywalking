@@ -106,14 +106,14 @@ public class DataCarrier<T> {
     }
 
     /**
-     * set consumeDriver to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 20
+     * set consumeDriver to this Carrier. consumer begins to run when {@link DataCarrier#produce} begin to work with 200
      * millis consume cycle.
      *
      * @param consumerClass class of consumer
      * @param num           number of consumer threads
      */
     public DataCarrier consume(Class<? extends IConsumer<T>> consumerClass, int num) {
-        return this.consume(consumerClass, num, 20, new Properties());
+        return this.consume(consumerClass, num, 200, new Properties());
     }
 
     /**
@@ -132,14 +132,14 @@ public class DataCarrier<T> {
     }
 
     /**
-     * set consumeDriver to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 20
+     * set consumeDriver to this Carrier. consumer begin to run when {@link DataCarrier#produce} begin to work with 200
      * millis consume cycle.
      *
      * @param consumer single instance of consumer, all consumer threads will all use this instance.
      * @param num      number of consumer threads
      */
     public DataCarrier consume(IConsumer<T> consumer, int num) {
-        return this.consume(consumer, num, 20);
+        return this.consume(consumer, num, 200);
     }
 
     /**

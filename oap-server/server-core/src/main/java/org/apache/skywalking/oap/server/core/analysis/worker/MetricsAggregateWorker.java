@@ -73,7 +73,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             "MetricsAggregateWorker." + modelName, name, queueChannelSize, queueBufferSize, BufferStrategy.IF_POSSIBLE);
 
         BulkConsumePool.Creator creator = new BulkConsumePool.Creator(
-            name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
+            name, BulkConsumePool.Creator.recommendMaxSize() * 2, 200);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
         } catch (Exception e) {
