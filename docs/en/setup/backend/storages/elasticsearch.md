@@ -12,7 +12,7 @@ In order to activate OpenSearch as storage, set the storage provider to **elasti
 We support and tested the following versions of OpenSearch:
 
 - 1.1.0, 1.3.10
-- 2.4.0, 2.8.0
+- 2.4.0, 2.8.0, 3.0.0
 
 ## Elasticsearch
 
