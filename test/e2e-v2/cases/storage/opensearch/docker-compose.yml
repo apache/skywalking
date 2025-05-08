@@ -26,6 +26,8 @@ services:
       - discovery.type=single-node
       - cluster.routing.allocation.disk.threshold_enabled=false
       - plugins.security.ssl.http.enabled=false
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - DISABLE_SECURITY_PLUGIN=true
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
       interval: 5s
