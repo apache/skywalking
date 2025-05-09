@@ -15,6 +15,7 @@
 * BanyanDB: Support `@ShardingKey` for Measure tags and set to TopNAggregation group tag by default.
 * BanyanDB: Support cold stage data query for metrics/traces/logs.
 * Increase the idle check interval of the message queue to 200ms to reduce CPU usage under low load conditions.
+* Limit max attempts of DNS resolution of Istio ServiceEntry to 3, and do not wait for first resolution result in case the DNS is not resolvable at all.
 
 #### UI
 

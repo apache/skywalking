@@ -23,6 +23,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.client.endpoint.dns.DnsAddressEndpointGroup;
+import com.linecorp.armeria.client.retry.Backoff;
+
 import io.fabric8.istio.api.networking.v1beta1.ServiceEntry;
 import io.fabric8.istio.api.networking.v1beta1.WorkloadEntrySpec;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -100,16 +102,20 @@ public class IstioServiceEntryRegistry {
                                 return spec
                                     .getHosts()
                                     .parallelStream()
-                                    .map(host -> hostnameResolvers.computeIfAbsent(host, it -> {
-                                        final var endpointGroup = DnsAddressEndpointGroup.of(it);
-                                        endpointGroup.whenReady().join(); // Wait for the first resolution
-                                        return endpointGroup;
-                                    }))
-                                    .anyMatch(dnsAddressEndpointGroup ->
-                                        dnsAddressEndpointGroup
-                                            .endpoints()
-                                            .parallelStream()
-                                            .anyMatch(endpoint -> Objects.equals(endpoint.ipAddr(), ip)));
+                                    .map(host -> hostnameResolvers.computeIfAbsent(host, it -> 
+                                        DnsAddressEndpointGroup.builder(it)
+                                                               .backoff(Backoff.exponential(1000, 32000).withJitter(0.2).withMaxAttempts(3))
+                                                               .build()
+                                    ))
+                                    .anyMatch(dnsAddressEndpointGroup -> {
+                                        if (dnsAddressEndpointGroup.whenReady().isDone()) {
+                                            return dnsAddressEndpointGroup
+                                                .endpoints()
+                                                .parallelStream()
+                                                .anyMatch(endpoint -> Objects.equals(endpoint.ipAddr(), ip));
+                                        }
+                                        return false;
+                                    });
                             default:
                                 log.debug("Unsupported service entry resolution: {}", spec.getResolution());
                                 return false;
