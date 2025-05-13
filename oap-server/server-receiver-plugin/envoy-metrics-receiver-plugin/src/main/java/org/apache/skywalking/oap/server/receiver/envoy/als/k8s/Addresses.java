@@ -20,13 +20,34 @@ package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
 import io.envoyproxy.envoy.config.core.v3.Address;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 public class Addresses {
     public static boolean isValid(final Address address) {
-        return nonNull(address)
-            && address.hasSocketAddress()
-            && isNotBlank(address.getSocketAddress().getAddress());
+        if (isNull(address)) {
+            return false;
+        }
+        if (address.hasSocketAddress()) {
+            return isNotBlank(address.getSocketAddress().getAddress());
+        }
+        if (address.hasEnvoyInternalAddress()) {
+            return isNotBlank(address.getEnvoyInternalAddress().getEndpointId()) &&
+                address.getEnvoyInternalAddress().getEndpointId().split(":").length == 2;
+        }
+        return false;
+    }
+
+    public static String getAddressIP(final Address address) {
+        if (isNull(address)) {
+            return null;
+        }
+        if (address.hasSocketAddress()) {
+            return address.getSocketAddress().getAddress();
+        }
+        if (address.hasEnvoyInternalAddress()) {
+            return address.getEnvoyInternalAddress().getEndpointId().split(":")[0];
+        }
+        return null;
     }
 }

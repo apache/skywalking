@@ -33,5 +33,9 @@ public enum Role {
     /**
      * Sidecar in mesh
      */
-    SIDECAR
+    SIDECAR,
+    /**
+     * Waypoint in ambient mesh
+     */
+    WAYPOINT,
 }

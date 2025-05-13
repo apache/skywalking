@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
+import com.google.protobuf.Value;
 import io.envoyproxy.envoy.config.core.v3.Address;
-import io.envoyproxy.envoy.config.core.v3.SocketAddress;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactory;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
@@ -79,9 +80,9 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
                     return result;
                 }
                 return analyzeSideCar(result, entry);
+            case WAYPOINT:
+                return analyzeWaypoint(result, identifier, entry);
             case NONE:
-                // For the Ambient Istio with waypoint mode, the role is NONE.
-                // The analysis should keep the result from other roles.
                 return result;
         }
 
@@ -163,16 +164,68 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             return previousResult;
         }
 
-        final SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
-        final SocketAddress downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
-        final ServiceMetaInfo ingress = find(downstreamLocalAddressSocketAddress.getAddress());
+        return buildUpstreamDownstreamMetrics(previousResult, entry,
+            Addresses.getAddressIP(downstreamRemoteAddress),
+            Addresses.getAddressIP(downstreamLocalAddress),
+            Addresses.getAddressIP(upstreamRemoteAddress), NON_TLS);
+    }
+
+    protected Result analyzeWaypoint(Result previousResult, StreamAccessLogsMessage.Identifier identifier, final HTTPAccessLogEntry entry) {
+        if (!entry.hasCommonProperties()) {
+            return previousResult;
+        }
+        if (previousResult.hasUpstreamMetrics() && previousResult.hasDownstreamMetrics()) {
+            return previousResult;
+        }
+
+        final String waypointIP = getWaypointIP(identifier);
+        final AccessLogCommon properties = entry.getCommonProperties();
+        final Address downstreamRemoteAddress = properties.hasDownstreamDirectRemoteAddress() &&
+            Addresses.isValid(properties.getDownstreamDirectRemoteAddress()) ?
+                properties.getDownstreamDirectRemoteAddress() : properties.getDownstreamRemoteAddress();
+        final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
+        if (!isValid(downstreamRemoteAddress) || !isValid(upstreamRemoteAddress)) {
+            return previousResult;
+        }
+
+        return buildUpstreamDownstreamMetrics(previousResult, entry,
+            Addresses.getAddressIP(downstreamRemoteAddress),
+            waypointIP,
+            Addresses.getAddressIP(upstreamRemoteAddress), null);
+    }
+
+    protected String getWaypointIP(StreamAccessLogsMessage.Identifier identifier) {
+        final Value instanceIps = identifier.getNode().getMetadata().getFieldsMap().get("INSTANCE_IPS");
+        if (instanceIps != null && instanceIps.hasStringValue()) {
+            final String[] split = instanceIps.getStringValue().split(":", 2);
+            if (split.length == 2) {
+                return split[0];
+            }
+        }
+
+        final String nodeId = identifier.getNode().getId();
+        final String[] nodeInfo = nodeId.split("~", 3);
+        if (nodeInfo.length != 3) {
+            return null;
+        }
+        return nodeInfo[1];
+    }
+
+    protected Result buildUpstreamDownstreamMetrics(Result previousResult, final HTTPAccessLogEntry entry,
+                                                    String downStreamRemoteAddr, String downStreamLocalAddr,
+                                                    String upstreamRemoteAddr, String upstreamMetricsTLS) {
+        if (StringUtil.isEmpty(downStreamRemoteAddr) || StringUtil.isEmpty(downStreamLocalAddr) || StringUtil.isEmpty(upstreamRemoteAddr)) {
+            return previousResult;
+        }
+
+        final ServiceMetaInfo ingress = find(downStreamLocalAddr);
 
         final var newResult = previousResult.toBuilder();
         final var previousMetrics = previousResult.getMetrics();
         final var previousHttpMetrics = previousMetrics.getHttpMetricsBuilder();
 
         if (!previousResult.hasDownstreamMetrics()) {
-            final ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
+            final ServiceMetaInfo outside = find(downStreamRemoteAddr);
 
             final HTTPServiceMeshMetric.Builder metric = newAdapter(entry, outside, ingress).adaptToDownstreamMetrics();
 
@@ -182,14 +235,15 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         }
 
         if (!previousResult.hasUpstreamMetrics()) {
-            final SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
-            final ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
+            final ServiceMetaInfo targetService = find(upstreamRemoteAddr);
 
-            final HTTPServiceMeshMetric.Builder outboundMetric =
+            HTTPServiceMeshMetric.Builder outboundMetric =
                 newAdapter(entry, ingress, targetService)
-                    .adaptToUpstreamMetrics()
-                    // Can't parse it from tls properties, leave it to Server side.
-                    .setTlsMode(NON_TLS);
+                    .adaptToUpstreamMetrics();
+            if (StringUtil.isNotEmpty(upstreamMetricsTLS)) {
+                // Can't parse it from tls properties, leave it to Server side.
+                outboundMetric = outboundMetric.setTlsMode(NON_TLS);
+            }
 
             log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
             previousHttpMetrics.addMetrics(outboundMetric);
