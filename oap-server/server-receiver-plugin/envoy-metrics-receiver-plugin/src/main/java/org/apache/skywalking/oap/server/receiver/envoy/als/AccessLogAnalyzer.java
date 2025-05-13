@@ -65,6 +65,8 @@ public interface AccessLogAnalyzer<E> {
             return Role.PROXY;
         } else if (id.startsWith("sidecar~")) {
             return Role.SIDECAR;
+        } else if (id.startsWith("waypoint~")) {
+            return Role.WAYPOINT;
         }
         return defaultRole;
     }
