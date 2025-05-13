@@ -43,6 +43,7 @@ services:
       context: ./service
       dockerfile: Dockerfile
       args:
+        - SW_AGENT_GO_REPO_URL=https://github.com/zJiaJun/skywalking-go.git
         - SW_AGENT_GO_COMMIT=${SW_AGENT_GO_COMMIT}
     networks:
       - e2e

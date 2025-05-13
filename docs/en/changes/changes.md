@@ -3,6 +3,7 @@
 #### Project
 
 * Bump up BanyanDB dependency version(server and java-client) to 0.9.0.
+* Add E2E test case for Go agent Kafka reporter.
 
 #### OAP Server
 

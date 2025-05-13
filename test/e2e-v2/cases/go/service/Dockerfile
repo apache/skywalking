@@ -13,19 +13,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG SW_AGENT_GO_COMMIT=
-FROM ghcr.io/apache/skywalking-go/skywalking-go:${SW_AGENT_GO_COMMIT}-go1.19 as base
+ARG GO_VERSION=1.19
+ARG SW_AGENT_GO_REPO_URL=https://github.com/apache/skywalking-go.git
+ARG SW_AGENT_GO_COMMIT
+FROM golang:${GO_VERSION}-alpine AS builder
 
-ENV CGO_ENABLED=0
-ENV GO111MODULE=on
+ARG SW_AGENT_GO_REPO_URL
+ARG SW_AGENT_GO_COMMIT
+
+RUN apk add --no-cache git make bash
+
+WORKDIR /opt
+RUN git clone ${SW_AGENT_GO_REPO_URL} skywalking-go
+WORKDIR /opt/skywalking-go
+RUN git checkout ${SW_AGENT_GO_COMMIT} && make build
 
 WORKDIR /go-service
 COPY .. /go-service
 
-RUN go mod tidy && go build -toolexec="skywalking-go-agent" -a -o service
+ENV CGO_ENABLED=0
+ENV GO111MODULE=on
 
-FROM alpine:3.10
+RUN echo '' >> go.mod && echo 'replace github.com/apache/skywalking-go => /opt/skywalking-go' >> go.mod
 
-COPY --from=base /go-service/service /service
+RUN \
+  TARGET_GOOS=$(go env GOOS) && \
+  TARGET_GOARCH=$(go env GOARCH) && \
+  COMMIT_SHORT_HASH=$(echo "${SW_AGENT_GO_COMMIT}" | cut -c1-7) && \
+  AGENT_FILENAME="skywalking-go-agent-${COMMIT_SHORT_HASH}-${TARGET_GOOS}-${TARGET_GOARCH}" && \
+  AGENT_TOOL_PATH="/opt/skywalking-go/bin/${AGENT_FILENAME}" && \
+  echo "INFO: Using ARG SW_AGENT_GO_COMMIT=${SW_AGENT_GO_COMMIT}, COMMIT_SHORT_HASH=${COMMIT_SHORT_HASH}" && \
+  echo "INFO: Target GOOS from 'go env': ${TARGET_GOOS}" && \
+  echo "INFO: Target GOARCH from 'go env': ${TARGET_GOARCH}" && \
+  echo "INFO: Attempting to use agent tool path: ${AGENT_TOOL_PATH}" && \
+  if [ ! -f "${AGENT_TOOL_PATH}" ]; then \
+    echo "ERROR: Agent executable not found at ${AGENT_TOOL_PATH}" >&2; \
+    echo "ERROR: Please verify the SW_AGENT_GO_COMMIT, and check the output of 'make build' in skywalking-go." >&2; \
+    echo "Listing contents of /opt/skywalking-go/bin/:" >&2; \
+    ls -l /opt/skywalking-go/bin/ >&2; \
+    exit 1; \
+    fi && \
+  go mod tidy && go build -toolexec="${AGENT_TOOL_PATH}" -a -o service
+
+FROM alpine:3.11
+
+COPY --from=builder /go-service/service /service
 
 ENTRYPOINT ["/service"]

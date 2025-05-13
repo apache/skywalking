@@ -349,6 +349,8 @@ jobs:
             config: test/e2e-v2/cases/nodejs/e2e.yaml
           - name: Agent Golang
             config: test/e2e-v2/cases/go/e2e.yaml
+          - name: Agent Golang Kafka Reporter
+            config: test/e2e-v2/cases/go/kafka-reporter/e2e.yaml
           - name: Agent NodeJS Frontend
             config: test/e2e-v2/cases/browser/e2e.yaml
           - name: Agent NodeJS Frontend ES
