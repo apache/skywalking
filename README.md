@@ -33,6 +33,8 @@ microservices, cloud native and container-based architectures.
   * Support log formatting, extract metrics, various sampling policies through script pipeline in high performance.
 * Alerting and Telemetry Pipelines
   * Support service-centric, deployment-centric, API-centric alarm rule setting. Support forwarding alarms and all telemetry data to 3rd party.
+* AI Power Enabled
+  * Machine Learning (ML) and Artificial Intelligence (AI) analyze observability data to identify patterns and enhance capabilities, such as recognizing HTTP URI patterns and automatically calculating metric baselines for intelligent alerting, improving anomaly detection.
 
 <img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220516"/>
 
