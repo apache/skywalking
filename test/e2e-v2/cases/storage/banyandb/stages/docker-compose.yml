@@ -1,0 +1,115 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  etcd:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: etcd
+    networks:
+      - e2e
+
+  data-hot1:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: banyandb-data
+    hostname: data-hot1
+    command: data --etcd-endpoints=http://etcd:2379 --node-labels type=hot
+    volumes:
+      - ./tmp/measure/data-hot1:/tmp/measure
+      - ./tmp/stream/data-hot1:/tmp/stream
+      - ./tmp/property/data-hot1:/tmp/property
+    networks:
+      - e2e
+
+  data-warm1:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: banyandb-data
+    hostname: data-warm1
+    command: data --etcd-endpoints=http://etcd:2379 --node-labels type=warm
+    volumes:
+      - ./tmp/measure/data-warm1:/tmp/measure
+      - ./tmp/stream/data-warm1:/tmp/stream
+      - ./tmp/property/data-warm1:/tmp/property
+    networks:
+      - e2e
+
+  data-cold1:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: banyandb-data
+    hostname: data-cold1
+    command: data --etcd-endpoints=http://etcd:2379 --node-labels type=cold
+    volumes:
+      - ../data-generate/tmp/measure-data/measure:/tmp/measure
+      - ../data-generate/tmp/stream-data/stream:/tmp/stream
+      - ../data-generate/tmp/property/data:/tmp/property
+    networks:
+      - e2e
+
+  liaison:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: liaison
+    command: liaison --etcd-endpoints=http://etcd:2379 --data-node-selector type=hot
+    networks:
+      - e2e
+
+  oap:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: "liaison:17912"
+      SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_WARM_STAGE: "true"
+      SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_COLD_STAGE: "true"
+    ports:
+      - 12800:12800
+      - 11800:11800
+    depends_on:
+      liaison:
+        condition: service_healthy
+
+  provider:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: provider
+    ports:
+      - 9090
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  consumer:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: consumer
+    ports:
+      - 9092
+    depends_on:
+      oap:
+        condition: service_healthy
+      provider:
+        condition: service_healthy
+
+networks:
+  e2e:
+
