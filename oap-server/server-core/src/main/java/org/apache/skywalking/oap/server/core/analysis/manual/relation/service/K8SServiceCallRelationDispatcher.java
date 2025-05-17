@@ -42,7 +42,7 @@ public class K8SServiceCallRelationDispatcher implements SourceDispatcher<K8SSer
         metrics.setSourceServiceId(source.getSourceServiceId());
         metrics.setDestServiceId(source.getDestServiceId());
         final IntList componentIds = metrics.getComponentIds();
-        source.getComponentId().forEach(componentIds::add);
+        source.getComponentIds().forEach(componentIds::add);
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
@@ -53,7 +53,7 @@ public class K8SServiceCallRelationDispatcher implements SourceDispatcher<K8SSer
         metrics.setSourceServiceId(source.getSourceServiceId());
         metrics.setDestServiceId(source.getDestServiceId());
         final IntList componentIds = metrics.getComponentIds();
-        source.getComponentId().forEach(componentIds::add);
+        source.getComponentIds().forEach(componentIds::add);
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }

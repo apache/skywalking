@@ -33,4 +33,15 @@ public class NotContainMatch {
         }
         return !left.contains(right);
     }
+
+    public boolean match(List<Integer> left, Integer right) {
+        if (Objects.isNull(left)) {
+            return false;
+        }
+        return !left.contains(right);
+    }
+
+    public boolean match(List<Integer> left, int right) {
+        return match(left, Integer.valueOf(right));
+    }
 }

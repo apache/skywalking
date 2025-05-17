@@ -653,7 +653,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             serviceRelation.setSourceLayer(Layer.K8S_SERVICE);
 
             serviceRelation.setDetectPoint(parseToSourceRole());
-            serviceRelation.getComponentId().addAll(buildConnectionComponentId(this));
+            serviceRelation.getComponentIds().addAll(buildConnectionComponentId(this));
             serviceRelation.setTlsMode(tlsMode);
 
             serviceRelation.setDestServiceName(destServiceName);
