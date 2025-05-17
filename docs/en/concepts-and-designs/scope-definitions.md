@@ -493,15 +493,15 @@ following **package**/**protocol** level metric contents.
 
 ##### SCOPE `K8SServiceRelation`
 
-| Name              | Remarks                                                            | Group Key | Type   |
-|-------------------|--------------------------------------------------------------------|-----------|--------|
-| sourceServiceName | The source service name in kubernetes.                             |           | string |
-| sourceLayer       | The source layer service in kubernetes.                            |           | string |
-| detectPoint       | Where the relation is detected. The value may be client or server. |           | enum   |
-| componentId       | The ID of component used in this call.                             |           | string |
-| tlsMode           | The TLS mode of relation. The value may be Plain or TLS.           |           | enum   |
-| destServiceName   | The dest service name in kubernetes.                               |           | string |
-| destLayer         | The dest layer service in kubernetes.                              |           | string |
+| Name              | Remarks                                                            | Group Key | Type         |
+|-------------------|--------------------------------------------------------------------|-----------|--------------|
+| sourceServiceName | The source service name in kubernetes.                             |           | string       |
+| sourceLayer       | The source layer service in kubernetes.                            |           | string       |
+| detectPoint       | Where the relation is detected. The value may be client or server. |           | enum         |
+| componentIds      | The ID of component used in this call.                             |           | List<string> |
+| tlsMode           | The TLS mode of relation. The value may be Plain or TLS.           |           | enum         |
+| destServiceName   | The dest service name in kubernetes.                               |           | string       |
+| destLayer         | The dest layer service in kubernetes.                              |           | string       |
 
 ##### SCOPE `K8SServiceRelation`
 

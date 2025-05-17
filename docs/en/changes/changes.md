@@ -17,6 +17,8 @@
 * Increase the idle check interval of the message queue to 200ms to reduce CPU usage under low load conditions.
 * Limit max attempts of DNS resolution of Istio ServiceEntry to 3, and do not wait for first resolution result in case the DNS is not resolvable at all.
 * Support analysis waypoint metrics in Envoy ALS receiver.
+* Add Ztunnel component in the topology.
+* [Break Change] Change `compomentId` to `componentIds` in the K8SServiceRelation Scope. 
 
 #### UI
 

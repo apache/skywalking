@@ -533,13 +533,13 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             .build();
     }
 
-    protected int buildConnectionComponentId(ConnectionInfo connectionInfo) {
+    protected List<Integer> buildConnectionComponentId(ConnectionInfo connectionInfo) {
         final AccessLogConnection originalConnection = connectionInfo.getOriginalConnection();
         if (originalConnection.hasAttachment() && originalConnection.getAttachment().hasZTunnel() &&
             ZTunnelAttachmentSecurityPolicy.MTLS.equals(originalConnection.getAttachment().getZTunnel().getSecurityPolicy())) {
-            return 142; // mTLS
+            return Arrays.asList(142, 162); // mTLS, ztunnel
         }
-        return buildProtocolComponentID(connectionInfo);
+        return Arrays.asList(buildProtocolComponentID(connectionInfo));
     }
 
     protected int buildProtocolComponentID(ConnectionInfo connectionInfo) {
@@ -653,7 +653,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             serviceRelation.setSourceLayer(Layer.K8S_SERVICE);
 
             serviceRelation.setDetectPoint(parseToSourceRole());
-            serviceRelation.setComponentId(buildConnectionComponentId(this));
+            serviceRelation.getComponentIds().addAll(buildConnectionComponentId(this));
             serviceRelation.setTlsMode(tlsMode);
 
             serviceRelation.setDestServiceName(destServiceName);
