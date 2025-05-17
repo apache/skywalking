@@ -535,6 +535,9 @@ Caffeine:
 ThreadPerTask-executor:
   id: 161
   languages: Java
+ztunnel:
+  id: 162
+  languages: ebpf, mesh
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

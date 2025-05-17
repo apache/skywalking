@@ -327,6 +327,25 @@ public class ScriptParserTest {
     }
 
     @Test
+    public void testParse13() throws IOException {
+        ScriptParser parser = ScriptParser.createFromScriptText(
+            "ClientCpm = from(K8SServiceRelation.*).filter(componentIds contain 7).cpm();", TEST_SOURCE_PACKAGE);
+        List<AnalysisResult> results = parser.parse().getMetricsStmts();
+        AnalysisResult clientCpm = results.get(0);
+        Assertions.assertEquals("ClientCpm", clientCpm.getMetricsName());
+        Assertions.assertEquals("K8SServiceRelation", clientCpm.getFrom().getSourceName());
+        Assertions.assertEquals("[*]", clientCpm.getFrom().getSourceAttribute().toString());
+        final List<Expression> filterExpressions = clientCpm.getFilters().getFilterExpressions();
+        Assertions.assertEquals(1, filterExpressions.size());
+        Assertions.assertEquals("source.getComponentIds()", filterExpressions.get(0).getLeft());
+        Assertions.assertEquals("7", filterExpressions.get(0).getRight());
+        Assertions.assertEquals("cpm", clientCpm.getAggregationFuncStmt().getAggregationFunctionName());
+        EntryMethod entryMethod = clientCpm.getEntryMethod();
+        List<Object> methodArgsExpressions = entryMethod.getArgsExpressions();
+        Assertions.assertEquals(1, methodArgsExpressions.size());
+    }
+
+    @Test
     public void testParseDecorator() throws IOException {
         SourceDecoratorManager.DECORATOR_MAP.put("ServiceDecorator", new ISourceDecorator<ISource>() {
             @Override

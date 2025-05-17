@@ -33,5 +33,7 @@ public class ContainMatchTest {
         assertTrue(containMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:GET"));
         assertFalse(
             containMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:PUT"));
+        assertTrue(containMatch.match(Arrays.asList(1, 2, 3), 2));
+        assertFalse(containMatch.match(Arrays.asList(1, 2, 3), 4));
     }
 }
