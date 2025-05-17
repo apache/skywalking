@@ -338,6 +338,9 @@ jobs:
     timeout-minutes: 60
     env:
       OTEL_COLLECTOR_VERSION: 0.102.1
+      SW_BANYANDB_COMMIT: 2de59d80f7edbc57ada66212bcfdc79f5b3b28a9
+      MINUS_DAYS: 3
+      BANYANDB_DATA_GENERATE_ROOT: test/e2e-v2/cases/storage/banyandb/data-generate
     strategy:
       fail-fast: false
       matrix:
@@ -366,6 +369,8 @@ jobs:
             config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: BanyanDB TLS
             config: test/e2e-v2/cases/storage/banyandb/tls/e2e.yaml
+          - name: BanyanDB Stages
+            config: test/e2e-v2/cases/storage/banyandb/stages/e2e.yaml
           - name: Storage MySQL
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
           - name: Storage PostgreSQL
@@ -751,6 +756,33 @@ jobs:
       - name: Build test image
         if: matrix.test.docker != null
         run: docker build -t ${{ matrix.test.docker.name }} -f ${{ matrix.test.docker.base }}/${{ matrix.test.docker.file }} ${{ matrix.test.docker.base }}
+      - name: Generate BanyanDB cold data
+        if: matrix.test.name == 'BanyanDB Stages'
+        run: |
+          docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml up -d
+          CONTAINER_ID=$(docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml ps -q banyandb)
+          echo "⌛ monitoring segment files..."
+          found=false
+          for i in {1..60}; do
+            # check if segment files exist
+            if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure-data/measure/data/day/seg* 2>/dev/null)" ]'; then
+              echo "✅ found segment files"
+              # create and copy files
+              docker cp $CONTAINER_ID:/tmp ${BANYANDB_DATA_GENERATE_ROOT}
+              found=true
+              break
+            else
+              echo "⏳ didn't find segment files (retry $i/60)"
+              sleep 10
+            fi
+          done
+          if $found; then
+            echo "✅ segment files copied to ${BANYANDB_DATA_GENERATE_ROOT}"
+          else
+            echo "❌ segment files not found"
+            exit 1
+          fi
+          docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml down -v
       - name: ${{ matrix.test.name }}
         uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
         with:

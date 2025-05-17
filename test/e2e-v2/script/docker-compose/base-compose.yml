@@ -56,14 +56,57 @@ services:
     image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}"
     networks:
       - e2e
-    expose:
-      - 17912
+    ports:
+      - 17912:17912
+      - 17913:17913
     command: standalone --stream-root-path /tmp/stream-data --measure-root-path /tmp/measure-data
     healthcheck:
       test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 17912" ]
       interval: 5s
       timeout: 60s
       retries: 120
+
+  banyandb-data:
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}-testing"
+    hostname: data
+    expose:
+      - 17912
+      - 2121
+      - 6060
+    command: data --etcd-endpoints=http://etcd:2379
+    healthcheck:
+      test: [ "CMD", "./bydbctl", "health", "--addr=http://127.0.0.1:17913" ]
+      interval: 5s
+      timeout: 120s
+      retries: 120
+
+  liaison:
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}-testing"
+    hostname: liaison
+    ports:
+      - 17913:17913
+      - 17912:17912
+    expose:
+      - 2121
+      - 6060
+    command: liaison --etcd-endpoints=http://etcd:2379
+    healthcheck:
+      test: [ "CMD", "./bydbctl", "health", "--addr=http://liaison:17913" ]
+      interval: 5s
+      timeout: 120s
+      retries: 120
+
+  etcd:
+    image: gcr.io/etcd-development/etcd:v3.5.9
+    ports:
+      - "2379:2379"
+    command: etcd --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://etcd:2379 --max-request-bytes 10485760 --backend-batch-limit 10000
+    healthcheck:
+      test: [ "CMD", "etcdctl", "endpoint", "health" ]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   provider:
     image: "ghcr.io/apache/skywalking-java/skywalking-java:${SW_AGENT_JAVA_COMMIT}-java${SW_AGENT_JDK_VERSION}"
