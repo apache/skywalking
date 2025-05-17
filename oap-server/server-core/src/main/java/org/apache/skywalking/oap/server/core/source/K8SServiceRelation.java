@@ -23,6 +23,9 @@ import org.apache.skywalking.apm.network.ebpf.accesslog.v3.AccessLogConnectionTL
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.K8S_SERVICE_RELATION;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_RELATION_CATALOG_NAME;
 
@@ -39,7 +42,7 @@ public class K8SServiceRelation extends K8SMetrics {
     private Layer sourceLayer;
 
     private DetectPoint detectPoint;
-    private int componentId;
+    private final Set<Integer> componentId = new HashSet<>();
     private AccessLogConnectionTLSMode tlsMode;
 
     private String destServiceId;
