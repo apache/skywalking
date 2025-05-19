@@ -30,9 +30,7 @@ services:
     hostname: data-hot1
     command: data --etcd-endpoints=http://etcd:2379 --node-labels type=hot
     volumes:
-      - ./tmp/measure/data-hot1:/tmp/measure
-      - ./tmp/stream/data-hot1:/tmp/stream
-      - ./tmp/property/data-hot1:/tmp/property
+      - ../data-generate/index:/tmp/measure/data/index
     networks:
       - e2e
 
@@ -42,10 +40,6 @@ services:
       service: banyandb-data
     hostname: data-warm1
     command: data --etcd-endpoints=http://etcd:2379 --node-labels type=warm
-    volumes:
-      - ./tmp/measure/data-warm1:/tmp/measure
-      - ./tmp/stream/data-warm1:/tmp/stream
-      - ./tmp/property/data-warm1:/tmp/property
     networks:
       - e2e
 
@@ -79,6 +73,14 @@ services:
       SW_STORAGE_BANYANDB_TARGETS: "liaison:17912"
       SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_WARM_STAGE: "true"
       SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_COLD_STAGE: "true"
+      SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_WARM_STAGE: "true"
+      SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_COLD_STAGE: "true"
+      SW_STORAGE_BANYANDB_GM_DAY_ENABLE_WARM_STAGE: "true"
+      SW_STORAGE_BANYANDB_GM_DAY_ENABLE_COLD_STAGE: "true"
+      SW_STORAGE_BANYANDB_GR_NORMAL_ENABLE_WARM_STAGE: "true"
+      SW_STORAGE_BANYANDB_GR_NORMAL_ENABLE_COLD_STAGE: "true"
+      SW_STORAGE_BANYANDB_GR_SUPER_ENABLE_WARM_STAGE: "true"
+      SW_STORAGE_BANYANDB_GR_SUPER_ENABLE_COLD_STAGE: "true"
     ports:
       - 12800:12800
       - 11800:11800

@@ -49,7 +49,7 @@ services:
     command: [ "java", "-jar", "/trace-mocker-2.0.0.jar" ]
     environment:
       OAP_HOST: oap
-      MINUS_DAYS: ${MINUS_DAYS}
+      MINUS_DAYS: 3
     networks:
       - e2e
     depends_on:

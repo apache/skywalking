@@ -47,6 +47,18 @@ verify:
     interval: 10s
   cases:
     - includes:
-      - ../../storage-cases.yaml
+        - ../../storage-cases.yaml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des,attr0='GENERAL',attr1!='Not_exist')/100"
       expected: ../../expected/topN-OP-service.yml
+    # cold data test
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_resp_time --service-name=mock_a_service --start="-96h" --end="-48h" --cold=true --step=DAY
+      expected: ../../expected/metrics-has-value.yml
+    # trace segment list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=get --start="-96h" --end="-48h" --cold=true
+      expected: ../../expected/cold/traces-cold-list.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --trace-id=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=get --start="-96h" --end="-48h" --cold=true \
+            | yq e '.traces | select(.[].endpointnames[0]=="/dubbox-case/case/dubbox-rest/404-test") | .[0].traceids[0]' -
+        ) --start="-96h" --end="-48h" --cold=true
+      expected: ../../expected/cold/trace-cold-detail.yml
