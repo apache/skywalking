@@ -37,8 +37,8 @@ trigger:
 
 verify:
   retry:
-    count: 10
-    interval: 3s
+    count: 20
+    interval: 10s
   cases:
     - includes:
         - ../apisix-cases.yaml

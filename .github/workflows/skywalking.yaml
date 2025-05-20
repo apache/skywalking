@@ -716,6 +716,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
@@ -796,6 +800,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
@@ -848,6 +856,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
@@ -876,6 +888,111 @@ jobs:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
           e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/simple/jdk/e2e.yaml
+
+  e2e-test-banyandb-stages:
+    if: |
+      ( always() && ! cancelled() ) &&
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    name: E2E test
+    needs: [docker, dist-tar]
+    runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    env:
+      BANYANDB_DATA_GENERATE_ROOT: test/e2e-v2/cases/storage/banyandb/data-generate
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - name: BanyanDB Stages
+            config: test/e2e-v2/cases/storage/banyandb/stages/e2e.yaml
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
+      - uses: actions/download-artifact@v4
+        name: Download docker images
+        with:
+          name: docker-images-11
+          path: docker-images
+      - name: Load docker images
+        run: |
+          find docker-images -name "*.tar" -exec docker load -i {} \;
+          find docker-images -name "*.tar" -exec rm {} \;
+      - uses: actions/download-artifact@v4
+        name: Download distribution tar
+        with:
+          name: dist
+          path: dist
+      - name: Login to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+      - name: Prepare test services
+        shell: bash
+        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean flatten:flatten package
+      - name: Set env var
+        run: |
+          echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
+      - name: Build test image
+        if: matrix.test.docker != null
+        run: docker build -t ${{ matrix.test.docker.name }} -f ${{ matrix.test.docker.base }}/${{ matrix.test.docker.file }} ${{ matrix.test.docker.base }}
+      - name: Generate BanyanDB cold data
+        run: |
+          export $(grep -v '^#' test/e2e-v2/script/env | xargs)
+          docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml up -d
+          CONTAINER_ID=$(docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml ps -q banyandb)
+          echo "⌛ monitoring segment files..."
+          found=false
+          for i in {1..60}; do
+            # check if segment files exist
+            if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure-data/measure/data/day/seg* 2>/dev/null)" ]'; then
+              echo "✅ found segment files"
+              sleep 30
+              # create and copy files
+              docker cp $CONTAINER_ID:/tmp ${BANYANDB_DATA_GENERATE_ROOT}
+              docker cp $CONTAINER_ID:/tmp/measure-data/measure/data/index ${BANYANDB_DATA_GENERATE_ROOT}
+              found=true
+              break
+            else
+              echo "⏳ didn't find segment files (retry $i/60)"
+              sleep 10
+            fi
+          done
+          if $found; then
+            echo "✅ segment files copied to ${BANYANDB_DATA_GENERATE_ROOT}"
+          else
+            echo "❌ segment files not found"
+            exit 1
+          fi
+          docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml down -v
+      - name: ${{ matrix.test.name }}
+        uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
+        with:
+          e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
+      - if: ${{ failure() }}
+        run: |
+          df -h
+          du -sh .
+          docker images
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        name: Upload Logs
+        with:
+          name: test-logs-${{ matrix.test.name }}
+          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
   required:
     if: always()
