@@ -50,15 +50,22 @@ verify:
         - ../../storage-cases.yaml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des,attr0='GENERAL',attr1!='Not_exist')/100"
       expected: ../../expected/topN-OP-service.yml
+
     # cold data test
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_resp_time --service-name=mock_a_service --start="-96h" --end="-48h" --cold=true --step=DAY
       expected: ../../expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=mock_a_service  --start="-96h" --end="-48h" --cold=true --step=DAY
+      expected: ../../expected/cold/dependency-services.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency instance --service-name=mock_a_service --dest-service-name=mock_b_service --start="-96h" --end="-48h" --cold=true --step=DAY
+      expected: ../../expected/cold/dependency-instance.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency endpoint --service-name=mock_a_service --endpoint-name=/dubbox-case/case/dubbox-rest/404-test --start="-96h" --end="-48h" --cold=true --step=DAY
+      expected: ../../expected/cold/dependency-endpoint.yml
     # trace segment list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=get --start="-96h" --end="-48h" --cold=true
-      expected: ../../expected/cold/traces-cold-list.yml
+      expected: ../../expected/cold/traces-list.yml
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --trace-id=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=get --start="-96h" --end="-48h" --cold=true \
             | yq e '.traces | select(.[].endpointnames[0]=="/dubbox-case/case/dubbox-rest/404-test") | .[0].traceids[0]' -
         ) --start="-96h" --end="-48h" --cold=true
-      expected: ../../expected/cold/trace-cold-detail.yml
+      expected: ../../expected/cold/trace-detail.yml

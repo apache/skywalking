@@ -716,6 +716,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
@@ -796,6 +800,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
@@ -848,6 +856,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
@@ -898,6 +910,10 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:

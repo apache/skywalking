@@ -36,6 +36,8 @@ services:
       service: oap
     environment:
       SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_GR_NORMAL_TTL_DAYS: 5
+      SW_STORAGE_BANYANDB_GR_SUPER_TTL_DAYS: 5
     ports:
       - 12800
     depends_on:
