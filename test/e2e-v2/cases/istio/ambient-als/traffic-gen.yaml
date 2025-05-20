@@ -13,11 +13,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-nodes:
-  - role: control-plane
-    image: kindest/node:v1.25.11@sha256:227fa11ce74ea76a0474eeefb84cb75d8dad1b08638371ecf0e86259b35be0c8
-    extraMounts:
-      -   hostPath: /
-          containerPath: /host
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trafficgenerator
+  labels:
+    app: trafficgenerator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trafficgenerator
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: trafficgenerator
+    spec:
+      containers:
+        - name: trafficgenerator
+          image: alpine/curl:8.9.1
+          command: ["/bin/sh", "-c", "--"]
+          args:
+            - |
+              while true; do
+                curl -s -o /dev/null -w "%{http_code}\n" http://productpage.default:9080/productpage
+                sleep 1
+              done
+          resources:
+            requests:
+              cpu: 0.1
+
