@@ -827,7 +827,7 @@ jobs:
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
           ALS_ANALYZER: ${{ matrix.analyzer }}
         with:
-          e2e-file: ${{ format('test/e2e-v2/cases/istio/{0}als/e2e.yaml', matrix.ambient == 'true' && 'ambient-' || '') }}
+          e2e-file: ${{ format('test/e2e-v2/cases/istio/{0}als/e2e.yaml', matrix.ambient && 'ambient-' || '') }}
       - if: ${{ failure() }}
         run: |
           df -h
