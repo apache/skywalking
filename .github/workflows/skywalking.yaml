@@ -783,6 +783,7 @@ jobs:
       fail-fast: false
       matrix:
         analyzer: [k8s-mesh, mx-mesh]
+        ambient: [true, false]
         versions:
           - istio: 1.20.0
             kubernetes: 28
@@ -826,7 +827,7 @@ jobs:
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
           ALS_ANALYZER: ${{ matrix.analyzer }}
         with:
-          e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/istio/als/e2e.yaml
+          e2e-file: ${{ format('test/e2e-v2/cases/istio/{0}als/e2e.yaml', matrix.ambient == 'true' && 'ambient-' || '') }}
       - if: ${{ failure() }}
         run: |
           df -h
