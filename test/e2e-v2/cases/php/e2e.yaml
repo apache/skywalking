@@ -38,10 +38,8 @@ trigger:
 verify:
   # verify with retry strategy
   retry:
-    # max retry count
     count: 20
-    # the interval between two retries, in millisecond.
-    interval: 3s
+    interval: 10s
   cases:
     # layer list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql layer ls

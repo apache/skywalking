@@ -13,32 +13,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
-
-setup:
-  env: compose
-  file: docker-compose.yml
-  timeout: 20m
-  init-system-environment: ../../script/env
-  steps:
-    - name: set PATH
-      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
-    - name: install yq
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
-    - name: install swctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-
-trigger:
-  action: http
-  interval: 3s
-  times: 10
-  url: http://${sender_host}:${sender_9093}/otel-metrics/send
-  method: GET
-
-verify:
-  retry:
-    count: 20
-    interval: 10s
-  cases:
-    - includes:
-        - ./win-cases.yaml
+debuggingtrace: null
+spans:
+  {{- contains .spans }}
+  - traceid: {{ .traceid }}
+    segmentid: {{ .segmentid }}
+    spanid: {{ .spanid }}
+    parentspanid: {{ .parentspanid }}
+    refs: []
+    servicecode: mock_a_service
+    serviceinstancename: mock_a_service_instance
+    starttime: {{ gt .starttime 0 }}
+    endtime: {{ gt .endtime 0 }}
+    endpointname: /dubbox-case/case/dubbox-rest/404-test
+    type: Entry
+    peer: ""
+    component: Tomcat
+    iserror: false
+    layer: Http
+    tags:
+      {{- contains .tags }}
+      - key: http.method
+        value: get
+      - key: http.status_code
+        value: "404"
+      - key: http.status_code
+        value: "200"
+      {{- end }}
+    logs: []
+    attachedevents: []
+  {{- end }}
