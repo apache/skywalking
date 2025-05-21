@@ -898,6 +898,7 @@ jobs:
         name: Upload Logs
         with:
           name: test-istio-ambient-logs-${{ matrix.test.name }}
+          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
   e2e-test-java-versions:
     if: |
