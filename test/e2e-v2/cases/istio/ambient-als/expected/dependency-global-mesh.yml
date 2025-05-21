@@ -25,6 +25,15 @@ nodes:
     - MESH
     - K8S_SERVICE
   {{- end }}
+- id: {{ b64enc "simple-http-waypoint.default"}}.1
+  name: simple-http-waypoint.default
+  type: tls
+  isreal: true
+  layers:
+  {{- contains .layers }}
+  - MESH
+  - K8S_SERVICE
+  {{- end }}
 - id: {{ b64enc "productpage.default"}}.1
   name: productpage.default
   type: http
@@ -52,11 +61,29 @@ calls:
     - tcp
     - http
     {{- end }}
-  target: {{ b64enc "details.default"}}.1
-  targetcomponents: []
-  id: {{ b64enc "productpage.default"}}.1-{{ b64enc "details.default"}}.1
+  target: {{ b64enc "simple-http-waypoint.default"}}.1
+  targetcomponents:
+  {{- contains .targetcomponents }}
+  - ztunnel
+  {{- end }}
+  id: {{ b64enc "productpage.default"}}.1-{{ b64enc "simple-http-waypoint.default"}}.1
   detectpoints:
     - CLIENT
+    - SERVER
+- source: {{ b64enc "simple-http-waypoint.default"}}.1
+  sourcecomponents:
+  {{- contains .sourcecomponents }}
+  - tls
+  {{- end }}
+  target: {{ b64enc "details.default"}}.1
+  targetcomponents:
+  {{- contains .targetcomponents }}
+  - ztunnel
+  {{- end }}
+  id: {{ b64enc "simple-http-waypoint.default" }}.1-{{ b64enc "details.default"}}.1
+  detectpoints:
+    - CLIENT
+    - SERVER
 - source: {{ b64enc "productpage.default" }}.1
   sourcecomponents:
     {{- contains .sourcecomponents }}
