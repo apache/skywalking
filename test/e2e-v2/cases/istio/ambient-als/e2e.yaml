@@ -46,7 +46,7 @@ setup:
           kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0-rc.1/standard-install.yaml
         kubectl label namespace default istio.io/dataplane-mode=ambient
     - name: install waypoint
-      command: istioctl waypoint apply --name simple-http-waypoint && sleep 1
+      command: istioctl waypoint apply --name simple-http-waypoint && sleep 10
       wait:
         - namespace: default
           resource: deployments/simple-http-waypoint
