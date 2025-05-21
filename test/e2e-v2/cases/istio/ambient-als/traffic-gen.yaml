@@ -39,7 +39,7 @@ spec:
             - |
               while true; do
                 curl -s -o /dev/null -w "%{http_code}\n" http://productpage.default:9080/productpage
-                sleep 1
+                sleep 5
               done
           resources:
             requests:
