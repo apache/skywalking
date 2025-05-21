@@ -200,6 +200,9 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     }
 
     protected void prepareDispatchForZtunnelMesh(NodeInfo node, ConnectionInfo connection, EBPFAccessLogMessage logMessage) {
+        final K8SServiceRelation serviceRelation = connection.toServiceRelation();
+        buildBaseServiceFromRelation(serviceRelation, Layer.MESH)
+            .forEach(sourceReceiver::receive);
         // adapt to the mesh metrics
         String tlsMode = Const.TLS_MODE.NON_TLS;
         if (AccessLogConnectionTLSMode.TLS.equals(connection.getTlsMode())) {
@@ -918,8 +921,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         remoteService.setLayer(layer);
         remoteService.setName(relation.getDestServiceName());
         remoteService.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        log.warn("generate the mesh layer service local service: {}, remote service: {}",
-            relation.getSourceServiceName(), relation.getDestServiceName());
+        log.debug("generate the {} layer service local service: {}, remote service: {}",
+            layer, relation.getSourceServiceName(), relation.getDestServiceName());
         return Arrays.asList(localService, remoteService);
     }
 }
