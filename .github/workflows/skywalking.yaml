@@ -897,7 +897,7 @@ jobs:
         if: ${{ failure() }}
         name: Upload Logs
         with:
-          name: test-istio-ambient-logs-${{ matrix.test.name }}
+          name: test-istio-ambient-logs-${{ matrix.versions.istio }}-${{ matrix.versions.kubernetes }}-${{ matrix.analyzer }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
   e2e-test-java-versions:
