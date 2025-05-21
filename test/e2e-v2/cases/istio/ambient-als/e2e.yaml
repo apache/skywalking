@@ -99,7 +99,7 @@ setup:
           resource: pod
           for: condition=Ready
     - name: Status of istio mesh
-      command: istioctl zc all
+      command: istioctl zc all && sleep 15 # sleep for waiting the rover ready to monitoring all services
     - name: Generate traffic
       path: traffic-gen.yaml
       wait:
