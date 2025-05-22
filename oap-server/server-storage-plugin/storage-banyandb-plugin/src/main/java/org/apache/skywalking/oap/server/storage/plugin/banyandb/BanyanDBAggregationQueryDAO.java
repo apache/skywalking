@@ -78,7 +78,6 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         return directMetricsTopN(isColdStage, condition, schema, valueColumnName, spec, getTimestampRange(duration), additionalConditions);
     }
 
-    //todo: query cold stage
     List<SelectedRecord> serverSideTopN(boolean isColdStage, TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
                                         TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
         TopNQueryResponse resp = null;

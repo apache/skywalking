@@ -511,7 +511,7 @@ public class PromQLApiHandler {
     @Get
     @Post
     @Path("/api/v1/format_query")
-    public HttpResponse query_range(@Param("query") String query) throws IOException {
+    public HttpResponse format_query(@Param("query") String query) throws IOException {
         QueryFormatRsp rsp = new QueryFormatRsp();
         rsp.setData(query.replaceAll("\\s", ""));
         return jsonResponse(rsp);

@@ -73,6 +73,7 @@ public class AgentDataMock {
                 streamObserver, traceId, serviceBSegmentId, serviceASegmentId, startTimestamp);
             serviceCMock.mock(
                 streamObserver, traceId, serviceCSegmentId, serviceBSegmentId, startTimestamp);
+            TimeUnit.SECONDS.sleep(30);
         }
 
         streamObserver.onCompleted();

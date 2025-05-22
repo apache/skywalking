@@ -26,6 +26,7 @@
 * Enhance the trace `List/Tree/Table` graph to support displaying multiple refs of spans and distinguishing different parents.
 * Fix: correct the same labels for metrics.
 * Refactor: use the Fetch API to instead of Axios.
+* Support cold stage data for metrics, trace and log.
 
 #### Documentation
 
