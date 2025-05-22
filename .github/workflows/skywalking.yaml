@@ -826,7 +826,7 @@ jobs:
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
           ALS_ANALYZER: ${{ matrix.analyzer }}
         with:
-          e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/istio/als/e2e.yaml
+          e2e-file: test/e2e-v2/cases/istio/als/e2e.yaml
       - if: ${{ failure() }}
         run: |
           df -h
@@ -837,6 +837,67 @@ jobs:
         name: Upload Logs
         with:
           name: test-logs-${{ matrix.test.name }}
+          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+
+  e2e-test-istio-ambient:
+    if: |
+      ( always() && ! cancelled() ) &&
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    name: E2E test
+    needs: [docker]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        analyzer: [k8s-mesh, mx-mesh]
+        versions:
+          - istio: 1.23.0
+            kubernetes: 28
+          - istio: 1.24.0
+            kubernetes: 28
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
+      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+      - uses: apache/skywalking-cli/actions/setup@master
+        with:
+          version: ${{ env.SW_CTL_COMMIT }}
+      - uses: actions/download-artifact@v4
+        name: Download docker images
+        with:
+          name: docker-images-11
+          path: docker-images
+      - name: Load docker images
+        run: |
+          find docker-images -name "*.tar" -exec docker load -i {} \;
+          find docker-images -name "*.tar" -exec rm {} \;
+      - name: Login to ghcr
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: ${{ matrix.test.name }}
+        uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
+        env:
+          ISTIO_VERSION: ${{ matrix.versions.istio }}
+          KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
+          ALS_ANALYZER: ${{ matrix.analyzer }}
+        with:
+          e2e-file: test/e2e-v2/cases/istio/ambient-als/e2e.yaml
+      - if: ${{ failure() }}
+        run: |
+          df -h
+          du -sh .
+          docker images
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        name: Upload Logs
+        with:
+          name: test-istio-ambient-logs-${{ matrix.versions.istio }}-${{ matrix.versions.kubernetes }}-${{ matrix.analyzer }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
   e2e-test-java-versions:
@@ -1004,6 +1065,7 @@ jobs:
       - slow-integration-test
       - e2e-test
       - e2e-test-istio
+      - e2e-test-istio-ambient
       - e2e-test-java-versions
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -1023,6 +1085,7 @@ jobs:
           timeConsumingITResults=${{ needs.slow-integration-test.result }};
           e2eResults=${{ needs.e2e-test.result }};
           e2eIstioResults=${{ needs.e2e-test-istio.result }};
+          e2eIstioAmbientResults=${{ needs.e2e-test-istio-ambient.result }};
           e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};
 
           [[ ${depLicenseResults} == 'success' ]] || [[ ${execute} != 'true' && ${depLicenseResults} == 'skipped' ]] || exit -2;
@@ -1030,6 +1093,7 @@ jobs:
           [[ ${integrationResults} == 'success' ]] || [[ ${execute} != 'true' && ${integrationResults} == 'skipped' ]] || exit -4;
           [[ ${e2eResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eResults} == 'skipped' ]] || exit -5;
           [[ ${e2eIstioResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioResults} == 'skipped' ]] || exit -6;
+          [[ ${e2eIstioAmbientResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioAmbientResults} == 'skipped' ]] || exit -6;
           [[ ${e2eJavaVersionResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eJavaVersionResults} == 'skipped' ]] || exit -7;
           [[ ${timeConsumingITResults} == 'success' ]] || [[ ${execute} != 'true' && ${timeConsumingITResults} == 'skipped' ]] || exit -8;
 

@@ -18,6 +18,25 @@ oap:
     metadata-service-mapping.yaml: |
       serviceName: e2e::${LABELS."service.istio.io/canonical-name",SERVICE}
       serviceInstanceName: ${NAME}
+    log4j2.xml: |
+      <Configuration status="INFO">
+        <Appenders>
+          <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+              <LevelPatternSelector defaultPattern="%d %c %L [%t] %-5p %x - %m%n">
+                <PatternMatch key="ERROR" pattern="%d %c %L [%t] %-5p %x - [%swversion] %m%n" />
+              </LevelPatternSelector>
+            </PatternLayout>
+          </Console>
+        </Appenders>
+        <Loggers>
+          <logger name="org.apache.skywalking.oap.server.receiver.ebpf.provider.handler" level="DEBUG"/>
+          <Root level="INFO">
+            <AppenderRef ref="Console"/>
+          </Root>
+        </Loggers>
+      </Configuration>
+
 
 elasticsearch:
   esConfig:
