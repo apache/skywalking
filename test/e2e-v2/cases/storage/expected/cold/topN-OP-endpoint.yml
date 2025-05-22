@@ -53,6 +53,6 @@ results:
           normal: true
           serviceinstanceid: null
           serviceinstancename: null
-          endpointid: {{ b64enc "mock_c_service" } }.1_{{ b64enc "org.apache.skywalking.RocketMQ" }}
+          endpointid: {{ b64enc "mock_c_service" }}.1_{{ b64enc "org.apache.skywalking.RocketMQ" }}
           endpointname: org.apache.skywalking.RocketMQ
 error: null
