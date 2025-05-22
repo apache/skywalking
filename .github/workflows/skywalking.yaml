@@ -960,7 +960,7 @@ jobs:
             # check if segment files exist
             if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure-data/measure/data/day/seg* 2>/dev/null)" ]'; then
               echo "✅ found segment files"
-              sleep 30
+              sleep 180
               # create and copy files
               docker cp $CONTAINER_ID:/tmp ${BANYANDB_DATA_GENERATE_ROOT}
               docker cp $CONTAINER_ID:/tmp/measure-data/measure/data/index ${BANYANDB_DATA_GENERATE_ROOT}

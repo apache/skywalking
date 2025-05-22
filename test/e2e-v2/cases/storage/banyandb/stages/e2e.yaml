@@ -69,3 +69,8 @@ verify:
             | yq e '.traces | select(.[].endpointnames[0]=="/dubbox-case/case/dubbox-rest/404-test") | .[2].traceids[0]' -
         ) --start="-96h" --end="-48h" --cold=true
       expected: ../../expected/cold/trace-detail.yml
+    ## topN
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des,attr0='GENERAL')" --start="-96h" --end="-48h" --cold=true --step=DAY
+      expected: ../../expected/cold/topN-OP-service.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(endpoint_resp_time,3,des)" --start="-96h" --end="-48h" --cold=true --step=DAY
+      expected: ../../expected/cold/topN-OP-endpoint.yml

@@ -1,0 +1,58 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+debuggingtrace: null
+type: SORTED_LIST
+results:
+  - metric:
+      labels: []
+    values:
+      - id: "mock_a_service - /dubbox-case/case/dubbox-rest/404-test"
+        value: "{{ (index (index .results 0).values 0).value }}"
+        traceid: null
+        owner:
+          scope: Endpoint
+          serviceid: {{ b64enc "mock_a_service"}}.1
+          servicename: mock_a_service
+          normal: true
+          serviceinstanceid: null
+          serviceinstancename: null
+          endpointid: {{ b64enc "mock_a_service" }}.1_{{ b64enc "/dubbox-case/case/dubbox-rest/404-test" }}
+          endpointname: /dubbox-case/case/dubbox-rest/404-test
+      - id: "mock_b_service - org.skywaking.apm.testcase.dubbo.services.GreetServiceImpl.doBusiness()"
+        value: "{{ (index (index .results 0).values 1).value }}"
+        traceid: null
+        owner:
+          scope: Endpoint
+          serviceid: {{ b64enc "mock_b_service" }}.1
+          servicename: mock_b_service
+          normal: true
+          serviceinstanceid: null
+          serviceinstancename: null
+          endpointid: {{ b64enc "mock_b_service" }}.1_{{ b64enc "org.skywaking.apm.testcase.dubbo.services.GreetServiceImpl.doBusiness()" }}
+          endpointname: org.skywaking.apm.testcase.dubbo.services.GreetServiceImpl.doBusiness()
+      - id: "mock_c_service - org.apache.skywalking.RocketMQ"
+        value: "{{ (index (index .results 0).values 2).value }}"
+        traceid: null
+        owner:
+          scope: Endpoint
+          serviceid: {{ b64enc "mock_c_service" }}.1
+          servicename: mock_c_service
+          normal: true
+          serviceinstanceid: null
+          serviceinstancename: null
+          endpointid: {{ b64enc "mock_c_service" } }.1_{{ b64enc "org.apache.skywalking.RocketMQ" }}
+          endpointname: org.apache.skywalking.RocketMQ
+error: null
