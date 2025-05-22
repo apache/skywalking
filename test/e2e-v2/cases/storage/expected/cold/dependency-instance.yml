@@ -37,5 +37,6 @@ calls:
   targetcomponents: []
   id: {{ b64enc "mock_a_service" }}.1_{{ b64enc "mock_a_service_instance" }}-{{ b64enc "mock_b_service" }}.1_{{ b64enc "mock_b_service_instance" }}
   detectpoints:
+    - CLIENT
     - SERVER
 {{- end }}
