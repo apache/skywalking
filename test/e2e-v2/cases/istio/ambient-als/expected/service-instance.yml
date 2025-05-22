@@ -13,35 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: trafficgenerator
-  labels:
-    app: trafficgenerator
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: trafficgenerator
-  template:
-    metadata:
-      annotations:
-        sidecar.istio.io/inject: "false"
-      labels:
-        app: trafficgenerator
-    spec:
-      containers:
-        - name: trafficgenerator
-          image: alpine/curl:8.9.1
-          command: ["/bin/sh", "-c", "--"]
-          args:
-            - |
-              while true; do
-                curl -s -o /dev/null -w "%{http_code}\n" http://productpage:9080/productpage
-                sleep 5
-              done
-          resources:
-            requests:
-              cpu: 0.1
-
+{{- contains . }}
+- id: {{ notEmpty .id }}
+  name: {{ notEmpty .name }}
+  attributes: []
+  language: UNKNOWN
+  instanceuuid: {{ notEmpty .instanceuuid }}
+{{- end }}

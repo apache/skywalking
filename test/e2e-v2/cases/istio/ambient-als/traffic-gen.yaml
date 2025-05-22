@@ -38,7 +38,7 @@ spec:
           args:
             - |
               while true; do
-                curl -s -o /dev/null -w "%{http_code}\n" http://productpage:9080/productpage
+                curl -s -o /dev/null -w "%{http_code}\n" http://productpage.default:9080/productpage
                 sleep 5
               done
           resources:
