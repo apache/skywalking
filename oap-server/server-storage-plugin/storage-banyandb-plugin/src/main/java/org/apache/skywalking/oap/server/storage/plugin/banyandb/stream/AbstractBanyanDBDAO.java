@@ -139,22 +139,6 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         }
     }
 
-    protected TopNQueryResponse topN(MetadataRegistry.Schema schema,
-                                     TimestampRange timestampRange,
-                                     int number,
-                                     List<KeyValue> additionalConditions,
-                                     List<AttrCondition> attributes) throws IOException {
-        return topNQuery(schema, timestampRange, number, AbstractQuery.Sort.DESC, additionalConditions, attributes);
-    }
-
-    protected TopNQueryResponse bottomN(MetadataRegistry.Schema schema,
-                                        TimestampRange timestampRange,
-                                        int number,
-                                        List<KeyValue> additionalConditions,
-                                        List<AttrCondition> attributes) throws IOException {
-        return topNQuery(schema, timestampRange, number, AbstractQuery.Sort.ASC, additionalConditions, attributes);
-    }
-
     protected TopNQueryResponse topNQueryDebuggable(boolean isColdStage,
                                                     MetadataRegistry.Schema schema,
                                                     TimestampRange timestampRange,
@@ -185,7 +169,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                        .append(isColdStage);
                 span.setMsg(builder.toString());
             }
-            TopNQueryResponse response = topNQuery(schema, timestampRange, number, sort, additionalConditions, attributes);
+            TopNQueryResponse response = topNQuery(isColdStage, schema, timestampRange, number, sort, additionalConditions, attributes);
             if (traceContext != null && traceContext.isDumpStorageRsp()) {
                 builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getTopNLists()));
                 span.setMsg(builder.toString());
@@ -198,7 +182,8 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         }
     }
 
-    private TopNQueryResponse topNQuery(MetadataRegistry.Schema schema,
+    private TopNQueryResponse topNQuery(boolean isColdStage,
+                                        MetadataRegistry.Schema schema,
                                         TimestampRange timestampRange,
                                         int number,
                                         AbstractQuery.Sort sort,
@@ -225,6 +210,9 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             });
         }
         q.setConditions(conditions);
+        if (isColdStage) {
+            q.setStages(List.of(BanyanDBStorageConfig.StageName.cold.name()));
+        }
 
         return getClient().query(q);
     }
