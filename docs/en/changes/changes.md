@@ -29,6 +29,7 @@
 * Fix: correct the same labels for metrics.
 * Refactor: use the Fetch API to instead of Axios.
 * Support cold stage data for metrics, trace and log.
+* Add route to status API `/debugging/config/dump` in the UI.
 
 #### Documentation
 

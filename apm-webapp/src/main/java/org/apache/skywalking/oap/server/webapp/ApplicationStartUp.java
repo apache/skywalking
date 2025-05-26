@@ -68,6 +68,7 @@ public class ApplicationStartUp {
             .builder()
             .port(port, SessionProtocol.HTTP)
             .service("/graphql", new OapProxyService(oapServices))
+            .service("/debugging/config/dump", new OapProxyService(oapServices))
             .service("/internal/l7check", HealthCheckService.of())
             .service("/zipkin/config.json", zipkin)
             .serviceUnder("/zipkin/api", zipkin)
