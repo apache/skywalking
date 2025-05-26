@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
+import com.google.gson.Gson;
+import io.vavr.Tuple2;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
@@ -84,20 +87,18 @@ public class ServerStatusService implements Service {
     /**
      * @return a complete list of booting configurations with effected values.
      * @since 9.7.0
+     * @since 10.3.0 return ConfigList instead of String, to support raw configurations.
      */
-    public String dumpBootingConfigurations(String keywords4MaskingSecretsOfConfig) {
+    public ConfigList dumpBootingConfigurations(String keywords4MaskingSecretsOfConfig) {
+        ConfigList configList = new ConfigList();
         if (configurations == null || configurations.isEmpty()) {
-            return "No available booting configurations.";
+            return configList;
         }
         final String[] keywords = keywords4MaskingSecretsOfConfig.split(",");
-        StringBuilder configList = new StringBuilder();
         for (ApplicationConfiguration.ModuleConfiguration configuration : configurations) {
             final String moduleName = configuration.getModuleName();
             if (configuration.getProviders().size() == 1) {
-                configList.append(moduleName)
-                          .append(".provider=")
-                          .append(configuration.getProviders().keySet().iterator().next())
-                          .append("\n");
+                configList.add(moduleName + ".provider", configuration.getProviders().keySet().iterator().next());
             }
             configuration.getProviders().forEach(
                 (providerName, providerConfiguration) ->
@@ -108,19 +109,41 @@ public class ServerStatusService implements Service {
                                     value = "******";
                                 }
                             }
-
-                            configList.append(moduleName)
-                                      .append(".")
-                                      .append(providerName)
-                                      .append(".")
-                                      .append(key)
-                                      .append("=")
-                                      .append(value)
-                                      .append("\n");
+                            configList.add(moduleName + "." + providerName + "." + key, value.toString());
                         }
                     )
             );
         }
-        return configList.toString();
+        return configList;
+    }
+
+    public static class ConfigList {
+        private final static Gson GSON = new Gson();
+        private List<Tuple2> configurations = new ArrayList<>(200);
+
+        public void add(String key, String value) {
+            configurations.add(new Tuple2<>(key, value));
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder configList = new StringBuilder();
+            for (Tuple2 tuple : configurations) {
+                configList.append(tuple._1)
+                          .append("=")
+                          .append(tuple._2)
+                          .append("\n");
+            }
+            return configList.toString();
+        }
+
+        public String toJsonString() {
+            return GSON.toJson(configurations.stream()
+                                             .collect(
+                                                 java.util.stream.Collectors.toMap(
+                                                     tuple -> tuple._1.toString(),
+                                                     tuple -> tuple._2.toString()
+                                                 )));
+        }
     }
 }

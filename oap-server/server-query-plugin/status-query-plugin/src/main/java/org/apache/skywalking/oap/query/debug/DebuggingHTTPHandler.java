@@ -26,6 +26,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
+import com.linecorp.armeria.common.HttpHeaderNames;
+import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.server.annotation.Default;
 import com.linecorp.armeria.server.annotation.ExceptionHandler;
 import com.linecorp.armeria.server.annotation.Get;
@@ -38,7 +40,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
 import org.apache.skywalking.oap.query.debug.log.DebuggingQueryLogsRsp;
 import org.apache.skywalking.oap.query.debug.mqe.DebuggingMQERsp;
 import org.apache.skywalking.oap.query.debug.topology.DebuggingQueryEndpointTopologyRsp;
@@ -67,6 +68,7 @@ import org.apache.skywalking.oap.server.core.query.input.Entity;
 import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
 import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
 import org.apache.skywalking.oap.server.core.query.type.EndpointTopology;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
@@ -77,8 +79,8 @@ import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.core.query.type.Trace;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -109,8 +111,13 @@ public class DebuggingHTTPHandler {
     }
 
     @Get("/debugging/config/dump")
-    public String dumpConfigurations() {
-        return serverStatusService.dumpBootingConfigurations(config.getKeywords4MaskingSecretsOfConfig());
+    public String dumpConfigurations(HttpRequest request) {
+        final String acceptHeader = request.headers().get(HttpHeaderNames.ACCEPT);
+        if (acceptHeader != null && acceptHeader.toLowerCase().contains("application/json")) {
+            return serverStatusService.dumpBootingConfigurations(config.getKeywords4MaskingSecretsOfConfig())
+                                      .toJsonString();
+        }
+        return serverStatusService.dumpBootingConfigurations(config.getKeywords4MaskingSecretsOfConfig()).toString();
     }
 
     @SneakyThrows
@@ -150,7 +157,8 @@ public class DebuggingHTTPHandler {
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
         coldStage.ifPresent(duration::setColdStage);
-        ExpressionResult expressionResult = mqeQuery.execExpression(expression, entity, duration, true, dumpStorageRsp).join();
+        ExpressionResult expressionResult = mqeQuery.execExpression(expression, entity, duration, true, dumpStorageRsp)
+                                                    .join();
         DebuggingTrace execTrace = expressionResult.getDebuggingTrace();
         DebuggingMQERsp result = new DebuggingMQERsp(
             expressionResult.getType(), expressionResult.getResults(), expressionResult.getError(),
@@ -279,8 +287,10 @@ public class DebuggingHTTPHandler {
             );
             List<List<Span>> traces = new ArrayList<>();
             if (response.status().code() == 200) {
-                traces = new Gson().fromJson(response.contentUtf8(), new TypeToken<ArrayList<ArrayList<Span>>>() {
-                }.getType());
+                traces = new Gson().fromJson(
+                    response.contentUtf8(), new TypeToken<ArrayList<ArrayList<Span>>>() {
+                    }.getType()
+                );
             }
             DebuggingZipkinQueryTracesRsp result = new DebuggingZipkinQueryTracesRsp(
                 traces, transformTrace(traceContext.getExecTrace()));
@@ -300,11 +310,15 @@ public class DebuggingHTTPHandler {
             AggregatedHttpResponse response = zipkinQueryHandler.getTraceById(traceId);
             List<Span> trace = new ArrayList<>();
             if (response.status().code() == 200) {
-                trace = new Gson().fromJson(response.contentUtf8(), new TypeToken<ArrayList<Span>>() {
-                }.getType());
+                trace = new Gson().fromJson(
+                    response.contentUtf8(), new TypeToken<ArrayList<Span>>() {
+                    }.getType()
+                );
             }
-            DebuggingZipkinQueryTraceRsp result = new DebuggingZipkinQueryTraceRsp(trace, transformTrace(
-                traceContext.getExecTrace()));
+            DebuggingZipkinQueryTraceRsp result = new DebuggingZipkinQueryTraceRsp(
+                trace, transformTrace(
+                traceContext.getExecTrace())
+            );
             return transToYAMLStringZipkin(result);
         } finally {
             traceContext.stopTrace();
@@ -315,10 +329,10 @@ public class DebuggingHTTPHandler {
     @SneakyThrows
     @Get("/debugging/query/topology/getGlobalTopology")
     public String getGlobalTopology(@Param("startTime") String startTime,
-                                 @Param("endTime") String endTime,
-                                 @Param("step") String step,
-                                 @Param("coldStage") Optional<Boolean> coldStage,
-                                 @Param("serviceLayer") Optional<String> serviceLayer) {
+                                    @Param("endTime") String endTime,
+                                    @Param("step") String step,
+                                    @Param("coldStage") Optional<Boolean> coldStage,
+                                    @Param("serviceLayer") Optional<String> serviceLayer) {
         Duration duration = new Duration();
         duration.setStart(startTime);
         duration.setEnd(endTime);
@@ -333,11 +347,11 @@ public class DebuggingHTTPHandler {
     @SneakyThrows
     @Get("/debugging/query/topology/getServicesTopology")
     public String getServicesTopology(@Param("startTime") String startTime,
-                                    @Param("endTime") String endTime,
-                                    @Param("step") String step,
-                                    @Param("coldStage") Optional<Boolean> coldStage,
-                                    @Param("serviceLayer") String serviceLayer,
-                                    @Param("services") String services) {
+                                      @Param("endTime") String endTime,
+                                      @Param("step") String step,
+                                      @Param("coldStage") Optional<Boolean> coldStage,
+                                      @Param("serviceLayer") String serviceLayer,
+                                      @Param("services") String services) {
         Duration duration = new Duration();
         duration.setStart(startTime);
         duration.setEnd(endTime);
@@ -367,9 +381,12 @@ public class DebuggingHTTPHandler {
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
         coldStage.ifPresent(duration::setColdStage);
-        String clientServiceId = IDManager.ServiceID.buildId(clientService, Layer.nameOf(clientServiceLayer).isNormal());
-        String serverServiceId = IDManager.ServiceID.buildId(serverService, Layer.nameOf(serverServiceLayer).isNormal());
-        ServiceInstanceTopology topology = topologyQuery.getServiceInstanceTopology(clientServiceId, serverServiceId, duration, true).join();
+        String clientServiceId = IDManager.ServiceID.buildId(
+            clientService, Layer.nameOf(clientServiceLayer).isNormal());
+        String serverServiceId = IDManager.ServiceID.buildId(
+            serverService, Layer.nameOf(serverServiceLayer).isNormal());
+        ServiceInstanceTopology topology = topologyQuery.getServiceInstanceTopology(
+            clientServiceId, serverServiceId, duration, true).join();
         DebuggingQueryInstanceTopologyRsp result = new DebuggingQueryInstanceTopologyRsp(
             topology.getNodes(), topology.getCalls(), transformTrace(topology.getDebuggingTrace()));
         return transToYAMLString(result);
