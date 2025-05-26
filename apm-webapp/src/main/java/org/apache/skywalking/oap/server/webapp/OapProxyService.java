@@ -76,4 +76,9 @@ public final class OapProxyService extends AbstractHttpService {
     protected HttpResponse doPost(ServiceRequestContext ctx, HttpRequest req) throws Exception {
         return loadBalancingClient.execute(req);
     }
+
+    @Override
+    protected HttpResponse doGet(ServiceRequestContext ctx, HttpRequest req) throws Exception {
+        return loadBalancingClient.execute(req);
+    }
 }
