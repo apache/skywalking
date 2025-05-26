@@ -112,7 +112,8 @@ public class DebuggingHTTPHandler {
 
     @Get("/debugging/config/dump")
     public String dumpConfigurations(HttpRequest request) {
-        if ("application/json".equalsIgnoreCase(request.headers().get(HttpHeaderNames.ACCEPT))) {
+        final String acceptHeader = request.headers().get(HttpHeaderNames.ACCEPT);
+        if (acceptHeader != null && acceptHeader.toLowerCase().contains("application/json")) {
             return serverStatusService.dumpBootingConfigurations(config.getKeywords4MaskingSecretsOfConfig())
                                       .toJsonString();
         }

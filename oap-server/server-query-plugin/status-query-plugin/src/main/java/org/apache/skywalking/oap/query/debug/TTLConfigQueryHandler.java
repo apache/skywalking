@@ -50,7 +50,8 @@ public class TTLConfigQueryHandler {
 
     @Get("/status/config/ttl")
     public HttpResponse affectedTTLConfigurations(HttpRequest request) {
-        if ("application/json".equalsIgnoreCase(request.headers().get(HttpHeaderNames.ACCEPT))) {
+        final String acceptHeader = request.headers().get(HttpHeaderNames.ACCEPT);
+        if (acceptHeader != null && acceptHeader.toLowerCase().contains("application/json")) {
             return HttpResponse.of(MediaType.JSON_UTF_8, getTTLStatusQuery().getTTL().generateTTLDefinitionAsJSONStr());
         }
         return HttpResponse.of(MediaType.PLAIN_TEXT_UTF_8, getTTLStatusQuery().getTTL().generateTTLDefinition());

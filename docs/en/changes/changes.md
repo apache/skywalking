@@ -21,6 +21,7 @@
 * [Break Change] Change `compomentId` to `componentIds` in the K8SServiceRelation Scope. 
 * Adapt the mesh metrics if detect the ambient mesh in the eBPF access log receiver.
 * Add JSON format support for the `/debugging/config/dump` status API.
+* Enhance status APIs to support multiple `accept` header values, e.g. `Accept: application/json; charset=utf-8`.
 
 #### UI
 
