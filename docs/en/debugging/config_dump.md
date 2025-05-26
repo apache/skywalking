@@ -35,6 +35,30 @@ core.default.serviceCacheRefreshInterval=10
 
 All booting configurations with their runtime values are listed, including the selected provider for each module.
 
+This API also provides the response in JSON format, which is more friendly for programmatic usage.
+
+```shell
+> curl -X GET 'http://127.0.0.1:12800/debugging/config/dump' \
+   -H 'Accept: application/json'
+
+// The following JSON is manually formatted for better readability.
+
+{
+   "core.default.autocompleteTagKeysQueryMaxSize":"100",
+   "receiver-sharing-server.default.gRPCPort":"0",
+   "aws-firehose.default.port":"12801",
+   "core.default.restPort":"12800",
+   "receiver-sharing-server.default.gRPCSslCertChainPath":"",
+   "agent-analyzer.default.meterAnalyzerActiveFiles":"datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling,java-agent,go-agent",
+   "agent-analyzer.default.traceSamplingPolicySettingsFile":"trace-sampling-policy-settings.yml",
+   "core.default.gRPCSslTrustedCAPath":"",
+   "configuration-discovery.default.disableMessageDigest":"false",
+   "core.default.serviceNameMaxLength":"70",
+   "aws-firehose.default.tlsCertChainPath":"",
+   ....
+}
+```
+
 ## Protect The Secrets
 
 Some of the configurations contain sensitive values, such as username, password, token, etc. These values would be
