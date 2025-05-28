@@ -24,6 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -281,5 +282,53 @@ public @interface BanyanDB {
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @interface IndexMode {
+    }
+
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Group {
+        /**
+         * Specify the group name for the Stream (Record). The default value is "recordsNormal".
+         */
+        StreamGroup streamGroup() default StreamGroup.RECORDS_NORMAL;
+    }
+
+    enum StreamGroup {
+        RECORDS_NORMAL("recordsNormal"),
+        RECORDS_TRACE("recordsTrace"),
+        RECORDS_ZIPKIN_TRACE("recordsZipkinTrace"),
+        RECORDS_LOG("recordsLog"),
+        RECORDS_BROWSER_ERROR_LOG("recordsBrowserErrorLog");
+
+        @Getter
+        private final String name;
+
+        StreamGroup(final String name) {
+            this.name = name;
+        }
+    }
+
+    enum MeasureGroup {
+        METRICS_MIN("metricsMin"),
+        METRICS_HOUR("metricsHour"),
+        METRICS_DAY("metricsDay"),
+        METADATA("metadata");
+        @Getter
+        private final String name;
+
+        MeasureGroup(final String name) {
+            this.name = name;
+        }
+    }
+
+    enum PropertyGroup {
+        PROPERTY("property");
+
+        @Getter
+        private final String name;
+
+        PropertyGroup(final String name) {
+            this.name = name;
+        }
     }
 }

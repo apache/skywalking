@@ -26,8 +26,8 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -44,10 +44,16 @@ import java.util.function.Function;
 public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQueryDAO {
     private final int scrollingBatchSize;
 
-    protected Function<SearchHit, SpanAttachedEventRecord> searchHitSpanAttachedEventRecordFunction = hit -> {
+    protected Function<SearchHit, SpanAttachedEventRecord> searchHitZKSpanAttachedEventRecordFunction = hit -> {
         final var sourceAsMap = hit.getSource();
         final var builder = new SpanAttachedEventRecord.Builder();
         return builder.storage2Entity(new ElasticSearchConverter.ToEntity(SpanAttachedEventRecord.INDEX_NAME, sourceAsMap));
+    };
+
+    protected Function<SearchHit, SWSpanAttachedEventRecord> searchHitSWSpanAttachedEventRecordFunction = hit -> {
+        final var sourceAsMap = hit.getSource();
+        final var builder = new SWSpanAttachedEventRecord.Builder();
+        return builder.storage2Entity(new ElasticSearchConverter.ToEntity(SWSpanAttachedEventRecord.INDEX_NAME, sourceAsMap));
     };
 
     public SpanAttachedEventEsDAO(ElasticSearchClient client, StorageModuleElasticsearchConfig config) {
@@ -56,7 +62,30 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
     }
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException {
+    public List<SWSpanAttachedEventRecord> querySWSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(SWSpanAttachedEventRecord.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isMergedTable(SWSpanAttachedEventRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SWSpanAttachedEventRecord.INDEX_NAME));
+        }
+        final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
+        query.must(Query.terms(SWSpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
+        search.sort(SWSpanAttachedEventRecord.START_TIME_SECOND, Sort.Order.ASC);
+        search.sort(SWSpanAttachedEventRecord.START_TIME_NANOS, Sort.Order.ASC);
+
+        final var scroller = ElasticSearchScroller
+            .<SWSpanAttachedEventRecord>builder()
+            .client(getClient())
+            .search(search.build())
+            .index(index)
+            .resultConverter(searchHitSWSpanAttachedEventRecordFunction)
+            .build();
+        return scrollDebuggable(scroller, index, new SearchParams());
+    }
+
+    @Override
+    public List<SpanAttachedEventRecord> queryZKSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SpanAttachedEventRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
@@ -65,17 +94,16 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
         }
         final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
         query.must(Query.terms(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
-        query.must(Query.terms(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
         search.sort(SpanAttachedEventRecord.START_TIME_SECOND, Sort.Order.ASC);
         search.sort(SpanAttachedEventRecord.START_TIME_NANOS, Sort.Order.ASC);
 
         final var scroller = ElasticSearchScroller
-            .<SpanAttachedEventRecord>builder()
-            .client(getClient())
-            .search(search.build())
-            .index(index)
-            .resultConverter(searchHitSpanAttachedEventRecordFunction)
-            .build();
+                .<SpanAttachedEventRecord>builder()
+                .client(getClient())
+                .search(search.build())
+                .index(index)
+                .resultConverter(searchHitZKSpanAttachedEventRecordFunction)
+                .build();
         return scrollDebuggable(scroller, index, new SearchParams());
     }
 }

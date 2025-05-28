@@ -34,7 +34,11 @@ public class BanyanDBStorageConfig extends ModuleConfig {
 
     private Global global = new Global();
     private RecordsNormal recordsNormal = new RecordsNormal();
-    private RecordsSuper recordsSuper = new RecordsSuper();
+    private RecordsTrace recordsTrace = new RecordsTrace();
+    private RecordsZipkinTrace recordsZipkinTrace = new RecordsZipkinTrace();
+    private RecordsLog recordsLog = new RecordsLog();
+    private RecordsBrowserErrorLog recordsBrowserErrorLog = new RecordsBrowserErrorLog();
+
     private MetricsMin metricsMin = new MetricsMin();
     private MetricsHour metricsHour = new MetricsHour();
     private MetricsDay metricsDay = new MetricsDay();
@@ -142,13 +146,27 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     public static class RecordsNormal extends BanyanDBStorageConfig.GroupResource {
     }
 
-    /**
-     * RecordsSuper is a special dataset designed to store trace or log data that is too large for normal datasets.
-     * Each super dataset will be a separate group in BanyanDB.
-     */
+    // RecordsSuper is a special dataset designed to store traces or logs data that is too large for normal datasets.
+    // Each super dataset will be a separate group in BanyanDB.
+
     @Getter
     @Setter
-    public static class RecordsSuper extends BanyanDBStorageConfig.GroupResource {
+    public static class RecordsLog extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    @Getter
+    @Setter
+    public static class RecordsTrace extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    @Getter
+    @Setter
+    public static class RecordsZipkinTrace extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    @Getter
+    @Setter
+    public static class RecordsBrowserErrorLog extends BanyanDBStorageConfig.GroupResource {
     }
 
     // The group settings of metrics.

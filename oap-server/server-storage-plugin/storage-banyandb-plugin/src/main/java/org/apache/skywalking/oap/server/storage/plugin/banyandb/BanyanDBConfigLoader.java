@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -76,28 +77,49 @@ public class BanyanDBConfigLoader {
             );
             copyStages(recordsNormal, config.getRecordsNormal());
 
-            Properties recordsSupper = (Properties) groups.get("recordsSuper");
+            Properties log = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_LOG.getName());
             copyProperties(
-                config.getRecordsSuper(), recordsSupper,
+                    config.getRecordsLog(), log,
+                    moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            copyStages(log, config.getRecordsLog());
+
+            Properties segment = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_TRACE.getName());
+            copyProperties(
+                config.getRecordsTrace(), segment,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
-            copyStages(recordsSupper, config.getRecordsSuper());
+            copyStages(segment, config.getRecordsTrace());
 
-            Properties metricsMin = (Properties) groups.get("metricsMin");
+            Properties zipkinSpan = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_ZIPKIN_TRACE.getName());
+            copyProperties(
+                config.getRecordsZipkinTrace(), zipkinSpan,
+                moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            copyStages(zipkinSpan, config.getRecordsZipkinTrace());
+
+            Properties browserErrorLog = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG.getName());
+            copyProperties(
+                config.getRecordsBrowserErrorLog(), browserErrorLog,
+                moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            copyStages(browserErrorLog, config.getRecordsBrowserErrorLog());
+
+            Properties metricsMin = (Properties) groups.get(BanyanDB.MeasureGroup.METRICS_MIN.getName());
             copyProperties(
                 config.getMetricsMin(), metricsMin,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
             copyStages(metricsMin, config.getMetricsMin());
 
-            Properties metricsHour = (Properties) groups.get("metricsHour");
+            Properties metricsHour = (Properties) groups.get(BanyanDB.MeasureGroup.METRICS_HOUR.getName());
             copyProperties(
                 config.getMetricsHour(), metricsHour,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
             copyStages(metricsHour, config.getMetricsHour());
 
-            Properties metricsDay = (Properties) groups.get("metricsDay");
+            Properties metricsDay = (Properties) groups.get(BanyanDB.MeasureGroup.METRICS_DAY.getName());
             copyProperties(
                 config.getMetricsDay(), metricsDay,
                 moduleProvider.getModule().name(), moduleProvider.name()
@@ -105,11 +127,11 @@ public class BanyanDBConfigLoader {
             copyStages(metricsDay, config.getMetricsDay());
 
             copyProperties(
-                config.getMetadata(), (Properties) groups.get("metadata"),
+                config.getMetadata(), (Properties) groups.get(BanyanDB.MeasureGroup.METADATA.getName()),
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
             copyProperties(
-                config.getProperty(), (Properties) groups.get("property"),
+                config.getProperty(), (Properties) groups.get(BanyanDB.PropertyGroup.PROPERTY.getName()),
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
         } catch (IllegalAccessException e) {

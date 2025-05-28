@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import javax.annotation.Nullable;
+
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -33,20 +35,20 @@ public interface ISpanAttachedEventQueryDAO extends Service {
     /**
      * @param duration nullable unless for BanyanDB query from cold stage
      */
-    default List<SpanAttachedEventRecord> querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException {
+    default List<SWSpanAttachedEventRecord> querySWSpanAttachedEventsDebuggable(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
             StringBuilder builder = new StringBuilder();
             if (traceContext != null) {
-                span = traceContext.createSpan("Query Dao: querySpanAttachedEvents");
-                builder.append("Condition: Type: ")
+                span = traceContext.createSpan("Query Dao: querySWSpanAttachedEvents");
+                builder.append("Condition: Span Type: ")
                        .append(type)
                        .append(", TraceIds: ")
                        .append(traceIds);
                 span.setMsg(builder.toString());
             }
-            return querySpanAttachedEvents(type, traceIds, duration);
+            return querySWSpanAttachedEvents(traceIds, duration);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -57,5 +59,36 @@ public interface ISpanAttachedEventQueryDAO extends Service {
     /**
      * @param duration nullable unless for BanyanDB query from cold stage
      */
-    List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException;
+    default List<SpanAttachedEventRecord> queryZKSpanAttachedEventsDebuggable(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query Dao: queryZKSpanAttachedEvents");
+                builder.append("Condition: Span Type: ")
+                        .append(type)
+                        .append(", TraceIds: ")
+                        .append(traceIds);
+                span.setMsg(builder.toString());
+            }
+            return queryZKSpanAttachedEvents(traceIds, duration);
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    /**
+     * Query SkyWalking span attached events by trace ids.
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    List<SWSpanAttachedEventRecord> querySWSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException;
+
+    /**
+     * Query Zipkin span attached events by trace ids.
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    List<SpanAttachedEventRecord> queryZKSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException;
 }

@@ -32,17 +32,17 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SPAN_ATTACHED_EVENT;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SW_SPAN_ATTACHED_EVENT;
 
 @Setter
 @Getter
-@ScopeDeclaration(id = SPAN_ATTACHED_EVENT, name = "SpanAttachedEvent")
-@Stream(name = SpanAttachedEventRecord.INDEX_NAME, scopeId = SPAN_ATTACHED_EVENT, builder = SpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(SpanAttachedEventRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_ZIPKIN_TRACE)
-public class SpanAttachedEventRecord extends Record {
+@ScopeDeclaration(id = SW_SPAN_ATTACHED_EVENT, name = "SWSpanAttachedEvent")
+@Stream(name = SWSpanAttachedEventRecord.INDEX_NAME, scopeId = SW_SPAN_ATTACHED_EVENT, builder = SWSpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(SWSpanAttachedEventRecord.TIMESTAMP)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_TRACE)
+public class SWSpanAttachedEventRecord extends Record {
 
-    public static final String INDEX_NAME = "span_attached_event_record";
+    public static final String INDEX_NAME = "sw_span_attached_event_record";
     public static final String START_TIME_SECOND = "start_time_second";
     public static final String START_TIME_NANOS = "start_time_nanos";
     public static final String EVENT = "event";
@@ -94,10 +94,10 @@ public class SpanAttachedEventRecord extends Record {
             .append(EVENT, event);
     }
 
-    public static class Builder implements StorageBuilder<SpanAttachedEventRecord> {
+    public static class Builder implements StorageBuilder<SWSpanAttachedEventRecord> {
         @Override
-        public SpanAttachedEventRecord storage2Entity(Convert2Entity converter) {
-            final SpanAttachedEventRecord record = new SpanAttachedEventRecord();
+        public SWSpanAttachedEventRecord storage2Entity(Convert2Entity converter) {
+            final SWSpanAttachedEventRecord record = new SWSpanAttachedEventRecord();
             record.setStartTimeSecond(((Number) converter.get(START_TIME_SECOND)).longValue());
             record.setStartTimeNanos(((Number) converter.get(START_TIME_NANOS)).intValue());
             record.setEvent((String) converter.get(EVENT));
@@ -113,7 +113,7 @@ public class SpanAttachedEventRecord extends Record {
         }
 
         @Override
-        public void entity2Storage(SpanAttachedEventRecord entity, Convert2Storage converter) {
+        public void entity2Storage(SWSpanAttachedEventRecord entity, Convert2Storage converter) {
             converter.accept(START_TIME_SECOND, entity.getStartTimeSecond());
             converter.accept(START_TIME_NANOS, entity.getStartTimeNanos());
             converter.accept(EVENT, entity.getEvent());

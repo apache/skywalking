@@ -25,10 +25,17 @@ import org.apache.skywalking.oap.server.core.storage.ttl.TTLDefinition;
 
 public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     private int grNormalTTLDays;
+    private int grTraceTTLDays;
+    private int grZipkinTraceTTLDays;
+    private int grLogTTLDays;
+    private int grBrowserErrorLogTTLDays;
     private int grSuperTTLDays;
     // -1 means no cold stage.
     private int grColdNormalTTLDays = -1;
-    private int grColdSuperTTLDays = -1;
+    private int grColdTraceTTLDays = -1;
+    private int grColdZipkinTraceTTLDays = -1;
+    private int grColdLogTTLDays = -1;
+    private int grColdBrowserErrorLogTTLDays = -1;
     private int gmMinuteTTLDays;
     private int gmHourTTLDays;
     private int gmDayTTLDays;
@@ -38,7 +45,10 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
 
     public BanyanDBTTLStatusQuery(BanyanDBStorageConfig config) {
         grNormalTTLDays = config.getRecordsNormal().getTtl();
-        grSuperTTLDays = config.getRecordsSuper().getTtl();
+        grTraceTTLDays = config.getRecordsTrace().getTtl();
+        grZipkinTraceTTLDays = config.getRecordsZipkinTrace().getTtl();
+        grLogTTLDays = config.getRecordsLog().getTtl();
+        grBrowserErrorLogTTLDays = config.getRecordsBrowserErrorLog().getTtl();
         gmMinuteTTLDays = config.getMetricsMin().getTtl();
         gmHourTTLDays = config.getMetricsHour().getTtl();
         gmDayTTLDays = config.getMetricsDay().getTtl();
@@ -49,11 +59,32 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
                 grColdNormalTTLDays = stage.getTtl();
             }
         });
-        config.getRecordsSuper().getAdditionalLifecycleStages().forEach(stage -> {
+        config.getRecordsTrace().getAdditionalLifecycleStages().forEach(stage -> {
             if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
-                grSuperTTLDays = grSuperTTLDays + stage.getTtl();
+                grTraceTTLDays = grTraceTTLDays + stage.getTtl();
             } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
-                grColdSuperTTLDays = stage.getTtl();
+                grColdTraceTTLDays = stage.getTtl();
+            }
+        });
+        config.getRecordsZipkinTrace().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                grZipkinTraceTTLDays = grZipkinTraceTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                grColdZipkinTraceTTLDays = stage.getTtl();
+            }
+        });
+        config.getRecordsLog().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                grLogTTLDays = grLogTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                grColdLogTTLDays = stage.getTtl();
+            }
+        });
+        config.getRecordsBrowserErrorLog().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                grBrowserErrorLogTTLDays = grBrowserErrorLogTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                grColdBrowserErrorLogTTLDays = stage.getTtl();
             }
         });
         config.getMetricsMin().getAdditionalLifecycleStages().forEach(stage -> {
@@ -83,10 +114,13 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     public TTLDefinition getTTL() {
         TTLDefinition definition = new TTLDefinition(
             new MetricsTTL(gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
-            new RecordsTTL(grNormalTTLDays, grSuperTTLDays)
+            new RecordsTTL(grNormalTTLDays, grTraceTTLDays, grZipkinTraceTTLDays, grLogTTLDays, grBrowserErrorLogTTLDays)
         );
-        definition.getRecords().setColdValue(grColdNormalTTLDays);
-        definition.getRecords().setColdSuperDataset(grColdSuperTTLDays);
+        definition.getRecords().setColdNormal(grColdNormalTTLDays);
+        definition.getRecords().setColdTrace(grColdTraceTTLDays);
+        definition.getRecords().setColdZipkinTrace(grColdZipkinTraceTTLDays);
+        definition.getRecords().setColdLog(grColdLogTTLDays);
+        definition.getRecords().setColdBrowserErrorLog(grColdBrowserErrorLogTTLDays);
         definition.getMetrics().setColdMinute(gmColdMinuteTTLDays);
         definition.getMetrics().setColdHour(gmColdHourTTLDays);
         definition.getMetrics().setColdDay(gmColdDayTTLDays);

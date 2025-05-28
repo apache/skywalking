@@ -52,7 +52,7 @@ public class TTLStatusQuery implements Service {
         if (ttlDefinition == null) {
             ttlDefinition = new TTLDefinition(
                 new MetricsTTL(coreMetricsDataTTL, coreMetricsDataTTL, coreMetricsDataTTL),
-                new RecordsTTL(coreRecordDataTTL, coreRecordDataTTL)
+                new RecordsTTL(coreRecordDataTTL, coreRecordDataTTL, coreRecordDataTTL, coreRecordDataTTL, coreRecordDataTTL)
             );
         }
         return ttlDefinition;

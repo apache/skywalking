@@ -191,7 +191,7 @@ public class ZipkinQueryHandler {
             if (CollectionUtils.isEmpty(trace)) {
                 return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
             }
-            appendEventsDebuggable(trace, getSpanAttachedEventQueryDAO().querySpanAttachedEventsDebuggable(
+            appendEventsDebuggable(trace, getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(
                 SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(traceId), null));
             return response(SpanBytesEncoder.JSON_V2.encodeList(trace));
         } finally {
@@ -364,7 +364,7 @@ public class ZipkinQueryHandler {
             return;
         }
 
-        final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType.ZIPKIN,
+        final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(SpanAttachedEventTraceType.ZIPKIN,
             new ArrayList<>(traceIdWithSpans.keySet()), null);
         final Map<String, List<SpanAttachedEventRecord>> traceEvents = records.stream().collect(Collectors.groupingBy(SpanAttachedEventRecord::getRelatedTraceId));
         for (Map.Entry<String, List<SpanAttachedEventRecord>> entry : traceEvents.entrySet()) {

@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -195,8 +195,8 @@ public class TraceQueryService implements Service {
         }
 
         if (CollectionUtils.isNotEmpty(sortedSpans)) {
-            final List<SpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().
-                querySpanAttachedEventsDebuggable(SpanAttachedEventTraceType.SKYWALKING, Arrays.asList(traceId), duration);
+            final List<SWSpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().
+                querySWSpanAttachedEventsDebuggable(SpanAttachedEventTraceType.SKYWALKING, Arrays.asList(traceId), duration);
             appendAttachedEventsToSpanDebuggable(sortedSpans, spanAttachedEvents);
         }
 
@@ -322,7 +322,7 @@ public class TraceQueryService implements Service {
         });
     }
 
-    private void appendAttachedEventsToSpanDebuggable(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+    private void appendAttachedEventsToSpanDebuggable(List<Span> spans, List<SWSpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan debuggingSpan = null;
         try {
@@ -338,7 +338,7 @@ public class TraceQueryService implements Service {
         }
     }
 
-    private void appendAttachedEventsToSpan(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+    private void appendAttachedEventsToSpan(List<Span> spans, List<SWSpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
         if (CollectionUtils.isEmpty(events)) {
             return;
         }
@@ -353,7 +353,7 @@ public class TraceQueryService implements Service {
         });
 
         final HashMap<String, Span> spanMatcher = new HashMap<>();
-        for (SpanAttachedEventRecord record : events) {
+        for (SWSpanAttachedEventRecord record : events) {
             if (!StringUtils.isNumeric(record.getTraceSpanId())) {
                 continue;
             }

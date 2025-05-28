@@ -24,8 +24,8 @@ import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO implements ISpanAttachedEventQueryDAO {
-    private static final Set<String> TAGS = ImmutableSet.of(SpanAttachedEventRecord.START_TIME_SECOND,
+    private static final Set<String> ZK_TAGS = ImmutableSet.of(SpanAttachedEventRecord.START_TIME_SECOND,
         SpanAttachedEventRecord.START_TIME_NANOS,
         SpanAttachedEventRecord.EVENT,
         SpanAttachedEventRecord.END_TIME_SECOND,
@@ -48,6 +48,19 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
         SpanAttachedEventRecord.TRACE_SPAN_ID,
         SpanAttachedEventRecord.DATA_BINARY,
         SpanAttachedEventRecord.TIMESTAMP);
+
+    private static final Set<String> SW_TAGS = ImmutableSet.of(SWSpanAttachedEventRecord.START_TIME_SECOND,
+        SWSpanAttachedEventRecord.START_TIME_NANOS,
+        SWSpanAttachedEventRecord.EVENT,
+        SWSpanAttachedEventRecord.END_TIME_SECOND,
+        SWSpanAttachedEventRecord.END_TIME_NANOS,
+        SWSpanAttachedEventRecord.TRACE_REF_TYPE,
+        SWSpanAttachedEventRecord.RELATED_TRACE_ID,
+        SWSpanAttachedEventRecord.TRACE_SEGMENT_ID,
+        SWSpanAttachedEventRecord.TRACE_SPAN_ID,
+        SWSpanAttachedEventRecord.DATA_BINARY,
+        SWSpanAttachedEventRecord.TIMESTAMP);
+
     private final int batchSize;
 
     public BanyanDBSpanAttachedEventQueryDAO(BanyanDBStorageClient client, int profileDataQueryBatchSize) {
@@ -56,25 +69,46 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
     }
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) throws IOException {
+    public List<SWSpanAttachedEventRecord> querySWSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         final StreamQueryResponse resp = queryDebuggable(
-            isColdStage, SpanAttachedEventRecord.INDEX_NAME, TAGS, getTimestampRange(duration),
+                isColdStage, SWSpanAttachedEventRecord.INDEX_NAME, ZK_TAGS, getTimestampRange(duration),
+                new QueryBuilder<StreamQuery>() {
+                    @Override
+                    protected void apply(StreamQuery query) {
+                        query.and(in(SWSpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
+                        query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.ASC));
+                        query.setLimit(batchSize);
+                    }
+                });
+
+        return resp.getElements().stream().map(this::buildSWRecord).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SpanAttachedEventRecord> queryZKSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
+        final StreamQueryResponse resp = queryDebuggable(
+            isColdStage, SpanAttachedEventRecord.INDEX_NAME, ZK_TAGS, getTimestampRange(duration),
             new QueryBuilder<StreamQuery>() {
             @Override
             protected void apply(StreamQuery query) {
                 query.and(in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
-                query.and(eq(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
                 query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.ASC));
                 query.setLimit(batchSize);
             }
         });
 
-        return resp.getElements().stream().map(this::buildRecord).collect(Collectors.toList());
+        return resp.getElements().stream().map(this::buildZKRecord).collect(Collectors.toList());
     }
 
-    private SpanAttachedEventRecord buildRecord(RowEntity row) {
+    private SpanAttachedEventRecord buildZKRecord(RowEntity row) {
         final SpanAttachedEventRecord.Builder builder = new SpanAttachedEventRecord.Builder();
         return builder.storage2Entity(new BanyanDBConverter.StorageToStream(SpanAttachedEventRecord.INDEX_NAME, row));
+    }
+
+    private SWSpanAttachedEventRecord buildSWRecord(RowEntity row) {
+        final SWSpanAttachedEventRecord.Builder builder = new SWSpanAttachedEventRecord.Builder();
+        return builder.storage2Entity(new BanyanDBConverter.StorageToStream(SWSpanAttachedEventRecord.INDEX_NAME, row));
     }
 }

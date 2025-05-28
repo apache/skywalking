@@ -1024,7 +1024,7 @@ jobs:
               sleep 180
               # create and copy files
               docker cp $CONTAINER_ID:/tmp ${BANYANDB_DATA_GENERATE_ROOT}
-              docker cp $CONTAINER_ID:/tmp/measure-data/measure/data/index ${BANYANDB_DATA_GENERATE_ROOT}
+              docker cp $CONTAINER_ID:/tmp/measure-data/measure/data/metadata ${BANYANDB_DATA_GENERATE_ROOT}
               found=true
               break
             else
