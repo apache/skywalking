@@ -1019,7 +1019,7 @@ jobs:
           found=false
           for i in {1..60}; do
             # check if segment files exist
-            if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure-data/measure/data/day/seg* 2>/dev/null)" ]'; then
+            if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure-data/measure/data/metricsDay/seg* 2>/dev/null)" ]'; then
               echo "✅ found segment files"
               sleep 180
               # create and copy files
