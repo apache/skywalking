@@ -53,7 +53,7 @@ public class StorageModuleDorisProvider extends ModuleProvider {
         this.dorisClient = new DorisClient(config);
         LOGGER.info("Doris storage provider prepare method, config host: {}", config.getHost());
 
-        this.registerServiceImplementation(StorageDAO.class, new DorisStorageDAO(dorisClient));
+        this.registerServiceImplementation(StorageDAO.class, new DorisStorageDAO(dorisClient, config)); // Pass config
         this.registerServiceImplementation(IMetricsQueryDAO.class, new DorisMetricsQueryDAO(dorisClient));
         this.registerServiceImplementation(ITraceQueryDAO.class, new DorisTraceQueryDAO(dorisClient, config));
         

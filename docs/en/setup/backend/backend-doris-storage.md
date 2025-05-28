@@ -56,9 +56,23 @@ Make sure to replace placeholder values like `your_doris_fe_host` with your actu
 
 Before starting the SkyWalking OAP server with the Doris storage plugin enabled, you must create the necessary tables and schemas in your Doris database. SkyWalking does not automatically create these tables in Doris.
 
-Please refer to the **[Doris Table Initialization Script](placeholder-link-to-doris-schema.sql)** for the required SQL DDL statements. *(Self-note: This link is a placeholder and needs to be updated once the actual script is available.)*
+The Data Definition Language (DDL) scripts for creating these tables are provided in the SkyWalking distribution under the Doris storage plugin directory:
+`oap-server/server-storage-plugin/storage-doris-plugin/src/main/resources/doris_schema.sql`.
 
-Failure to create the tables beforehand will result in errors during SkyWalking startup.
+You need to execute the SQL commands in this `doris_schema.sql` file in your Apache Doris cluster before starting the OAP server.
+
+**Important Considerations for `doris_schema.sql`:**
+- The provided script is a basic starting point suitable for development or initial testing.
+- **For production environments, you MUST review and customize the DDL.** Pay close attention to:
+    - **Replication Factor:** Adjust the `replication_allocation` property (or `replication_num` for older Doris versions) for each table based on your cluster's fault tolerance requirements.
+    - **Partitioning:** For time-series tables like `metrics_all`, `segment`, and `log_record`, implement appropriate time-based partitioning strategies (e.g., daily or weekly partitions on `time_bucket` or `timestamp` columns). This is crucial for query performance and efficient data lifecycle management (e.g., TTL for old data).
+    - **Bucketing:** The number of buckets (`BUCKETS N`) in the `DISTRIBUTED BY HASH(...)` clause should be adjusted based on your Doris cluster size and expected data volume per partition to ensure even data distribution.
+    - **Data Types & Lengths:** Verify that `VARCHAR` lengths, numeric precision, and other data types are suitable for your specific data characteristics.
+    - **Key Models & Indexes:** While basic keys are defined, you may need additional secondary indexes or to adjust key models (DUPLICATE, UNIQUE, AGGREGATE) based on your primary query patterns. Consider creating materialized views (rollups) for frequently aggregated metrics.
+
+Failure to create and appropriately configure the tables beforehand will result in errors during SkyWalking startup or suboptimal performance.
+
+Consult the Apache Doris documentation for best practices on table design, schema properties, and data loading.
 
 ## Development Note
 

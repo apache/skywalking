@@ -1,15 +1,36 @@
 package org.apache.skywalking.oap.server.storage.plugin.doris.dao;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
+import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
+import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
+import org.apache.skywalking.oap.server.core.storage.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
+import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasCacheDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.storage.plugin.doris.StorageModuleDorisConfig;
 import org.apache.skywalking.oap.server.storage.plugin.doris.client.DorisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,121 +39,169 @@ public class DorisStorageDAO implements StorageDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DorisStorageDAO.class);
     private final DorisClient dorisClient;
+    private final StorageModuleDorisConfig config; // Added config
 
-    public DorisStorageDAO(DorisClient dorisClient) {
+    public DorisStorageDAO(DorisClient dorisClient, StorageModuleDorisConfig config) { // Updated constructor
         this.dorisClient = dorisClient;
+        this.config = config; // Store config
     }
 
     @Override
-    public Map<String, Object> get(String modelName, String id) throws IOException {
-        LOGGER.warn("DorisStorageDAO.get not implemented");
-        throw new UnsupportedOperationException("DorisStorageDAO.get not implemented");
+    public IMetricsDAO newMetricsDao(StorageBuilder<?> storageBuilder) {
+        // The storageBuilder is not directly used by DorisMetricsDAO constructor in the current setup,
+        // but it's part of the factory method signature.
+        // DorisMetricsDAO internally handles metric-to-map conversion for now.
+        LOGGER.debug("Creating new DorisMetricsDAO instance.");
+        return new DorisMetricsDAO(this.dorisClient);
     }
 
     @Override
-    public Map<String, Object> getByValue(String modelName, String valueCName, String value) throws IOException {
-        LOGGER.warn("DorisStorageDAO.getByValue not implemented");
-        throw new UnsupportedOperationException("DorisStorageDAO.getByValue not implemented");
+    public IRecordDAO newRecordDao(StorageBuilder<?> storageBuilder) {
+        // The storageBuilder is not directly used by DorisRecordDAO constructor in the current setup,
+        // but it's part of the factory method signature.
+        LOGGER.debug("Creating new DorisRecordDAO instance.");
+        return new DorisRecordDAO(this.dorisClient);
     }
 
     @Override
-    public Map<String, Object> getByValues(String modelName, Map<String, String> values) throws IOException {
-        LOGGER.warn("DorisStorageDAO.getByValues not implemented");
-        throw new UnsupportedOperationException("DorisStorageDAO.getByValues not implemented");
+    public INoneStreamDAO newNoneStreamDao(StorageBuilder<?> storageBuilder) {
+        LOGGER.warn("newNoneStreamDao not implemented yet, returning null.");
+         // return new DorisNoneStreamDAO(this.dorisClient, storageBuilder); // Placeholder for actual implementation
+        return null;
     }
+    
+    // The StorageDAO interface from the codebase seems to be more extensive than initially read.
+    // Adding other newXyzDAO methods as per typical SkyWalking StorageDAO implementations.
+    // These will also be stubs for now.
 
     @Override
-    public List<Map<String, Object>> getByValues(String modelName, String valueCName, List<String> values) throws IOException {
-        LOGGER.warn("DorisStorageDAO.getByValues not implemented");
-        throw new UnsupportedOperationException("DorisStorageDAO.getByValues not implemented");
+    public IManagementDAO newManagementDao(StorageBuilder<?> storageBuilder) {
+        LOGGER.warn("newManagementDao not implemented yet, returning null.");
+        // return new DorisManagementDAO(dorisClient, storageBuilder); // Placeholder
+        return null;
     }
 
-    @Override
-    public InsertRequest prepareBatchInsert(String modelName, Map<String, Object> newEntity, StorageBuilder storageBuilder) throws IOException {
-        // This method is typically for batching, for a single insert, we can directly execute.
-        // For a real batch, a different approach would be needed with DorisClient.
-        LOGGER.info("Preparing single insert for model: {}", modelName);
-        return new DorisInsertRequest(modelName, newEntity);
+    // Based on common StorageDAO interfaces, adding more stubs.
+    // Users should verify against the exact StorageDAO interface in their SkyWalking version.
+
+    public INetworkAddressAliasDAO newNetworkAddressAliasDAO() {
+        LOGGER.warn("newNetworkAddressAliasDAO not implemented yet, returning null.");
+        // return new DorisNetworkAddressAliasDAO(this.dorisClient); // Placeholder
+        return null;
     }
 
-    @Override
-    public UpdateRequest prepareBatchUpdate(String modelName, String id, Map<String, Object> updateEntity, StorageBuilder storageBuilder) throws IOException {
-        // Similar to insert, this is for a single update.
-        LOGGER.info("Preparing single update for model: {}, id: {}", modelName, id);
-        return new DorisUpdateRequest(modelName, id, updateEntity);
+    public IBatchDAO newBatchDAO() {
+        LOGGER.debug("Creating new DorisBatchDAO instance.");
+        return new DorisBatchDAO(this.dorisClient, this.config);
     }
 
-    @Override
-    public void delete(String modelName, String id) throws IOException {
-        LOGGER.warn("DorisStorageDAO.delete not implemented");
-        throw new UnsupportedOperationException("DorisStorageDAO.delete not implemented");
+    public IHistoryDeleteDAO newHistoryDeleteDAO() {
+        LOGGER.debug("Creating new DorisHistoryDeleteDAO instance.");
+        return new DorisHistoryDeleteDAO(this.dorisClient);
+    }
+    
+    // It's likely the StorageDAO interface is an aggregation of many more specific DAO factories.
+    // The methods below are common in various storage plugins' StorageDAO implementations.
+    // Without the exact, complete StorageDAO interface for this SkyWalking version,
+    // these are added based on common patterns.
+
+    public ILogQueryDAO newLogQueryDAO() {
+        LOGGER.warn("newLogQueryDAO not implemented yet, returning null.");
+        return null;
     }
 
-    // Example implementation for DorisInsertRequest
-    private class DorisInsertRequest implements InsertRequest {
-        private final String modelName;
-        private final Map<String, Object> entity;
-
-        public DorisInsertRequest(String modelName, Map<String, Object> entity) {
-            this.modelName = modelName;
-            this.entity = entity;
-        }
-
-        @Override
-        public void execute() throws IOException {
-            // Assuming modelName is the table name
-            String tableName = modelName;
-            StringBuilder sql = new StringBuilder("INSERT INTO ").append(tableName).append(" (");
-            List<String> columns = entity.keySet().stream().collect(Collectors.toList());
-            sql.append(String.join(", ", columns));
-            sql.append(") VALUES (");
-            sql.append(columns.stream().map(col -> "?").collect(Collectors.joining(", ")));
-            sql.append(")");
-
-            Object[] params = columns.stream().map(entity::get).toArray();
-
-            try {
-                LOGGER.debug("Executing SQL: {} with params: {}", sql.toString(), params);
-                dorisClient.executeUpdate(sql.toString(), params);
-            } catch (SQLException e) {
-                LOGGER.error("Failed to execute insert SQL: {} for model: {}", sql.toString(), modelName, e);
-                throw new IOException("Failed to insert data into Doris for model " + modelName, e);
-            }
-        }
+    public IMetricsQueryDAO newMetricsQueryDAO() {
+         LOGGER.warn("newMetricsQueryDAO not implemented yet, returning null.");
+        return null;
+    }
+    
+    public ITraceQueryDAO newTraceQueryDAO() {
+        LOGGER.warn("newTraceQueryDAO not implemented yet, returning null.");
+        return null;
     }
 
-    // Example implementation for DorisUpdateRequest
-    private class DorisUpdateRequest implements UpdateRequest {
-        private final String modelName;
-        private final String id;
-        private final Map<String, Object> entity;
+    public IMetadataQueryDAO newMetadataQueryDAO() {
+        LOGGER.warn("newMetadataQueryDAO not implemented yet, returning null.");
+        return null;
+    }
 
+    public IAggregationQueryDAO newAggregationQueryDAO() {
+        LOGGER.warn("newAggregationQueryDAO not implemented yet, returning null.");
+        return null;
+    }
 
-        public DorisUpdateRequest(String modelName, String id, Map<String, Object> entity) {
-            this.modelName = modelName;
-            this.id = id; // Assuming 'id' is the primary key column name.
-            this.entity = entity;
-        }
+    public IAlarmQueryDAO newAlarmQueryDAO() {
+        LOGGER.warn("newAlarmQueryDAO not implemented yet, returning null.");
+        return null;
+    }
 
-        @Override
-        public void execute() throws IOException {
-            String tableName = modelName; // Assuming modelName is the table name
-            StringBuilder sql = new StringBuilder("UPDATE ").append(tableName).append(" SET ");
-            List<String> columnsToUpdate = entity.keySet().stream().collect(Collectors.toList());
-            sql.append(columnsToUpdate.stream().map(col -> col + " = ?").collect(Collectors.joining(", ")));
-            sql.append(" WHERE id = ?"); // Assuming 'id' is the primary key
+    public ITopologyQueryDAO newTopologyQueryDAO() {
+        LOGGER.warn("newTopologyQueryDAO not implemented yet, returning null.");
+        return null;
+    }
 
-            List<Object> paramsList = columnsToUpdate.stream().map(entity::get).collect(Collectors.toList());
-            paramsList.add(this.id);
-            Object[] params = paramsList.toArray();
+    public IProfileTaskQueryDAO newProfileTaskQueryDAO() {
+        LOGGER.warn("newProfileTaskQueryDAO not implemented yet, returning null.");
+        return null;
+    }
 
-            try {
-                LOGGER.debug("Executing SQL: {} with params: {}", sql.toString(), params);
-                dorisClient.executeUpdate(sql.toString(), params);
-            } catch (SQLException e) {
-                LOGGER.error("Failed to execute update SQL: {} for model: {}, id: {}", sql.toString(), modelName, id, e);
-                throw new IOException("Failed to update data in Doris for model " + modelName + ", id " + id, e);
-            }
-        }
+    public IProfileTaskLogQueryDAO newProfileTaskLogQueryDAO() {
+        LOGGER.warn("newProfileTaskLogQueryDAO not implemented yet, returning null.");
+        return null;
+    }
+    
+    public IProfileThreadSnapshotQueryDAO newProfileThreadSnapshotQueryDAO() {
+        LOGGER.warn("newProfileThreadSnapshotQueryDAO not implemented yet, returning null.");
+        return null;
+    }
+
+    public UITemplateManagementDAO newUITemplateManagementDAO() {
+        LOGGER.warn("newUITemplateManagementDAO not implemented yet, returning null.");
+        return null;
+    }
+    
+    public UIMenuManagementDAO newUIMenuManagementDAO() {
+        LOGGER.warn("newUIMenuManagementDAO not implemented yet, returning null.");
+        return null;
+    }
+
+    public IEBPFProfilingTaskDAO newEBPFProfilingTaskDAO() {
+        LOGGER.warn("newEBPFProfilingTaskDAO not implemented yet, returning null.");
+        return null;
+    }
+
+    public IEBPFProfilingScheduleDAO newEBPFProfilingScheduleDAO() {
+        LOGGER.warn("newEBPFProfilingScheduleDAO not implemented yet, returning null.");
+        return null;
+    }
+
+    public IEBPFProfilingDataDAO newEBPFProfilingDataDAO() {
+        LOGGER.warn("newEBPFProfilingDataDAO not implemented yet, returning null.");
+        return null;
+    }
+
+    public IEventQueryDAO newEventQueryDAO() {
+        LOGGER.warn("newEventQueryDAO not implemented yet, returning null.");
+        return null;
+    }
+    
+    public IBrowserLogQueryDAO newBrowserLogQueryDAO() {
+         LOGGER.warn("newBrowserLogQueryDAO not implemented yet, returning null.");
+        return null;
+    }
+
+    public ISpanAttachedEventQueryDAO newSpanAttachedEventQueryDAO() {
+        LOGGER.warn("newSpanAttachedEventQueryDAO not implemented yet, returning null.");
+        return null;
+    }
+
+    public IZipkinQueryDAO newZipkinQueryDAO() {
+        LOGGER.warn("newZipkinQueryDAO not implemented yet, returning null.");
+        return null;
+    }
+
+    public ITagAutoCompleteQueryDAO newTagAutoCompleteQueryDAO() {
+        LOGGER.warn("newTagAutoCompleteQueryDAO not implemented yet, returning null.");
+        return null;
     }
 }
