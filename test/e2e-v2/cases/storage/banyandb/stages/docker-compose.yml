@@ -30,7 +30,7 @@ services:
     hostname: data-hot1
     command: data --etcd-endpoints=http://etcd:2379 --node-labels type=hot
     volumes:
-      - ../data-generate/index:/tmp/measure/data/metadata
+      - ../data-generate/metadata:/tmp/measure/data/metadata
     networks:
       - e2e
 
