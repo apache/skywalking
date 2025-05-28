@@ -107,6 +107,11 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             banyanDBModelExtension.setIndexMode(true);
         }
 
+        if (aClass.isAnnotationPresent(BanyanDB.Group.class)) {
+            BanyanDB.StreamGroup streamGroup = aClass.getAnnotation(BanyanDB.Group.class).streamGroup();
+            banyanDBModelExtension.setStreamGroup(streamGroup);
+        }
+
         // Set routing rules for ElasticSearch
         elasticSearchModelExtension.setRouting(storage.getModelName(), modelColumns);
 

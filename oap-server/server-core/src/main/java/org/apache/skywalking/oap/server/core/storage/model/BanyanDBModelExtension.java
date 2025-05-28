@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.storage.model;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 
 import java.util.List;
 
@@ -87,4 +88,8 @@ public class BanyanDBModelExtension {
         @Getter
         private List<String> groupByTagNames;
     }
+
+        @Setter
+        @Getter
+        private BanyanDB.StreamGroup streamGroup = BanyanDB.StreamGroup.RECORDS_NORMAL;
 }

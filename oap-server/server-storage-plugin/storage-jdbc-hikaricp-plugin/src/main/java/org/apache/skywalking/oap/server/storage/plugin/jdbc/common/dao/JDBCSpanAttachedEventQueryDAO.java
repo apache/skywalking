@@ -21,8 +21,8 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
@@ -46,12 +46,12 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
 
     @Override
     @SneakyThrows
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds, @Nullable Duration duration) {
+    public List<SpanAttachedEventRecord> queryZKSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) {
         final var tables = tableHelper.getTablesWithinTTL(SpanAttachedEventRecord.INDEX_NAME);
         final var results = new ArrayList<SpanAttachedEventRecord>();
 
         for (String table : tables) {
-            final var sqlAndParameters = buildSQL(type, traceIds, table);
+            final var sqlAndParameters = buildZKSQL(traceIds, table);
 
             jdbcClient.executeQuery(
                 sqlAndParameters.sql(),
@@ -84,7 +84,47 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
             .collect(toList());
     }
 
-    private static SQLAndParameters buildSQL(SpanAttachedEventTraceType type, List<String> traceIds, String table) {
+    @Override
+    @SneakyThrows
+    public List<SWSpanAttachedEventRecord> querySWSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) {
+        final var tables = tableHelper.getTablesWithinTTL(SWSpanAttachedEventRecord.INDEX_NAME);
+        final var results = new ArrayList<SWSpanAttachedEventRecord>();
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSWSQL(traceIds, table);
+
+            jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    resultSet -> {
+                        while (resultSet.next()) {
+                            SWSpanAttachedEventRecord record = new SWSpanAttachedEventRecord();
+                            record.setStartTimeSecond(resultSet.getLong(SWSpanAttachedEventRecord.START_TIME_SECOND));
+                            record.setStartTimeNanos(resultSet.getInt(SWSpanAttachedEventRecord.START_TIME_NANOS));
+                            record.setEvent(resultSet.getString(SWSpanAttachedEventRecord.EVENT));
+                            record.setEndTimeSecond(resultSet.getLong(SWSpanAttachedEventRecord.END_TIME_SECOND));
+                            record.setEndTimeNanos(resultSet.getInt(SWSpanAttachedEventRecord.END_TIME_NANOS));
+                            record.setTraceRefType(resultSet.getInt(SWSpanAttachedEventRecord.TRACE_REF_TYPE));
+                            record.setRelatedTraceId(resultSet.getString(SWSpanAttachedEventRecord.RELATED_TRACE_ID));
+                            record.setTraceSegmentId(resultSet.getString(SWSpanAttachedEventRecord.TRACE_SEGMENT_ID));
+                            record.setTraceSpanId(resultSet.getString(SWSpanAttachedEventRecord.TRACE_SPAN_ID));
+                            String dataBinaryBase64 = resultSet.getString(SWSpanAttachedEventRecord.DATA_BINARY);
+                            if (StringUtil.isNotEmpty(dataBinaryBase64)) {
+                                record.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                            }
+                            results.add(record);
+                        }
+
+                        return null;
+                    },
+                    sqlAndParameters.parameters());
+        }
+        return results
+                .stream()
+                .sorted(comparing(SWSpanAttachedEventRecord::getStartTimeSecond).thenComparing(SWSpanAttachedEventRecord::getStartTimeNanos))
+                .collect(toList());
+    }
+
+    private static SQLAndParameters buildZKSQL(List<String> traceIds, String table) {
         final var sql = new StringBuilder("select * from " + table + " where ");
         final var parameters = new ArrayList<>(traceIds.size() + 1);
 
@@ -100,11 +140,30 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
         );
         parameters.addAll(traceIds);
 
-        sql.append(" and ").append(SpanAttachedEventRecord.TRACE_REF_TYPE).append(" = ?");
-        parameters.add(type.value());
-
         sql.append(" order by ").append(SpanAttachedEventRecord.START_TIME_SECOND)
            .append(",").append(SpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");
+
+        return new SQLAndParameters(sql.toString(), parameters);
+    }
+
+    private static SQLAndParameters buildSWSQL(List<String> traceIds, String table) {
+        final var sql = new StringBuilder("select * from " + table + " where ");
+        final var parameters = new ArrayList<>(traceIds.size() + 1);
+
+        sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        parameters.add(SWSpanAttachedEventRecord.INDEX_NAME);
+
+        sql.append(" and ").append(SWSpanAttachedEventRecord.RELATED_TRACE_ID).append(" in ");
+        sql.append(
+                traceIds
+                        .stream()
+                        .map(it -> "?")
+                        .collect(joining(",", "(", ")"))
+        );
+        parameters.addAll(traceIds);
+
+        sql.append(" order by ").append(SWSpanAttachedEventRecord.START_TIME_SECOND)
+                .append(",").append(SWSpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");
 
         return new SQLAndParameters(sql.toString(), parameters);
     }

@@ -497,22 +497,53 @@ public enum MetadataRegistry {
             return new SchemaMetadata(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, model.getName(), Kind.PROPERTY, DownSampling.None, config.getProperty());
         }
         if (model.isRecord()) { // stream
-            return new SchemaMetadata(model.isSuperDataset() ? model.getName() : "normal",
-                    model.getName(),
-                    Kind.STREAM,
-                    model.getDownsampling(),
-                    model.isSuperDataset() ? config.getRecordsSuper() : config.getRecordsNormal());
+            BanyanDB.StreamGroup streamGroup = model.getBanyanDBModelExtension().getStreamGroup();
+                switch (streamGroup) {
+                    case RECORDS_LOG:
+                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_LOG.getName(),
+                                model.getName(),
+                                Kind.STREAM,
+                                model.getDownsampling(),
+                                config.getRecordsLog());
+                    case RECORDS_TRACE:
+                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_TRACE.getName(),
+                                model.getName(),
+                                Kind.STREAM,
+                                model.getDownsampling(),
+                                config.getRecordsTrace());
+                    case RECORDS_ZIPKIN_TRACE:
+                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_ZIPKIN_TRACE.getName(),
+                                model.getName(),
+                                Kind.STREAM,
+                                model.getDownsampling(),
+                                config.getRecordsZipkinTrace());
+                    case RECORDS_BROWSER_ERROR_LOG:
+                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG.getName(),
+                                model.getName(),
+                                Kind.STREAM,
+                                model.getDownsampling(),
+                                config.getRecordsBrowserErrorLog());
+                    case RECORDS_NORMAL:
+                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_NORMAL.getName(),
+                                model.getName(),
+                                Kind.STREAM,
+                                model.getDownsampling(),
+                                config.getRecordsBrowserErrorLog());
+                    default:
+                        throw new IllegalStateException("unknown stream group " + streamGroup);
+
+                }
         }
 
         if (model.getBanyanDBModelExtension().isIndexMode()) {
-            return new SchemaMetadata("index", model.getName(), Kind.MEASURE,
+            return new SchemaMetadata(BanyanDB.MeasureGroup.METADATA.getName(), model.getName(), Kind.MEASURE,
                     model.getDownsampling(),
                     config.getMetadata());
         }
 
         switch (model.getDownsampling()) {
             case Minute:
-                return new SchemaMetadata(DownSampling.Minute.getName(),
+                return new SchemaMetadata(BanyanDB.MeasureGroup.METRICS_MIN.getName(),
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),
@@ -521,7 +552,7 @@ public enum MetadataRegistry {
                 if (!configService.shouldToHour()) {
                     throw new UnsupportedOperationException("downsampling to hour is not supported");
                 }
-                return new SchemaMetadata(DownSampling.Hour.getName(),
+                return new SchemaMetadata(BanyanDB.MeasureGroup.METRICS_HOUR.getName(),
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),
@@ -530,7 +561,7 @@ public enum MetadataRegistry {
                 if (!configService.shouldToDay()) {
                     throw new UnsupportedOperationException("downsampling to day is not supported");
                 }
-                return new SchemaMetadata(DownSampling.Day.getName(),
+                return new SchemaMetadata(BanyanDB.MeasureGroup.METRICS_DAY.getName(),
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),

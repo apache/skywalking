@@ -25,6 +25,7 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEvent;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEventReportServiceGrpc;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -46,22 +47,44 @@ public class SpanAttachedEventReportServiceHandler extends SpanAttachedEventRepo
                     log.debug("receive span attached event is streaming");
                 }
 
-                final SpanAttachedEventRecord record = new SpanAttachedEventRecord();
-                record.setStartTimeSecond(event.getStartTime().getSeconds());
-                record.setStartTimeNanos(event.getStartTime().getNanos());
-                record.setEvent(event.getEvent());
-                record.setEndTimeSecond(event.getEndTime().getSeconds());
-                record.setEndTimeNanos(event.getEndTime().getNanos());
-                record.setTraceRefType(event.getTraceContext().getTypeValue());
-                record.setRelatedTraceId(event.getTraceContext().getTraceId());
-                record.setTraceSegmentId(event.getTraceContext().getTraceSegmentId());
-                record.setTraceSpanId(event.getTraceContext().getSpanId());
-                record.setDataBinary(event.toByteArray());
-                long timestamp = TimeUnit.SECONDS.toMillis(record.getStartTimeSecond())
-                    + TimeUnit.NANOSECONDS.toMillis(record.getStartTimeNanos());
-                record.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
-                record.setTimestamp(timestamp);
-                RecordStreamProcessor.getInstance().in(record);
+                switch (event.getTraceContext().getType()) {
+                    case SKYWALKING:
+                        final SWSpanAttachedEventRecord swRecord = new SWSpanAttachedEventRecord();
+                        swRecord.setStartTimeSecond(event.getStartTime().getSeconds());
+                        swRecord.setStartTimeNanos(event.getStartTime().getNanos());
+                        swRecord.setEvent(event.getEvent());
+                        swRecord.setEndTimeSecond(event.getEndTime().getSeconds());
+                        swRecord.setEndTimeNanos(event.getEndTime().getNanos());
+                        swRecord.setTraceRefType(event.getTraceContext().getTypeValue());
+                        swRecord.setRelatedTraceId(event.getTraceContext().getTraceId());
+                        swRecord.setTraceSegmentId(event.getTraceContext().getTraceSegmentId());
+                        swRecord.setTraceSpanId(event.getTraceContext().getSpanId());
+                        swRecord.setDataBinary(event.toByteArray());
+                        long timestamp = TimeUnit.SECONDS.toMillis(swRecord.getStartTimeSecond())
+                                + TimeUnit.NANOSECONDS.toMillis(swRecord.getStartTimeNanos());
+                        swRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
+                        swRecord.setTimestamp(timestamp);
+                        RecordStreamProcessor.getInstance().in(swRecord);
+                        break;
+                    case ZIPKIN:
+                        final SpanAttachedEventRecord record = new SpanAttachedEventRecord();
+                        record.setStartTimeSecond(event.getStartTime().getSeconds());
+                        record.setStartTimeNanos(event.getStartTime().getNanos());
+                        record.setEvent(event.getEvent());
+                        record.setEndTimeSecond(event.getEndTime().getSeconds());
+                        record.setEndTimeNanos(event.getEndTime().getNanos());
+                        record.setTraceRefType(event.getTraceContext().getTypeValue());
+                        record.setRelatedTraceId(event.getTraceContext().getTraceId());
+                        record.setTraceSegmentId(event.getTraceContext().getTraceSegmentId());
+                        record.setTraceSpanId(event.getTraceContext().getSpanId());
+                        record.setDataBinary(event.toByteArray());
+                        long ts = TimeUnit.SECONDS.toMillis(record.getStartTimeSecond())
+                                + TimeUnit.NANOSECONDS.toMillis(record.getStartTimeNanos());
+                        record.setTimeBucket(TimeBucket.getRecordTimeBucket(ts));
+                        record.setTimestamp(ts);
+                        RecordStreamProcessor.getInstance().in(record);
+                        break;
+                }
             }
 
             @Override

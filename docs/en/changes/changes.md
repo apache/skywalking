@@ -22,6 +22,8 @@
 * Adapt the mesh metrics if detect the ambient mesh in the eBPF access log receiver.
 * Add JSON format support for the `/debugging/config/dump` status API.
 * Enhance status APIs to support multiple `accept` header values, e.g. `Accept: application/json; charset=utf-8`.
+* Storage: separate `SpanAttachedEventRecord` for SkyWalking trace and Zipkin trace.
+* [Break Change]BanyanDB: Setup new Group policy. 
 
 #### UI
 

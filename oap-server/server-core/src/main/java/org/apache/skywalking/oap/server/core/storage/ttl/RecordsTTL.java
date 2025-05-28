@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 /**
@@ -28,10 +27,15 @@ import lombok.Data;
  */
 @Data
 public class RecordsTTL {
-    @SerializedName("default")
-    private final int value;
-    private final int superDataset;
-    // -1 means no cold stage.
-    private int coldValue = -1;
-    private int coldSuperDataset = -1;
+    private final int normal;
+    private final int trace;
+    private final int zipkinTrace;
+    private final int log;
+    private final int browserErrorLog;
+
+    private int coldNormal = -1;
+    private int coldTrace = -1;
+    private int coldZipkinTrace = -1;
+    private int coldLog = -1;
+    private int coldBrowserErrorLog = -1;
 }
