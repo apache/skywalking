@@ -25,6 +25,7 @@
 * Storage: separate `SpanAttachedEventRecord` for SkyWalking trace and Zipkin trace.
 * [Break Change]BanyanDB: Setup new Group policy. 
 * Bump up commons-beanutils to 1.11.0.
+* Refactor: simplify the `Accept` http header process.
 
 #### UI
 

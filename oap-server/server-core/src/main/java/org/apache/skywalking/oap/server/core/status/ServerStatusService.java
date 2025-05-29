@@ -18,14 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
-import com.google.gson.Gson;
-import io.vavr.Tuple2;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -43,7 +40,6 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @RequiredArgsConstructor
 public class ServerStatusService implements Service {
     private final ModuleManager manager;
-    private final CoreModuleConfig moduleConfig;
     @Getter
     private BootingStatus bootingStatus = new BootingStatus();
     @Getter
@@ -98,7 +94,7 @@ public class ServerStatusService implements Service {
         for (ApplicationConfiguration.ModuleConfiguration configuration : configurations) {
             final String moduleName = configuration.getModuleName();
             if (configuration.getProviders().size() == 1) {
-                configList.add(moduleName + ".provider", configuration.getProviders().keySet().iterator().next());
+                configList.put(moduleName + ".provider", configuration.getProviders().keySet().iterator().next());
             }
             configuration.getProviders().forEach(
                 (providerName, providerConfiguration) ->
@@ -109,7 +105,7 @@ public class ServerStatusService implements Service {
                                     value = "******";
                                 }
                             }
-                            configList.add(moduleName + "." + providerName + "." + key, value.toString());
+                            configList.put(moduleName + "." + providerName + "." + key, value.toString());
                         }
                     )
             );
@@ -117,33 +113,17 @@ public class ServerStatusService implements Service {
         return configList;
     }
 
-    public static class ConfigList {
-        private final static Gson GSON = new Gson();
-        private List<Tuple2> configurations = new ArrayList<>(200);
-
-        public void add(String key, String value) {
-            configurations.add(new Tuple2<>(key, value));
-        }
-
+    public static class ConfigList extends HashMap<String, String> {
         @Override
         public String toString() {
             StringBuilder configList = new StringBuilder();
-            for (Tuple2 tuple : configurations) {
-                configList.append(tuple._1)
+            for (final var entry : this.entrySet()) {
+                configList.append(entry.getKey())
                           .append("=")
-                          .append(tuple._2)
+                          .append(entry.getValue())
                           .append("\n");
             }
             return configList.toString();
-        }
-
-        public String toJsonString() {
-            return GSON.toJson(configurations.stream()
-                                             .collect(
-                                                 java.util.stream.Collectors.toMap(
-                                                     tuple -> tuple._1.toString(),
-                                                     tuple -> tuple._2.toString()
-                                                 )));
         }
     }
 }

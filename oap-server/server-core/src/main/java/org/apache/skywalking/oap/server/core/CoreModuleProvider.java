@@ -265,7 +265,7 @@ public class CoreModuleProvider extends ModuleProvider {
         httpServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
-        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager(), moduleConfig));
+        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager()));
         this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
         hierarchyService = new HierarchyService(getManager(), moduleConfig);
         this.registerServiceImplementation(HierarchyService.class, hierarchyService);

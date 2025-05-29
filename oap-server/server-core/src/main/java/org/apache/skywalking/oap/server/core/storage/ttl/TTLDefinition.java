@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
-import com.google.gson.Gson;
 import lombok.Data;
 
 /**
@@ -26,11 +25,11 @@ import lombok.Data;
  */
 @Data
 public class TTLDefinition {
-    private final static Gson GSON = new Gson();
     private final MetricsTTL metrics;
     private final RecordsTTL records;
 
-    public String generateTTLDefinition() {
+    @Override
+    public String toString() {
         StringBuilder ttlDefinition = new StringBuilder();
         ttlDefinition.append("# Metrics TTL includes the definition of the TTL of the metrics-ish data in the storage,\n");
         ttlDefinition.append("# e.g.\n");
@@ -66,9 +65,5 @@ public class TTLDefinition {
         ttlDefinition.append("records.log.cold=").append(records.getColdLog()).append("\n");
         ttlDefinition.append("records.browserErrorLog.cold=").append(records.getColdBrowserErrorLog()).append("\n");
         return ttlDefinition.toString();
-    }
-
-    public String generateTTLDefinitionAsJSONStr() {
-        return GSON.toJson(this);
     }
 }
