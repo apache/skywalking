@@ -18,17 +18,17 @@ This API is used to get the unified and effective TTL configurations.
     {
       "host": "10.0.12.23",
       "port": 11800,
-      "isSelf": true
+      "self": true
     },
     {
       "host": "10.0.12.25",
       "port": 11800,
-      "isSelf": false
+      "self": false
     },
     {
       "host": "10.0.12.37",
       "port": 11800,
-      "isSelf": false
+      "self": false
     }
   ]
 }
@@ -36,4 +36,4 @@ This API is used to get the unified and effective TTL configurations.
 
 The `nodes` list all the nodes in the cluster. The size of the list should be exactly same as your cluster setup.
 The `host` and `port` are the address of the OAP node, which are used for OAP nodes communicating with each other. The
-`isSelf` is a flag to indicate whether the node is the current node, others are remote nodes.
+`self` is a flag to indicate whether the node is the current node, others are remote nodes.

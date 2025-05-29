@@ -137,7 +137,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
-        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager(), moduleConfig));
+        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager()));
         moduleConfig.setEnableHierarchy(false);
         this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
         this.registerServiceImplementation(HierarchyService.class, new HierarchyService(getManager(), moduleConfig));
