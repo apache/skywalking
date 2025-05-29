@@ -24,6 +24,7 @@
 * Enhance status APIs to support multiple `accept` header values, e.g. `Accept: application/json; charset=utf-8`.
 * Storage: separate `SpanAttachedEventRecord` for SkyWalking trace and Zipkin trace.
 * [Break Change]BanyanDB: Setup new Group policy. 
+* Bump up commons-beanutils to 1.11.0.
 
 #### UI
 
