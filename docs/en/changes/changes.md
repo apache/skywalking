@@ -35,6 +35,8 @@
 * Refactor: use the Fetch API to instead of Axios.
 * Support cold stage data for metrics, trace and log.
 * Add route to status API `/debugging/config/dump` in the UI.
+* Implement the Status API on Settings page.
+* Bump vite from 6.2.6 to 6.3.4.
 
 #### Documentation
 
