@@ -23,9 +23,9 @@ import org.apache.skywalking.apm.network.event.v3.Source;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
+import org.apache.skywalking.oap.server.core.analysis.record.Event;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import lombok.RequiredArgsConstructor;
 
@@ -42,7 +42,7 @@ public class EventRecordAnalyzerListener implements EventAnalyzerListener {
 
     @Override
     public void build() {
-        MetricsStreamProcessor.getInstance().in(event);
+        RecordStreamProcessor.getInstance().in(event);
     }
 
     @Override
@@ -67,9 +67,11 @@ public class EventRecordAnalyzerListener implements EventAnalyzerListener {
         event.setStartTime(e.getStartTime());
         event.setEndTime(e.getEndTime());
         if (e.getStartTime() > 0) {
-            event.setTimeBucket(TimeBucket.getMinuteTimeBucket(e.getStartTime()));
+            event.setTimeBucket(TimeBucket.getRecordTimeBucket(e.getStartTime()));
+            event.setTimestamp(e.getStartTime());
         } else if (e.getEndTime() > 0) {
-            event.setTimeBucket(TimeBucket.getMinuteTimeBucket(e.getEndTime()));
+            event.setTimeBucket(TimeBucket.getRecordTimeBucket(e.getEndTime()));
+            event.setTimestamp(e.getEndTime());
         }
     }
 

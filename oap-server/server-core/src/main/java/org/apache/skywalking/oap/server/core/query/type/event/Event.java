@@ -49,6 +49,9 @@ public class Event {
 
     private long endTime;
 
+    // The timestamp of the event. If the end time is set, it will be used as the timestamp, otherwise, the start time will be used.
+    private long timestamp;
+
     private String layer;
 
     public void setParameters(final List<KeyValue> parameters) {
