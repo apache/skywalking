@@ -18,9 +18,13 @@
   cases:
     - query: swctl --grpc-addr=${oap_host}:${oap_11800} event report --uuid=abcde --name=Upgrade --service-name=e2e-service --instance-name=e2e-service-instance --endpoint-name='/e2e-endpoint' --message='Upgrade from {fromVersion} to {toVersion}' --layer=GENERAL --start-time=`date +%s`000 --end-time=`date +%s`999 fromVersion=v1 toVersion=v2
       expected: expected/report-event.yml
-    - query: swctl --grpc-addr=${oap_host}:${oap_11800} event report --uuid=efghi --name=Upgrade --service-name=e2e-service --instance-name=e2e-service-instance --endpoint-name='/e2e-endpoint' --message='Upgrade from {fromVersion} to {toVersion}' --layer=GENERAL --start-time=`date +%s`000 fromVersion=v1 toVersion=v2
+    - query: |
+        sleep 3;
+        swctl --grpc-addr=${oap_host}:${oap_11800} event report --uuid=efghi --name=Upgrade --service-name=e2e-service --instance-name=e2e-service-instance --endpoint-name='/e2e-endpoint' --message='Upgrade from {fromVersion} to {toVersion}' --layer=GENERAL --start-time=`date +%s`000 fromVersion=v1 toVersion=v2
       expected: expected/report-event2.yml
-    - query: swctl --grpc-addr=${oap_host}:${oap_11800} event report --uuid=efghi --name=Upgrade --service-name=e2e-service --instance-name=e2e-service-instance --endpoint-name='/e2e-endpoint' --message='Upgrade from {fromVersion} to {toVersion}' --layer=GENERAL --end-time=`date +%s`999 fromVersion=v1 toVersion=v2
+    - query: |
+        sleep 3;
+        swctl --grpc-addr=${oap_host}:${oap_11800} event report --uuid=efghi --name=Upgrade --service-name=e2e-service --instance-name=e2e-service-instance --endpoint-name='/e2e-endpoint' --message='Upgrade from {fromVersion} to {toVersion}' --layer=GENERAL --end-time=`date +%s`999 fromVersion=v1 toVersion=v2
       expected: expected/report-event2.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql event ls
       expected: expected/events.yml
