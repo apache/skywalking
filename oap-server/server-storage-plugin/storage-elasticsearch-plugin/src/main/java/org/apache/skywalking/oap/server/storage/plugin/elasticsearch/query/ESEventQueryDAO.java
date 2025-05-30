@@ -26,7 +26,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
+import org.apache.skywalking.oap.server.core.analysis.record.Event;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -79,7 +79,7 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
     private void buildMustQueryListByCondition(final EventQueryCondition condition,
                                                final BoolQueryBuilder query) {
         if (IndexController.LogicIndicesRegister.isMergedTable(Event.INDEX_NAME)) {
-            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, Event.INDEX_NAME));
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, Event.INDEX_NAME));
         }
         
         if (!isNullOrEmpty(condition.getUuid())) {
@@ -113,10 +113,10 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         final Duration startTime = condition.getTime();
         if (startTime != null) {
             if (startTime.getStartTimestamp() > 0) {
-                query.must(Query.range(Event.START_TIME).gt(startTime.getStartTimestamp()));
+                query.must(Query.range(Event.TIMESTAMP).gt(startTime.getStartTimestamp()));
             }
             if (startTime.getEndTimestamp() > 0) {
-                query.must(Query.range(Event.END_TIME).lt(startTime.getEndTimestamp()));
+                query.must(Query.range(Event.TIMESTAMP).lt(startTime.getEndTimestamp()));
             }
         }
 
@@ -139,7 +139,7 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
 
         return Search.builder().query(query)
                      .sort(
-                         Event.START_TIME,
+                         Event.TIMESTAMP,
                          Order.DES.equals(queryOrder) ? Sort.Order.DESC : Sort.Order.ASC
                      )
                      .from(page.getFrom())
@@ -157,7 +157,7 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         return Search.builder()
                      .query(query)
                      .sort(
-                         Event.START_TIME,
+                         Event.TIMESTAMP,
                          Order.DES.equals(queryOrder) ? Sort.Order.DESC : Sort.Order.ASC
                      )
                      .from(page.getFrom())
@@ -186,7 +186,7 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         if (!endTimeStr.isEmpty() && !Objects.equals(endTimeStr, "0")) {
             event.setEndTime(Long.parseLong(endTimeStr));
         }
-
+        event.setTimestamp(Long.parseLong(searchHit.getSource().get(Event.TIMESTAMP).toString()));
         event.setLayer(Layer.valueOf(Integer.parseInt(searchHit.getSource().get(Event.LAYER).toString())).name());
 
         return event;

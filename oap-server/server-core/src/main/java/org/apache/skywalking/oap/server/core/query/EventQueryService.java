@@ -18,16 +18,21 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.event.Event;
 import org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
-
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isBlank;
@@ -53,7 +58,8 @@ public class EventQueryService implements Service {
         if (isBlank(condition.getUuid()) && isDurationInvalid(condition.getTime())) {
             throw new IllegalArgumentException("time field is required when uuid is absent.");
         }
-        return getDao().queryEvents(condition);
+        Events events = getDao().queryEvents(condition);
+        return mergeAndSortEvents(events, condition.getOrder());
     }
 
     public Events queryEvents(final List<EventQueryCondition> conditions) throws Exception {
@@ -61,10 +67,42 @@ public class EventQueryService implements Service {
         if (Objects.nonNull(condition)) {
             throw new IllegalArgumentException("time field is required when uuid is absent.");
         }
-        return getDao().queryEvents(conditions);
+        Events events = getDao().queryEvents(conditions);
+        return mergeAndSortEvents(events, conditions.get(0).getOrder());
     }
 
     boolean isDurationInvalid(final Duration duration) {
         return isNull(duration) || (isBlank(duration.getStart()) || isBlank(duration.getEnd()));
+    }
+
+    private Events mergeAndSortEvents(Events events, Order order) {
+        final Order queryOrder = isNull(order) ? Order.DES : order;
+        Map<String, Event> mergedEvents = new HashMap<>();
+        for (Event event : events.getEvents()) {
+            String key = event.getUuid();
+            if (!mergedEvents.containsKey(key)) {
+                mergedEvents.put(key, event);
+            } else {
+                Event existingEvent = mergedEvents.get(key);
+                if ((event.getStartTime() > 0 && existingEvent.getStartTime() > event.getStartTime())
+                        || existingEvent.getStartTime() == 0) {
+                    existingEvent.setStartTime(event.getStartTime());
+                    if (existingEvent.getEndTime() == 0) {
+                        existingEvent.setTimestamp(event.getTimestamp());
+                    }
+                } else if (event.getEndTime() > 0 && existingEvent.getEndTime() < event.getEndTime()) {
+                    event.setStartTime(existingEvent.getStartTime());
+                    mergedEvents.put(key, event);
+                }
+            }
+        }
+        List<Event> sortedEvents;
+        if (queryOrder == Order.ASC) {
+            sortedEvents = mergedEvents.values().stream().sorted(Comparator.comparing(Event::getTimestamp)).collect(Collectors.toList());
+        } else {
+            sortedEvents = mergedEvents.values().stream().sorted(Comparator.comparing(Event::getTimestamp).reversed()).collect(Collectors.toList());
+        }
+
+        return new Events(sortedEvents);
     }
 }

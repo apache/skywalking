@@ -16,18 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.metrics;
+package org.apache.skywalking.oap.server.core.analysis.record;
 
-import com.google.common.base.Strings;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -38,19 +33,13 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
-import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 @Getter
 @Setter
 @ScopeDeclaration(id = EVENT, name = "Event")
-@Stream(name = Event.INDEX_NAME, scopeId = EVENT, builder = Event.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = false, supportUpdate = true)
-@EqualsAndHashCode(
-    callSuper = false,
-    of = "uuid"
-)
-@BanyanDB.IndexMode
-public class Event extends Metrics {
+@Stream(name = Event.INDEX_NAME, scopeId = EVENT, builder = Event.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(Event.TIMESTAMP)
+public class Event extends Record {
 
     public static final String INDEX_NAME = "events";
 
@@ -62,7 +51,7 @@ public class Event extends Metrics {
 
     public static final String ENDPOINT = "endpoint";
 
-    public static final String NAME = "name";
+    public static final String NAME = "event_name";
 
     public static final String TYPE = "type";
 
@@ -78,10 +67,7 @@ public class Event extends Metrics {
 
     private static final int PARAMETER_MAX_LENGTH = 4000;
 
-    @Override
-    protected StorageID id0() {
-        return new StorageID().append(UUID, getUuid());
-    }
+    public static final String TIMESTAMP = "timestamp";
 
     @Column(name = UUID)
     @BanyanDB.SeriesID(index = 0)
@@ -109,7 +95,6 @@ public class Event extends Metrics {
     private String parameters;
 
     @ElasticSearch.EnableDocValues
-    @BanyanDB.EnableSort
     @Column(name = START_TIME)
     private long startTime;
 
@@ -119,105 +104,16 @@ public class Event extends Metrics {
     @Column(name = LAYER)
     private Layer layer;
 
-    @Override
-    public boolean combine(final Metrics metrics) {
-        final Event event = (Event) metrics;
-
-        // Set time bucket only when it's never set.
-        if (getTimeBucket() <= 0) {
-            if (event.getStartTime() > 0) {
-                setTimeBucket(TimeBucket.getMinuteTimeBucket(event.getStartTime()));
-            } else if (event.getEndTime() > 0) {
-                setTimeBucket(TimeBucket.getMinuteTimeBucket(event.getEndTime()));
-            }
-        }
-
-        // Set start time only when it's never set, (`start` event may come after `end` event).
-        if (getStartTime() <= 0 && event.getStartTime() > 0) {
-            setStartTime(event.getStartTime());
-        }
-
-        if (event.getEndTime() > 0) {
-            setEndTime(event.getEndTime());
-        }
-
-        if (isNotBlank(event.getType())) {
-            setType(event.getType());
-        }
-        if (isNotBlank(event.getMessage())) {
-            setMessage(event.getMessage());
-        }
-        if (isNotBlank(event.getParameters())) {
-            setParameters(event.getParameters());
-        }
-        return true;
-    }
-
-    /**
-     * @since 9.0.0 Limit the length of {@link #parameters}
-     */
-    public void setParameters(String parameters) {
-        this.parameters = parameters == null || parameters.length() <= PARAMETER_MAX_LENGTH ?
-            parameters : parameters.substring(0, PARAMETER_MAX_LENGTH);
-    }
+    @Setter
+    @Getter
+    @ElasticSearch.EnableDocValues
+    @Column(name = TIMESTAMP)
+    private long timestamp;
 
     @Override
-    public void calculate() {
-    }
-
-    @Override
-    public Metrics toHour() {
-        return null;
-    }
-
-    @Override
-    public Metrics toDay() {
-        return null;
-    }
-
-    @Override
-    public void deserialize(final RemoteData remoteData) {
-        setUuid(remoteData.getDataStrings(0));
-        setService(remoteData.getDataStrings(1));
-        setServiceInstance(remoteData.getDataStrings(2));
-        setEndpoint(remoteData.getDataStrings(3));
-        setName(remoteData.getDataStrings(4));
-        setType(remoteData.getDataStrings(5));
-        setMessage(remoteData.getDataStrings(6));
-        setParameters(remoteData.getDataStrings(7));
-
-        setStartTime(remoteData.getDataLongs(0));
-        setEndTime(remoteData.getDataLongs(1));
-        setTimeBucket(remoteData.getDataLongs(2));
-
-        setLayer(Layer.valueOf(remoteData.getDataIntegers(0)));
-    }
-
-    @Override
-    public RemoteData.Builder serialize() {
-        final RemoteData.Builder builder = RemoteData.newBuilder();
-
-        builder.addDataStrings(getUuid());
-        builder.addDataStrings(getService());
-        builder.addDataStrings(getServiceInstance());
-        builder.addDataStrings(getEndpoint());
-        builder.addDataStrings(getName());
-        builder.addDataStrings(getType());
-        builder.addDataStrings(getMessage());
-        builder.addDataStrings(Strings.nullToEmpty(getParameters()));
-
-        builder.addDataLongs(getStartTime());
-        builder.addDataLongs(getEndTime());
-        builder.addDataLongs(getTimeBucket());
-
-        builder.addDataIntegers(getLayer().value());
-
-        return builder;
-    }
-
-    @Override
-    public int remoteHashCode() {
-        return hashCode();
+    public StorageID id() {
+        return new StorageID().append(TIME_BUCKET, getTimeBucket())
+                .append(UUID, uuid);
     }
 
     public static class Builder implements StorageBuilder<Event> {
@@ -235,6 +131,7 @@ public class Event extends Metrics {
             record.setStartTime(((Number) converter.get(START_TIME)).longValue());
             record.setEndTime(((Number) converter.get(END_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             if (converter.get(LAYER) != null) {
                 record.setLayer(Layer.valueOf(((Number) converter.get(LAYER)).intValue()));
             }
@@ -254,6 +151,7 @@ public class Event extends Metrics {
             converter.accept(START_TIME, storageData.getStartTime());
             converter.accept(END_TIME, storageData.getEndTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(TIMESTAMP, storageData.getTimestamp());
             Layer layer = storageData.getLayer();
             converter.accept(LAYER, layer != null ? layer.value() : Layer.UNDEFINED.value());
         }

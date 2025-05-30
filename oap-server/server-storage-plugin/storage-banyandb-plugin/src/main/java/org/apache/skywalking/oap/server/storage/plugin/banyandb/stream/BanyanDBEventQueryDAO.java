@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,10 +26,10 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
-import org.apache.skywalking.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
-import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.Element;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
@@ -39,11 +39,10 @@ import org.apache.skywalking.oap.server.core.query.type.event.EventQueryConditio
 import org.apache.skywalking.oap.server.core.query.type.event.EventType;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
+import org.apache.skywalking.oap.server.core.analysis.record.Event;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
@@ -51,7 +50,7 @@ import static java.util.Objects.isNull;
 public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEventQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(
             Event.UUID, Event.SERVICE, Event.SERVICE_INSTANCE, Event.ENDPOINT, Event.NAME,
-            Event.MESSAGE, Event.TYPE, Event.START_TIME, Event.END_TIME, Event.PARAMETERS, Event.LAYER);
+            Event.MESSAGE, Event.TYPE, Event.START_TIME, Event.END_TIME, Event.PARAMETERS, Event.LAYER, Event.TIMESTAMP);
 
     public BanyanDBEventQueryDAO(final BanyanDBStorageClient client) {
         super(client);
@@ -59,17 +58,15 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
 
     @Override
     public Events queryEvents(EventQueryCondition condition) throws Exception {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(Event.INDEX_NAME, DownSampling.Minute);
         final Duration time = condition.getTime();
         boolean isColdStage = time != null && time.isColdStage();
-        MeasureQueryResponse resp = query(isColdStage, schema, TAGS,
-                Collections.emptySet(), getTimestampRange(time), buildQuery(Collections.singletonList(condition)));
+        StreamQueryResponse resp = query(isColdStage, Event.INDEX_NAME, TAGS, getTimestampRange(time), buildQuery(Collections.singletonList(condition)));
         Events events = new Events();
         if (resp.size() == 0) {
             return events;
         }
-        for (final DataPoint dataPoint : resp.getDataPoints()) {
-            events.getEvents().add(buildEventView(dataPoint));
+        for (final Element e : resp.getElements()) {
+            events.getEvents().add(buildEventView(e));
         }
         return events;
     }
@@ -80,35 +77,34 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
         // Duration should be same for all conditions
         final Duration time = conditionList.get(0).getTime();
         boolean isColdStage = time != null && time.isColdStage();
-        MeasureQueryResponse resp = query(isColdStage, schema, TAGS,
-                Collections.emptySet(), getTimestampRange(time), buildQuery(conditionList));
+        StreamQueryResponse resp = query(isColdStage, Event.INDEX_NAME, TAGS, getTimestampRange(time), buildQuery(conditionList));
         Events events = new Events();
         if (resp.size() == 0) {
             return events;
         }
-        for (final DataPoint dataPoint : resp.getDataPoints()) {
-            events.getEvents().add(buildEventView(dataPoint));
+        for (final Element e : resp.getElements()) {
+            events.getEvents().add(buildEventView(e));
         }
         return events;
     }
 
-    public QueryBuilder<MeasureQuery> buildQuery(final List<EventQueryCondition> conditionList) {
+    public QueryBuilder<StreamQuery> buildQuery(final List<EventQueryCondition> conditionList) {
         EventQueryCondition condition = conditionList.get(0);
         final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
 
-        return new QueryBuilder<MeasureQuery>() {
+        return new QueryBuilder<StreamQuery>() {
             @Override
-            protected void apply(MeasureQuery query) {
+            protected void apply(StreamQuery query) {
                 List<AbstractCriteria> eventsQueryConditions = new ArrayList<>(conditionList.size());
-                query.limit(page.getLimit());
-                query.offset(page.getFrom());
+                query.setLimit(page.getLimit());
+                query.setOffset(page.getFrom());
                 if (queryOrder == Order.ASC) {
                     query.setOrderBy(
-                        new AbstractQuery.OrderBy(Event.START_TIME, AbstractQuery.Sort.ASC));
+                        new AbstractQuery.OrderBy(AbstractQuery.Sort.ASC));
                 } else {
                     query.setOrderBy(
-                        new AbstractQuery.OrderBy(Event.START_TIME, AbstractQuery.Sort.DESC));
+                        new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                 }
                 for (final EventQueryCondition condition : conditionList) {
                     List<PairQueryCondition<?>> queryConditions = new ArrayList<>();
@@ -151,31 +147,31 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
     }
 
     protected org.apache.skywalking.oap.server.core.query.type.event.Event buildEventView(
-            final DataPoint dataPoint) {
+            final Element e) {
         final org.apache.skywalking.oap.server.core.query.type.event.Event event =
                 new org.apache.skywalking.oap.server.core.query.type.event.Event();
 
-        event.setUuid(dataPoint.getTagValue(Event.UUID));
+        event.setUuid(e.getTagValue(Event.UUID));
 
-        String service = getValueOrDefault(dataPoint, Event.SERVICE, "");
-        String serviceInstance = getValueOrDefault(dataPoint, Event.SERVICE_INSTANCE, "");
-        String endpoint = getValueOrDefault(dataPoint, Event.ENDPOINT, "");
+        String service = getValueOrDefault(e, Event.SERVICE, "");
+        String serviceInstance = getValueOrDefault(e, Event.SERVICE_INSTANCE, "");
+        String endpoint = getValueOrDefault(e, Event.ENDPOINT, "");
         event.setSource(new Source(service, serviceInstance, endpoint));
 
-        event.setName(dataPoint.getTagValue(Event.NAME));
-        event.setType(EventType.parse(dataPoint.getTagValue(Event.TYPE)));
-        event.setMessage(dataPoint.getTagValue(Event.MESSAGE));
-        event.setParameters((String) dataPoint.getTagValue(Event.PARAMETERS));
-        event.setStartTime(dataPoint.getTagValue(Event.START_TIME));
-        event.setEndTime(dataPoint.getTagValue(Event.END_TIME));
-
-        event.setLayer(Layer.valueOf(((Number) dataPoint.getTagValue(Event.LAYER)).intValue()).name());
+        event.setName(e.getTagValue(Event.NAME));
+        event.setType(EventType.parse(e.getTagValue(Event.TYPE)));
+        event.setMessage(e.getTagValue(Event.MESSAGE));
+        event.setParameters((String) e.getTagValue(Event.PARAMETERS));
+        event.setStartTime(e.getTagValue(Event.START_TIME));
+        event.setEndTime(e.getTagValue(Event.END_TIME));
+        event.setTimestamp(e.getTagValue(Event.TIMESTAMP));
+        event.setLayer(Layer.valueOf(((Number) e.getTagValue(Event.LAYER)).intValue()).name());
 
         return event;
     }
 
-    private <T> T getValueOrDefault(DataPoint dataPoint, String tagName, T defaultValue) {
-        T v = dataPoint.getTagValue(tagName);
+    private <T> T getValueOrDefault(Element e, String tagName, T defaultValue) {
+        T v = e.getTagValue(tagName);
         return v == null ? defaultValue : v;
     } 
 }
