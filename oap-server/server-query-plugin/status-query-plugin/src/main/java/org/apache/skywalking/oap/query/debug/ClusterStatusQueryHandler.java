@@ -18,16 +18,18 @@
 
 package org.apache.skywalking.oap.query.debug;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.linecorp.armeria.common.HttpRequest;
-import com.linecorp.armeria.common.HttpResponse;
-import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.annotation.ExceptionHandler;
 import com.linecorp.armeria.server.annotation.Get;
+import com.linecorp.armeria.server.annotation.ProducesJson;
+
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -50,22 +52,15 @@ public class ClusterStatusQueryHandler {
         return remoteClientManager;
     }
 
+    @ProducesJson
     @Get("/status/cluster/nodes")
-    public HttpResponse buildClusterNodeList(HttpRequest request) {
-        JsonObject clusterInfo = new JsonObject();
-
-        JsonArray nodeList = new JsonArray();
-        clusterInfo.add("nodes", nodeList);
-        getRemoteClientManager().getRemoteClient().stream().map(c -> {
-            final Address address = c.getAddress();
-            JsonObject node = new JsonObject();
-            node.addProperty("host", address.getHost());
-            node.addProperty("port", address.getPort());
-            node.addProperty("isSelf", address.isSelf());
-            return node;
-        }).forEach(nodeList::add);
-
-        return HttpResponse.of(MediaType.JSON_UTF_8, clusterInfo.toString());
+    public Map<String, ?> buildClusterNodeList(HttpRequest request) {
+        return Map.of(
+            "nodes", 
+            getRemoteClientManager().getRemoteClient()
+                                    .stream()
+                                    .map(RemoteClient::getAddress)
+                                    .collect(Collectors.toList())
+        );
     }
-
 }

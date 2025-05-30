@@ -26,12 +26,14 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
-import com.linecorp.armeria.common.HttpHeaderNames;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.server.annotation.Default;
 import com.linecorp.armeria.server.annotation.ExceptionHandler;
 import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Param;
+import com.linecorp.armeria.server.annotation.ProducesJson;
+import com.linecorp.armeria.server.annotation.ProducesText;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,6 +85,7 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
+import org.apache.skywalking.oap.server.core.status.ServerStatusService.ConfigList;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import zipkin2.Span;
 
@@ -110,14 +113,11 @@ public class DebuggingHTTPHandler {
         this.logQuery = new LogQuery(manager);
     }
 
+    @ProducesText
+    @ProducesJson
     @Get("/debugging/config/dump")
-    public String dumpConfigurations(HttpRequest request) {
-        final String acceptHeader = request.headers().get(HttpHeaderNames.ACCEPT);
-        if (acceptHeader != null && acceptHeader.toLowerCase().contains("application/json")) {
-            return serverStatusService.dumpBootingConfigurations(config.getKeywords4MaskingSecretsOfConfig())
-                                      .toJsonString();
-        }
-        return serverStatusService.dumpBootingConfigurations(config.getKeywords4MaskingSecretsOfConfig()).toString();
+    public ConfigList dumpConfigurations(HttpRequest request) {
+        return serverStatusService.dumpBootingConfigurations(config.getKeywords4MaskingSecretsOfConfig());
     }
 
     @SneakyThrows
