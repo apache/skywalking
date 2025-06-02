@@ -15,5 +15,5 @@
 
 FROM openresty/openresty:1.17.8.2-5-alpine-fat
 
-RUN luarocks install nginx-lua-prometheus
+RUN luarocks --only-server https://raw.githubusercontent.com/rocks-moonscript-org/moonrocks-mirror/daab2726276e3282dc347b89a42a5107c3500567 install nginx-lua-prometheus
 RUN mkdir -p /var/log/nginx/

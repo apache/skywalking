@@ -25,5 +25,5 @@ RUN tar -xf ${SW_AGENT_NGINX_LUA_COMMIT}.tar.gz --strip 1
 
 RUN rm ${SW_AGENT_NGINX_LUA_COMMIT}.tar.gz
 
-RUN luarocks make rockspec/skywalking-nginx-lua-master-0.rockspec
+RUN luarocks make --only-server https://raw.githubusercontent.com/rocks-moonscript-org/moonrocks-mirror/daab2726276e3282dc347b89a42a5107c3500567 rockspec/skywalking-nginx-lua-master-0.rockspec
 
