@@ -27,6 +27,7 @@
 * Bump up commons-beanutils to 1.11.0.
 * Refactor: simplify the `Accept` http header process.
 * [Break Change]Storage: Move `event` from metrics to recods.
+* Remove string limitation in Jackson deserializer for ElasticSearch client.
 
 #### UI
 

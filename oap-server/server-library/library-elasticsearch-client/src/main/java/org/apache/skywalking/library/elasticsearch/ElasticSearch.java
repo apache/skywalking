@@ -18,6 +18,8 @@
 package org.apache.skywalking.library.elasticsearch;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonFactoryBuilder;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linecorp.armeria.client.ClientFactory;
@@ -60,7 +62,10 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 @Slf4j
 @Accessors(fluent = true)
 public final class ElasticSearch implements Closeable {
-    private final ObjectMapper mapper = new ObjectMapper()
+    private final ObjectMapper mapper = new ObjectMapper(
+        new JsonFactoryBuilder()
+            .streamReadConstraints(StreamReadConstraints.builder().maxStringLength(Integer.MAX_VALUE).build())
+            .build())
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
