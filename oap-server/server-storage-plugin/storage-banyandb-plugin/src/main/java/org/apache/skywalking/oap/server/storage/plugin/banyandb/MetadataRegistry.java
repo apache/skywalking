@@ -494,7 +494,7 @@ public enum MetadataRegistry {
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, DownSamplingConfigService configService) {
         if (!model.isTimeSeries()) {
-            return new SchemaMetadata(BanyanDBStorageConfig.PROPERTY_GROUP_NAME, model.getName(), Kind.PROPERTY, DownSampling.None, config.getProperty());
+            return new SchemaMetadata(BanyanDB.PropertyGroup.PROPERTY.getName(), model.getName(), Kind.PROPERTY, DownSampling.None, config.getProperty());
         }
         if (model.isRecord()) { // stream
             BanyanDB.StreamGroup streamGroup = model.getBanyanDBModelExtension().getStreamGroup();
@@ -523,8 +523,8 @@ public enum MetadataRegistry {
                                 Kind.STREAM,
                                 model.getDownsampling(),
                                 config.getRecordsBrowserErrorLog());
-                    case RECORDS_NORMAL:
-                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_NORMAL.getName(),
+                    case RECORDS:
+                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS.getName(),
                                 model.getName(),
                                 Kind.STREAM,
                                 model.getDownsampling(),
@@ -543,7 +543,7 @@ public enum MetadataRegistry {
 
         switch (model.getDownsampling()) {
             case Minute:
-                return new SchemaMetadata(BanyanDB.MeasureGroup.METRICS_MIN.getName(),
+                return new SchemaMetadata(BanyanDB.MeasureGroup.METRICS_MINUTE.getName(),
                         model.getName(),
                         Kind.MEASURE,
                         model.getDownsampling(),

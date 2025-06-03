@@ -74,163 +74,163 @@ groups:
   #
   #  For more details on setting `segmentIntervalDays` and `ttlDays`, refer to the [BanyanDB TTL](https://skywalking.apache.org/docs/main/latest/en/banyandb/ttl) documentation.
 
-  # The "recordsNormal" section defines settings for datasets not specified in records.
-  # Each dataset will be grouped under a single group named "recordsNormal".
-  recordsNormal:
+  # The "records" section defines settings for normal datasets not specified in records.
+  # Each dataset will be grouped under a single group named "records".
+  records:
     # The settings for the default "hot" stage.
-    shardNum:  ${SW_STORAGE_BANYANDB_GR_NORMAL_SHARD_NUM:1}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_SI_DAYS:1}
-    ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_TTL_DAYS:3}
+    shardNum:  ${SW_STORAGE_BANYANDB_RECORDS_SHARD_NUM:1}
+    segmentInterval: ${SW_STORAGE_BANYANDB_RECORDS_SI_DAYS:1}
+    ttl: ${SW_STORAGE_BANYANDB_RECORDS_TTL_DAYS:3}
     # If the "warm" stage is enabled, the data will be moved to the "warm" stage after the TTL of the "hot" stage.
     # If the "cold" stage is enabled and "warm" stage is disabled, the data will be moved to the "cold" stage after the TTL of the "hot" stage.
     # If both "warm" and "cold" stages are enabled, the data will be moved to the "warm" stage after the TTL of the "hot" stage, and then to the "cold" stage after the TTL of the "warm" stage.
     # OAP will query the data from the "hot and warm" stage by default if the "warm" stage is enabled.
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_NORMAL_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GR_NORMAL_ENABLE_COLD_STAGE:false}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_RECORDS_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_RECORDS_ENABLE_COLD_STAGE:false}
     # The settings for the "warm" stage.
     warm:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_SI_DAYS:2}
-      ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_TTL_DAYS:7}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMAL_WARM_NODE_SELECTOR:"type=warm"}
+      shardNum: ${SW_STORAGE_BANYANDB_RECORDS_WARM_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_RECORDS_WARM_SI_DAYS:2}
+      ttl: ${SW_STORAGE_BANYANDB_RECORDS_WARM_TTL_DAYS:7}
+      nodeSelector: ${SW_STORAGE_BANYANDB_RECORDS_WARM_NODE_SELECTOR:"type=warm"}
     # The settings for the "cold" stage.
     cold:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_SI_DAYS:3}
-      ttl: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_TTL_DAYS:30}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_NORMAL_COLD_NODE_SELECTOR:"type=cold"}
+      shardNum: ${SW_STORAGE_BANYANDB_RECORDS_COLD_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_RECORDS_COLD_SI_DAYS:3}
+      ttl: ${SW_STORAGE_BANYANDB_RECORDS_COLD_TTL_DAYS:30}
+      nodeSelector: ${SW_STORAGE_BANYANDB_RECORDS_COLD_NODE_SELECTOR:"type=cold"}
   # The group settings of super datasets.
   # Super datasets are used to store trace or log data that is too large for normal datasets.
   recordsTrace:
-    shardNum: ${SW_STORAGE_BANYANDB_GR_TRACE_SHARD_NUM:2}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GR_TRACE_SI_DAYS:1}
-    ttl: ${SW_STORAGE_BANYANDB_GR_TRACE_TTL_DAYS:3}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_TRACE_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GR_TRACE_ENABLE_COLD_STAGE:false}
+    shardNum: ${SW_STORAGE_BANYANDB_TRACE_SHARD_NUM:2}
+    segmentInterval: ${SW_STORAGE_BANYANDB_TRACE_SI_DAYS:1}
+    ttl: ${SW_STORAGE_BANYANDB_TRACE_TTL_DAYS:3}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_TRACE_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_TRACE_ENABLE_COLD_STAGE:false}
     warm:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_TRACE_WARM_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_TRACE_WARM_SI_DAYS:1}
-      ttl: ${SW_STORAGE_BANYANDB_GR_TRACE_WARM_TTL_DAYS:7}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_TRACE_WARM_NODE_SELECTOR:"type=warm"}
+      shardNum: ${SW_STORAGE_BANYANDB_TRACE_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_TRACE_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_TRACE_WARM_TTL_DAYS:7}
+      nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_WARM_NODE_SELECTOR:"type=warm"}
     cold:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_TRACE_COLD_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_TRACE_COLD_SI_DAYS:1}
-      ttl: ${SW_STORAGE_BANYANDB_GR_TRACE_COLD_TTL_DAYS:30}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_TRACE_COLD_NODE_SELECTOR:"type=cold"}
+      shardNum: ${SW_STORAGE_BANYANDB_TRACE_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_TRACE_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_TRACE_COLD_TTL_DAYS:30}
+      nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
   recordsZipkinTrace:
-    shardNum: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_SHARD_NUM:2}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_SI_DAYS:1}
-    ttl: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_TTL_DAYS:3}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_ENABLE_COLD_STAGE:false}
+    shardNum: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SHARD_NUM:2}
+    segmentInterval: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SI_DAYS:1}
+    ttl: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_TTL_DAYS:3}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_ENABLE_COLD_STAGE:false}
     warm:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_WARM_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_WARM_SI_DAYS:1}
-      ttl: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_WARM_TTL_DAYS:7}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_WARM_NODE_SELECTOR:"type=warm"}
+      shardNum: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_WARM_TTL_DAYS:7}
+      nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_WARM_NODE_SELECTOR:"type=warm"}
     cold:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_COLD_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_COLD_SI_DAYS:1}
-      ttl: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_COLD_TTL_DAYS:30}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
+      shardNum: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_TTL_DAYS:30}
+      nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
   recordsLog:
-    shardNum: ${SW_STORAGE_BANYANDB_GR_LOG_SHARD_NUM:2}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GR_LOG_SI_DAYS:1}
-    ttl: ${SW_STORAGE_BANYANDB_GR_LOG_TTL_DAYS:3}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_LOG_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GR_LOG_ENABLE_COLD_STAGE:false}
+    shardNum: ${SW_STORAGE_BANYANDB_LOG_SHARD_NUM:2}
+    segmentInterval: ${SW_STORAGE_BANYANDB_LOG_SI_DAYS:1}
+    ttl: ${SW_STORAGE_BANYANDB_LOG_TTL_DAYS:3}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_LOG_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_LOG_ENABLE_COLD_STAGE:false}
     warm:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_LOG_WARM_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_LOG_WARM_SI_DAYS:1}
-      ttl: ${SW_STORAGE_BANYANDB_GR_LOG_WARM_TTL_DAYS:7}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_LOG_WARM_NODE_SELECTOR:"type=warm"}
+      shardNum: ${SW_STORAGE_BANYANDB_LOG_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_LOG_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_LOG_WARM_TTL_DAYS:7}
+      nodeSelector: ${SW_STORAGE_BANYANDB_LOG_WARM_NODE_SELECTOR:"type=warm"}
     cold:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_LOG_COLD_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_LOG_COLD_SI_DAYS:1}
-      ttl: ${SW_STORAGE_BANYANDB_GR_LOG_COLD_TTL_DAYS:30}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_LOG_COLD_NODE_SELECTOR:"type=cold"}
+      shardNum: ${SW_STORAGE_BANYANDB_LOG_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_LOG_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_LOG_COLD_TTL_DAYS:30}
+      nodeSelector: ${SW_STORAGE_BANYANDB_LOG_COLD_NODE_SELECTOR:"type=cold"}
   recordsBrowserErrorLog:
-    shardNum: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_SHARD_NUM:2}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_SI_DAYS:1}
-    ttl: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_TTL_DAYS:3}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_ENABLE_COLD_STAGE:false}
+    shardNum: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_SHARD_NUM:2}
+    segmentInterval: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_SI_DAYS:1}
+    ttl: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_TTL_DAYS:3}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_ENABLE_COLD_STAGE:false}
     warm:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_WARM_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_WARM_SI_DAYS:1}
-      ttl: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_WARM_TTL_DAYS:7}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_WARM_NODE_SELECTOR:"type=warm"}
+      shardNum: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_WARM_TTL_DAYS:7}
+      nodeSelector: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_WARM_NODE_SELECTOR:"type=warm"}
     cold:
-      shardNum: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_COLD_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_COLD_SI_DAYS:1}
-      ttl: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_COLD_TTL_DAYS:30}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GR_BROWSER_ERROR_LOG_COLD_NODE_SELECTOR:"type=cold"}
+      shardNum: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_COLD_TTL_DAYS:30}
+      nodeSelector: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_COLD_NODE_SELECTOR:"type=cold"}
   # The group settings of metrics.
   #
   # OAP stores metrics based its granularity.
   # Valid values are "day", "hour", and "minute". That means metrics will be stored in the three separate groups.
   # Non-"minute" are governed by the "core.downsampling" setting.
   # For example, if "core.downsampling" is set to "hour", the "hour" will be used, while "day" are ignored.
-  metricsMin:
-    shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_SHARD_NUM:2}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_SI_DAYS:1}
-    ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_TTL_DAYS:7}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GM_MINUTE_ENABLE_COLD_STAGE:false}
+  metricsMinute:
+    shardNum: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_SHARD_NUM:2}
+    segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_SI_DAYS:1}
+    ttl: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_TTL_DAYS:7}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_ENABLE_COLD_STAGE:false}
     warm:
-      shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_SI_DAYS:3}
-      ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_TTL_DAYS:15}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_NODE_SELECTOR:"type=warm"}
+      shardNum: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_WARM_SI_DAYS:3}
+      ttl: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_WARM_TTL_DAYS:15}
+      nodeSelector: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_WARM_NODE_SELECTOR:"type=warm"}
     cold:
-      shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SI_DAYS:5}
-      ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_TTL_DAYS:60}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_NODE_SELECTOR:"type=cold"}
+      shardNum: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_COLD_SI_DAYS:5}
+      ttl: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_COLD_TTL_DAYS:60}
+      nodeSelector: ${SW_STORAGE_BANYANDB_METRICS_MINUTE_COLD_NODE_SELECTOR:"type=cold"}
   metricsHour:
-    shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_SHARD_NUM:1}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_SI_DAYS:5}
-    ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_TTL_DAYS:15}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GM_HOUR_ENABLE_COLD_STAGE:false}
+    shardNum: ${SW_STORAGE_BANYANDB_METRICS_HOUR_SHARD_NUM:1}
+    segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_HOUR_SI_DAYS:5}
+    ttl: ${SW_STORAGE_BANYANDB_METRICS_HOUR_TTL_DAYS:15}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_METRICS_HOUR_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_METRICS_HOUR_ENABLE_COLD_STAGE:false}
     warm:
-      shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_SI_DAYS:7}
-      ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_TTL_DAYS:30}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GM_HOUR_WARM_NODE_SELECTOR:"type=warm"}
+      shardNum: ${SW_STORAGE_BANYANDB_METRICS_HOUR_WARM_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_HOUR_WARM_SI_DAYS:7}
+      ttl: ${SW_STORAGE_BANYANDB_METRICS_HOUR_WARM_TTL_DAYS:30}
+      nodeSelector: ${SW_STORAGE_BANYANDB_METRICS_HOUR_WARM_NODE_SELECTOR:"type=warm"}
     cold:
-      shardNum: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_SI_DAYS:15}
-      ttl: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_TTL_DAYS:120}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GM_HOUR_COLD_NODE_SELECTOR:"type=cold"}
+      shardNum: ${SW_STORAGE_BANYANDB_METRICS_HOUR_COLD_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_HOUR_COLD_SI_DAYS:15}
+      ttl: ${SW_STORAGE_BANYANDB_METRICS_HOUR_COLD_TTL_DAYS:120}
+      nodeSelector: ${SW_STORAGE_BANYANDB_METRICS_HOUR_COLD_NODE_SELECTOR:"type=cold"}
   metricsDay:
-    shardNum: ${SW_STORAGE_BANYANDB_GM_DAY_SHARD_NUM:1}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GM_DAY_SI_DAYS:15}
-    ttl: ${SW_STORAGE_BANYANDB_GM_DAY_TTL_DAYS:15}
-    enableWarmStage: ${SW_STORAGE_BANYANDB_GM_DAY_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_GM_DAY_ENABLE_COLD_STAGE:false}
+    shardNum: ${SW_STORAGE_BANYANDB_METRICS_DAY_SHARD_NUM:1}
+    segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_DAY_SI_DAYS:15}
+    ttl: ${SW_STORAGE_BANYANDB_METRICS_DAY_TTL_DAYS:15}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_METRICS_DAY_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_METRICS_DAY_ENABLE_COLD_STAGE:false}
     warm:
-      shardNum: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_SI_DAYS:15}
-      ttl: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_TTL_DAYS:30}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GM_DAY_WARM_NODE_SELECTOR:"type=warm"}
+      shardNum: ${SW_STORAGE_BANYANDB_METRICS_DAY_WARM_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_DAY_WARM_SI_DAYS:15}
+      ttl: ${SW_STORAGE_BANYANDB_METRICS_DAY_WARM_TTL_DAYS:30}
+      nodeSelector: ${SW_STORAGE_BANYANDB_METRICS_DAY_WARM_NODE_SELECTOR:"type=warm"}
     cold:
-      shardNum: ${SW_STORAGE_BANYANDB_GM_DAY_COLD_SHARD_NUM:1}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_DAY_COLD_SI_DAYS:15}
-      ttl: ${SW_STORAGE_BANYANDB_GM_DAY_COLD_TTL_DAYS:120}
-      nodeSelector: ${SW_STORAGE_BANYANDB_GM_DAY_COLD_NODE_SELECTOR:"type=cold"}
+      shardNum: ${SW_STORAGE_BANYANDB_METRICS_DAY_COLD_SHARD_NUM:1}
+      segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_DAY_COLD_SI_DAYS:15}
+      ttl: ${SW_STORAGE_BANYANDB_METRICS_DAY_COLD_TTL_DAYS:120}
+      nodeSelector: ${SW_STORAGE_BANYANDB_METRICS_DAY_COLD_NODE_SELECTOR:"type=cold"}
   # If the metrics is marked as "index_mode", the metrics will be stored in the "metadata" group.
   # The "metadata" group is designed to store metrics that are used for indexing without value columns.
   # Such as `service_traffic`, `network_address_alias`, etc.
   # "index_mode" requires BanyanDB *0.8.0* or later.
   metadata:
-    shardNum: ${SW_STORAGE_BANYANDB_GM_METADATA_SHARD_NUM:2}
-    segmentInterval: ${SW_STORAGE_BANYANDB_GM_METADATA_SI_DAYS:15}
-    ttl: ${SW_STORAGE_BANYANDB_GM_METADATA_TTL_DAYS:15}
+    shardNum: ${SW_STORAGE_BANYANDB_METADATA_SHARD_NUM:2}
+    segmentInterval: ${SW_STORAGE_BANYANDB_METADATA_SI_DAYS:15}
+    ttl: ${SW_STORAGE_BANYANDB_METADATA_TTL_DAYS:15}
 
   # The group settings of property, such as UI and profiling.
   property:
-    shardNum: ${SW_STORAGE_BANYANDB_GP_PROPERTY_SHARD_NUM:1}
+    shardNum: ${SW_STORAGE_BANYANDB_PROPERTY_SHARD_NUM:1}
 
 ```
 

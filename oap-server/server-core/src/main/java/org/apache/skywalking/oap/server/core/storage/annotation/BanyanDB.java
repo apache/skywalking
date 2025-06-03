@@ -288,13 +288,13 @@ public @interface BanyanDB {
     @Retention(RetentionPolicy.RUNTIME)
     @interface Group {
         /**
-         * Specify the group name for the Stream (Record). The default value is "recordsNormal".
+         * Specify the group name for the Stream (Record). The default value is "records".
          */
-        StreamGroup streamGroup() default StreamGroup.RECORDS_NORMAL;
+        StreamGroup streamGroup() default StreamGroup.RECORDS;
     }
 
     enum StreamGroup {
-        RECORDS_NORMAL("recordsNormal"),
+        RECORDS("records"),
         RECORDS_TRACE("recordsTrace"),
         RECORDS_ZIPKIN_TRACE("recordsZipkinTrace"),
         RECORDS_LOG("recordsLog"),
@@ -309,7 +309,7 @@ public @interface BanyanDB {
     }
 
     enum MeasureGroup {
-        METRICS_MIN("metricsMin"),
+        METRICS_MINUTE("metricsMinute"),
         METRICS_HOUR("metricsHour"),
         METRICS_DAY("metricsDay"),
         METADATA("metadata");

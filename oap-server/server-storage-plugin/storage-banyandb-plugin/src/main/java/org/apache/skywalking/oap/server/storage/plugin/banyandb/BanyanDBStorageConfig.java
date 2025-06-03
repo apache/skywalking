@@ -29,9 +29,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 @Setter
 public class BanyanDBStorageConfig extends ModuleConfig {
-
-    public static final String PROPERTY_GROUP_NAME = "property";
-
     private Global global = new Global();
     private RecordsNormal recordsNormal = new RecordsNormal();
     private RecordsTrace recordsTrace = new RecordsTrace();
