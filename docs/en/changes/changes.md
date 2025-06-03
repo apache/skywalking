@@ -28,6 +28,7 @@
 * Refactor: simplify the `Accept` http header process.
 * [Break Change]Storage: Move `event` from metrics to recods.
 * Remove string limitation in Jackson deserializer for ElasticSearch client.
+* Fix `disable.oal` does not work.
 
 #### UI
 
