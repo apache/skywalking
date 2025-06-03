@@ -91,5 +91,5 @@ public class BanyanDBModelExtension {
 
         @Setter
         @Getter
-        private BanyanDB.StreamGroup streamGroup = BanyanDB.StreamGroup.RECORDS_NORMAL;
+        private BanyanDB.StreamGroup streamGroup = BanyanDB.StreamGroup.RECORDS;
 }
