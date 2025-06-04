@@ -34,6 +34,6 @@ verify:
     interval: 3s
   cases:
     - includes:
-        - ./banyandb-instance-cases.yaml
+        - ./banyandb-cases.yaml
 
 

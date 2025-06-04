@@ -12,6 +12,559 @@
                     "type": "Tab",
                     "children": [
                         {
+                            "name": "Inspections",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "0",
+                                    "type": "Widget",
+                                    "widget": {
+                                        "title": "Write Rate"
+                                    },
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 50,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "expressions": [
+                                        "latest(meter_banyandb_write_rate)"
+                                    ],
+                                    "metricConfig": [
+                                        {
+                                            "label": "Write Rate"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 0,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "1",
+                                    "type": "Widget",
+                                    "widget": {
+                                        "title": "Total memory"
+                                    },
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 50,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "expressions": [
+                                        "latest(meter_banyandb_total_memory/1024/1024/1024)"
+                                    ],
+                                    "metricConfig": [
+                                        {
+                                            "unit": "Gib"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 16,
+                                    "y": 0,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "2",
+                                    "type": "Widget",
+                                    "widget": {
+                                        "title": "Disk usage"
+                                    },
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 50,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "expressions": [
+                                        "latest(meter_banyandb_disk_usage/1024/1024/1024)"
+                                    ],
+                                    "metricConfig": [
+                                        {
+                                            "unit": "Gib"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 11,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "3",
+                                    "type": "Widget",
+                                    "widget": {
+                                        "title": "Query rate"
+                                    },
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 50,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "expressions": [
+                                        "latest(meter_banyandb_query_rate{method=\"query\"})"
+                                    ],
+                                    "metricConfig": [
+                                        {
+                                            "unit": "rps"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 11,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "4",
+                                    "type": "Widget",
+                                    "widget": {
+                                        "title": "Total cpu"
+                                    },
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 50,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "expressions": [
+                                        "latest(meter_banyandb_total_cpu)"
+                                    ]
+                                },
+                                {
+                                    "x": 16,
+                                    "y": 11,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "5",
+                                    "type": "Widget",
+                                    "widget": {
+                                        "title": "Write and query errors rate"
+                                    },
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 50,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "expressions": [
+                                        "latest(meter_banyandb_write_and_query_errors_rate)"
+                                    ]
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 22,
+                                    "w": 16,
+                                    "h": 11,
+                                    "i": "6",
+                                    "type": "Widget",
+                                    "widget": {
+                                        "title": "Active Instances"
+                                    },
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "expressions": [
+                                        "meter_banyandb_active_instance"
+                                    ]
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 22,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "7",
+                                    "type": "Widget",
+                                    "widget": {
+                                        "title": "Etcd operation rate"
+                                    },
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 50,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "expressions": [
+                                        "latest(meter_banyandb_etcd_operation_rate)"
+                                    ],
+                                    "metricConfig": [
+                                        {
+                                            "unit": "c/s"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 33,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "8",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_cpu_usage/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Cpu Usage"
+                                    }
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 33,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "9",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_rss_memory_usage/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "RSS memory usage all"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 45,
+                                    "w": 12,
+                                    "h": 13,
+                                    "i": "10",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_disk_usage_all/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Disk Usage(ALL)"
+                                    }
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 45,
+                                    "w": 12,
+                                    "h": 13,
+                                    "i": "11",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_network_usage_recv/1024",
+                                        "meter_banyandb_network_usage_sent/1024"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Network Usage(ALL)"
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "unit": "KiB/s"
+                                        },
+                                        {
+                                            "unit": "KiB/s"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 69,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "12",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_merge_file_latency/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Merge File Latency"
+                                    }
+                                },
+                                {
+                                    "x": 16,
+                                    "y": 58,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "13",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_total_data"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Total Data"
+                                    }
+                                },
+                                {
+                                    "x": 16,
+                                    "y": 80,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "14",
+                                    "type": "Widget",
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Total Series"
+                                    },
+                                    "expressions": [
+                                        "meter_banyandb_total_series"
+                                    ]
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 80,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "15",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_merge_file_data"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Merge File Data"
+                                    }
+                                },
+                                {
+                                    "x": 16,
+                                    "y": 69,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "16",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_merge_file_partitions"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Merge File Partitions"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 91,
+                                    "w": 8,
+                                    "h": 12,
+                                    "i": "17",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_stream_write_rate"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Write Rate For Streams"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 58,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "18",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_storage_write_rate/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Write Rate By Group"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 80,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "19",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_series_write_rate/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Series Write Rate"
+                                    }
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 58,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "20",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_query_latency/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Query Latency"
+                                    }
+                                },
+                                {
+                                    "x": 16,
+                                    "y": 91,
+                                    "w": 8,
+                                    "h": 12,
+                                    "i": "21",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_total_document"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Total Document"
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 69,
+                                    "w": 8,
+                                    "h": 11,
+                                    "i": "22",
+                                    "type": "Widget",
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Merge File Data"
+                                    },
+                                    "expressions": [
+                                        "meter_banyandb_merge_file_data/1000"
+                                    ]
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 91,
+                                    "w": 8,
+                                    "h": 12,
+                                    "i": "23",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_banyandb_term_search_rate/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Line",
+                                        "step": false,
+                                        "smooth": false,
+                                        "showSymbol": true,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "title": "Term Search Rate"
+                                    }
+                                }
+                            ]
+                        },
+                        {
                             "name": "Instances",
                             "children": [
                                 {
@@ -35,6 +588,7 @@
                                 }
                             ]
                         }
+
                     ]
                 }
             ],

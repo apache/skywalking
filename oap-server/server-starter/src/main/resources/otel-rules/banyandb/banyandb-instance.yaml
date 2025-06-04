@@ -29,56 +29,58 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 filter: "{ tags -> tags.job_name == 'banyandb-monitoring' }"
-expSuffix:  service(['host_name'] , Layer.BANYANDB).instance(['host_name'], ['service_instance_id'], Layer.BANYANDB)
+expSuffix:  tag({tags -> tags.host_name = 'banyandb::' + tags.host_name}).service(['host_name'] , Layer.BANYANDB).instance(['host_name'], ['service_instance_id'], Layer.BANYANDB)
 metricPrefix: meter_banyandb
 metricsRules:
-  - name: write_rate
+  - name: instance_write_rate
     exp: banyandb_measure_total_written.rate('PT15S')+banyandb_stream_tst_total_written.rate('PT15S')
-  - name: total_memory
+  - name: instance_total_memory
     exp: banyandb_system_memory_state.tagEqual('kind','total')
-  - name: disk_usage
-    exp: banyandb_system_disk.tagEqual('kind','used').sum(['kind','host_name','service_instance_id'])
-  - name: query_rate
+  - name: instance_disk_usage
+    exp: banyandb_system_disk.tagEqual('kind','used').sum(['host_name','service_instance_id'])
+  - name: instance_query_rate
     exp: banyandb_liaison_grpc_total_started.sum(['method','host_name','service_instance_id'])
-  - name: total_cpu
+  - name: instance_total_cpu
     exp: banyandb_system_cpu_num
-  - name: write_and_query_errors_rate
+  - name: instance_write_and_query_errors_rate
     exp: banyandb_liaison_grpc_total_err.tagEqual('method','query').sum(['method','host_name','service_instance_id']).rate('PT15S')*60 + banyandb_liaison_grpc_total_stream_msg_sent_err.sum(['host_name','service_instance_id']).rate('PT15S')*60 + banyandb_liaison_grpc_total_stream_msg_received_err.sum(['host_name','service_instance_id']).rate('PT15S')*60 + banyandb_queue_sub_total_msg_sent_err.sum(['host_name','service_instance_id']).rate('PT15S')*60
-  - name: etcd_operation_rate
+  - name: instance_etcd_operation_rate
     exp: banyandb_liaison_grpc_total_registry_started.sum(['host_name','service_instance_id']).rate('PT15S') + banyandb_liaison_grpc_total_started.sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: active_instance
+  - name: instance_active_instance
     exp: up.sum(['host_name','service_instance_id']).downsampling(MIN)
-  - name: cpu_usage
+  - name: instance_cpu_usage
     exp: (((process_cpu_seconds_total.sum(['host_name','service_instance_id']).rate('PT15S') / banyandb_system_cpu_num.sum(['host_name','service_instance_id']))).max(['host_name','service_instance_id']))*1000
-  - name: rss_memory_usage
+  - name: instance_rss_memory_usage
     exp: ((process_resident_memory_bytes.sum(['host_name','service_instance_id']).downsampling(MAX) / banyandb_system_memory_state.tagEqual('kind','total').sum(['host_name','service_instance_id'])).max(['host_name','service_instance_id']))*1000
-  - name: disk_usage_all
+  - name: instance_disk_usage_all
     exp: ((banyandb_system_disk.tagEqual('kind','used').sum(['host_name','service_instance_id']) / banyandb_system_memory_state.tagEqual('kind','total').sum(['host_name','service_instance_id'])).max(['host_name','service_instance_id']))*1000
-  - name: network_usage_recv
+  - name: instance_network_usage_recv
     exp: banyandb_system_net_state.tagEqual('kind','bytes_recv').sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: network_usage_sent
+  - name: instance_network_usage_sent
     exp: banyandb_system_net_state.tagEqual('kind','bytes_sent').sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: storage_write_rate
-    exp: banyandb_measure_total_written.sum(['host_name','service_instance_id']).rate('PT15S')*1000
-  - name: query_latency
+  - name: instance_storage_write_rate
+    exp: banyandb_measure_total_written.sum(['group','host_name','service_instance_id']).rate('PT15S')*1000
+  - name: instance_query_latency
     exp: (banyandb_liaison_grpc_total_latency.tagEqual('method','query').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_liaison_grpc_total_started.tagEqual('method','query').sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: total_data
+  - name: instance_total_data
     exp: banyandb_measure_total_file_elements.sum(['group','host_name','service_instance_id'])
-  - name: merge_file_data
+  - name: instance_merge_file_data
     exp: banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S') * 60 *1000
-  - name: merge_file_latency
+  - name: instance_merge_file_latency
     exp: (banyandb_measure_total_merge_latency.tagEqual('type','file').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: merge_file_partitions
+  - name: instance_merge_file_partitions
     exp: (banyandb_measure_total_merged_parts.tagEqual('type','file').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: series_write_rate
+  - name: instance_series_write_rate
     exp: (banyandb_measure_inverted_index_total_updates.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: series_term_search_rate
+  - name: instance_series_term_search_rate
     exp: banyandb_stream_storage_inverted_index_total_term_searchers_started.sum(['group','host_name','service_instance_id']).rate('PT15S')
-  - name: total_series
+  - name: instance_total_series
     exp: banyandb_measure_inverted_index_total_doc_count.sum(['group','host_name','service_instance_id'])
-  - name: stream_write_rate
+  - name: instance_stream_write_rate
     exp: banyandb_stream_tst_inverted_index_total_updates.sum(['group','host_name','service_instance_id']).rate('PT15S')
-  - name: term_search_rate
+  - name: instance_term_search_rate
     exp: banyandb_stream_tst_inverted_index_total_term_searchers_started.sum(['group','host_name','service_instance_id']).rate('PT15S')* 1000
-  - name: total_document
+  - name: instance_total_document
     exp: banyandb_stream_tst_inverted_index_total_doc_count.sum(['group','host_name','service_instance_id'])
+
+

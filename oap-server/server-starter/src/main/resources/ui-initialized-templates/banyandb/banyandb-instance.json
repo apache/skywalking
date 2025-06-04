@@ -20,7 +20,7 @@
                         "showUnit": true
                     },
                     "expressions": [
-                        "latest(meter_banyandb_write_rate)"
+                        "latest(meter_banyandb_instance_write_rate)"
                     ],
                     "metricConfig": [
                         {
@@ -45,7 +45,7 @@
                         "showUnit": true
                     },
                     "expressions": [
-                        "latest(meter_banyandb_total_memory/1024/1024/1024)"
+                        "latest(meter_banyandb_instance_total_memory/1024/1024/1024)"
                     ],
                     "metricConfig": [
                         {
@@ -70,7 +70,7 @@
                         "showUnit": true
                     },
                     "expressions": [
-                        "latest(meter_banyandb_disk_usage/1024/1024/1024)"
+                        "latest(meter_banyandb_instance_disk_usage/1024/1024/1024)"
                     ],
                     "metricConfig": [
                         {
@@ -95,7 +95,7 @@
                         "showUnit": true
                     },
                     "expressions": [
-                        "latest(meter_banyandb_query_rate{method=\"query\"})"
+                        "latest(meter_banyandb_instance_query_rate{method=\"query\"})"
                     ],
                     "metricConfig": [
                         {
@@ -120,7 +120,7 @@
                         "showUnit": true
                     },
                     "expressions": [
-                        "latest(meter_banyandb_total_cpu)"
+                        "latest(meter_banyandb_instance_total_cpu)"
                     ]
                 },
                 {
@@ -140,7 +140,7 @@
                         "showUnit": true
                     },
                     "expressions": [
-                        "latest(meter_banyandb_write_and_query_errors_rate)"
+                        "latest(meter_banyandb_instance_write_and_query_errors_rate)"
                     ]
                 },
                 {
@@ -162,7 +162,7 @@
                         "showYAxis": true
                     },
                     "expressions": [
-                        "meter_banyandb_active_instance"
+                        "meter_banyandb_instance_active_instance"
                     ]
                 },
                 {
@@ -182,7 +182,7 @@
                         "showUnit": true
                     },
                     "expressions": [
-                        "latest(meter_banyandb_etcd_operation_rate)"
+                        "latest(meter_banyandb_instance_etcd_operation_rate)"
                     ],
                     "metricConfig": [
                         {
@@ -198,7 +198,7 @@
                     "i": "8",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_cpu_usage/1000"
+                        "meter_banyandb_instance_cpu_usage/1000"
                     ],
                     "graph": {
                         "type": "Line",
@@ -220,7 +220,7 @@
                     "i": "9",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_rss_memory_usage/1000"
+                        "meter_banyandb_instance_rss_memory_usage/1000"
                     ],
                     "graph": {
                         "type": "Line",
@@ -242,7 +242,7 @@
                     "i": "10",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_disk_usage_all/1000"
+                        "meter_banyandb_instance_disk_usage_all/1000"
                     ],
                     "graph": {
                         "type": "Line",
@@ -264,8 +264,8 @@
                     "i": "11",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_network_usage_recv/1024",
-                        "meter_banyandb_network_usage_sent/1024"
+                        "meter_banyandb_instance_network_usage_recv/1024",
+                        "meter_banyandb_instance_network_usage_sent/1024"
                     ],
                     "graph": {
                         "type": "Line",
@@ -295,7 +295,7 @@
                     "i": "12",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_merge_file_latency/1000"
+                        "meter_banyandb_instance_merge_file_latency/1000"
                     ],
                     "graph": {
                         "type": "Line",
@@ -317,7 +317,7 @@
                     "i": "13",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_total_data"
+                        "meter_banyandb_instance_total_data"
                     ],
                     "graph": {
                         "type": "Line",
@@ -350,7 +350,7 @@
                         "title": "Total Series"
                     },
                     "expressions": [
-                        "meter_banyandb_total_series"
+                        "meter_banyandb_instance_total_series"
                     ]
                 },
                 {
@@ -361,7 +361,7 @@
                     "i": "15",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_merge_file_data"
+                        "meter_banyandb_instance_merge_file_data"
                     ],
                     "graph": {
                         "type": "Line",
@@ -383,7 +383,7 @@
                     "i": "16",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_merge_file_partitions"
+                        "meter_banyandb_instance_merge_file_partitions"
                     ],
                     "graph": {
                         "type": "Line",
@@ -405,7 +405,7 @@
                     "i": "17",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_stream_write_rate"
+                        "meter_banyandb_instance_stream_write_rate"
                     ],
                     "graph": {
                         "type": "Line",
@@ -416,7 +416,7 @@
                         "showYAxis": true
                     },
                     "widget": {
-                        "title": "Write Rate"
+                        "title": "Write Rate For Streams"
                     }
                 },
                 {
@@ -427,9 +427,7 @@
                     "i": "18",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_storage_write_rate{group=\"metricsDay\"}/1000",
-                        "meter_banyandb_storage_write_rate{group=\"metricsHour\"}/1000",
-                        "meter_banyandb_storage_write_rate{group=\"metricsMinute\"}/1000"
+                        "meter_banyandb_instance_storage_write_rate/1000"
                     ],
                     "graph": {
                         "type": "Line",
@@ -439,19 +437,8 @@
                         "showXAxis": true,
                         "showYAxis": true
                     },
-                    "metricConfig": [
-                        {
-                            "label": "metricsDay"
-                        },
-                        {
-                            "label": "metricsHour"
-                        },
-                        {
-                            "label": "metricsMinute"
-                        }
-                    ],
                     "widget": {
-                        "title": "Write Rate"
+                        "title": "Write Rate By Group"
                     }
                 },
                 {
@@ -462,7 +449,7 @@
                     "i": "19",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_series_write_rate/1000"
+                        "meter_banyandb_instance_series_write_rate/1000"
                     ],
                     "graph": {
                         "type": "Line",
@@ -484,7 +471,7 @@
                     "i": "20",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_query_latency/1000"
+                        "meter_banyandb_instance_query_latency/1000"
                     ],
                     "graph": {
                         "type": "Line",
@@ -506,7 +493,7 @@
                     "i": "21",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_total_document"
+                        "meter_banyandb_instance_total_document"
                     ],
                     "graph": {
                         "type": "Line",
@@ -539,7 +526,7 @@
                         "title": "Merge File Data"
                     },
                     "expressions": [
-                        "meter_banyandb_merge_file_data/1000"
+                        "meter_banyandb_instance_merge_file_data/1000"
                     ]
                 },
                 {
@@ -550,7 +537,7 @@
                     "i": "23",
                     "type": "Widget",
                     "expressions": [
-                        "meter_banyandb_term_search_rate/1000"
+                        "meter_banyandb_instance_term_search_rate/1000"
                     ],
                     "graph": {
                         "type": "Line",
