@@ -38,7 +38,7 @@ trigger:
 verify:
   # verify with retry strategy
   retry:
-    count: 20
+    count: 10
     interval: 15s
   cases:
     # layer list
@@ -66,7 +66,7 @@ verify:
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=php\
-            | yq e '.traces | select(.[].endpointnames[0]=="POST:/php/info") | .[0].traceids[0]' -
+            | yq e '.traces | select(.[].endpointnames[0]=="POST:/php/info") | .[2].traceids[0]' -
         )
       expected: expected/trace-info-detail.yml
     # dependency service
