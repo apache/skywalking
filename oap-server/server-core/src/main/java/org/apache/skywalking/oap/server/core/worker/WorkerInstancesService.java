@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.worker;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +45,11 @@ public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerIns
 
     @Override
     public void put(String remoteReceiverWorkName, AbstractWorker instance,
-        Class<? extends StreamData> streamDataClass) {
+                    MetricStreamKind kind, Class<? extends StreamData> streamDataClass) {
         if (instances.containsKey(remoteReceiverWorkName)) {
             throw new UnexpectedException("Duplicate worker name:" + remoteReceiverWorkName);
         }
-        instances.put(remoteReceiverWorkName, new RemoteHandleWorker(instance, streamDataClass));
+        instances.put(remoteReceiverWorkName, new RemoteHandleWorker(instance, kind, streamDataClass));
         LOGGER.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);
     }
 }

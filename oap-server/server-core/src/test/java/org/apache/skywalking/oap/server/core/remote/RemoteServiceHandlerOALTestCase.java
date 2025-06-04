@@ -25,6 +25,7 @@ import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.grpc.util.MutableHandlerRegistry;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -56,7 +57,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class RemoteServiceHandlerTestCase {
+public class RemoteServiceHandlerOALTestCase {
 
     private Server server;
     private ManagedChannel channel;
@@ -109,9 +110,8 @@ public class RemoteServiceHandlerTestCase {
         moduleDefine.provider().registerServiceImplementation(IWorkerInstanceSetter.class, workerInstancesService);
 
         TestWorker worker = new TestWorker(moduleManager);
-        workerInstancesService.put(testWorkerId, worker, TestRemoteData.class);
+        workerInstancesService.put(testWorkerId, worker, MetricStreamKind.OAL, TestRemoteData.class);
 
-        String serverName = InProcessServerBuilder.generateName();
         MetricsCreator metricsCreator = mock(MetricsCreator.class);
         when(metricsCreator.createCounter(any(), any(), any(), any())).thenReturn(new CounterMetrics() {
             @Override
@@ -139,6 +139,7 @@ public class RemoteServiceHandlerTestCase {
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
+        serviceRegistry.addService(new RemoteServiceHandler(moduleManager));
 
         RemoteServiceGrpc.RemoteServiceStub remoteServiceStub = RemoteServiceGrpc.newStub(channel);
 
@@ -174,7 +175,7 @@ public class RemoteServiceHandlerTestCase {
         streamObserver.onCompleted();
     }
 
-    static class TestRemoteData extends StreamData {
+    public static class TestRemoteData extends StreamData {
 
         private String str1;
         private String str2;

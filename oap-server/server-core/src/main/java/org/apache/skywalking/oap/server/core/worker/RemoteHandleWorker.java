@@ -18,13 +18,48 @@
 
 package org.apache.skywalking.oap.server.core.worker;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 
-@AllArgsConstructor
 @Getter
 public class RemoteHandleWorker {
-    private AbstractWorker worker;
-    private Class<? extends StreamData> streamDataClass;
+    private final AbstractWorker worker;
+    private final MetricStreamKind kind;
+    private final Class<? extends StreamData> streamDataClass;
+
+    private AcceptableValue<?> meterClassPrototype;
+
+    public RemoteHandleWorker(AbstractWorker worker, MetricStreamKind kind,
+                              Class<? extends StreamData> streamDataClass) {
+        this.worker = worker;
+        this.kind = kind;
+        this.streamDataClass = streamDataClass;
+
+        if (MetricStreamKind.MAL == kind) {
+            try {
+                meterClassPrototype = (AcceptableValue<?>) streamDataClass.newInstance();
+            } catch (Exception e) {
+                throw new UnexpectedException("Can't create mal meter prototype with stream class" + streamDataClass);
+            }
+        }
+    }
+
+    /**
+     * Create a new StreamData instance with metadata {@link WithMetadata} for RemoteServiceHandler to deserialize the RemoteMessage.
+     * OAL metrics can initialize metadata through the constructor,
+     * while MAL metrics need to initialize metadata through {@link AcceptableValue#createNew}.
+     */
+    public StreamData newStreamDataInstance() throws InstantiationException, IllegalAccessException {
+        switch (kind) {
+            case OAL:
+                return streamDataClass.newInstance();
+            case MAL:
+                return (StreamData) meterClassPrototype.createNew();
+        }
+        throw new UnexpectedException("Unsupported metrics stream kind" + kind);
+    }
 }

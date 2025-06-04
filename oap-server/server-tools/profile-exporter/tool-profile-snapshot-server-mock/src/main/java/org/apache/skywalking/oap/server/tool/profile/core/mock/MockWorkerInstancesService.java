@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.tool.profile.core.mock;
 
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
@@ -35,6 +36,7 @@ public class MockWorkerInstancesService implements IWorkerInstanceSetter, IWorke
     }
 
     @Override
-    public void put(String remoteReceiverWorkName, AbstractWorker instance, Class<? extends StreamData> streamDataClass) {
+    public void put(String remoteReceiverWorkName, AbstractWorker instance,
+                    MetricStreamKind kind, Class<? extends StreamData> streamDataClass) {
     }
 }
