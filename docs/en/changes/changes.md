@@ -26,7 +26,7 @@
 * [Break Change]BanyanDB: Setup new Group policy.
 * Bump up commons-beanutils to 1.11.0.
 * Refactor: simplify the `Accept` http header process.
-* [Break Change]Storage: Move `event` from metrics to recods.
+* [Break Change]Storage: Move `event` from metrics to records.
 * Remove string limitation in Jackson deserializer for ElasticSearch client.
 * Fix `disable.oal` does not work.
 

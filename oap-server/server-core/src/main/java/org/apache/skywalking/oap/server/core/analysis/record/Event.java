@@ -41,7 +41,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EV
 @BanyanDB.TimestampColumn(Event.TIMESTAMP)
 public class Event extends Record {
 
-    public static final String INDEX_NAME = "events";
+    public static final String INDEX_NAME = "event";
 
     public static final String UUID = "uuid";
 
