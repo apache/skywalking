@@ -22,6 +22,8 @@ services:
       service: oap
     ports:
       - 12800
+    networks:
+      - e2e
 
   banyandb:
     extends:
@@ -29,6 +31,8 @@ services:
       service: banyandb
     ports:
       - 17912
+    networks:
+      - e2e
 
   php:
     build:
@@ -42,13 +46,20 @@ services:
       - 8080
     depends_on:
       provider:
-        condition: service_started
+        condition: service_healthy
       oap:
+        condition: service_healthy
+      banyandb:
         condition: service_healthy
     volumes:
       - ./index.php:/var/www/html/index.php
       - ./php.ini:/usr/local/etc/php/conf.d/ext-skywalking_agent.ini
       - ./nginx.conf:/etc/nginx/nginx.conf
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 8080"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
 
   provider:
     extends:
@@ -57,6 +68,8 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+    networks:
+      - e2e
 
 networks:
   e2e:

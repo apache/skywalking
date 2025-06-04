@@ -20,12 +20,12 @@ ARG SW_AGENT_PHP_COMMIT
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION=1.64.0
+    RUST_VERSION=1.85.1
 
 WORKDIR /tmp
 RUN apt update \
         && apt install -y wget protobuf-compiler libclang-dev git \
-        && wget https://static.rust-lang.org/rustup/archive/1.25.1/x86_64-unknown-linux-gnu/rustup-init \
+        && wget https://static.rust-lang.org/rustup/archive/1.28.2/x86_64-unknown-linux-gnu/rustup-init \
         && chmod +x rustup-init \
         && ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host x86_64-unknown-linux-gnu \
         && rm rustup-init \

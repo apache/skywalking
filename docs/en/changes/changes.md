@@ -29,6 +29,7 @@
 * [Break Change]Storage: Move `event` from metrics to records.
 * Remove string limitation in Jackson deserializer for ElasticSearch client.
 * Fix `disable.oal` does not work.
+* Enhance the stability of e2e PHP tests and update the PHP agent version.
 
 #### UI
 

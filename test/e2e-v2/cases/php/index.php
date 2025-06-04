@@ -22,5 +22,10 @@ if($uri == '/php/info') {
     curl_setopt($ch, CURLOPT_URL, "http://provider:9090/info");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($ch);
+    if (curl_errno($ch)) {
+        $error_code = curl_errno($ch);
+        $error_message = curl_error($ch);
+        throw new Exception("curl failed: $error_code $error_message");
+    }
     curl_close($ch);
 }
