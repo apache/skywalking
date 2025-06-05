@@ -59,7 +59,7 @@ services:
     ports:
       - 17912:17912
       - 17913:17913
-    command: standalone --stream-root-path /tmp/stream-data --measure-root-path /tmp/measure-data
+    command: standalone --stream-root-path /tmp/stream-data --measure-root-path /tmp/measure-data --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m
     healthcheck:
       test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 17912" ]
       interval: 5s
@@ -89,7 +89,7 @@ services:
     expose:
       - 2121
       - 6060
-    command: liaison --etcd-endpoints=http://etcd:2379
+    command: liaison --etcd-endpoints=http://etcd:2379 --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m
     healthcheck:
       test: [ "CMD", "./bydbctl", "health", "--addr=http://liaison:17913" ]
       interval: 5s
