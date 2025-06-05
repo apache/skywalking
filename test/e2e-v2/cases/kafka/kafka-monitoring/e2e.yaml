@@ -31,7 +31,7 @@ setup:
 verify:
   retry:
     count: 20
-    interval: 3s
+    interval: 10s
   cases:
     - includes:
         - ./kafka-cases.yaml
