@@ -66,7 +66,7 @@ verify:
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --trace-id=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=get --start="-96h" --end="-48h" --cold=true \
-            | yq e '.traces | select(.[].endpointnames[0]=="/dubbox-case/case/dubbox-rest/404-test") | .[2].traceids[0]' -
+            | yq e '.traces | select(.[].endpointnames[0]=="/dubbox-case/case/dubbox-rest/404-test") | .[0].traceids[0]' -
         ) --start="-96h" --end="-48h" --cold=true
       expected: ../../expected/cold/trace-detail.yml
     ## topN
