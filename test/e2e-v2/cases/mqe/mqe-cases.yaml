@@ -118,3 +118,7 @@ cases:
     expected: expected/baseline-OP.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="baseline(service_percentile{p='95,99'},upper)" --service-name=e2e-service-provider
     expected: expected/baseline-label-OP.yml
+
+  # disable metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-provider
+    expected: expected/disable-metrics.yml

@@ -22,6 +22,7 @@ services:
       service: oap
     volumes:
       - ./oal/core.oal:/skywalking/config/oal/core.oal
+      - ./oal/disable.oal:/skywalking/config/oal/disable.oal
     environment:
       SW_API_PIPELINE_BASELINE_SERVICE_HOST: baseline-server
     depends_on:
