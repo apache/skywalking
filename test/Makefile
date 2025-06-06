@@ -25,6 +25,7 @@ BASE_IMAGE ?= eclipse-temurin:$(JRE)
 
 E2E_SERVICE_PROVIDER_NAME = e2e-service-provider
 E2E_SERVICE_CONSUMER_NAME = e2e-service-consumer
+TRACE_MOCKER_NAME = trace-mocker
 
 .PHONY: init
 init:
@@ -34,13 +35,14 @@ init:
 build.e2e-service:
 	cd $(SW_ROOT) && ./mvnw --batch-mode -f $(CONTEXT)/pom.xml clean package
 
-DOCKER_TARGETS:=docker.e2e-service-provider docker.e2e-service-consumer
+DOCKER_TARGETS:=docker.e2e-service-provider docker.e2e-service-consumer docker.trace-mocker
 
 .PHONY: docker docker.e2e-service
 docker: init build.e2e-service docker.e2e-service
 
 %.e2e-service-provider: NAME = $(E2E_SERVICE_PROVIDER_NAME)
 %.e2e-service-consumer: NAME = $(E2E_SERVICE_CONSUMER_NAME)
+%.trace-mocker: NAME = $(TRACE_MOCKER_NAME)
 
 docker.%: PLATFORMS =
 docker.%: LOAD_OR_PUSH = --load
@@ -48,6 +50,9 @@ push.%: PLATFORMS = --platform linux/amd64,linux/arm64
 push.%: LOAD_OR_PUSH = --push
 
 push.docker.e2e-service-% docker.e2e-service-%: $(CONTEXT)/Dockerfile
+	$(DOCKER_RULE)
+
+push.docker.trace-mocker docker.trace-mocker: $(CONTEXT)/Dockerfile
 	$(DOCKER_RULE)
 
 docker.e2e-service: $(DOCKER_TARGETS)
