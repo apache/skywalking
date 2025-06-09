@@ -30,6 +30,7 @@
 * Remove string limitation in Jackson deserializer for ElasticSearch client.
 * Fix `disable.oal` does not work.
 * Enhance the stability of e2e PHP tests and update the PHP agent version.
+* Add component ID for the `dameng` JDBC driver.
 
 #### UI
 

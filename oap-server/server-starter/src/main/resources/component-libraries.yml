@@ -539,6 +539,9 @@ ztunnel:
   id: 162
   languages: ebpf, mesh
   priority: 10
+Dmdb-jdbc-driver:
+  id: 163
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
