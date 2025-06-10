@@ -373,7 +373,7 @@ catalog:
       - name : "Service Hierarchy Configuration"
         path: "/en/concepts-and-designs/service-hierarchy-configuration"
       - name: "Metrics Attributes"
-        path: "/en/concepts-and-designs/metrics-attributes"
+        path: "/en/concepts-and-designs/metrics-additional-attributes"
   - name: "Security Notice"
     path: "/en/security/readme"
   - name: "Academy"
