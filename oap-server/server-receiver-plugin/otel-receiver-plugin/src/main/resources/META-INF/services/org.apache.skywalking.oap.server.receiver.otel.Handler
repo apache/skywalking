@@ -1,0 +1,3 @@
+org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricHandler
+org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryLogHandler
+org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryTraceHandler
