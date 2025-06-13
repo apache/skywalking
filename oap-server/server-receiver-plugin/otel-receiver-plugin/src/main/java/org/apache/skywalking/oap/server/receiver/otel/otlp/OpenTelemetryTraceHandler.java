@@ -31,13 +31,13 @@ import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Status;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.receiver.zipkin.SpanForwardService;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverModule;
@@ -62,11 +62,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RequiredArgsConstructor
 public class OpenTelemetryTraceHandler
     extends TraceServiceGrpc.TraceServiceImplBase
     implements Handler {
-    private final ModuleManager manager;
+    private ModuleManager manager;
     private SpanForwardService forwardService;
 
     @Getter(lazy = true)
@@ -79,6 +78,11 @@ public class OpenTelemetryTraceHandler
         MetricsTag.EMPTY_KEY,
         MetricsTag.EMPTY_VALUE
     );
+
+    @Override
+    public void init(ModuleManager manager, OtelMetricReceiverConfig config) {
+        this.manager = manager;
+    }
 
     @Override
     public String type() {

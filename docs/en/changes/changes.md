@@ -42,6 +42,7 @@
 * Implement the Status API on Settings page.
 * Bump vite from 6.2.6 to 6.3.4.
 * Enhance async profiling by adding shorter and custom duration options.
+* refactor: implement OTEL handler with SPI for extensibility.
 
 #### Documentation
 

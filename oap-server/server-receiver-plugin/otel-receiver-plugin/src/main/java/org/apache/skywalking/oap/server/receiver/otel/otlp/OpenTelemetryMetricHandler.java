@@ -22,22 +22,30 @@ import io.grpc.stub.StreamObserver;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceResponse;
 import io.opentelemetry.proto.collector.metrics.v1.MetricsServiceGrpc;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverModule;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 @Slf4j
-@RequiredArgsConstructor
 public class OpenTelemetryMetricHandler
     extends MetricsServiceGrpc.MetricsServiceImplBase
     implements Handler {
-    private final ModuleManager manager;
 
-    private final OpenTelemetryMetricRequestProcessor metricRequestProcessor;
+    private OpenTelemetryMetricRequestProcessor metricRequestProcessor;
+    private ModuleManager manager;
+
+    @Override
+    public void init(ModuleManager manager, OtelMetricReceiverConfig config) {
+        this.manager = manager;
+        metricRequestProcessor = manager.find(OtelMetricReceiverModule.NAME)
+                                        .provider()
+                                        .getService(OpenTelemetryMetricRequestProcessor.class);
+    }
 
     @Override
     public String type() {
