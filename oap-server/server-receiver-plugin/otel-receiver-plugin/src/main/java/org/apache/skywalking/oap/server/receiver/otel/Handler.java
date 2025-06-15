@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.otel;
 
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 public interface Handler {
+    void init(ModuleManager manager, OtelMetricReceiverConfig config);
+
     String type();
 
     void active() throws ModuleStartException;

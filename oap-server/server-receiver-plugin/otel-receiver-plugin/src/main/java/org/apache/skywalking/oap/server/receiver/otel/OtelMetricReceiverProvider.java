@@ -22,14 +22,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryLogHandler;
-import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricHandler;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
-import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryTraceHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 
 public class OtelMetricReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
@@ -71,19 +69,12 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
             getManager(), config);
         registerServiceImplementation(OpenTelemetryMetricRequestProcessor.class, metricRequestProcessor);
         final List<String> enabledHandlers = config.getEnabledHandlers();
-        List<Handler> handlers = new ArrayList<>();
 
-        final var openTelemetryMetricHandler = new OpenTelemetryMetricHandler(getManager(), metricRequestProcessor);
-        if (enabledHandlers.contains(openTelemetryMetricHandler.type())) {
-            handlers.add(openTelemetryMetricHandler);
-        }
-        final var openTelemetryLogHandler = new OpenTelemetryLogHandler(getManager());
-        if (enabledHandlers.contains(openTelemetryLogHandler.type())) {
-            handlers.add(openTelemetryLogHandler);
-        }
-        final var openTelemetryTraceHandler = new OpenTelemetryTraceHandler(getManager());
-        if (enabledHandlers.contains(openTelemetryTraceHandler.type())) {
-            handlers.add(openTelemetryTraceHandler);
+        final var handlers = new ArrayList<Handler>();
+        for (final var handler: ServiceLoader.load(Handler.class)) {
+            if (enabledHandlers.contains(handler.type())) {
+                handlers.add(handler);
+            }
         }
         this.handlers = handlers;
     }
@@ -92,6 +83,7 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         metricRequestProcessor.start();
         for (Handler h : handlers) {
+            h.init(getManager(), config);
             h.active();
         }
     }

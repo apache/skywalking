@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -55,7 +56,7 @@ import static java.util.stream.Collectors.toMap;
 public class OpenTelemetryLogHandler
     extends LogsServiceGrpc.LogsServiceImplBase
     implements Handler {
-    private final ModuleManager manager;
+    private ModuleManager manager;
 
     private ILogAnalyzerService logAnalyzerService;
 
@@ -69,6 +70,11 @@ public class OpenTelemetryLogHandler
         MetricsTag.EMPTY_KEY,
         MetricsTag.EMPTY_VALUE
     );
+
+    @Override
+    public void init(ModuleManager manager, OtelMetricReceiverConfig config) {
+        this.manager = manager;
+    }
 
     @Override
     public String type() {
