@@ -233,6 +233,88 @@ groups:
     shardNum: ${SW_STORAGE_BANYANDB_PROPERTY_SHARD_NUM:1}
 
 ```
+### TopN Rules Configuration
+The BanyanDB storage supports TopN pre-aggregation in the BanyanDB server side, which trade off more disk_volume as pre-aggregation to save CPU cost, and faster query performance. 
+You can define the TopN rules for different metrics. The configuration is defined in the `bydb-topn.yaml` file:
+
+```yaml
+# This file is used to configure the TopN rules for BanyanDB in SkyWalking OAP server.
+# The rules define how to aggregate and sort `metrics (Measure)` for services, endpoints, and instances.
+#
+# - name: Required. The name of the TopN rule, uniquely identifies the rule.
+# - metricName: Required. The name of the metric to be aggregated.
+# - groupByTagNames: Optional, default `[]`. The tag names to group the metrics by. If not specified, the metrics will sort without grouped.
+# - countersNumber: Optional, default `1000`. The max size of entries in a time window for the pre-aggregation.
+
+# The size of LRU determines the maximally tolerated time range.
+# The buffers in the time range are kept in the memory so that
+# the data in [T - lruSize * n, T] would be accepted in the pre-aggregation process.
+# T = the current time in the current dimensionality.
+# n = interval in the current dimensionality.
+# - lruSizeMinute: Optional, default `10`. Defines how many time_buckets are held in the memory for minute-level metrics.
+# - lruSizeHourDay: Optional, default `2`. Defines how many time_buckets are held in the memory for hour and day-level metrics.
+
+# - sort: Optional, default `all`. The sorting order for the metrics, asc, des or all(include both asc and des).
+
+TopN-Rules:
+   # endpoint metrics
+   # `attr0` is defined in the `EndpointDecorator` as the Layer.
+  - name: endpoint_cpm
+    metricName: endpoint_cpm
+    sort: des
+  - name: endpoint_cpm-layer
+    metricName: endpoint_cpm
+    groupByTagNames:
+      - attr0
+    sort: des
+  - name: endpoint_cpm-service
+    metricName: endpoint_cpm
+    groupByTagNames:
+      - service_id
+    sort: des
+  - name: endpoint_sla
+    metricName: endpoint_sla
+    sort: asc
+  - name: endpoint_sla-layer
+    metricName: endpoint_sla
+    groupByTagNames:
+      - attr0
+    sort: asc
+  - name: endpoint_sla-service
+    metricName: endpoint_sla
+    groupByTagNames:
+      - service_id
+    sort: asc
+  - name: endpoint_resp_time
+    metricName: endpoint_resp_time
+    sort: des
+  - name: endpoint_resp_time-layer
+    metricName: endpoint_resp_time
+    groupByTagNames:
+      - attr0
+    sort: des
+  - name: endpoint_resp_time-service
+    metricName: endpoint_resp_time
+    groupByTagNames:
+      - service_id
+    sort: des
+  # browser_app_page_pv metrics
+  - name: browser_app_page_pv-service
+    metricName: browser_app_page_pv
+    groupByTagNames:
+      - service_id
+    sort: des
+  - name: browser_app_page_error_sum-service
+    metricName: browser_app_page_error_sum
+    groupByTagNames:
+      - service_id
+    sort: des
+  - name: browser_app_page_error_rate-service
+    metricName: browser_app_page_error_rate
+    groupByTagNames:
+      - service_id
+    sort: des
+```
 
 ### Installation Modes
 

@@ -23,8 +23,6 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 
-import java.util.List;
-
 /**
  * BanyanDBExtension represents extra metadata for models, but specific for BanyanDB usages.
  *
@@ -49,10 +47,6 @@ public class BanyanDBModelExtension {
     @Setter
     private boolean storeIDTag;
 
-    @Getter
-    @Setter
-    private TopN topN;
-
     /**
      * indexMode indicates whether a metric is in the index mode.
      *
@@ -62,34 +56,7 @@ public class BanyanDBModelExtension {
     @Setter
     private boolean indexMode;
 
-    public static class TopN {
-        /**
-         * lru_size defines how many time_buckets are held in the memory.
-         * For example, "2" means data points belonging to the latest "2" time_buckets will be persisted.
-         * The default value is 2 in the BanyanDB if not set.
-         *
-         * @since 9.4.0
-         */
-        @Getter
-        @Setter
-        private int lruSize;
-
-        /**
-         * counters_number defines the max number of entries to be tracked during the pre-aggregation.
-         * The default value is 1000 in the BanyanDB if not set.
-         *
-         * @since 9.4.0
-         */
-        @Getter
-        @Setter
-        private int countersNumber;
-
-        @Setter
-        @Getter
-        private List<String> groupByTagNames;
-    }
-
-        @Setter
-        @Getter
-        private BanyanDB.StreamGroup streamGroup = BanyanDB.StreamGroup.RECORDS;
+    @Setter
+    @Getter
+    private BanyanDB.StreamGroup streamGroup = BanyanDB.StreamGroup.RECORDS;
 }

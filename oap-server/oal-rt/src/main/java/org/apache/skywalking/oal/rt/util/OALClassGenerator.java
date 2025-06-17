@@ -211,13 +211,9 @@ public class OALClassGenerator {
                     final var enableDocValuesAnnotation = new Annotation(ElasticSearch.EnableDocValues.class.getName(), constPool);
                     annotationsAttribute.addAnnotation(enableDocValuesAnnotation);
                 }
-
-                if (field.isGroupByCondInTopN()) {
-                    Annotation banyanTopNAggregationAnnotation = new Annotation(BanyanDB.TopNAggregation.class.getName(), constPool);
-                    annotationsAttribute.addAnnotation(banyanTopNAggregationAnnotation);
-                    // If TopN, add ShardingKey to group field.
+                if (field.isShardingKey()) {
                     Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.ShardingKey.class.getName(), constPool);
-                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
+                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, field.getShardingKeyIdx()));
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
 

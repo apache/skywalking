@@ -62,6 +62,7 @@
                 <include>hierarchy-definition.yml</include>
                 <include>bydb.dependencies.properties</include>
                 <include>bydb.yml</include>
+                <include>bydb-topn.yml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
                 <include>envoy-metrics-rules/**</include>

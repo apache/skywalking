@@ -32,7 +32,7 @@ public class K8SEndpoint extends K8SMetrics.ProtocolMetrics {
     private volatile String entityId;
 
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    @ScopeDefaultColumn.BanyanDB(groupByCondInTopN = true)
+    @ScopeDefaultColumn.BanyanDB(shardingKeyIdx = 0)
     private String serviceId;
     @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;

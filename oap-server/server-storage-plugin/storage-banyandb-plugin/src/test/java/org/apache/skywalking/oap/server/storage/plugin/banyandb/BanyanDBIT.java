@@ -280,7 +280,7 @@ public class BanyanDBIT {
     private static class TestMetric {
         @Column(name = "service_id")
         @BanyanDB.SeriesID(index = 0)
-        @BanyanDB.TopNAggregation
+        @BanyanDB.ShardingKey(index = 0)
         private String serviceId;
         @Column(name = "tag")
         @BanyanDB.MatchQuery(analyzer = BanyanDB.MatchQuery.AnalyzerType.URL)
