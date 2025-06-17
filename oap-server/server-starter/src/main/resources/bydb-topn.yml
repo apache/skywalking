@@ -34,9 +34,6 @@
 TopN-Rules:
    # endpoint metrics
    # `attr0` is defined in the `EndpointDecorator` as the Layer.
-  - name: endpoint_cpm
-    metricName: endpoint_cpm
-    sort: des
   - name: endpoint_cpm-layer
     metricName: endpoint_cpm
     groupByTagNames:
@@ -47,9 +44,6 @@ TopN-Rules:
     groupByTagNames:
       - service_id
     sort: des
-  - name: endpoint_sla
-    metricName: endpoint_sla
-    sort: asc
   - name: endpoint_sla-layer
     metricName: endpoint_sla
     groupByTagNames:
@@ -60,9 +54,6 @@ TopN-Rules:
     groupByTagNames:
       - service_id
     sort: asc
-  - name: endpoint_resp_time
-    metricName: endpoint_resp_time
-    sort: des
   - name: endpoint_resp_time-layer
     metricName: endpoint_resp_time
     groupByTagNames:
