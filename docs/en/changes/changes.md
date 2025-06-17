@@ -12,7 +12,7 @@
 * PromQL Service: traffic query support `limit` and regex match.
 * Fix an edge case of HashCodeSelector(Integer#MIN_VALUE causes ArrayIndexOutOfBoundsException).
 * Support Flink monitoring.
-* BanyanDB: Support `@ShardingKey` for Measure tags and set to TopNAggregation group tag by default.
+* BanyanDB: Support `@ShardingKey` for Measure tags.
 * BanyanDB: Support cold stage data query for metrics/traces/logs.
 * Increase the idle check interval of the message queue to 200ms to reduce CPU usage under low load conditions.
 * Limit max attempts of DNS resolution of Istio ServiceEntry to 3, and do not wait for first resolution result in case the DNS is not resolvable at all.
@@ -31,6 +31,7 @@
 * Fix `disable.oal` does not work.
 * Enhance the stability of e2e PHP tests and update the PHP agent version.
 * Add component ID for the `dameng` JDBC driver.
+* BanyanDB: Support custom `TopN pre-aggregation` rules configuration in file `bydb-topn.yml`.
 
 #### UI
 

@@ -45,7 +45,6 @@ public class BrowserAppWebVitalsPerf extends Source {
     }
 
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    @ScopeDefaultColumn.BanyanDB(groupByCondInTopN = true)
     private String serviceId;
     @ScopeDefaultColumn.DefinedByField(columnName = "service_name", requireDynamicActive = true)
     private String serviceName;

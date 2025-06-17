@@ -21,9 +21,13 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Getter
@@ -41,6 +45,8 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private MetricsDay metricsDay = new MetricsDay();
     private Metadata metadata = new Metadata();
     private Property property = new Property();
+
+    private Map<String/*metric name*/, Map<String, TopN>> topNConfigs = new HashMap<>();
 
     public String[] getTargetArray() {
         return Iterables.toArray(
@@ -214,5 +220,55 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     @Getter
     @Setter
     public static class Property extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    @Data
+    public static class TopN {
+        private String name;
+        /**
+         * The size of LRU determines the maximally tolerated time range.
+         * The buffers in the time range are kept in the memory so that
+         * the data in [T - lruSize * n, T] would be accepted in the pre-aggregation process.
+         * T = the current time in the current dimensionality.
+         * n = interval in the current dimensionality.
+         * lruSizeMinute defines how many time_buckets are held in the memory for minute-level metrics.
+         * For example, "10" means data points belonging to the latest "10" time_buckets will be persisted.
+         */
+        private int lruSizeMinute = 10;
+        /**
+         * lruSizeHourDay defines how many time_buckets are held in the memory for hour and day for minute-level metrics.
+         * For example, "2" means data points belonging to the latest "2" time_buckets will be persisted.
+         */
+        private int lruSizeHourDay = 2;
+
+        /**
+         * counters_number defines max size of entries in a time window for the pre-aggregation.
+         */
+        private int countersNumber = 1000;
+
+        /**
+         * groupByTagNames defines the tags to be used for grouping the TopN results.
+         * If not set, the default is empty, meaning no grouping.
+         */
+        private List<String> groupByTagNames;
+
+        /**
+         * sort defines the sorting order of the TopN results.
+         * Default is "all", which means include `des and asc`.
+         */
+        private Sort sort = Sort.all;
+
+        public enum Sort {
+            all(BanyandbModel.Sort.SORT_UNSPECIFIED),
+            des(BanyandbModel.Sort.SORT_DESC),
+            asc(BanyandbModel.Sort.SORT_ASC);
+
+            @Getter
+            private final BanyandbModel.Sort banyandbSort;
+
+            Sort(final BanyandbModel.Sort sort) {
+                this.banyandbSort = sort;
+            }
+        }
     }
 }

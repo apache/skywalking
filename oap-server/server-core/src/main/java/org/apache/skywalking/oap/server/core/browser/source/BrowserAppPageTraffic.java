@@ -41,6 +41,7 @@ public class BrowserAppPageTraffic extends BrowserAppTrafficSource {
 
     @Getter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    @ScopeDefaultColumn.BanyanDB(shardingKeyIdx = 0)
     private String serviceId;
     @Getter
     @Setter

@@ -57,7 +57,7 @@ public class Endpoint extends Source {
     private String name;
     @Getter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
-    @ScopeDefaultColumn.BanyanDB(groupByCondInTopN = true)
+    @ScopeDefaultColumn.BanyanDB(shardingKeyIdx = 0)
     private String serviceId;
     @Getter
     @Setter
