@@ -129,6 +129,11 @@ public class StorageID {
         return Collections.unmodifiableList(fragments);
     }
 
+    @Override
+    public String toString() {
+        return build();
+    }
+
     @RequiredArgsConstructor
     @Getter
     @EqualsAndHashCode(of = {
