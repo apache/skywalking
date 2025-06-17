@@ -234,7 +234,7 @@ groups:
 
 ```
 ### TopN Rules Configuration
-The BanyanDB storage supports TopN pre-aggregation in the BanyanDB server side, which trade off more disk_volume as pre-aggregation to save CPU cost, and faster query performance. 
+The BanyanDB storage supports TopN pre-aggregation in the BanyanDB server side, which trades off more disk_volume for pre-aggregation to save CPU cost, and perform faster query in the query stage. 
 You can define the TopN rules for different metrics. The configuration is defined in the `bydb-topn.yaml` file:
 
 ```yaml
