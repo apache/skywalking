@@ -195,18 +195,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                             }
                         }
                         final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
-                        try {
-                            defineTopNAggregation(schema, client);
-                        } catch (BanyanDBException ex) {
-                            if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                                log.info("Measure schema {}_{} TopN({}) already created by another OAP node",
-                                    model.getName(),
-                                    model.getDownsampling(),
-                                    schema.getTopNSpec());
-                            } else {
-                                throw ex;
-                            }
-                        }
+                        defineTopNAggregation(schema, client);
                     }
                 }
             } else {
@@ -376,20 +365,22 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     private void defineTopNAggregation(MetadataRegistry.Schema schema, BanyanDBClient client) throws BanyanDBException {
-        if (schema.getTopNSpec() == null) {
+        if (CollectionUtils.isEmpty(schema.getTopNSpecs())) {
             if (schema.getMetadata().getKind() == MetadataRegistry.Kind.MEASURE) {
                 log.debug("skip null TopN Schema for [{}]", schema.getMetadata().name());
             }
             return;
         }
-        try {
-            client.define(schema.getTopNSpec());
-            log.info("installed TopN schema for measure {}", schema.getMetadata().name());
-        } catch (BanyanDBException ex) {
-            if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                log.info("TopNAggregation {} already created by another OAP node", schema.getTopNSpec());
-            } else {
-                throw ex;
+        for (TopNAggregation topNSpec : schema.getTopNSpecs().values()) {
+            try {
+                client.define(topNSpec);
+                log.info("installed TopN schema for measure {}", schema.getMetadata().name());
+            } catch (BanyanDBException ex) {
+                if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                    log.info("TopNAggregation {} already created by another OAP node", topNSpec);
+                } else {
+                    throw ex;
+                }
             }
         }
     }
@@ -628,15 +619,16 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     /**
      * Check if the TopN aggregation exists and update it if necessary.
-     * If the old TopN aggregation is not in the schema, delete it.
+     * todo:// can not delete TopN here now.
      */
     private void checkTopNAggregation(Model model, BanyanDBClient client) throws BanyanDBException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
-        String topNName = MetadataRegistry.Schema.formatTopNName(schema.getMetadata().name());
-        TopNAggregation hisTopNAggregation = client.findTopNAggregation(schema.getMetadata().getGroup(), topNName);
-
-        if (schema.getTopNSpec() != null) {
-            TopNAggregation topNAggregation = schema.getTopNSpec();
+        if (schema.getTopNSpecs() == null) {
+            return;
+        }
+        for (TopNAggregation topNAggregation : schema.getTopNSpecs().values()) {
+            String topNName = topNAggregation.getMetadata().getName();
+            TopNAggregation hisTopNAggregation = client.findTopNAggregation(schema.getMetadata().getGroup(), topNName);
             if (hisTopNAggregation == null) {
                 try {
                     client.define(topNAggregation);
@@ -661,14 +653,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         hisTopNAggregation, topNAggregation
                     );
                 }
-            }
-        } else {
-            if (hisTopNAggregation != null) {
-                client.deleteTopNAggregation(schema.getMetadata().getGroup(), topNName);
-                log.info(
-                    "delete deprecated TopNAggregation: {} from group: {}", hisTopNAggregation.getMetadata().getName(),
-                    schema.getMetadata().getGroup()
-                );
             }
         }
     }

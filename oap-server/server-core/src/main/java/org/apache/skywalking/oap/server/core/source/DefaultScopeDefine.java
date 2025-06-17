@@ -232,7 +232,7 @@ public class DefaultScopeDefine {
         if (virtualColumn != null) {
             scopeDefaultColumns.add(
                 new ScopeDefaultColumn(virtualColumn.fieldName(), virtualColumn.columnName(), virtualColumn
-                    .type(), virtualColumn.isID(), virtualColumn.length(), false, false));
+                    .type(), virtualColumn.isID(), virtualColumn.length(), -1, false));
         }
         Field[] scopeClassField = originalClass.getDeclaredFields();
         if (scopeClassField != null) {
@@ -241,16 +241,16 @@ public class DefaultScopeDefine {
                     ScopeDefaultColumn.DefinedByField.class);
                 ScopeDefaultColumn.BanyanDB banyanDB = field.getAnnotation(
                     ScopeDefaultColumn.BanyanDB.class);
-                boolean groupByCondInTopN = false;
+                int shardingKeyIdx = -1;
                 if (banyanDB != null) {
-                    groupByCondInTopN = banyanDB.groupByCondInTopN();
+                    shardingKeyIdx = banyanDB.shardingKeyIdx();
                 }
                 if (definedByField != null) {
                     if (!definedByField.requireDynamicActive() || ACTIVE_EXTRA_MODEL_COLUMNS) {
                         scopeDefaultColumns.add(
                             new ScopeDefaultColumn(
                                 field.getName(), definedByField.columnName(), field.getType(), false,
-                                definedByField.length(), groupByCondInTopN, definedByField.isAttribute()
+                                definedByField.length(), shardingKeyIdx, definedByField.isAttribute()
                             ));
                     }
                 }

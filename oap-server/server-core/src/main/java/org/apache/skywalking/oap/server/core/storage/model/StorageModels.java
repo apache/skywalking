@@ -231,8 +231,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     BanyanDB.IndexRule.class);
                 final BanyanDB.MeasureField banyanDBMeasureField = field.getAnnotation(
                     BanyanDB.MeasureField.class);
-                final BanyanDB.TopNAggregation topNAggregation = field.getAnnotation(
-                    BanyanDB.TopNAggregation.class);
                 final BanyanDB.MatchQuery analyzer = field.getAnnotation(
                     BanyanDB.MatchQuery.class);
                 final BanyanDB.EnableSort enableSort = field.getAnnotation(
@@ -247,14 +245,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     analyzer == null ? null : analyzer.analyzer(),
                     enableSort != null
                 );
-
-                if (topNAggregation != null) {
-                    BanyanDBModelExtension.TopN topN = new BanyanDBModelExtension.TopN();
-                    topN.setLruSize(topNAggregation.lruSize());
-                    topN.setCountersNumber(topNAggregation.countersNumber());
-                    topN.setGroupByTagNames(Collections.singletonList(column.name()));
-                    banyanDBModelExtension.setTopN(topN);
-                }
 
                 final ModelColumn modelColumn = new ModelColumn(
                     new ColumnName(column),

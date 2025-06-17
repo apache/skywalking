@@ -34,11 +34,11 @@ public class SourceColumn {
     private int length;
     private String fieldSetter;
     private String fieldGetter;
-    private final boolean groupByCondInTopN;
+    private final int shardingKeyIdx;
     private final boolean attribute;
 
     public SourceColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length,
-                        boolean groupByCondInTopN, boolean attribute) {
+                        int shardingKeyIdx, boolean attribute) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.type = type;
@@ -48,7 +48,7 @@ public class SourceColumn {
 
         this.fieldGetter = ClassMethodUtil.toGetMethod(fieldName);
         this.fieldSetter = ClassMethodUtil.toSetMethod(fieldName);
-        this.groupByCondInTopN = groupByCondInTopN;
+        this.shardingKeyIdx = shardingKeyIdx;
         this.attribute = attribute;
     }
 
@@ -82,9 +82,16 @@ public class SourceColumn {
         this.typeName = typeName;
     }
 
+    /**
+     * @return true if this column is a part of sharding key
+     */
+    public boolean isShardingKey() {
+        return this.shardingKeyIdx > -1;
+    }
+
     @Override
     public String toString() {
-        return "SourceColumn{" + "fieldName='" + fieldName + '\'' + ", columnName='" + columnName + '\'' + ", type=" + type + ", isID=" + isID + '}';
+        return "SourceColumn{" + "fieldName=" + fieldName + ", columnName=" + columnName + ", type=" + type + ", isID=" + isID + ", shardingKeyIdx=" + shardingKeyIdx + ", isAttribute=" + attribute + "}";
     }
 
     @Override

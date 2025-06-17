@@ -24,6 +24,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 
 /**
  * Define the default columns of source scope. These columns pass down into the persistent entity(OAL metrics entity)
@@ -36,16 +37,16 @@ public class ScopeDefaultColumn {
     private Class<?> type;
     private boolean isID;
     private int length;
-    private final boolean groupByCondInTopN;
+    private final int shardingKeyIdx;
     private final boolean attribute;
 
-    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length, boolean groupByCondInTopN, boolean attribute) {
+    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length, int shardingKeyIdx, boolean attribute) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.type = type;
         this.isID = isID;
         this.length = length;
-        this.groupByCondInTopN = groupByCondInTopN;
+        this.shardingKeyIdx = shardingKeyIdx;
         this.attribute = attribute;
     }
 
@@ -80,12 +81,17 @@ public class ScopeDefaultColumn {
     @Retention(RetentionPolicy.RUNTIME)
     public @interface BanyanDB {
         /**
-         * Indicate whether this column is a condition for groupBy in the TopN Aggregation.
+         * ShardingKey is used to group time series data per metric in one place. Optional. Only support Measure Tag.
+         * If ShardingKey is not set, the default ShardingKey is based on the combination of 'name' and 'entity' according to the {@link org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB.SeriesID}.
+         * <p>
+         * The typical scenario to specify the ShardingKey to the Group tag when the metric generate a TopNAggregation:
+         * If not set, the default data distribution based on the combination of 'name' and 'entity', can lead to performance issues when calculating the 'TopNAggregation'.
+         * This is because each shard only has a subset of the top-n list, and the query process has to be responsible for aggregating those lists to obtain the final result.
+         * This introduces overhead in terms of querying performance and disk usage.
          *
-         * @since 9.5.0
-         * @since 10.2.0 moved out from {@link DefinedByField} to {@link BanyanDB}
+         * @since 10.3.0
          */
-        boolean groupByCondInTopN() default false;
+        int shardingKeyIdx() default -1;
     }
 
     @Target({ElementType.TYPE})
