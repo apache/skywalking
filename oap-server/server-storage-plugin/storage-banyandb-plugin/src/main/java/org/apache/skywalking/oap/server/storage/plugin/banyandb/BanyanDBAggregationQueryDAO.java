@@ -29,6 +29,7 @@ import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.AttrCondition;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
@@ -69,12 +70,23 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         // The query tags are the additional conditions and attributes defined in the TopN condition.
         // The query tags is the key to find the TopN aggregation in the schema.
         // If the TopN aggregation is defined in the schema, it will be used to perform the query.
+        // The server-side TopN only support when attribute condition `isEquals == true`.
         ImmutableSet.Builder<String> queryTags = ImmutableSet.builder();
+        boolean equalsQuery = true;
+        if (condition.getAttributes() != null) {
+            for (AttrCondition attr : condition.getAttributes()) {
+                if (!attr.isEquals()) {
+                    equalsQuery = false;
+                    break;
+                }
+                queryTags.add(attr.getKey());
+            }
+        }
+        if (!equalsQuery) {
+            return directMetricsTopN(isColdStage, condition, schema, valueColumnName, spec, getTimestampRange(duration), additionalConditions);
+        }
         if (additionalConditions != null) {
             additionalConditions.forEach(additionalCondition -> queryTags.add(additionalCondition.getKey()));
-        }
-        if (condition.getAttributes() != null) {
-            condition.getAttributes().forEach(attr -> queryTags.add(attr.getKey()));
         }
         if (schema.getTopNSpecs() != null) {
             BanyandbDatabase.TopNAggregation topNAggregation = schema.getTopNSpecs().get(queryTags.build());
