@@ -32,6 +32,8 @@
 * Enhance the stability of e2e PHP tests and update the PHP agent version.
 * Add component ID for the `dameng` JDBC driver.
 * BanyanDB: Support custom `TopN pre-aggregation` rules configuration in file `bydb-topn.yml`.
+* refactor: implement OTEL handler with SPI for extensibility.
+* chore: add `toString` implementation for `StorageID`.
 
 #### UI
 
@@ -43,7 +45,6 @@
 * Implement the Status API on Settings page.
 * Bump vite from 6.2.6 to 6.3.4.
 * Enhance async profiling by adding shorter and custom duration options.
-* refactor: implement OTEL handler with SPI for extensibility.
 
 #### Documentation
 
