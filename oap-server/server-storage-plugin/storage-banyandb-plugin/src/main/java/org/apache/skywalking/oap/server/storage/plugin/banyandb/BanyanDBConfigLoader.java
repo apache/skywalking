@@ -38,15 +38,13 @@ import static org.apache.skywalking.oap.server.library.util.YamlConfigLoaderUtil
 @Slf4j
 public class BanyanDBConfigLoader {
     private final ModuleProvider moduleProvider;
-    private BanyanDBStorageConfig config;
+    private final BanyanDBStorageConfig config;
     private final Yaml yaml;
-    private final Yaml topNYaml;
 
     public BanyanDBConfigLoader(final ModuleProvider moduleProvider) {
         this.moduleProvider = moduleProvider;
         this.config = new BanyanDBStorageConfig();
         this.yaml = new Yaml();
-        this.topNYaml = new Yaml();
     }
 
     public BanyanDBStorageConfig loadConfig() throws ModuleStartException {
@@ -199,11 +197,14 @@ public class BanyanDBConfigLoader {
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Cannot find the BanyanDB topN configuration file [bydb-topn.yml].", e);
         }
-        Map<String, List<Map<String, ?>>> configMap = yaml.loadAs(applicationReader, Map.class);
+        Map<String, List<Map<String, ?>>> configMap = new Yaml().loadAs(applicationReader, Map.class);
         if (configMap == null) {
             return;
         }
         List<Map<String, ?>> topNConfig = configMap.get("TopN-Rules");
+        if (topNConfig == null) {
+            return;
+        }
         for (Map<String, ?> rule : topNConfig) {
             TopN topN = new TopN();
             var name = rule.get("name");
