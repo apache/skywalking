@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -149,13 +151,21 @@ public class ElasticSearchClient implements Client, HealthCheckable {
             cb.password(password);
         }
 
-        final ElasticSearch newOne = cb.build();
+        final var newOne = cb.build();
+        final var stopWatch = Stopwatch.createStarted();
         // Only swap the old / new after the new one established a new connection.
         final CompletableFuture<ElasticSearchVersion> f = newOne.connect();
         f.whenComplete((ignored, exception) -> {
+            stopWatch.stop();
             if (exception != null) {
                 log.error("Failed to recreate ElasticSearch client based on config", exception);
                 return;
+            }
+            final var connectingTime = stopWatch.elapsed(TimeUnit.MILLISECONDS);
+            if (connectingTime > 1000) {
+                log.warn(
+                    "Connecting to ElasticSearch took {} ms, which is longer than expected and can impact performance.",
+                    connectingTime);
             }
             if (es.compareAndSet(oldOne, newOne)) {
                 oldOne.close();

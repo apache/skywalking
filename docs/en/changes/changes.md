@@ -34,6 +34,7 @@
 * BanyanDB: Support custom `TopN pre-aggregation` rules configuration in file `bydb-topn.yml`.
 * refactor: implement OTEL handler with SPI for extensibility.
 * chore: add `toString` implementation for `StorageID`.
+* chore: add a warning log when connecting to ES takes too long.
 
 #### UI
 
