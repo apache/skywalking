@@ -52,6 +52,11 @@
 * BanyanDB: Add `Data Lifecycle Stages(Hot/Warm/Cold)` documentation.
 * Add `SWIP-9 Support flink monitoring`.
 * Fix `Metrics Attributes` menu link.
+* Implement the Status API on Settings page.
+* Fix: Add the prefix for http url.
+* Enhance the async-profiling duration options.
+* Enhance the TTL Tab on Setting page.
+* Fix the snapshot charts in alarm page.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/230?closed=1)
 
