@@ -139,7 +139,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
             sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
             parameters.add(startMinuteTimeBucket);
-            sql.append(" and ").append(InstanceTraffic.TIME_BUCKET).append(" < ?");
+            sql.append(" and ").append(InstanceTraffic.TIME_BUCKET).append(" <= ?");
             parameters.add(endMinuteTimeBucket);
         }
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
@@ -228,7 +228,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
                 final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
                 sql.append(" and ").append(EndpointTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
                 condition.add(startMinuteTimeBucket);
-                sql.append(" and ").append(EndpointTraffic.LAST_PING_TIME_BUCKET).append(" <= ?");
+                sql.append(" and ").append(EndpointTraffic.TIME_BUCKET).append(" <= ?");
                 condition.add(endMinuteTimeBucket);
             }
             sql.append(" order by ").append(EndpointTraffic.TIME_BUCKET).append(" desc");
@@ -492,6 +492,13 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             }
             sql.append(ProcessTraffic.LAST_PING_TIME_BUCKET).append(">=?");
             condition.add(lastPingStartTimeBucket);
+        }
+        if (lastPingEndTimeBucket > 0) {
+            if (!condition.isEmpty()) {
+                sql.append(" and ");
+            }
+            sql.append(ProcessTraffic.TIME_BUCKET).append("<=?");
+            condition.add(lastPingEndTimeBucket);
         }
         if (!includeVirtual) {
             if (!condition.isEmpty()) {

@@ -161,7 +161,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             final long startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
             final long endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
             query.must(Query.range(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(startMinuteTimeBucket))
-                 .must(Query.range(InstanceTraffic.TIME_BUCKET).lt(endMinuteTimeBucket));
+                 .must(Query.range(InstanceTraffic.TIME_BUCKET).lte(endMinuteTimeBucket));
         }
         if (IndexController.LogicIndicesRegister.isMergedTable(InstanceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, InstanceTraffic.INDEX_NAME));
@@ -237,7 +237,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (duration != null) {
             final long startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
             final long endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
-            query.must(Query.range(EndpointTraffic.LAST_PING_TIME_BUCKET).gte(startMinuteTimeBucket).lte(endMinuteTimeBucket));
+            query.must(Query.range(EndpointTraffic.LAST_PING_TIME_BUCKET).gte(startMinuteTimeBucket))
+                 .must(Query.range(EndpointTraffic.TIME_BUCKET).lte(endMinuteTimeBucket));
         }
 
         final var search = Search.builder().query(query).size(limit).sort(
@@ -389,9 +390,10 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             query.must(Query.term(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
         }
         if (lastPingStartTimeBucket > 0) {
-            final RangeQueryBuilder rangeQuery = Query.range(ProcessTraffic.LAST_PING_TIME_BUCKET);
-            rangeQuery.gte(lastPingStartTimeBucket);
-            query.must(rangeQuery);
+            query.must(Query.range(ProcessTraffic.LAST_PING_TIME_BUCKET).gte(lastPingStartTimeBucket));
+        }
+        if (lastPingEndTimeBucket > 0) {
+            query.must(Query.range(ProcessTraffic.TIME_BUCKET).lte(lastPingEndTimeBucket));
         }
         if (!includeVirtual) {
             query.mustNot(Query.term(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));

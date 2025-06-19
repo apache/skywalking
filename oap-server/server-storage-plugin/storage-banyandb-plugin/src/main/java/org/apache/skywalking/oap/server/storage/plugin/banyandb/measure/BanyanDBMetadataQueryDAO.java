@@ -127,8 +127,10 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         if (StringUtil.isNotEmpty(serviceId)) {
                             query.and(eq(InstanceTraffic.SERVICE_ID, serviceId));
                         }
-                        final var minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-                        query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket));
+                        final var startTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+                        final var endTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+                        query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, startTimeBucket));
+                        query.and(lte(InstanceTraffic.TIME_BUCKET, endTimeBucket));
                         query.limit(limit);
                     }
                 });
@@ -203,7 +205,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                             final var startTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
                             final var endTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
                             query.and(gte(EndpointTraffic.LAST_PING_TIME_BUCKET, startTimeBucket));
-                            query.and(lte(EndpointTraffic.LAST_PING_TIME_BUCKET, endTimeBucket));
+                            query.and(lte(EndpointTraffic.TIME_BUCKET, endTimeBucket));
                         }
                         query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                         query.limit(limit);
@@ -231,7 +233,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                             query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
                         }
                         if (lastPingEndTimeBucket > 0) {
-                            query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
+                            query.and(lte(ProcessTraffic.TIME_BUCKET, lastPingEndTimeBucket));
                         }
                         if (supportStatus != null) {
                             query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, supportStatus.value()));
@@ -253,6 +255,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
         long lastPingStartTimeBucket = duration.getStartTimeBucket();
+        long lastPingEndTimeBucket = duration.getEndTimeBucket();
         MeasureQueryResponse resp = query(false, schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
@@ -261,6 +264,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                     protected void apply(MeasureQuery query) {
                         query.and(eq(ProcessTraffic.INSTANCE_ID, serviceInstanceId));
                         query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
+                        query.and(lte(ProcessTraffic.TIME_BUCKET, lastPingEndTimeBucket));
                         if (!includeVirtual) {
                             query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
                         }
@@ -287,7 +291,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                     protected void apply(MeasureQuery query) {
                         query.and(eq(ProcessTraffic.AGENT_ID, agentId));
                         query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, startPingTimeBucket));
-                        query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, endPingTimeBucket));
+                        query.and(lte(ProcessTraffic.TIME_BUCKET, endPingTimeBucket));
                         query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
                         query.limit(limit);
                     }
