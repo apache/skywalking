@@ -14,6 +14,9 @@ BanyanDB is a native-built SkyWalking database, which can completely focus on Sk
 It has demonstrated significant potential for performance improvement and reduced resource usage requirements. It indicates 5x less memory usage, 
 1/5 disk IOPS, 1/4 disk throughput, and 30% less disk space, albeit with a slightly higher CPU trade-off, compared to Elasticsearch.
 
+## Apache Doris
+- [Apache Doris](backend-doris-storage.md)
+
 ## SQL database
 - [MySQL and its compatible databases](storages/mysql.md)
 - [PostgreSQL and its compatible databases](storages/postgresql.md)
