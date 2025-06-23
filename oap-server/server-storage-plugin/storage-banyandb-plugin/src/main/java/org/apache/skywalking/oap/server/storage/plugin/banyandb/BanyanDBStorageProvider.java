@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
@@ -96,6 +97,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+@Slf4j
 public class BanyanDBStorageProvider extends ModuleProvider {
     private BanyanDBStorageConfig config;
     private BanyanDBStorageClient client;
@@ -222,7 +224,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
-        // Clean up TopN rules in BanyanDB server that are not configured in the current config.
+        // Cleanup TopN rules in BanyanDB server that are not configured in the current config.
         Set<String> topNNames = new HashSet<>();
         this.config.getTopNConfigs().values().forEach(topNConfig -> {
             topNNames.addAll(topNConfig.keySet());
@@ -238,7 +240,21 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                         for (BanyandbDatabase.TopNAggregation topNAggregation : topNAggregations) {
                             String topNName = topNAggregation.getMetadata().getName();
                             if (!topNNames.contains(topNName)) {
-                                this.client.client.deleteTopNAggregation(groupName, topNName);
+                                if (this.config.getGlobal().isCleanupUnusedTopNRules()) {
+                                    this.client.client.deleteTopNAggregation(groupName, topNName);
+                                    log.info(
+                                        "Deleted unused topN rule from BanyanDB server: {}, group: {}. Please check bydb-topn.yml. " +
+                                            "If you don't want to cleanup unused rules from server, please set cleanupUnusedTopNRules=false in bydb.yml",
+                                        topNName, groupName
+                                    );
+                                } else {
+                                    // Log the unused TopN aggregation.
+                                    log.warn(
+                                        "Unused topN rule in BanyanDB server: {}, group: {}. Please check bydb-topn.yml. " +
+                                            "If you want to cleanup unused rules from server, please set cleanupUnusedTopNRules=true in bydb.yml",
+                                        topNName, groupName
+                                    );
+                                }
                             }
                         }
                     }

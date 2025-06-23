@@ -371,6 +371,7 @@ The global settings for the whole BanyanDB:
 | asyncProfilerTaskQueryMaxSize   | Max size of AsyncProfilerTask to be fetched.                                                          | SW_STORAGE_BANYANDB_ASYNC_PROFILER_TASK_QUERY_MAX_SIZE  | 200             |
 | profileDataQueryScrollBatchSize | The batch size of query profiling data.                                                               | SW_STORAGE_BANYAND_QUERY_PROFILE_DATA_BATCH_SIZE        | 100             |
 | sslTrustCAPath                  | If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection. | SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH                   | -               |
+| cleanupUnusedTopNRules          | Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.            | SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES           | true            |
 
 ### Group Configuration
 The settings for each group:
