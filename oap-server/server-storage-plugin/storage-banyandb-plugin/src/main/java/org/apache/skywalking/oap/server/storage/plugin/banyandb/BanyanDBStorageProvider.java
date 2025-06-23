@@ -18,6 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -59,6 +66,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBEBPFProfilingScheduleQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBHierarchyQueryDAO;
@@ -89,6 +97,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+@Slf4j
 public class BanyanDBStorageProvider extends ModuleProvider {
     private BanyanDBStorageConfig config;
     private BanyanDBStorageClient client;
@@ -215,7 +224,45 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+        // Cleanup TopN rules in BanyanDB server that are not configured in the current config.
+        Set<String> topNNames = new HashSet<>();
+        this.config.getTopNConfigs().values().forEach(topNConfig -> {
+            topNNames.addAll(topNConfig.keySet());
+        });
 
+        try {
+            List<BanyandbCommon.Group> groups = this.client.client.findGroups();
+            for (BanyandbCommon.Group group : groups) {
+                if (BanyandbCommon.Catalog.CATALOG_MEASURE.equals(group.getCatalog())) {
+                    String groupName = group.getMetadata().getName();
+                    List<BanyandbDatabase.TopNAggregation> topNAggregations = this.client.client.findTopNAggregations(groupName);
+                    if (CollectionUtils.isNotEmpty(topNAggregations)) {
+                        for (BanyandbDatabase.TopNAggregation topNAggregation : topNAggregations) {
+                            String topNName = topNAggregation.getMetadata().getName();
+                            if (!topNNames.contains(topNName)) {
+                                if (this.config.getGlobal().isCleanupUnusedTopNRules()) {
+                                    this.client.client.deleteTopNAggregation(groupName, topNName);
+                                    log.info(
+                                        "Deleted unused topN rule from BanyanDB server: {}, group: {}. Please check bydb-topn.yml. " +
+                                            "If you don't want to cleanup unused rules from server, please set cleanupUnusedTopNRules=false in bydb.yml",
+                                        topNName, groupName
+                                    );
+                                } else {
+                                    // Log the unused TopN aggregation.
+                                    log.warn(
+                                        "Unused topN rule in BanyanDB server: {}, group: {}. Please check bydb-topn.yml. " +
+                                            "If you want to cleanup unused rules from server, please set cleanupUnusedTopNRules=true in bydb.yml",
+                                        topNName, groupName
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (BanyanDBException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override

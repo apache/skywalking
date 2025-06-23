@@ -46,7 +46,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private Metadata metadata = new Metadata();
     private Property property = new Property();
 
-    private Map<String/*metric name*/, Map<String, TopN>> topNConfigs = new HashMap<>();
+    private Map<String/*metric name*/, Map<String, TopN>/*ruleName, topN*/> topNConfigs = new HashMap<>();
 
     public String[] getTargetArray() {
         return Iterables.toArray(
@@ -98,6 +98,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int metadataQueryMaxSize = 5000;
         private int segmentQueryMaxSize = 200;
         private int profileDataQueryBatchSize = 100;
+        private boolean cleanupUnusedTopNRules = true;
     }
 
     // The configuration of the groups.
