@@ -46,7 +46,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private Metadata metadata = new Metadata();
     private Property property = new Property();
 
-    private Map<String/*metric name*/, Map<String, TopN>> topNConfigs = new HashMap<>();
+    private Map<String/*metric name*/, Map<String, TopN>/*ruleName, topN*/> topNConfigs = new HashMap<>();
 
     public String[] getTargetArray() {
         return Iterables.toArray(
