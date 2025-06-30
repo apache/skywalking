@@ -104,7 +104,7 @@ public class GRPCClient implements Client, HealthCheckable {
      * Must register a HealthChecker before calling connect() if you want to enable health check.
      * If the channel is shutdown by client side, the health check will not be performed.
      * Note: If you register a `org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics` here
-     * or the metric name start with `org.apache.skywalking.oap.server.telemetry.api.MetricsCreator.HEALTH_METRIC_PREFIX`,
+     * and the metric name start with `org.apache.skywalking.oap.server.telemetry.api.MetricsCreator.HEALTH_METRIC_PREFIX`,
      * this healthy status will be included in the whole OAP health evaluate.
      * @param healthChecker HealthChecker to be registered.
      */
