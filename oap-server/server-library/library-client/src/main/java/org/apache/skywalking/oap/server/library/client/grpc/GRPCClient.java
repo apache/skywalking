@@ -50,6 +50,8 @@ public class GRPCClient implements Client, HealthCheckable {
 
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
+    private ScheduledExecutorService healthCheckExecutor;
+
     private boolean enableHealthCheck = false;
 
     public GRPCClient(String host, int port) {
@@ -80,6 +82,12 @@ public class GRPCClient implements Client, HealthCheckable {
             channel.shutdownNow();
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
+        } finally {
+            if (healthCheckExecutor != null) {
+                healthCheckExecutor.shutdownNow();
+                healthChecker.unHealth("gRPC channel is shutting down. Host: " + host + ", Port: " + port);
+                healthCheckExecutor = null;
+            }
         }
     }
 
@@ -94,6 +102,10 @@ public class GRPCClient implements Client, HealthCheckable {
 
     /**
      * Must register a HealthChecker before calling connect() if you want to enable health check.
+     * If the channel is shutdown by client side, the health check will not be performed.
+     * Note: If you register a `org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics` here
+     * or the metric name start with `org.apache.skywalking.oap.server.telemetry.api.MetricsCreator.HEALTH_METRIC_PREFIX`,
+     * this healthy status will be included in the whole OAP health evaluate.
      * @param healthChecker HealthChecker to be registered.
      */
     @Override
@@ -103,19 +115,25 @@ public class GRPCClient implements Client, HealthCheckable {
     }
 
     private void checkHealth() {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(() -> {
-            ConnectivityState currentState = channel.getState(true); // true means try to connect
-            handleStateChange(currentState);
-        }, 5, 10, TimeUnit.SECONDS);
+        if (healthCheckExecutor == null) {
+            healthCheckExecutor = Executors.newSingleThreadScheduledExecutor();
+            healthCheckExecutor.scheduleAtFixedRate(
+                () -> {
+                    ConnectivityState currentState = channel.getState(true); // true means try to connect
+                    handleStateChange(currentState);
+                }, 5, 10, TimeUnit.SECONDS
+            );
+        }
     }
 
     private void handleStateChange(ConnectivityState newState) {
         switch (newState) {
             case READY:
             case IDLE:
-            case CONNECTING:
                 this.healthChecker.health();
+                break;
+            case CONNECTING:
+                this.healthChecker.unHealth("gRPC connecting, waiting for ready. Host: " + host + ", Port: " + port);
                 break;
             case TRANSIENT_FAILURE:
                 this.healthChecker.unHealth("gRPC connection failed, will retry. Host: " + host + ", Port: " + port);
