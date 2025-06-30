@@ -26,7 +26,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class HealthStatus {
-    // score == 0 means healthy, otherwise it's unhealthy.
+    // score == 1 means healthy, otherwise it's unhealthy.
     private int score;
     private String details;
 }

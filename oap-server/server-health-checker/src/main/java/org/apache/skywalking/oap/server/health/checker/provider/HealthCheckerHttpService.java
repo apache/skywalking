@@ -37,7 +37,7 @@ public class HealthCheckerHttpService {
         final var status = healthQueryService.checkHealth();
         log.info("Health status: {}", status);
 
-        if (status.getScore() == 0) {
+        if (status.getScore() == 1) {
             return HttpResponse.of(HttpStatus.OK);
         }
         return HttpResponse.of(HttpStatus.SERVICE_UNAVAILABLE);

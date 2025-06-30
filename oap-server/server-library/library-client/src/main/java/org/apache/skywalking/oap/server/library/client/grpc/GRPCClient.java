@@ -18,16 +18,23 @@
 
 package org.apache.skywalking.oap.server.library.client.grpc;
 
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContext;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
+import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
+import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GRPCClient implements Client {
+public class GRPCClient implements Client, HealthCheckable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GRPCClient.class);
 
@@ -40,6 +47,10 @@ public class GRPCClient implements Client {
     private SslContext sslContext;
 
     private ManagedChannel channel;
+
+    private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
+
+    private boolean enableHealthCheck = false;
 
     public GRPCClient(String host, int port) {
         this.host = host;
@@ -55,9 +66,12 @@ public class GRPCClient implements Client {
     public void connect() {
         if (sslContext == null) {
             channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
-            return;
+        } else {
+            channel = NettyChannelBuilder.forAddress(host, port).sslContext(sslContext).build();
         }
-        channel = NettyChannelBuilder.forAddress(host, port).sslContext(sslContext).build();
+        if (enableHealthCheck) {
+            checkHealth();
+        }
     }
 
     @Override
@@ -76,5 +90,39 @@ public class GRPCClient implements Client {
     @Override
     public String toString() {
         return host + ":" + port;
+    }
+
+    /**
+     * Must register a HealthChecker before calling connect() if you want to enable health check.
+     * @param healthChecker HealthChecker to be registered.
+     */
+    @Override
+    public void registerChecker(final HealthChecker healthChecker) {
+        this.healthChecker.register(healthChecker);
+        this.enableHealthCheck = true;
+    }
+
+    private void checkHealth() {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+            ConnectivityState currentState = channel.getState(true); // true means try to connect
+            handleStateChange(currentState);
+        }, 5, 10, TimeUnit.SECONDS);
+    }
+
+    private void handleStateChange(ConnectivityState newState) {
+        switch (newState) {
+            case READY:
+            case IDLE:
+            case CONNECTING:
+                this.healthChecker.health();
+                break;
+            case TRANSIENT_FAILURE:
+                this.healthChecker.unHealth("gRPC connection failed, will retry. Host: " + host + ", Port: " + port);
+                break;
+            case SHUTDOWN:
+                this.healthChecker.unHealth("gRPC channel is shutting down. Host: " + host + ", Port: " + port);
+                break;
+        }
     }
 }

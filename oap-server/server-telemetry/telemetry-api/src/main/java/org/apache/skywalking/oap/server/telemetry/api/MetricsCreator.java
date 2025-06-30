@@ -53,7 +53,7 @@ public interface MetricsCreator extends Service {
     default HealthCheckMetrics createHealthCheckerGauge(String name, MetricsTag.Keys tagKeys, MetricsTag.Values tagValues) {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Require non-null or empty metric name");
         return new HealthCheckMetrics(createGauge(Strings.lenientFormat("%s%s", HEALTH_METRIC_PREFIX, name),
-            Strings.lenientFormat("%s health check", name),
+            Strings.lenientFormat("%s health check. 1 health, 0 not health, -1 unknown", name),
             tagKeys, tagValues));
     }
 
