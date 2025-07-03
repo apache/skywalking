@@ -37,7 +37,7 @@
 * chore: add a warning log when connecting to ES takes too long.
 * Fix the query time range in the metadata API.
 * OAP gRPC-Client support `Health Check`.
-* [Break Change] `Health Check` make response 1 represents healthy, 0 represents unhealthy.
+* [Break Change] `health_check_xx` metrics make response 1 represents healthy, 0 represents unhealthy.
 
 #### UI
 

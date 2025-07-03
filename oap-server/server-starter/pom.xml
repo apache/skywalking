@@ -317,6 +317,7 @@
                         <exclude>hierarchy-definition.yml</exclude>
                         <exclude>bydb.dependencies.properties</exclude>
                         <exclude>bydb.yml</exclude>
+                        <exclude>bydb-topn.yml</exclude>
                         <exclude>oal/</exclude>
                         <exclude>fetcher-prom-rules/</exclude>
                         <exclude>envoy-metrics-rules/</exclude>

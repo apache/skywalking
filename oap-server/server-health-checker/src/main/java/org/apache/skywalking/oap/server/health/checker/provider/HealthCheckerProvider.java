@@ -100,18 +100,22 @@ public class HealthCheckerProvider extends ModuleProvider {
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         ses.scheduleAtFixedRate(() -> {
             StringBuilder unhealthyModules = new StringBuilder();
-            AtomicBoolean hasUnhealthyModule = new AtomicBoolean(false);
+            AtomicDouble unhealthyModule = new AtomicDouble(0);
             Stream.ofAll(collector.collect())
                                         .flatMap(metricFamily -> metricFamily.samples)
                                         .filter(sample -> metricsCreator.isHealthCheckerMetrics(sample.name))
                                         .forEach(sample -> {
                                             if (sample.value < 1) {
                                                 unhealthyModules.append(metricsCreator.extractModuleName(sample.name)).append(",");
-                                                hasUnhealthyModule.set(true);
+                                                unhealthyModule.updateAndGet(v -> v + 1);
                                             }
                                         });
 
-            score.set(hasUnhealthyModule.get() ? 0 : 1);
+            if (unhealthyModule.get() > 0) {
+                score.set(unhealthyModule.get());
+            } else {
+                score.set(0);
+            }
             details.set(unhealthyModules.toString());
             },
             2, config.getCheckIntervalSeconds(), TimeUnit.SECONDS);

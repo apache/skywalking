@@ -18,26 +18,27 @@
 
 package org.apache.skywalking.oap.server.library.client.grpc;
 
-import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.health.v1.HealthCheckRequest;
+import io.grpc.health.v1.HealthCheckResponse;
+import io.grpc.health.v1.HealthGrpc;
 import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContext;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class GRPCClient implements Client, HealthCheckable {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GRPCClient.class);
-
     @Getter
     private final String host;
 
@@ -53,6 +54,35 @@ public class GRPCClient implements Client, HealthCheckable {
     private ScheduledExecutorService healthCheckExecutor;
 
     private boolean enableHealthCheck = false;
+
+    private long initialDelay = 5; // Initial delay for health check in seconds
+
+    private long period = 20; // Period for health check in seconds
+
+    // The default health check runnable that checks the health of the gRPC channel.
+    private Runnable healthCheckRunnable = () -> {
+        if (getChannel() != null && !getChannel().isShutdown()) {
+            HealthGrpc.HealthBlockingStub healthStub = HealthGrpc.newBlockingStub(getChannel());
+            HealthCheckRequest request = HealthCheckRequest.newBuilder().setService("").build();
+            try {
+                HealthCheckResponse response = healthStub.check(request);
+                handleStateChange(response);
+            } catch (StatusRuntimeException s) {
+                if (s.getStatus().getCode() == Status.Code.UNIMPLEMENTED) {
+                    log.warn("Health check is not implemented on the remote gRPC server, regard as healthy. Host: {}, Port: {}", getHost(), getPort());
+                    healthChecker.health();
+                } else {
+                    log.warn("Health check failed for gRPC channel. Host: {}, Port: {}", getHost(), getPort(), s);
+                    healthChecker.unHealth(s);
+                }
+            } catch (Throwable t) {
+                log.warn("Health check failed for gRPC channel. Host: {}, Port: {}", getHost(), getPort(), t);
+                healthChecker.unHealth(t);
+            }
+        } else {
+            log.warn("gRPC channel is not available for health check. Host: {}, Port: {}", getHost(), getPort());
+        }
+    };
 
     public GRPCClient(String host, int port) {
         this.host = host;
@@ -81,7 +111,7 @@ public class GRPCClient implements Client, HealthCheckable {
         try {
             channel.shutdownNow();
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            log.error(t.getMessage(), t);
         } finally {
             if (healthCheckExecutor != null) {
                 healthCheckExecutor.shutdownNow();
@@ -114,32 +144,45 @@ public class GRPCClient implements Client, HealthCheckable {
         this.enableHealthCheck = true;
     }
 
+    /**
+     * Override the default health check runnable with a custom one.
+     * Must override before calling connect()
+     * This can be used to provide a different health check logic.
+     *
+     * @param healthCheckRunnable The custom health check runnable.
+     * @param initialDelay Initial delay before the first health check.
+     * @param period Period between subsequent health checks.
+     */
+    public void overrideCheckerRunnable(final Runnable healthCheckRunnable, final long initialDelay, final long period) {
+        this.healthCheckRunnable = healthCheckRunnable;
+        this.initialDelay = initialDelay;
+        this.period = period;
+    }
+
     private void checkHealth() {
         if (healthCheckExecutor == null) {
             healthCheckExecutor = Executors.newSingleThreadScheduledExecutor();
-            healthCheckExecutor.scheduleAtFixedRate(
-                () -> {
-                    ConnectivityState currentState = channel.getState(true); // true means try to connect
-                    handleStateChange(currentState);
-                }, 5, 10, TimeUnit.SECONDS
+            healthCheckExecutor.scheduleAtFixedRate(healthCheckRunnable, initialDelay, period, TimeUnit.SECONDS
             );
         }
     }
 
-    private void handleStateChange(ConnectivityState newState) {
-        switch (newState) {
-            case READY:
-            case IDLE:
+    private void handleStateChange(HealthCheckResponse response) {
+        switch (response.getStatus()) {
+            case SERVING:
                 this.healthChecker.health();
                 break;
-            case CONNECTING:
-                this.healthChecker.unHealth("gRPC connecting, waiting for ready. Host: " + host + ", Port: " + port);
+            case NOT_SERVING:
+                this.healthChecker.unHealth("Remote gRPC Server NOT_SERVING. Host: " + host + ", Port: " + port);
                 break;
-            case TRANSIENT_FAILURE:
-                this.healthChecker.unHealth("gRPC connection failed, will retry. Host: " + host + ", Port: " + port);
+            case SERVICE_UNKNOWN:
+                this.healthChecker.unHealth("Remote gRPC Server SERVICE_UNKNOWN. Host: " + host + ", Port: " + port);
                 break;
-            case SHUTDOWN:
-                this.healthChecker.unHealth("gRPC channel is shutting down. Host: " + host + ", Port: " + port);
+            case UNKNOWN:
+                this.healthChecker.unHealth("Remote gRPC Server UNKNOWN. Host: " + host + ", Port: " + port);
+                break;
+            case UNRECOGNIZED:
+                this.healthChecker.unHealth("Remote gRPC Server UNRECOGNIZED. Host: " + host + ", Port: " + port);
                 break;
         }
     }
