@@ -155,6 +155,12 @@ public class GRPCClient implements Client, HealthCheckable {
      */
     public void overrideCheckerRunnable(final Runnable healthCheckRunnable, final long initialDelay, final long period) {
         this.healthCheckRunnable = healthCheckRunnable;
+        if (initialDelay < 0) {
+            throw new IllegalArgumentException("initialDelay must be non-negative. Provided value: " + initialDelay);
+        }
+        if (period < 0) {
+            throw new IllegalArgumentException("period must be non-negative. Provided value: " + period);
+        }
         this.initialDelay = initialDelay;
         this.period = period;
     }
