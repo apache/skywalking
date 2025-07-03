@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -100,18 +99,22 @@ public class HealthCheckerProvider extends ModuleProvider {
     @Override public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
         ses.scheduleAtFixedRate(() -> {
             StringBuilder unhealthyModules = new StringBuilder();
-            AtomicBoolean hasUnhealthyModule = new AtomicBoolean(false);
+            AtomicDouble unhealthyModule = new AtomicDouble(0);
             Stream.ofAll(collector.collect())
                                         .flatMap(metricFamily -> metricFamily.samples)
                                         .filter(sample -> metricsCreator.isHealthCheckerMetrics(sample.name))
                                         .forEach(sample -> {
                                             if (sample.value < 1) {
                                                 unhealthyModules.append(metricsCreator.extractModuleName(sample.name)).append(",");
-                                                hasUnhealthyModule.set(true);
+                                                unhealthyModule.updateAndGet(v -> v + 1);
                                             }
                                         });
 
-            score.set(hasUnhealthyModule.get() ? 0 : 1);
+            if (unhealthyModule.get() > 0) {
+                score.set(unhealthyModule.get());
+            } else {
+                score.set(0);
+            }
             details.set(unhealthyModules.toString());
             },
             2, config.getCheckIntervalSeconds(), TimeUnit.SECONDS);

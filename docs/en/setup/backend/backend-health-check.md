@@ -36,7 +36,7 @@ If the OAP server is healthy, the response should be
 {
   "data": {
     "checkHealth": {
-      "score": 1,
+      "score": 0,
       "details": ""
     }
   }
@@ -49,7 +49,7 @@ If some modules are unhealthy (e.g. storage H2 is down), then the result may loo
 {
   "data": {
     "checkHealth": {
-      "score": 0,
+      "score": 1,
       "details": "storage_h2,"
     }
   }
