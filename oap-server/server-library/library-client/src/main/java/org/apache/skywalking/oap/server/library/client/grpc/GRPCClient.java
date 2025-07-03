@@ -80,7 +80,7 @@ public class GRPCClient implements Client, HealthCheckable {
                 healthChecker.unHealth(t);
             }
         } else {
-            log.warn("gRPC channel is not available for health check. Host: {}, Port: {}", getHost(), getPort());
+            healthChecker.unHealth("gRPC channel is not available or shutting down. Host: " + getHost() + ", Port: " + getPort());
         }
     };
 
