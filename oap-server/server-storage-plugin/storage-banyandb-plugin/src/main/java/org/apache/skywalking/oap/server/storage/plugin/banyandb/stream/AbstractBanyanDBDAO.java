@@ -207,9 +207,9 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             attributes.forEach(attr -> {
                 if (attr.isEquals()) {
                     conditions.add(PairQueryCondition.StringQueryCondition.eq(attr.getKey(), attr.getValue()));
-                } else {
-                    conditions.add(PairQueryCondition.StringQueryCondition.ne(attr.getKey(), attr.getValue()));
                 }
+                //server side topn query does not support not equals condition
+                //the not equals condition should be handled by a specific topN rule by adding exclude condition.
             });
         }
         q.setConditions(conditions);

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -236,6 +237,19 @@ public class BanyanDBConfigLoader {
             if (sort != null) {
                 topN.setSort(TopN.Sort.valueOf(sort.toString()));
             }
+            var excludes = rule.get("excludes");
+            if (excludes != null) {
+                for (Map<String, String> tag : (List<Map<String, String>>) excludes) {
+                    var tagName = tag.get("tag");
+                    var tagValue = tag.get("value");
+                    if (tagName == null || tagValue == null) {
+                        throw new ModuleStartException(
+                            "TopN rule name: " + name + ", [tag] or [value] is missing in [excludes] item in file [bydb-topn.yml].");
+                    }
+                    topN.getExcludes().add(new KeyValue(tag.get("tag"), tag.get("value")));
+                }
+            }
+
             Map<String, TopN> map = config.getTopNConfigs().computeIfAbsent(metricName.toString(), k -> new HashMap<>());
             if (map.put(name.toString(), topN) != null) {
                 throw new ModuleStartException("Duplicate TopN rule name: " + name + " in file [bydb-topn.yml].");

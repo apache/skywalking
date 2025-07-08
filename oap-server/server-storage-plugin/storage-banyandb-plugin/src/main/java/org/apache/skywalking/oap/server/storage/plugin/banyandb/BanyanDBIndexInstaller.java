@@ -475,6 +475,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                        .build()
                                        .equals(measure.toBuilder().clearMetadata().build());
             if (!equals) {
+                // banyanDB server can not delete or update Tags.
                 client.update(measure);
                 log.info("update Measure: {} from: {} to: {}", hisMeasure.getMetadata().getName(), hisMeasure, measure);
             }

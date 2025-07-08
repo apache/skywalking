@@ -45,6 +45,9 @@ TopN-Rules:
     groupByTagNames:
       - service_id
     sort: des
+    excludes:
+      - tag: attr0
+        value: MESH
   - name: endpoint_sla-layer
     metricName: endpoint_sla
     groupByTagNames:
@@ -81,13 +84,3 @@ TopN-Rules:
     groupByTagNames:
       - service_id
     sort: des
-# The following rule can be used to filter out the mesh endpoints.
-# You MUST add `attr0!= MESH` to the MQE topN query to hit this rule.
-#  - name: endpoint_cpm-service
-#    metricName: endpoint_cpm
-#    groupByTagNames:
-#      - service_id
-#    sort: des
-#    excludes:
-#      - tag: attr0
-#        value: MESH

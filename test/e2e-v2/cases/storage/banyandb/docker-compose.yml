@@ -27,6 +27,8 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
+    volumes:
+      - ./config/bydb-topn.yml:/skywalking/config/bydb-topn.yml
     environment:
       SW_STORAGE: banyandb
     ports:

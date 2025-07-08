@@ -255,6 +255,7 @@ You can define the TopN rules for different metrics. The configuration is define
 # - lruSizeHourDay: Optional, default `2`. Defines how many time_buckets are held in the memory for hour and day-level metrics.
 
 # - sort: Optional, default `all`. The sorting order for the metrics, asc, des or all(include both asc and des).
+# - excludes: Optional, default `[]`. The tag values to be excluded from the candidates. If specified, the candidates will not include the entries with the specified tag values.
 
 TopN-Rules:
    # endpoint metrics
@@ -314,6 +315,16 @@ TopN-Rules:
     groupByTagNames:
       - service_id
     sort: des
+# The following rule can be used to filter out the mesh endpoints.
+# You MUST add `attr0!= MESH` to the MQE topN query to hit this rule.
+#  - name: endpoint_cpm-service
+#    metricName: endpoint_cpm
+#    groupByTagNames:
+#      - service_id
+#    sort: des
+#    excludes:
+#      - tag: attr0
+#        value: MESH
 ```
 
 ### Installation Modes
