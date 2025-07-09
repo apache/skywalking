@@ -27,4 +27,13 @@ public class AttrCondition {
     private final String key;
     private final String value;
     private final boolean isEquals;
+
+    @Override
+    public String toString() {
+        if (isEquals) {
+            return key + "==" + value;
+        } else  {
+            return key + "!=" + value;
+        }
+    }
 }

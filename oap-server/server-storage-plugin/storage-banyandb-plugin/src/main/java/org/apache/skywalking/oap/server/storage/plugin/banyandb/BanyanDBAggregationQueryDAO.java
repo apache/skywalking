@@ -70,20 +70,17 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         // The query tags are the additional conditions and attributes defined in the TopN condition.
         // The query tags is the key to find the TopN aggregation in the schema.
         // If the TopN aggregation is defined in the schema, it will be used to perform the query.
-        // The server-side TopN only support when attribute condition `isEquals == true`.
+        // The server-side TopN only support the rules config in bydb-topn.yaml.
         ImmutableSet.Builder<String> queryTags = ImmutableSet.builder();
-        boolean equalsQuery = true;
         if (condition.getAttributes() != null) {
             for (AttrCondition attr : condition.getAttributes()) {
                 if (!attr.isEquals()) {
-                    equalsQuery = false;
-                    break;
+                    // Not equal attr condition should add full String key!=value
+                    queryTags.add(attr.toString());
+                } else {
+                    queryTags.add(attr.getKey());
                 }
-                queryTags.add(attr.getKey());
             }
-        }
-        if (!equalsQuery) {
-            return directMetricsTopN(isColdStage, condition, schema, valueColumnName, spec, getTimestampRange(duration), additionalConditions);
         }
         if (additionalConditions != null) {
             additionalConditions.forEach(additionalCondition -> queryTags.add(additionalCondition.getKey()));
