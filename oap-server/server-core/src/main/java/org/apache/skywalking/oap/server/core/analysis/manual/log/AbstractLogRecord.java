@@ -68,6 +68,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(name = TRACE_ID, length = 150)
+    @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.SKIPPING)
     private String traceId;
     @Setter
     @Getter
