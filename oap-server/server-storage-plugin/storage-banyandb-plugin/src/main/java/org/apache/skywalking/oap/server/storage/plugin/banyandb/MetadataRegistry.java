@@ -81,6 +81,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule.Type.TYPE_INVERTED;
+import static org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule.Type.TYPE_SKIPPING;
+import static org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule.Type.TYPE_TREE;
+
 @Slf4j
 public enum MetadataRegistry {
     INSTANCE;
@@ -160,7 +164,7 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
 
         if (model.getBanyanDBModelExtension().isStoreIDTag()) {
-            indexRules.add(indexRule(schemaMetadata.group, BanyanDBConverter.ID, false, null));
+            indexRules.add(indexRule(schemaMetadata.group, BanyanDBConverter.ID, false, null, null));
         }
 
         final Measure.Builder builder = Measure.newBuilder();
@@ -368,12 +372,35 @@ public enum MetadataRegistry {
         }
     }
 
-    IndexRule indexRule(String group, String tagName, boolean enableSort,  BanyanDB.MatchQuery.AnalyzerType analyzer) {
+    IndexRule indexRule(String group,
+                        String tagName,
+                        boolean enableSort,
+                        BanyanDB.MatchQuery.AnalyzerType analyzer,
+                        BanyanDB.IndexRule.IndexType type) {
         IndexRule.Builder builder = IndexRule.newBuilder()
                                              .setMetadata(Metadata.newBuilder().setName(tagName).setGroup(group))
-                                             .setType(IndexRule.Type.TYPE_INVERTED).addTags(tagName);
+                                             .addTags(tagName);
         // *Notice*: here is a reverse logic, if enableSort is true, then setNoSort is false
         builder.setNoSort(!enableSort);
+
+        if (type != null) {
+            switch (type) {
+                case INVERTED:
+                    builder.setType(TYPE_INVERTED);
+                    break;
+                case TREE:
+                    builder.setType(TYPE_TREE);
+                    break;
+                case SKIPPING:
+                    builder.setType(TYPE_SKIPPING);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("unsupported index type: " + type);
+            }
+        } else {
+            builder.setType(TYPE_INVERTED);
+        }
+
         if (analyzer != null) {
             switch (analyzer) {
                 case KEYWORD:
@@ -449,7 +476,8 @@ public enum MetadataRegistry {
                     tagMetadataList.add(new TagMetadata(
                         indexRule(
                             group, tagSpec.getName(), col.getBanyanDBExtension().isEnableSort(),
-                            col.getBanyanDBExtension().getAnalyzer()
+                            col.getBanyanDBExtension().getAnalyzer(),
+                            col.getBanyanDBExtension().getIndexType()
                         ), tagSpec));
                 } else {
                     tagMetadataList.add(new TagMetadata(null, tagSpec));
@@ -499,7 +527,8 @@ public enum MetadataRegistry {
                     result.tag(new TagMetadata(
                         indexRule(
                             group, tagSpec.getName(), col.getBanyanDBExtension().isEnableSort(),
-                            col.getBanyanDBExtension().getAnalyzer()
+                            col.getBanyanDBExtension().getAnalyzer(),
+                            col.getBanyanDBExtension().getIndexType()
                         ), tagSpec));
                 } else {
                     result.tag(new TagMetadata(null, tagSpec));

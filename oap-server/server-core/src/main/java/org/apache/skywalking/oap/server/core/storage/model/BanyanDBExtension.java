@@ -54,9 +54,8 @@ public class BanyanDBExtension {
      * indexType is the type of index built for a {@link ModelColumn} in BanyanDB.
      *
      * @since 9.3.0
-     * @deprecated since 10.2. Only support {@link BanyanDB.IndexRule.IndexType#INVERTED} now. There was IndexType#TREE,
-     * but removed.
      */
+    @Getter
     private final BanyanDB.IndexRule.IndexType indexType;
 
     /**

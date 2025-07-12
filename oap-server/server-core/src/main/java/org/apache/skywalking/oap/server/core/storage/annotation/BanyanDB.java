@@ -24,6 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -132,6 +133,16 @@ public @interface BanyanDB {
              * It's suitable for most tag indexing due to a better memory usage ratio and query performance.
              */
             INVERTED,
+            /**
+             * The `SKIPPING` index is optimized for the majority of stream tags, which prioritizes efficient space utilization.
+             * Such as the `trace_id` in the {@link LogRecord}.
+             */
+            SKIPPING,
+            /**
+             * The `TREE` index is designed for storing hierarchical data.
+             * Such as Trace Span.
+             */
+            TREE
         }
     }
 
