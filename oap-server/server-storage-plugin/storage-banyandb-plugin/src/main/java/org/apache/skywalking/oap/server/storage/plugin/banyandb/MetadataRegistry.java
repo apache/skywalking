@@ -573,10 +573,6 @@ public enum MetadataRegistry {
         } else {
             throw new IllegalStateException("type " + modelColumn.getType().toString() + " is not supported");
         }
-
-        if (modelColumn.isIndexOnly()) {
-            tagSpec.setIndexedOnly(true);
-        }
         return tagSpec.build();
     }
 
