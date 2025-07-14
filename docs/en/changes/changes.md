@@ -39,6 +39,8 @@
 * OAP gRPC-Client support `Health Check`.
 * [Break Change] `health_check_xx` metrics make response 1 represents healthy, 0 represents unhealthy.
 * Bump up grpc to 1.70.0.
+* BanyanDB: support new Index rule type `SKIPPING/TREE`, and update the record `log`'s `trace_id` indexType to `SKIPPING`
+* BanyanDB: remove `index-only` from tag setting.
 
 #### UI
 
