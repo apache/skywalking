@@ -64,7 +64,7 @@ global:
   asyncProfilerTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_ASYNC_PROFILER_TASK_QUERY_MAX_SIZE:200}
   # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.
   sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
-  # Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config. 
+  # Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.
   cleanupUnusedTopNRules: ${SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES:true}
   
 groups:
