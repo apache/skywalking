@@ -41,6 +41,7 @@
 * Bump up grpc to 1.70.0.
 * BanyanDB: support new Index rule type `SKIPPING/TREE`, and update the record `log`'s `trace_id` indexType to `SKIPPING`
 * BanyanDB: remove `index-only` from tag setting.
+* Fix analysis tracing profiling span failure in ES storage.
 
 #### UI
 
@@ -52,6 +53,7 @@
 * Implement the Status API on Settings page.
 * Bump vite from 6.2.6 to 6.3.4.
 * Enhance async profiling by adding shorter and custom duration options.
+* Fix select wrong span to analysis in trace profiling.
 
 #### Documentation
 
