@@ -142,9 +142,9 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
     List<SelectedRecord> directMetricsTopN(boolean isColdStage, TopNCondition condition, MetadataRegistry.Schema schema, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
                                            TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
-        if (getClient().getConfig().getGlobal().isLogEndpointDirectTopNQuery()
+        if (log.isDebugEnabled()
             && condition.getScope().equals(Scope.Endpoint)) {
-            log.info("Endpoint direct TopN query, TopNCondition: {}, AdditionalConditions: {}, TimestampRange: {}",
+            log.debug("Endpoint direct TopN query, TopNCondition: {}, AdditionalConditions: {}, TimestampRange: {}",
             condition, additionalConditions, timestampRange);
         }
         MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, TAGS, Collections.singleton(valueColumnName),

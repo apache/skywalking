@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
@@ -67,15 +66,12 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
-    @Getter
-    private final BanyanDBStorageConfig config;
 
     public BanyanDBStorageClient(BanyanDBStorageConfig config) {
         Options options = new Options();
         options.setSslTrustCAPath(config.getGlobal().getSslTrustCAPath());
         this.client = new BanyanDBClient(config.getTargetArray(), options);
         this.flushTimeout = config.getGlobal().getFlushTimeout();
-        this.config = config;
     }
 
     @Override
