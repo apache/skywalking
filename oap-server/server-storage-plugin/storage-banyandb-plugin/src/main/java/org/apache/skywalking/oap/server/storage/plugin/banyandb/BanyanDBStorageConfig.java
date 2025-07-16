@@ -102,6 +102,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int segmentQueryMaxSize = 200;
         private int profileDataQueryBatchSize = 100;
         private boolean cleanupUnusedTopNRules = true;
+        private boolean logEndpointDirectTopNQuery = false;
     }
 
     // The configuration of the groups.

@@ -47,6 +47,8 @@ global:
   sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
   # Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.
   cleanupUnusedTopNRules: ${SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES:true}
+  # Record the Endpoint direct TopN query info in the OAP logs.
+  logEndpointDirectTopNQuery: ${SW_STORAGE_BANYANDB_LOG_ENDPOINT_DIRECT_TOPN_QUERY:false}
 
 groups:
   # The group settings of record.

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
@@ -29,6 +30,7 @@ import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.AttrCondition;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
@@ -45,6 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements IAggregationQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(Metrics.ENTITY_ID);
 
@@ -139,6 +142,11 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
     List<SelectedRecord> directMetricsTopN(boolean isColdStage, TopNCondition condition, MetadataRegistry.Schema schema, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
                                            TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
+        if (getClient().getConfig().getGlobal().isLogEndpointDirectTopNQuery()
+            && condition.getScope().equals(Scope.Endpoint)) {
+            log.info("Endpoint direct TopN query, TopNCondition: {}, AdditionalConditions: {}, TimestampRange: {}",
+            condition, additionalConditions, timestampRange);
+        }
         MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override

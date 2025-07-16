@@ -372,6 +372,7 @@ The global settings for the whole BanyanDB:
 | profileDataQueryScrollBatchSize | The batch size of query profiling data.                                                               | SW_STORAGE_BANYAND_QUERY_PROFILE_DATA_BATCH_SIZE        | 100             |
 | sslTrustCAPath                  | If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection. | SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH                   | -               |
 | cleanupUnusedTopNRules          | Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.            | SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES           | true            |
+| logEndpointDirectTopNQuery      | Record the Endpoint direct TopN query info in the logs.                                               | SW_STORAGE_BANYANDB_LOG_ENDPOINT_DIRECT_TOPN_QUERY      | false           |
 
 ### Group Configuration
 The settings for each group:
