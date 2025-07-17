@@ -55,7 +55,7 @@
 * Enhance async profiling by adding shorter and custom duration options.
 * Fix select wrong span to analysis in trace profiling.
 * Correct the service list for legends in trace graphs.
-* Restrict and validate url for widgets.
+* Fix CVE-2025-54057, restrict and validate url for widgets.
 * Correct endpoint topology data to avoid undefined.
 * Fix the snapshot charts unable to display.
 * Bump vue-i18n from 9.14.3 to 9.14.5.
