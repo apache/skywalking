@@ -41,6 +41,7 @@
 * Bump up grpc to 1.70.0.
 * BanyanDB: support new Index rule type `SKIPPING/TREE`, and update the record `log`'s `trace_id` indexType to `SKIPPING`
 * BanyanDB: remove `index-only` from tag setting.
+* Add UI dashboard for Ruby runtime metrics.
 
 #### UI
 
