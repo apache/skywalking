@@ -23,14 +23,18 @@ metricsRules:
   # Memory Metrics
   - name: instance_ruby_memory_rss_mb
     exp: instance_ruby_memory_rss_mb
+  - name: instance_ruby_memory_usage_percent
+    exp: instance_ruby_memory_usage_percent
   
   # GC Metrics
   - name: instance_ruby_gc_count_total
-    exp: instance_ruby_gc_count_total
+    exp: instance_ruby_gc_count_total.increase("PT1M")
   - name: instance_ruby_gc_minor_count_total
-    exp: instance_ruby_gc_minor_count_total
+    exp: instance_ruby_gc_minor_count_total.increase("PT1M")
   - name: instance_ruby_gc_major_count_total
-    exp: instance_ruby_gc_major_count_total
+    exp: instance_ruby_gc_major_count_total.increase("PT1M")
+  - name: instance_ruby_gc_time_total
+    exp: instance_ruby_gc_time_total.increase("PT1M")
   - name: instance_ruby_heap_usage_percent
     exp: instance_ruby_heap_usage_percent
   
@@ -45,5 +49,3 @@ metricsRules:
     exp: instance_ruby_total_allocated_objects
   - name: instance_ruby_heap_live_slots_count
     exp: instance_ruby_heap_live_slots_count
-  - name: instance_ruby_heap_allocated_slots_count
-    exp: instance_ruby_heap_allocated_slots_count
