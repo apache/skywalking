@@ -49,3 +49,5 @@ metricsRules:
     exp: instance_ruby_total_allocated_objects
   - name: instance_ruby_heap_live_slots_count
     exp: instance_ruby_heap_live_slots_count
+  - name: instance_ruby_heap_available_slots_count
+    exp: instance_ruby_heap_available_slots_count
