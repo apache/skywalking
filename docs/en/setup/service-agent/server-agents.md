@@ -22,6 +22,8 @@ format and maximize the analysis capabilities of the SkyWalking OAP server.
 
 - [Go agent](https://skywalking.apache.org/docs/skywalking-go/next/readme/). Learn how to integrate the Go agent with a golang service.
 
+- [Ruby agent](https://skywalking.apache.org/docs/skywalking-ruby/next/readme/). Learn how to integrate the Ruby agent with a ruby service.
+
 The following agents and SDKs are compatible with SkyWalking's data formats and network protocols but are maintained by
 third parties. See their project repositories for guides and releases.
 
