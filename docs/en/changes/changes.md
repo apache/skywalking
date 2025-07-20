@@ -43,6 +43,7 @@
 * BanyanDB: support new Index rule type `SKIPPING/TREE`, and update the record `log`'s `trace_id` indexType to `SKIPPING`
 * BanyanDB: remove `index-only` from tag setting.
 * Fix analysis tracing profiling span failure in ES storage.
+* Add UI dashboard for Ruby runtime metrics.
 
 #### UI
 

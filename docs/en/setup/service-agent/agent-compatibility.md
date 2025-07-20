@@ -4,15 +4,15 @@ SkyWalking 8.0+ uses v3 protocols. Agents don't have to keep the identical versi
 
 ## SkyWalking Native Agents
 
-| OAP Server Version | Java                    | Python    | NodeJS    | LUA | Kong | Browser Agent | Rust | PHP | Go         | Rover      | Satellite  |
-|--------------------|-------------------------|-----------|-----------|-----|------|---------------|------|-----|------------|------------|------------|
-| 8.0.1 - 8.1.0      | 8.0.0 - 8.3.0           | < = 0.6.0 | < = 0.3.0 | All | All  | No            | All  | No  | No         | No         | No         |
-| 8.2.0 - 8.3.0      | 8.0.0 - 8.3.0           | < = 0.6.0 | < = 0.3.0 | All | All  | All           | All  | No  | No         | No         | No         |
-| 8.4.0 - 8.8.1      | \> = 8.0.0              | All       | All       | All | All  | All           | All  | All | No         | No         | No         |
-| 8.9.0+             | \> = 8.0.0              | All       | All       | All | All  | All           | All  | All | No         | No         | \> = 0.4.0 |
-| 9.0.0              | \> = 8.0.0              | All       | All       | All | All  | All           | All  | All | No         | No         | \> = 0.4.0 |
-| 9.1.0+             | \> = 8.0.0              | All       | All       | All | All  | All           | All  | All | No         | \> = 0.1.0 | \> = 1.0.0 |
-| 9.5.0+             | \> = 8.0.0 & \> = 9.0.0 | All       | All       | All | All  | All           | All  | All | \> = 0.1.0 | \> = 0.5.0 | \> = 1.2.0 |
+| OAP Server Version | Java                    | Python    | NodeJS    | LUA | Kong | Browser Agent | Rust | PHP | Go         | Rover      | Satellite  | Ruby       |
+|--------------------|-------------------------|-----------|-----------|-----|------|---------------|------|-----|------------|------------|------------|------------|
+| 8.0.1 - 8.1.0      | 8.0.0 - 8.3.0           | < = 0.6.0 | < = 0.3.0 | All | All  | No            | All  | No  | No         | No         | No         | No         |
+| 8.2.0 - 8.3.0      | 8.0.0 - 8.3.0           | < = 0.6.0 | < = 0.3.0 | All | All  | All           | All  | No  | No         | No         | No         | No         |
+| 8.4.0 - 8.8.1      | \> = 8.0.0              | All       | All       | All | All  | All           | All  | All | No         | No         | No         | No         |
+| 8.9.0+             | \> = 8.0.0              | All       | All       | All | All  | All           | All  | All | No         | No         | \> = 0.4.0 | No         |
+| 9.0.0              | \> = 8.0.0              | All       | All       | All | All  | All           | All  | All | No         | No         | \> = 0.4.0 | No         |
+| 9.1.0+             | \> = 8.0.0              | All       | All       | All | All  | All           | All  | All | No         | \> = 0.1.0 | \> = 1.0.0 | No         |
+| 9.5.0+             | \> = 8.0.0 & \> = 9.0.0 | All       | All       | All | All  | All           | All  | All | \> = 0.1.0 | \> = 0.5.0 | \> = 1.2.0 | \> = 0.1.0 |
 
 ## Ecosystem Agents
 
