@@ -111,7 +111,7 @@ About this link, there are several customizable options
 Settings provide language, server time zone, and auto-fresh options. 
 - The language preference setting is stored in the browser's local storage. Unless you clear them manually, those will not change.
 - The server timezone should be automatically loaded from server side, unless you need to set manually.
-- Refresh time is temporary setup, it will be reset in the next time.
+- Refresh time is temporary setup, it will be reset the next time.
 
 ## FAQ
 
