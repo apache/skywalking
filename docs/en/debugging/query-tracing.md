@@ -31,6 +31,8 @@ SkyWalking OAP provides the metrics/trace/log/topology query tracing to help use
 The query tracing service is provided within the OAP rest server, 
 which could be accessed through HTTP GET `http://{core restHost}:{core restPort}/debugging/query/...`.
 
+**Note:** The `layer` of the service is optional, but if the service is virtual then required, such the `layer` is `VIRTUAL_DATABASE/VIRTUAL_MQ/VIRTUAL_GATEWAY`.
+
 ### Tracing MQE Execution
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/mqe?{parameters}`.
 - Parameters
@@ -44,7 +46,7 @@ which could be accessed through HTTP GET `http://{core restHost}:{core restPort}
 | step                | The query step                                                              | Yes                |  
 | coldStage           | Only for BanyanDB, the flag to query from cold stage, default is false.     | No                 |  
 | service             | The service name                                                            | Yes                |               
-| serviceLayer        | The service layer name                                                      | Yes                |               
+| serviceLayer        | The service layer name                                                      | No                 |               
 | serviceInstance     | The service instance name                                                   | No                 |               
 | endpoint            | The endpoint name                                                           | No                 |               
 | process             | The process name                                                            | No                 |               
@@ -190,7 +192,7 @@ childSpans:
   | step               | The query step                                                            | Yes      |  
   | coldStage          | Only for BanyanDB, the flag to query from cold stage, default is false.   | No       | 
   | service            | The service name                                                          | Yes      |               
-  | serviceLayer       | The service layer name                                                    | Yes      |               
+  | serviceLayer       | The service layer name                                                    | No       |               
   | serviceInstance    | The service instance name                                                 | No       |               
   | endpoint           | The endpoint name                                                         | No       |               
   | minTraceDuration   | The minimum duration of the trace                                         | No       |               
@@ -205,7 +207,7 @@ The time and step parameters are follow the [Duration](../api/query-protocol.md#
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/trace/queryBasicTraces?startTime=2024-06-26%200900&endTime=2024-06-26%200915&step=MINUTE&service=mock_a_service&serviceLayer=GENERAL&serviceInstance=mock_a_service_instance&traceState=ALL&queryOrder=BY_DURATION&pageNum=1&pageSize=15&tags=http.status_code%3D404%2Chttp.method%3Dget' 
+curl -X GET 'http://127.0.0.1:12800/debugging/query/trace/queryBasicTraces?startTime=2024-06-26%200900&endTime=2024-06-26%200915&step=MINUTE&service=mock_a_service&serviceInstance=mock_a_service_instance&traceState=ALL&queryOrder=BY_DURATION&pageNum=1&pageSize=15&tags=http.status_code%3D404%2Chttp.method%3Dget' 
 ```
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
 
@@ -348,12 +350,12 @@ debuggingTrace:
   | endTime       | The end time of the query                                                   | Yes      |               
   | step          | The query step                                                              | Yes      |
   | coldStage     | Only for BanyanDB, the flag to query from cold stage, default is false.     | No       | 
-  | serviceLayer  | The service layer name                                                      | Yes      |
+  | serviceLayer  | The service layer name                                                      | No       |
   | services      | The services names list, separate by comma `mock_a_service, mock_b_service` | Yes      |
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getServicesTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&serviceLayer=GENERAL&services=mock_a_service%2Cmock_b_service'
+curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getServicesTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&services=mock_a_service%2Cmock_b_service'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -379,12 +381,12 @@ debuggingTrace:
   | coldStage          | Only for BanyanDB, the flag to query from cold stage, default is false. | No       | 
   | clientService      | The client side service name                                            | Yes      |
   | serverService      | The server side service name                                            | Yes      |
-  | clientServiceLayer | The client side service layer name                                      | Yes      |
-  | serverServiceLayer | The server side service layer name                                      | Yes      |
+  | clientServiceLayer | The client side service layer name                                      | No      |
+  | serverServiceLayer | The server side service layer name                                      | No      |
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getServiceInstanceTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&clientService=mock_a_service&serverService=mock_b_service&clientServiceLayer=GENERAL&serverServiceLayer=GENERAL'
+curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getServiceInstanceTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&clientService=mock_a_service&serverService=mock_b_service'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -409,13 +411,13 @@ debuggingTrace:
   | step           | The query step                                                          | Yes      |  
   | coldStage      | Only for BanyanDB, the flag to query from cold stage, default is false. | No       | 
   | service        | The service name                                                        | Yes      |
-  | serviceLayer   | The service layer name                                                  | Yes      |
+  | serviceLayer   | The service layer name                                                  | No       |
   | endpoint       | The endpoint name                                                       | Yes      |
 
 - Example
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getEndpointDependencies?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&serviceLayer=GENERAL&endpoint=%2Fdubbox-case%2Fcase%2Fdubbox-rest%2F404-test'
+curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getEndpointDependencies?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&endpoint=%2Fdubbox-case%2Fcase%2Fdubbox-rest%2F404-test'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -440,12 +442,12 @@ debuggingTrace:
   | step         | The query step                                                          | Yes      | 
   | coldStage    | Only for BanyanDB, the flag to query from cold stage, default is false. | No       | 
   | service      | The service name                                                        | Yes      |
-  | serviceLayer | The service layer name                                                  | Yes      |
+  | serviceLayer | The service layer name                                                  | No      |
   | instance     | The instance name                                                       | Yes      |
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getProcessTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&serviceLayer=GENERAL&instance=mock_a_service_instance'
+curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getProcessTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&instance=mock_a_service_instance'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -487,7 +489,7 @@ debuggingTrace:
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/log/queryLogs?service=e2e-service-provider&serviceLayer=GENERAL&startTime=2024-07-09&endTime=2024-07-09&step=DAY&pageNum=1&pageSize=15&queryOrder=ASC&tags=level%3DINFO'
+curl -X GET 'http://127.0.0.1:12800/debugging/query/log/queryLogs?service=e2e-service-provider&startTime=2024-07-09&endTime=2024-07-09&step=DAY&pageNum=1&pageSize=15&queryOrder=ASC&tags=level%3DINFO'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
