@@ -41,7 +41,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -130,7 +129,7 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceTopology");
                 span.setMsg("Duration: " + duration + ", ServiceIds: " + serviceIds);
             }
-
+            //check if the service exists
             List<String> ids = serviceIds.stream()
                                          .filter(id -> getMetadataQueryService().getService(id) != null)
                                          .collect(Collectors.toList());
@@ -198,6 +197,12 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceInstanceTopology");
                 span.setMsg("ClientServiceId: " + clientServiceId + ", ServerServiceId: " + serverServiceId + ", Duration: " + duration);
             }
+            //check if the service exists
+            if (getMetadataQueryService().getService(clientServiceId) == null ||
+                getMetadataQueryService().getService(serverServiceId) == null) {
+                return new ServiceInstanceTopology();
+            }
+
             return invokeGetServiceInstanceTopology(clientServiceId, serverServiceId, duration);
         } finally {
             if (traceContext != null && span != null) {
@@ -209,7 +214,6 @@ public class TopologyQueryService implements Service {
     private ServiceInstanceTopology invokeGetServiceInstanceTopology(final String clientServiceId,
                                                               final String serverServiceId,
                                                               final Duration duration) throws IOException {
-        //todo: check service id?
         List<Call.CallDetail> serviceInstanceRelationClientCalls = getTopologyQueryDAO().loadInstanceRelationDetectedAtClientSideDebuggable(
             clientServiceId, serverServiceId, duration);
         List<Call.CallDetail> serviceInstanceRelationServerCalls = getTopologyQueryDAO().loadInstanceRelationDetectedAtServerSideDebuggable(

@@ -108,7 +108,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
         DebuggingSpan span = traceContext.createSpan("Query service topology");
         try {
             List<String> selectedServiceList = new ArrayList<>(1);
-           selectedServiceList.add(service.getServiceId());
+            selectedServiceList.add(service.getServiceId());
             Topology topology = this.getServicesTopology(selectedServiceList, duration, debug).join();
             if (debug) {
                 topology.setDebuggingTrace(traceContext.getExecTrace());
