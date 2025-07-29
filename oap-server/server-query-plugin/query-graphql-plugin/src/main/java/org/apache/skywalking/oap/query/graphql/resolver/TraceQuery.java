@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
+import org.apache.skywalking.oap.server.core.query.input.TraceQueryConditionByName;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Trace;
@@ -76,6 +77,39 @@ public class TraceQuery implements GraphQLQueryResolver {
             DebuggingSpan span = traceContext.createSpan("Query basic traces");
             try {
                 TraceBrief traceBrief = invokeQueryBasicTraces(condition);
+                if (debug) {
+                    traceBrief.setDebuggingTrace(traceContext.getExecTrace());
+                }
+                return traceBrief;
+            } finally {
+                traceContext.stopSpan(span);
+                traceContext.stopTrace();
+                TRACE_CONTEXT.remove();
+            }
+        });
+    }
+
+    public CompletableFuture<TraceBrief> queryBasicTracesByName(final TraceQueryConditionByName condition, boolean debug) {
+        return queryAsync(() -> {
+            DebuggingTraceContext traceContext = new DebuggingTraceContext(
+                "TraceQueryCondition: " + condition, debug, false);
+            DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
+            DebuggingSpan span = traceContext.createSpan("Query basic traces");
+            try {
+                TraceQueryCondition traceQueryCondition = new TraceQueryCondition();
+                traceQueryCondition.setServiceId(condition.getServiceId());
+                traceQueryCondition.setServiceInstanceId(condition.getServiceInstanceId());
+                traceQueryCondition.setEndpointId(condition.getEndpointId());
+                traceQueryCondition.setTraceId(condition.getTraceId());
+                traceQueryCondition.setQueryDuration(condition.getQueryDuration());
+                traceQueryCondition.setMinTraceDuration(condition.getMinTraceDuration());
+                traceQueryCondition.setMaxTraceDuration(condition.getMaxTraceDuration());
+                traceQueryCondition.setTraceState(condition.getTraceState());
+                traceQueryCondition.setQueryOrder(condition.getQueryOrder());
+                traceQueryCondition.setPaging(condition.getPaging());
+                traceQueryCondition.setTags(condition.getTags());
+
+                TraceBrief traceBrief = invokeQueryBasicTraces(traceQueryCondition);
                 if (debug) {
                     traceBrief.setDebuggingTrace(traceContext.getExecTrace());
                 }

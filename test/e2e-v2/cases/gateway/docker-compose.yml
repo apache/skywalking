@@ -28,20 +28,10 @@ services:
       timeout: 60s
       retries: 120
 
-  es:
-    image: elastic/elasticsearch:6.3.2
-    expose:
-      - 9200
-    networks:
-      - e2e
-    environment:
-      - discovery.type=single-node
-      - cluster.routing.allocation.disk.threshold_enabled=false
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+  banyandb:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: banyandb
 
   oap1:
     extends:
@@ -49,13 +39,12 @@ services:
       service: oap
     environment:
       SW_CLUSTER: zookeeper
-      SW_STORAGE: elasticsearch
     volumes:
       - ./gateways.yml:/skywalking/config/gateways.yml
     depends_on:
       zk:
         condition: service_healthy
-      es:
+      banyandb:
         condition: service_healthy
 
   oap2:
@@ -64,13 +53,12 @@ services:
       service: oap
     environment:
       SW_CLUSTER: zookeeper
-      SW_STORAGE: elasticsearch
     volumes:
       - ./gateways.yml:/skywalking/config/gateways.yml
     depends_on:
       zk:
         condition: service_healthy
-      es:
+      banyandb:
         condition: service_healthy
       oap1:
         condition: service_healthy
