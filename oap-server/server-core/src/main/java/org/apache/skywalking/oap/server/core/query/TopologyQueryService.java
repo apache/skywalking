@@ -129,9 +129,10 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceTopology");
                 span.setMsg("Duration: " + duration + ", ServiceIds: " + serviceIds);
             }
-            //check if the service exists
+            //check if the service exists, the unreal service do not check
             List<String> ids = serviceIds.stream()
-                                         .filter(id -> getMetadataQueryService().getService(id) != null)
+                                         .filter(id -> getMetadataQueryService().getService(id) != null ||
+                                             !IDManager.ServiceID.analysisId(id).isReal())
                                          .collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(ids)) {
@@ -197,9 +198,14 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceInstanceTopology");
                 span.setMsg("ClientServiceId: " + clientServiceId + ", ServerServiceId: " + serverServiceId + ", Duration: " + duration);
             }
-            //check if the service exists
-            if (getMetadataQueryService().getService(clientServiceId) == null ||
-                getMetadataQueryService().getService(serverServiceId) == null) {
+            //check if the service exists, the unreal service do not check
+            if (getMetadataQueryService().getService(clientServiceId) == null &&
+                IDManager.ServiceID.analysisId(clientServiceId).isReal()) {
+                return new ServiceInstanceTopology();
+            }
+
+            if (getMetadataQueryService().getService(serverServiceId) == null &&
+                IDManager.ServiceID.analysisId(serverServiceId).isReal()) {
                 return new ServiceInstanceTopology();
             }
 

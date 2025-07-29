@@ -31,7 +31,7 @@ SkyWalking OAP provides the metrics/trace/log/topology query tracing to help use
 The query tracing service is provided within the OAP rest server, 
 which could be accessed through HTTP GET `http://{core restHost}:{core restPort}/debugging/query/...`.
 
-**Note:** The `layer` of the service is optional, but if the service is virtual then required, such the `layer` is `VIRTUAL_DATABASE/VIRTUAL_MQ/VIRTUAL_GATEWAY`.
+**Note:** The `layer` of the service is optional, but if the service is virtual then required, such the `layer` is `UNDEFINED/VIRTUAL_DATABASE/VIRTUAL_MQ/VIRTUAL_GATEWAY`.
 
 ### Tracing MQE Execution
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/mqe?{parameters}`.
