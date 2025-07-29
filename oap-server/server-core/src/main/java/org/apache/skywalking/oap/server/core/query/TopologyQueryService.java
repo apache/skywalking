@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,16 +130,10 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceTopology");
                 span.setMsg("Duration: " + duration + ", ServiceIds: " + serviceIds);
             }
-            //check if the service exists, the unreal service do not check
-            List<String> ids = serviceIds.stream()
-                                         .filter(id -> getMetadataQueryService().getService(id) != null ||
-                                             !IDManager.ServiceID.analysisId(id).isReal())
-                                         .collect(Collectors.toList());
-
-            if (CollectionUtils.isEmpty(ids)) {
+            if (CollectionUtils.isEmpty(serviceIds)) {
                 return new Topology();
             }
-            return invokeGetServiceTopology(duration, ids);
+            return invokeGetServiceTopology(duration, serviceIds);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -198,17 +193,6 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceInstanceTopology");
                 span.setMsg("ClientServiceId: " + clientServiceId + ", ServerServiceId: " + serverServiceId + ", Duration: " + duration);
             }
-            //check the service existence exclude unreal services.
-            if (getMetadataQueryService().getService(clientServiceId) == null &&
-                IDManager.ServiceID.analysisId(clientServiceId).isReal()) {
-                return new ServiceInstanceTopology();
-            }
-
-            if (getMetadataQueryService().getService(serverServiceId) == null &&
-                IDManager.ServiceID.analysisId(serverServiceId).isReal()) {
-                return new ServiceInstanceTopology();
-            }
-
             return invokeGetServiceInstanceTopology(clientServiceId, serverServiceId, duration);
         } finally {
             if (traceContext != null && span != null) {

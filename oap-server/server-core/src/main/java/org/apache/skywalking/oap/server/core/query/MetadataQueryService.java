@@ -104,7 +104,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
     }
 
     @SneakyThrows
-    public Service getService(final String serviceId) {
+    public Service getService(final String serviceId) throws IOException {
         final List<Service> services = this.combineServices(this.serviceCache.get(true).get(serviceId));
         return CollectionUtils.isNotEmpty(services) ? services.get(0) : null;
     }
