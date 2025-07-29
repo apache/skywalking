@@ -694,6 +694,7 @@ the debuggingTrace will include the BanyanDB internal execution trace info, such
 extend type Query {
   # Search segment list with given conditions
   queryBasicTraces(condition: TraceQueryCondition, debug: Boolean): TraceBrief
+  queryBasicTracesByName(condition: TraceQueryConditionByName, debug: Boolean): TraceBrief
   # Read the specific trace ID with given trace ID
   queryTrace(traceId: ID!, debug: Boolean): Trace
 ...
@@ -732,16 +733,21 @@ extend type Query {
     getGlobalTopology(duration: Duration!, layer: String, debug: Boolean): Topology
     # Query the topology, based on the given service
     getServiceTopology(serviceId: ID!, duration: Duration!, debug: Boolean): Topology
+    getServiceTopologyByName(service: ServiceCondition!, duration: Duration!, debug: Boolean): Topology
     # Query the topology, based on the given services.
     # `#getServiceTopology` could be replaced by this.
     getServicesTopology(serviceIds: [ID!]!, duration: Duration!, debug: Boolean): Topology
+    getServicesTopologyByNames(services: [ServiceCondition!]!, duration: Duration!, debug: Boolean): Topology
     # Query the instance topology, based on the given clientServiceId and serverServiceId
     getServiceInstanceTopology(clientServiceId: ID!, serverServiceId: ID!, duration: Duration!, debug: Boolean): ServiceInstanceTopology
+    getServiceInstanceTopologyByName(clientService: ServiceCondition!, serverService: ServiceCondition!, duration: Duration!, debug: Boolean): ServiceInstanceTopology
 ...
     # v2 of getEndpointTopology
     getEndpointDependencies(endpointId: ID!, duration: Duration!, debug: Boolean): EndpointTopology
+    getEndpointDependenciesByName(endpoint: EndpointCondition!, duration: Duration!, debug: Boolean): EndpointTopology
     # Query the topology, based on the given instance
     getProcessTopology(serviceInstanceId: ID!, duration: Duration!, debug: Boolean): ProcessTopology
+    getProcessTopologyByName(instance: InstanceCondition!, duration: Duration!, debug: Boolean): ProcessTopology
 }
 ```
 
@@ -786,6 +792,7 @@ just enable the debug parameter to true.
 extend type Query {
 ...
     queryLogs(condition: LogQueryCondition, debug: Boolean): Logs
+    queryLogsByName(condition: LogQueryConditionByName, debug: Boolean): Logs
 ...
 }
 ```

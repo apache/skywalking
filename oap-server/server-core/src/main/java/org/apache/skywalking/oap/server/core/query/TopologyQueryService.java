@@ -130,10 +130,15 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceTopology");
                 span.setMsg("Duration: " + duration + ", ServiceIds: " + serviceIds);
             }
-            if (CollectionUtils.isEmpty(serviceIds)) {
+
+            List<String> ids = serviceIds.stream()
+                                         .filter(id -> getMetadataQueryService().getService(id) != null)
+                                         .collect(Collectors.toList());
+
+            if (CollectionUtils.isEmpty(ids)) {
                 return new Topology();
             }
-            return invokeGetServiceTopology(duration, serviceIds);
+            return invokeGetServiceTopology(duration, ids);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -204,6 +209,7 @@ public class TopologyQueryService implements Service {
     private ServiceInstanceTopology invokeGetServiceInstanceTopology(final String clientServiceId,
                                                               final String serverServiceId,
                                                               final Duration duration) throws IOException {
+        //todo: check service id?
         List<Call.CallDetail> serviceInstanceRelationClientCalls = getTopologyQueryDAO().loadInstanceRelationDetectedAtClientSideDebuggable(
             clientServiceId, serverServiceId, duration);
         List<Call.CallDetail> serviceInstanceRelationServerCalls = getTopologyQueryDAO().loadInstanceRelationDetectedAtServerSideDebuggable(

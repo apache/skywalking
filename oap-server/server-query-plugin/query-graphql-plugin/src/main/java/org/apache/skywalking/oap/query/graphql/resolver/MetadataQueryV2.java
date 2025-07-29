@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.TTLStatusQuery;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.ServiceCondition;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.EndpointInfo;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -95,6 +96,11 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
         return queryAsync(() -> getMetadataQueryService().listInstances(duration, serviceId));
     }
 
+    public CompletableFuture<List<ServiceInstance>> listInstancesByName(final Duration duration,
+                                                                        final ServiceCondition service) {
+        return queryAsync(() -> getMetadataQueryService().listInstances(duration, service.getServiceId()));
+    }
+
     public CompletableFuture<ServiceInstance> getInstance(final String instanceId) {
         return queryAsync(() -> getMetadataQueryService().getInstance(instanceId));
     }
@@ -102,6 +108,12 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
     public CompletableFuture<List<Endpoint>> findEndpoint(final String keyword, final String serviceId,
                                                           final int limit, final Duration duration) {
         return queryAsync(() -> getMetadataQueryService().findEndpoint(keyword, serviceId, limit, duration));
+    }
+
+    public CompletableFuture<List<Endpoint>> findEndpointByName(final String keyword, final ServiceCondition service,
+                                                                final int limit, final Duration duration) {
+        return queryAsync(
+            () -> getMetadataQueryService().findEndpoint(keyword, service.getServiceId(), limit, duration));
     }
 
     public CompletableFuture<EndpointInfo> getEndpointInfo(final String endpointId) {

@@ -28,12 +28,15 @@ extend type Query {
 
     # Read service instance list.
     listInstances(duration: Duration!, serviceId: ID!): [ServiceInstance!]!
+    listInstancesByName(duration: Duration!, service: ServiceCondition!): [ServiceInstance!]!
     # Search and find service instance according to given ID. Return null if not existing.
     getInstance(instanceId: String!): ServiceInstance
 
     # Search and find matched endpoints according to given service and keyword(optional)
     # If no keyword, randomly choose endpoint based on `limit` value.
-    findEndpoint(keyword: String, serviceId: ID!, limit: Int!): [Endpoint!]!
+    # If duration is nil mean get all endpoints, otherwise, get the endpoint list in the given duration.
+    findEndpoint(keyword: String, serviceId: ID!, limit: Int!, duration: Duration): [Endpoint!]!
+    findEndpointByName(keyword: String, service: ServiceCondition!, limit: Int!, duration: Duration): [Endpoint!]!
     getEndpointInfo(endpointId: ID!): EndpointInfo
 
     # Read process list.
@@ -66,17 +69,22 @@ extend type Query {
     getGlobalTopology(duration: Duration!, layer: String, debug: Boolean): Topology
     # Query the topology, based on the given service
     getServiceTopology(serviceId: ID!, duration: Duration!, debug: Boolean): Topology
+    getServiceTopologyByName(service: ServiceCondition!, duration: Duration!, debug: Boolean): Topology
     # Query the topology, based on the given services.
     # `#getServiceTopology` could be replaced by this.
     getServicesTopology(serviceIds: [ID!]!, duration: Duration!, debug: Boolean): Topology
+    getServicesTopologyByNames(services: [ServiceCondition!]!, duration: Duration!, debug: Boolean): Topology
     # Query the instance topology, based on the given clientServiceId and serverServiceId
     getServiceInstanceTopology(clientServiceId: ID!, serverServiceId: ID!, duration: Duration!, debug: Boolean): ServiceInstanceTopology
+    getServiceInstanceTopologyByName(clientService: ServiceCondition!, serverService: ServiceCondition!, duration: Duration!, debug: Boolean): ServiceInstanceTopology
     # Query the topology, based on the given endpoint
     getEndpointTopology(endpointId: ID!, duration: Duration!): Topology
     # v2 of getEndpointTopology
     getEndpointDependencies(endpointId: ID!, duration: Duration!, debug: Boolean): EndpointTopology
+    getEndpointDependenciesByName(endpoint: EndpointCondition!, duration: Duration!, debug: Boolean): EndpointTopology
     # Query the topology, based on the given instance
     getProcessTopology(serviceInstanceId: ID!, duration: Duration!, debug: Boolean): ProcessTopology
+    getProcessTopologyByName(instance: InstanceCondition!, duration: Duration!, debug: Boolean): ProcessTopology
 }
 ```
 
@@ -138,6 +146,7 @@ extend type Query {
     # Return true if the current storage implementation supports fuzzy query for logs.
     supportQueryLogsByKeywords: Boolean!
     queryLogs(condition: LogQueryCondition, debug: Boolean): Logs
+    queryLogsByName(condition: LogQueryConditionByName, debug: Boolean): Logs
     # Test the logs and get the results of the LAL output.
     test(requests: LogTestRequest!): LogTestResponse!
     # Read the list of searchable keys
@@ -158,6 +167,7 @@ full log text fuzzy queries, while others do not due to considerations related t
 extend type Query {
     # Search segment list with given conditions
     queryBasicTraces(condition: TraceQueryCondition, debug: Boolean): TraceBrief
+    queryBasicTracesByName(condition: TraceQueryConditionByName, debug: Boolean): TraceBrief
     # Read the specific trace ID with given trace ID
     queryTrace(traceId: ID!, debug: Boolean): Trace
     # Only for BanyanDB, can be used to query the trace in the cold stage.

@@ -45,6 +45,7 @@
 * Fix analysis tracing profiling span failure in ES storage.
 * Add UI dashboard for Ruby runtime metrics.
 * Tracing Query Execution HTTP APIs: make the argument `service layer` optional.
+* GraphQL API: metadata, topology, log and trace support query by name.
 
 #### UI
 
