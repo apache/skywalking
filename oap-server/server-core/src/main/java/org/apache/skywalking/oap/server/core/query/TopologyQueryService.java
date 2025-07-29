@@ -198,7 +198,7 @@ public class TopologyQueryService implements Service {
                 span = traceContext.createSpan("Query Service: getServiceInstanceTopology");
                 span.setMsg("ClientServiceId: " + clientServiceId + ", ServerServiceId: " + serverServiceId + ", Duration: " + duration);
             }
-            //check if the service exists, the unreal service do not check
+            //check the service existence exclude unreal services.
             if (getMetadataQueryService().getService(clientServiceId) == null &&
                 IDManager.ServiceID.analysisId(clientServiceId).isReal()) {
                 return new ServiceInstanceTopology();
