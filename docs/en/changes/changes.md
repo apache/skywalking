@@ -62,6 +62,7 @@
 * Correct endpoint topology data to avoid undefined.
 * Fix the snapshot charts unable to display.
 * Bump vue-i18n from 9.14.3 to 9.14.5.
+* Fix split queries for topology to avoid page crash.
 
 #### Documentation
 
