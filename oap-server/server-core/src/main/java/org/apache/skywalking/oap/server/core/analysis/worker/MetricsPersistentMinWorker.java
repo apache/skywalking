@@ -42,10 +42,10 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
- * MetricsPersistentWorkerMin is an extension of {@link MetricsPersistentWorker} and focuses on the Minute Metrics data persistent.
+ * MetricsPersistentMinWorker is an extension of {@link MetricsPersistentWorker} and focuses on the Minute Metrics data persistent.
  */
 @Slf4j
-public class MetricsPersistentWorkerMin extends MetricsPersistentWorker implements ServerStatusWatcher {
+public class MetricsPersistentMinWorker extends MetricsPersistentWorker implements ServerStatusWatcher {
     private final DataCarrier<Metrics> dataCarrier;
 
     /**
@@ -62,7 +62,7 @@ public class MetricsPersistentWorkerMin extends MetricsPersistentWorker implemen
     private final boolean isTestingTTL = "true".equalsIgnoreCase(System.getenv("TESTING_TTL"));
     private final int queueTotalSize;
 
-    MetricsPersistentWorkerMin(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
+    MetricsPersistentMinWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                                AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
                                MetricsTransWorker transWorker, boolean supportUpdate,
                                long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
@@ -131,7 +131,7 @@ public class MetricsPersistentWorkerMin extends MetricsPersistentWorker implemen
         @Override
         public void consume(List<Metrics> data) {
             queuePercentageGauge.setValue(Math.round(100 * (double) data.size() / queueTotalSize));
-            MetricsPersistentWorkerMin.this.onWork(data);
+            MetricsPersistentMinWorker.this.onWork(data);
         }
 
         @Override

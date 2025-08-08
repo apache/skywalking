@@ -4,6 +4,8 @@
 
 * Bump up BanyanDB dependency version(server and java-client) to 0.9.0.
 * Fix CVE-2025-54057, restrict and validate url for widgets.
+* Fix `MetricsPersistentWorker`, remove DataCarrier queue from `Hour/Day` dimensions metrics persistent process.
+  This is important to reduce memory cost and `Hour/Day` dimensions metrics persistent latency.
 
 #### OAP Server
 
@@ -47,7 +49,6 @@
 * Tracing Query Execution HTTP APIs: make the argument `service layer` optional.
 * GraphQL API: metadata, topology, log and trace support query by name.
 * [Break Change] MQE function `sort_values` sorts according to the aggregation result and labels rather than the simple time series values.
-* Fix `MetricsPersistentWorker`, remove DataCarrier queue from `Hour/Day` dimensions metrics persistent process.
 * Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
 
 #### UI
