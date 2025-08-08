@@ -440,19 +440,42 @@ TIME_SERIES_VALUES.
 
 ## Sort Operation
 ### SortValues Operation
-SortValues Operation takes an expression and sorts the values of the input expression result.
-
+SortValues Operation takes an expression used to sort and pick the top N label value groups, which according to
+the values of a given ExpressionResult and based on the specified order, limit and aggregation type.
+If the input expression is not a labeled result, it will retrurn the original expression result.
 Expression:
 ```text
-sort_values(Expression, <limit>, <order>)
+sort_values(Expression, <limit>, <order>, <aggregation_type>)
 ```
-- `limit` is the number of the sort results, should be a positive integer, if not specified, will return all results. Optional.
+- `limit` is the number of the sort results, should be a positive integer.
 - `order` is the order of the sort results. The value of `order` can be `asc` or `des`.
+-  `aggregation_type` is the type of the aggregation operation. The type can be `avg`, `sum`, `max`, `min`.
 
-For example:
-If we want to sort the `service_resp_time` metric values in descending order and get the top 10 values, we can use the following expression:
+For example, the following metrics in time series T1 and T2:
 ```text
-sort_values(service_resp_time, 10, des)
+T1:
+http_requests_total{service="api"}   160
+http_requests_total{service="web"}   120
+http_requests_total{service="auth"}  80
+
+T2:
+http_requests_total{service="api"}   100
+http_requests_total{service="web"}   180
+http_requests_total{service="auth"}  10
+```
+We can use SortValuesOp to pick the top 2 services with the most avg requests in descending order:
+```text
+sort_values(http_requests_total, 2, desc, avg)
+```
+The result will be:
+```text
+T1:
+http_requests_total{service="web"}   120
+http_requests_total{service="api"}   160
+
+T2:
+http_requests_total{service="web"}   180
+http_requests_total{service="api"}   100
 ```
 
 #### Result Type

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.datacarrier.buffer;
 
+import lombok.Getter;
 import org.apache.skywalking.oap.server.library.datacarrier.partition.IDataPartitioner;
 
 /**
@@ -25,6 +26,7 @@ import org.apache.skywalking.oap.server.library.datacarrier.partition.IDataParti
  * buffer is full. The Default is BLOCKING <p> Created by wusheng on 2016/10/25.
  */
 public class Channels<T> {
+    @Getter
     private final QueueBuffer<T>[] bufferChannels;
     private IDataPartitioner<T> dataPartitioner;
     private final BufferStrategy strategy;
