@@ -102,7 +102,7 @@ cases:
   # sort-value-OP
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="sort_values(service_percentile,2,asc,avg)" --service-name=e2e-service-provider
     expected: expected/sort-value-OP.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="sort_values(service_percentile,des,avg)" --service-name=e2e-service-provider
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="sort_values(service_percentile,1,des,avg)" --service-name=e2e-service-provider
     expected: expected/sort-value-OP.yml
 
   # sort-label-value-OP
