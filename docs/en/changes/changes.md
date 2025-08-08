@@ -46,6 +46,9 @@
 * Add UI dashboard for Ruby runtime metrics.
 * Tracing Query Execution HTTP APIs: make the argument `service layer` optional.
 * GraphQL API: metadata, topology, log and trace support query by name.
+* [Break Change] MQE function `sort_values` sorts according to the aggregation result and labels rather than the simple time series values.
+* Fix `MetricsPersistentWorker`, remove DataCarrier queue from `Hour/Day` dimensions metrics persistent process.
+* Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
 
 #### UI
 
@@ -63,6 +66,7 @@
 * Fix the snapshot charts unable to display.
 * Bump vue-i18n from 9.14.3 to 9.14.5.
 * Fix split queries for topology to avoid page crash.
+* Self Observability ui-template: Add new panels for monitor `metrics aggregation queue used percentage` and `metrics persistent collection cached size`.
 
 #### Documentation
 

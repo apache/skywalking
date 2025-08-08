@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
+import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -26,12 +27,14 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.BufferStrategy;
+import org.apache.skywalking.oap.server.library.datacarrier.buffer.QueueBuffer;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
@@ -49,7 +52,9 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private final MergableBufferedData<Metrics> mergeDataCache;
     private CounterMetrics abandonCounter;
     private CounterMetrics aggregationCounter;
+    private GaugeMetrics queuePercentageGauge;
     private long lastSendTime = 0;
+    private final MetricStreamKind kind;
 
     MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder,
                            AbstractWorker<Metrics> nextWorker,
@@ -59,15 +64,16 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergableBufferedData();
+        this.kind = kind;
         String name = "METRICS_L1_AGGREGATION";
         int queueChannelSize = 2;
-        int queueBufferSize = 10_000;
+        int queueBufferSize = 10;
         if (MetricStreamKind.MAL == kind) {
             // In MAL meter streaming, the load of data flow is much less as they are statistics already,
             // but in OAL sources, they are raw data.
             // Set the buffer(size of queue) as 1/20 to reduce unnecessary resource costs.
             queueChannelSize = 1;
-            queueBufferSize = 1_000;
+            queueBufferSize = 10;
         }
         this.dataCarrier = new DataCarrier<>(
             "MetricsAggregateWorker." + modelName, name, queueChannelSize, queueBufferSize, BufferStrategy.IF_POSSIBLE);
@@ -85,14 +91,19 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
                                                           .provider()
                                                           .getService(MetricsCreator.class);
         abandonCounter = metricsCreator.createCounter(
-            "metrics_aggregator_abandon", "The abandon number of rows received in aggregation",
+            "metrics_aggregator_abandon", "The abandon number of rows received in aggregation.",
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(modelName, "1", "minute")
         );
         aggregationCounter = metricsCreator.createCounter(
-            "metrics_aggregation", "The number of rows in aggregation",
+            "metrics_aggregation", "The number of rows in aggregation.",
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(modelName, "1", "minute")
+        );
+        queuePercentageGauge = metricsCreator.createGauge(
+            "metrics_aggregation_queue_used_percentage", "The percentage of queue used in aggregation.",
+            new MetricsTag.Keys("metricName", "level", "kind"),
+            new MetricsTag.Values(modelName, "1", kind.name())
         );
         this.l1FlushPeriod = l1FlushPeriod;
     }
@@ -137,6 +148,12 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private class AggregatorConsumer implements IConsumer<Metrics> {
         @Override
         public void consume(List<Metrics> data) {
+            int queueBufferSize = Arrays.stream(dataCarrier.getChannels().getBufferChannels())
+                                        .mapToInt(QueueBuffer::getBufferSize)
+                                        .sum();
+            int queueSize = data.size();
+
+            queuePercentageGauge.setValue(Math.round(100 * (double) queueSize / queueBufferSize));
             MetricsAggregateWorker.this.onWork(data);
         }
 

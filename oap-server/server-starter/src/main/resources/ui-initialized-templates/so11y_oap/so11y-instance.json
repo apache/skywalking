@@ -461,6 +461,138 @@
                     "title": "Watermark Circuit Breaker Status",
                     "tips": "The status of circuit breaker listeners, 0 means all recovered from the breaks"
                   }
+                },
+                {
+                  "x": 12,
+                  "y": 52,
+                  "w": 12,
+                  "h": 13,
+                  "i": "22",
+                  "type": "Widget",
+                  "expressions": [
+                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_percentage{level='1',kind='OAL'},10,des,avg)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "OAL L1 Aggregation Queue Percentage (%)"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 65,
+                  "w": 12,
+                  "h": 13,
+                  "i": "23",
+                  "type": "Widget",
+                  "expressions": [
+                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_percentage{level='1',kind='MAL'},10,des,avg)"
+                  ],
+                  "widget": {
+                    "title": "MAL L1 Aggregation Queue Percentage (%)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 65,
+                  "w": 12,
+                  "h": 13,
+                  "i": "24",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_percentage{level='2',kind='OAL'},10,des,avg)"
+                  ],
+                  "widget": {
+                    "title": "OAL L2 Aggregation Queue Percentage (%)"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 78,
+                  "w": 12,
+                  "h": 13,
+                  "i": "25",
+                  "type": "Widget",
+                  "expressions": [
+                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_percentage{level='2',kind='OAL'},10,des,avg)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "MAL L2 Aggregation Queue Percentage (%)"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 78,
+                  "w": 12,
+                  "h": 13,
+                  "i": "26",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "sort_values(meter_oap_instance_metrics_persistent_collection_cached_size{dimensionality='minute',kind='OAL'},10,des,avg)"
+                  ],
+                  "widget": {
+                    "title": "OAL Min Metrics Persistent Collection Cached Size"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 91,
+                  "w": 12,
+                  "h": 13,
+                  "i": "27",
+                  "type": "Widget",
+                  "expressions": [
+                    "sort_values(meter_oap_instance_metrics_persistent_collection_cached_size{dimensionality='minute',kind='MAL'},10,des,avg)"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "MAL Min Metrics Persistent Collection Cached Size"
+                  }
                 }
               ]
             },
