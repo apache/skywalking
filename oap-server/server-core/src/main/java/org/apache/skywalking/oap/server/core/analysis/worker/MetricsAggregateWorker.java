@@ -67,13 +67,13 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         this.kind = kind;
         String name = "METRICS_L1_AGGREGATION";
         int queueChannelSize = 2;
-        int queueBufferSize = 10;
+        int queueBufferSize = 10_000;
         if (MetricStreamKind.MAL == kind) {
             // In MAL meter streaming, the load of data flow is much less as they are statistics already,
             // but in OAL sources, they are raw data.
             // Set the buffer(size of queue) as 1/20 to reduce unnecessary resource costs.
             queueChannelSize = 1;
-            queueBufferSize = 10;
+            queueBufferSize = 1_000;
         }
         this.dataCarrier = new DataCarrier<>(
             "MetricsAggregateWorker." + modelName, name, queueChannelSize, queueBufferSize, BufferStrategy.IF_POSSIBLE);
