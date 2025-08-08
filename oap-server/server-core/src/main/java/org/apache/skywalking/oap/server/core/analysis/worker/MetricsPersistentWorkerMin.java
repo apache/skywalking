@@ -60,6 +60,7 @@ public class MetricsPersistentWorkerMin extends MetricsPersistentWorker implemen
 
     // Not going to expose this as a configuration, only for testing purpose
     private final boolean isTestingTTL = "true".equalsIgnoreCase(System.getenv("TESTING_TTL"));
+    private int queueBufferSize;
 
     MetricsPersistentWorkerMin(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                                AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
@@ -102,6 +103,9 @@ public class MetricsPersistentWorkerMin extends MetricsPersistentWorker implemen
         );
         serverStatusService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServerStatusService.class);
         serverStatusService.registerWatcher(this);
+        queueBufferSize = Arrays.stream(dataCarrier.getChannels().getBufferChannels())
+                                    .mapToInt(QueueBuffer::getBufferSize)
+                                    .sum();
     }
 
     /**
@@ -126,9 +130,6 @@ public class MetricsPersistentWorkerMin extends MetricsPersistentWorker implemen
     private class PersistentConsumer implements IConsumer<Metrics> {
         @Override
         public void consume(List<Metrics> data) {
-            int queueBufferSize = Arrays.stream(dataCarrier.getChannels().getBufferChannels())
-                                        .mapToInt(QueueBuffer::getBufferSize)
-                                        .sum();
             int queueSize = data.size();
 
             queuePercentageGauge.setValue(Math.round(100 * (double) queueSize / queueBufferSize));

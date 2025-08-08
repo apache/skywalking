@@ -55,6 +55,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private GaugeMetrics queuePercentageGauge;
     private long lastSendTime = 0;
     private final MetricStreamKind kind;
+    private int queueBufferSize;
 
     MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder,
                            AbstractWorker<Metrics> nextWorker,
@@ -106,6 +107,9 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             new MetricsTag.Values(modelName, "1", kind.name())
         );
         this.l1FlushPeriod = l1FlushPeriod;
+        queueBufferSize = Arrays.stream(dataCarrier.getChannels().getBufferChannels())
+                                .mapToInt(QueueBuffer::getBufferSize)
+                                .sum();
     }
 
     /**
@@ -148,9 +152,6 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private class AggregatorConsumer implements IConsumer<Metrics> {
         @Override
         public void consume(List<Metrics> data) {
-            int queueBufferSize = Arrays.stream(dataCarrier.getChannels().getBufferChannels())
-                                        .mapToInt(QueueBuffer::getBufferSize)
-                                        .sum();
             int queueSize = data.size();
 
             queuePercentageGauge.setValue(Math.round(100 * (double) queueSize / queueBufferSize));
