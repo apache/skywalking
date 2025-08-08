@@ -18,40 +18,98 @@
 
 package org.apache.skywalking.mqe.rt.operation;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
-import org.apache.skywalking.oap.server.core.query.mqe.MQEValue;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
+import org.apache.skywalking.oap.server.core.query.mqe.Metadata;
 
+/**
+ * When a result has multiple label value groups, it is often required to sort the values of these groups.
+ * SortValuesOp is used to sort and pick the top N label value groups, which according to
+ * the values of a given ExpressionResult and based on the specified order, limit and aggregation type.
+ *
+ * It first performs aggregation on the results, then sorts them according to the specified order (ascending or descending),
+ * and finally limits the number of results if a limit is provided.
+ *
+ * for example, the following metrics in time series T1 and T2:
+ * T1:
+ * http_requests_total{service="api"}   160
+ * http_requests_total{service="web"}   120
+ * http_requests_total{service="auth"}  80
+ *
+ * T2:
+ * http_requests_total{service="api"}   100
+ * http_requests_total{service="web"}   180
+ * http_requests_total{service="auth"}  10
+ *
+ * We can use SortValuesOp to pick the top 2 services with the most avg requests in descending order:
+ * `sort_values(http_requests_total, 2, desc, avg)`
+ * The result will be:
+ * T1:
+ * http_requests_total{service="web"}   120
+ * http_requests_total{service="api"}   160
+ *
+ * T2:
+ * http_requests_total{service="web"}   180
+ * http_requests_total{service="api"}   100
+ */
 public class SortValuesOp {
     public static ExpressionResult doSortValuesOp(ExpressionResult expResult,
-                                                 Optional<Integer> limit,
-                                                 int order) throws IllegalExpressionException {
-        if (MQEParser.ASC == order || MQEParser.DES == order) {
-            expResult.getResults().forEach(mqeValues -> {
-                List<MQEValue> values = mqeValues.getValues()
-                                                 .stream()
-                                                 // Filter out empty values
-                                                 .filter(mqeValue -> !mqeValue.isEmptyValue())
-                                                 .sorted(MQEParser.ASC == order ? Comparator.comparingDouble(
-                                                     MQEValue::getDoubleValue) :
-                                                             Comparator.comparingDouble(MQEValue::getDoubleValue)
-                                                                       .reversed())
-                                                 .collect(
-                                                     Collectors.toList());
-                if (limit.isPresent() && limit.get() < values.size()) {
-                    mqeValues.setValues(values.subList(0, limit.get()));
-                } else {
-                    mqeValues.setValues(values);
-                }
-            });
-        } else {
-            throw new IllegalExpressionException("Unsupported sort order.");
+                                                  int limit,
+                                                  int order,
+                                                  int aggregationType) throws IllegalExpressionException {
+        // no label result, no need to sort
+        if (!expResult.isLabeledResult()) {
+            return expResult;
         }
+        // store the original results in a map to avoid losing data during aggregation
+        Map<Metadata, MQEValues> resultMap = expResult.getResults()
+                                                      .stream()
+                                                      .collect(Collectors.toMap(
+                                                          MQEValues::getMetric, v -> {
+                                                              MQEValues newValues = new MQEValues();
+                                                              newValues.setMetric(v.getMetric());
+                                                              newValues.setValues(v.getValues());
+                                                              return newValues;
+                                                          }
+                                                      ));
+        // do aggregation first
+        ExpressionResult aggResult = AggregationOp.doAggregationOp(expResult, aggregationType);
+
+        List<MQEValues> sorted =
+            aggResult.getResults().stream()
+                     .sorted(getComparator(order))
+                     .collect(Collectors.toList());
+        if (limit < sorted.size()) {
+            sorted = sorted.subList(0, limit);
+        }
+        List<MQEValues> results = new ArrayList<>();
+        sorted.forEach(v -> {
+                           MQEValues mqeValues = resultMap.get(v.getMetric());
+                           if (mqeValues != null) {
+                               results.add(mqeValues);
+                           }
+                       }
+        );
+
+        expResult.setResults(results);
+        expResult.setType(ExpressionResultType.TIME_SERIES_VALUES);
         return expResult;
+    }
+
+    private static Comparator<MQEValues> getComparator(int order) {
+        Comparator<MQEValues> comparator = Comparator.comparingDouble(
+            mqeValues -> mqeValues.getValues().isEmpty()
+                ? Double.NaN
+                : mqeValues.getValues().get(0).getDoubleValue()
+        );
+        return order == MQEParser.ASC ? comparator : comparator.reversed();
     }
 }

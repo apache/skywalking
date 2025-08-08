@@ -66,6 +66,8 @@ metricsRules:
     exp: >
       metrics_aggregation.tagEqual('dimensionality', 'minute').sum(['service', 'host_name', 'level']).increase('PT1M')
       .tag({tags -> if (tags['level'] == '1') {tags.level = 'L1 aggregation'} }).tag({tags -> if (tags['level'] == '2') {tags.level = 'L2 aggregation'} })
+  - name: instance_metrics_aggregation_queue_used_percentage
+    exp: metrics_aggregation_queue_used_percentage.sum(['service', 'host_name', 'level', 'kind', 'metricName'])
   - name: instance_persistence_execute_percentile
     exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_prepare_percentile
@@ -78,6 +80,8 @@ metricsRules:
     exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_metrics_persistent_cache
     exp: metrics_persistent_cache.sum(['service', 'host_name', 'status']).increase('PT1M')
+  - name: instance_metrics_persistent_collection_cached_size
+    exp: metrics_persistent_collection_cached_size.sum(['service', 'host_name', 'dimensionality', 'kind', 'metricName'])
   - name: jvm_thread_live_count
     exp: jvm_threads_current.sum(['service', 'host_name'])
   - name: jvm_thread_daemon_count

@@ -38,7 +38,7 @@ expression
     | topNOf L_PAREN topN (COMMA topN)* COMMA INTEGER COMMA order R_PAREN           #topNOfOP
     | relabels L_PAREN expression COMMA label COMMA replaceLabel R_PAREN #relablesOP
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
-    | sort_values L_PAREN expression (COMMA INTEGER)? COMMA order R_PAREN #sortValuesOP
+    | sort_values L_PAREN expression COMMA INTEGER COMMA order COMMA aggregation R_PAREN #sortValuesOP
     | sort_label_values L_PAREN expression COMMA order COMMA labelNameList R_PAREN #sortLabelValuesOP
     | baseline L_PAREN metric COMMA baseline_type R_PAREN #baselineOP
     ;
