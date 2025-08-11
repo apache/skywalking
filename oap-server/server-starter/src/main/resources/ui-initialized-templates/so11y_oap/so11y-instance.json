@@ -536,7 +536,7 @@
                   "i": "25",
                   "type": "Widget",
                   "expressions": [
-                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_percentage{level='2',kind='OAL'},10,des,avg)"
+                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_percentage{level='2',kind='MAL'},10,des,avg)"
                   ],
                   "graph": {
                     "type": "Line",
