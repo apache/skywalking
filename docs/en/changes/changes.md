@@ -3,6 +3,9 @@
 #### Project
 
 * Bump up BanyanDB dependency version(server and java-client) to 0.9.0.
+* Fix CVE-2025-54057, restrict and validate url for widgets.
+* Fix `MetricsPersistentWorker`, remove DataCarrier queue from `Hour/Day` dimensions metrics persistent process.
+  This is important to reduce memory cost and `Hour/Day` dimensions metrics persistent latency.
 
 #### OAP Server
 
@@ -39,6 +42,24 @@
 * OAP gRPC-Client support `Health Check`.
 * [Break Change] `health_check_xx` metrics make response 1 represents healthy, 0 represents unhealthy.
 * Bump up grpc to 1.70.0.
+* BanyanDB: support new Index rule type `SKIPPING/TREE`, and update the record `log`'s `trace_id` indexType to `SKIPPING`
+* BanyanDB: remove `index-only` from tag setting.
+* Fix analysis tracing profiling span failure in ES storage.
+* Add UI dashboard for Ruby runtime metrics.
+* Tracing Query Execution HTTP APIs: make the argument `service layer` optional.
+* GraphQL API: metadata, topology, log and trace support query by name.
+* [Break Change] MQE function `sort_values` sorts according to the aggregation result and labels rather than the simple time series values.
+* Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
+* Optimize metrics aggregate/persistent worker: separate `OAL` and `MAL` workers and consume pools. The dataflow signal drives the new MAL consumer, 
+  the following table shows the pool size，driven mode and queue size for each worker.
+  
+| Worker                        | poolSize                                 | isSignalDrivenMode | queueChannelSize | queueBufferSize |
+|-------------------------------|------------------------------------------|--------------------|------------------|-----------------|
+| MetricsAggregateOALWorker     | Math.ceil(availableProcessors * 2 * 1.5) | false              | 2                | 10000           |
+| MetricsAggregateMALWorker     | availableProcessors * 2 / 8, at least 1  | true               | 1                | 1000            |
+| MetricsPersistentMinOALWorker | availableProcessors * 2 / 8, at least 1  | false              | 1                | 2000            |
+| MetricsPersistentMinMALWorker | availableProcessors * 2 / 16, at least 1 | true               | 1                | 1000            |
+
 * Bump up netty to 4.2.4.Final.
 
 #### UI
@@ -51,6 +72,13 @@
 * Implement the Status API on Settings page.
 * Bump vite from 6.2.6 to 6.3.4.
 * Enhance async profiling by adding shorter and custom duration options.
+* Fix select wrong span to analysis in trace profiling.
+* Correct the service list for legends in trace graphs.
+* Correct endpoint topology data to avoid undefined.
+* Fix the snapshot charts unable to display.
+* Bump vue-i18n from 9.14.3 to 9.14.5.
+* Fix split queries for topology to avoid page crash.
+* Self Observability ui-template: Add new panels for monitor `metrics aggregation queue used percentage` and `metrics persistent collection cached size`.
 
 #### Documentation
 

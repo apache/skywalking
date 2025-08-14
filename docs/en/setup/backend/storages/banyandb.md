@@ -64,7 +64,9 @@ global:
   asyncProfilerTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_ASYNC_PROFILER_TASK_QUERY_MAX_SIZE:200}
   # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.
   sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
-
+  # Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.
+  cleanupUnusedTopNRules: ${SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES:true}
+  
 groups:
   # The group settings of record.
   #  - "ShardNum": Number of shards in the group. Shards are the basic units of data storage in BanyanDB. Data is distributed across shards based on the hash value of the series ID.

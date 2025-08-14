@@ -492,9 +492,9 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@interactjs/snappers/v/1.10.17 1.10.17 MIT
     https://npmjs.com/package/@interactjs/types/v/1.10.17 1.10.17 MIT
     https://npmjs.com/package/@interactjs/utils/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@intlify/core-base/v/9.14.3 9.14.3 MIT
-    https://npmjs.com/package/@intlify/message-compiler/v/9.14.3 9.14.3 MIT
-    https://npmjs.com/package/@intlify/shared/v/9.14.3 9.14.3 MIT
+    https://npmjs.com/package/@intlify/core-base/v/9.14.5 9.14.5 MIT
+    https://npmjs.com/package/@intlify/message-compiler/v/9.14.5 9.14.5 MIT
+    https://npmjs.com/package/@intlify/shared/v/9.14.5 9.14.5 MIT
     https://npmjs.com/package/@popperjs/core/v/2.11.7 2.11.7 MIT
     https://npmjs.com/package/@types/hammerjs/v/2.0.41 2.0.41 MIT
     https://npmjs.com/package/@types/lodash/v/4.14.191 4.14.191 MIT
@@ -556,7 +556,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/uuid/v/8.3.2 8.3.2 MIT
     https://npmjs.com/package/vue/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/vue-grid-layout/v/3.0.0-beta1 3.0.0-beta1 MIT
-    https://npmjs.com/package/vue-i18n/v/9.14.3 9.14.3 MIT
+    https://npmjs.com/package/vue-i18n/v/9.14.5 9.14.5 MIT
     https://npmjs.com/package/vue-router/v/4.1.6 4.1.6 MIT
     https://npmjs.com/package/vue-types/v/4.2.1 4.2.1 MIT
     https://npmjs.com/package/xss/v/1.0.14 1.0.14 MIT

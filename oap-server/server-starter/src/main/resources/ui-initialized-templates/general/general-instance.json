@@ -1520,6 +1520,255 @@
                   ]
                 }
               ]
+            },
+            {
+              "name": "Ruby",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "36",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Ruby Process CPU Usage (%)",
+                    "tips": "Process CPU utilization percentage."
+                  },
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "CPU Usage",
+                      "unit": "%"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_ruby_cpu_usage_percent"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "37",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Ruby Thread Status",
+                    "tips": "Active threads: All alive threads including running, sleeping, and waiting. Running threads: Only threads currently executing code."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Active Threads",
+                      "unit": "count"
+                    },
+                    {
+                      "label": "Running Threads",
+                      "unit": "count"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_ruby_thread_count_active",
+                    "meter_instance_ruby_thread_count_running"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "38",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Ruby GC Count Per Minute",
+                    "tips": "Total: All garbage collections. Minor: Quick collections of young objects. Major: Full heap collections including old objects."
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Total GC Count",
+                      "unit": "count"
+                    },
+                    {
+                      "label": "Minor GC Count",
+                      "unit": "count"
+                    },
+                    {
+                      "label": "Major GC Count",
+                      "unit": "count"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_ruby_gc_count_total",
+                    "meter_instance_ruby_gc_minor_count_total",
+                    "meter_instance_ruby_gc_major_count_total"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "39",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Ruby Memory (MB)",
+                    "tips": "Resident Set Size (RSS): Total physical memory used by the Ruby process, including heap, stack, and shared libraries."
+                  },
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "RSS (MB)",
+                      "unit": "MB"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_ruby_memory_rss_mb"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "40",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Ruby Heap Usage (%)",
+                    "tips": "Percentage of Ruby heap slots currently in use. High usage may trigger garbage collection."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Heap Usage",
+                      "unit": "%"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_ruby_heap_usage_percent"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "41",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Ruby Heap Slots",
+                    "tips": "Live slots: Number of heap slots containing live objects. Available slots: Total heap slots available for object allocation."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Live Slots",
+                      "unit": "count"
+                    },
+                    {
+                      "label": "Available Slots",
+                      "unit": "count"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_ruby_heap_live_slots_count",
+                    "meter_instance_ruby_heap_available_slots_count"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "42",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Ruby Memory Usage (%)",
+                    "tips": "Process memory usage as a percentage of total system memory."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Memory Usage",
+                      "unit": "%"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_ruby_memory_usage_percent"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "43",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Ruby GC Time (ms)",
+                    "tips": "Cumulative garbage collection time in milliseconds."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "GC Time",
+                      "unit": "ms"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_instance_ruby_gc_time_total"
+                  ]
+                }
+              ]
             }
           ]
         },

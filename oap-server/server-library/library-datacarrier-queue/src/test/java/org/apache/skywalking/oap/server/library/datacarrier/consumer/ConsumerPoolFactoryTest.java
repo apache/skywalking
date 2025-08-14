@@ -29,7 +29,7 @@ public class ConsumerPoolFactoryTest {
 
     @BeforeEach
     public void createIfAbsent() throws Exception {
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator("my-test-pool", 10, 20);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator("my-test-pool", 10, 20, false);
         boolean firstCreated = ConsumerPoolFactory.INSTANCE.createIfAbsent("my-test-pool", creator);
         assertTrue(firstCreated);
 

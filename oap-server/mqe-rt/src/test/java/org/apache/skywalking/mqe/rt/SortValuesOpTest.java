@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.mqe.rt;
 
-import java.util.Optional;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.operation.SortValuesOp;
@@ -32,35 +31,64 @@ public class SortValuesOpTest {
     @Test
     public void sortValueTest() throws IllegalExpressionException {
         //no label
-        ExpressionResult des = SortValuesOp.doSortValuesOp(mockData.newSeriesNoLabeledResult(), Optional.of(3),
-                                                          MQEParser.DES);
-        Assertions.assertEquals(300, des.getResults().get(0).getValues().get(0).getDoubleValue());
-        Assertions.assertEquals(100, des.getResults().get(0).getValues().get(1).getDoubleValue());
-        ExpressionResult asc = SortValuesOp.doSortValuesOp(mockData.newSeriesNoLabeledResult(), Optional.of(3),
-                                                          MQEParser.ASC);
+        ExpressionResult des = SortValuesOp.doSortValuesOp(
+            mockData.newSeriesNoLabeledResult(), 3,
+            MQEParser.DES, MQEParser.AVG
+        );
+        Assertions.assertEquals(100, des.getResults().get(0).getValues().get(0).getDoubleValue());
+        Assertions.assertEquals(300, des.getResults().get(0).getValues().get(1).getDoubleValue());
+        ExpressionResult asc = SortValuesOp.doSortValuesOp(
+            mockData.newSeriesNoLabeledResult(), 3,
+            MQEParser.ASC, MQEParser.AVG
+        );
         Assertions.assertEquals(100, asc.getResults().get(0).getValues().get(0).getDoubleValue());
         Assertions.assertEquals(300, asc.getResults().get(0).getValues().get(1).getDoubleValue());
 
         //labeled
-        ExpressionResult desLabeled = SortValuesOp.doSortValuesOp(mockData.newSeriesLabeledResult(), Optional.of(3),
-                                                                 MQEParser.DES);
-        Assertions.assertEquals(300, desLabeled.getResults().get(0).getValues().get(0).getDoubleValue());
-        Assertions.assertEquals(100, desLabeled.getResults().get(0).getValues().get(1).getDoubleValue());
-        Assertions.assertEquals(301, desLabeled.getResults().get(1).getValues().get(0).getDoubleValue());
-        Assertions.assertEquals(101, desLabeled.getResults().get(1).getValues().get(1).getDoubleValue());
-        ExpressionResult ascLabeled = SortValuesOp.doSortValuesOp(mockData.newSeriesLabeledResult(), Optional.of(2),
-                                                                 MQEParser.ASC);
+        ExpressionResult desLabeled = SortValuesOp.doSortValuesOp(
+            mockData.newSeriesLabeledResult(), 3,
+            MQEParser.DES, MQEParser.AVG
+        );
+        Assertions.assertEquals(101, desLabeled.getResults().get(0).getValues().get(0).getDoubleValue());
+        Assertions.assertEquals(301, desLabeled.getResults().get(0).getValues().get(1).getDoubleValue());
+        Assertions.assertEquals("label", desLabeled.getResults().get(0).getMetric().getLabels().get(0).getKey());
+        Assertions.assertEquals("2", desLabeled.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("label2", desLabeled.getResults().get(0).getMetric().getLabels().get(1).getKey());
+        Assertions.assertEquals("21", desLabeled.getResults().get(0).getMetric().getLabels().get(1).getValue());
+        Assertions.assertEquals(100, desLabeled.getResults().get(1).getValues().get(0).getDoubleValue());
+        Assertions.assertEquals(300, desLabeled.getResults().get(1).getValues().get(1).getDoubleValue());
+        Assertions.assertEquals("label", desLabeled.getResults().get(1).getMetric().getLabels().get(0).getKey());
+        Assertions.assertEquals("1", desLabeled.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("label2", desLabeled.getResults().get(1).getMetric().getLabels().get(1).getKey());
+        Assertions.assertEquals("21", desLabeled.getResults().get(1).getMetric().getLabels().get(1).getValue());
+
+        ExpressionResult ascLabeled = SortValuesOp.doSortValuesOp(
+            mockData.newSeriesLabeledResult(), 3,
+            MQEParser.ASC, MQEParser.AVG
+        );
         Assertions.assertEquals(100, ascLabeled.getResults().get(0).getValues().get(0).getDoubleValue());
         Assertions.assertEquals(300, ascLabeled.getResults().get(0).getValues().get(1).getDoubleValue());
+        Assertions.assertEquals("label", ascLabeled.getResults().get(0).getMetric().getLabels().get(0).getKey());
+        Assertions.assertEquals("1", ascLabeled.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("label2", ascLabeled.getResults().get(0).getMetric().getLabels().get(1).getKey());
+        Assertions.assertEquals("21", ascLabeled.getResults().get(0).getMetric().getLabels().get(1).getValue());
         Assertions.assertEquals(101, ascLabeled.getResults().get(1).getValues().get(0).getDoubleValue());
         Assertions.assertEquals(301, ascLabeled.getResults().get(1).getValues().get(1).getDoubleValue());
+        Assertions.assertEquals("label", ascLabeled.getResults().get(1).getMetric().getLabels().get(0).getKey());
+        Assertions.assertEquals("2", ascLabeled.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("label2", ascLabeled.getResults().get(1).getMetric().getLabels().get(1).getKey());
+        Assertions.assertEquals("21", ascLabeled.getResults().get(1).getMetric().getLabels().get(1).getValue());
 
         //limit
-        ExpressionResult desLabeledLimit = SortValuesOp.doSortValuesOp(mockData.newSeriesLabeledResult(), Optional.of(1),
-                                                                      MQEParser.DES);
-        Assertions.assertEquals(1, desLabeledLimit.getResults().get(0).getValues().size());
-        Assertions.assertEquals(1, desLabeledLimit.getResults().get(1).getValues().size());
-        Assertions.assertEquals(300, desLabeledLimit.getResults().get(0).getValues().get(0).getDoubleValue());
-        Assertions.assertEquals(301, desLabeledLimit.getResults().get(1).getValues().get(0).getDoubleValue());
+        ExpressionResult desLabeledLimit = SortValuesOp.doSortValuesOp(
+            mockData.newSeriesLabeledResult(), 1,
+            MQEParser.DES, MQEParser.AVG
+        );
+        Assertions.assertEquals(101, desLabeledLimit.getResults().get(0).getValues().get(0).getDoubleValue());
+        Assertions.assertEquals(301, desLabeledLimit.getResults().get(0).getValues().get(1).getDoubleValue());
+        Assertions.assertEquals("label", desLabeledLimit.getResults().get(0).getMetric().getLabels().get(0).getKey());
+        Assertions.assertEquals("2", desLabeledLimit.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        Assertions.assertEquals("label2", desLabeledLimit.getResults().get(0).getMetric().getLabels().get(1).getKey());
+        Assertions.assertEquals("21", desLabeledLimit.getResults().get(0).getMetric().getLabels().get(1).getValue());
     }
 }

@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.LogQueryCondition;
+import org.apache.skywalking.oap.server.core.query.input.LogQueryConditionByName;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
@@ -76,6 +77,38 @@ public class LogQuery implements GraphQLQueryResolver {
             DebuggingSpan span = traceContext.createSpan("Query logs");
             try {
                 Logs logs = invokeQueryLogs(condition);
+                if (debug) {
+                    logs.setDebuggingTrace(traceContext.getExecTrace());
+                }
+                return logs;
+            } finally {
+                traceContext.stopSpan(span);
+                traceContext.stopTrace();
+                TRACE_CONTEXT.remove();
+            }
+        });
+    }
+
+    public CompletableFuture<Logs> queryLogsByName(LogQueryConditionByName condition, boolean debug) {
+        return queryAsync(() -> {
+            DebuggingTraceContext traceContext = new DebuggingTraceContext(
+                "LogQueryConditionByName: " + condition, debug, false);
+            DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
+            DebuggingSpan span = traceContext.createSpan("Query logs");
+            try {
+                LogQueryCondition logQueryCondition = new LogQueryCondition();
+                logQueryCondition.setServiceId(condition.getServiceId());
+                logQueryCondition.setServiceInstanceId(condition.getServiceInstanceId());
+                logQueryCondition.setEndpointId(condition.getEndpointId());
+                logQueryCondition.setRelatedTrace(condition.getRelatedTrace());
+                logQueryCondition.setQueryDuration(condition.getQueryDuration());
+                logQueryCondition.setPaging(condition.getPaging());
+                logQueryCondition.setTags(condition.getTags());
+                logQueryCondition.setKeywordsOfContent(condition.getKeywordsOfContent());
+                logQueryCondition.setExcludingKeywordsOfContent(condition.getExcludingKeywordsOfContent());
+                logQueryCondition.setQueryOrder(condition.getQueryOrder());
+
+                Logs logs = invokeQueryLogs(logQueryCondition);
                 if (debug) {
                     logs.setDebuggingTrace(traceContext.getExecTrace());
                 }

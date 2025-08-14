@@ -152,6 +152,11 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
             (Map<String, Object>) response.getAggregations()
                                           .get(ProfileThreadSnapshotRecord.SEQUENCE);
 
-        return ((Number) agg.get("value")).intValue();
+        final Object val = agg.get("value");
+        // return not found if no snapshot found
+        if (val == null) {
+            return -1;
+        }
+        return ((Number) val).intValue();
     }
 }

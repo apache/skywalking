@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiFunction;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -437,12 +436,9 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
         try {
             ExpressionResult result = visit(ctx.expression());
             int order = ctx.order().getStart().getType();
-            Optional<Integer> limit = Optional.empty();
-            if (ctx.INTEGER() != null) {
-                limit = Optional.of(Integer.valueOf(ctx.INTEGER().getText()));
-            }
+            int limit = Integer.parseInt(ctx.INTEGER().getText());
             try {
-                return SortValuesOp.doSortValuesOp(result, limit, order);
+                return SortValuesOp.doSortValuesOp(result, limit, order, MQEParser.AVG);
             } catch (IllegalExpressionException e) {
                 return getErrorResult(e.getMessage());
             }

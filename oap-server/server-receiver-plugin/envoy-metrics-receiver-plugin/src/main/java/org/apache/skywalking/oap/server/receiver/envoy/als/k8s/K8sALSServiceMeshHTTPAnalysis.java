@@ -103,12 +103,12 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             properties.hasDownstreamDirectRemoteAddress()
                 ? properties.getDownstreamDirectRemoteAddress()
                 : properties.getDownstreamRemoteAddress();
-        final ServiceMetaInfo downstreamService = find(downstreamRemoteAddress.getSocketAddress().getAddress());
+        final ServiceMetaInfo downstreamService = find(Addresses.getAddressIP(downstreamRemoteAddress));
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         if (!isValid(downstreamRemoteAddress) || !isValid(downstreamLocalAddress)) {
             return previousResult;
         }
-        final ServiceMetaInfo localService = find(downstreamLocalAddress.getSocketAddress().getAddress());
+        final ServiceMetaInfo localService = find(Addresses.getAddressIP(downstreamLocalAddress));
 
         final var result = Result.builder();
         final var previousMetrics = previousResult.getMetrics();
@@ -135,7 +135,7 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             if (!isValid(upstreamRemoteAddress)) {
                 return result.metrics(ServiceMeshMetrics.newBuilder().setHttpMetrics(sources)).service(localService).build();
             }
-            final ServiceMetaInfo destService = find(upstreamRemoteAddress.getSocketAddress().getAddress());
+            final ServiceMetaInfo destService = find(Addresses.getAddressIP(upstreamRemoteAddress));
 
             final HTTPServiceMeshMetric.Builder metric = newAdapter(entry, downstreamService, destService).adaptToUpstreamMetrics();
 

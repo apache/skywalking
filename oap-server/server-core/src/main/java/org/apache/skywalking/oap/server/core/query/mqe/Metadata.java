@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
 @Data
+@EqualsAndHashCode
 public class Metadata {
     private List<KeyValue> labels  = new ArrayList<>();
 
