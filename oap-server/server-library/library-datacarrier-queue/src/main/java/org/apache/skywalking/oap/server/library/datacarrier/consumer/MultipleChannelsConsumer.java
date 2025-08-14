@@ -37,14 +37,14 @@ public class MultipleChannelsConsumer extends Thread {
     // The flag to indicate whether the consumer thread should consume data.
     @Setter
     private volatile boolean consumeFlag = false;
-    // Whether the consumer thread should wait for notification to consume data.
-    private boolean notifiable = false;
+    // Consumer has two modes to drive consumption. 1. Polling mode. 2. Signal-Driven mode.
+    private final boolean isSignalDrivenMode;
 
-    public MultipleChannelsConsumer(String threadName, long consumeCycle, boolean notifiable) {
+    public MultipleChannelsConsumer(String threadName, long consumeCycle, boolean isSignalDrivenMode) {
         super(threadName);
         this.consumeTargets = new ArrayList<>();
         this.consumeCycle = consumeCycle;
-        this.notifiable = notifiable;
+        this.isSignalDrivenMode = isSignalDrivenMode;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class MultipleChannelsConsumer extends Thread {
         final List consumeList = new ArrayList(2000);
         while (running) {
             boolean hasData = false;
-            if (!notifiable) {
+            if (!isSignalDrivenMode) {
                 for (Group target : consumeTargets) {
                     boolean consumed = consume(target, consumeList);
                     hasData = hasData || consumed;
@@ -68,13 +68,9 @@ public class MultipleChannelsConsumer extends Thread {
                 }
             } else {
                 if (consumeFlag) {
+                    consumeFlag = false;
                     for (Group target : consumeTargets) {
-                        boolean consumed = consume(target, consumeList);
-                        hasData = hasData || consumed;
-                    }
-
-                    if (!hasData) {
-                        consumeFlag = false;
+                        consume(target, consumeList);
                     }
                 } else {
                     try {

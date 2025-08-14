@@ -38,9 +38,6 @@ public class MetricsAggregateMALWorker extends MetricsAggregateWorker {
                               String modelName,
                               long l1FlushPeriod,
                               MetricStreamKind kind) {
-        // In MAL meter streaming, the load of data flow is much less as they are statistics already,
-        // but in OAL sources, they are raw data.
-        // Set the buffer(size of queue) as 1/20 to reduce unnecessary resource costs.
         super(
             moduleDefineHolder, nextWorker, modelName, l1FlushPeriod, kind,
             POOL_NAME,

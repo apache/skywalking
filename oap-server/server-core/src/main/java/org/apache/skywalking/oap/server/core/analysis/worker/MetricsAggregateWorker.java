@@ -63,14 +63,14 @@ public abstract class MetricsAggregateWorker extends AbstractWorker<Metrics> {
                            MetricStreamKind kind,
                            String poolName,
                            int poolSize,
-                           boolean notifiablePool,
+                           boolean isSignalDrivenMode,
                            int queueChannelSize,
                            int queueBufferSize
                            ) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergableBufferedData();
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(poolName, poolSize, 200, notifiablePool);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(poolName, poolSize, 200, isSignalDrivenMode);
         this.dataCarrier = new DataCarrier<>(
             "MetricsAggregateWorker." + modelName, poolName, queueChannelSize, queueBufferSize, BufferStrategy.IF_POSSIBLE);
         try {

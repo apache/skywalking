@@ -65,14 +65,14 @@ public abstract class MetricsPersistentMinWorker extends MetricsPersistentWorker
                                AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
                                MetricsTransWorker transWorker, boolean supportUpdate,
                                long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind,
-                               String poolName, int poolSize, boolean notifiablePool,
+                               String poolName, int poolSize, boolean isSignalDrivenMode,
                                int queueChannelSize, int queueBufferSize) {
         super(
             moduleDefineHolder, model, metricsDAO, nextAlarmWorker, nextExportWorker, transWorker, supportUpdate,
             storageSessionTimeout, metricsDataTTL, kind
         );
 
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(poolName, poolSize, 200, notifiablePool);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(poolName, poolSize, 200, isSignalDrivenMode);
         try {
             ConsumerPoolFactory.INSTANCE.createIfAbsent(poolName, creator);
         } catch (Exception e) {
