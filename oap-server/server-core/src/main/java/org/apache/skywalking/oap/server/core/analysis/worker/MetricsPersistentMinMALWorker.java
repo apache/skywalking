@@ -41,7 +41,7 @@ public class MetricsPersistentMinMALWorker extends MetricsPersistentMinWorker {
             moduleDefineHolder, model, metricsDAO, nextAlarmWorker, nextExportWorker, transWorker, supportUpdate,
             storageSessionTimeout, metricsDataTTL, kind,
             POOL_NAME,
-            BulkConsumePool.Creator.recommendMaxSize() / 16 == 0 ? 1 : BulkConsumePool.Creator.recommendMaxSize() / 16,
+            calculatePoolSize(),
             true,
             1,
             1000
@@ -53,5 +53,10 @@ public class MetricsPersistentMinMALWorker extends MetricsPersistentMinWorker {
     public void in(Metrics metrics) {
         super.in(metrics);
         pool.notifyConsumers();
+    }
+
+    private static int calculatePoolSize() {
+        int size = BulkConsumePool.Creator.recommendMaxSize() / 16;
+        return size == 0 ? 1 : size;
     }
 }

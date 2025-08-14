@@ -44,7 +44,7 @@ public class MetricsAggregateMALWorker extends MetricsAggregateWorker {
         super(
             moduleDefineHolder, nextWorker, modelName, l1FlushPeriod, kind,
             POOL_NAME,
-            BulkConsumePool.Creator.recommendMaxSize() / 8 == 0 ? 1 : BulkConsumePool.Creator.recommendMaxSize() / 8,
+            calculatePoolSize(),
             true,
             1,
             1_000
@@ -59,5 +59,10 @@ public class MetricsAggregateMALWorker extends MetricsAggregateWorker {
     public final void in(Metrics metrics) {
         super.in(metrics);
         pool.notifyConsumers();
+    }
+
+    private static int calculatePoolSize() {
+        int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
+        return size == 0 ? 1 : size;
     }
 }

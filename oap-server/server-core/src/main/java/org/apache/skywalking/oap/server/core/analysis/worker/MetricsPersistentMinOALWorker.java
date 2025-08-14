@@ -38,10 +38,15 @@ public class MetricsPersistentMinOALWorker extends MetricsPersistentMinWorker {
             moduleDefineHolder, model, metricsDAO, nextAlarmWorker, nextExportWorker, transWorker, supportUpdate,
             storageSessionTimeout, metricsDataTTL, kind,
             "METRICS_L2_AGGREGATION_OAL",
-            BulkConsumePool.Creator.recommendMaxSize() / 8 == 0 ? 1 : BulkConsumePool.Creator.recommendMaxSize() / 8,
+            calculatePoolSize(),
             false,
             1,
             2000
         );
+    }
+
+    private static int calculatePoolSize() {
+        int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
+        return size == 0 ? 1 : size;
     }
 }
