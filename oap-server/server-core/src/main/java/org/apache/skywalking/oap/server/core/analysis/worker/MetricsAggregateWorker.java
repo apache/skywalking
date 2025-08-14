@@ -45,7 +45,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  * payload.
  */
 @Slf4j
-public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
+public abstract class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     public final long l1FlushPeriod;
     private AbstractWorker<Metrics> nextWorker;
     private final DataCarrier<Metrics> dataCarrier;
@@ -54,39 +54,31 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private CounterMetrics aggregationCounter;
     private GaugeMetrics queuePercentageGauge;
     private long lastSendTime = 0;
-    private final MetricStreamKind kind;
     private final int queueTotalSize;
 
     MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder,
                            AbstractWorker<Metrics> nextWorker,
                            String modelName,
                            long l1FlushPeriod,
-                           MetricStreamKind kind) {
+                           MetricStreamKind kind,
+                           String poolName,
+                           int poolSize,
+                           boolean notifiablePool,
+                           int queueChannelSize,
+                           int queueBufferSize
+                           ) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergableBufferedData();
-        this.kind = kind;
-        String name = "METRICS_L1_AGGREGATION";
-        int queueChannelSize = 2;
-        int queueBufferSize = 10_000;
-        if (MetricStreamKind.MAL == kind) {
-            // In MAL meter streaming, the load of data flow is much less as they are statistics already,
-            // but in OAL sources, they are raw data.
-            // Set the buffer(size of queue) as 1/20 to reduce unnecessary resource costs.
-            queueChannelSize = 1;
-            queueBufferSize = 1_000;
-        }
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(poolName, poolSize, 200, notifiablePool);
         this.dataCarrier = new DataCarrier<>(
-            "MetricsAggregateWorker." + modelName, name, queueChannelSize, queueBufferSize, BufferStrategy.IF_POSSIBLE);
-
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(
-            name, BulkConsumePool.Creator.recommendMaxSize() * 2, 200);
+            "MetricsAggregateWorker." + modelName, poolName, queueChannelSize, queueBufferSize, BufferStrategy.IF_POSSIBLE);
         try {
-            ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
+            ConsumerPoolFactory.INSTANCE.createIfAbsent(poolName, creator);
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new AggregatorConsumer());
+        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(poolName), new AggregatorConsumer());
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
                                                           .provider()
@@ -116,7 +108,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
      * MetricsAggregateWorker#in operation does include enqueue only
      */
     @Override
-    public final void in(Metrics metrics) {
+    public void in(Metrics metrics) {
         if (!dataCarrier.produce(metrics)) {
             abandonCounter.inc();
         }
@@ -149,7 +141,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         }
     }
 
-    private class AggregatorConsumer implements IConsumer<Metrics> {
+    protected class AggregatorConsumer implements IConsumer<Metrics> {
         @Override
         public void consume(List<Metrics> data) {
             queuePercentageGauge.setValue(Math.round(100 * (double) data.size() / queueTotalSize));

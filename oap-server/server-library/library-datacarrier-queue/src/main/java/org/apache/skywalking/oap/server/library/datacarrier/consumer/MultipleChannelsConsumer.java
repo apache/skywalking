@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.datacarrier.consumer;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.Channels;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.QueueBuffer;
 
@@ -33,11 +34,17 @@ public class MultipleChannelsConsumer extends Thread {
     @SuppressWarnings("NonAtomicVolatileUpdate")
     private volatile long size;
     private final long consumeCycle;
+    // The flag to indicate whether the consumer thread should consume data.
+    @Setter
+    private volatile boolean consumeFlag = false;
+    // Whether the consumer thread should wait for notification to consume data.
+    private boolean notifiable = false;
 
-    public MultipleChannelsConsumer(String threadName, long consumeCycle) {
+    public MultipleChannelsConsumer(String threadName, long consumeCycle, boolean notifiable) {
         super(threadName);
         this.consumeTargets = new ArrayList<>();
         this.consumeCycle = consumeCycle;
+        this.notifiable = notifiable;
     }
 
     @Override
@@ -47,15 +54,33 @@ public class MultipleChannelsConsumer extends Thread {
         final List consumeList = new ArrayList(2000);
         while (running) {
             boolean hasData = false;
-            for (Group target : consumeTargets) {
-                boolean consumed = consume(target, consumeList);
-                hasData = hasData || consumed;
-            }
+            if (!notifiable) {
+                for (Group target : consumeTargets) {
+                    boolean consumed = consume(target, consumeList);
+                    hasData = hasData || consumed;
+                }
 
-            if (!hasData) {
-                try {
-                    Thread.sleep(consumeCycle);
-                } catch (InterruptedException e) {
+                if (!hasData) {
+                    try {
+                        Thread.sleep(consumeCycle);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            } else {
+                if (consumeFlag) {
+                    for (Group target : consumeTargets) {
+                        boolean consumed = consume(target, consumeList);
+                        hasData = hasData || consumed;
+                    }
+
+                    if (!hasData) {
+                        consumeFlag = false;
+                    }
+                } else {
+                    try {
+                        Thread.sleep(consumeCycle);
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
         }

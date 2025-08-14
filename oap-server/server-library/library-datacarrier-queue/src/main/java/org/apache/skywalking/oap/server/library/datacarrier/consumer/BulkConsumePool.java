@@ -34,11 +34,12 @@ public class BulkConsumePool implements ConsumerPool {
     private List<MultipleChannelsConsumer> allConsumers;
     private volatile boolean isStarted = false;
 
-    public BulkConsumePool(String name, int size, long consumeCycle) {
+    public BulkConsumePool(String name, int size, long consumeCycle, boolean notifiable) {
         size = EnvUtil.getInt(name + "_THREAD", size);
         allConsumers = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            MultipleChannelsConsumer multipleChannelsConsumer = new MultipleChannelsConsumer("DataCarrier." + name + ".BulkConsumePool." + i + ".Thread", consumeCycle);
+            MultipleChannelsConsumer multipleChannelsConsumer = new MultipleChannelsConsumer(
+                "DataCarrier." + name + ".BulkConsumePool." + i + ".Thread", consumeCycle, notifiable);
             multipleChannelsConsumer.setDaemon(true);
             allConsumers.add(multipleChannelsConsumer);
         }
@@ -92,6 +93,12 @@ public class BulkConsumePool implements ConsumerPool {
         isStarted = true;
     }
 
+    public void notifyConsumers() {
+        for (MultipleChannelsConsumer consumer : allConsumers) {
+            consumer.setConsumeFlag(true);
+        }
+    }
+
     /**
      * The creator for {@link BulkConsumePool}.
      */
@@ -99,16 +106,19 @@ public class BulkConsumePool implements ConsumerPool {
         private String name;
         private int size;
         private long consumeCycle;
+        // Whether the consumer thread should wait for notification to consume data.
+        private boolean notifiable;
 
-        public Creator(String name, int poolSize, long consumeCycle) {
+        public Creator(String name, int poolSize, long consumeCycle, boolean notifiable) {
             this.name = name;
             this.size = poolSize;
             this.consumeCycle = consumeCycle;
+            this.notifiable = notifiable;
         }
 
         @Override
         public ConsumerPool call() {
-            return new BulkConsumePool(name, size, consumeCycle);
+            return new BulkConsumePool(name, size, consumeCycle, notifiable);
         }
 
         public static int recommendMaxSize() {

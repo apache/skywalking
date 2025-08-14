@@ -50,6 +50,7 @@
 * GraphQL API: metadata, topology, log and trace support query by name.
 * [Break Change] MQE function `sort_values` sorts according to the aggregation result and labels rather than the simple time series values.
 * Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
+* Optimize metrics aggregate/persistent worker: seperate `OAL` and `MAL` workers and consume pools, and make the consumer thread sleep when no data in.
 
 #### UI
 

@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
-import org.apache.skywalking.oap.server.core.status.ServerStatusWatcher;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
@@ -45,7 +44,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  * MetricsPersistentMinWorker is an extension of {@link MetricsPersistentWorker} and focuses on the Minute Metrics data persistent.
  */
 @Slf4j
-public class MetricsPersistentMinWorker extends MetricsPersistentWorker implements ServerStatusWatcher {
+public abstract class MetricsPersistentMinWorker extends MetricsPersistentWorker {
     private final DataCarrier<Metrics> dataCarrier;
 
     /**
@@ -65,33 +64,22 @@ public class MetricsPersistentMinWorker extends MetricsPersistentWorker implemen
     MetricsPersistentMinWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                                AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
                                MetricsTransWorker transWorker, boolean supportUpdate,
-                               long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
+                               long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind,
+                               String poolName, int poolSize, boolean notifiablePool,
+                               int queueChannelSize, int queueBufferSize) {
         super(
             moduleDefineHolder, model, metricsDAO, nextAlarmWorker, nextExportWorker, transWorker, supportUpdate,
             storageSessionTimeout, metricsDataTTL, kind
         );
 
-        String name = "METRICS_L2_AGGREGATION";
-        int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
-        if (size == 0) {
-            size = 1;
-        }
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 200);
+        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(poolName, poolSize, 200, notifiablePool);
         try {
-            ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
+            ConsumerPoolFactory.INSTANCE.createIfAbsent(poolName, creator);
         } catch (Exception e) {
             throw new UnexpectedException(e.getMessage(), e);
         }
-
-        int bufferSize = 2000;
-        if (MetricStreamKind.MAL == kind) {
-            // In MAL meter streaming, the load of data flow is much less as they are statistics already,
-            // but in OAL sources, they are raw data.
-            // Set the buffer(size of queue) as 1/2 to reduce unnecessary resource costs.
-            bufferSize = 1000;
-        }
-        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), name, 1, bufferSize);
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer());
+        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), poolName, queueChannelSize, queueBufferSize);
+        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(poolName), new PersistentConsumer());
 
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
                                                           .provider()
