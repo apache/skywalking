@@ -60,6 +60,7 @@
 | MetricsPersistentMinOALWorker | availableProcessors * 2 / 8, at least 1  | false              | 1                | 2000            |
 | MetricsPersistentMinMALWorker | availableProcessors * 2 / 16, at least 1 | true               | 1                | 1000            |
 
+* Bump up netty to 4.2.4.Final.
 
 #### UI
 
