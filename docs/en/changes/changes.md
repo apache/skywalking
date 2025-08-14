@@ -39,6 +39,7 @@
 * OAP gRPC-Client support `Health Check`.
 * [Break Change] `health_check_xx` metrics make response 1 represents healthy, 0 represents unhealthy.
 * Bump up grpc to 1.70.0.
+* Bump up netty to 4.2.4.Final.
 
 #### UI
 
