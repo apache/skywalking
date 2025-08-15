@@ -87,6 +87,8 @@ public class BanyanDBStorageConfig extends ModuleConfig {
          */
         private int profileTaskQueryMaxSize;
 
+        private String user;
+        private String password;
         /**
          * If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection.
          */
@@ -117,6 +119,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int shardNum;
         private int segmentInterval;
         private int ttl;
+        private int replicas;
         // Indicates whether segments that are no longer live should be closed.
         private boolean close = false;
     }
@@ -133,6 +136,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int shardNum;
         private int segmentInterval;
         private int ttl;
+        private int replicas;
         private boolean enableWarmStage = false;
         private boolean enableColdStage = false;
         private List<String> defaultQueryStages = new ArrayList<>(2);

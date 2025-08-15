@@ -254,7 +254,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         Group.Builder gBuilder
             = Group.newBuilder()
                    .setMetadata(BanyandbCommon.Metadata.newBuilder().setName(metadata.getGroup()));
-        BanyandbCommon.ResourceOpts.Builder optsBuilder = BanyandbCommon.ResourceOpts.newBuilder().setShardNum(metadata.getResource().getShardNum());
+        BanyandbCommon.ResourceOpts.Builder optsBuilder = BanyandbCommon.ResourceOpts.newBuilder()
+                                                                                     .setShardNum(metadata.getResource()
+                                                                                                          .getShardNum())
+                                                                                     .setReplicas(metadata.getResource()
+                                                                                                          .getReplicas());
 
         switch (metadata.getKind()) {
             case STREAM:
@@ -311,6 +315,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                                                      IntervalRule.Unit.UNIT_DAY)
                                                                  .setNum(
                                                                      stage.getTtl()))
+                                                 .setReplicas(stage.getReplicas())
                                                  .setNodeSelector(stage.getNodeSelector())
                                                  .setClose(stage.isClose())
                 );

@@ -55,6 +55,7 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * BanyanDBStorageClient is a simple wrapper for the underlying {@link BanyanDBClient},
@@ -70,6 +71,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public BanyanDBStorageClient(BanyanDBStorageConfig config) {
         Options options = new Options();
         options.setSslTrustCAPath(config.getGlobal().getSslTrustCAPath());
+        String username = config.getGlobal().getUser();
+        String password = config.getGlobal().getPassword();
+        if (StringUtil.isNotBlank(username)) {
+            if (StringUtil.isBlank(password)) {
+                throw new IllegalArgumentException("User is set, but password is not set.");
+            }
+            options.setUsername(username);
+            options.setPassword(password);
+        } else if (StringUtil.isNotBlank(password)) {
+            throw new IllegalArgumentException("Password is set, but user is not set.");
+        }
         this.client = new BanyanDBClient(config.getTargetArray(), options);
         this.flushTimeout = config.getGlobal().getFlushTimeout();
     }
