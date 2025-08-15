@@ -61,6 +61,7 @@
 | MetricsPersistentMinMALWorker | availableProcessors * 2 / 16, at least 1 | true               | 1                | 1000            |
 
 * Bump up netty to 4.2.4.Final.
+* BanyanDB: support group `replicas` and `user/password` for basic authentication.
 
 #### UI
 
