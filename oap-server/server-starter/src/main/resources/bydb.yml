@@ -61,7 +61,7 @@ groups:
   #  For more details on setting `segmentInterval` and `ttl`, refer to the [BanyanDB TTL](https://skywalking.apache.org/docs/main/latest/en/banyandb/ttl) documentation.
 
   # The "records" section defines settings for normal datasets not specified in records.
-  # Each dataset will be grouped undeer a single group named "records".
+  # Each dataset will be grouped under a single group named "records".
   records:
     # The settings for the default "hot" stage.
     shardNum:  ${SW_STORAGE_BANYANDB_RECORDS_SHARD_NUM:1}
@@ -216,7 +216,7 @@ groups:
     ttl: ${SW_STORAGE_BANYANDB_METRICS_DAY_TTL_DAYS:15}
     replicas: ${SW_STORAGE_BANYANDB_METRICS_DAY_REPLICAS:0}
     enableWarmStage: ${SW_STORAGE_BANYANDB_METRICS_DAY_ENABLE_WARM_STAGE:false}
-    enableColdStage: ${SW_STORAGE_BANYANDB_METRICS_DAY_ENABLE_COLD_STAGE:true}
+    enableColdStage: ${SW_STORAGE_BANYANDB_METRICS_DAY_ENABLE_COLD_STAGE:false}
     warm:
       shardNum: ${SW_STORAGE_BANYANDB_METRICS_DAY_WARM_SHARD_NUM:1}
       segmentInterval: ${SW_STORAGE_BANYANDB_METRICS_DAY_WARM_SI_DAYS:15}
