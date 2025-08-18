@@ -341,7 +341,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/javax.inject/javax.inject/1 Apache-2.0
     https://mvnrepository.com/artifact/joda-time/joda-time/2.10.5 Apache-2.0
     https://mvnrepository.com/artifact/net.jodah/failsafe/2.4.4 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.12.0 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.18.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.commons/commons-text/1.4 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-client/4.3.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-framework/4.3.0 Apache-2.0
