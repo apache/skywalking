@@ -64,6 +64,7 @@
 * Bump up commons-lang to 3.18.0.
 * BanyanDB: support group `replicas` and `user/password` for basic authentication.
 * BanyanDB: fix Zipkin query missing tag `QUERY`.
+* Fix inconsistent tags(`IllegalArgumentException: Incorrect number of labels`) in the `LogReportServiceHTTPHandler`, `LogHandler` and `LogReportServiceGrpcHandler`.
 
 #### UI
 
