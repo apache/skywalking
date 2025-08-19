@@ -77,7 +77,8 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
         ZipkinSpanRecord.REMOTE_ENDPOINT_IPV6,
         ZipkinSpanRecord.REMOTE_ENDPOINT_PORT,
         ZipkinSpanRecord.TAGS,
-        ZipkinSpanRecord.ANNOTATIONS
+        ZipkinSpanRecord.ANNOTATIONS,
+        ZipkinSpanRecord.QUERY
     );
 
     public BanyanDBZipkinQueryDAO(BanyanDBStorageClient client) {
