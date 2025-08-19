@@ -63,7 +63,7 @@
 * Bump up netty to 4.2.4.Final.
 * Bump up commons-lang to 3.18.0.
 * BanyanDB: support group `replicas` and `user/password` for basic authentication.
-* BanyanDB: fix Zipkin query missing tag `QUERY`.
+* BanyanDB: fix Zipkin query by `annotationQuery`
 
 #### UI
 
