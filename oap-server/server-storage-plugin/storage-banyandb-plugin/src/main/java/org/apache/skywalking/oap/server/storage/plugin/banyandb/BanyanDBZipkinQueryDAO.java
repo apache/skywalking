@@ -230,13 +230,15 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                 }
 
                 if (!CollectionUtils.isEmpty(request.annotationQuery())) {
+                    List<String> queryConditions = new ArrayList<>();
                     for (Map.Entry<String, String> annotation : request.annotationQuery().entrySet()) {
                         if (annotation.getValue().isEmpty()) {
-                            query.and(eq(ZipkinSpanRecord.QUERY, annotation.getKey()));
+                            queryConditions.add(annotation.getKey());
                         } else {
-                            query.and(eq(ZipkinSpanRecord.QUERY, annotation.getKey() + "=" + annotation.getValue()));
+                            queryConditions.add(annotation.getKey() + "=" + annotation.getValue());
                         }
                     }
+                    query.and(having(ZipkinSpanRecord.QUERY, queryConditions));
                 }
 
                 if (request.minDuration() != null) {
