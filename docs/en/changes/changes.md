@@ -84,6 +84,12 @@
 * Bump vue-i18n from 9.14.3 to 9.14.5.
 * Fix split queries for topology to avoid page crash.
 * Self Observability ui-template: Add new panels for monitor `metrics aggregation queue used percentage` and `metrics persistent collection cached size`.
+* test: introduce and set up unit tests in the UI.
+* test: implement comprehensive unit tests for components.
+* refactor: optimize data types for widgets and dashboards.
+* fix: optimize appearing the wrong prompt by pop-up for the HTTP environments in copy function.
+* refactor the configuration view and implement the optional config for displaying timestamp in Log widget.
+* test: implement unit tests for hooks and refactor some types.
 
 #### Documentation
 
