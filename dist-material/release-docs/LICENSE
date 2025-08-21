@@ -477,21 +477,20 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@floating-ui/core/v/1.6.9 1.6.9 MIT
     https://npmjs.com/package/@floating-ui/dom/v/1.6.13 1.6.13 MIT
     https://npmjs.com/package/@floating-ui/utils/v/0.2.9 0.2.9 MIT
-    https://npmjs.com/package/@interactjs/actions/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/auto-scroll/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/auto-start/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/core/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/dev-tools/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/inertia/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/interact/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/interactjs/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/modifiers/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/offset/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/pointer-events/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/reflow/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/snappers/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/types/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/utils/v/1.10.17 1.10.17 MIT
+    https://npmjs.com/package/@interactjs/actions/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/auto-scroll/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/auto-start/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/core/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/dev-tools/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/inertia/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/interact/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/interactjs/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/modifiers/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/offset/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/pointer-events/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/reflow/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/snappers/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/utils/v/1.10.27 1.10.27 MIT
     https://npmjs.com/package/@intlify/core-base/v/9.14.5 9.14.5 MIT
     https://npmjs.com/package/@intlify/message-compiler/v/9.14.5 9.14.5 MIT
     https://npmjs.com/package/@intlify/shared/v/9.14.5 9.14.5 MIT
