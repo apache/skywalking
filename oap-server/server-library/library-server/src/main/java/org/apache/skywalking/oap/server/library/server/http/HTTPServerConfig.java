@@ -32,8 +32,6 @@ public class HTTPServerConfig {
     private String contextPath;
 
     @Builder.Default
-    private int maxThreads = 200;
-    @Builder.Default
     private long idleTimeOut = 30000;
     @Builder.Default
     private int acceptQueueSize = 0;

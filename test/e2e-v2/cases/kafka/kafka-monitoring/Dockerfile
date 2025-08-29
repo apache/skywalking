@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Use the Bitnami Kafka image as the base image
-FROM bitnami/kafka:2.4.1
+# Use the Kafka image as the base image
+FROM bitnamilegacy/kafka:2.4.1
 
 # Download the JMX Prometheus Java Agent and config file
 ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.18.0/jmx_prometheus_javaagent-0.18.0.jar /etc/jmx_prometheus_javaagent-0.18.0.jar

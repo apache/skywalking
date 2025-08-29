@@ -32,7 +32,7 @@ services:
       retries: 120
 
   broker-a:
-    image: bitnami/kafka:2.4.1
+    image: bitnamilegacy/kafka:2.4.1
     hostname: broker-a
     expose:
       - 9092

@@ -54,7 +54,7 @@ services:
       - e2e
 
   amqexporter:
-    image: bitnami/jmx-exporter:0.20.0
+    image: bitnamilegacy/jmx-exporter:0.20.0
     hostname: amqexporter
     volumes:
       - ./config/amq/config.yaml:/opt/bitnami/jmx-exporter/example_configs/httpserver_sample_config.yml
