@@ -67,13 +67,13 @@ services:
     networks:
       e2e:
   zookeeper:
-    image: 'bitnami/zookeeper:latest'
+    image: 'zookeeper:3.9.3'
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     networks:
       e2e:
   kafka:
-    image: 'bitnami/kafka:2.4.1'
+    image: 'apache/kafka:3.9.1'
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092

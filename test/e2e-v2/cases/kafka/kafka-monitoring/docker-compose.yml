@@ -89,7 +89,7 @@ services:
       retries: 120
 
   kafka-producer-perf-test:
-    image: bitnami/kafka:2.4.1
+    image: apache/kafka:3.9.1
     networks:
       - e2e
     depends_on:
@@ -102,7 +102,7 @@ services:
         kafka-producer-perf-test.sh --topic perftest --num-records 100000 --record-size 100 --throughput 500 --producer-props bootstrap.servers=broker1:9092,broker2:9093
 
   kafka-consumer-perf-test:
-    image: bitnami/kafka:2.4.1
+    image: apache/kafka:3.9.1
     networks:
       - e2e
     depends_on:
