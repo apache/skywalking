@@ -66,7 +66,8 @@
 * BanyanDB: fix Zipkin query missing tag `QUERY`.
 * Fix `IllegalArgumentException: Incorrect number of labels`, tags in the `LogReportServiceHTTPHandler` and `LogReportServiceGrpcHandler` inconsistent with `LogHandler`.
 * BanyanDB: fix Zipkin query by `annotationQuery`
-* HTTP Server: use the default shared thread pool rather than create a new pool for each server. Remove the `MAX_THREADS` from each server config.
+* HTTP Server: Use the default shared thread pool rather than creating a new event loop thread pool for each server. Remove the `MAX_THREADS` from each server config.
+* Optimize all HTTP Server(s) to share a global EventExecutorGroup(max 200 threads) for the whole JVM.
 
 #### UI
 
