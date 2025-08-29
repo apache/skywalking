@@ -72,7 +72,6 @@ public class LogQLProvider extends ModuleProvider {
                                                             .port(config.getRestPort())
                                                             .contextPath(config.getRestContextPath())
                                                             .idleTimeOut(config.getRestIdleTimeOut())
-                                                            .maxThreads(config.getRestMaxThreads())
                                                             .acceptQueueSize(config.getRestAcceptQueueSize())
                                                             .build();
 

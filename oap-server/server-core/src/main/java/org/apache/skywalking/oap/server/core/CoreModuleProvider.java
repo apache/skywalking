@@ -253,7 +253,6 @@ public class CoreModuleProvider extends ModuleProvider {
                                                             .port(moduleConfig.getRestPort())
                                                             .contextPath(moduleConfig.getRestContextPath())
                                                             .idleTimeOut(moduleConfig.getRestIdleTimeOut())
-                                                            .maxThreads(moduleConfig.getRestMaxThreads())
                                                             .acceptQueueSize(
                                                                 moduleConfig.getRestAcceptQueueSize())
                                                             .maxRequestHeaderSize(
