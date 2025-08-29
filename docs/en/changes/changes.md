@@ -67,7 +67,8 @@
 * Fix `IllegalArgumentException: Incorrect number of labels`, tags in the `LogReportServiceHTTPHandler` and `LogReportServiceGrpcHandler` inconsistent with `LogHandler`.
 * BanyanDB: fix Zipkin query by `annotationQuery`
 * HTTP Server: Use the default shared thread pool rather than creating a new event loop thread pool for each server. Remove the `MAX_THREADS` from each server config.
-* Optimize all HTTP Server(s) to share a global EventExecutorGroup(max 200 threads) for the whole JVM.
+* Optimize all Armeria HTTP Server(s) to share the `CommonPools` for the whole JVM.
+  In the `CommonPools`, the max threads for `EventLoopGroup` is `processor * 2`, and for `BlockingTaskExecutor` is `200` and can be recycled if over the keepAliveTimeMillis (60000L by default)
 
 #### UI
 
