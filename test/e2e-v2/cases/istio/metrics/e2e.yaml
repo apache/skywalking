@@ -66,6 +66,7 @@ setup:
           --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=$ALS_ANALYZER \
           --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=$ALS_ANALYZER \
           --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
+          --set oap.env.SW_HEALTH_CHECKER=default \
           --set oap.envoy.als.enabled=true \
           --set oap.replicas=1 \
           --set ui.image.repository=skywalking/ui \

@@ -60,6 +60,7 @@ setup:
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=elasticsearch \
+          --set oap.env.SW_HEALTH_CHECKER=default \
           -f test/e2e-v2/cases/profiling/ebpf/network/kubernetes-values.yaml
       wait:
         - namespace: istio-system

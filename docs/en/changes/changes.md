@@ -112,6 +112,7 @@
 * fix: optimize appearing the wrong prompt by pop-up for the HTTP environments in copy function.
 * refactor the configuration view and implement the optional config for displaying timestamp in Log widget.
 * test: implement unit tests for hooks and refactor some types.
+* fix: share OAP proxy servies for different endpoins and use health checked endpoints group.
 
 #### Documentation
 
