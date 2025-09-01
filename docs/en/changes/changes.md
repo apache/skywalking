@@ -87,6 +87,8 @@
 | **Attach Listener**             | 1         | RUNNABLE                    | JVM attach listener thread.                                                                                                           |
 | **Total**                       | **158**   | -                           | -                                                                                                                                     |
 
+* BanyanDB: make `BanyanDBMetricsDAO` output `scan all blocks` info log only when the model is not `indexModel`.
+
 #### UI
 
 * Enhance the trace `List/Tree/Table` graph to support displaying multiple refs of spans and distinguishing different parents.

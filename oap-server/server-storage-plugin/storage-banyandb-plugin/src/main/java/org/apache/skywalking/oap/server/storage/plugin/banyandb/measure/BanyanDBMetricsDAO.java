@@ -121,7 +121,9 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         if (begin != 0L || end != 0L) {
             timestampRange = new TimestampRange(begin, end);
         } else {
-            log.info("{}[{}] will scan all blocks", model.getName(), idStr);
+            if (!model.getBanyanDBModelExtension().isIndexMode()) {
+                log.info("{}[{}] will scan all blocks", model.getName(), idStr);
+            }
         }
 
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
