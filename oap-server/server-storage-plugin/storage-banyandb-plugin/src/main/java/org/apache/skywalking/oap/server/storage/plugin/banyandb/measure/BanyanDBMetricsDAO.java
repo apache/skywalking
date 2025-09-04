@@ -94,7 +94,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         for (Metrics m : metrics) {
             List<StorageID.Fragment> fragments = m.id().read();
             if (model.getBanyanDBModelExtension().isIndexMode()) {
-                fragments =  Arrays.asList(new StorageID.Fragment(
+                fragments = Arrays.asList(new StorageID.Fragment(
                         ID,
                         String.class,
                         m.id().build()));

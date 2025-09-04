@@ -146,7 +146,6 @@ public class StorageID {
          * The names could be
          * 1. Always one column if this is from a certain persistent column.
          * 2. Be null if no relative column, such as the original value is not in the persistence.
-         * 3. One or multi-values if the value is built through a symmetrical or asymmetrical encoding algorithm.
          */
         private final String name;
         /**
