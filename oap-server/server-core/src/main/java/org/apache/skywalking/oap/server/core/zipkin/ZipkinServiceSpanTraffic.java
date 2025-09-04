@@ -53,19 +53,15 @@ public class ZipkinServiceSpanTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = SERVICE_NAME)
-    @BanyanDB.SeriesID(index = 0)
     private String serviceName;
     @Setter
     @Getter
     @Column(name = SPAN_NAME)
-    @BanyanDB.SeriesID(index = 1)
     private String spanName = Const.EMPTY_STRING;
 
     @Override
     protected StorageID id0() {
-        return new StorageID()
-            .append(SERVICE_NAME, serviceName)
-            .append(SPAN_NAME, spanName);
+        return new StorageID().append(serviceName).append(SPAN_NAME, spanName);
     }
 
     @Override

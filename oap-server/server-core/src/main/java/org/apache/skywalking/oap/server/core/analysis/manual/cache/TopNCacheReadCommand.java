@@ -49,7 +49,7 @@ public class TopNCacheReadCommand extends TopN {
 
     @Override
     public StorageID id() {
-        return new StorageID().appendMutant(null, id);
+        return new StorageID().append(id);
     }
 
     @Override

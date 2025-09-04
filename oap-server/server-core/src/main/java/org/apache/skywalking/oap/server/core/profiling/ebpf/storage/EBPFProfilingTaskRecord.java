@@ -93,11 +93,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
 
     @Override
     public StorageID id() {
-        return new StorageID().appendMutant(
-            new String[] {
-                LOGICAL_ID,
-                CREATE_TIME
-            },
+        return new StorageID().append(
             Hashing.sha256().newHasher()
                    .putString(logicalId, Charsets.UTF_8)
                    .putLong(createTime)

@@ -55,17 +55,14 @@ public class NetworkAddressAlias extends Metrics {
     @Setter
     @Getter
     @Column(name = ADDRESS)
-    @BanyanDB.SeriesID(index = 0)
     private String address;
     @Setter
     @Getter
     @Column(name = REPRESENT_SERVICE_ID)
-    @BanyanDB.SeriesID(index = 1)
     private String representServiceId;
     @Setter
     @Getter
     @Column(name = REPRESENT_SERVICE_INSTANCE_ID)
-    @BanyanDB.SeriesID(index = 2)
     private String representServiceInstanceId;
     @Setter
     @Getter
@@ -89,8 +86,7 @@ public class NetworkAddressAlias extends Metrics {
 
     @Override
     protected StorageID id0() {
-        return new StorageID().appendMutant(
-            new String[] {ADDRESS}, IDManager.NetworkAddressAliasDefine.buildId(address));
+        return new StorageID().append(IDManager.NetworkAddressAliasDefine.buildId(address));
     }
 
     @Override

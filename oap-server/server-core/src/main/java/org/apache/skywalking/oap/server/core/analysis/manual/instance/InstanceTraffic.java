@@ -61,14 +61,12 @@ public class InstanceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
 
     @Setter
     @Getter
     @Column(name = NAME, storageOnly = true)
     @ElasticSearch.Column(legacyName = "name")
-    @BanyanDB.SeriesID(index = 1)
     private String name;
 
     @Setter
@@ -135,10 +133,7 @@ public class InstanceTraffic extends Metrics {
     @Override
     protected StorageID id0() {
         return new StorageID()
-            .appendMutant(new String[] {
-                SERVICE_ID,
-                NAME
-            }, IDManager.ServiceInstanceID.buildId(serviceId, name));
+            .append(IDManager.ServiceInstanceID.buildId(serviceId, name));
     }
 
     public static class Builder implements StorageBuilder<InstanceTraffic> {

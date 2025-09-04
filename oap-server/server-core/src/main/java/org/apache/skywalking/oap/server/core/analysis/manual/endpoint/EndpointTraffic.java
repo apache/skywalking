@@ -57,7 +57,6 @@ public class EndpointTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
     @Setter
     @Getter
@@ -65,7 +64,6 @@ public class EndpointTraffic extends Metrics {
     @ElasticSearch.Column(legacyName = "name")
     @ElasticSearch.MatchQuery
     @BanyanDB.MatchQuery(analyzer = BanyanDB.MatchQuery.AnalyzerType.URL)
-    @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;
     @Setter
     @Getter
@@ -77,11 +75,7 @@ public class EndpointTraffic extends Metrics {
         // Downgrade the time bucket to day level only.
         // supportDownSampling == false for this entity.
         return new StorageID()
-            .appendMutant(
-                new String[] {
-                    SERVICE_ID,
-                    NAME
-                },
+            .append(
                 IDManager.EndpointID.buildId(
                     this.getServiceId(), this.getName())
             );

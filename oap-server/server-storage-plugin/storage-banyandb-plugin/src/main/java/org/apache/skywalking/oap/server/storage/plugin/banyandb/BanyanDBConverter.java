@@ -40,9 +40,9 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.util.List;
 
-public class BanyanDBConverter {
+import static org.apache.skywalking.oap.server.core.storage.StorageData.ID;
 
-    public static final String ID = "id";
+public class BanyanDBConverter {
 
     public static class StorageToStream implements Convert2Entity {
         private final MetadataRegistry.Schema schema;

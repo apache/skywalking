@@ -84,6 +84,7 @@ import java.util.stream.Collectors;
 import static org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule.Type.TYPE_INVERTED;
 import static org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule.Type.TYPE_SKIPPING;
 import static org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule.Type.TYPE_TREE;
+import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 
 @Slf4j
 public enum MetadataRegistry {
@@ -106,7 +107,7 @@ public enum MetadataRegistry {
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
         List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder, seriesIDColumns, schemaMetadata.group);
-        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags, false);
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags);
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
             for (final TagSpec tagSpec : tagFamilySpec.getTagsList()) {
@@ -142,6 +143,11 @@ public enum MetadataRegistry {
         // parse and set seriesIDs
         List<String> seriesIDColumns = parseEntityNames(modelColumnMap);
         List<String> shardingKeyColumns = parseShardingKeyNames(modelColumnMap);
+        boolean isIndexMode = model.getBanyanDBModelExtension().isIndexMode();
+        if (isIndexMode) {
+            // in index mode, seriesID must contain ID
+            seriesIDColumns.add(ID);
+        }
         if (seriesIDColumns.isEmpty()) {
             throw new StorageException("model " + model.getName() + " doesn't contain series id");
         }
@@ -149,8 +155,11 @@ public enum MetadataRegistry {
         // this can be used to build both
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
-        MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(model, schemaBuilder, seriesIDColumns, schemaMetadata.group);
-        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags, model.getBanyanDBModelExtension().isStoreIDTag());
+        MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(
+            model, schemaBuilder, seriesIDColumns, schemaMetadata.group,
+            isIndexMode
+        );
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags);
         // iterate over tagFamilySpecs to save tag names
         Set<String> tags = tagFamilySpecs.stream()
                 .flatMap(tagFamilySpec -> tagFamilySpec.getTagsList().stream())
@@ -162,10 +171,6 @@ public enum MetadataRegistry {
                 .map(TagMetadata::getIndexRule)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-
-        if (model.getBanyanDBModelExtension().isStoreIDTag()) {
-            indexRules.add(indexRule(schemaMetadata.group, BanyanDBConverter.ID, false, null, null));
-        }
 
         final Measure.Builder builder = Measure.newBuilder();
         builder.setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(schemaMetadata.getGroup())
@@ -505,7 +510,11 @@ public enum MetadataRegistry {
      *
      * @since 9.4.0 Skip {@link Metrics#TIME_BUCKET}
      */
-    MeasureMetadata parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder, List<String> seriesIDColumns, String group) {
+    MeasureMetadata parseTagAndFieldMetadata(Model model,
+                                             Schema.SchemaBuilder builder,
+                                             List<String> seriesIDColumns,
+                                             String group,
+                                             boolean shouldAddID) {
         // skip metric
         MeasureMetadata.MeasureMetadataBuilder result = MeasureMetadata.builder();
         for (final ModelColumn col : model.getColumns()) {
@@ -537,7 +546,12 @@ public enum MetadataRegistry {
                 result.tag(new TagMetadata(null, tagSpec));
             }
         }
-
+        // add additional ID tag
+        if (shouldAddID) {
+            result.tag(new TagMetadata(
+                null, TagSpec.newBuilder().setType(TagType.TAG_TYPE_STRING).setName(ID).build()
+            ));
+        }
         return result.build();
     }
 
@@ -685,7 +699,7 @@ public enum MetadataRegistry {
             return modelName + "_" + downSampling.getName();
         }
 
-        private List<TagFamilySpec> extractTagFamilySpec(List<TagMetadata> tagMetadataList, boolean shouldAddID) {
+        private List<TagFamilySpec> extractTagFamilySpec(List<TagMetadata> tagMetadataList) {
             final String indexFamily = SchemaMetadata.this.indexFamily();
             final String nonIndexFamily = SchemaMetadata.this.nonIndexFamily();
             Map<String, List<TagMetadata>> tagMetadataMap = tagMetadataList.stream()
@@ -696,9 +710,6 @@ public enum MetadataRegistry {
                 final TagFamilySpec.Builder b = TagFamilySpec.newBuilder();
                 b.setName(entry.getKey());
                 b.addAllTags(entry.getValue().stream().map(TagMetadata::getTagSpec).collect(Collectors.toList()));
-                if (shouldAddID && indexFamily.equals(entry.getKey())) {
-                    b.addTags(TagSpec.newBuilder().setType(TagType.TAG_TYPE_STRING).setName(BanyanDBConverter.ID));
-                }
                 tagFamilySpecs.add(b.build());
             }
 

@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ENTITY_ID;
+import static org.apache.skywalking.oap.server.core.storage.StorageData.ID;
 import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
 @Slf4j
@@ -69,8 +70,8 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
             throw new IOException(model.getName() + " is not registered");
         }
         final Map<String, List<String>> seriesIDColumns = new HashMap<>();
-        if (model.getBanyanDBModelExtension().isStoreIDTag()) {
-            seriesIDColumns.put(BanyanDBConverter.ID, new ArrayList<>());
+        if (model.getBanyanDBModelExtension().isIndexMode()) {
+            seriesIDColumns.put(ID, new ArrayList<>());
         } else {
             model.getColumns().forEach(c -> {
                 BanyanDBExtension ext = c.getBanyanDBExtension();
@@ -92,17 +93,11 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         StringBuilder idStr = new StringBuilder();
         for (Metrics m : metrics) {
             List<StorageID.Fragment> fragments = m.id().read();
-            if (model.getBanyanDBModelExtension().isStoreIDTag()) {
-                if (fragments.size() != 1) {
-                    log.error("[{}]fragments' size is more than expected", fragments);
-                    continue;
-                }
-                Object val = fragments.get(0).getValue();
-                fragments =  Arrays.asList(new StorageID.Fragment(
-                        new String[]{BanyanDBConverter.ID},
+            if (model.getBanyanDBModelExtension().isIndexMode()) {
+                fragments = Arrays.asList(new StorageID.Fragment(
+                        ID,
                         String.class,
-                        true,
-                        val));
+                        m.id().build()));
             }
             AnalyticalResult result = analyze(fragments, tsCol, seriesIDColumns);
 
@@ -158,7 +153,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp
         final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
         storageBuilder.entity2Storage(metrics, toStorage);
-        if (model.getBanyanDBModelExtension().isStoreIDTag()) {
+        if (model.getBanyanDBModelExtension().isIndexMode()) {
             toStorage.acceptID(metrics.id().build());
         }
         return new BanyanDBMeasureInsertRequest(toStorage.obtain(), callback);
@@ -175,7 +170,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp
         final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
         storageBuilder.entity2Storage(metrics, toStorage);
-        if (model.getBanyanDBModelExtension().isStoreIDTag()) {
+        if (model.getBanyanDBModelExtension().isIndexMode()) {
             toStorage.acceptID(metrics.id().build());
         }
         return new BanyanDBMeasureUpdateRequest(toStorage.obtain());
@@ -183,16 +178,14 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
 
     private static class AnalyticalResult {
         private boolean success;
-        private List<String[]> cols = new ArrayList<>();
+        private final List<String> cols = new ArrayList<>();
         private long begin;
         private long end;
 
         private String cols() {
             StringBuilder b = new StringBuilder();
-            for (String[] col : this.cols) {
-                for (String c : col) {
-                    b.append(c).append(",");
-                }
+            for (String col : this.cols) {
+                b.append(col).append(",");
                 b.append(" ");
             }
             return b.toString();
@@ -202,26 +195,25 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
     private AnalyticalResult analyze(List<StorageID.Fragment> fragments, String tsCol, Map<String, List<String>> seriesIDColumns) {
         AnalyticalResult result = new AnalyticalResult();
         for (StorageID.Fragment f : fragments) {
-            Optional<String[]> cols = f.getName();
-            if (cols.isPresent()) {
-                result.cols.add(cols.get());
-                for (String col : cols.get()) {
-                    if (tsCol.equals(col)) {
-                        long timeBucket = (long) f.getValue();
-                        long epoch = TimeBucket.getTimestamp(timeBucket);
-                        if (result.begin == 0 || epoch < result.begin) {
-                            result.begin = epoch;
-                        }
-                        if (result.end == 0 || epoch > result.end) {
-                            result.end = epoch;
-                        }
-                    } else if (seriesIDColumns.containsKey(col)) {
-                        Preconditions.checkState(f.getType().equals(String.class));
-                        seriesIDColumns.get(col).add((String) f.getValue());
-                    } else {
-                        log.error("col [{}] in fragment [{}] id [{}] is not ts or seriesID", col, f, fragments);
-                        return result;
+            Optional<String> c = f.getName();
+            if (c.isPresent()) {
+                String col = c.get();
+                result.cols.add(col);
+                if (tsCol.equals(col)) {
+                    long timeBucket = (long) f.getValue();
+                    long epoch = TimeBucket.getTimestamp(timeBucket);
+                    if (result.begin == 0 || epoch < result.begin) {
+                        result.begin = epoch;
                     }
+                    if (result.end == 0 || epoch > result.end) {
+                        result.end = epoch;
+                    }
+                } else if (seriesIDColumns.containsKey(col)) {
+                    Preconditions.checkState(f.getType().equals(String.class));
+                    seriesIDColumns.get(col).add((String) f.getValue());
+                } else {
+                    log.error("col [{}] in fragment [{}] id [{}] is not ts or seriesID", col, f, fragments);
+                    return result;
                 }
             } else {
                 log.error("fragment [{}] in id [{}] doesn't contains cols", f, fragments);

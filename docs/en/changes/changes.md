@@ -88,6 +88,9 @@
 | **Total**                       | **158**   | -                           | -                                                                                                                                     |
 
 * BanyanDB: make `BanyanDBMetricsDAO` output `scan all blocks` info log only when the model is not `indexModel`.
+* BanyanDB: fix the `BanyanDBMetricsDAO.multiGet` not work properly in `IndexMode`.
+* BanyanDB: remove `@StoreIDAsTag`, and automatically create a virtual String tag `id` for the SeriesID in `IndexMode`.
+* Remove method `appendMutant` from StorageID.
 
 #### UI
 
