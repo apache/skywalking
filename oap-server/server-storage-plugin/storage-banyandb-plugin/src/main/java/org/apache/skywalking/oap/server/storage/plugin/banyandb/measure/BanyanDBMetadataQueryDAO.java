@@ -65,6 +65,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic.PropertyUtil.LANGUAGE;
+import static org.apache.skywalking.oap.server.core.storage.StorageData.ID;
 
 public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMetadataQueryDAO {
     private static final Set<String> SERVICE_TRAFFIC_TAGS = ImmutableSet.of(ServiceTraffic.NAME,
@@ -377,7 +378,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(processId)) {
-                            query.and(eq(BanyanDBConverter.ID, processId));
+                            query.and(eq(ID, processId));
                         }
                     }
                 });

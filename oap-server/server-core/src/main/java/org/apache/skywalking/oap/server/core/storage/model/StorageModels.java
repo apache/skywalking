@@ -99,10 +99,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             banyanDBModelExtension.setTimestampColumn(timestampColumn);
         }
 
-        if (aClass.isAnnotationPresent(BanyanDB.StoreIDAsTag.class)) {
-            banyanDBModelExtension.setStoreIDTag(true);
-        }
-
         if (aClass.isAnnotationPresent(BanyanDB.IndexMode.class)) {
             banyanDBModelExtension.setIndexMode(true);
         }

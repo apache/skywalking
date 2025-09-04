@@ -50,7 +50,6 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
     "instanceId",
     "name",
 })
-@BanyanDB.StoreIDAsTag
 @BanyanDB.IndexMode
 public class ProcessTraffic extends Metrics {
     public static final String INDEX_NAME = "process_traffic";
@@ -74,7 +73,6 @@ public class ProcessTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = INSTANCE_ID, length = 600)
-    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
 
     @Getter
@@ -84,7 +82,6 @@ public class ProcessTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = NAME, length = 500)
-    @BanyanDB.SeriesID(index = 1)
     private String name;
 
     @Setter
@@ -196,10 +193,7 @@ public class ProcessTraffic extends Metrics {
         if (processId == null) {
             processId = IDManager.ProcessID.buildId(instanceId, name);
         }
-        return new StorageID().appendMutant(new String[] {
-            INSTANCE_ID,
-            NAME
-        }, processId);
+        return new StorageID().append(processId);
     }
 
     public static class Builder implements StorageBuilder<ProcessTraffic> {

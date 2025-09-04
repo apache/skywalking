@@ -73,13 +73,7 @@ public class JFRProfilingDataRecord extends Record {
 
     @Override
     public StorageID id() {
-        return new StorageID().appendMutant(
-                new String[]{
-                        TASK_ID,
-                        INSTANCE_ID,
-                        EVENT_TYPE,
-                        UPLOAD_TIME
-                },
+        return new StorageID().append(
                 Hashing.sha256().newHasher()
                         .putString(taskId, StandardCharsets.UTF_8)
                         .putString(instanceId, StandardCharsets.UTF_8)

@@ -66,12 +66,7 @@ public class EBPFProfilingDataRecord extends Record {
 
     @Override
     public StorageID id() {
-        return new StorageID().appendMutant(
-            new String[] {
-                SCHEDULE_ID,
-                STACK_ID_LIST,
-                UPLOAD_TIME
-            },
+        return new StorageID().append(
             Hashing.sha256().newHasher()
                    .putString(scheduleId, Charsets.UTF_8)
                    .putString(stackIdList, Charsets.UTF_8)

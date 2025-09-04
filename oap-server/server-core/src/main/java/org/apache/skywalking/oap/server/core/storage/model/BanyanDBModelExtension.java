@@ -40,16 +40,8 @@ public class BanyanDBModelExtension {
     private String timestampColumn;
 
     /**
-     * storeIDTag indicates whether a metric stores its ID as a tag.
-     * The installer will create a virtual string ID tag without timestamp.
-     */
-    @Getter
-    @Setter
-    private boolean storeIDTag;
-
-    /**
      * indexMode indicates whether a metric is in the index mode.
-     *
+     * Since 10.3.0, the installer will automatically create a virtual String tag 'id' for the SeriesID.
      * @since 10.2.0
      */
     @Getter

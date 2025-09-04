@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -57,7 +57,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @Slf4j
 public class JDBCTableInstaller extends ModelInstaller {
-    public static final String ID_COLUMN = Metrics.ID;
+    public static final String ID_COLUMN = StorageData.ID;
     public static final String TABLE_COLUMN = "table_name";
 
     public JDBCTableInstaller(Client client, ModuleManager moduleManager) {
