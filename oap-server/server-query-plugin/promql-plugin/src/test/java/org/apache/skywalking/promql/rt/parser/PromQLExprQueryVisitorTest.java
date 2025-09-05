@@ -133,6 +133,22 @@ public class PromQLExprQueryVisitorTest {
                 "service_cpm{service='serviceA', layer='GENERAL'} > 1",
                 ParseResultType.METRICS_RANGE,
                 List.of(new TimeValuePair(TIME_2023022012, "2"))
+            },
+            {
+                "MetricsScalarCompareOpWithBoolModifier",
+                PromQLApiHandler.QueryType.RANGE,
+                "service_cpm{service='serviceA', layer='GENERAL'} > bool 1",
+                ParseResultType.METRICS_RANGE,
+                List.of(new TimeValuePair(TIME_2023022010, "0"), new TimeValuePair(TIME_2023022011, "0"),
+                        new TimeValuePair(TIME_2023022012, "1"))
+            },
+            {
+                "MetricsMetricsCompareOpWithBoolModifier",
+                PromQLApiHandler.QueryType.RANGE,
+                "service_cpm{service='serviceA', layer='GENERAL'} > bool service_cpm{service='serviceA', layer='GENERAL'}",
+                ParseResultType.METRICS_RANGE,
+                List.of(new TimeValuePair(TIME_2023022010, "0"), new TimeValuePair(TIME_2023022011, "0"),
+                        new TimeValuePair(TIME_2023022012, "0"))
             }
         });
     }

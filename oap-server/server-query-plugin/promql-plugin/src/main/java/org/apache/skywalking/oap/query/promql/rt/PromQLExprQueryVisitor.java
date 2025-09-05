@@ -203,12 +203,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                     return scalarResult;
                 }
             } else if (left.getResultType() == ParseResultType.METRICS_RANGE && right.getResultType() == ParseResultType.SCALAR) {
-                return matrixScalarCompareOp((MetricsRangeResult) left, (ScalarResult) right, opType);
+                return matrixScalarCompareOp((MetricsRangeResult) left, (ScalarResult) right, opType, boolModifier);
             } else if (left.getResultType() == ParseResultType.SCALAR && right.getResultType() == ParseResultType.METRICS_RANGE) {
-                return matrixScalarCompareOp((MetricsRangeResult) right, (ScalarResult) left, opType);
+                return matrixScalarCompareOp((MetricsRangeResult) right, (ScalarResult) left, opType, boolModifier);
             } else if (left.getResultType() == ParseResultType.METRICS_RANGE && right.getResultType() == ParseResultType.METRICS_RANGE) {
                 try {
-                    return matrixCompareOp((MetricsRangeResult) left, (MetricsRangeResult) right, opType);
+                    return matrixCompareOp((MetricsRangeResult) left, (MetricsRangeResult) right, opType, boolModifier);
                 } catch (IllegalExpressionException e) {
                     MetricsRangeResult result = new MetricsRangeResult();
                     result.setErrorType(ErrorType.BAD_DATA);
