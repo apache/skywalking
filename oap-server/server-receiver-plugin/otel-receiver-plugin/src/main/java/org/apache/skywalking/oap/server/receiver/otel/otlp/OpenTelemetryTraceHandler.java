@@ -375,7 +375,7 @@ public class OpenTelemetryTraceHandler
             return String.valueOf(value.getIntValue());
         } else if (value.hasKvlistValue()) {
             final JsonObject kvObj = convertToString(value.getKvlistValue().getValuesList());
-            return kvObj.getAsString();
+            return kvObj.toString();
         } else if (value.hasBytesValue()) {
             return new String(Base64.getEncoder().encode(value.getBytesValue().toByteArray()), StandardCharsets.UTF_8);
         }
