@@ -79,7 +79,7 @@ public class SpanForward implements SpanForwardService {
             zipkinSpan.setSpanId(span.id());
             zipkinSpan.setParentId(span.parentId());
             zipkinSpan.setName(getNamingControl().formatEndpointName(serviceName, span.name()));
-            zipkinSpan.setDuration(span.duration());
+            zipkinSpan.setDuration(span.duration() == null ? 0 : span.duration());
             if (span.kind() != null) {
                 zipkinSpan.setKind(span.kind().name());
             }
