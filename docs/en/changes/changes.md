@@ -92,6 +92,7 @@
 * BanyanDB: remove `@StoreIDAsTag`, and automatically create a virtual String tag `id` for the SeriesID in `IndexMode`.
 * Remove method `appendMutant` from StorageID.
 * Fix otlp log handler reponse error and otlp span convert error.
+* Fix service_relation source layer in mq entry span analyse.
 
 #### UI
 
