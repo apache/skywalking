@@ -22,6 +22,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import java.util.Map;
@@ -69,11 +70,12 @@ public class SpanForward implements SpanForwardService {
         }
     }
 
-    public void send(List<Span> spanList) {
+    public List<Span> send(List<Span> spanList) {
         if (CollectionUtils.isEmpty(spanList)) {
-            return;
+            return Collections.emptyList();
         }
-        getSampledTraces(spanList).forEach(span -> {
+        final var sampledTraces = getSampledTraces(spanList);
+        sampledTraces.forEach(span -> {
             ZipkinSpan zipkinSpan = new ZipkinSpan();
             String serviceName = span.localServiceName();
             if (StringUtil.isEmpty(serviceName)) {
@@ -158,6 +160,7 @@ public class SpanForward implements SpanForwardService {
                 toServiceRelation(zipkinSpan, minuteTimeBucket);
             }
         });
+        return sampledTraces;
     }
 
     private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value) {
