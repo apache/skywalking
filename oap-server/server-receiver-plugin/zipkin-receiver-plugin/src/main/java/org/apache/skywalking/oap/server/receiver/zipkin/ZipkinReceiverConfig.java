@@ -35,6 +35,7 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private int restAcceptQueueSize = 0;
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
     private int sampleRate = 10000;
+    private int maxSpansPerSecond = 0;
 
     private static final String DEFAULT_SEARCHABLE_TAG_KEYS = String.join(
         Const.COMMA,

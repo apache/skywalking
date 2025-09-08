@@ -94,6 +94,7 @@
 * Fix otlp log handler reponse error and otlp span convert error.
 * Fix service_relation source layer in mq entry span analyse.
 * Fix metrics comparison in promql with bool modifier.
+* Add rate limiter for Zipkin trace receiver to limit maximum spans per second.
 
 #### UI
 
