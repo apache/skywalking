@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import java.util.Map;
@@ -55,6 +57,7 @@ public class SpanForward implements SpanForwardService {
     private final long samplerBoundary;
     private NamingControl namingControl;
     private SourceReceiver receiver;
+    private RateLimiter rateLimiter;
 
     public SpanForward(final ZipkinReceiverConfig config, final ModuleManager manager) {
         this.config = config;
@@ -62,13 +65,17 @@ public class SpanForward implements SpanForwardService {
         this.searchTagKeys = Arrays.asList(config.getSearchableTracesTags().split(Const.COMMA));
         float sampleRate = (float) config.getSampleRate() / 10000;
         samplerBoundary = (long) (Long.MAX_VALUE * sampleRate);
+        if (config.getMaxSpansPerSecond() > 0) {
+            this.rateLimiter = RateLimiter.create(config.getMaxSpansPerSecond());
+        }
     }
 
-    public void send(List<Span> spanList) {
+    public List<Span> send(List<Span> spanList) {
         if (CollectionUtils.isEmpty(spanList)) {
-            return;
+            return Collections.emptyList();
         }
-        getSampledTraces(spanList).forEach(span -> {
+        final var sampledTraces = getSampledTraces(spanList);
+        sampledTraces.forEach(span -> {
             ZipkinSpan zipkinSpan = new ZipkinSpan();
             String serviceName = span.localServiceName();
             if (StringUtil.isEmpty(serviceName)) {
@@ -153,6 +160,7 @@ public class SpanForward implements SpanForwardService {
                 toServiceRelation(zipkinSpan, minuteTimeBucket);
             }
         });
+        return sampledTraces;
     }
 
     private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value) {
@@ -188,8 +196,8 @@ public class SpanForward implements SpanForwardService {
     }
 
     private List<Span> getSampledTraces(List<Span> input) {
-        //100% sampleRate
-        if (config.getSampleRate() == 10000) {
+        // 100% sampleRate and no rateLimiter, return all spans
+        if (config.getSampleRate() == 10000 && rateLimiter == null) {
             return input;
         }
         List<Span> sampledTraces = new ArrayList<>(input.size());
@@ -198,10 +206,23 @@ public class SpanForward implements SpanForwardService {
                 sampledTraces.add(span);
                 continue;
             }
-            long traceId = HexCodec.lowerHexToUnsignedLong(span.traceId());
-            traceId = traceId == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(traceId);
-            if (traceId <= samplerBoundary) {
+            
+            // Apply maximum spans per minute sampling first
+            if (rateLimiter != null && !rateLimiter.tryAcquire()) {
+                log.debug("Span dropped due to maximum spans per minute limit: {}", span.id());
+                continue;
+            }
+            
+            // Apply percentage-based sampling
+            if (config.getSampleRate() == 10000) {
+                // 100% sample rate - include all spans that passed the maximum spans check
                 sampledTraces.add(span);
+            } else {
+                long traceId = HexCodec.lowerHexToUnsignedLong(span.traceId());
+                traceId = traceId == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(traceId);
+                if (traceId <= samplerBoundary) {
+                    sampledTraces.add(span);
+                }
             }
         }
         return sampledTraces;

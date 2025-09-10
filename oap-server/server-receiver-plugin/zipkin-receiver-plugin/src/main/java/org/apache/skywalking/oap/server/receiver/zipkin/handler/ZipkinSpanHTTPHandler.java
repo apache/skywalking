@@ -43,6 +43,7 @@ import static java.util.Objects.nonNull;
 public class ZipkinSpanHTTPHandler {
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;
+    private final CounterMetrics droppedCounter;
     private final SpanForward spanForward;
 
     public ZipkinSpanHTTPHandler(SpanForward forward, ModuleManager manager) {
@@ -56,6 +57,10 @@ public class ZipkinSpanHTTPHandler {
         );
         errorCounter = metricsCreator.createCounter(
             "trace_analysis_error_count", "The error number of trace analysis",
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-http")
+        );
+        droppedCounter = metricsCreator.createCounter(
+            "spans_dropped_count", "The count of spans that were dropped due to rate limit",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-http")
         );
     }
@@ -100,7 +105,10 @@ public class ZipkinSpanHTTPHandler {
         final HttpResponse response = HttpResponse.from(req.aggregate().thenApply(request -> {
             try (final HttpData httpData = request.content()) {
                 final List<Span> spanList = decoder.decodeList(httpData.byteBuf().nioBuffer());
-                spanForward.send(spanList);
+                final var processedSpans = spanForward.send(spanList);
+                if (processedSpans.size() < spanList.size()) {
+                    droppedCounter.inc(spanList.size() - processedSpans.size());
+                }
                 return HttpResponse.of(HttpStatus.ACCEPTED);
             }
         }));

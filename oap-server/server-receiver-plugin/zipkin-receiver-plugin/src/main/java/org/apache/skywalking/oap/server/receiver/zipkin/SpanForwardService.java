@@ -25,7 +25,9 @@ import java.util.List;
 
 public interface SpanForwardService extends Service {
     /**
-     * Forward and process zipkin span
+     * Forward and process zipkin span.
+     *
+     * @return the spans that are successfully processed.
      */
-    void send(List<Span> spanList);
+    List<Span> send(List<Span> spanList);
 }

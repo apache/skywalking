@@ -118,6 +118,8 @@ metricsRules:
     exp: otel_logs_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_spans_received
     exp: otel_spans_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: otel_spans_dropped
+    exp: otel_spans_dropped.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_metrics_latency_percentile
     exp: otel_metrics_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: otel_logs_latency_percentile
