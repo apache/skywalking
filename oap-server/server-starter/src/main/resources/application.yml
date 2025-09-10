@@ -563,9 +563,9 @@ exporter:
     exportErrorStatusTraceOnly: ${SW_EXPORTER_KAFKA_TRACE_FILTER_ERROR:false}
 
 health-checker:
-  selector: ${SW_HEALTH_CHECKER:-}
+  selector: ${SW_HEALTH_CHECKER:default}
   default:
-    checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
+    checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:30}
 
 status-query:
   selector: ${SW_STATUS_QUERY:default}
