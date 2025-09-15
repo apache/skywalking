@@ -96,6 +96,7 @@
 * Fix metrics comparison in promql with bool modifier.
 * Add rate limiter for Zipkin trace receiver to limit maximum spans per second.
 * Open `health-checker` module by default due to latest UI changes. Change the default check period to 30s.
+* Refactor Kubernetes coordinator to be more accurate about node readiness.
 
 #### UI
 
