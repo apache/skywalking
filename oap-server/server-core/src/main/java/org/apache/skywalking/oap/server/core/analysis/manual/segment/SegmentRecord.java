@@ -51,12 +51,10 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @BanyanDB.Trace.IndexRule(name = SegmentRecord.START_TIME, columns = {
         SegmentRecord.SERVICE_ID,
         SegmentRecord.IS_ERROR,
-        SegmentRecord.LATENCY
 }, orderByColumn = SegmentRecord.START_TIME)
 @BanyanDB.Trace.IndexRule(name = SegmentRecord.LATENCY, columns = {
         SegmentRecord.SERVICE_ID,
         SegmentRecord.IS_ERROR,
-        SegmentRecord.LATENCY
 }, orderByColumn = SegmentRecord.LATENCY)
 @BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.TRACE)
 public class SegmentRecord extends Record implements BanyanDBTrace {
@@ -86,13 +84,11 @@ public class SegmentRecord extends Record implements BanyanDBTrace {
     @Setter
     @Getter
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE}, reserveOriginalColumns = true)
     private String serviceId;
     @Setter
     @Getter
     @Column(name = SERVICE_INSTANCE_ID, length = 512)
-    @BanyanDB.SeriesID(index = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
@@ -113,7 +109,6 @@ public class SegmentRecord extends Record implements BanyanDBTrace {
     @Setter
     @Getter
     @Column(name = IS_ERROR)
-    @BanyanDB.SeriesID(index = 2)
     private int isError;
     @Setter
     @Getter

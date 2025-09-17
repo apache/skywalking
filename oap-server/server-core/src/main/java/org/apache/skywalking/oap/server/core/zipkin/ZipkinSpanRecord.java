@@ -41,7 +41,6 @@ import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import zipkin2.Endpoint;
 import zipkin2.Span;
@@ -61,7 +60,6 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
     ZipkinSpanRecord.NAME,
     ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME,
     ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME,
-    ZipkinSpanRecord.DURATION
 }, orderByColumn = ZipkinSpanRecord.TIMESTAMP_MILLIS)
 @BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.ZIPKIN_TRACE)
 public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
@@ -131,7 +129,6 @@ public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
     private long timestamp;
     @Setter
     @Getter
-    @BanyanDB.SeriesID(index = 0)
     @Column(name = LOCAL_ENDPOINT_SERVICE_NAME)
     private String localEndpointServiceName;
     @Setter
@@ -253,15 +250,11 @@ public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
             converter.accept(LOCAL_ENDPOINT_SERVICE_NAME, storageData.getLocalEndpointServiceName());
             converter.accept(LOCAL_ENDPOINT_IPV4, storageData.getLocalEndpointIPV4());
             converter.accept(LOCAL_ENDPOINT_IPV6, storageData.getLocalEndpointIPV6());
-            if (storageData.getLocalEndpointPort() != 0) {
-                converter.accept(LOCAL_ENDPOINT_PORT, storageData.getLocalEndpointPort());
-            }
+            converter.accept(LOCAL_ENDPOINT_PORT, storageData.getLocalEndpointPort());
             converter.accept(REMOTE_ENDPOINT_SERVICE_NAME, storageData.getRemoteEndpointServiceName());
             converter.accept(REMOTE_ENDPOINT_IPV4, storageData.getRemoteEndpointIPV4());
             converter.accept(REMOTE_ENDPOINT_IPV6, storageData.getRemoteEndpointIPV6());
-            if (storageData.getRemoteEndpointPort() != 0) {
-                converter.accept(REMOTE_ENDPOINT_PORT, storageData.getRemoteEndpointPort());
-            }
+            converter.accept(REMOTE_ENDPOINT_PORT, storageData.getRemoteEndpointPort());
             if (storageData.getAnnotations() != null) {
                 converter.accept(ANNOTATIONS, GSON.toJson(storageData.getAnnotations()));
             } else {
@@ -273,12 +266,8 @@ public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
                 converter.accept(TAGS, Const.EMPTY_STRING);
             }
             converter.accept(QUERY, storageData.getQuery());
-            if (storageData.getDebug() == BooleanUtils.booleanToValue(true)) {
-                converter.accept(DEBUG, storageData.getDebug());
-            }
-            if (storageData.getShared() == BooleanUtils.booleanToValue(true)) {
-                converter.accept(SHARED, storageData.getShared());
-            }
+            converter.accept(DEBUG, storageData.getDebug());
+            converter.accept(SHARED, storageData.getShared());
         }
     }
 
