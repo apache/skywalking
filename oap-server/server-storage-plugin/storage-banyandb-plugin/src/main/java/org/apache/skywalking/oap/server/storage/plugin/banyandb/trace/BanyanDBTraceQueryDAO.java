@@ -23,7 +23,6 @@ import javax.annotation.Nullable;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
-import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TraceQuery;
 import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
@@ -100,7 +99,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 public void apply(TraceQuery query) {
                     query.and(in(SegmentRecord.SEGMENT_ID, segmentIdList));
                     query.setLimit(segmentQueryMaxSize);
-                    query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
+                    query.setOrderBy(new TraceQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
                 }
             });
         return buildRecords(resp);
@@ -194,10 +193,10 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
                     switch (condition.getQueryOrder()) {
                         case BY_START_TIME:
-                            query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
+                            query.setOrderBy(new TraceQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
                             break;
                         case BY_DURATION:
-                            query.setOrderBy(new StreamQuery.OrderBy(SegmentRecord.LATENCY, AbstractQuery.Sort.DESC));
+                            query.setOrderBy(new TraceQuery.OrderBy(SegmentRecord.LATENCY, AbstractQuery.Sort.DESC));
                             break;
                     }
                     List<Tag> tags = condition.getTags();
