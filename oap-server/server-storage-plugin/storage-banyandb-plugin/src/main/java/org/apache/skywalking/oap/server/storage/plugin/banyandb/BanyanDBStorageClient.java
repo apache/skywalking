@@ -49,6 +49,10 @@ import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TraceBulkWriteProcessor;
+import org.apache.skywalking.banyandb.v1.client.TraceQuery;
+import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TraceWrite;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -212,6 +216,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public TraceQueryResponse query(TraceQuery q) throws IOException {
+        try {
+            TraceQueryResponse response = this.client.query(q);
+            this.healthChecker.health();
+            return response;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to query trace", ex);
+        }
+    }
+
     public TopNQueryResponse query(TopNQuery q) throws IOException {
         try {
             TopNQueryResponse response = this.client.query(q);
@@ -336,6 +351,14 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public TraceWrite createTraceWrite(String group, String name) throws IOException {
+        try {
+            return this.client.createTraceWrite(group, name);
+        } catch (BanyanDBException e) {
+            throw new IOException("fail to create trace write", e);
+        }
+    }
+
     public void write(StreamWrite streamWrite) {
         this.client.write(streamWrite);
     }
@@ -346,6 +369,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public MeasureBulkWriteProcessor createMeasureBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
         return this.client.buildMeasureWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
+    }
+
+    public TraceBulkWriteProcessor createTraceBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
+        return this.client.buildTraceWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
     }
 
     @Override

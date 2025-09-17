@@ -38,6 +38,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class BanyanDBStorageConfig extends ModuleConfig {
     private Global global = new Global();
     private RecordsNormal recordsNormal = new RecordsNormal();
+    private Trace trace = new Trace();
+    private ZipkinTrace zipkinTrace = new ZipkinTrace();
     private RecordsTrace recordsTrace = new RecordsTrace();
     private RecordsZipkinTrace recordsZipkinTrace = new RecordsZipkinTrace();
     private RecordsLog recordsLog = new RecordsLog();
@@ -163,6 +165,14 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     @Getter
     @Setter
     public static class RecordsLog extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    public static class Trace extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    @Getter
+    @Setter
+    public static class ZipkinTrace extends BanyanDBStorageConfig.GroupResource {
     }
 
     @Getter

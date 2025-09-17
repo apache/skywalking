@@ -41,8 +41,10 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.FieldType;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Trace;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TagFamilySpec;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TagSpec;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TraceTagSpec;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TagType;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
 import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
@@ -52,6 +54,7 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Duration;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
@@ -62,6 +65,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBModelExtension.TraceIndexRule;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -92,8 +96,8 @@ public enum MetadataRegistry {
 
     private final Map<String, Schema> registry = new HashMap<>();
 
-    public StreamModel registerStreamModel(Model model, BanyanDBStorageConfig config, DownSamplingConfigService configService) {
-        final SchemaMetadata schemaMetadata = parseMetadata(model, config, configService);
+    public StreamModel registerStreamModel(Model model, BanyanDBStorageConfig config) {
+        final SchemaMetadata schemaMetadata = parseMetadata(model, config, null);
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
@@ -119,7 +123,7 @@ public enum MetadataRegistry {
             throw new IllegalStateException(
                     "Model[stream." + model.getName() + "] miss defined @BanyanDB.TimestampColumn");
         }
-        schemaBuilder.timestampColumn4Stream(timestampColumn4Stream);
+        schemaBuilder.timestampColumn(timestampColumn4Stream);
         List<IndexRule> indexRules = tags.stream()
                 .map(TagMetadata::getIndexRule)
                 .filter(Objects::nonNull)
@@ -215,6 +219,65 @@ public enum MetadataRegistry {
         return new PropertyModel(builder.build());
     }
 
+    public TraceModel registerTraceModel(Model model, BanyanDBStorageConfig config) {
+        final SchemaMetadata schemaMetadata = parseMetadata(model, config, null);
+        Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
+        String timestampColumn = model.getBanyanDBModelExtension().getTimestampColumn();
+        schemaBuilder.timestampColumn(timestampColumn);
+        final Trace.Builder builder = Trace.newBuilder();
+        builder.setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(schemaMetadata.getGroup())
+                                                   .setName(schemaMetadata.name()));
+        builder.setTraceIdTagName(model.getBanyanDBModelExtension().getTraceIdColumn());
+        builder.setTimestampTagName(timestampColumn);
+        for (final ModelColumn col : model.getColumns()) {
+            final String columnStorageName = col.getColumnName().getStorageName();
+            // skip storage only column, since they are not supposed to be queried
+            if (col.isStorageOnly()) {
+                continue;
+            }
+            if (columnStorageName.equals(Record.TIME_BUCKET)) {
+                continue;
+            }
+            final TagSpec tagSpec = parseTagSpec(col);
+            final TraceTagSpec.Builder traceTagSpec = TraceTagSpec.newBuilder();
+            traceTagSpec.setName(tagSpec.getName());
+            traceTagSpec.setType(tagSpec.getType());
+            // in trace, the timestamp column must be TAG_TYPE_TIMESTAMP
+            if (columnStorageName.equals(timestampColumn)) {
+                traceTagSpec.setType(TagType.TAG_TYPE_TIMESTAMP);
+            }
+            builder.addTags(traceTagSpec.build());
+            schemaBuilder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
+            schemaBuilder.tag(tagSpec.getName());
+        }
+
+        List<TraceIndexRule> traceIndexRules = model.getBanyanDBModelExtension().getTraceIndexRules();
+        List<IndexRule> indexRules = null;
+        if (!BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
+            if (CollectionUtils.isEmpty(traceIndexRules)) {
+                throw new IllegalStateException(
+                    "Model[trace." + model.getName() + "] miss defined @BanyanDB.Trace.IndexRuleColumns");
+            }
+
+            indexRules = new ArrayList<>(traceIndexRules.size());
+            for (TraceIndexRule traceIndexRule : traceIndexRules) {
+                IndexRule.Builder indexRule = IndexRule.newBuilder()
+                                                       .setType(TYPE_TREE)
+                                                       .setNoSort(false)
+                                                       .setMetadata(Metadata.newBuilder()
+                                                                            .setName(traceIndexRule.getName())
+                                                                            .setGroup(schemaMetadata.getGroup()))
+                                                       .addAllTags(List.of(traceIndexRule.getColumns()))
+                                                       .addTags(
+                                                           traceIndexRule.getOrderByColumn()); // make sure the orderBy column is the last one
+                indexRules.add(indexRule.build());
+            }
+        }
+
+        registry.put(schemaMetadata.name(), schemaBuilder.build());
+        return new TraceModel(builder.build(), indexRules);
+    }
+
     private Map<ImmutableSet<String>, TopNAggregation> parseTopNSpecs(final Model model,
                                                                       final String group,
                                                                       final String measureName,
@@ -304,7 +367,7 @@ public enum MetadataRegistry {
             return null;
         }
         // impose sanity check
-        if (s.getMetadata().getKind() != Kind.STREAM) {
+        if (s.getMetadata().getKind() != Kind.STREAM && s.getMetadata().getKind() != Kind.TRACE) {
             throw new IllegalArgumentException(recordModelName + "is not a record");
         }
         return s;
@@ -594,43 +657,62 @@ public enum MetadataRegistry {
         if (!model.isTimeSeries()) {
             return new SchemaMetadata(BanyanDB.PropertyGroup.PROPERTY.getName(), model.getName(), Kind.PROPERTY, DownSampling.None, config.getProperty());
         }
-        if (model.isRecord()) { // stream
-            BanyanDB.StreamGroup streamGroup = model.getBanyanDBModelExtension().getStreamGroup();
+        if (model.isRecord()) {
+            BanyanDB.TraceGroup traceGroup = model.getBanyanDBModelExtension().getTraceGroup();
+            if (BanyanDB.TraceGroup.NONE != traceGroup) {
+                // trace
+                switch (traceGroup) {
+                    case TRACE:
+                        return new SchemaMetadata(
+                            BanyanDB.TraceGroup.TRACE.getName(),
+                            model.getName(),
+                            Kind.TRACE,
+                            DownSampling.None,
+                            config.getTrace()
+                        );
+                    case ZIPKIN_TRACE:
+                        return new SchemaMetadata(
+                            BanyanDB.TraceGroup.ZIPKIN_TRACE.getName(),
+                            model.getName(),
+                            Kind.TRACE,
+                            DownSampling.None,
+                            config.getZipkinTrace()
+                        );
+                    default:
+                        throw new IllegalStateException("unknown trace group " + traceGroup);
+                }
+            } else {
+                // stream
+                BanyanDB.StreamGroup streamGroup = model.getBanyanDBModelExtension().getStreamGroup();
                 switch (streamGroup) {
                     case RECORDS_LOG:
-                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_LOG.getName(),
-                                model.getName(),
-                                Kind.STREAM,
-                                model.getDownsampling(),
-                                config.getRecordsLog());
-                    case RECORDS_TRACE:
-                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_TRACE.getName(),
-                                model.getName(),
-                                Kind.STREAM,
-                                model.getDownsampling(),
-                                config.getRecordsTrace());
-                    case RECORDS_ZIPKIN_TRACE:
-                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_ZIPKIN_TRACE.getName(),
-                                model.getName(),
-                                Kind.STREAM,
-                                model.getDownsampling(),
-                                config.getRecordsZipkinTrace());
+                        return new SchemaMetadata(
+                            BanyanDB.StreamGroup.RECORDS_LOG.getName(),
+                            model.getName(),
+                            Kind.STREAM,
+                            model.getDownsampling(),
+                            config.getRecordsLog()
+                        );
                     case RECORDS_BROWSER_ERROR_LOG:
-                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG.getName(),
-                                model.getName(),
-                                Kind.STREAM,
-                                model.getDownsampling(),
-                                config.getRecordsBrowserErrorLog());
+                        return new SchemaMetadata(
+                            BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG.getName(),
+                            model.getName(),
+                            Kind.STREAM,
+                            model.getDownsampling(),
+                            config.getRecordsBrowserErrorLog()
+                        );
                     case RECORDS:
-                        return new SchemaMetadata(BanyanDB.StreamGroup.RECORDS.getName(),
-                                model.getName(),
-                                Kind.STREAM,
-                                model.getDownsampling(),
-                                config.getRecordsBrowserErrorLog());
+                        return new SchemaMetadata(
+                            BanyanDB.StreamGroup.RECORDS.getName(),
+                            model.getName(),
+                            Kind.STREAM,
+                            model.getDownsampling(),
+                            config.getRecordsBrowserErrorLog()
+                        );
                     default:
                         throw new IllegalStateException("unknown stream group " + streamGroup);
-
                 }
+            }
         }
 
         if (model.getBanyanDBModelExtension().isIndexMode()) {
@@ -749,7 +831,7 @@ public enum MetadataRegistry {
     }
 
     public enum Kind {
-        MEASURE, STREAM, PROPERTY;
+        MEASURE, STREAM, PROPERTY, TRACE;
     }
 
     @RequiredArgsConstructor
@@ -781,7 +863,7 @@ public enum MetadataRegistry {
         private final Set<String> fields;
 
         @Getter
-        private final String timestampColumn4Stream;
+        private final String timestampColumn;
 
         @Getter
         @Nullable

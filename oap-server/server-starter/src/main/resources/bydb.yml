@@ -88,9 +88,7 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_RECORDS_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_RECORDS_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_RECORDS_COLD_NODE_SELECTOR:"type=cold"}
-  # The group settings of super datasets.
-  # Super datasets are used to store trace or log data that is too large for normal datasets.
-  recordsTrace:
+  trace:
     shardNum: ${SW_STORAGE_BANYANDB_TRACE_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_TRACE_SI_DAYS:1}
     ttl: ${SW_STORAGE_BANYANDB_TRACE_TTL_DAYS:3}
@@ -109,7 +107,7 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_TRACE_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
-  recordsZipkinTrace:
+  zipkinTrace:
     shardNum: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SI_DAYS:1}
     ttl: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_TTL_DAYS:3}

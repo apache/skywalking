@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
+import org.apache.skywalking.banyandb.v1.client.TraceBulkWriteProcessor;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -31,6 +32,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureInsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureUpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStreamInsertRequest;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBTraceInsertRequest;
 
 public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> implements IBatchDAO {
     private static final Object STREAM_SYNCHRONIZER = new Object();
@@ -38,6 +40,8 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
     private StreamBulkWriteProcessor streamBulkWriteProcessor;
 
     private MeasureBulkWriteProcessor measureBulkWriteProcessor;
+
+    private  TraceBulkWriteProcessor traceBulkWriteProcessor;
 
     private final int maxBulkSize;
 
@@ -58,6 +62,8 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
             getStreamBulkWriteProcessor().add(((BanyanDBStreamInsertRequest) insertRequest).getStreamWrite());
         } else if (insertRequest instanceof BanyanDBMeasureInsertRequest) {
             getMeasureBulkWriteProcessor().add(((BanyanDBMeasureInsertRequest) insertRequest).getMeasureWrite());
+        } else  if (insertRequest instanceof BanyanDBTraceInsertRequest) {
+            getTraceBulkWriteProcessor().add(((BanyanDBTraceInsertRequest) insertRequest).getTraceWrite());
         }
     }
 
@@ -77,6 +83,8 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
                                                          });
                 } else if (r instanceof BanyanDBMeasureUpdateRequest) {
                     return getMeasureBulkWriteProcessor().add(((BanyanDBMeasureUpdateRequest) r).getMeasureWrite());
+                } else  if (r instanceof BanyanDBTraceInsertRequest) {
+                    return getTraceBulkWriteProcessor().add(((BanyanDBTraceInsertRequest) r).getTraceWrite());
                 }
                 return CompletableFuture.completedFuture(null);
             }).toArray(CompletableFuture[]::new));
@@ -105,5 +113,16 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
             }
         }
         return measureBulkWriteProcessor;
+    }
+
+    private TraceBulkWriteProcessor getTraceBulkWriteProcessor() {
+        if (traceBulkWriteProcessor == null) {
+            synchronized (MEASURE_SYNCHRONIZER) {
+                if (traceBulkWriteProcessor == null) {
+                    this.traceBulkWriteProcessor = getClient().createTraceBulkProcessor(maxBulkSize, flushInterval, concurrency);
+                }
+            }
+        }
+        return traceBulkWriteProcessor;
     }
 }

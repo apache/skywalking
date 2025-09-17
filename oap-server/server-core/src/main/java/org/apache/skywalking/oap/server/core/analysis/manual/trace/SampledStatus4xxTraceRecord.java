@@ -41,6 +41,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SA
 @ScopeDeclaration(id = SAMPLED_STATUS_4XX_TRACE, name = "SampledStatus4xxTraceRecord", catalog = PROCESS_RELATION_CATALOG_NAME)
 @Stream(name = SampledStatus4xxTraceRecord.INDEX_NAME, scopeId = SAMPLED_STATUS_4XX_TRACE, builder = SampledStatus4xxTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(SampledStatus4xxTraceRecord.TIMESTAMP)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class SampledStatus4xxTraceRecord extends Record {
 
     public static final String INDEX_NAME = "sampled_status_4xx_trace_record";

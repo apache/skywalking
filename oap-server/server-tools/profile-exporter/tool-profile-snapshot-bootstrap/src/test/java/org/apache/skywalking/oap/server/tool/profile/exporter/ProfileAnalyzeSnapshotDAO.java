@@ -37,7 +37,7 @@ public class ProfileAnalyzeSnapshotDAO implements IProfileThreadSnapshotQueryDAO
     }
 
     @Override
-    public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecords(String taskId)  throws IOException {
         return null;
     }
 

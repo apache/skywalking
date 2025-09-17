@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.spanattach;
 
+import com.google.protobuf.ByteString;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -28,9 +29,13 @@ import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
+import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SPAN_ATTACHED_EVENT;
 
@@ -39,8 +44,9 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SP
 @ScopeDeclaration(id = SPAN_ATTACHED_EVENT, name = "SpanAttachedEvent")
 @Stream(name = SpanAttachedEventRecord.INDEX_NAME, scopeId = SPAN_ATTACHED_EVENT, builder = SpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(SpanAttachedEventRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_ZIPKIN_TRACE)
-public class SpanAttachedEventRecord extends Record {
+@BanyanDB.Trace.TraceIdColumn(SpanAttachedEventRecord.RELATED_TRACE_ID)
+@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.ZIPKIN_TRACE)
+public class SpanAttachedEventRecord extends Record implements BanyanDBTrace, BanyanDBTrace.MergeTable {
 
     public static final String INDEX_NAME = "span_attached_event_record";
     public static final String START_TIME_SECOND = "start_time_second";
@@ -92,6 +98,39 @@ public class SpanAttachedEventRecord extends Record {
             .append(START_TIME_SECOND, startTimeSecond)
             .append(START_TIME_NANOS, startTimeNanos)
             .append(EVENT, event);
+    }
+
+    @Override
+    public SpanWrapper getSpanWrapper() {
+        SpanWrapper.Builder builder = SpanWrapper.newBuilder();
+        builder.setSpan(ByteString.copyFrom(dataBinary));
+        builder.setSource(Source.ZIPKIN_EVENT);
+        return builder.build();
+    }
+
+    @Override
+    public String getMergeTableName() {
+        return ZipkinSpanRecord.INDEX_NAME;
+    }
+
+    @Override
+    public String getMergeTraceIdColumnName() {
+        return ZipkinSpanRecord.TRACE_ID;
+    }
+
+    @Override
+    public String getTraceIdColumnValue() {
+        return relatedTraceId;
+    }
+
+    @Override
+    public String getMergeTimestampColumnName() {
+        return ZipkinSpanRecord.TIMESTAMP_MILLIS;
+    }
+
+    @Override
+    public long getTimestampColumnValue() {
+        return timestamp;
     }
 
     public static class Builder implements StorageBuilder<SpanAttachedEventRecord> {

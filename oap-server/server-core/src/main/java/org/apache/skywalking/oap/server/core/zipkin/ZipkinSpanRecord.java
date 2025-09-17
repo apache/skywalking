@@ -21,10 +21,12 @@ package org.apache.skywalking.oap.server.core.zipkin;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.protobuf.ByteString;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -34,6 +36,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
+import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -44,6 +48,7 @@ import zipkin2.Span;
 
 import java.util.List;
 import java.util.Map;
+import zipkin2.codec.SpanBytesEncoder;
 
 import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
@@ -51,8 +56,15 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(ZipkinSpanRecord.TIMESTAMP_MILLIS)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_ZIPKIN_TRACE)
-public class ZipkinSpanRecord extends Record {
+@BanyanDB.Trace.TraceIdColumn(ZipkinSpanRecord.TRACE_ID)
+@BanyanDB.Trace.IndexRule(name = ZipkinSpanRecord.TIMESTAMP_MILLIS, columns = {
+    ZipkinSpanRecord.NAME,
+    ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME,
+    ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME,
+    ZipkinSpanRecord.DURATION
+}, orderByColumn = ZipkinSpanRecord.TIMESTAMP_MILLIS)
+@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.ZIPKIN_TRACE)
+public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
     private static final Gson GSON = new Gson();
     public static final int QUERY_LENGTH = 256;
     public static final String INDEX_NAME = "zipkin_span";
@@ -175,6 +187,15 @@ public class ZipkinSpanRecord extends Record {
     @Override
     public StorageID id() {
         return new StorageID().append(TRACE_ID, traceId).append(SPAN_ID, spanId);
+    }
+
+    @Override
+    public SpanWrapper getSpanWrapper() {
+        Span span = buildSpanFromRecord(this);
+        SpanWrapper.Builder builder = SpanWrapper.newBuilder();
+        builder.setSpan(ByteString.copyFrom(SpanBytesEncoder.PROTO3.encode(span)));
+        builder.setSource(Source.ZIPKIN);
+        return builder.build();
     }
 
     public static class Builder implements StorageBuilder<ZipkinSpanRecord> {

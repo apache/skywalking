@@ -130,7 +130,7 @@ public interface ITraceQueryDAO extends Service {
     List<SegmentRecord> queryByTraceId(String traceId, @Nullable Duration duration) throws IOException;
 
     /**
-     * @param duration nullable unless for BanyanDB query from cold stage
+     * @param duration nullable unless for BanyanDB query
      */
     List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList, @Nullable Duration duration) throws IOException;
 

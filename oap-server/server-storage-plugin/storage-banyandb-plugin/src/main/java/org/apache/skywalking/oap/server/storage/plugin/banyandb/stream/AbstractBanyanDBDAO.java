@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.gson.Gson;
+import java.util.Collections;
 import javax.annotation.Nullable;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
@@ -35,6 +36,8 @@ import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.Trace;
+import org.apache.skywalking.banyandb.v1.client.TraceQuery;
+import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
 import org.apache.skywalking.oap.server.core.query.input.AttrCondition;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
@@ -294,6 +297,31 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(query);
     }
 
+    /**
+     * Trace query doesn't recommend to set query tags, if you need to debug, you can set tags here.
+     */
+    protected TraceQueryResponse queryTrace(boolean isColdStage,
+                                       String traceModelName,
+                                       TimestampRange timestampRange,
+                                       QueryBuilder<TraceQuery> builder) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(traceModelName);
+        if (schema == null) {
+            throw new IllegalArgumentException("schema is not registered");
+        }
+        final TraceQuery query = new TraceQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, Collections.emptySet());
+
+        if (isColdStage) {
+            query.setStages(Set.of(BanyanDBStorageConfig.StageName.cold.name()));
+        }
+
+        builder.apply(query);
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        if (traceContext != null && traceContext.isDebug()) {
+           query.enableTrace();
+        }
+        return getClient().query(query);
+    }
+
     private void addDBTrace2DebuggingTrace(Trace trace, DebuggingTraceContext traceContext, DebuggingSpan parentSpan) {
         if (traceContext == null || parentSpan == null || trace == null) {
             return;
@@ -412,6 +440,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
 
         if (startTimeMillis > 0 && endTimeMillis > 0) {
             tsRange = new TimestampRange(startTimeMillis, endTimeMillis);
+        } else {
+            // default to last 24 hours
+            Instant now = Instant.now();
+            tsRange = new  TimestampRange(now.minusMillis(86400000).toEpochMilli(), now.toEpochMilli());
         }
 
         return tsRange;

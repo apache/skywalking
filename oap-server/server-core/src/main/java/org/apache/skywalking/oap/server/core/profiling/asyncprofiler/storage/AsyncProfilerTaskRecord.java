@@ -42,6 +42,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AS
 @ScopeDeclaration(id = ASYNC_PROFILER_TASK, name = "AsyncProfilerTask")
 @Stream(name = AsyncProfilerTaskRecord.INDEX_NAME, scopeId = ASYNC_PROFILER_TASK, builder = AsyncProfilerTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
 @BanyanDB.TimestampColumn(AsyncProfilerTaskRecord.CREATE_TIME)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class AsyncProfilerTaskRecord extends NoneStream {
     private static final Gson GSON = new Gson();
 

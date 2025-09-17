@@ -18,10 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.segment;
 
+import com.google.protobuf.ByteString;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -31,6 +33,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
+import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -43,8 +47,19 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, builder = SegmentRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = SegmentRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(SegmentRecord.START_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_TRACE)
-public class SegmentRecord extends Record {
+@BanyanDB.Trace.TraceIdColumn(SegmentRecord.TRACE_ID)
+@BanyanDB.Trace.IndexRule(name = SegmentRecord.START_TIME, columns = {
+        SegmentRecord.SERVICE_ID,
+        SegmentRecord.IS_ERROR,
+        SegmentRecord.LATENCY
+}, orderByColumn = SegmentRecord.START_TIME)
+@BanyanDB.Trace.IndexRule(name = SegmentRecord.LATENCY, columns = {
+        SegmentRecord.SERVICE_ID,
+        SegmentRecord.IS_ERROR,
+        SegmentRecord.LATENCY
+}, orderByColumn = SegmentRecord.LATENCY)
+@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.TRACE)
+public class SegmentRecord extends Record implements BanyanDBTrace {
 
     public static final String INDEX_NAME = "segment";
     public static final String ADDITIONAL_TAG_TABLE = "segment_tag";
@@ -113,6 +128,14 @@ public class SegmentRecord extends Record {
     @Override
     public StorageID id() {
         return new StorageID().append(SEGMENT_ID, segmentId);
+    }
+
+    @Override
+    public SpanWrapper getSpanWrapper() {
+        SpanWrapper.Builder builder = SpanWrapper.newBuilder();
+        builder.setSpan(ByteString.copyFrom(dataBinary));
+        builder.setSource(Source.SKYWALKING);
+        return builder.build();
     }
 
     public static class Builder implements StorageBuilder<SegmentRecord> {

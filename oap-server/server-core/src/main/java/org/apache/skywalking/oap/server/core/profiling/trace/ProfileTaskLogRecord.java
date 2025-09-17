@@ -42,6 +42,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @ScopeDeclaration(id = PROFILE_TASK_LOG, name = "ProfileTaskLog")
 @Stream(name = ProfileTaskLogRecord.INDEX_NAME, scopeId = PROFILE_TASK_LOG, builder = ProfileTaskLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(ProfileTaskLogRecord.TIMESTAMP)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class ProfileTaskLogRecord extends Record {
 
     public static final String INDEX_NAME = "profile_task_log";
