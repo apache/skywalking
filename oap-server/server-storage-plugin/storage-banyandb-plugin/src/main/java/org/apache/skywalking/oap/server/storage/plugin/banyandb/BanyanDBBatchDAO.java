@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBTr
 public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> implements IBatchDAO {
     private static final Object STREAM_SYNCHRONIZER = new Object();
     private static final Object MEASURE_SYNCHRONIZER = new Object();
+    private static final Object TRACE_SYNCHRONIZER = new Object();
     private StreamBulkWriteProcessor streamBulkWriteProcessor;
 
     private MeasureBulkWriteProcessor measureBulkWriteProcessor;
@@ -117,7 +118,7 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
 
     private TraceBulkWriteProcessor getTraceBulkWriteProcessor() {
         if (traceBulkWriteProcessor == null) {
-            synchronized (MEASURE_SYNCHRONIZER) {
+            synchronized (TRACE_SYNCHRONIZER) {
                 if (traceBulkWriteProcessor == null) {
                     this.traceBulkWriteProcessor = getClient().createTraceBulkProcessor(maxBulkSize, flushInterval, concurrency);
                 }
