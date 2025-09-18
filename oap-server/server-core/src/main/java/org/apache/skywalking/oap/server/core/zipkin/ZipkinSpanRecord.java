@@ -57,9 +57,7 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @BanyanDB.TimestampColumn(ZipkinSpanRecord.TIMESTAMP_MILLIS)
 @BanyanDB.Trace.TraceIdColumn(ZipkinSpanRecord.TRACE_ID)
 @BanyanDB.Trace.IndexRule(name = ZipkinSpanRecord.TIMESTAMP_MILLIS, columns = {
-    ZipkinSpanRecord.NAME,
     ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME,
-    ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME,
 }, orderByColumn = ZipkinSpanRecord.TIMESTAMP_MILLIS)
 @BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.ZIPKIN_TRACE)
 public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
@@ -317,6 +315,8 @@ public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
                 span.addAnnotation(Long.parseLong(annotation.getKey()), annotation.getValue().getAsString());
             }
         }
+        span.debug(record.getDebug() != 0);
+        span.shared(record.getShared() != 0);
         return span.build();
     }
 }

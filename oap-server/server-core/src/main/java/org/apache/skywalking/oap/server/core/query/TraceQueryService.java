@@ -192,7 +192,12 @@ public class TraceQueryService implements Service {
                 msg.append("Condition: TraceQueryCondition: ").append(condition);
                 span.setMsg(msg.toString());
             }
-            return invokeQueryTraces(condition);
+            getTraceQueryDAO();
+            if (supportTraceV2) {
+                return invokeQueryTraces(condition);
+            } else {
+                throw new UnsupportedOperationException("Only BanyanDB storage support Trace V2 query now.");
+            }
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);

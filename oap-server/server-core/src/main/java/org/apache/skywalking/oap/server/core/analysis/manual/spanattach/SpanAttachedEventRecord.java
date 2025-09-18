@@ -68,7 +68,6 @@ public class SpanAttachedEventRecord extends Record implements BanyanDBTrace, Ba
     @Column(name = START_TIME_NANOS)
     private int startTimeNanos;
     @Column(name = EVENT)
-    @BanyanDB.SeriesID(index = 0)
     private String event;
     @Column(name = END_TIME_SECOND)
     private long endTimeSecond;

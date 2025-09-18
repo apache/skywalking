@@ -169,6 +169,11 @@ public @interface BanyanDB {
             String value();
         }
 
+        /**
+         * IndexRule is used to define a composite index in BanyanDB.
+         * Notice, the order of columns is significant, the columns in front have a higher priority
+         * and more efficient in searching.
+         */
         @Target({ElementType.TYPE})
         @Retention(RetentionPolicy.RUNTIME)
         @Repeatable(IndexRule.List.class)
