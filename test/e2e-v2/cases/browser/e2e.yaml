@@ -39,5 +39,5 @@ verify:
     - includes:
       - browser-cases.yaml
     # trace
-    - expected: expected/trace-detail.yml
+    - expected: expected/trace-v2-detail.yml
       query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls
