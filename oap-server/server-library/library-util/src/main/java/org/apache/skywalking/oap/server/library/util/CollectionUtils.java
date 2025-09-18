@@ -32,6 +32,10 @@ public class CollectionUtils {
         return list == null || list.size() == 0;
     }
 
+    public static boolean isEmpty(String str) {
+        return str == null || str.length() == 0;
+    }
+
     public static boolean isEmpty(Set set) {
         return set == null || set.size() == 0;
     }

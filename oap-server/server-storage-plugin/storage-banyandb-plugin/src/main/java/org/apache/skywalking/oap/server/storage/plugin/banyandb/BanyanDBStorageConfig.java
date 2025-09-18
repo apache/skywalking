@@ -97,6 +97,8 @@ public class BanyanDBStorageConfig extends ModuleConfig {
          */
         private int asyncProfilerTaskQueryMaxSize;
 
+        private int pprofTaskQueryMaxSize;
+        
         private int resultWindowMaxSize = 10000;
         private int metadataQueryMaxSize = 5000;
         private int segmentQueryMaxSize = 200;

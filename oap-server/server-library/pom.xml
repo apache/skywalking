@@ -36,6 +36,7 @@
         <module>library-datacarrier-queue</module>
         <module>library-kubernetes-support</module>
         <module>library-async-profiler-jfr-parser</module>
+        <module>library-pprof-parser</module>
         <module>library-integration-test</module>
     </modules>
 </project>
