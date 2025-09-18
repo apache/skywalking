@@ -22,28 +22,28 @@ retrievedtimerange:
 traces:
   {{- contains .traces }}
   - spans:
-      {{- contains .spans }}
-      - traceid: {{ .traceid }}
-        segmentid: {{ .segmentid }}
-        spanid: {{ .spanid }}
-        parentspanid: {{ .parentspanid }}
-        refs: []
-        servicecode: {{ .servicecode }}
-        serviceinstancename: {{ .serviceinstancename }}
-        starttime: {{ gt .starttime 0 }}
-        endtime: {{ gt .endtime 0 }}
-        endpointname: POST:/users
-        type: {{ .type }}
-        peer: {{ .peer }}
-        component: {{ .component }}
-        iserror: {{ .iserror }}
-        layer: {{ .layer }}
-        tags:
-          {{- contains .tags }}
-          - key: {{ .key }}
-            value: {{ .value }}
-          {{- end }}
-        logs: []
-        attachedevents: []
+    {{- contains .spans }}
+    - traceid: {{ .traceid }}
+      segmentid: {{ .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: {{ .servicecode }}
+      serviceinstancename: {{ .serviceinstancename }}
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: POST:/profile/{name}
+      type: {{ .type }}
+      peer: {{ .peer }}
+      component: {{ .component }}
+      iserror: {{ .iserror }}
+      layer: {{ .layer }}
+      tags:
+        {{- contains .tags }}
+        - key: {{ .key }}
+          value: {{ .value }}
         {{- end }}
-  {{- end }}
+      logs: []
+      attachedevents: []
+    {{- end }}
+    {{- end }}

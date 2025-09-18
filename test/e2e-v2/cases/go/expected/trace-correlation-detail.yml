@@ -14,140 +14,148 @@
 # limitations under the License.
 
 debuggingtrace: null
-spans:
-  {{- contains .spans }}
-  - traceid: {{ .traceid }}
-    segmentid: {{ .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs: []
-    servicecode: e2e-service-consumer
-    serviceinstancename: consumer1
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: POST:/correlation
-    type: Entry
-    peer: ""
-    component: Tomcat
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: url
-        value: {{ notEmpty .value }}
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs: []
-    servicecode: e2e-service-consumer
-    serviceinstancename: consumer1
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: /correlation
-    type: Exit
-    peer: go-service:8080
-    component: SpringRestTemplate
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: url
-        value: http://go-service:8080/correlation
-      - key: http.method
-        value: POST
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs:
-      {{- contains .refs }}
-      - traceid: {{ notEmpty .traceid }}
-        parentsegmentid: {{ .parentsegmentid }}
-        parentspanid: 1
-        type: CROSS_PROCESS
-      {{- end }}
-    servicecode: go-service
-    serviceinstancename: {{ notEmpty .serviceinstancename }}
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: POST:/correlation
-    type: Entry
-    peer: ""
-    component: Gin
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: url
-        value: go-service:8080/correlation
-      - key: http.method
-        value: POST
-      - key: status_code
-        value: "200"
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs: []
-    servicecode: go-service
-    serviceinstancename: {{ notEmpty .serviceinstancename }}
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: POST:/correlation
-    type: Exit
-    peer: provider:9090
-    component: GoHttpClient
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: url
-        value: provider:9090/correlation
-      - key: http.method
-        value: POST
-      - key: status_code
-        value: "200"
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs:
-      {{- contains .refs }}
-      - traceid: {{ notEmpty .traceid }}
-        parentsegmentid: {{ .parentsegmentid }}
-        parentspanid: 1
-        type: CROSS_PROCESS
-      {{- end }}
-    servicecode: e2e-service-provider
-    serviceinstancename: provider1
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: POST:/correlation
-    type: Entry
-    peer: ""
-    component: Tomcat
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-    - key: url
-      value: http://provider:9090/correlation
-    - key: http.method
-      value: POST
-      {{- end }}
-    logs: []
-    attachedevents: []
+retrievedtimerange:
+  {{- with .retrievedtimerange }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
   {{- end }}
+traces:
+{{- contains .traces }}
+  - spans:
+    {{- contains .spans }}
+    - traceid: {{ .traceid }}
+      segmentid: {{ .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: e2e-service-consumer
+      serviceinstancename: consumer1
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: POST:/correlation
+      type: Entry
+      peer: ""
+      component: Tomcat
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: url
+          value: {{ notEmpty .value }}
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: e2e-service-consumer
+      serviceinstancename: consumer1
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: /correlation
+      type: Exit
+      peer: go-service:8080
+      component: SpringRestTemplate
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: url
+          value: http://go-service:8080/correlation
+        - key: http.method
+          value: POST
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs:
+        {{- contains .refs }}
+        - traceid: {{ notEmpty .traceid }}
+          parentsegmentid: {{ .parentsegmentid }}
+          parentspanid: 1
+          type: CROSS_PROCESS
+        {{- end }}
+      servicecode: go-service
+      serviceinstancename: {{ notEmpty .serviceinstancename }}
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: POST:/correlation
+      type: Entry
+      peer: ""
+      component: Gin
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: url
+          value: go-service:8080/correlation
+        - key: http.method
+          value: POST
+        - key: status_code
+          value: "200"
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: go-service
+      serviceinstancename: {{ notEmpty .serviceinstancename }}
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: POST:/correlation
+      type: Exit
+      peer: provider:9090
+      component: GoHttpClient
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: url
+          value: provider:9090/correlation
+        - key: http.method
+          value: POST
+        - key: status_code
+          value: "200"
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs:
+        {{- contains .refs }}
+        - traceid: {{ notEmpty .traceid }}
+          parentsegmentid: {{ .parentsegmentid }}
+          parentspanid: 1
+          type: CROSS_PROCESS
+        {{- end }}
+      servicecode: e2e-service-provider
+      serviceinstancename: provider1
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: POST:/correlation
+      type: Entry
+      peer: ""
+      component: Tomcat
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+      - key: url
+        value: http://provider:9090/correlation
+      - key: http.method
+        value: POST
+        {{- end }}
+      logs: []
+      attachedevents: []
+      {{- end }}
+{{- end }}

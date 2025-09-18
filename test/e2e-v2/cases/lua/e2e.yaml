@@ -59,7 +59,7 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=info --service-name=e2e-service-end-provider
       expected: expected/service-endpoint-end.yml
     # trace segment list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls
       expected: expected/traces-list.yml
     # dependency service
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=User_Service_Name

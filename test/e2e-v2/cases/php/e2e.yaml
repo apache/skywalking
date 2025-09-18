@@ -57,18 +57,9 @@ verify:
       expected: expected/service-endpoint-php.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=info --service-name=e2e-service-provider
       expected: expected/service-endpoint-provider.yml
-    # trace segment list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=php
+    # trace list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=php
       expected: expected/traces-list-php.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=e2e-service-provider
-      expected: expected/traces-list-provider.yml
-    # trace detail
-    - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=php\
-            | yq e '.traces | select(.[].endpointnames[0]=="POST:/php/info") | .[0].traceids[0]' -
-        )
-      expected: expected/trace-info-detail.yml
     # dependency service
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=php
       expected: expected/dependency-services-php.yml

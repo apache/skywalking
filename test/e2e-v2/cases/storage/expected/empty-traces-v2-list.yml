@@ -14,15 +14,9 @@
 # limitations under the License.
 
 debuggingtrace: null
-debuggingtrace: null
-traces:
-{{- contains .traces }}
-- segmentid: {{ notEmpty .segmentid }}
-  endpointnames:
-    - POST:/users
-  duration: {{ ge .duration 0 }}
-  start: "{{ notEmpty .start}}"
-  iserror: false
-  traceids:
-    - {{ index .traceids 0 }}
-{{- end }}
+retrievedtimerange:
+  {{- with .retrievedtimerange }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+  {{- end }}
+traces: []

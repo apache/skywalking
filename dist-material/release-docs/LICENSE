@@ -208,8 +208,8 @@ Apache-2.0 licenses
 ========================================================================
 The following components are provided under the Apache-2.0 License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
-    https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/pgv-java-stub/0.6.13 Apache-2.0
-    https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/protoc-gen-validate/0.6.13 Apache-2.0
+    https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/pgv-java-stub/1.2.1 Apache-2.0
+    https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/protoc-gen-validate/1.2.1 Apache-2.0
     https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j/1.18.0 Apache-2.0
     https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/service/1.18.0 Apache-2.0
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-auth-plugin/2.3.2 Apache-2.0
