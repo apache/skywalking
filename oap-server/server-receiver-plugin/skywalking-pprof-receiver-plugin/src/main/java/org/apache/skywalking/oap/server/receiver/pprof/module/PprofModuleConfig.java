@@ -29,7 +29,7 @@ public class PprofModuleConfig extends ModuleConfig {
      * Used to manage the maximum size of the pprof file that can be received, the unit is Byte
      * default is 30M
      */
-    private int pprofMaxSize = 4 * 1024;
+    private int pprofMaxSize = 30 * 1024 * 1024;
     /**
      * default is true
      * <p>

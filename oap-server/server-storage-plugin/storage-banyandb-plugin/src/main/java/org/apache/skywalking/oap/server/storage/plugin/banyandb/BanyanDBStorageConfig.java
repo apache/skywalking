@@ -96,7 +96,10 @@ public class BanyanDBStorageConfig extends ModuleConfig {
          * single request.
          */
         private int asyncProfilerTaskQueryMaxSize;
-
+        /**
+         * Max size of {@link org.apache.skywalking.oap.server.core.query.type.PprofTask} to be fetched in a
+         * single request.
+         */
         private int pprofTaskQueryMaxSize;
         
         private int resultWindowMaxSize = 10000;
