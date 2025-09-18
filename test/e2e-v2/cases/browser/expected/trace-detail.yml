@@ -14,66 +14,58 @@
 # limitations under the License.
 
 debuggingtrace: null
-retrievedtimerange:
-  {{- with .retrievedtimerange }}
+spans:
+  {{- contains .spans }}
+- traceid: {{ notEmpty .traceid }}
+  segmentid: {{ notEmpty .segmentid }}
+  spanid: 0
+  parentspanid: -1
+  refs: []
+  servicecode: test-ui<browser>
+  serviceinstancename: "v1.0.0"
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
+  endpointname: index.html
+  type: Exit
+  peer: provider:9091
+  component: ajax
+  iserror: false
+  layer: Http
+  tags:
+    - key: http.method
+      value: POST
+    - key: url
+      value: http://provider:9091/info
+  logs: []
+  attachedevents: []
+- traceid: {{ notEmpty .traceid }}
+  segmentid: {{ notEmpty .segmentid }}
+  spanid: 0
+  parentspanid: -1
+  refs:
+    {{- contains .refs }}
+    - traceid: {{ notEmpty .traceid }}
+      parentsegmentid: {{ notEmpty .parentsegmentid }}
+      parentspanid: 0
+      type: CROSS_PROCESS
+    {{- end }}
+  servicecode: provider-py
+  serviceinstancename: {{ notEmpty .serviceinstancename }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+  endpointname: /info
+  type: Entry
+  peer: {{ notEmpty .peer  }}
+  component: Python
+  iserror: false
+  layer: Http
+  tags:
+    - key: http.method
+      value: POST
+    - key: http.url
+      value: http://provider:9091/info
+    - key: http.status.code
+      value: "200"
+  logs: []
+  attachedevents: []
   {{- end }}
-traces:
-  {{- contains .traces }}
-  - spans:
-  {{- contains .spans }}
-    - traceid: {{ notEmpty .traceid }}
-      segmentid: {{ notEmpty .segmentid }}
-      spanid: 0
-      parentspanid: -1
-      refs: []
-      servicecode: test-ui<browser>
-      serviceinstancename: "v1.0.0"
-      starttime: {{ gt .starttime 0 }}
-      endtime: {{ gt .endtime 0 }}
-      endpointname: index.html
-      type: Exit
-      peer: provider:9091
-      component: ajax
-      iserror: false
-      layer: Http
-      tags:
-        - key: http.method
-          value: POST
-        - key: url
-          value: http://provider:9091/info
-      logs: []
-      attachedevents: []
-    - traceid: {{ notEmpty .traceid }}
-      segmentid: {{ notEmpty .segmentid }}
-      spanid: 0
-      parentspanid: -1
-      refs:
-        {{- contains .refs }}
-        - traceid: {{ notEmpty .traceid }}
-          parentsegmentid: {{ notEmpty .parentsegmentid }}
-          parentspanid: 0
-          type: CROSS_PROCESS
-        {{- end }}
-      servicecode: provider-py
-      serviceinstancename: {{ notEmpty .serviceinstancename }}
-      starttime: {{ gt .starttime 0 }}
-      endtime: {{ gt .endtime 0 }}
-      endpointname: /info
-      type: Entry
-      peer: {{ notEmpty .peer  }}
-      component: Python
-      iserror: false
-      layer: Http
-      tags:
-        - key: http.method
-          value: POST
-        - key: http.url
-          value: http://provider:9091/info
-        - key: http.status.code
-          value: "200"
-      logs: []
-      attachedevents: []
-      {{- end }}
-{{- end }}

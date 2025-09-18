@@ -35,3 +35,9 @@ verify:
   cases:
     - includes:
         - ../../profiling-cases.yaml
+    # trace segment list
+    - query: |
+        curl -s -XPOST http://${provider_host}:${provider_9090}/profile/users?e2e=true -d '{"enableProfiling":"false","name":"SkyWalking"}' -H "Content-Type: application/json" > /dev/null;
+        sleep 3;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=e2e-service-provider
+      expected: ../../expected/traces-list.yml

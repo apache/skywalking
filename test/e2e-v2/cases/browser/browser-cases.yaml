@@ -85,6 +85,3 @@ cases:
   # dependency service
   - expected: expected/dependency.yml
     query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-id dGVzdC11aTxicm93c2VyPg==.1
-  # trace
-  - expected: expected/trace-detail.yml
-    query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls
