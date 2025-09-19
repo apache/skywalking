@@ -75,10 +75,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         final DownSamplingConfigService downSamplingConfigService = moduleManager.find(CoreModule.NAME)
                                                          .provider()
                                                          .getService(DownSamplingConfigService.class);
-        if (BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
-            installInfo.setAllExist(true);
-            return installInfo;
-        }
         final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(
             model, config, downSamplingConfigService);
         installInfo.setTableName(metadata.name());
@@ -90,7 +86,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             final ResourceExist resourceExist = checkResourceExistence(metadata, c);
             installInfo.setGroupExist(resourceExist.hasGroup());
             installInfo.setTableExist(resourceExist.hasResource());
-            if (!resourceExist.hasResource()) {
+            if (!resourceExist.hasResource() && !BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
                 installInfo.setAllExist(false);
                 return installInfo;
             } else {
@@ -100,6 +96,10 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         if (BanyanDB.TraceGroup.NONE != model.getBanyanDBModelExtension().getTraceGroup()) {
                             // trace
                             TraceModel traceModel = MetadataRegistry.INSTANCE.registerTraceModel(model, config);
+                            if (BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
+                                installInfo.setAllExist(true);
+                                return installInfo;
+                            }
                             if (!RunningMode.isNoInitMode()) {
                                 checkTrace(traceModel.getTrace(), c);
                                 checkIndexRules(model.getName(), traceModel.getIndexRules(), c);
