@@ -53,6 +53,7 @@ services:
       - ../data-generate/tmp/measure-data/measure:/tmp/measure
       - ../data-generate/tmp/stream-data/stream:/tmp/stream
       - ../data-generate/tmp/property/data:/tmp/property
+      - ../data-generate/tmp/trace/data:/tmp/trace
     networks:
       - e2e
 
