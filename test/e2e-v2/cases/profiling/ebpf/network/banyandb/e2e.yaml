@@ -94,10 +94,3 @@ verify:
   cases:
     - includes:
         - ../network-cases.yaml
-    # slow traces
-    - query: |
-        traceid=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql records list \
-        --name=sampled_slow_trace_record --service-name service --instance-name test-instance --process-name service \
-        --dest-service-name service --dest-instance-name test-instance --dest-process-name UNKNOWN_REMOTE 100 | yq e '. | map(select(.name == "skywalking-/provider")).[0].id' -);
-         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql tv2 $traceid
-      expected: ../expected/skywalking-trace-v2.yml

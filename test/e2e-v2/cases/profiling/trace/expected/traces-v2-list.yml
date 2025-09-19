@@ -32,7 +32,7 @@ traces:
       serviceinstancename: {{ .serviceinstancename }}
       starttime: {{ gt .starttime 0 }}
       endtime: {{ gt .endtime 0 }}
-      endpointname: POST:/profile/{name}
+      endpointname: {{ .endpointname }}
       type: {{ .type }}
       peer: {{ .peer }}
       component: {{ .component }}

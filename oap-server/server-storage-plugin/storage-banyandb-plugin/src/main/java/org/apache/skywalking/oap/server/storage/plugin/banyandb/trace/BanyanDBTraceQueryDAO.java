@@ -18,17 +18,20 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.trace;
 
-import com.google.common.collect.ImmutableSet;
 import javax.annotation.Nullable;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TraceQuery;
 import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
@@ -41,6 +44,7 @@ import org.apache.skywalking.oap.server.core.query.type.trace.v2.TracesQueryResu
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryV2DAO;
 import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
 import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -50,34 +54,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryV2DAO {
-    private static final Set<String> BASIC_TAGS = ImmutableSet.of(SegmentRecord.TRACE_ID,
-            SegmentRecord.IS_ERROR,
-            SegmentRecord.SERVICE_ID,
-            SegmentRecord.SERVICE_INSTANCE_ID,
-            SegmentRecord.ENDPOINT_ID,
-            SegmentRecord.LATENCY,
-            SegmentRecord.START_TIME,
-            SegmentRecord.TAGS
-    );
-
-    private static final Set<String> TAGS = ImmutableSet.of(SegmentRecord.TRACE_ID,
-            SegmentRecord.IS_ERROR,
-            SegmentRecord.SERVICE_ID,
-            SegmentRecord.SERVICE_INSTANCE_ID,
-            SegmentRecord.ENDPOINT_ID,
-            SegmentRecord.LATENCY,
-            SegmentRecord.START_TIME,
-            SegmentRecord.SEGMENT_ID,
-            SegmentRecord.DATA_BINARY);
     private final int segmentQueryMaxSize;
+    private final ModuleManager moduleManager;
+    private NamingControl namingControl;
 
-    public BanyanDBTraceQueryDAO(BanyanDBStorageClient client, int segmentQueryMaxSize) {
+    public BanyanDBTraceQueryDAO(BanyanDBStorageClient client, int segmentQueryMaxSize, ModuleManager moduleManager) {
         super(client);
         this.segmentQueryMaxSize = segmentQueryMaxSize;
+        this.moduleManager = moduleManager;
     }
 
     @Override
@@ -239,12 +226,18 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                     SegmentRecord segmentRecord = new SegmentRecord();
                     segmentRecord.setSegmentId(segmentObject.getTraceSegmentId());
                     segmentRecord.setTraceId(segmentObject.getTraceId());
-                    String serviceId = IDManager.ServiceID.buildId(segmentObject.getService(), true);
+                    String serviceName = Const.EMPTY_STRING;
+                    String instanceName = Const.EMPTY_STRING;
+                    String endpointName = Const.EMPTY_STRING;
+                    serviceName = getNamingControl().formatServiceName(segmentObject.getService());
+                    instanceName = getNamingControl().formatInstanceName(segmentObject.getServiceInstance());
+                    String serviceId = IDManager.ServiceID.buildId(serviceName, true);
                     segmentRecord.setServiceId(serviceId);
-                    String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, segmentObject.getServiceInstance());
+                    String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, instanceName);
                     segmentRecord.setServiceInstanceId(serviceInstanceId);
                     long startTimestamp = 0;
                     long endTimestamp = 0;
+
                     for (SpanObject span : segmentObject.getSpansList()) {
                         if (startTimestamp == 0 || startTimestamp > span.getStartTime()) {
                             startTimestamp = span.getStartTime();
@@ -252,7 +245,15 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                         if (span.getEndTime() > endTimestamp) {
                             endTimestamp = span.getEndTime();
                         }
+                        if (span.getSpanId() == 0) {
+                            endpointName = getNamingControl().formatEndpointName(serviceName, span.getOperationName());
+                        }
+                        if (SpanType.Entry.equals(span.getSpanType())) {
+                            endpointName = getNamingControl().formatEndpointName(serviceName, span.getOperationName());
+                        }
                     }
+                    String endpointId = IDManager.EndpointID.buildId(serviceId, endpointName);
+                    segmentRecord.setEndpointId(endpointId);
                     final long accurateDuration = endTimestamp - startTimestamp;
                     int duration = accurateDuration > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) accurateDuration;
                     segmentRecord.setLatency(duration);
@@ -263,5 +264,14 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             }
         }
         return segmentRecords;
+    }
+
+    private NamingControl getNamingControl() {
+        if (namingControl == null) {
+            this.namingControl = moduleManager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(NamingControl.class);
+        }
+        return namingControl;
     }
 }
