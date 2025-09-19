@@ -329,13 +329,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         span.timestamp(resultSet.getLong(ZipkinSpanRecord.TIMESTAMP));
         span.duration(resultSet.getLong(ZipkinSpanRecord.DURATION));
         span.name(resultSet.getString(ZipkinSpanRecord.NAME));
-
-        if (resultSet.getString(ZipkinSpanRecord.DEBUG) != null) {
-            span.debug(Boolean.TRUE);
-        }
-        if (resultSet.getString(ZipkinSpanRecord.SHARED) != null) {
-            span.shared(Boolean.TRUE);
-        }
+        span.debug(resultSet.getInt(ZipkinSpanRecord.DEBUG) != 0);
+        span.shared(resultSet.getInt(ZipkinSpanRecord.SHARED) != 0);
         //Build localEndpoint
         Endpoint.Builder localEndpoint = Endpoint.newBuilder();
         localEndpoint.serviceName(resultSet.getString(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME));

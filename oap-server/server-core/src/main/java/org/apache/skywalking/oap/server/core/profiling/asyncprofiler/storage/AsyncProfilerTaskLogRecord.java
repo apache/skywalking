@@ -39,6 +39,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AS
 @ScopeDeclaration(id = ASYNC_PROFILER_TASK_LOG, name = "AsyncProfilerTaskLog")
 @Stream(name = AsyncProfilerTaskLogRecord.INDEX_NAME, scopeId = ASYNC_PROFILER_TASK_LOG, builder = AsyncProfilerTaskLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(AsyncProfilerTaskLogRecord.TIMESTAMP)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class AsyncProfilerTaskLogRecord extends Record {
     public static final String INDEX_NAME = "async_profiler_task_log";
     public static final String TASK_ID = "task_id";

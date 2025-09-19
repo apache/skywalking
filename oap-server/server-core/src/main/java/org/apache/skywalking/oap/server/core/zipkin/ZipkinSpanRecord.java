@@ -21,10 +21,12 @@ package org.apache.skywalking.oap.server.core.zipkin;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.protobuf.ByteString;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -34,16 +36,18 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
+import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 
 import java.util.List;
 import java.util.Map;
+import zipkin2.codec.SpanBytesEncoder;
 
 import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
@@ -51,8 +55,12 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(ZipkinSpanRecord.TIMESTAMP_MILLIS)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_ZIPKIN_TRACE)
-public class ZipkinSpanRecord extends Record {
+@BanyanDB.Trace.TraceIdColumn(ZipkinSpanRecord.TRACE_ID)
+@BanyanDB.Trace.IndexRule(name = ZipkinSpanRecord.TIMESTAMP_MILLIS, columns = {
+    ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME,
+}, orderByColumn = ZipkinSpanRecord.TIMESTAMP_MILLIS)
+@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.ZIPKIN_TRACE)
+public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
     private static final Gson GSON = new Gson();
     public static final int QUERY_LENGTH = 256;
     public static final String INDEX_NAME = "zipkin_span";
@@ -119,7 +127,6 @@ public class ZipkinSpanRecord extends Record {
     private long timestamp;
     @Setter
     @Getter
-    @BanyanDB.SeriesID(index = 0)
     @Column(name = LOCAL_ENDPOINT_SERVICE_NAME)
     private String localEndpointServiceName;
     @Setter
@@ -177,6 +184,15 @@ public class ZipkinSpanRecord extends Record {
         return new StorageID().append(TRACE_ID, traceId).append(SPAN_ID, spanId);
     }
 
+    @Override
+    public SpanWrapper getSpanWrapper() {
+        Span span = buildSpanFromRecord(this);
+        SpanWrapper.Builder builder = SpanWrapper.newBuilder();
+        builder.setSpan(ByteString.copyFrom(SpanBytesEncoder.PROTO3.encode(span)));
+        builder.setSource(Source.ZIPKIN);
+        return builder.build();
+    }
+
     public static class Builder implements StorageBuilder<ZipkinSpanRecord> {
         @Override
         public ZipkinSpanRecord storage2Entity(final Convert2Entity converter) {
@@ -232,15 +248,11 @@ public class ZipkinSpanRecord extends Record {
             converter.accept(LOCAL_ENDPOINT_SERVICE_NAME, storageData.getLocalEndpointServiceName());
             converter.accept(LOCAL_ENDPOINT_IPV4, storageData.getLocalEndpointIPV4());
             converter.accept(LOCAL_ENDPOINT_IPV6, storageData.getLocalEndpointIPV6());
-            if (storageData.getLocalEndpointPort() != 0) {
-                converter.accept(LOCAL_ENDPOINT_PORT, storageData.getLocalEndpointPort());
-            }
+            converter.accept(LOCAL_ENDPOINT_PORT, storageData.getLocalEndpointPort());
             converter.accept(REMOTE_ENDPOINT_SERVICE_NAME, storageData.getRemoteEndpointServiceName());
             converter.accept(REMOTE_ENDPOINT_IPV4, storageData.getRemoteEndpointIPV4());
             converter.accept(REMOTE_ENDPOINT_IPV6, storageData.getRemoteEndpointIPV6());
-            if (storageData.getRemoteEndpointPort() != 0) {
-                converter.accept(REMOTE_ENDPOINT_PORT, storageData.getRemoteEndpointPort());
-            }
+            converter.accept(REMOTE_ENDPOINT_PORT, storageData.getRemoteEndpointPort());
             if (storageData.getAnnotations() != null) {
                 converter.accept(ANNOTATIONS, GSON.toJson(storageData.getAnnotations()));
             } else {
@@ -252,12 +264,8 @@ public class ZipkinSpanRecord extends Record {
                 converter.accept(TAGS, Const.EMPTY_STRING);
             }
             converter.accept(QUERY, storageData.getQuery());
-            if (storageData.getDebug() == BooleanUtils.booleanToValue(true)) {
-                converter.accept(DEBUG, storageData.getDebug());
-            }
-            if (storageData.getShared() == BooleanUtils.booleanToValue(true)) {
-                converter.accept(SHARED, storageData.getShared());
-            }
+            converter.accept(DEBUG, storageData.getDebug());
+            converter.accept(SHARED, storageData.getShared());
         }
     }
 
@@ -307,6 +315,8 @@ public class ZipkinSpanRecord extends Record {
                 span.addAnnotation(Long.parseLong(annotation.getKey()), annotation.getValue().getAsString());
             }
         }
+        span.debug(record.getDebug() != 0);
+        span.shared(record.getShared() != 0);
         return span.build();
     }
 }

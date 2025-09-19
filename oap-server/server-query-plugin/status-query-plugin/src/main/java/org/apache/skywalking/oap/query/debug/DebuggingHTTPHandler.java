@@ -239,7 +239,7 @@ public class DebuggingHTTPHandler {
     @SneakyThrows
     @Get("/debugging/query/trace/queryTrace")
     public String queryTrace(@Param("traceId") String traceId) {
-        Trace trace = traceQuery.queryTrace(traceId, true).join();
+        Trace trace = traceQuery.queryTrace(traceId, null, true).join();
         DebuggingQueryTraceRsp result = new DebuggingQueryTraceRsp(
             trace.getSpans(), transformTrace(trace.getDebuggingTrace()));
         return transToYAMLString(result);

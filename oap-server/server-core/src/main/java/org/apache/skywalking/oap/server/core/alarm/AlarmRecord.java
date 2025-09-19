@@ -44,6 +44,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 @Stream(name = AlarmRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM, builder = AlarmRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(AlarmRecord.START_TIME)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class AlarmRecord extends Record {
     public static final String INDEX_NAME = "alarm_record";
     public static final String ADDITIONAL_TAG_TABLE = "alarm_record_tag";

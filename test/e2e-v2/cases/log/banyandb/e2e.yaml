@@ -43,5 +43,17 @@ verify:
     # the interval between two retries, in millisecond.
     interval: 10s
   cases:
-    - includes:
-        - ../log-cases.yaml
+    # service list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
+      expected: ../expected/service.yml
+    # service endpoint
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=logs --service-name=e2e-service-provider
+      expected: ../expected/service-endpoint.yml
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
+      expected: ../expected/service-instance.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=e2e-service-provider --tags level=INFO --trace-id=$( \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls | yq e '.traces | map(select(.spans[0].endpointname == "GET:/logs/trigger")) | .[0].spans[0].traceid' -
+        )
+      expected: ../expected/logs.yml

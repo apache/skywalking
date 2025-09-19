@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.vavr.Tuple;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +39,8 @@ import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentReco
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.profiling.trace.analyze.ProfileAnalyzer;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.LogEntity;
@@ -58,6 +59,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.joda.time.DateTime;
 
 import static java.util.Objects.isNull;
 
@@ -187,14 +189,27 @@ public class ProfileTaskQueryService implements Service {
     }
 
     public List<SegmentRecord> getTaskSegments(String taskId) throws IOException {
-        final List<String> profiledSegmentIdList = getProfileThreadSnapshotQueryDAO().queryProfiledSegmentIdList(taskId);
-        return getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList, null);
+        List<ProfileThreadSnapshotRecord> records = getProfileThreadSnapshotQueryDAO().queryRecords(taskId);
+        List<String> profiledSegmentIdList = records.stream().map(ProfileThreadSnapshotRecord::getSegmentId).collect(Collectors.toList());
+        long endTimestamp = 0;
+        for (ProfileThreadSnapshotRecord record : records) {
+            if (record.getDumpTime() > endTimestamp) {
+                endTimestamp = record.getDumpTime();
+            }
+        }
+        long startTimestamp = endTimestamp - 5 * 60 * 1000; // 5 minutes
+        Duration duration = new Duration();
+        duration.setStep(Step.SECOND);
+        DateTime endTime = new DateTime(endTimestamp);
+        DateTime startTime = new DateTime(startTimestamp);
+        duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
+        duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
+        return getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList, duration);
     }
 
     public List<ProfiledTraceSegments> getProfileTaskSegments(String taskId) throws IOException {
         // query all profiled segments
-        final List<String> profiledSegmentIdList = getProfileThreadSnapshotQueryDAO().queryProfiledSegmentIdList(taskId);
-        final List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList, null);
+        final List<SegmentRecord> segmentRecords = getTaskSegments(taskId);
         if (CollectionUtils.isEmpty(segmentRecords)) {
             return Collections.emptyList();
         }
@@ -228,7 +243,7 @@ public class ProfileTaskQueryService implements Service {
                 s1.addAll(s2);
                 return s1;
             }));
-
+        List<String> profiledSegmentIdList = segmentRecords.stream().map(SegmentRecord::getSegmentId).collect(Collectors.toList());
         // build result
         return instanceTraceWithSegments.values().stream()
             .flatMap(s -> buildProfiledSegmentsList(s, profiledSegmentIdList).stream())

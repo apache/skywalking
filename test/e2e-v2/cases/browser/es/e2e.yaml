@@ -38,3 +38,10 @@ verify:
   cases:
     - includes:
         - ../browser-cases.yaml
+    # trace
+    - expected: ../expected/traces.yml
+      query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
+    - expected: ../expected/trace-detail.yml
+      query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls | grep -A 5 'index.html' | tail -n1 | awk -F ' ' '{print $2}')

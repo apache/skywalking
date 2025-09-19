@@ -16,70 +16,44 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.banyandb;
+package org.apache.skywalking.oap.server.storage.plugin.banyandb.trace;
 
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.banyandb.v1.client.StreamQuery;
-import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.banyandb.v1.client.TraceQuery;
+import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryV2DAO;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
 
-public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipkinQueryDAO {
+public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipkinQueryV2DAO {
     private final static int QUERY_MAX_SIZE = Integer.MAX_VALUE;
     private static final Set<String> SERVICE_TRAFFIC_TAGS = ImmutableSet.of(ZipkinServiceTraffic.SERVICE_NAME);
     private static final Set<String> REMOTE_SERVICE_TRAFFIC_TAGS = ImmutableSet.of(
         ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME);
     private static final Set<String> SPAN_TRAFFIC_TAGS = ImmutableSet.of(ZipkinServiceSpanTraffic.SPAN_NAME);
-    private static final Set<String> TRACE_ID = ImmutableSet.of(ZipkinSpanRecord.TRACE_ID);
-    private static final Set<String> TRACE_TAGS = ImmutableSet.of(
-        ZipkinSpanRecord.TRACE_ID,
-        ZipkinSpanRecord.SPAN_ID,
-        ZipkinSpanRecord.PARENT_ID,
-        ZipkinSpanRecord.KIND,
-        ZipkinSpanRecord.TIMESTAMP,
-        ZipkinSpanRecord.TIMESTAMP_MILLIS,
-        ZipkinSpanRecord.DURATION,
-        ZipkinSpanRecord.NAME,
-        ZipkinSpanRecord.DEBUG,
-        ZipkinSpanRecord.SHARED,
-        ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME,
-        ZipkinSpanRecord.LOCAL_ENDPOINT_IPV4,
-        ZipkinSpanRecord.LOCAL_ENDPOINT_IPV6,
-        ZipkinSpanRecord.LOCAL_ENDPOINT_PORT,
-        ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME,
-        ZipkinSpanRecord.REMOTE_ENDPOINT_IPV4,
-        ZipkinSpanRecord.REMOTE_ENDPOINT_IPV6,
-        ZipkinSpanRecord.REMOTE_ENDPOINT_PORT,
-        ZipkinSpanRecord.TAGS,
-        ZipkinSpanRecord.ANNOTATIONS,
-        ZipkinSpanRecord.QUERY
-    );
 
     public BanyanDBZipkinQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -156,67 +130,82 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
 
     @Override
     public List<Span> getTrace(final String traceId, @Nullable final Duration duration) throws IOException {
+        throw new UnsupportedOperationException("BanyanDB Trace Model changed, please use getTraceV2.");
+    }
+
+    @Override
+    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) throws IOException {
+        throw new UnsupportedOperationException("BanyanDB Trace Model changed, please use getTracesV2.");
+    }
+
+    @Override
+    public List<List<Span>> getTraces(final Set<String> traceIds, @Nullable final Duration duration) throws IOException {
+        throw new UnsupportedOperationException("BanyanDB Trace Model changed, please use getTracesV2.");
+    }
+
+    @Override
+    public List<SpanWrapper> getTraceV2(final String traceId, @Nullable final Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        StreamQueryResponse resp =
-            query(isColdStage, ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, getTimestampRange(duration),
-                  new QueryBuilder<StreamQuery>() {
-
-                      @Override
-                      protected void apply(StreamQuery query) {
-                          query.and(eq(ZipkinSpanRecord.TRACE_ID, traceId));
-                          query.setLimit(QUERY_MAX_SIZE);
-                      }
-                  }
-            );
-
-        List<Span> trace = new ArrayList<>(resp.getElements().size());
-
-        for (final RowEntity rowEntity : resp.getElements()) {
-            ZipkinSpanRecord spanRecord = new ZipkinSpanRecord.Builder().storage2Entity(
-                new BanyanDBConverter.StorageToStream(ZipkinSpanRecord.INDEX_NAME, rowEntity));
-            trace.add(ZipkinSpanRecord.buildSpanFromRecord(spanRecord));
+        final QueryBuilder<TraceQuery> query = new QueryBuilder<TraceQuery>() {
+            @Override
+            protected void apply(TraceQuery query) {
+                query.and(eq(ZipkinSpanRecord.TRACE_ID, traceId));
+                query.setLimit(QUERY_MAX_SIZE);
+            }
+        };
+        TraceQueryResponse resp = queryTrace(isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration), query);
+        if (resp.getTraces().isEmpty()) {
+            return new ArrayList<>();
+        }
+        if (resp.getTraces().size() > 1) {
+            throw new IOException("More than one trace returned for traceId: " + traceId);
+        }
+        List<SpanWrapper> trace = new ArrayList<>();
+        for (var span : resp.getTraces().get(0).getSpansList()) {
+            trace.add(SpanWrapper.parseFrom(span.getSpan()));
         }
 
         return trace;
     }
 
     @Override
-    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) throws IOException {
-        final int tracesLimit = request.limit();
-        int scrollLimit = 1000;
-        long scrollEndTime = duration.getEndTimestamp();
-        Set<String> traceIds = new HashSet<>();
-        while (traceIds.size() < tracesLimit) {
-            List<ZipkinSpanRecord> spans = getSpans(request, duration, scrollEndTime, scrollLimit);
-            for (ZipkinSpanRecord span : spans) {
-                traceIds.add(span.getTraceId());
-                if (traceIds.size() >= tracesLimit) {
-                    break;
-                }
-            }
-            if (spans.size() < scrollLimit) {
-                break;
-            }
-            scrollEndTime = spans.get(spans.size() - 1).getTimestampMillis();
+    public List<List<SpanWrapper>> getTracesV2(final Set<String> traceIds, final Duration duration) throws IOException {
+        if (CollectionUtils.isEmpty(traceIds)) {
+            return Collections.emptyList();
         }
-
-        return getTraces(traceIds, duration);
-    }
-
-    private List<ZipkinSpanRecord> getSpans(final QueryRequest request,
-                                    Duration duration,
-                                    long scrollEndTime,
-                                    int limit) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        final long startTimeMillis = duration.getStartTimestamp();
-        TimestampRange tsRange = null;
-        if (startTimeMillis > 0 && scrollEndTime > 0) {
-            tsRange = new TimestampRange(startTimeMillis, scrollEndTime);
-        }
-        final QueryBuilder<StreamQuery> queryBuilder = new QueryBuilder<StreamQuery>() {
+        final QueryBuilder<TraceQuery> query = new QueryBuilder<TraceQuery>() {
 
             @Override
-            public void apply(final StreamQuery query) {
+            protected void apply(TraceQuery query) {
+                query.and(in(ZipkinSpanRecord.TRACE_ID, new ArrayList<>(traceIds)));
+                query.setOrderBy(new TraceQuery.OrderBy(ZipkinSpanRecord.TIMESTAMP_MILLIS, AbstractQuery.Sort.DESC));
+                query.setLimit(QUERY_MAX_SIZE);
+            }
+        };
+        TraceQueryResponse resp = queryTrace(
+                isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration),
+                query
+            );
+        List<List<SpanWrapper>> traces = new ArrayList<>();
+        for (var t : resp.getTraces()) {
+            List<SpanWrapper> trace = new ArrayList<>();
+            for (var span : t.getSpansList()) {
+                trace.add(SpanWrapper.parseFrom(span.getSpan()));
+            }
+            traces.add(trace);
+        }
+
+        return traces;
+    }
+
+    @Override
+    public List<List<SpanWrapper>> getTracesV2(final QueryRequest request, final Duration duration) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
+
+        final QueryBuilder<TraceQuery> queryBuilder = new QueryBuilder<TraceQuery>() {
+            @Override
+            public void apply(final TraceQuery query) {
                 if (!StringUtil.isEmpty(request.serviceName())) {
                     query.and(eq(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME, request.serviceName()));
                 }
@@ -247,60 +236,23 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                 if (request.maxDuration() != null) {
                     query.and(lte(ZipkinSpanRecord.DURATION, request.maxDuration()));
                 }
-                query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
-                query.setLimit(limit);
+                query.setOrderBy(new TraceQuery.OrderBy(ZipkinSpanRecord.TIMESTAMP_MILLIS, AbstractQuery.Sort.DESC));
+                query.setLimit(request.limit());
             }
         };
-        StreamQueryResponse resp = query(isColdStage, ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, tsRange, queryBuilder);
-        List<ZipkinSpanRecord> spans = new ArrayList<>(); //needs to keep order here
-        for (final RowEntity rowEntity : resp.getElements()) {
-            ZipkinSpanRecord spanRecord = new ZipkinSpanRecord.Builder().storage2Entity(
-                new BanyanDBConverter.StorageToStream(ZipkinSpanRecord.INDEX_NAME, rowEntity));
-            spans.add(spanRecord);
+        TraceQueryResponse resp = queryTrace(
+            isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration),
+            queryBuilder
+        );
+        List<List<SpanWrapper>> traces = new ArrayList<>();
+        for (var t : resp.getTraces()) {
+            List<SpanWrapper> trace = new ArrayList<>();
+            for (var span : t.getSpansList()) {
+                trace.add(SpanWrapper.parseFrom(span.getSpan()));
+            }
+            traces.add(trace);
         }
-        return spans;
-    }
 
-    @Override
-    public List<List<Span>> getTraces(final Set<String> traceIds, @Nullable final Duration duration) throws IOException {
-        if (CollectionUtils.isEmpty(traceIds)) {
-            return Collections.EMPTY_LIST;
-        }
-        final boolean isColdStage = duration != null && duration.isColdStage();
-        List<AbstractCriteria> conditions = new ArrayList<>(traceIds.size());
-        StreamQueryResponse resp =
-            queryDebuggable(isColdStage, ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, getTimestampRange(duration),
-                  new QueryBuilder<StreamQuery>() {
-
-                      @Override
-                      protected void apply(StreamQuery query) {
-                          for (String traceId : traceIds) {
-                              conditions.add(eq(ZipkinSpanRecord.TRACE_ID, traceId));
-                          }
-                          if (conditions.size() == 1) {
-                              query.criteria(conditions.get(0));
-                          } else if (conditions.size() > 1) {
-                              query.criteria(or(conditions));
-                          }
-                          query.setOrderBy(
-                              new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
-                          query.setLimit(QUERY_MAX_SIZE);
-                      }
-                  }
-            );
-        return buildTraces(resp);
-    }
-
-    private List<List<Span>> buildTraces(StreamQueryResponse resp) {
-        Map<String, List<Span>> groupedByTraceId = new LinkedHashMap<String, List<Span>>();
-        for (final RowEntity rowEntity : resp.getElements()) {
-            ZipkinSpanRecord spanRecord = new ZipkinSpanRecord.Builder().storage2Entity(
-                new BanyanDBConverter.StorageToStream(ZipkinSpanRecord.INDEX_NAME, rowEntity));
-            Span span = ZipkinSpanRecord.buildSpanFromRecord(spanRecord);
-            String traceId = span.traceId();
-            groupedByTraceId.putIfAbsent(traceId, new ArrayList<>());
-            groupedByTraceId.get(traceId).add(span);
-        }
-        return new ArrayList<>(groupedByTraceId.values());
+        return traces;
     }
 }

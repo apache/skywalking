@@ -94,19 +94,19 @@ public class BanyanDBConfigLoader {
             );
             copyStages(log, config.getRecordsLog());
 
-            Properties segment = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_TRACE.getName());
+            Properties segment = (Properties) groups.get(BanyanDB.TraceGroup.TRACE.getName());
             copyProperties(
-                config.getRecordsTrace(), segment,
+                config.getTrace(), segment,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
-            copyStages(segment, config.getRecordsTrace());
+            copyStages(segment, config.getTrace());
 
-            Properties zipkinSpan = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_ZIPKIN_TRACE.getName());
+            Properties zipkinSpan = (Properties) groups.get(BanyanDB.TraceGroup.ZIPKIN_TRACE.getName());
             copyProperties(
-                config.getRecordsZipkinTrace(), zipkinSpan,
+                config.getZipkinTrace(), zipkinSpan,
                 moduleProvider.getModule().name(), moduleProvider.name()
             );
-            copyStages(zipkinSpan, config.getRecordsZipkinTrace());
+            copyStages(zipkinSpan, config.getZipkinTrace());
 
             Properties browserErrorLog = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG.getName());
             copyProperties(

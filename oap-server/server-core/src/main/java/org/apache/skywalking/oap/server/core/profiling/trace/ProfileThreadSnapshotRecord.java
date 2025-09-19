@@ -43,6 +43,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @ScopeDeclaration(id = PROFILE_TASK_SEGMENT_SNAPSHOT, name = "ProfileThreadSnapshot")
 @Stream(name = ProfileThreadSnapshotRecord.INDEX_NAME, scopeId = PROFILE_TASK_SEGMENT_SNAPSHOT, builder = ProfileThreadSnapshotRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(ProfileThreadSnapshotRecord.DUMP_TIME)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class ProfileThreadSnapshotRecord extends Record {
 
     public static final String INDEX_NAME = "profile_task_segment_snapshot";

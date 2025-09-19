@@ -13,15 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-debuggingtrace: null
-traces:
-{{- contains .traces }}
-- segmentid: {{ notEmpty .segmentid }}
-  endpointnames:
-    - GET:/info
-  duration: {{ ge .duration 0 }}
-  start: "{{ notEmpty .start}}"
-  iserror: false
-  traceids:
-    - "{{ (index .traceids 0) }}"
-{{- end }}
+{{- contains .}}
+- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "GET:/logs/trigger" }}
+  name: GET:/logs/trigger
+{{- end}}

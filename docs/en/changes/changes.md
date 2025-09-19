@@ -6,6 +6,7 @@
 * Fix CVE-2025-54057, restrict and validate url for widgets.
 * Fix `MetricsPersistentWorker`, remove DataCarrier queue from `Hour/Day` dimensions metrics persistent process.
   This is important to reduce memory cost and `Hour/Day` dimensions metrics persistent latency.
+* [Break Change] BanyanDB: support new Trace model.
 
 #### OAP Server
 

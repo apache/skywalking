@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import java.util.List;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -40,6 +42,25 @@ public class BanyanDBModelExtension {
     private String timestampColumn;
 
     /**
+     * traceIdColumn is to identify which column in the Trace model is used as the trace ID.
+     *
+     * @since 10.3.0
+     */
+    @Getter
+    @Setter
+    private String traceIdColumn;
+
+    /**
+     * traceIndexRules is to identify which columns in the Trace model are used as the indexRule.
+     * BanyanDB Trace model requires at least one traceIndexRules.
+     *
+     * @since 9.3.0
+     */
+    @Getter
+    @Setter
+    private List<TraceIndexRule> traceIndexRules;
+
+    /**
      * indexMode indicates whether a metric is in the index mode.
      * Since 10.3.0, the installer will automatically create a virtual String tag 'id' for the SeriesID.
      * @since 10.2.0
@@ -50,5 +71,19 @@ public class BanyanDBModelExtension {
 
     @Setter
     @Getter
-    private BanyanDB.StreamGroup streamGroup = BanyanDB.StreamGroup.RECORDS;
+    private BanyanDB.StreamGroup streamGroup = BanyanDB.StreamGroup.NONE;
+
+    @Setter
+    @Getter
+    private BanyanDB.TraceGroup traceGroup = BanyanDB.TraceGroup.NONE;
+
+    @RequiredArgsConstructor
+    public static class TraceIndexRule {
+        @Getter
+        private final String name;
+        @Getter
+        private final String[] columns;
+        @Getter
+        private final String orderByColumn;
+    }
 }
