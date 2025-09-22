@@ -77,14 +77,19 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                 }
 
                 if (StringUtil.isNotEmpty(serviceInstanceId)) {
-                    IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
-                        serviceInstanceId);
-                    query.and(eq(AbstractLogRecord.SERVICE_ID, instanceIDDefinition.getServiceId()));
+                    if (StringUtil.isEmpty(serviceId)) {
+                        IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
+                            serviceInstanceId);
+                        query.and(eq(AbstractLogRecord.SERVICE_ID, instanceIDDefinition.getServiceId()));
+                    }
                     query.and(eq(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
                 }
                 if (StringUtil.isNotEmpty(endpointId)) {
-                    IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(endpointId);
-                    query.and(eq(AbstractLogRecord.SERVICE_ID, endpointIDDefinition.getServiceId()));
+                    if (StringUtil.isEmpty(serviceId)) {
+                        IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+                            endpointId);
+                        query.and(eq(AbstractLogRecord.SERVICE_ID, endpointIDDefinition.getServiceId()));
+                    }
                     query.and(eq(AbstractLogRecord.ENDPOINT_ID, endpointId));
                 }
                 if (Objects.nonNull(relatedTrace)) {
