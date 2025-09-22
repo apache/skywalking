@@ -99,6 +99,7 @@
 * Open `health-checker` module by default due to latest UI changes. Change the default check period to 30s.
 * Refactor Kubernetes coordinator to be more accurate about node readiness.
 * Bump up netty to 4.2.5.Final.
+* BanyanDB: fix log query missing order by condition, and fix missing service id condition when query by instance id or endpoint id.
 
 #### UI
 
