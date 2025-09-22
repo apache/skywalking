@@ -162,10 +162,15 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                     }
 
                     if (StringUtil.isNotEmpty(condition.getServiceInstanceId())) {
+                        IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
+                            condition.getServiceInstanceId());
+                        query.and(eq(SegmentRecord.SERVICE_ID, instanceIDDefinition.getServiceId()));
                         query.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, condition.getServiceInstanceId()));
                     }
 
                     if (StringUtil.isNotEmpty(condition.getEndpointId())) {
+                        IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(condition.getEndpointId());
+                        query.and(eq(SegmentRecord.SERVICE_ID, endpointIDDefinition.getServiceId()));
                         query.and(eq(SegmentRecord.ENDPOINT_ID, condition.getEndpointId()));
                     }
 
