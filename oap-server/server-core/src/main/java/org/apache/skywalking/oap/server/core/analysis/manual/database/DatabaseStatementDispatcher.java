@@ -34,7 +34,6 @@ public class DatabaseStatementDispatcher implements SourceDispatcher<DatabaseSlo
         statement.setTimeBucket(source.getTimeBucket());
         statement.setTraceId(source.getTraceId());
         statement.setTimestamp(source.getTimestamp());
-        statement.setTimestamp(source.getTimestamp());
 
         TopNStreamProcessor.getInstance().in(statement);
     }
