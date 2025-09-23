@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -76,9 +77,19 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                 }
 
                 if (StringUtil.isNotEmpty(serviceInstanceId)) {
+                    if (StringUtil.isEmpty(serviceId)) {
+                        IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
+                            serviceInstanceId);
+                        query.and(eq(AbstractLogRecord.SERVICE_ID, instanceIDDefinition.getServiceId()));
+                    }
                     query.and(eq(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
                 }
                 if (StringUtil.isNotEmpty(endpointId)) {
+                    if (StringUtil.isEmpty(serviceId)) {
+                        IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+                            endpointId);
+                        query.and(eq(AbstractLogRecord.SERVICE_ID, endpointIDDefinition.getServiceId()));
+                    }
                     query.and(eq(AbstractLogRecord.ENDPOINT_ID, endpointId));
                 }
                 if (Objects.nonNull(relatedTrace)) {
@@ -99,6 +110,13 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                         tagsConditions.add(tag.toString());
                     }
                     query.and(having(LogRecord.TAGS, tagsConditions));
+                }
+                if (queryOrder == Order.ASC) {
+                    query.setOrderBy(
+                        new AbstractQuery.OrderBy(AbstractQuery.Sort.ASC));
+                } else {
+                    query.setOrderBy(
+                        new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                 }
             }
         };
