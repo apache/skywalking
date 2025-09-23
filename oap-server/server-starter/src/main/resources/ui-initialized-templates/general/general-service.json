@@ -860,6 +860,19 @@
                   "type": "Log"
                 }
               ]
+            },
+            {
+              "name": "Slow Statements",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "SlowStatements"
+                }
+              ]
             }
           ]
         },
