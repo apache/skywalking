@@ -67,7 +67,7 @@ public class VirtualDatabaseProcessor implements VirtualServiceProcessor {
 
         readStatementIfSlow(span.getTagsList(), latency).ifPresent(statement -> {
             recordList.add(buildDatabaseSlowStatement(span, segmentObject, statement, serviceName, latency));
-            recordList.add(buildServiceDatabaseSlowStatement(span, segmentObject, statement, serviceName, latency));
+            recordList.add(buildServiceDatabaseSlowStatement(span, segmentObject, statement, latency));
         });
     }
 
@@ -83,7 +83,7 @@ public class VirtualDatabaseProcessor implements VirtualServiceProcessor {
         return dbSlowStat;
     }
 
-    private Source buildServiceDatabaseSlowStatement(SpanObject span, SegmentObject segmentObject, String statement, String serviceName, int latency) {
+    private ServiceDatabaseSlowStatement buildServiceDatabaseSlowStatement(SpanObject span, SegmentObject segmentObject, String statement, int latency) {
         ServiceDatabaseSlowStatement serviceDbSlowStat = new ServiceDatabaseSlowStatement();
         serviceDbSlowStat.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
         serviceDbSlowStat.setTraceId(segmentObject.getTraceId());
