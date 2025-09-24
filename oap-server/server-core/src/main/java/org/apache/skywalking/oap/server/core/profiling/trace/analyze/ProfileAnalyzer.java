@@ -85,7 +85,26 @@ public class ProfileAnalyzer {
                 LOGGER.warn(e.getMessage(), e);
                 return Collections.<ProfileThreadSnapshotRecord>emptyList();
             }
-        }).flatMap(Collection::stream).map(ProfileStack::deserialize).distinct().collect(Collectors.toList());
+        }).flatMap(Collection::stream)
+            .map(rec -> {
+                try {
+                    return ProfileStack.deserialize(rec);
+                } catch (Exception ex) {
+                    LOGGER.warn("Deserialize stack failed, segmentId={}, sequence={}, dumpTime={}",
+                        rec.getSegmentId(), rec.getSequence(), rec.getDumpTime(), ex);
+                    return null;
+                }
+            })
+            .filter(java.util.Objects::nonNull)
+            .distinct()
+            .collect(Collectors.toList());
+
+        if (LOGGER.isInfoEnabled()) {
+            final int totalRanges = sequenceSearch.getRanges().size();
+            LOGGER.info("Profile analyze fetched stacks, segmentId(s)={}, ranges={}, stacksCount={}",
+                sequenceSearch.getRanges().stream().map(SequenceRange::getSegmentId).distinct().collect(Collectors.toList()),
+                totalRanges, stacks.size());
+        }
 
         // analyze
         final List<ProfileStackTree> trees = analyzeByStack(stacks);
@@ -115,8 +134,15 @@ public class ProfileAnalyzer {
         int minSequence = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, start, end);
         int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end) + 1;
 
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Profile analyze sequence window: segmentId={}, start={}, end={}, minSeq={}, maxSeq(exclusive)={}",
+                segmentId, start, end, minSequence, maxSequence);
+        }
+
         // data not found
         if (maxSequence <= 0) {
+            LOGGER.info("Profile analyze not found any sequence in window: segmentId={}, start={}, end={}",
+                segmentId, start, end);
             return null;
         }
 
