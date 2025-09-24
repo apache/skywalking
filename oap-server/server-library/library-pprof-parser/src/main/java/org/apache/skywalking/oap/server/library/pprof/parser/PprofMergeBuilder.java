@@ -19,12 +19,13 @@
 package org.apache.skywalking.oap.server.library.pprof.parser;
 
 import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
-import java.util.HashMap;
+import org.apache.skywalking.oap.server.library.pprof.type.Frame;
+import org.apache.skywalking.oap.server.library.pprof.type.Index;
 import java.util.List;
-import java.util.Map;
 
 public class PprofMergeBuilder {
-    private final Node root = new Node("root");
+    private final Index<String> cpool = new Index<>(String.class, "");
+    private final Frame root = new Frame("root");
 
     public PprofMergeBuilder merge(List<FrameTree> trees) {
         if (trees == null || trees.isEmpty()) {
@@ -41,44 +42,35 @@ public class PprofMergeBuilder {
         return this;
     }
 
-    private void merge0(Node node, FrameTree tree) {
+    private void merge0(Frame frame, FrameTree tree) {
         if (tree == null) {
             return;
         }
         if (tree.getChildren() != null) {
             for (FrameTree childTree : tree.getChildren()) {
-                Node child = getOrAddChild(node, childTree.getSignature());
+                Frame child = addChild(frame, childTree.getSignature());
                 merge0(child, childTree);
             }
         }
-        node.total += tree.getTotal();
-        node.self += tree.getSelf();
+        frame.setTotal(frame.getTotal() + tree.getTotal());
+        frame.setSelf(frame.getSelf() + tree.getSelf());
     }
 
-    private Node getOrAddChild(Node parent, String signature) {
-        return parent.children.computeIfAbsent(signature, Node::new);
+    private Frame addChild(Frame parent, String signature) {
+        int titleIndex = cpool.index(signature);
+        return parent.getChild(titleIndex, signature);
     }
 
     public FrameTree build() {
         return toFrameTree(root);
     }
 
-    private FrameTree toFrameTree(Node node) {
-        FrameTree tree = new FrameTree(node.signature, node.total, node.self);
-        for (Node child : node.children.values()) {
+    private FrameTree toFrameTree(Frame node) {
+        FrameTree tree = new FrameTree(node.getSignature(), node.getTotal(), node.getSelf());
+        for (Frame child : node.values()) {
             tree.getChildren().add(toFrameTree(child));
         }
         return tree;
     }
 
-    private static class Node {
-        final String signature;
-        long total;
-        long self;
-        final Map<String, Node> children = new HashMap<>();
-
-        Node(String signature) {
-            this.signature = signature;
-        }
-    }
 }

@@ -62,7 +62,7 @@ public class PprofMutationService implements Service {
         long createTime = System.currentTimeMillis();
         // check data
         PprofTaskCreationResult checkResult = checkDataSuccess(
-                serviceId, serviceInstanceIds, duration, createTime, events
+                serviceId, serviceInstanceIds, duration, createTime, events, dumpPeriod
         );
         if (checkResult != null) {
             return checkResult;
@@ -90,8 +90,9 @@ public class PprofMutationService implements Service {
                                               List<String> serviceInstanceIds,
                                               int duration,
                                               long createTime,
-                                              PprofEventType events) throws IOException {
-        String checkArgumentMessage = checkArgumentError(serviceId, serviceInstanceIds, duration, events);
+                                              PprofEventType events,
+                                              int dumpPeriod) throws IOException {
+        String checkArgumentMessage = checkArgumentError(serviceId, serviceInstanceIds, duration, events, dumpPeriod);
         if (checkArgumentMessage != null) {
             return PprofTaskCreationResult.builder()
                     .code(PprofTaskCreationType.ARGUMENT_ERROR)
@@ -111,15 +112,23 @@ public class PprofMutationService implements Service {
     private String checkArgumentError(String serviceId,
                                       List<String> serviceInstanceIds,
                                       int duration,
-                                      PprofEventType events) {
+                                      PprofEventType events,
+                                      int dumpPeriod) {
         if (serviceId == null) {
             return "service cannot be null";
         }
-        if (duration <= 0) {
-            return "duration cannot be negative";
-        }
         if (events == null) {
             return "events cannot be empty";
+        }
+        if (events == PprofEventType.CPU || events == PprofEventType.BLOCK || events == PprofEventType.MUTEX) {
+            if (duration <= 0) {
+                return "duration cannot be negative";
+            }
+        }
+        if (events == PprofEventType.BLOCK || events == PprofEventType.MUTEX) {
+            if (dumpPeriod <= 0) {
+                return "dumpPeriod cannot be negative";
+            }
         }
         if (CollectionUtils.isEmpty(serviceInstanceIds)) {
             return "serviceInstanceIds cannot be empty";

@@ -120,26 +120,12 @@ public class PprofTaskQueryEsDAO extends EsDAO implements IPprofTaskQueryDAO {
         String serviceInstanceIds = (String) source.get(PprofTaskRecord.SERVICE_INSTANCE_IDS);
 
         List<String> instanceIdList = GSON.fromJson(serviceInstanceIds, listType);
-        
-        // Convert string events to PprofEventType enum
-        String eventsStr = (String) source.get(PprofTaskRecord.EVENT_TYPES);
-        PprofEventType eventType = null;
-        if (StringUtil.isNotEmpty(eventsStr)) {
-            try {
-                eventType = PprofEventType.valueOfString(eventsStr);
-            } catch (Exception e) {
-                // Default to CPU if conversion fails
-                eventType = PprofEventType.CPU;
-            }
-        }
-        
         return PprofTask.builder()
                 .id((String) source.get(PprofTaskRecord.TASK_ID))
                 .serviceId((String) source.get(PprofTaskRecord.SERVICE_ID))
                 .serviceInstanceIds(instanceIdList)
                 .createTime(((Number) source.get(PprofTaskRecord.CREATE_TIME)).longValue())
-                .startTime(((Number) source.get(PprofTaskRecord.START_TIME)).longValue())
-                .events(eventType)
+                .events((PprofEventType) source.get(PprofTaskRecord.EVENT_TYPES))
                 .duration(((Number) source.get(PprofTaskRecord.DURATION)).intValue())
                 .dumpPeriod(((Number) source.get(PprofTaskRecord.DUMP_PERIOD)).intValue())
                 .build();

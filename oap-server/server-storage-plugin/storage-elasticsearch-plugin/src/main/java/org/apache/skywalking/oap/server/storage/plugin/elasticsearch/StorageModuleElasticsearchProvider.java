@@ -277,7 +277,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         );
         this.registerServiceImplementation(
                 IPprofTaskLogQueryDAO.class,
-                new PprofTaskLogQueryEsDAO(elasticSearchClient, config.getAsyncProfilerTaskQueryMaxSize())
+                new PprofTaskLogQueryEsDAO(elasticSearchClient, config.getPprofTaskQueryMaxSize())
         );
         this.registerServiceImplementation(
                 IJFRDataQueryDAO.class,
@@ -285,7 +285,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         );
         this.registerServiceImplementation(
                 IPprofTaskQueryDAO.class,
-                new PprofTaskQueryEsDAO(elasticSearchClient, config.getAsyncProfilerTaskQueryMaxSize())
+                new PprofTaskQueryEsDAO(elasticSearchClient, config.getPprofTaskQueryMaxSize())
         );
         this.registerServiceImplementation(
             StorageTTLStatusQuery.class,

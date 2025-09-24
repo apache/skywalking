@@ -19,11 +19,13 @@
 package org.apache.skywalking.oap.server.library.pprof.parser;
 
 import com.google.perftools.profiles.ProfileProto;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.zip.GZIPInputStream;
 import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
 import org.apache.skywalking.oap.server.library.pprof.type.FrameTreeBuilder;
 
@@ -33,9 +35,14 @@ import org.apache.skywalking.oap.server.library.pprof.type.FrameTreeBuilder;
 public class PprofParser {
     
     public static FrameTree dumpTree(ByteBuffer buf) throws IOException {
-        ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(buf);
+        byte[] bytes = new byte[buf.remaining()];
+        buf.get(bytes);
+        InputStream stream = new java.io.ByteArrayInputStream(bytes);
+        InputStream inputStream = isGzippedBytes(bytes) ? new GZIPInputStream(stream) : stream;
+        ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(inputStream);
         FrameTree tree = new FrameTreeBuilder(profile).build();
         return tree;
+        
     }
 
     public static FrameTree dumpTree(String filePath) throws IOException {
@@ -43,11 +50,26 @@ public class PprofParser {
         if (!file.exists()) {
             throw new IOException("Pprof file not found: " + filePath);
         }
-        
         InputStream fileStream = new FileInputStream(file);
+        InputStream stream = filePath.endsWith(".gz") || isGzipped(file) ? 
+                    new GZIPInputStream(fileStream) : fileStream;
         ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(fileStream);
         FrameTree tree = new FrameTreeBuilder(profile).build();
         return tree;
-        
     }
-} 
+
+    private static boolean isGzipped(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] magic = new byte[2];
+            if (fis.read(magic) == 2) {
+                return (magic[0] == (byte) 0x1f) && (magic[1] == (byte) 0x8b);
+            }
+        }
+        return false;
+    }
+
+    private static boolean isGzippedBytes(byte[] bytes) {
+        return bytes.length >= 2 && 
+               (bytes[0] == (byte) 0x1f) && (bytes[1] == (byte) 0x8b);
+    }
+}
