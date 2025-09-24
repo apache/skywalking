@@ -151,7 +151,7 @@ storage:
     # Since 10.2.0, the banyandb configuration is separated to an independent configuration file: `bydb.yaml`.
   elasticsearch:
     namespace: ${SW_NAMESPACE:""}
-    clusterNodes: 192.168.50.242:9200
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     connectTimeout: ${SW_STORAGE_ES_CONNECT_TIMEOUT:3000}
     socketTimeout: ${SW_STORAGE_ES_SOCKET_TIMEOUT:30000}

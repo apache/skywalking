@@ -18,7 +18,7 @@ global:
   # Each target is a BanyanDB server in the format of `host:port`.
   # If BanyanDB is deployed as a standalone server, the target should be the IP address or domain name and port of the BanyanDB server.
   # If BanyanDB is deployed in a cluster, the targets should be the IP address or domain name and port of the `liaison` nodes, separated by commas.
-  targets: ${SW_STORAGE_BANYANDB_TARGETS:192.168.50.128:17912}
+  targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
   # The maximum number of records in a bulk write request.
   # A larger value can improve write performance but also increases OAP and BanyanDB Server memory usage.
   maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:10000}
