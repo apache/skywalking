@@ -78,7 +78,7 @@ public class ProfileAnalyzer {
         }
 
         // query snapshots
-        List<ProfileStack> stacks = sequenceSearch.getRanges().parallelStream().map(r -> {
+        List<ProfileThreadSnapshotRecord> records = sequenceSearch.getRanges().parallelStream().map(r -> {
             try {
                 return getProfileThreadSnapshotQueryDAO().queryRecords(r.getSegmentId(), r.getMinSequence(), r.getMaxSequence());
             } catch (IOException e) {
@@ -86,30 +86,54 @@ public class ProfileAnalyzer {
                 return Collections.<ProfileThreadSnapshotRecord>emptyList();
             }
         }).flatMap(Collection::stream)
-            .map(rec -> {
-                try {
-                    return ProfileStack.deserialize(rec);
-                } catch (Exception ex) {
-                    LOGGER.warn("Deserialize stack failed, segmentId={}, sequence={}, dumpTime={}",
-                        rec.getSegmentId(), rec.getSequence(), rec.getDumpTime(), ex);
-                    return null;
-                }
-            })
-            .filter(java.util.Objects::nonNull)
-            .distinct()
             .collect(Collectors.toList());
 
         if (LOGGER.isInfoEnabled()) {
             final int totalRanges = sequenceSearch.getRanges().size();
-            LOGGER.info("Profile analyze fetched stacks, segmentId(s)={}, ranges={}, stacksCount={}",
+            LOGGER.info("Profile analyze fetched records, segmentId(s)={}, ranges={}, recordsCount={}",
                 sequenceSearch.getRanges().stream().map(SequenceRange::getSegmentId).distinct().collect(Collectors.toList()),
-                totalRanges, stacks.size());
+                totalRanges, records.size());
         }
 
-        // analyze
-        final List<ProfileStackTree> trees = analyzeByStack(stacks);
-        if (trees != null) {
-            analyzation.getTrees().addAll(trees);
+        // Separate Go and Java records
+        List<ProfileThreadSnapshotRecord> goRecords = records.stream()
+            .filter(ProfileThreadSnapshotRecord::isGo)
+            .collect(Collectors.toList());
+        List<ProfileThreadSnapshotRecord> javaRecords = records.stream()
+            .filter(rec -> !rec.isGo())
+            .collect(Collectors.toList());
+
+        // Analyze Go profiles
+        if (!goRecords.isEmpty()) {
+            LOGGER.info("Analyzing {} Go profile records", goRecords.size());
+            GoProfileAnalyzer goAnalyzer = new GoProfileAnalyzer();
+            ProfileAnalyzation goAnalyzation = goAnalyzer.analyzeRecords(goRecords, queries);
+            if (goAnalyzation != null && !goAnalyzation.getTrees().isEmpty()) {
+                analyzation.getTrees().addAll(goAnalyzation.getTrees());
+            }
+        }
+
+        // Analyze Java profiles (original logic)
+        if (!javaRecords.isEmpty()) {
+            LOGGER.info("Analyzing {} Java profile records", javaRecords.size());
+            List<ProfileStack> stacks = javaRecords.stream()
+                .map(rec -> {
+                    try {
+                        return ProfileStack.deserialize(rec);
+                    } catch (Exception ex) {
+                        LOGGER.warn("Deserialize stack failed, segmentId={}, sequence={}, dumpTime={}",
+                            rec.getSegmentId(), rec.getSequence(), rec.getDumpTime(), ex);
+                        return null;
+                    }
+                })
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+            final List<ProfileStackTree> trees = analyzeByStack(stacks);
+            if (trees != null) {
+                analyzation.getTrees().addAll(trees);
+            }
         }
 
         return analyzation;
@@ -233,4 +257,5 @@ public class ProfileAnalyzer {
         }
 
     }
+
 }

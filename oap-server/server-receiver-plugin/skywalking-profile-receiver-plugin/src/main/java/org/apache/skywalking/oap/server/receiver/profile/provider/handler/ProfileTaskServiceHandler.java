@@ -38,7 +38,6 @@ import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskCommandQ
 import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskFinishReport;
 import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskGrpc;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
-import org.apache.skywalking.apm.network.language.profile.v3.ThreadStack;
 import com.google.perftools.profiles.ProfileProto;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -48,6 +47,7 @@ import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
+// Analyzer preview imports removed after stabilizing storage path
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -118,6 +118,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                 record.setSequence(snapshot.getSequence());
                 record.setStackBinary(snapshot.getStack().toByteArray());
                 record.setTimeBucket(TimeBucket.getRecordTimeBucket(snapshot.getTime()));
+                record.setGo(false); // Mark as Java or python profile data
 
                 // async storage
                 RecordStreamProcessor.getInstance().in(record);
@@ -151,7 +152,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
             
             @Override
             public void onNext(GoProfileData profileData) {
-                LOGGER.info("receive go profile data: taskId='{}', payloadSize={}, isLast={}", 
+                LOGGER.debug("receive go profile data: taskId='{}', payloadSize={}, isLast={}", 
                            profileData.getTaskId(), 
                            profileData.getPayload().size(), 
                            profileData.getIsLast());
@@ -167,7 +168,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                 if (currentTaskId == null || !currentTaskId.equals(profileData.getTaskId())) {
                     currentTaskId = profileData.getTaskId();
                     profileDataBuffer.reset();
-                    LOGGER.info("Starting new task: {}", currentTaskId);
+                    LOGGER.debug("Starting new task: {}", currentTaskId);
                 }
 
                        // Collect profile data
@@ -186,29 +187,19 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
 
                         // Log parsed segments briefly for troubleshooting
                         if (CollectionUtils.isEmpty(segments)) {
-                            LOGGER.info("Parsed Go profile has no segments. taskId={}, hint=check labels segment_id/trace_id", currentTaskId);
-                        } else {
-                            for (GoProfileSegmentInfo s : segments) {
-                                int stackSize = s.getStack() == null ? 0 : s.getStack().size();
-                                String topFrames = "";
-                                if (stackSize > 0) {
-                                    int limit = Math.min(5, stackSize);
-                                    topFrames = String.join(" | ", s.getStack().subList(0, limit));
-                                }
-                                LOGGER.info(
-                                    "Go segment parsed: taskId={}, segmentId={}, traceId={}, spanId={}, stackSize={}, topFrames={}, time=[{}-{}], count={}",
-                                    currentTaskId, s.getSegmentId(), s.getTraceId(), s.getSpanId(), stackSize, topFrames,
-                                    s.getStartTime(), s.getEndTime(), s.getCount()
-                                );
-                            }
+                            LOGGER.debug("Parsed Go profile has no segments. taskId={}, hint=check labels segment_id/trace_id", currentTaskId);
                         }
 
                         // Store ProfileThreadSnapshotRecord for each segment
+                        byte[] rawPprofData = tryDecompressGzip(profileDataBuffer.toByteArray());
+                        ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(rawPprofData);
                         for (GoProfileSegmentInfo segmentInfo : segments) {
-                            storeGoProfileSegment(segmentInfo, currentTaskId);
+                            storeGoProfileSegment(segmentInfo, currentTaskId, profile);
                         }
 
-                        LOGGER.info("Successfully processed Go profile data for task: {}, found {} segments", currentTaskId, segments.size());
+                        // Analyzer preview removed to reduce log noise after verification
+
+                        LOGGER.info("Processed Go profile data: taskId={}, segments={}", currentTaskId, segments.size());
                         
                     } catch (Exception e) {
                         LOGGER.error("Failed to parse Go profile data for task: " + currentTaskId, e);
@@ -321,10 +312,6 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                     if (st > 0) {
                         segStart = Math.min(segStart, st);
                     }
-                    long et = extractEndTimeFromLabels(s.getLabelList(), profile.getStringTableList());
-                    if (et > 0) {
-                        segEnd = Math.max(segEnd, et);
-                    }
                 }
                 // fallback to profile level time if segment labels didn't provide
                 if (segStart == Long.MAX_VALUE) {
@@ -336,14 +323,14 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                         segStart = profileStart;
                     }
                 }
-                if (segEnd == Long.MIN_VALUE) {
+                {
                     long profileEnd = 0L;
                     if (profile.getTimeNanos() > 0 && profile.getDurationNanos() > 0) {
                         profileEnd = (profile.getTimeNanos() + profile.getDurationNanos()) / 1_000_000L;
                     }
                     if (profileEnd > 0) {
                         if (LOGGER.isInfoEnabled()) {
-                            LOGGER.info("Segment {} missing end label, fallback to profile.timeNanos+duration -> {}", segmentId, profileEnd);
+                            LOGGER.info("Segment {} using profile.timeNanos+duration as end -> {}", segmentId, profileEnd);
                         }
                         segEnd = profileEnd;
                     }
@@ -468,15 +455,15 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
             if (key == null) {
                 continue;
             }
-            final String lowerKey = key.toLowerCase();
-            if (lowerKey.contains("start") || lowerKey.contains("begin") || "starttime".equals(lowerKey)) {
-                long ts = parseTimestampLabelValue(label, stringTable);
-                if (ts > 0) {
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("Parsed startTime from pprof labels: {} => {}", key, ts);
-                    }
-                    return ts;
+            if (!"startTime".equalsIgnoreCase(key)) {
+                continue;
+            }
+            long ts = parseTimestampLabelValue(label, stringTable);
+            if (ts > 0) {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Parsed startTime from pprof labels: {} => {}", key, ts);
                 }
+                return ts;
             }
         }
         // Not found in labels
@@ -492,15 +479,15 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
             if (key == null) {
                 continue;
             }
-            final String lowerKey = key.toLowerCase();
-            if (lowerKey.contains("end") || lowerKey.contains("finish") || "endtime".equals(lowerKey)) {
-                long ts = parseTimestampLabelValue(label, stringTable);
-                if (ts > 0) {
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("Parsed endTime from pprof labels: {} => {}", key, ts);
-                    }
-                    return ts;
+            if (!"endTime".equalsIgnoreCase(key)) {
+                continue;
+            }
+            long ts = parseTimestampLabelValue(label, stringTable);
+            if (ts > 0) {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Parsed endTime from pprof labels: {} => {}", key, ts);
                 }
+                return ts;
             }
         }
         // Not found in labels
@@ -598,29 +585,49 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     }
 
     /**
-     * Store Go profile segment
+     * Store Go profile segment - create a filtered pprof containing only samples for this segment
      */
-    private void storeGoProfileSegment(GoProfileSegmentInfo segmentInfo, String taskId) {
-               // Create ProfileThreadSnapshotRecord for each segment
-        ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
-        record.setTaskId(taskId);
-        record.setSegmentId(segmentInfo.getSegmentId()); // Use real segmentId
-        record.setDumpTime(segmentInfo.getStartTime());
-               record.setSequence(0); // Each segment has only one record
-        
-               // Convert Go profile data to ThreadStack format
-        ThreadStack threadStack = ThreadStack.newBuilder()
-            .addAllCodeSignatures(segmentInfo.getStack())
-            .build();
-        record.setStackBinary(threadStack.toByteArray());
-        record.setTimeBucket(TimeBucket.getRecordTimeBucket(segmentInfo.getStartTime()));
-        LOGGER.info("About to store Go profile snapshot: taskId={}, segmentId={}, dumpTime={}, timeBucket={}, sequence={}",
-            record.getTaskId(), record.getSegmentId(), record.getDumpTime(), record.getTimeBucket(), record.getSequence());
-        
-               // Store to database
-        RecordStreamProcessor.getInstance().in(record);
-        LOGGER.info("Stored Go profile snapshot: taskId={}, segmentId={}, dumpTime={}, sequence={}",
-            record.getTaskId(), record.getSegmentId(), record.getDumpTime(), record.getSequence());
+    private void storeGoProfileSegment(GoProfileSegmentInfo segmentInfo, String taskId, ProfileProto.Profile originalProfile) {
+        try {
+            // Create a filtered pprof profile containing only samples for this segment
+            ProfileProto.Profile.Builder filteredProfileBuilder = originalProfile.toBuilder();
+            filteredProfileBuilder.clearSample();
+            
+            // Add only samples that belong to this segment
+            for (ProfileProto.Sample sample : originalProfile.getSampleList()) {
+                String sampleSegmentId = extractSegmentIdFromLabels(sample.getLabelList(), originalProfile.getStringTableList());
+                if (segmentInfo.getSegmentId().equals(sampleSegmentId)) {
+                    filteredProfileBuilder.addSample(sample);
+                }
+            }
+            
+            ProfileProto.Profile filteredProfile = filteredProfileBuilder.build();
+            byte[] filteredPprofData = filteredProfile.toByteArray();
+            
+            // Create ProfileThreadSnapshotRecord for this segment
+            ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
+            record.setTaskId(taskId);
+            record.setSegmentId(segmentInfo.getSegmentId()); // Use real segmentId
+            record.setDumpTime(segmentInfo.getStartTime());
+            record.setSequence(0); // Each segment has only one record
+            record.setGo(true); // Mark as Go profile data
+            
+            // Store filtered pprof data containing only this segment's samples
+            record.setStackBinary(filteredPprofData);
+            record.setTimeBucket(TimeBucket.getRecordTimeBucket(segmentInfo.getStartTime()));
+            
+            LOGGER.info("About to store Go profile snapshot: taskId={}, segmentId={}, dumpTime={}, timeBucket={}, sequence={}, isGo={}, filteredDataSize={}, samples={}",
+                record.getTaskId(), record.getSegmentId(), record.getDumpTime(), record.getTimeBucket(), 
+                record.getSequence(), record.isGo(), filteredPprofData.length, filteredProfile.getSampleCount());
+            
+            // Store to database
+            RecordStreamProcessor.getInstance().in(record);
+            LOGGER.info("Stored Go profile snapshot: taskId={}, segmentId={}, dumpTime={}, sequence={}, isGo={}",
+                record.getTaskId(), record.getSegmentId(), record.getDumpTime(), record.getSequence(), record.isGo());
+                
+        } catch (Exception e) {
+            LOGGER.error("Failed to store Go profile segment: segmentId={}, taskId={}", segmentInfo.getSegmentId(), taskId, e);
+        }
     }
 
     /**
