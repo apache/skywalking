@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+import org.apache.skywalking.oap.server.core.source.ServiceDatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.joda.time.DateTime;
@@ -70,12 +71,13 @@ public class VirtualDatabaseProcessorTest {
                 .build();
         SegmentObject segmentObject = SegmentObject.newBuilder()
                 .setTraceId("trace-id-1")
+                .setService("test-service")
                 .build();
         VirtualDatabaseProcessor processor = buildVirtualServiceProcessor();
         processor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
         processor.emitTo(sources::add);
-        Assertions.assertEquals(sources.size(), 3);
+        Assertions.assertEquals(sources.size(), 4);
 
         ServiceMeta serviceMeta = (ServiceMeta) sources.get(0);
         Assertions.assertEquals("127.0.0.1:3306", serviceMeta.getName());
@@ -92,6 +94,13 @@ public class VirtualDatabaseProcessorTest {
         Assertions.assertEquals(1000, slowStatement.getLatency());
         Assertions.assertEquals(20220912141312L, slowStatement.getTimeBucket());
         Assertions.assertEquals("trace-id-1", slowStatement.getTraceId());
+
+        ServiceDatabaseSlowStatement serviceDatabaseSlowStatement = (ServiceDatabaseSlowStatement) sources.get(3);
+        Assertions.assertEquals("dGVzdC1zZXJ2aWNl.1", serviceDatabaseSlowStatement.getServiceId());
+        Assertions.assertEquals(1000, slowStatement.getLatency());
+        Assertions.assertEquals(20220912141312L, slowStatement.getTimeBucket());
+        Assertions.assertEquals("trace-id-1", slowStatement.getTraceId());
+
     }
 
     @Test
