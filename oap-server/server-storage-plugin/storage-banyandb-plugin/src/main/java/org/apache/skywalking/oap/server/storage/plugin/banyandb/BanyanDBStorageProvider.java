@@ -68,6 +68,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBEBPFProfilingScheduleQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBHierarchyQueryDAO;
@@ -133,7 +134,9 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         // load banyandb config
         config = new BanyanDBConfigLoader(this).loadConfig();
-
+        if (StringUtil.isBlank(config.getGlobal().getNamespace())) {
+            config.getGlobal().setNamespace("sw");
+        }
         if (config.getMetricsDay().getTtl() > config.getMetadata().getTtl()) {
             throw new ModuleStartException("metricsDay ttl must be less than or equal to metadata ttl");
         }

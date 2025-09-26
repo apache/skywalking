@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
@@ -44,7 +43,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public DashboardConfiguration getTemplate(String id) throws IOException {
-        Property p = getClient().queryProperty(BanyanDB.PropertyGroup.PROPERTY.getName(), UITemplate.INDEX_NAME, id);
+        Property p = getClient().queryProperty(UITemplate.INDEX_NAME, id);
         if (p == null) {
             return null;
         }
@@ -53,7 +52,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
-        List<Property> propertyList = getClient().listProperties(BanyanDB.PropertyGroup.PROPERTY.getName(), UITemplate.INDEX_NAME);
+        List<Property> propertyList = getClient().listProperties(UITemplate.INDEX_NAME);
         return propertyList.stream().map(p -> fromEntity(parse(p)))
                 .filter(conf -> includingDisabled || !conf.isDisabled())
                 .collect(Collectors.toList());
@@ -93,7 +92,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public TemplateChangeStatus disableTemplate(String id) throws IOException {
-        Property oldProperty = this.getClient().queryProperty(BanyanDB.PropertyGroup.PROPERTY.getName(), UITemplate.INDEX_NAME, id);
+        Property oldProperty = this.getClient().queryProperty(UITemplate.INDEX_NAME, id);
         if (oldProperty == null) {
             return TemplateChangeStatus.builder().status(false).id(id).message("Can't find the template")
                     .build();
@@ -136,9 +135,10 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
     }
 
     public Property applyAll(UITemplate uiTemplate) {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(UITemplate.INDEX_NAME);
         return Property.newBuilder()
                 .setMetadata(BanyandbCommon.Metadata.newBuilder()
-                                .setGroup(BanyanDB.PropertyGroup.PROPERTY.getName())
+                                .setGroup(schema.getMetadata().getGroup())
                                 .setName(UITemplate.INDEX_NAME))
             .setId(uiTemplate.id().build())
             .addTags(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()).build())
@@ -154,9 +154,10 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
      * @return new property (patch) to be applied
      */
     public Property applyStatus(UITemplate uiTemplate) {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(UITemplate.INDEX_NAME);
         return Property.newBuilder()
                 .setMetadata(BanyandbCommon.Metadata.newBuilder()
-                    .setGroup(BanyanDB.PropertyGroup.PROPERTY.getName())
+                    .setGroup(schema.getMetadata().getGroup())
                     .setName(UITemplate.INDEX_NAME))
                 .setId(uiTemplate.id().build())
                 .addTags(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()).build())
@@ -171,9 +172,10 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
      * @return new property (patch) to be applied
      */
     public Property applyConfiguration(UITemplate uiTemplate) {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(UITemplate.INDEX_NAME);
         return Property.newBuilder()
                 .setMetadata(BanyandbCommon.Metadata.newBuilder()
-                    .setGroup(BanyanDB.PropertyGroup.PROPERTY.getName())
+                    .setGroup(schema.getMetadata().getGroup())
                     .setName(UITemplate.INDEX_NAME))
                 .setId(uiTemplate.id().build())
                 .addTags(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()).build())

@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import java.util.HashSet;
 import java.util.function.BiFunction;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -216,6 +215,7 @@ public enum MetadataRegistry {
         for (TagMetadata tag : tags) {
             builder.addTags(tag.getTagSpec());
         }
+        registry.put(schemaMetadata.name(), schemaBuilder.build());
         return new PropertyModel(builder.build());
     }
 
@@ -354,25 +354,6 @@ public enum MetadataRegistry {
         return topNAggregations;
     }
 
-    public Schema findMetadata(final Model model) {
-        if (model.isRecord()) {
-            return findRecordMetadata(model.getName());
-        }
-        return findMetadata(model.getName(), model.getDownsampling());
-    }
-
-    public Schema findRecordMetadata(final String recordModelName) {
-        final Schema s = this.registry.get(recordModelName);
-        if (s == null) {
-            return null;
-        }
-        // impose sanity check
-        if (s.getMetadata().getKind() != Kind.STREAM && s.getMetadata().getKind() != Kind.TRACE) {
-            throw new IllegalArgumentException(recordModelName + "is not a record");
-        }
-        return s;
-    }
-
     static DownSampling deriveFromStep(Step step) {
         switch (step) {
             case DAY:
@@ -386,15 +367,33 @@ public enum MetadataRegistry {
         }
     }
 
-    public Schema findMetadata(final String modelName, Step step) {
-        return findMetadata(modelName, deriveFromStep(step));
+    public Schema findMetricMetadata(final String modelName, Step step) {
+        return findMetricMetadata(modelName, deriveFromStep(step));
     }
 
     /**
      * Find metadata with down-sampling
      */
-    public Schema findMetadata(final String modelName, DownSampling downSampling) {
+    public Schema findMetricMetadata(final String modelName, DownSampling downSampling) {
         return this.registry.get(SchemaMetadata.formatName(modelName, downSampling));
+    }
+
+    public Schema findRecordMetadata(final String modelName) {
+        return this.registry.get(modelName);
+    }
+
+    public Schema findManagementMetadata(final String modelName) {
+        return this.registry.get(modelName);
+    }
+
+    public Schema findMetadata(final Model model) {
+        if (!model.isTimeSeries()) {
+            return findManagementMetadata(model.getName());
+        }
+        if (model.isRecord()) {
+            return findRecordMetadata(model.getName());
+        }
+        return findMetricMetadata(model.getName(), model.getDownsampling());
     }
 
     private FieldSpec parseFieldSpec(ModelColumn modelColumn) {
@@ -654,8 +653,16 @@ public enum MetadataRegistry {
     }
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, DownSamplingConfigService configService) {
+        String namespace = config.getGlobal().getNamespace();
         if (!model.isTimeSeries()) {
-            return new SchemaMetadata(BanyanDB.PropertyGroup.PROPERTY.getName(), model.getName(), Kind.PROPERTY, DownSampling.None, config.getProperty());
+            return new SchemaMetadata(
+                namespace,
+                BanyanDB.PropertyGroup.PROPERTY.getName(),
+                model.getName(),
+                Kind.PROPERTY,
+                DownSampling.None,
+                config.getProperty()
+            );
         }
         if (model.isRecord()) {
             BanyanDB.TraceGroup traceGroup = model.getBanyanDBModelExtension().getTraceGroup();
@@ -664,6 +671,7 @@ public enum MetadataRegistry {
                 switch (traceGroup) {
                     case TRACE:
                         return new SchemaMetadata(
+                            namespace,
                             BanyanDB.TraceGroup.TRACE.getName(),
                             model.getName(),
                             Kind.TRACE,
@@ -672,6 +680,7 @@ public enum MetadataRegistry {
                         );
                     case ZIPKIN_TRACE:
                         return new SchemaMetadata(
+                            namespace,
                             BanyanDB.TraceGroup.ZIPKIN_TRACE.getName(),
                             model.getName(),
                             Kind.TRACE,
@@ -687,6 +696,7 @@ public enum MetadataRegistry {
                 switch (streamGroup) {
                     case RECORDS_LOG:
                         return new SchemaMetadata(
+                            namespace,
                             BanyanDB.StreamGroup.RECORDS_LOG.getName(),
                             model.getName(),
                             Kind.STREAM,
@@ -695,6 +705,7 @@ public enum MetadataRegistry {
                         );
                     case RECORDS_BROWSER_ERROR_LOG:
                         return new SchemaMetadata(
+                            namespace,
                             BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG.getName(),
                             model.getName(),
                             Kind.STREAM,
@@ -703,6 +714,7 @@ public enum MetadataRegistry {
                         );
                     case RECORDS:
                         return new SchemaMetadata(
+                            namespace,
                             BanyanDB.StreamGroup.RECORDS.getName(),
                             model.getName(),
                             Kind.STREAM,
@@ -716,45 +728,59 @@ public enum MetadataRegistry {
         }
 
         if (model.getBanyanDBModelExtension().isIndexMode()) {
-            return new SchemaMetadata(BanyanDB.MeasureGroup.METADATA.getName(), model.getName(), Kind.MEASURE,
-                    model.getDownsampling(),
-                    config.getMetadata());
+            return new SchemaMetadata(
+                namespace,
+                BanyanDB.MeasureGroup.METADATA.getName(),
+                model.getName(),
+                Kind.MEASURE,
+                model.getDownsampling(),
+                config.getMetadata()
+            );
         }
 
         switch (model.getDownsampling()) {
             case Minute:
-                return new SchemaMetadata(BanyanDB.MeasureGroup.METRICS_MINUTE.getName(),
-                        model.getName(),
-                        Kind.MEASURE,
-                        model.getDownsampling(),
-                        config.getMetricsMin());
+                return new SchemaMetadata(
+                    namespace,
+                    BanyanDB.MeasureGroup.METRICS_MINUTE.getName(),
+                    model.getName(),
+                    Kind.MEASURE,
+                    model.getDownsampling(),
+                    config.getMetricsMin()
+                );
             case Hour:
                 if (!configService.shouldToHour()) {
                     throw new UnsupportedOperationException("downsampling to hour is not supported");
                 }
-                return new SchemaMetadata(BanyanDB.MeasureGroup.METRICS_HOUR.getName(),
-                        model.getName(),
-                        Kind.MEASURE,
-                        model.getDownsampling(),
-                        config.getMetricsHour());
+                return new SchemaMetadata(
+                    namespace,
+                    BanyanDB.MeasureGroup.METRICS_HOUR.getName(),
+                    model.getName(),
+                    Kind.MEASURE,
+                    model.getDownsampling(),
+                    config.getMetricsHour()
+                );
             case Day:
                 if (!configService.shouldToDay()) {
                     throw new UnsupportedOperationException("downsampling to day is not supported");
                 }
-                return new SchemaMetadata(BanyanDB.MeasureGroup.METRICS_DAY.getName(),
-                        model.getName(),
-                        Kind.MEASURE,
-                        model.getDownsampling(),
-                        config.getMetricsDay());
+                return new SchemaMetadata(
+                    namespace,
+                    BanyanDB.MeasureGroup.METRICS_DAY.getName(),
+                    model.getName(),
+                    Kind.MEASURE,
+                    model.getDownsampling(),
+                    config.getMetricsDay()
+                );
             default:
                 throw new UnsupportedOperationException("unsupported downSampling interval:" + model.getDownsampling());
         }
     }
 
-    @RequiredArgsConstructor
-    @Data
+    @Getter
     @ToString
     public static class SchemaMetadata {
+        private final String namespace;
         private final String group;
         /**
          * name of the {@link Model}
@@ -766,6 +792,21 @@ public enum MetadataRegistry {
          */
         private final DownSampling downSampling;
         private final BanyanDBStorageConfig.GroupResource resource;
+
+        public SchemaMetadata(final String namespace,
+                              final String group,
+                              final String modelName,
+                              final Kind kind,
+                              final DownSampling downSampling,
+                              final BanyanDBStorageConfig.GroupResource resource) {
+            this.namespace = namespace;
+            this.modelName = modelName;
+            this.kind = kind;
+            this.downSampling = downSampling;
+            this.resource = resource;
+            this.group = convertGroupName(namespace, group);
+
+        }
 
         /**
          * Format the entity name for BanyanDB
@@ -884,5 +925,13 @@ public enum MetadataRegistry {
 
     public enum ColumnType {
         TAG, FIELD;
+    }
+
+    public static String convertGroupName(String namespace, String groupName) {
+        if (StringUtil.isNotEmpty(namespace)) {
+            return namespace + "_" + groupName;
+        } else {
+            return groupName;
+        }
     }
 }

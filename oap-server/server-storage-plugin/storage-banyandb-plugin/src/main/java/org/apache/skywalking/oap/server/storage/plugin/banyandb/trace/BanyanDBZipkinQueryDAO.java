@@ -61,7 +61,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
 
     @Override
     public List<String> getServiceNames() throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceTraffic.INDEX_NAME, DownSampling.Minute);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ZipkinServiceTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
             query(false, schema,
                   SERVICE_TRAFFIC_TAGS,
@@ -82,7 +82,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
 
     @Override
     public List<String> getRemoteServiceNames(final String serviceName) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceRelationTraffic.INDEX_NAME, DownSampling.Minute);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ZipkinServiceRelationTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
             query(false, schema,
                   REMOTE_SERVICE_TRAFFIC_TAGS,
@@ -106,7 +106,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
 
     @Override
     public List<String> getSpanNames(final String serviceName) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ZipkinServiceSpanTraffic.INDEX_NAME, DownSampling.Minute);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ZipkinServiceSpanTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp =
             query(false, schema,
                   SPAN_TRAFFIC_TAGS,
@@ -153,7 +153,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                 query.setLimit(QUERY_MAX_SIZE);
             }
         };
-        TraceQueryResponse resp = queryTrace(isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration), query);
+        TraceQueryResponse resp = queryTraceDebuggable(isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration), query);
         if (resp.getTraces().isEmpty()) {
             return new ArrayList<>();
         }
@@ -183,7 +183,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                 query.setLimit(QUERY_MAX_SIZE);
             }
         };
-        TraceQueryResponse resp = queryTrace(
+        TraceQueryResponse resp = queryTraceDebuggable(
                 isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration),
                 query
             );
@@ -240,7 +240,7 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                 query.setLimit(request.limit());
             }
         };
-        TraceQueryResponse resp = queryTrace(
+        TraceQueryResponse resp = queryTraceDebuggable(
             isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration),
             queryBuilder
         );

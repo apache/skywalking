@@ -59,7 +59,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = condition.getName();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(modelName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }

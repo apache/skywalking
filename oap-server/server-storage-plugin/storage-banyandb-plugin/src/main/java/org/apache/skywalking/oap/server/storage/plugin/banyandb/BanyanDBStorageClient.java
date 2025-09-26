@@ -139,11 +139,12 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         this.client.close();
     }
 
-    public List<Property> listProperties(String group, String name) throws IOException {
+    public List<Property> listProperties(String name) throws IOException {
         try {
+            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
             BanyandbProperty.QueryResponse resp
                 = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                                                                 .addGroups(group)
+                                                                 .addGroups(schema.getMetadata().getGroup())
                                                                  .setName(name)
                                                                  .setLimit(Integer.MAX_VALUE)
                                                                  .build());
@@ -160,10 +161,11 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public Property queryProperty(String group, String name, String id) throws IOException {
+    public Property queryProperty(String name, String id) throws IOException {
         try {
+            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
             BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                                                                                                 .addGroups(group)
+                                                                                                 .addGroups(schema.getMetadata().getGroup())
                                                                                                  .setName(name)
                                                                                                  .addIds(id)
                                                                                                  .build());
@@ -183,9 +185,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public DeleteResponse deleteProperty(String group, String name, String id) throws IOException {
+    public DeleteResponse deleteProperty(String name, String id) throws IOException {
         try {
-            DeleteResponse result = this.client.deleteProperty(group, name, id);
+            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
+            DeleteResponse result = this.client.deleteProperty(schema.getMetadata().getGroup(), name, id);
             this.healthChecker.health();
             return result;
         } catch (BanyanDBException ex) {
