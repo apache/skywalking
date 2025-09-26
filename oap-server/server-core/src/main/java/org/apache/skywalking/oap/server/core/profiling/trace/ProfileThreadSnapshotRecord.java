@@ -52,6 +52,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     public static final String DUMP_TIME = "dump_time";
     public static final String SEQUENCE = "sequence";
     public static final String STACK_BINARY = "stack_binary";
+    public static final String IS_GO = "is_go";
 
     @Column(name = TASK_ID)
     @SQLDatabase.CompositeIndex(withColumns = {SEGMENT_ID})
@@ -70,6 +71,18 @@ public class ProfileThreadSnapshotRecord extends Record {
     private int sequence;
     @Column(name = STACK_BINARY)
     private byte[] stackBinary;
+    @ElasticSearch.EnableDocValues
+    @Column(name = IS_GO)
+    @BanyanDB.NoIndexing
+    private int isGo; // store as 0/1 for storage compatibility
+
+    public boolean isGo() {
+        return isGo == 1;
+    }
+
+    public void setGo(final boolean go) {
+        this.isGo = go ? 1 : 0;
+    }
 
     @Override
     public StorageID id() {
@@ -89,6 +102,8 @@ public class ProfileThreadSnapshotRecord extends Record {
             snapshot.setSequence(((Number) converter.get(SEQUENCE)).intValue());
             snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
             snapshot.setStackBinary(converter.getBytes(STACK_BINARY));
+            final Number isGoNum = (Number) converter.get(IS_GO);
+            snapshot.setGo(isGoNum != null && isGoNum.intValue() != 0);
             return snapshot;
         }
 
@@ -100,6 +115,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             converter.accept(SEQUENCE, storageData.getSequence());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(STACK_BINARY, storageData.getStackBinary());
+            converter.accept(IS_GO, storageData.isGo() ? 1 : 0);
         }
     }
 }
