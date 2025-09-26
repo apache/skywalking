@@ -31,6 +31,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRulesWatcherService;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
@@ -50,7 +51,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
  * @since 6.5.0
  */
 @Slf4j
-public class AlarmRulesWatcher extends ConfigChangeWatcher {
+public class AlarmRulesWatcher extends ConfigChangeWatcher implements AlarmRulesWatcherService {
     @Getter
     private volatile Map<String, List<RunningRule>> runningContext;
     private volatile Map<AlarmRule, RunningRule> alarmRuleRunningRuleMap;

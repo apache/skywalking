@@ -297,10 +297,47 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(query);
     }
 
+    protected TraceQueryResponse queryTraceDebuggable(boolean isColdStage,
+                                                    String modelName,
+                                                    TimestampRange timestampRange,
+                                                    QueryBuilder<TraceQuery> queryBuilder) throws IOException {
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            StringBuilder builder = new StringBuilder();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query BanyanDB Trace");
+                MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(modelName);
+                builder.append("Condition: ")
+                       .append("modelName:")
+                       .append(modelName)
+                       .append(", Schema: ")
+                       .append(schema)
+                       .append(", TimestampRange: ")
+                       .append(timestampRange)
+                       .append(", Is cold data query: ")
+                       .append(isColdStage);
+                span.setMsg(builder.toString());
+            }
+            TraceQueryResponse response = queryTrace(isColdStage, modelName, timestampRange, queryBuilder);
+            if (traceContext != null && traceContext.isDumpStorageRsp()) {
+                builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getTraces()));
+                span.setMsg(builder.toString());
+            }
+            //todo: need update banyandb java client.
+           // addDBTrace2DebuggingTrace(response.getTraceResult(), traceContext, span);
+            return response;
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
     /**
      * Trace query doesn't recommend to set query tags, if you need to debug, you can set tags here.
      */
-    protected TraceQueryResponse queryTrace(boolean isColdStage,
+    private TraceQueryResponse queryTrace(boolean isColdStage,
                                        String traceModelName,
                                        TimestampRange timestampRange,
                                        QueryBuilder<TraceQuery> builder) throws IOException {

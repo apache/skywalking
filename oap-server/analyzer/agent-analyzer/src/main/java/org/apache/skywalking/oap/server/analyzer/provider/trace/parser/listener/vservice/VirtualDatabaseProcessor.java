@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+import org.apache.skywalking.oap.server.core.source.ServiceDatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -65,16 +66,34 @@ public class VirtualDatabaseProcessor implements VirtualServiceProcessor {
         recordList.add(toDatabaseAccess(span, serviceName, timeBucket, latency));
 
         readStatementIfSlow(span.getTagsList(), latency).ifPresent(statement -> {
-            DatabaseSlowStatement dbSlowStat = new DatabaseSlowStatement();
-            dbSlowStat.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
-            dbSlowStat.setTraceId(segmentObject.getTraceId());
-            dbSlowStat.setDatabaseServiceId(IDManager.ServiceID.buildId(serviceName, false));
-            dbSlowStat.setStatement(statement);
-            dbSlowStat.setLatency(latency);
-            dbSlowStat.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
-            dbSlowStat.setTimestamp(span.getStartTime());
-            recordList.add(dbSlowStat);
+            recordList.add(buildDatabaseSlowStatement(span, segmentObject, statement, serviceName, latency));
+            recordList.add(buildServiceDatabaseSlowStatement(span, segmentObject, statement, latency));
         });
+    }
+
+    private DatabaseSlowStatement buildDatabaseSlowStatement(SpanObject span, SegmentObject segmentObject, String statement, String serviceName, int latency) {
+        DatabaseSlowStatement dbSlowStat = new DatabaseSlowStatement();
+        dbSlowStat.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
+        dbSlowStat.setTraceId(segmentObject.getTraceId());
+        dbSlowStat.setDatabaseServiceId(IDManager.ServiceID.buildId(serviceName, false));
+        dbSlowStat.setStatement(statement);
+        dbSlowStat.setLatency(latency);
+        dbSlowStat.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
+        dbSlowStat.setTimestamp(span.getStartTime());
+        return dbSlowStat;
+    }
+
+    private ServiceDatabaseSlowStatement buildServiceDatabaseSlowStatement(SpanObject span, SegmentObject segmentObject, String statement, int latency) {
+        ServiceDatabaseSlowStatement serviceDbSlowStat = new ServiceDatabaseSlowStatement();
+        serviceDbSlowStat.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
+        serviceDbSlowStat.setTraceId(segmentObject.getTraceId());
+        serviceDbSlowStat.setServiceId(IDManager.ServiceID.buildId(segmentObject.getService(), true));
+        serviceDbSlowStat.setStatement(statement);
+        serviceDbSlowStat.setLatency(latency);
+        serviceDbSlowStat.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
+        serviceDbSlowStat.setTimestamp(span.getStartTime());
+
+        return serviceDbSlowStat;
     }
 
     private Optional<String> readStatementIfSlow(List<KeyStringValuePair> tags, int latency) {
