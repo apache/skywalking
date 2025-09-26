@@ -56,7 +56,7 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
 
     private MetadataRegistry.Schema getSchema() {
         if (schema == null) {
-            schema = MetadataRegistry.INSTANCE.findMetadata(NetworkAddressAlias.INDEX_NAME, DownSampling.Minute);
+            schema = MetadataRegistry.INSTANCE.findMetricMetadata(NetworkAddressAlias.INDEX_NAME, DownSampling.Minute);
         }
         return schema;
     }

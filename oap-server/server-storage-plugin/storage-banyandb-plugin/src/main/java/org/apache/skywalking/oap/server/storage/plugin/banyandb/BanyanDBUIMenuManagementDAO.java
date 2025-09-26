@@ -24,7 +24,6 @@ import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenu;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
@@ -39,7 +38,7 @@ public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements 
 
     @Override
     public UIMenu getMenu(String id) throws IOException {
-        Property p = getClient().queryProperty(BanyanDB.PropertyGroup.PROPERTY.getName(), UIMenu.INDEX_NAME, id);
+        Property p = getClient().queryProperty(UIMenu.INDEX_NAME, id);
         if (p == null) {
             return null;
         }
@@ -48,9 +47,10 @@ public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements 
 
     @Override
     public void saveMenu(UIMenu menu) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(UIMenu.INDEX_NAME);
         Property property = Property.newBuilder()
                                     .setMetadata(
-                                        BanyandbCommon.Metadata.newBuilder().setGroup(BanyanDB.PropertyGroup.PROPERTY.getName()).setName(UIMenu.INDEX_NAME))
+                                        BanyandbCommon.Metadata.newBuilder().setGroup(schema.getMetadata().getGroup()).setName(UIMenu.INDEX_NAME))
                                     .setId(menu.getMenuId())
                                     .addTags(TagAndValue.newStringTag(UIMenu.CONFIGURATION, menu.getConfigurationJson())
                                                         .build())

@@ -64,7 +64,7 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
     public List<ContinuousProfilingPolicy> queryPolicies(List<String> serviceIdList) throws IOException {
         return serviceIdList.stream().map(s -> {
             try {
-                return getClient().queryProperty(BanyanDB.PropertyGroup.PROPERTY.getName(), ContinuousProfilingPolicy.INDEX_NAME, s);
+                return getClient().queryProperty(ContinuousProfilingPolicy.INDEX_NAME, s);
             } catch (IOException e) {
                 log.warn("query policy error", e);
                 return null;

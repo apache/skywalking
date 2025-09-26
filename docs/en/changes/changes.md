@@ -102,6 +102,7 @@
 * BanyanDB: fix log query missing order by condition, and fix missing service id condition when query by instance id or endpoint id.
 * Fix potential NPE in the `AlarmStatusQueryHandler`.
 * Aggregate TopN Slow SQL by service dimension.
+* BanyanDB: support add group prefix (namespace) for BanyanDB groups.
 
 #### UI
 
