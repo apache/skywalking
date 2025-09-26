@@ -84,14 +84,7 @@ public class GoProfileAnalyzer {
                 continue;
             }
 
-            // Filter by time window if labels present
-            long st = extractTimestamp(sample, stringTable, true);
-            long et = extractTimestamp(sample, stringTable, false);
-            if (st > 0 && et > 0) {
-                if (et < startTimeInclusive || st > endTimeInclusive) {
-                    continue;
-                }
-            }
+            // Do not filter by time window; analyze all samples for this segment
 
             long sampleCount = sample.getValueCount() > 0 ? sample.getValue(0) : 1L;
             long weightMs = sampleCount * periodMs;

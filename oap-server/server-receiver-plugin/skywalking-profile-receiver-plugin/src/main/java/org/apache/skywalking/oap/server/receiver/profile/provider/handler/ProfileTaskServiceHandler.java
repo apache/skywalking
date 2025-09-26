@@ -299,50 +299,11 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                 GoProfileSegmentInfo segmentInfo = new GoProfileSegmentInfo();
                 segmentInfo.setSegmentId(segmentId);
                 
-                // Extract basic information. For times, scan all samples under the same segment.
+                // Extract basic information.
                 ProfileProto.Sample firstSample = samples.get(0);
                 segmentInfo.setTraceId(extractTraceIdFromLabels(firstSample.getLabelList(), profile.getStringTableList()));
                 segmentInfo.setSpanId(extractSpanIdFromLabels(firstSample.getLabelList(), profile.getStringTableList()));
                 segmentInfo.setServiceInstanceId(extractServiceInstanceIdFromLabels(firstSample.getLabelList(), profile.getStringTableList()));
-
-                long segStart = Long.MAX_VALUE;
-                long segEnd = Long.MIN_VALUE;
-                for (ProfileProto.Sample s : samples) {
-                    long st = extractStartTimeFromLabels(s.getLabelList(), profile.getStringTableList());
-                    if (st > 0) {
-                        segStart = Math.min(segStart, st);
-                    }
-                }
-                // fallback to profile level time if segment labels didn't provide
-                if (segStart == Long.MAX_VALUE) {
-                    long profileStart = profile.getTimeNanos() > 0 ? profile.getTimeNanos() / 1_000_000L : 0L;
-                    if (profileStart > 0) {
-                        if (LOGGER.isInfoEnabled()) {
-                            LOGGER.info("Segment {} missing start label, fallback to profile.timeNanos -> {}", segmentId, profileStart);
-                        }
-                        segStart = profileStart;
-                    }
-                }
-                {
-                    long profileEnd = 0L;
-                    if (profile.getTimeNanos() > 0 && profile.getDurationNanos() > 0) {
-                        profileEnd = (profile.getTimeNanos() + profile.getDurationNanos()) / 1_000_000L;
-                    }
-                    if (profileEnd > 0) {
-                        if (LOGGER.isInfoEnabled()) {
-                            LOGGER.info("Segment {} using profile.timeNanos+duration as end -> {}", segmentId, profileEnd);
-                        }
-                        segEnd = profileEnd;
-                    }
-                }
-                if (segStart == Long.MAX_VALUE) {
-                    segStart = System.currentTimeMillis() - 60_000L;
-                }
-                if (segEnd == Long.MIN_VALUE) {
-                    segEnd = System.currentTimeMillis();
-                }
-                segmentInfo.setStartTime(segStart);
-                segmentInfo.setEndTime(segEnd);
                 
                 // Merge call stacks from all samples
                 List<String> combinedStack = extractCombinedStackFromSamples(samples, profile);
@@ -608,13 +569,14 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
             ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
             record.setTaskId(taskId);
             record.setSegmentId(segmentInfo.getSegmentId()); // Use real segmentId
-            record.setDumpTime(segmentInfo.getStartTime());
+            long dumpTimeMs = originalProfile.getTimeNanos() > 0 ? originalProfile.getTimeNanos() / 1_000_000L : System.currentTimeMillis();
+            record.setDumpTime(dumpTimeMs);
             record.setSequence(0); // Each segment has only one record
             record.setGo(true); // Mark as Go profile data
             
             // Store filtered pprof data containing only this segment's samples
             record.setStackBinary(filteredPprofData);
-            record.setTimeBucket(TimeBucket.getRecordTimeBucket(segmentInfo.getStartTime()));
+            record.setTimeBucket(TimeBucket.getRecordTimeBucket(dumpTimeMs));
             
             LOGGER.info("About to store Go profile snapshot: taskId={}, segmentId={}, dumpTime={}, timeBucket={}, sequence={}, isGo={}, filteredDataSize={}, samples={}",
                 record.getTaskId(), record.getSegmentId(), record.getDumpTime(), record.getTimeBucket(), 

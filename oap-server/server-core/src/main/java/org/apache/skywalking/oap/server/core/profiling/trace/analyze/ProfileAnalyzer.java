@@ -167,7 +167,32 @@ public class ProfileAnalyzer {
         if (maxSequence <= 0) {
             LOGGER.info("Profile analyze not found any sequence in window: segmentId={}, start={}, end={}",
                 segmentId, start, end);
-            return null;
+
+            // Go-only fallback: if this segment has Go snapshots, ignore time window and fetch any sequences
+            int fbMin = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, 0L, Long.MAX_VALUE);
+            int fbMax = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, 0L, Long.MAX_VALUE) + 1;
+            if (fbMax > 0) {
+                List<ProfileThreadSnapshotRecord> probe;
+                try {
+                    probe = getProfileThreadSnapshotQueryDAO().queryRecords(segmentId, fbMin, Math.min(fbMin + 1, fbMax));
+                } catch (IOException e) {
+                    LOGGER.warn("Probe records failed for segmentId={}, fbMin={}, fbMax={}", segmentId, fbMin, fbMax, e);
+                    return null;
+                }
+                boolean isGoSegment = !probe.isEmpty() && probe.get(0).isGo();
+                if (isGoSegment) {
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("Profile analyze fallback without time window for Go segment: segmentId={}, minSeq={}, maxSeq(exclusive)={}",
+                            segmentId, fbMin, fbMax);
+                    }
+                    minSequence = fbMin;
+                    maxSequence = fbMax;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
         }
 
         SequenceSearch sequenceSearch = new SequenceSearch(maxSequence - minSequence);
