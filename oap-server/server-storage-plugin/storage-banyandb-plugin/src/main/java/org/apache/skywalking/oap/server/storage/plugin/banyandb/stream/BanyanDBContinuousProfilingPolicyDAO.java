@@ -24,7 +24,6 @@ import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
@@ -32,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 @Slf4j
 public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO implements IContinuousProfilingPolicyDAO {
@@ -50,9 +50,10 @@ public class BanyanDBContinuousProfilingPolicyDAO extends AbstractBanyanDBDAO im
     }
 
     public Property applyAll(ContinuousProfilingPolicy policy) {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(ContinuousProfilingPolicy.INDEX_NAME);
         return Property.newBuilder()
                        .setMetadata(BanyandbCommon.Metadata.newBuilder()
-                           .setGroup(BanyanDB.PropertyGroup.PROPERTY.getName())
+                           .setGroup(schema.getMetadata().getGroup())
                            .setName(ContinuousProfilingPolicy.INDEX_NAME))
             .setId(policy.id().build())
             .addTags(TagAndValue.newStringTag(ContinuousProfilingPolicy.UUID, policy.getUuid()).build())
