@@ -1,0 +1,104 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+#services:
+#  banyandb:
+#    extends:
+#      file: ../../script/docker-compose/base-compose.yml
+#      service: banyandb
+#    networks:
+#      - e2e
+#    ports:
+#      - "17913:17913"
+#      - "2121:2121"
+#
+#  oap:
+#    extends:
+#      file: ../../script/docker-compose/base-compose.yml
+#      service: oap
+#    environment:
+#      SW_STORAGE: banyandb
+#    ports:
+#      - 12800
+#    depends_on:
+#      banyandb:
+#        condition: service_healthy
+#    networks:
+#      - e2e
+services:
+  banyandb:
+    image: ghcr.io/apache/skywalking-banyandb:65504b5d925a15cc0ab1004f6e7cbceb65b20f83
+    networks:
+      - e2e
+    expose:
+      - 17912
+      - 2121
+    ports:
+      - "17913:17913"
+      - "2121:2121"
+    # command: standalone --observability-modes=native
+    command: standalone
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "17913"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  oap:
+    image: banyandb_oap:v1
+    networks:
+      - e2e
+    expose:
+      - 11800
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+    environment:
+      SW_HEALTH_CHECKER: default # @feature: health-check;
+      SW_OTEL_RECEIVER: default # @feature: vm; enable the OC receiver that receives the VM metrics
+      SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: banyandb,vm,mysql/*,postgresql/*,elasticsearch/*,rabbitmq/*,mongodb/*,rocketmq/*,pulsar/*,activemq/*,flink/* # @feature: vm,mysql,postgresql,elasticsearch; enable the OC rules that analyse the metrics
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: banyandb:17912
+      SW_TELEMETRY: prometheus # @feature: so11y; expose the metrics of self o11y through prometheus
+      SW_PROMETHEUS_FETCHER: default # @feature: so11y; fetch the metrics of self o11y through prometheus
+      JAVA_OPTS: "-Xms2048m -Xmx2048m"
+      SW_METER_ANALYZER_ACTIVE_FILES: datasource,threadpool,satellite,spring-sleuth,go-runtime,java-agent,go-agent
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      banyandb:
+        condition: service_healthy
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+#    depends_on:
+#      oap:
+#        condition: service_healthy
+
+networks:
+  e2e:
+
+
