@@ -100,7 +100,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             String timestampColumn = aClass.getAnnotation(BanyanDB.TimestampColumn.class).value();
             if (StringUtil.isBlank(timestampColumn)) {
                 throw new IllegalStateException(
-                    "Model[trace." + storage.getModelName() + "] missing defined @BanyanDB.TimestampColumn");
+                    "Model[" + storage.getModelName() + "] missing defined @BanyanDB.TimestampColumn");
             }
             banyanDBModelExtension.setTimestampColumn(timestampColumn);
         }
@@ -109,7 +109,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             String traceIdColumn = aClass.getAnnotation(BanyanDB.Trace.TraceIdColumn.class).value();
             if (StringUtil.isBlank(traceIdColumn)) {
                 throw new IllegalStateException(
-                    "Model[trace." + storage.getModelName() + "] missing defined @BanyanDB.TimestampColumn");
+                    "Model[trace." + storage.getModelName() + "] missing defined @BanyanDB.TraceIdColumn");
             }
             banyanDBModelExtension.setTraceIdColumn(traceIdColumn);
         }
