@@ -118,7 +118,6 @@ public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP_MILLIS)
-    @BanyanDB.NoIndexing
     private long timestampMillis;
     @Setter
     @Getter

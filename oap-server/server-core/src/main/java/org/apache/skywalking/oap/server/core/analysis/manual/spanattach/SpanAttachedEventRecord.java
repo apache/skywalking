@@ -87,7 +87,6 @@ public class SpanAttachedEventRecord extends Record implements BanyanDBTrace, Ba
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
-    @BanyanDB.NoIndexing
     private long timestamp;
 
     @Override

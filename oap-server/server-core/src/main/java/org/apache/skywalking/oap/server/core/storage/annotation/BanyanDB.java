@@ -106,7 +106,8 @@ public @interface BanyanDB {
     /**
      * Force disabling indexing declare through {@link Column}.
      * In BanyanDB, some additional conditions could be done in server memory, no indexing required in this case.
-     *
+     * In the Trace model, no indexing means no tag would be created in BanyanDB.
+     * In the Stream model, no indexing means no index rule would be created in BanyanDB.
      * @since 9.1.0
      */
     @Target({ElementType.FIELD})
@@ -148,9 +149,9 @@ public @interface BanyanDB {
     }
 
     /**
-     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for
-     * BanyanDB.
+     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for BanyanDB.
      * BanyanDB stream requires a timestamp in milliseconds.
+     * Notice, the timestamp column would not create an index rule in BanyanDB.
      *
      * @since 9.3.0
      */
