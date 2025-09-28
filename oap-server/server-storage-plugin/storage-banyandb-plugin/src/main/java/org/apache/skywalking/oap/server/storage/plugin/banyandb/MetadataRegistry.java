@@ -235,10 +235,10 @@ public enum MetadataRegistry {
             if (col.isStorageOnly()) {
                 continue;
             }
-            if (columnStorageName.equals(Record.TIME_BUCKET)) {
+            if (!col.getBanyanDBExtension().shouldIndex()) {
                 continue;
             }
-            if (!col.getBanyanDBExtension().shouldIndex()) {
+            if (columnStorageName.equals(Record.TIME_BUCKET)) {
                 continue;
             }
             final TagSpec tagSpec = parseTagSpec(col);
