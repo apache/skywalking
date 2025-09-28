@@ -104,6 +104,7 @@
 * Fix potential NPE in the `AlarmStatusQueryHandler`.
 * Aggregate TopN Slow SQL by service dimension.
 * BanyanDB: support add group prefix (namespace) for BanyanDB groups.
+* BanyanDB: fix when setting `@BanyanDB.TimestampColumn`, the column should not be indexed.
 
 #### UI
 
@@ -113,7 +114,7 @@
 * Support cold stage data for metrics, trace and log.
 * Add route to status API `/debugging/config/dump` in the UI.
 * Implement the Status API on Settings page.
-* Bump vite from 6.2.6 to 6.3.4.
+* Bump vite from 6.2.6 to 6.3.6.
 * Enhance async profiling by adding shorter and custom duration options.
 * Fix select wrong span to analysis in trace profiling.
 * Correct the service list for legends in trace graphs.
@@ -129,6 +130,10 @@
 * refactor the configuration view and implement the optional config for displaying timestamp in Log widget.
 * test: implement unit tests for hooks and refactor some types.
 * fix: share OAP proxy servies for different endpoins and use health checked endpoints group.
+* Optimize buttons in time picker component.
+* Optimize the router system and implement unit tests for router.
+* Bump element-plus from 2.9.4 to 2.11.0.
+* Adapt new trace protocol and implement new trace view.
 
 #### Documentation
 

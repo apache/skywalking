@@ -83,7 +83,6 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     private int targetType = EBPFProfilingTargetType.UNKNOWN.value();
     @ElasticSearch.EnableDocValues
     @Column(name = CREATE_TIME)
-    @BanyanDB.NoIndexing
     private long createTime;
     @Column(name = LAST_UPDATE_TIME)
     private long lastUpdateTime;

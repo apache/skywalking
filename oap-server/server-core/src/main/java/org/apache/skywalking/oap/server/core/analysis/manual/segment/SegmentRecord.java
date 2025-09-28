@@ -98,7 +98,6 @@ public class SegmentRecord extends Record implements BanyanDBTrace {
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
-    @BanyanDB.NoIndexing
     private long startTime;
     @Setter
     @Getter
