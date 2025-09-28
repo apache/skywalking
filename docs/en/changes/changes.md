@@ -2,6 +2,7 @@
 
 #### Project
 
+* Implement self-monitoring for BanyanDB via OAP Server and UI
 * Bump up BanyanDB dependency version(server and java-client) to 0.9.0.
 * Fix CVE-2025-54057, restrict and validate url for widgets.
 * Fix `MetricsPersistentWorker`, remove DataCarrier queue from `Hour/Day` dimensions metrics persistent process.
