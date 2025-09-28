@@ -63,7 +63,6 @@ public class ProfileThreadSnapshotRecord extends Record {
     private String segmentId;
     @ElasticSearch.EnableDocValues
     @Column(name = DUMP_TIME)
-    @BanyanDB.NoIndexing
     private long dumpTime;
     @ElasticSearch.EnableDocValues
     @Column(name = SEQUENCE)

@@ -238,6 +238,9 @@ public enum MetadataRegistry {
             if (columnStorageName.equals(Record.TIME_BUCKET)) {
                 continue;
             }
+            if (!col.getBanyanDBExtension().shouldIndex()) {
+                continue;
+            }
             final TagSpec tagSpec = parseTagSpec(col);
             final TraceTagSpec.Builder traceTagSpec = TraceTagSpec.newBuilder();
             traceTagSpec.setName(tagSpec.getName());
@@ -538,7 +541,7 @@ public enum MetadataRegistry {
             final TagSpec tagSpec = parseTagSpec(col);
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
-            if (col.getBanyanDBExtension().shouldIndex()) {
+            if (col.getBanyanDBExtension().shouldIndex() && !colName.equals(model.getBanyanDBModelExtension().getTimestampColumn())) {
                 if (!seriesIDColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
                     tagMetadataList.add(new TagMetadata(
                         indexRule(
@@ -593,7 +596,7 @@ public enum MetadataRegistry {
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
 
-            if (col.getBanyanDBExtension().shouldIndex()) {
+            if (col.getBanyanDBExtension().shouldIndex() && !colName.equals(model.getBanyanDBModelExtension().getTimestampColumn())) {
                 if (!seriesIDColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
                     result.tag(new TagMetadata(
                         indexRule(

@@ -103,6 +103,7 @@
 * Fix potential NPE in the `AlarmStatusQueryHandler`.
 * Aggregate TopN Slow SQL by service dimension.
 * BanyanDB: support add group prefix (namespace) for BanyanDB groups.
+* BanyanDB: fix when setting `@BanyanDB.TimestampColumn`, the column should not be indexed.
 
 #### UI
 
