@@ -100,7 +100,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             String timestampColumn = aClass.getAnnotation(BanyanDB.TimestampColumn.class).value();
             if (StringUtil.isBlank(timestampColumn)) {
                 throw new IllegalStateException(
-                    "Model[ " + storage.getModelName() + "] missing defined @BanyanDB.TimestampColumn");
+                    "Model[" + storage.getModelName() + "] missing defined @BanyanDB.TimestampColumn");
             }
             banyanDBModelExtension.setTimestampColumn(timestampColumn);
         }
