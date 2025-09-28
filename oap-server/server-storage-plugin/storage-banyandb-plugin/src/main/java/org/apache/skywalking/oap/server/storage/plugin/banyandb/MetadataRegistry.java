@@ -231,10 +231,7 @@ public enum MetadataRegistry {
         builder.setTimestampTagName(timestampColumn);
         for (final ModelColumn col : model.getColumns()) {
             final String columnStorageName = col.getColumnName().getStorageName();
-            // skip storage only column, since they are not supposed to be queried
-            if (col.isStorageOnly()) {
-                continue;
-            }
+            // skip no index column, since they are not supposed to be queried
             if (!col.getBanyanDBExtension().shouldIndex()) {
                 continue;
             }
