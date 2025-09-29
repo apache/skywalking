@@ -133,6 +133,7 @@
 * Optimize the router system and implement unit tests for router.
 * Bump element-plus from 2.9.4 to 2.11.0.
 * Adapt new trace protocol and implement new trace view.
+* Implement Trace page.
 
 #### Documentation
 
