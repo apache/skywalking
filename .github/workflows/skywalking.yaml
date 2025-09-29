@@ -366,6 +366,8 @@ jobs:
             config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: BanyanDB TLS
             config: test/e2e-v2/cases/storage/banyandb/tls/e2e.yaml
+          - name: BanyanDB monitoring
+            config: test/e2e-v2/cases/banyandb/e2e.yaml
           - name: Storage MySQL
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
           - name: Storage PostgreSQL
@@ -690,8 +692,6 @@ jobs:
             config: test/e2e-v2/cases/kong/e2e.yaml
           - name: Flink
             config: test/e2e-v2/cases/flink/e2e.yaml
-          - name: BanyanDB monitoring
-            config: test/e2e-v2/cases/banyandb/e2e.yaml
 
           - name: UI Menu BanyanDB
             config: test/e2e-v2/cases/menu/banyandb/e2e.yaml
