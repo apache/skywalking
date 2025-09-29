@@ -173,7 +173,7 @@
                     "i": "7",
                     "type": "Widget",
                     "widget": {
-                        "title": "Etcd opeartion rate"
+                        "title": "Etcd operation rate"
                     },
                     "graph": {
                         "type": "Card",
