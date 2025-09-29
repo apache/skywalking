@@ -38,7 +38,7 @@ public class PprofParser {
         byte[] bytes = new byte[buf.remaining()];
         buf.get(bytes);
         InputStream stream = new java.io.ByteArrayInputStream(bytes);
-        InputStream inputStream = isGzippedBytes(bytes) ? new GZIPInputStream(stream) : stream;
+        InputStream inputStream = new GZIPInputStream(stream);
         ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(inputStream);
         FrameTree tree = new FrameTreeBuilder(profile).build();
         return tree;
@@ -51,25 +51,9 @@ public class PprofParser {
             throw new IOException("Pprof file not found: " + filePath);
         }
         InputStream fileStream = new FileInputStream(file);
-        InputStream stream = filePath.endsWith(".gz") || isGzipped(file) ? 
-                    new GZIPInputStream(fileStream) : fileStream;
-        ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(fileStream);
+        InputStream stream = new GZIPInputStream(fileStream);
+        ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(stream);
         FrameTree tree = new FrameTreeBuilder(profile).build();
         return tree;
-    }
-
-    private static boolean isGzipped(File file) throws IOException {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            byte[] magic = new byte[2];
-            if (fis.read(magic) == 2) {
-                return (magic[0] == (byte) 0x1f) && (magic[1] == (byte) 0x8b);
-            }
-        }
-        return false;
-    }
-
-    private static boolean isGzippedBytes(byte[] bytes) {
-        return bytes.length >= 2 && 
-               (bytes[0] == (byte) 0x1f) && (bytes[1] == (byte) 0x8b);
     }
 }

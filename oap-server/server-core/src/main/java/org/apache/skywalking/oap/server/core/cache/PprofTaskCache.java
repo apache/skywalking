@@ -19,48 +19,26 @@
 package org.apache.skywalking.oap.server.core.cache;
 
 import org.apache.skywalking.oap.server.library.module.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.type.PprofTask;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import java.time.Duration;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class PprofTaskCache implements Service {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PprofTaskCache.class);
-
     private final Cache<String, PprofTask> serviceId2taskCache;
-    private final ModuleManager moduleManager;
-
-    private IPprofTaskQueryDAO taskQueryDAO;
-
-    public PprofTaskCache(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
-        this.moduleManager = moduleManager;
+    public PprofTaskCache(CoreModuleConfig moduleConfig) {
         long initialSize = moduleConfig.getMaxSizeOfProfileTask() / 10L;
         int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
     
         serviceId2taskCache = CacheBuilder.newBuilder()
                 .initialCapacity(initialCapacitySize)
                 .maximumSize(moduleConfig.getMaxSizeOfProfileTask())
-                // remove old profile task data - extend to 10 minutes to ensure data availability
-                .expireAfterWrite(Duration.ofMinutes(10))
+                // remove old profile task data
+                .expireAfterWrite(Duration.ofMinutes(1))
                 .build();
-    }
-
-    private IPprofTaskQueryDAO getTaskQueryDAO() {
-        if (Objects.isNull(taskQueryDAO)) {
-            taskQueryDAO = moduleManager.find(StorageModule.NAME)
-                    .provider()
-                    .getService(IPprofTaskQueryDAO.class);
-        }
-        return taskQueryDAO;
     }
 
     public PprofTask getPprofTask(String serviceId) {

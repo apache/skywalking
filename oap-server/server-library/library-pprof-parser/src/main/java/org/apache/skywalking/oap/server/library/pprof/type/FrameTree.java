@@ -18,21 +18,42 @@
 
 package org.apache.skywalking.oap.server.library.pprof.type;
 
-import com.google.gson.annotations.SerializedName;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+import lombok.Getter;
+@Getter
 public class FrameTree {
-    @SerializedName("name")
     private String signature;
-    @SerializedName("value")
     private long total;
     private long self;
-    private final List<FrameTree> children = new ArrayList<>();
+    private List<FrameTree> children;
+
+    public FrameTree(Frame frame) {
+        this.signature = frame.getSignature();
+        this.total = frame.getTotal();
+        this.self = frame.getSelf();
+        this.children = new ArrayList<>(frame.size());
+    }
+    public FrameTree(String signature, long total, long self) {
+        this.signature = signature;
+        this.total = total;
+        this.self = self;
+        this.children = new ArrayList<>();
+    }
+
+    public static FrameTree buildTree(Frame frame) {
+        if (frame == null) return null;
+
+        FrameTree frameTree = new FrameTree(frame);
+        // has children?
+        if (!frame.isEmpty()) {
+            frameTree.children = new ArrayList<>(frame.size());
+            // build tree
+            for (Frame childFrame : frame.values()) {
+                FrameTree childFrameTree = buildTree(childFrame);
+                frameTree.children.add(childFrameTree);
+            }
+        }
+        return frameTree;
+    }
 }

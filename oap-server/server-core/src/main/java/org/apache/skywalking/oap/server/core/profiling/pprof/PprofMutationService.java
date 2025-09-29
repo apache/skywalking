@@ -67,7 +67,6 @@ public class PprofMutationService implements Service {
         if (checkResult != null) {
             return checkResult;
         }
-
         // create task
         PprofTaskRecord task = new PprofTaskRecord();
         String taskId = createTime + Const.ID_CONNECTOR + serviceId;

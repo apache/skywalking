@@ -20,11 +20,9 @@ package org.apache.skywalking.oap.server.library.pprof.parser;
 
 import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
 import org.apache.skywalking.oap.server.library.pprof.type.Frame;
-import org.apache.skywalking.oap.server.library.pprof.type.Index;
 import java.util.List;
 
 public class PprofMergeBuilder {
-    private final Index<String> cpool = new Index<>(String.class, "");
     private final Frame root = new Frame("root");
 
     public PprofMergeBuilder merge(List<FrameTree> trees) {
@@ -57,20 +55,11 @@ public class PprofMergeBuilder {
     }
 
     private Frame addChild(Frame parent, String signature) {
-        int titleIndex = cpool.index(signature);
-        return parent.getChild(titleIndex, signature);
+        return parent.getChild(signature);
     }
 
     public FrameTree build() {
-        return toFrameTree(root);
-    }
-
-    private FrameTree toFrameTree(Frame node) {
-        FrameTree tree = new FrameTree(node.getSignature(), node.getTotal(), node.getSelf());
-        for (Frame child : node.values()) {
-            tree.getChildren().add(toFrameTree(child));
-        }
-        return tree;
+        return FrameTree.buildTree(root);
     }
 
 }

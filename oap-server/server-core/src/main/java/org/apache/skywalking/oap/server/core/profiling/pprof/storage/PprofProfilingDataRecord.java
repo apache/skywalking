@@ -38,9 +38,7 @@ import java.nio.charset.StandardCharsets;
 @BanyanDB.TimestampColumn(PprofProfilingDataRecord.UPLOAD_TIME)
 public class PprofProfilingDataRecord extends Record {
     public static final String INDEX_NAME = "pprof_profiling_data";
-
     public static final String TASK_ID = "task_id";
-    public static final String EVENT_TYPE = "event_type";
     public static final String INSTANCE_ID = "instance_id";
     public static final String DATA_BINARY = "data_binary";
     public static final String UPLOAD_TIME = "upload_time";
@@ -51,9 +49,6 @@ public class PprofProfilingDataRecord extends Record {
     @Column(name = INSTANCE_ID)
     @BanyanDB.SeriesID(index = 0)
     private String instanceId;
-    
-    @Column(name = EVENT_TYPE)
-    private String eventType;
 
     @Column(name = UPLOAD_TIME)
     private long uploadTime;
@@ -67,13 +62,11 @@ public class PprofProfilingDataRecord extends Record {
                 new String[]{
                         TASK_ID,
                         INSTANCE_ID,
-                        EVENT_TYPE,
                         UPLOAD_TIME
                 },
                 Hashing.sha256().newHasher()
                         .putString(taskId, StandardCharsets.UTF_8)
                         .putString(instanceId, StandardCharsets.UTF_8)
-                        .putString(eventType, StandardCharsets.UTF_8)
                         .putLong(uploadTime)
                         .hash().toString()
         );
@@ -87,7 +80,6 @@ public class PprofProfilingDataRecord extends Record {
             dataTraffic.setTaskId((String) converter.get(TASK_ID));
             dataTraffic.setInstanceId((String) converter.get(INSTANCE_ID));
             dataTraffic.setUploadTime(((Number) converter.get(UPLOAD_TIME)).longValue());
-            dataTraffic.setEventType((String) converter.get(EVENT_TYPE));
             dataTraffic.setDataBinary(converter.getBytes(DATA_BINARY));
             return dataTraffic;
         }
@@ -98,7 +90,6 @@ public class PprofProfilingDataRecord extends Record {
             converter.accept(TASK_ID, storageData.getTaskId());
             converter.accept(INSTANCE_ID, storageData.getInstanceId());
             converter.accept(UPLOAD_TIME, storageData.getUploadTime());
-            converter.accept(EVENT_TYPE, storageData.getEventType());
             converter.accept(DATA_BINARY, storageData.getDataBinary());
         }
     }

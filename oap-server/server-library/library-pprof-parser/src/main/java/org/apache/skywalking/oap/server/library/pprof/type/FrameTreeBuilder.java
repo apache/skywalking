@@ -56,7 +56,6 @@ public class FrameTreeBuilder {
         }
         return tree;
     }
-
     private String getSignature(long locationId) {
         if (locationId == 0) {
             return "root";
@@ -87,11 +86,13 @@ public class FrameTreeBuilder {
             boolean isEnd = i == size - 1;
             long locationId = locationIdList.get(i);
             if (children.containsKey(locationId)) {
+                // if the child exists, merge the sample data
                 RawFrameTree child = children.get(locationId);
                 child.setTotal(child.getTotal() + 1);
                 child.setSelf(child.getSelf() + (isEnd ? 1 : 0));
                 children = child.getChildren();
             } else {
+                // if the child does not exist, create a new child
                 RawFrameTree child = new RawFrameTree(locationId, 1, (isEnd ? 1 : 0));
                 children.put(locationId, child);
                 children = child.getChildren();

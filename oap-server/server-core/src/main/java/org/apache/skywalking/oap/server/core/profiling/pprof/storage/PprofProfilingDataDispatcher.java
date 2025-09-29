@@ -32,7 +32,6 @@ public class PprofProfilingDataDispatcher implements SourceDispatcher<PprofProfi
                 PprofProfilingDataRecord record = new PprofProfilingDataRecord();
                 record.setTaskId(source.getTaskId());
                 record.setInstanceId(source.getInstanceId());
-                record.setEventType(source.getEventType().toString());
                 record.setDataBinary(GSON.toJson(source.getFrameTree()).getBytes());
                 record.setUploadTime(source.getUploadTime());
                 record.setTimeBucket(TimeBucket.getRecordTimeBucket(source.getUploadTime()));

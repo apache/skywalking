@@ -25,21 +25,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Frame extends HashMap<Integer, Frame> {
-    final int key;
     final String signature;
     long total;
     long self;
     
-    private Frame(int key, String signature) {
-        this.key = key;
-        this.signature = signature;
-    }
     
     public Frame(String signature) {
-        this(signature.hashCode(), signature);
+        this.signature = signature;
     }
-    
-    public Frame getChild(int titleIndex, String signature) {
-        return super.computeIfAbsent(titleIndex, k -> new Frame(k, signature));
+
+    public Frame getChild(String signature) {
+        return super.computeIfAbsent(signature.hashCode(), k -> new Frame(signature));
     }
 }

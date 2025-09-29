@@ -63,31 +63,23 @@ public class PprofByteBufCollectionObserver implements StreamObserver<PprofData>
                 taskMetaData = parseMetaData(pprofData.getMetadata(), taskDAO);
             if (PprofProfilingStatus.PPROF_PROFILING_SUCCESS.equals(taskMetaData.getType())) {
                 int size = taskMetaData.getContentSize();
-                log.info("pprofMaxSize: {}, Pprof data size: {}", pprofMaxSize, size);
                 if (pprofMaxSize >= size) {
                     buf = ByteBuffer.allocate(size);
                     // Send success response to allow client to continue uploading
                     responseObserver.onNext(PprofCollectionResponse.newBuilder()
                             .setStatus(PprofProfilingStatus.PPROF_PROFILING_SUCCESS)
                             .build());
-                    
-                    log.info("Started collecting pprof data in memory - service: {}, serviceInstance: {}, size: {} bytes", 
-                            pprofData.getMetadata().getService(), pprofData.getMetadata().getServiceInstance(), size);
                 } else {
                     responseObserver.onNext(PprofCollectionResponse.newBuilder()
                             .setStatus(PprofProfilingStatus.PPROF_TERMINATED_BY_OVERSIZE)
                             .build());
                     recordPprofTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(), PprofTaskLogOperationType.PPROF_UPLOAD_FILE_TOO_LARGE_ERROR);
-                    log.warn("Pprof file size {} exceeds maximum allowed size {} for service: {}, serviceInstance: {}",
-                            size, pprofMaxSize, pprofData.getMetadata().getService(), pprofData.getMetadata().getServiceInstance());
                 }
             } else {
                 responseObserver.onNext(PprofCollectionResponse.newBuilder()
                         .setStatus(PprofProfilingStatus.PPROF_EXECUTION_TASK_ERROR)
                         .build());
                 recordPprofTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(), PprofTaskLogOperationType.EXECUTION_TASK_ERROR);
-                log.error("Received execution error from agent - service: {}, serviceInstance: {}, status: {}",
-                        pprofData.getMetadata().getService(), pprofData.getMetadata().getServiceInstance(), taskMetaData.getType());
             }
         } else if (pprofData.hasContent()) {
             if (buf != null) {

@@ -339,7 +339,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
                 PprofQueryService.class, new PprofQueryService(getManager()));
         this.registerServiceImplementation(
-                PprofTaskCache.class, new PprofTaskCache(getManager(), moduleConfig));
+                PprofTaskCache.class, new PprofTaskCache(moduleConfig));
         this.registerServiceImplementation(
             EBPFProfilingMutationService.class, new EBPFProfilingMutationService(getManager()));
         this.registerServiceImplementation(
