@@ -17,39 +17,20 @@ debuggingtrace: null
 type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
-- metric:
-    labels:
-      - key: p
-        value: "90"
-      - key: protocol
-        value: grpc
-  values:
-    {{- contains .values }}
-    - id: {{ notEmpty .id }}
-      value: {{ .value }}
-      owner: null
-      traceid: null
-    - id: {{ notEmpty .id }}
-      value: null
-      owner: null
-      traceid: null
-    {{- end}}
-- metric:
-    labels:
-      - key: p
-        value: "99"
-      - key: protocol
-        value: grpc
-  values:
-    {{- contains .values }}
-    - id: {{ notEmpty .id }}
-      value: {{ .value }}
-      traceid: null
-      owner: null
-    - id: {{ notEmpty .id }}
-      value: null
-      traceid: null
-      owner: null
-    {{- end }}
+  - metric:
+      labels:
+        - key: protocol
+          value: grpc
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        owner: null
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        owner: null
+        traceid: null
+      {{- end}}
   {{- end}}
 error: null
