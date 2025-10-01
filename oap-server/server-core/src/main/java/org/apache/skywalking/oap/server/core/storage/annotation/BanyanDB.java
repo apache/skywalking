@@ -170,6 +170,12 @@ public @interface BanyanDB {
             String value();
         }
 
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface SpanIdColumn {
+            String value();
+        }
+
         /**
          * IndexRule is used to define a composite index in BanyanDB.
          * Notice, the order of columns is significant, the columns in front have a higher priority

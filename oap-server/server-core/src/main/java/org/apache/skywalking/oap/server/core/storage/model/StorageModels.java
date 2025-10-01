@@ -114,6 +114,15 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             banyanDBModelExtension.setTraceIdColumn(traceIdColumn);
         }
 
+        if (aClass.isAnnotationPresent(BanyanDB.Trace.SpanIdColumn.class)) {
+            String spanIdColumn = aClass.getAnnotation(BanyanDB.Trace.SpanIdColumn.class).value();
+            if (StringUtil.isBlank(spanIdColumn)) {
+                throw new IllegalStateException(
+                    "Model[trace." + storage.getModelName() + "] missing defined @BanyanDB.SpanIdColumn");
+            }
+            banyanDBModelExtension.setSpanIdColumn(spanIdColumn);
+        }
+
         // Add index rules for BanyanDB trace model
         if (aClass.isAnnotationPresent(BanyanDB.Trace.TraceIdColumn.class) ||
             aClass.isAnnotationPresent(BanyanDB.Trace.IndexRule.List.class)) {

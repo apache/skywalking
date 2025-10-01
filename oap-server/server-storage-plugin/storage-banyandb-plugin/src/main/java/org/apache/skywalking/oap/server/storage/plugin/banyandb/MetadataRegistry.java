@@ -229,6 +229,7 @@ public enum MetadataRegistry {
                                                    .setName(schemaMetadata.name()));
         builder.setTraceIdTagName(model.getBanyanDBModelExtension().getTraceIdColumn());
         builder.setTimestampTagName(timestampColumn);
+        builder.setSpanIdTagName(model.getBanyanDBModelExtension().getSpanIdColumn());
         for (final ModelColumn col : model.getColumns()) {
             final String columnStorageName = col.getColumnName().getStorageName();
             // skip no index column, since they are not supposed to be queried

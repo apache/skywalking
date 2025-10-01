@@ -50,6 +50,16 @@ public class BanyanDBModelExtension {
     @Setter
     private String traceIdColumn;
 
+
+    /**
+     * spanIdColumn is to identify which column in the Trace model is used as the span ID.
+     *
+     * @since 10.3.0
+     */
+    @Getter
+    @Setter
+    private String spanIdColumn;
+
     /**
      * traceIndexRules is to identify which columns in the Trace model are used as the indexRule.
      * BanyanDB Trace model requires at least one traceIndexRules.

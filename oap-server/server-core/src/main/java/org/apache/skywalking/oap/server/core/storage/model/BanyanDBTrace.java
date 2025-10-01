@@ -34,5 +34,9 @@ public interface BanyanDBTrace {
         String getMergeTimestampColumnName();
 
         long getTimestampColumnValue();
+
+        String getMergeSpanIdColumnName();
+
+        String getSpanIdColumnValue();
     }
 }

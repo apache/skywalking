@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
@@ -45,6 +46,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SW
 @Stream(name = SWSpanAttachedEventRecord.INDEX_NAME, scopeId = SW_SPAN_ATTACHED_EVENT, builder = SWSpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(SWSpanAttachedEventRecord.TIMESTAMP)
 @BanyanDB.Trace.TraceIdColumn(SWSpanAttachedEventRecord.RELATED_TRACE_ID)
+@BanyanDB.Trace.SpanIdColumn(StorageData.ID)
 @BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.TRACE)
 public class SWSpanAttachedEventRecord extends Record implements BanyanDBTrace, BanyanDBTrace.MergeTable {
 
@@ -131,6 +133,16 @@ public class SWSpanAttachedEventRecord extends Record implements BanyanDBTrace, 
     @Override
     public long getTimestampColumnValue() {
         return timestamp;
+    }
+
+    @Override
+    public String getMergeSpanIdColumnName() {
+        return SegmentRecord.SEGMENT_ID;
+    }
+
+    @Override
+    public String getSpanIdColumnValue() {
+        return id().build();
     }
 
     public static class Builder implements StorageBuilder<SWSpanAttachedEventRecord> {
