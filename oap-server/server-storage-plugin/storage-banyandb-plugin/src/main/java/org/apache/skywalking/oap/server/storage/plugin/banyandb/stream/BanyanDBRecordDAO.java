@@ -76,7 +76,12 @@ public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO
                                     tag,
                                     TagAndValue.timestampTagValue(mergeTable.getTimestampColumnValue())
                                 );
-                            } else {
+                            } else if (tag.equals(mergeTable.getMergeSpanIdColumnName())) {
+                                traceWrite.tag(
+                                    tag,
+                                    TagAndValue.stringTagValue(mergeTable.getSpanIdColumnValue())
+                                );
+                            } else  {
                                 traceWrite.tag(tag, TagAndValue.nullTagValue());
                             }
                         }
