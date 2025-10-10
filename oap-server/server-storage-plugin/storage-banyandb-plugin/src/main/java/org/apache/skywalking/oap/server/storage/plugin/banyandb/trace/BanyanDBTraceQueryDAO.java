@@ -89,7 +89,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                     query.setOrderBy(new TraceQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
                 }
             });
-        return buildRecords(resp);
+        return buildRecords(resp, segmentIdList, null, true);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                                              }
                                          });
 
-        return buildRecords(resp);
+        return buildRecords(resp, null, instanceIdList, false);
     }
 
     @Override
@@ -226,7 +226,10 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     /**
      * Notice: this method not build the full SegmentRecord, only build the fields needed by ProfiledTraceSegments and ProfiledSegment
      */
-    private List<SegmentRecord> buildRecords(TraceQueryResponse resp) throws IOException {
+    private List<SegmentRecord> buildRecords(TraceQueryResponse resp,
+                                             @Nullable List<String> segmentIdList,
+                                             @Nullable List<String> instanceIdList,
+                                             boolean filterBySegmentId) throws IOException {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (var t : resp.getTraces()) {
             for (var wrapper : t.getSpansList()) {
@@ -234,6 +237,11 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 if (spanWrapper.getSource().equals(Source.SKYWALKING)) {
                     SegmentObject segmentObject = SegmentObject.parseFrom(spanWrapper.getSpan());
                     SegmentRecord segmentRecord = new SegmentRecord();
+                    if (filterBySegmentId) {
+                        if (segmentIdList == null || !segmentIdList.contains(segmentObject.getTraceSegmentId())) {
+                            continue;
+                        }
+                    }
                     segmentRecord.setSegmentId(segmentObject.getTraceSegmentId());
                     segmentRecord.setTraceId(segmentObject.getTraceId());
                     String serviceName = Const.EMPTY_STRING;
@@ -244,6 +252,11 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                     String serviceId = IDManager.ServiceID.buildId(serviceName, true);
                     segmentRecord.setServiceId(serviceId);
                     String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, instanceName);
+                    if (!filterBySegmentId) {
+                        if (instanceIdList == null || !instanceIdList.contains(serviceInstanceId)) {
+                            continue;
+                        }
+                    }
                     segmentRecord.setServiceInstanceId(serviceInstanceId);
                     long startTimestamp = 0;
                     long endTimestamp = 0;
