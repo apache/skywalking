@@ -79,6 +79,9 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
     @Override
     public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList, @Nullable Duration duration) throws IOException {
+        if (CollectionUtils.isEmpty(segmentIdList)) {
+            return Collections.emptyList();
+        }
         final boolean isColdStage = duration != null && duration.isColdStage();
         TraceQueryResponse resp = queryTraceDebuggable(isColdStage, SegmentRecord.INDEX_NAME, getTimestampRange(duration),
             new QueryBuilder<TraceQuery>() {
@@ -94,6 +97,9 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
 
     @Override
     public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList, @Nullable Duration duration) throws IOException {
+        if (CollectionUtils.isEmpty(traceIdList) || CollectionUtils.isEmpty(instanceIdList)) {
+            return Collections.emptyList();
+        }
         final boolean isColdStage = duration != null && duration.isColdStage();
         TraceQueryResponse resp = queryTraceDebuggable(isColdStage, SegmentRecord.INDEX_NAME, getTimestampRange(duration),
                                          new QueryBuilder<TraceQuery>() {
