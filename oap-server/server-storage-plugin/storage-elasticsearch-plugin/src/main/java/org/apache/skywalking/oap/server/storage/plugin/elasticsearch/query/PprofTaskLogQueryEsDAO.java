@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
@@ -50,30 +51,28 @@ public class PprofTaskLogQueryEsDAO extends EsDAO implements IPprofTaskLogQueryD
     @Override
     public List<PprofTaskLog> getTaskLogList() throws IOException {
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(PprofTaskLogRecord.INDEX_NAME);
-        
-        final SearchBuilder search = Search.builder().query(Query.bool());
+        final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(PprofTaskLogRecord.INDEX_NAME)) {
-            search.query(Query.bool().must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, PprofTaskLogRecord.INDEX_NAME)));
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, PprofTaskLogRecord.INDEX_NAME));
         }
         
-        search.size(queryMaxSize);
-        search.sort(PprofTaskLogRecord.OPERATION_TIME, Sort.Order.DESC);
-
+        final SearchBuilder search =
+                Search.builder().query(query)
+                        .sort(PprofTaskLogRecord.OPERATION_TIME, Sort.Order.DESC)
+                        .size(queryMaxSize);
         final SearchResponse response = getClient().search(index, search.build());
 
         List<PprofTaskLog> tasks = new LinkedList<>();
-        for (SearchHit hit : response.getHits().getHits()) {
-            tasks.add(parseTaskLog(hit));
+        for (SearchHit searchHit : response.getHits().getHits()) {
+            tasks.add(buildPprofTaskLog(searchHit));
         }
         return tasks;
     }
 
-    private PprofTaskLog parseTaskLog(SearchHit data) {
+    private PprofTaskLog buildPprofTaskLog(SearchHit data) {
         Map<String, Object> source = data.getSource();
-        
         int operationTypeInt = ((Number) source.get(PprofTaskLogRecord.OPERATION_TYPE)).intValue();
         PprofTaskLogOperationType operationType = PprofTaskLogOperationType.parse(operationTypeInt);
-        
         return PprofTaskLog.builder()
                 .id((String) source.get(PprofTaskLogRecord.TASK_ID))
                 .instanceId((String) source.get(PprofTaskLogRecord.INSTANCE_ID))

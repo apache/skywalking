@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAs
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -92,6 +93,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFP
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.HierarchyQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.JFRDataQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.PprofDataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
@@ -276,16 +278,20 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                 new AsyncProfilerTaskLogQueryEsDAO(elasticSearchClient, config.getAsyncProfilerTaskQueryMaxSize())
         );
         this.registerServiceImplementation(
-                IPprofTaskLogQueryDAO.class,
-                new PprofTaskLogQueryEsDAO(elasticSearchClient, config.getPprofTaskQueryMaxSize())
-        );
-        this.registerServiceImplementation(
                 IJFRDataQueryDAO.class,
                 new JFRDataQueryEsDAO(elasticSearchClient)
         );
         this.registerServiceImplementation(
                 IPprofTaskQueryDAO.class,
                 new PprofTaskQueryEsDAO(elasticSearchClient, config.getPprofTaskQueryMaxSize())
+        );
+        this.registerServiceImplementation(
+                IPprofTaskLogQueryDAO.class,
+                new PprofTaskLogQueryEsDAO(elasticSearchClient, config.getPprofTaskQueryMaxSize())
+        );
+        this.registerServiceImplementation(
+                IPprofDataQueryDAO.class,
+                new PprofDataQueryEsDAO(elasticSearchClient)
         );
         this.registerServiceImplementation(
             StorageTTLStatusQuery.class,

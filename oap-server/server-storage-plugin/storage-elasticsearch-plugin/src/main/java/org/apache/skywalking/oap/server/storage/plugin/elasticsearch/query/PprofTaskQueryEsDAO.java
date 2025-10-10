@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import com.google.gson.Gson;
+import java.util.Objects;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 
@@ -54,8 +55,8 @@ public class PprofTaskQueryEsDAO extends EsDAO implements IPprofTaskQueryDAO {
 
     @Override
     public List<PprofTask> getTaskList(String serviceId, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
-        final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(PprofTaskRecord.INDEX_NAME);
-        final BoolQueryBuilder query = Query.bool();
+        String index = IndexController.LogicIndicesRegister.getPhysicalTableName(PprofTaskRecord.INDEX_NAME);
+        BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(PprofTaskRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, PprofTaskRecord.INDEX_NAME));
         }
@@ -71,14 +72,8 @@ public class PprofTaskQueryEsDAO extends EsDAO implements IPprofTaskQueryDAO {
         if (endTimeBucket != null) {
             query.must(Query.range(PprofTaskRecord.TIME_BUCKET).lte(endTimeBucket));
         }
-
-        final SearchBuilder search = Search.builder().query(query);
-
-        if (limit != null) {
-            search.size(limit);
-        } else {
-            search.size(queryMaxSize);
-        }
+        SearchBuilder search = Search.builder().query(query);
+        search.size(Objects.requireNonNullElse(limit, queryMaxSize));
 
         search.sort(PprofTaskRecord.CREATE_TIME, Sort.Order.DESC);
 
@@ -92,7 +87,7 @@ public class PprofTaskQueryEsDAO extends EsDAO implements IPprofTaskQueryDAO {
     }
 
     @Override
-    public PprofTask getById(String id) throws IOException {
+    public PprofTask getById(String id) {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
@@ -125,7 +120,7 @@ public class PprofTaskQueryEsDAO extends EsDAO implements IPprofTaskQueryDAO {
                 .serviceId((String) source.get(PprofTaskRecord.SERVICE_ID))
                 .serviceInstanceIds(instanceIdList)
                 .createTime(((Number) source.get(PprofTaskRecord.CREATE_TIME)).longValue())
-                .events((PprofEventType) source.get(PprofTaskRecord.EVENT_TYPES))
+                .events(PprofEventType.valueOfString((String) source.get(PprofTaskRecord.EVENT_TYPES)))
                 .duration(((Number) source.get(PprofTaskRecord.DURATION)).intValue())
                 .dumpPeriod(((Number) source.get(PprofTaskRecord.DUMP_PERIOD)).intValue())
                 .build();

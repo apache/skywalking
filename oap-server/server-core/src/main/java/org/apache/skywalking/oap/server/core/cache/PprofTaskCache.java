@@ -36,7 +36,7 @@ public class PprofTaskCache implements Service {
         serviceId2taskCache = CacheBuilder.newBuilder()
                 .initialCapacity(initialCapacitySize)
                 .maximumSize(moduleConfig.getMaxSizeOfProfileTask())
-                // remove old profile task data
+                // remove old pprof task data
                 .expireAfterWrite(Duration.ofMinutes(1))
                 .build();
     }
