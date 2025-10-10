@@ -105,6 +105,7 @@
 * Aggregate TopN Slow SQL by service dimension.
 * BanyanDB: support add group prefix (namespace) for BanyanDB groups.
 * BanyanDB: fix when setting `@BanyanDB.TimestampColumn`, the column should not be indexed.
+* OAP Self Observability: make Trace analysis metrics separate by label `protocol`, add Zipkin span dropped metrics.
 
 #### UI
 
@@ -135,6 +136,8 @@
 * Optimize the router system and implement unit tests for router.
 * Bump element-plus from 2.9.4 to 2.11.0.
 * Adapt new trace protocol and implement new trace view.
+* Implement Trace page.
+* Support collapsing and expanding for the event widget.
 
 #### Documentation
 

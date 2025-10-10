@@ -324,8 +324,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getTraces()));
                 span.setMsg(builder.toString());
             }
-            //todo: need update banyandb java client.
-           // addDBTrace2DebuggingTrace(response.getTraceResult(), traceContext, span);
+            addDBTrace2DebuggingTrace(response.getTraceResult(), traceContext, span);
             return response;
         } finally {
             if (traceContext != null && span != null) {
