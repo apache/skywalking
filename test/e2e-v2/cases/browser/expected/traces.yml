@@ -15,13 +15,13 @@
 
 debuggingtrace: null
 traces:
-{{- contains .traces }}
+  {{- contains .traces }}
 - segmentid: {{ notEmpty .segmentid }}
   endpointnames:
-  - index.html
+    - index.html
   duration: {{ gt .duration 0 }}
   start: "{{ notEmpty .start}}"
   iserror: false
   traceids:
-  - {{ notEmpty (index .traceids 0) }}
-{{- end }}
+    - {{ notEmpty (index .traceids 0) }}
+  {{- end }}

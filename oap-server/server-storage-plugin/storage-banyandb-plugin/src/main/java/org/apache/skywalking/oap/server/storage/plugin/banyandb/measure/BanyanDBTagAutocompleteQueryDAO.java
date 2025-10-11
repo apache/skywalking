@@ -54,7 +54,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     @Override
     public Set<String> queryTagAutocompleteKeys(TagType tagType, int limit, Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
         long startMinTB = 0;
         long endMinTB = 0;
         if (nonNull(duration)) {
@@ -96,7 +96,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     @Override
     public Set<String> queryTagAutocompleteValues(TagType tagType, String tagKey, int limit, Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
         long startMinTB = 0;
         long endMinTB = 0;
         if (nonNull(duration)) {

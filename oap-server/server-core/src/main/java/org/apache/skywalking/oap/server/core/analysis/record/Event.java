@@ -39,6 +39,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EV
 @ScopeDeclaration(id = EVENT, name = "Event")
 @Stream(name = Event.INDEX_NAME, scopeId = EVENT, builder = Event.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(Event.TIMESTAMP)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class Event extends Record {
 
     public static final String INDEX_NAME = "event";

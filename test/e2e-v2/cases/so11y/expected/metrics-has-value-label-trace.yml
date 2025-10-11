@@ -14,14 +14,23 @@
 # limitations under the License.
 
 debuggingtrace: null
-traces:
-{{- contains .traces }}
-- segmentid: {{ notEmpty .segmentid }}
-  endpointnames:
-    - GET:/info
-  duration: {{ ge .duration 0 }}
-  start: "{{ notEmpty .start}}"
-  iserror: false
-  traceids:
-    - "{{ (index .traceids 0) }}"
-{{- end }}
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+  - metric:
+      labels:
+        - key: protocol
+          value: grpc
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        owner: null
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        owner: null
+        traceid: null
+      {{- end}}
+  {{- end}}
+error: null

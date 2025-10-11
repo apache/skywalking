@@ -46,10 +46,12 @@ public class ClusterModuleKubernetesProviderTest {
 
     @BeforeEach
     public void before() {
+        final var config = new ClusterModuleKubernetesConfig();
+        config.setLabelSelector("app=oap");
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
         Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         provider.setManager(moduleManager);
-        Whitebox.setInternalState(provider, "config", new ClusterModuleKubernetesConfig());
+        Whitebox.setInternalState(provider, "config", config);
     }
 
     @Test

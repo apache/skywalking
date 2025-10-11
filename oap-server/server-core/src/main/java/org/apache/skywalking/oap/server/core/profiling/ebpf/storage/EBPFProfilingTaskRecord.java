@@ -43,6 +43,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @Stream(name = EBPFProfilingTaskRecord.INDEX_NAME, scopeId = EBPF_PROFILING_TASK,
     builder = EBPFProfilingTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
 @BanyanDB.TimestampColumn(EBPFProfilingTaskRecord.CREATE_TIME)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String INDEX_NAME = "ebpf_profiling_task";
     public static final String LOGICAL_ID = "logical_id";
@@ -82,7 +83,6 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     private int targetType = EBPFProfilingTargetType.UNKNOWN.value();
     @ElasticSearch.EnableDocValues
     @Column(name = CREATE_TIME)
-    @BanyanDB.NoIndexing
     private long createTime;
     @Column(name = LAST_UPDATE_TIME)
     private long lastUpdateTime;

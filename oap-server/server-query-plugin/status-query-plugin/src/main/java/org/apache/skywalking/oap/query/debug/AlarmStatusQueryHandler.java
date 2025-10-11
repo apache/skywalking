@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRulesWatcherService;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmEntity;
-import org.apache.skywalking.oap.server.core.alarm.provider.AlarmModuleProvider;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.RunningRule;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
@@ -55,10 +55,8 @@ public class AlarmStatusQueryHandler {
 
     private AlarmRulesWatcher getAlarmRulesWatcher() {
         if (alarmRulesWatcher == null) {
-
-            AlarmModuleProvider provider = (AlarmModuleProvider) moduleManager.find(AlarmModule.NAME)
-                                               .provider();
-            alarmRulesWatcher = provider.getAlarmRulesWatcher();
+            alarmRulesWatcher = (AlarmRulesWatcher) moduleManager.find(AlarmModule.NAME)
+                                                                 .provider().getService(AlarmRulesWatcherService.class);
         }
         return alarmRulesWatcher;
     }
@@ -79,6 +77,9 @@ public class AlarmStatusQueryHandler {
         Map<String, RunningRule> runningRules = getAlarmRulesWatcher().getRunningContext().values().stream().flatMap(List::stream)
                                                                       .collect(Collectors.toMap(RunningRule::getRuleName, r -> r));
         RunningRule rule = runningRules.get(ruleName);
+        if (rule == null) {
+            return HttpResponse.of(MediaType.JSON_UTF_8, "{}");
+        }
         JsonObject runningRuleInfo = new JsonObject();
         runningRuleInfo.addProperty("ruleName", rule.getRuleName());
         runningRuleInfo.addProperty("expression", rule.getExpression());
@@ -137,6 +138,9 @@ public class AlarmStatusQueryHandler {
         Map<String, RunningRule> runningRules = getAlarmRulesWatcher().getRunningContext().values().stream().flatMap(List::stream)
                                                                       .collect(Collectors.toMap(RunningRule::getRuleName, r -> r));
         RunningRule rule = runningRules.get(ruleName);
+        if (rule == null) {
+            return HttpResponse.of(MediaType.JSON_UTF_8, "{}");
+        }
         Map<AlarmEntity, RunningRule.Window> windows = rule.getWindows();
         RunningRule.Window window = windows.keySet().stream().filter(e -> e.getName().equals(entityName)).map(windows::get)
             .findFirst().orElse(null);

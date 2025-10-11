@@ -6,6 +6,7 @@
 * Fix CVE-2025-54057, restrict and validate url for widgets.
 * Fix `MetricsPersistentWorker`, remove DataCarrier queue from `Hour/Day` dimensions metrics persistent process.
   This is important to reduce memory cost and `Hour/Day` dimensions metrics persistent latency.
+* [Break Change] BanyanDB: support new Trace model.
 
 #### OAP Server
 
@@ -96,6 +97,14 @@
 * Fix metrics comparison in promql with bool modifier.
 * Add rate limiter for Zipkin trace receiver to limit maximum spans per second.
 * Open `health-checker` module by default due to latest UI changes. Change the default check period to 30s.
+* Refactor Kubernetes coordinator to be more accurate about node readiness.
+* Bump up netty to 4.2.5.Final.
+* BanyanDB: fix log query missing order by condition, and fix missing service id condition when query by instance id or endpoint id.
+* Fix potential NPE in the `AlarmStatusQueryHandler`.
+* Aggregate TopN Slow SQL by service dimension.
+* BanyanDB: support add group prefix (namespace) for BanyanDB groups.
+* BanyanDB: fix when setting `@BanyanDB.TimestampColumn`, the column should not be indexed.
+* OAP Self Observability: make Trace analysis metrics separate by label `protocol`, add Zipkin span dropped metrics.
 
 #### UI
 
@@ -105,7 +114,7 @@
 * Support cold stage data for metrics, trace and log.
 * Add route to status API `/debugging/config/dump` in the UI.
 * Implement the Status API on Settings page.
-* Bump vite from 6.2.6 to 6.3.4.
+* Bump vite from 6.2.6 to 6.3.6.
 * Enhance async profiling by adding shorter and custom duration options.
 * Fix select wrong span to analysis in trace profiling.
 * Correct the service list for legends in trace graphs.
@@ -121,6 +130,12 @@
 * refactor the configuration view and implement the optional config for displaying timestamp in Log widget.
 * test: implement unit tests for hooks and refactor some types.
 * fix: share OAP proxy servies for different endpoins and use health checked endpoints group.
+* Optimize buttons in time picker component.
+* Optimize the router system and implement unit tests for router.
+* Bump element-plus from 2.9.4 to 2.11.0.
+* Adapt new trace protocol and implement new trace view.
+* Implement Trace page.
+* Support collapsing and expanding for the event widget.
 
 #### Documentation
 

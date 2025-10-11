@@ -57,7 +57,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
     @Override
     public MetricsValues readMetricsValues(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
         String modelName = condition.getName();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(modelName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }
@@ -131,7 +131,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
                                                     final List<KeyValue> labels,
                                                     final Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(metricsName, duration.getStep());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(metricsName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }
@@ -194,7 +194,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
     }
 
     private Map<Long, DataPoint> queryByEntityID(final MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
-        final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(condition.getName(), duration.getStep());
+        final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(condition.getName(), duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }

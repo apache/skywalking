@@ -14,14 +14,97 @@
 # limitations under the License.
 
 debuggingtrace: null
+retrievedtimerange:
+  {{- with .retrievedtimerange }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+  {{- end }}
 traces:
 {{- contains .traces }}
-- segmentid: "{{ notEmpty .segmentid }}"
-  endpointnames:
-    - POST:/php/info
-  duration: {{ ge .duration 0 }}
-  start: "{{ notEmpty .start}}"
-  iserror: false
-  traceids:
-    - "{{ (index .traceids 0) }}"
+- spans:
+  {{- contains .spans }}
+  - traceid: "{{ .traceid }}"
+    segmentid: "{{ .segmentid }}"
+    spanid: {{ .spanid }}
+    parentspanid: {{ .parentspanid }}
+    refs: []
+    servicecode: php
+    serviceinstancename: {{ notEmpty .serviceinstancename }}
+    starttime: {{ gt .starttime 0 }}
+    endtime: {{ gt .endtime 0 }}
+    endpointname: POST:/php/info
+    type: Entry
+    peer: ""
+    component: PHP
+    iserror: false
+    layer: Http
+    tags:
+      {{- contains .tags }}
+      - key: url
+        value: {{ notEmpty .value }}
+      - key: http.method
+        value: POST
+      - key: http.status_code
+        value: "200"
+      {{- end }}
+    logs: []
+    attachedevents: []
+  - traceid: "{{ notEmpty .traceid }}"
+    segmentid: "{{ .segmentid }}"
+    spanid: {{ .spanid }}
+    parentspanid: {{ .parentspanid }}
+    refs: []
+    servicecode: php
+    serviceinstancename: {{ notEmpty .serviceinstancename }}
+    starttime: {{ gt .starttime 0 }}
+    endtime: {{ gt .endtime 0 }}
+    endpointname: /info
+    type: Exit
+    peer: provider:9090
+    component: cURL
+    iserror: false
+    layer: Http
+    tags:
+      {{- contains .tags }}
+      - key: url
+        value: http://provider:9090/info
+      - key: status_code
+        value: "200"
+      {{- end }}
+    logs: []
+    attachedevents: []
+  - traceid: "{{ notEmpty .traceid }}"
+    segmentid: {{ .segmentid }}
+    spanid: {{ .spanid }}
+    parentspanid: {{ .parentspanid }}
+    refs:
+      {{- contains .refs }}
+      - traceid: "{{ notEmpty .traceid }}"
+        parentsegmentid: "{{ .parentsegmentid }}"
+        parentspanid: 1
+        type: CROSS_PROCESS
+      {{- end }}
+    servicecode: e2e-service-provider
+    serviceinstancename: provider1
+    starttime: {{ gt .starttime 0 }}
+    endtime: {{ gt .endtime 0 }}
+    endpointname: GET:/info
+    type: Entry
+    peer: ""
+    component: Tomcat
+    iserror: false
+    layer: Http
+    tags:
+      {{- contains .tags }}
+      - key: url
+        value: http://provider:9090/info
+      - key: http.method
+        value: GET
+      - key: http.status_code
+        value: "200"
+      {{- end }}
+    logs: []
+    attachedevents: []
+  {{- end }}
 {{- end }}
+

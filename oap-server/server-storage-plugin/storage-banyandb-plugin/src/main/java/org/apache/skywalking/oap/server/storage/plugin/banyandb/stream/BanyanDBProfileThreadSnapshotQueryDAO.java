@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -78,7 +77,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     }
 
     @Override
-    public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecords(String taskId)  throws IOException {
         StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
                 TAGS_BASIC,
                 new QueryBuilder<StreamQuery>() {
@@ -95,12 +94,13 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
             return Collections.emptyList();
         }
 
-        final List<String> segmentIds = new LinkedList<>();
+        List<ProfileThreadSnapshotRecord> result = new ArrayList<>();
         for (final RowEntity rowEntity : resp.getElements()) {
-            segmentIds.add(rowEntity.getTagValue(ProfileThreadSnapshotRecord.SEGMENT_ID));
+            ProfileThreadSnapshotRecord record = this.builder.storage2Entity(
+                new BanyanDBConverter.StorageToStream(ProfileThreadSnapshotRecord.INDEX_NAME, rowEntity));
+            result.add(record);
         }
-
-        return segmentIds;
+        return result;
     }
 
     @Override

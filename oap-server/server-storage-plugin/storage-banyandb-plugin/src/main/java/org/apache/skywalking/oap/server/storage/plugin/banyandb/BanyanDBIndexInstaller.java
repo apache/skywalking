@@ -35,6 +35,7 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Property;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Trace;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRuleBinding;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
@@ -45,8 +46,10 @@ import org.apache.skywalking.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -83,23 +86,41 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             final ResourceExist resourceExist = checkResourceExistence(metadata, c);
             installInfo.setGroupExist(resourceExist.hasGroup());
             installInfo.setTableExist(resourceExist.hasResource());
-            if (!resourceExist.hasResource()) {
+            if (!resourceExist.hasResource() && !BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
                 installInfo.setAllExist(false);
                 return installInfo;
             } else {
                 if (model.isTimeSeries()) {
                     // register models only locally(Schema cache) but not remotely
-                    if (model.isRecord()) { // stream
-                        StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(
-                            model, config, downSamplingConfigService);
-                        if (!RunningMode.isNoInitMode()) {
-                            checkStream(streamModel.getStream(), c);
-                            checkIndexRules(model.getName(), streamModel.getIndexRules(), c);
-                            checkIndexRuleBinding(
-                                streamModel.getIndexRules(), metadata.getGroup(), metadata.name(),
-                                BanyandbCommon.Catalog.CATALOG_STREAM, c
-                            );
-                            // Stream not support server side TopN pre-aggregation
+                    if (model.isRecord()) {
+                        if (BanyanDB.TraceGroup.NONE != model.getBanyanDBModelExtension().getTraceGroup()) {
+                            // trace
+                            TraceModel traceModel = MetadataRegistry.INSTANCE.registerTraceModel(model, config);
+                            if (BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
+                                installInfo.setAllExist(true);
+                                return installInfo;
+                            }
+                            if (!RunningMode.isNoInitMode()) {
+                                checkTrace(traceModel.getTrace(), c);
+                                checkIndexRules(model.getName(), traceModel.getIndexRules(), c);
+                                checkIndexRuleBinding(
+                                    traceModel.getIndexRules(), metadata.getGroup(), metadata.name(),
+                                    BanyandbCommon.Catalog.CATALOG_TRACE, c
+                                );
+                            }
+                        } else {
+                            // stream
+                            StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(
+                                model, config);
+                            if (!RunningMode.isNoInitMode()) {
+                                checkStream(streamModel.getStream(), c);
+                                checkIndexRules(model.getName(), streamModel.getIndexRules(), c);
+                                checkIndexRuleBinding(
+                                    streamModel.getIndexRules(), metadata.getGroup(), metadata.name(),
+                                    BanyandbCommon.Catalog.CATALOG_STREAM, c
+                                );
+                                // Stream not support server side TopN pre-aggregation
+                            }
                         }
                     } else { // measure
                         MeasureModel measureModel = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, downSamplingConfigService);
@@ -135,36 +156,68 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     @Override
     public void createTable(Model model) throws StorageException {
         try {
+            final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;
             DownSamplingConfigService configService = moduleManager.find(CoreModule.NAME)
                                                        .provider()
                                                        .getService(DownSamplingConfigService.class);
             if (model.isTimeSeries()) {
-                if (model.isRecord()) { // stream
-                    StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
-                    Stream stream = streamModel.getStream();
-                    if (stream != null) {
-                        log.info("install stream schema {}", model.getName());
-                        final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;
-                        try {
-                            client.define(stream);
-                            if (CollectionUtils.isNotEmpty(streamModel.getIndexRules())) {
-                                for (IndexRule indexRule : streamModel.getIndexRules()) {
-                                    defineIndexRule(model.getName(), indexRule, client);
+                if (model.isRecord()) {
+                    if (BanyanDB.TraceGroup.NONE != model.getBanyanDBModelExtension().getTraceGroup()) {
+                        TraceModel traceModel = MetadataRegistry.INSTANCE.registerTraceModel(model, config);
+                        if (BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
+                            return;
+                        }
+                        // trace
+                        Trace trace = traceModel.getTrace();
+                        if (trace != null) {
+                            log.info("install trace schema {}", model.getName());
+                            try {
+                                client.define(trace);
+                                if (CollectionUtils.isNotEmpty(traceModel.getIndexRules())) {
+                                    for (IndexRule indexRule : traceModel.getIndexRules()) {
+                                        defineIndexRule(model.getName(), indexRule, client);
+                                    }
+                                    defineIndexRuleBinding(
+                                        traceModel.getIndexRules(), trace.getMetadata().getGroup(), trace.getMetadata().getName(),
+                                        BanyandbCommon.Catalog.CATALOG_TRACE, client
+                                    );
                                 }
-                                defineIndexRuleBinding(
-                                    streamModel.getIndexRules(), stream.getMetadata().getGroup(), stream.getMetadata().getName(),
-                                    BanyandbCommon.Catalog.CATALOG_STREAM, client
-                                );
+                            } catch (BanyanDBException ex) {
+                                if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                                    log.info("Trace schema {} already created by another OAP node", model.getName());
+                                } else {
+                                    throw ex;
+                                }
                             }
-                        } catch (BanyanDBException ex) {
-                            if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                                log.info(
-                                    "Stream schema {}_{} already created by another OAP node",
-                                    model.getName(),
-                                    model.getDownsampling()
-                                );
-                            } else {
-                                throw ex;
+                        }
+                    } else {
+                        // stream
+                        StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(model, config);
+                        Stream stream = streamModel.getStream();
+                        if (stream != null) {
+                            log.info("install stream schema {}", model.getName());
+                            try {
+                                client.define(stream);
+                                if (CollectionUtils.isNotEmpty(streamModel.getIndexRules())) {
+                                    for (IndexRule indexRule : streamModel.getIndexRules()) {
+                                        defineIndexRule(model.getName(), indexRule, client);
+                                    }
+                                    defineIndexRuleBinding(
+                                        streamModel.getIndexRules(), stream.getMetadata().getGroup(),
+                                        stream.getMetadata().getName(),
+                                        BanyandbCommon.Catalog.CATALOG_STREAM, client
+                                    );
+                                }
+                            } catch (BanyanDBException ex) {
+                                if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
+                                    log.info(
+                                        "Stream schema {}_{} already created by another OAP node",
+                                        model.getName(),
+                                        model.getDownsampling()
+                                    );
+                                } else {
+                                    throw ex;
+                                }
                             }
                         }
                     }
@@ -173,7 +226,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     Measure measure = measureModel.getMeasure();
                     if (measure != null) {
                         log.info("install measure schema {}", model.getName());
-                        final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;
                         try {
                             client.define(measure);
                             if (CollectionUtils.isNotEmpty(measureModel.getIndexRules())) {
@@ -202,7 +254,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 PropertyModel propertyModel = MetadataRegistry.INSTANCE.registerPropertyModel(model, config);
                 Property property = propertyModel.getProperty();
                 log.info("install property schema {}", model.getName());
-                final BanyanDBClient client = ((BanyanDBStorageClient) this.client).client;
                 try {
                     client.define(property);
                 } catch (BanyanDBException ex) {
@@ -297,6 +348,22 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 resourceExist = client.existProperty(metadata.getGroup(), metadata.name());
                 gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_PROPERTY).build();
                 break;
+            case TRACE:
+                optsBuilder.setSegmentInterval(
+                               IntervalRule.newBuilder()
+                                           .setUnit(
+                                               IntervalRule.Unit.UNIT_DAY)
+                                           .setNum(
+                                               metadata.getResource().getSegmentInterval()))
+                           .setTtl(
+                               IntervalRule.newBuilder()
+                                           .setUnit(
+                                               IntervalRule.Unit.UNIT_DAY)
+                                           .setNum(
+                                               metadata.getResource().getTtl()));
+                resourceExist = client.existTrace(metadata.getGroup(), metadata.name());
+                gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_TRACE).build();
+                break;
             default:
                 throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
         }
@@ -364,6 +431,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 return client.updateStreamMetadataCacheFromSever(metadata.getGroup(), metadata.name());
             case MEASURE:
                 return client.updateMeasureMetadataCacheFromSever(metadata.getGroup(), metadata.name());
+            case TRACE:
+                return client.updateTraceMetadataCacheFromServer(metadata.getGroup(), metadata.name());
             default:
                 throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
         }
@@ -503,6 +572,23 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             if (!equals) {
                 client.update(stream);
                 log.info("update Stream: {} from: {} to: {}", hisStream.getMetadata().getName(), hisStream, stream);
+            }
+        }
+    }
+
+    private void checkTrace(Trace trace, BanyanDBClient client) throws BanyanDBException {
+        Trace hisTrace = client.findTrace(trace.getMetadata().getGroup(), trace.getMetadata().getName());
+        if (hisTrace == null) {
+            throw new IllegalStateException("Trace: " + trace.getMetadata().getName() + " exist but can't find it from BanyanDB server");
+        } else {
+            boolean equals = hisTrace.toBuilder()
+                                      .clearUpdatedAt()
+                                      .clearMetadata()
+                                      .build()
+                                      .equals(trace.toBuilder().clearUpdatedAt().clearMetadata().build());
+            if (!equals) {
+                client.update(trace);
+                log.info("update Trace: {} from: {} to: {}", hisTrace.getMetadata().getName(), hisTrace, trace);
             }
         }
     }

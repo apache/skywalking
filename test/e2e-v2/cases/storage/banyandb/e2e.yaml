@@ -50,3 +50,16 @@ verify:
       - ../storage-cases.yaml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des,attr0='GENERAL',attr1!='Not_exist')/100"
       expected: ../expected/topN-OP-service.yml
+    # trace
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls
+      expected: ../expected/traces-v2-list.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=e2e-service-provider
+      expected: ../expected/traces-v2-list.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=e2e-service-consumer
+      expected: ../expected/traces-v2-list.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=e2e-service-consumer --endpoint-name=POST:/users
+      expected: ../expected/traces-v2-list.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --tags http.method=POST
+      expected: ../expected/traces-v2-list.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --tags http.method=POST,http.status_code=201
+      expected: ../expected/empty-traces-v2-list.yml

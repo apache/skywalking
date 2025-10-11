@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +54,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
     }
 
     @Override
-    public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecords(String taskId) throws IOException {
         final BoolQueryBuilder segmentIdQuery =
             Query.bool()
                 .must(Query.term(ProfileThreadSnapshotRecord.TASK_ID, taskId))
@@ -79,12 +78,14 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
                 search.build()
             );
 
-        final List<String> segmentIds = new LinkedList<>();
+        List<ProfileThreadSnapshotRecord> result = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
-            segmentIds.add(
-                (String) searchHit.getSource().get(ProfileThreadSnapshotRecord.SEGMENT_ID));
+            ProfileThreadSnapshotRecord record = builder.storage2Entity(
+                new ElasticSearchConverter.ToEntity(ProfileThreadSnapshotRecord.INDEX_NAME, searchHit.getSource()));
+
+            result.add(record);
         }
-        return segmentIds;
+        return result;
     }
 
     @Override

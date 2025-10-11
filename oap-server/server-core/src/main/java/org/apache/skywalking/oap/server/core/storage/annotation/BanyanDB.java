@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -105,7 +106,8 @@ public @interface BanyanDB {
     /**
      * Force disabling indexing declare through {@link Column}.
      * In BanyanDB, some additional conditions could be done in server memory, no indexing required in this case.
-     *
+     * In the Trace model, no indexing means no tag would be created in BanyanDB.
+     * In the Stream model, no indexing means no index rule would be created in BanyanDB.
      * @since 9.1.0
      */
     @Target({ElementType.FIELD})
@@ -147,9 +149,9 @@ public @interface BanyanDB {
     }
 
     /**
-     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for
-     * BanyanDB.
+     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for BanyanDB.
      * BanyanDB stream requires a timestamp in milliseconds.
+     * Notice, the timestamp column would not create an index rule in BanyanDB.
      *
      * @since 9.3.0
      */
@@ -157,6 +159,41 @@ public @interface BanyanDB {
     @Retention(RetentionPolicy.RUNTIME)
     @interface TimestampColumn {
         String value();
+    }
+
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Trace {
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface TraceIdColumn {
+            String value();
+        }
+
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface SpanIdColumn {
+            String value();
+        }
+
+        /**
+         * IndexRule is used to define a composite index in BanyanDB.
+         * Notice, the order of columns is significant, the columns in front have a higher priority
+         * and more efficient in searching.
+         */
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @Repeatable(IndexRule.List.class)
+        @interface IndexRule {
+            String name();
+            String[] columns();
+            String orderByColumn();
+            @Target({ElementType.TYPE})
+            @Retention(RetentionPolicy.RUNTIME)
+            @interface List {
+                IndexRule[] value();
+            }
+        }
     }
 
     /**
@@ -264,18 +301,18 @@ public @interface BanyanDB {
     @Retention(RetentionPolicy.RUNTIME)
     @interface Group {
         /**
-         * Specify the group name for the Stream (Record). The default value is "records".
+         * Specify the group name for the Stream (Record). The default value is "NONE".
          */
-        StreamGroup streamGroup() default StreamGroup.RECORDS;
+        StreamGroup streamGroup() default StreamGroup.NONE;
+
+        TraceGroup traceGroup() default TraceGroup.NONE;
     }
 
     enum StreamGroup {
         RECORDS("records"),
-        RECORDS_TRACE("recordsTrace"),
-        RECORDS_ZIPKIN_TRACE("recordsZipkinTrace"),
         RECORDS_LOG("recordsLog"),
-        RECORDS_BROWSER_ERROR_LOG("recordsBrowserErrorLog");
-
+        RECORDS_BROWSER_ERROR_LOG("recordsBrowserErrorLog"),
+        NONE("none");
         @Getter
         private final String name;
 
@@ -304,6 +341,19 @@ public @interface BanyanDB {
         private final String name;
 
         PropertyGroup(final String name) {
+            this.name = name;
+        }
+    }
+
+    enum TraceGroup {
+        TRACE("trace"),
+        ZIPKIN_TRACE("zipkinTrace"),
+        NONE("none");
+
+        @Getter
+        private final String name;
+
+        TraceGroup(final String name) {
             this.name = name;
         }
     }
