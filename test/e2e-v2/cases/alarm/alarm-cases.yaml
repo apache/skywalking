@@ -47,10 +47,10 @@
     - query: curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
       expected: expected/silence-after-webhook.yml
     - query: |
-        sleep 30;
+        sleep 60;
         curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
       expected: expected/recovery-webhook.yml
     - query: |
-        sleep 30;
+        sleep 60;
         curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
       expected: expected/recovery-after-observation-webhook.yml

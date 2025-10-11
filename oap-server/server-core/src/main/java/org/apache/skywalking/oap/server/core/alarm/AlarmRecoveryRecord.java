@@ -46,6 +46,7 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @Stream(name = AlarmRecoveryRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM_RECOVERY, builder = AlarmRecoveryRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecoveryRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(AlarmRecoveryRecord.START_TIME)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class AlarmRecoveryRecord extends Record {
     public static final String INDEX_NAME = "alarm_recovery_record";
     public static final String ADDITIONAL_TAG_TABLE = "alarm_record_tag";
