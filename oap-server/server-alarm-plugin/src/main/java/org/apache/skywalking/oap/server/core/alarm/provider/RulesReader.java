@@ -355,7 +355,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             String textTemplate = (String) config.get("text-template");
-            String recoveryTextTemplate = (String) config.get("recovery-text-template");
+            String recoveryTextTemplate = (String) config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
             List<Map<String, String>> webhooks = (List<Map<String, String>>) config.get("webhooks");
             if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(webhooks)) {
                 return;
@@ -421,7 +421,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             String textTemplate = (String) config.get("text-template");
-            String recoveryTextTemplate = (String) config.get("recovery-text-template");
+            String recoveryTextTemplate = (String) config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
             List<Map<String, String>> webhooks = (List<Map<String, String>>) config.get("webhooks");
             if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(webhooks)) {
                 return;
