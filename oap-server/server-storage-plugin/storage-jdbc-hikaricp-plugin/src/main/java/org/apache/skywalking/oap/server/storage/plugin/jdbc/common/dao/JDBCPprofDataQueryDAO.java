@@ -80,13 +80,13 @@
  
      private PprofProfilingDataRecord parseData(ResultSet data) {
          final PprofProfilingDataRecord.Builder builder = new PprofProfilingDataRecord.Builder();
-         PprofProfilingDataRecord PprofProfilingDataRecord = builder.storage2Entity(JDBCEntityConverters.toEntity(data));
-         byte[] dataBinary = PprofProfilingDataRecord.getDataBinary();
+         PprofProfilingDataRecord pprofProfilingDataRecord = builder.storage2Entity(JDBCEntityConverters.toEntity(data));
+         byte[] dataBinary = pprofProfilingDataRecord.getDataBinary();
          if (dataBinary != null) {
              byte[] decodeResult = Base64.getDecoder().decode(dataBinary);
-             PprofProfilingDataRecord.setDataBinary(decodeResult);
+             pprofProfilingDataRecord.setDataBinary(decodeResult);
          }
-         return PprofProfilingDataRecord;
+         return pprofProfilingDataRecord;
      }
  }
  
