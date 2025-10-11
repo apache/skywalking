@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 public class DiscordSettings extends AlarmHookSettings {
 
     private String textTemplate;
+    private String recoveryTextTemplate;
     private List<WebHookUrl> webhooks = new ArrayList<>();
 
     public DiscordSettings(final String name,

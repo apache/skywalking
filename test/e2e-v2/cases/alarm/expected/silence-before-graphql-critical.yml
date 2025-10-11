@@ -41,7 +41,7 @@ msgs:
         layer: GENERAL
       {{- end }}
     snapshot:
-      expression: sum((service_resp_time > 10) && (service_sla > 100)) >= 1
+      expression: sum((service_resp_time > 100) && (service_sla > 1)) >= 1
       metrics:
       {{- contains .snapshot.metrics }}
       - name: service_resp_time

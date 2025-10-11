@@ -149,7 +149,7 @@ public class AlarmStatusQueryHandler {
         runningContext.addProperty("endTime", window.getEndTime().toString());
         runningContext.addProperty("additionalPeriod", window.getAdditionalPeriod());
         runningContext.addProperty("size", window.getSize());
-        runningContext.addProperty("silenceCountdown", window.getSilenceCountdown());
+        runningContext.addProperty("silenceCountdown", window.getStateMachine().getSilenceCountdown());
 
         JsonArray metricValues = new JsonArray();
         runningContext.add("windowValues", metricValues);

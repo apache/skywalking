@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import com.google.gson.JsonObject;
+
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
@@ -67,13 +68,14 @@ public interface IAlarmQueryDAO extends DAO {
      * Build the alarm message from the alarm record.
      * The Tags in JDBC storage is base64 encoded, need to decode in different way.
      */
-    default AlarmMessage buildAlarmMessage(AlarmRecord alarmRecord) {
+    default AlarmMessage buildAlarmMessage(AlarmRecord alarmRecord, Long recoveryTime) {
         AlarmMessage message = new AlarmMessage();
         message.setId(String.valueOf(alarmRecord.getId0()));
         message.setId1(String.valueOf(alarmRecord.getId1()));
         message.setName(alarmRecord.getName());
         message.setMessage(alarmRecord.getAlarmMessage());
         message.setStartTime(alarmRecord.getStartTime());
+        message.setRecoveryTime(recoveryTime);
         message.setScope(Scope.Finder.valueOf(alarmRecord.getScope()));
         message.setScopeId(alarmRecord.getScope());
         AlarmSnapshot alarmSnapshot = message.getSnapshot();
@@ -89,8 +91,8 @@ public interface IAlarmQueryDAO extends DAO {
                     MQEMetric metrics = new MQEMetric();
                     metrics.setName(name);
                     List<MQEValues> values = GSON.fromJson(
-                        obj.getValue().getAsString(), new TypeToken<List<MQEValues>>() {
-                        }.getType());
+                            obj.getValue().getAsString(), new TypeToken<List<MQEValues>>() {
+                            }.getType());
                     metrics.setResults(values);
                     alarmSnapshot.getMetrics().add(metrics);
                 }

@@ -31,7 +31,9 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql alarm autocomplete-values --key=level
       expected: expected/tag-values.yml
     # before silence webhook
-    - query: curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
+    - query: |
+        sleep 30;
+        curl  -XPOST http://${provider_host}:${provider_9090}/alarm/read
       expected: expected/silence-before-webhook.yml
     # after silence alarm list WARNING,receivers=lisi
     - query: |
@@ -44,3 +46,11 @@
     # after silence webhook
     - query: curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
       expected: expected/silence-after-webhook.yml
+    - query: |
+        sleep 30;
+        curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
+      expected: expected/recovery-webhook.yml
+    - query: |
+        sleep 30;
+        curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
+      expected: expected/recovery-after-observation-webhook.yml

@@ -24,6 +24,7 @@ import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
@@ -46,8 +47,12 @@ import java.util.Set;
  */
 public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarmQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(AlarmRecord.SCOPE,
-            AlarmRecord.NAME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.START_TIME,
-            AlarmRecord.RULE_NAME, AlarmRecord.TAGS, AlarmRecord.TAGS_RAW_DATA, AlarmRecord.SNAPSHOT);
+            AlarmRecord.NAME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.UUID, AlarmRecord.ALARM_MESSAGE,
+            AlarmRecord.START_TIME, AlarmRecord.RULE_NAME, AlarmRecord.TAGS, AlarmRecord.TAGS_RAW_DATA, AlarmRecord.SNAPSHOT);
+    private static final Set<String> RECOVERY_TAGS = ImmutableSet.of(AlarmRecoveryRecord.SCOPE,
+            AlarmRecoveryRecord.NAME, AlarmRecord.ID0, AlarmRecoveryRecord.ID1, AlarmRecoveryRecord.UUID,
+            AlarmRecoveryRecord.ALARM_MESSAGE, AlarmRecoveryRecord.START_TIME, AlarmRecoveryRecord.RECOVERY_TIME,
+            AlarmRecoveryRecord.RULE_NAME, AlarmRecoveryRecord.TAGS, AlarmRecoveryRecord.TAGS_RAW_DATA, AlarmRecoveryRecord.SNAPSHOT);
 
     public BanyanDBAlarmQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -88,12 +93,35 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
             AlarmRecord alarmRecord = builder.storage2Entity(
                     new BanyanDBConverter.StorageToStream(AlarmRecord.INDEX_NAME, rowEntity)
             );
-            AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord);
+            Long recoveryTime = getAlarmRecoveryTime(alarmRecord.getUuid(), duration);
+            AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord, recoveryTime);
             if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
                 parseDataBinary(alarmRecord.getTagsRawData(), alarmMessage.getTags());
             }
             alarms.getMsgs().add(alarmMessage);
         }
         return alarms;
+    }
+
+    private Long getAlarmRecoveryTime(String uuid, Duration duration) throws IOException {
+        if (StringUtil.isBlank(uuid)) {
+            return null;
+        }
+        final boolean isColdStage = duration != null && duration.isColdStage();
+        StreamQueryResponse resp = query(isColdStage, AlarmRecoveryRecord.INDEX_NAME, RECOVERY_TAGS,
+                getTimestampRange(duration), new QueryBuilder<StreamQuery>() {
+                    @Override
+                    public void apply(StreamQuery query) {
+                        query.and(eq(AlarmRecoveryRecord.UUID, uuid));
+                    }
+                });
+        for (final RowEntity rowEntity : resp.getElements()) {
+            AlarmRecoveryRecord.Builder builder = new AlarmRecoveryRecord.Builder();
+            AlarmRecoveryRecord alarmRecoveryRecord = builder.storage2Entity(
+                    new BanyanDBConverter.StorageToStream(AlarmRecoveryRecord.INDEX_NAME, rowEntity)
+            );
+            return alarmRecoveryRecord.getRecoveryTime();
+        }
+        return null;
     }
 }

@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 public class WeLinkSettings extends AlarmHookSettings {
 
     private String textTemplate;
+    private String recoveryTextTemplate;
     private List<WebHookUrl> webhooks = new ArrayList<>();
 
     public WeLinkSettings(final String name,

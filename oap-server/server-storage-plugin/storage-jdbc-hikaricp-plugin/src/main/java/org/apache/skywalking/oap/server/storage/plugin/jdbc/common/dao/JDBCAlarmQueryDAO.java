@@ -26,20 +26,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityConverters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -68,20 +72,20 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
                            Duration duration, final List<Tag> tags) {
         if (searchableTagKeys == null) {
             final ConfigService configService = manager.find(CoreModule.NAME)
-                                                       .provider()
-                                                       .getService(ConfigService.class);
+                    .provider()
+                    .getService(ConfigService.class);
             searchableTagKeys = new HashSet<>(Arrays.asList(configService.getSearchableAlarmTags().split(Const.COMMA)));
         }
         // If the tag is not searchable, but is required, then we don't need to run the real query.
         if (tags != null && !searchableTagKeys.containsAll(tags.stream().map(Tag::getKey).collect(toSet()))) {
             log.warn(
-                "Searching tags that are not searchable: {}",
-                tags.stream().map(Tag::getKey).filter(not(searchableTagKeys::contains)).collect(toSet()));
+                    "Searching tags that are not searchable: {}",
+                    tags.stream().map(Tag::getKey).filter(not(searchableTagKeys::contains)).collect(toSet()));
             return new Alarms();
         }
 
         final var tables = tableHelper.getTablesForRead(
-            AlarmRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket()
+                AlarmRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket()
         );
         final var alarmMsgs = new ArrayList<AlarmMessage>();
 
@@ -90,11 +94,13 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
             jdbcClient.executeQuery(sqlAndParameters.sql(), resultSet -> {
                 while (resultSet.next()) {
                     AlarmRecord.Builder builder = new AlarmRecord.Builder();
-                    AlarmRecord alarmRecord = builder.storage2Entity(JDBCEntityConverters.toEntity(resultSet));
-                    AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord);
+                    Convert2Entity convert2Entity = JDBCEntityConverters.toEntity(resultSet);
+                    AlarmRecord alarmRecord = builder.storage2Entity(convert2Entity);
+                    Long recoveryTime = getRecoveryTime(alarmRecord.getUuid(), duration);
+                    AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord, recoveryTime);
                     if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
                         parseDataBinaryBase64(
-                            new String(alarmRecord.getTagsRawData(), Charsets.UTF_8), alarmMessage.getTags());
+                                new String(alarmRecord.getTagsRawData(), Charsets.UTF_8), alarmMessage.getTags());
                     }
                     alarmMsgs.add(alarmMessage);
                 }
@@ -102,12 +108,12 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
             }, sqlAndParameters.parameters());
         }
         return new Alarms(
-            alarmMsgs
-                .stream()
-                .sorted(comparing(AlarmMessage::getStartTime).reversed())
-                .skip(from)
-                .limit(limit)
-                .collect(toList())
+                alarmMsgs
+                        .stream()
+                        .sorted(comparing(AlarmMessage::getStartTime).reversed())
+                        .skip(from)
+                        .limit(limit)
+                        .collect(toList())
         );
     }
 
@@ -129,6 +135,7 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
          */
         final var timeBucket = TableHelper.getTimeBucket(table);
         final var tagTable = TableHelper.getTable(AlarmRecord.ADDITIONAL_TAG_TABLE, timeBucket);
+
         if (!CollectionUtils.isEmpty(tags)) {
             for (int i = 0; i < tags.size(); i++) {
                 sql.append(" inner join ").append(tagTable).append(" ");
@@ -138,7 +145,7 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
             }
         }
         sql.append(" where ")
-           .append(table).append(".").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+                .append(table).append(".").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
         parameters.add(AlarmRecord.INDEX_NAME);
         if (Objects.nonNull(scopeId)) {
             sql.append(" and ").append(AlarmRecord.SCOPE).append(" = ?");
@@ -165,6 +172,40 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
         sql.append(" order by ").append(AlarmRecord.START_TIME).append(" desc ");
         sql.append(" limit ").append(from + limit);
 
+        return new SQLAndParameters(sql.toString(), parameters);
+    }
+
+    private Long getRecoveryTime(String uuid, Duration duration) throws SQLException {
+        if (StringUtil.isBlank(uuid)) {
+            return null;
+        }
+        final var tables = tableHelper.getTablesForRead(
+                AlarmRecoveryRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket()
+        );
+        final AlarmRecoveryRecord[] alarmRecoveryRecords = {null};
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQL4Recovery(uuid, duration, table);
+            jdbcClient.executeQuery(sqlAndParameters.sql(), resultSet -> {
+                while (resultSet.next()) {
+                    AlarmRecoveryRecord.Builder builder = new AlarmRecoveryRecord.Builder();
+                    Convert2Entity convert2Entity = JDBCEntityConverters.toEntity(resultSet);
+                    alarmRecoveryRecords[0] = builder.storage2Entity(convert2Entity);
+                }
+                return null;
+            }, sqlAndParameters.parameters());
+        }
+        return alarmRecoveryRecords[0] == null ? null : alarmRecoveryRecords[0].getRecoveryTime();
+    }
+
+    private SQLAndParameters buildSQL4Recovery(String uuid, Duration duration, String table) {
+        final var sql = new StringBuilder();
+        final var parameters = new ArrayList<>();
+        sql.append("select * from ").append(table);
+        sql.append(" where ")
+                .append(table).append(".").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        parameters.add(AlarmRecoveryRecord.INDEX_NAME);
+        sql.append(" and ").append(AlarmRecoveryRecord.UUID).append(" = ?");
+        parameters.add(uuid);
         return new SQLAndParameters(sql.toString(), parameters);
     }
 }

@@ -22,6 +22,8 @@ services:
       - e2e
     expose:
       - 3306
+    ports:
+      - 3306
     environment:
       - MYSQL_ROOT_PASSWORD=root@1234
       - MYSQL_DATABASE=swtest

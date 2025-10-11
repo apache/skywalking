@@ -41,7 +41,7 @@ msgs:
         layer: GENERAL
       {{- end }}
     snapshot:
-      expression: sum(service_percentile{p='50,75,90,95,99'} > 10) >= 3
+      expression: sum(service_percentile{p='50,75,90,95,99'} > 100) >= 3
       metrics:
       {{- contains .snapshot.metrics }}
       - name: service_percentile{p='50,75,90,95,99'}

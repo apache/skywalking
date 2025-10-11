@@ -13,22 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 messages:
   {{- contains .messages }}
-  - scopeId: 1
-    scope: SERVICE
-    name: e2e-service-provider
-    id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
-    id1: ""
-    ruleName: service_resp_time_rule
-    alarmMessage: Response time of service e2e-service-provider is increase/decrease in 1 minutes of last 10 minutes.
-    startTime: {{ gt .startTime 0 }}
-    recoveryTime: {{ le .recoveryTime 0 }}
-    tags:
-      - key: level
-        value: WARNING
-      - key: receivers
-        value: lisi
   - scopeId: 1
     scope: SERVICE
     name: e2e-service-provider
@@ -37,7 +24,7 @@ messages:
     ruleName: service_percentile_rule
     alarmMessage: Percentile response time of service e2e-service-provider alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 10, p75 > 10, p90 > 10, p95 > 10, p99 > 10.
     startTime: {{ gt .startTime 0 }}
-    recoveryTime: {{ le .recoveryTime 0 }}
+    recoveryTime: {{ gt .recoveryTime 0 }}
     tags:
       - key: level
         value: WARNING
@@ -51,7 +38,7 @@ messages:
     ruleName: comp_rule
     alarmMessage: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
     startTime: {{ gt .startTime 0 }}
-    recoveryTime: {{ le .recoveryTime 0 }}
+    recoveryTime: {{ gt .recoveryTime 0 }}
     tags:
       - key: level
         value: CRITICAL
