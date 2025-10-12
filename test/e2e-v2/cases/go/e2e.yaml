@@ -56,18 +56,14 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=correlation --service-name=e2e-service-provider
       expected: expected/service-endpoint-provider.yml
     # trace segment list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=go-service
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=go-service
       expected: expected/traces-list-go.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=e2e-service-consumer
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=e2e-service-consumer
       expected: expected/traces-list-consumer.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=e2e-service-provider
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=e2e-service-provider
       expected: expected/traces-list-provider.yml
     # trace detail
-    - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=e2e-service-consumer\
-            | yq e '.traces | select(.[].endpointnames[0]=="POST:/correlation") | .[0].traceids[0]' -
-        )
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=e2e-service-consumer --endpoint-name=POST:/correlation
       expected: expected/trace-correlation-detail.yml
     # dependency service
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=go-service

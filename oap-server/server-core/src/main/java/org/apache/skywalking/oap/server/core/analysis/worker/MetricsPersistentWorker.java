@@ -23,10 +23,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
@@ -34,20 +33,16 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.status.BootingStatus;
 import org.apache.skywalking.oap.server.core.status.ClusterStatus;
-import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.status.ServerStatusWatcher;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
@@ -56,18 +51,20 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  */
 @Slf4j
 public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implements ServerStatusWatcher {
+    @Getter(AccessLevel.PROTECTED)
     private final Model model;
     private final long storageSessionTimeout;
     private final MetricsSessionCache sessionCache;
+    @Getter(AccessLevel.PROTECTED)
     private final IMetricsDAO metricsDAO;
     private final Optional<AbstractWorker<Metrics>> nextAlarmWorker;
     private final Optional<AbstractWorker<ExportEvent>> nextExportWorker;
-    private final DataCarrier<Metrics> dataCarrier;
     private final Optional<MetricsTransWorker> transWorker;
     private final boolean supportUpdate;
     /**
      * The counter of L2 aggregation.
      */
+    @Getter(AccessLevel.PROTECTED)
     private CounterMetrics aggregationCounter;
     /**
      * The counter of metrics reading from Database.
@@ -76,7 +73,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
     /**
      * The counter of metrics cached in-memory.
      */
-    private CounterMetrics cachedMetricsCounter;
+    private final CounterMetrics cachedMetricsCounter;
+
+    /**
+     * The metrics persistent collection cached size
+     */
+    private final GaugeMetrics collectionCachedSizeGauge;
     /**
      * The counter for the round of persistent.
      */
@@ -90,11 +92,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
     /**
      * @since 8.7.0 TTL settings from {@link org.apache.skywalking.oap.server.core.CoreModuleConfig#getMetricsDataTTL()}
      */
+    @Getter(AccessLevel.PROTECTED)
     private int metricsDataTTL;
-    /**
-     * @since 9.4.0
-     */
-    private final ServerStatusService serverStatusService;
+
     /**
      * The time bucket is 0 or in minute dimensionality of the system in the latest stability status.
      *
@@ -105,10 +105,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
     // Not going to expose this as a configuration, only for testing purpose
     private final boolean isTestingTTL = "true".equalsIgnoreCase(System.getenv("TESTING_TTL"));
 
-    MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
-                            AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
-                            MetricsTransWorker transWorker, boolean supportUpdate,
-                            long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
+    protected MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
+                                  AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
+                                  MetricsTransWorker transWorker, boolean supportUpdate,
+                                  long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
         this.storageSessionTimeout = storageSessionTimeout;
@@ -122,33 +122,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         this.persistentMod = 1;
         this.metricsDataTTL = metricsDataTTL;
 
-        String name = "METRICS_L2_AGGREGATION";
-        int size = BulkConsumePool.Creator.recommendMaxSize() / 8;
-        if (size == 0) {
-            size = 1;
-        }
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(name, size, 200);
-        try {
-            ConsumerPoolFactory.INSTANCE.createIfAbsent(name, creator);
-        } catch (Exception e) {
-            throw new UnexpectedException(e.getMessage(), e);
-        }
-
-        int bufferSize = 2000;
-        if (MetricStreamKind.MAL == kind) {
-            // In MAL meter streaming, the load of data flow is much less as they are statistics already,
-            // but in OAL sources, they are raw data.
-            // Set the buffer(size of queue) as 1/2 to reduce unnecessary resource costs.
-            bufferSize = 1000;
-        }
-        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), name, 1, bufferSize);
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(name), new PersistentConsumer());
-
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
                                                           .provider()
                                                           .getService(MetricsCreator.class);
         aggregationCounter = metricsCreator.createCounter(
-            "metrics_aggregation", "The number of rows in aggregation",
+            "metrics_aggregation", "The number of rows in aggregation.",
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(model.getName(), "2", model.getDownsampling().getName())
         );
@@ -160,10 +138,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
             "metrics_persistent_cache", "The counter of metrics status, new or cached.",
             new MetricsTag.Keys("status"), new MetricsTag.Values("cached")
         );
-        serverStatusService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServerStatusService.class);
-        if (model.getDownsampling().equals(DownSampling.Minute)) {
-            serverStatusService.registerWatcher(this);
-        }
+        collectionCachedSizeGauge =  metricsCreator.createGauge(
+            "metrics_persistent_collection_cached_size", "The collection cache size for metrics persistent.",
+            new MetricsTag.Keys("metricName", "dimensionality", "kind"),
+            new MetricsTag.Values(model.getName(), model.getDownsampling().getName(), kind.name())
+        );
     }
 
     /**
@@ -196,8 +175,13 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
             log.debug("Receiving expired metrics: {}, time: {}, ignored", metrics.id(), metrics.getTimeBucket());
             return;
         }
+
         aggregationCounter.inc();
-        dataCarrier.produce(metrics);
+        /*
+          Metrics queue processor, merge the received metrics if existing one with same ID(s) and time bucket.
+          ID is declared through {@link Object#hashCode()} and {@link Object#equals(Object)} as usual.
+         */
+        super.onWork(List.of(metrics));
     }
 
     @Override
@@ -212,7 +196,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         if (lastCollection.size() == 0) {
             return Collections.emptyList();
         }
-
+        // record the size > 0 cache to avoid too much metrics
+        collectionCachedSizeGauge.setValue(lastCollection.size());
         /*
          * Hard coded the max size. This only affect the multiIDRead if the data doesn't hit the cache.
          */
@@ -395,7 +380,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         //The kernel should NOT try to load it from the database.
         //
         // Notice, about the condition (2),
-        // For the specific minutes of metrics before booted, rebalanced(cluster) and expired from cache, 
+        // For the specific minutes of metrics before booted, rebalanced(cluster) and expired from cache,
         // they are expected to load from the database when don't exist in the cache.
         if (timeOfLatestStabilitySts > 0 &&
             metrics.getTimeBucket() > timeOfLatestStabilitySts) {
@@ -422,22 +407,5 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
     public void onClusterRebalanced(final ClusterStatus clusterStatus) {
         timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
             clusterStatus.getRebalancedTime());
-    }
-
-    /**
-     * Metrics queue processor, merge the received metrics if existing one with same ID(s) and time bucket.
-     *
-     * ID is declared through {@link Object#hashCode()} and {@link Object#equals(Object)} as usual.
-     */
-    private class PersistentConsumer implements IConsumer<Metrics> {
-        @Override
-        public void consume(List<Metrics> data) {
-            MetricsPersistentWorker.this.onWork(data);
-        }
-
-        @Override
-        public void onError(List<Metrics> data, Throwable t) {
-            log.error(t.getMessage(), t);
-        }
     }
 }

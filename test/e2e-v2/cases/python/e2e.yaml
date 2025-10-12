@@ -64,21 +64,18 @@ verify:
       expected: expected/service-endpoint-provider-py.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=provider-py-kafka
       expected: expected/service-endpoint-provider-py-kafka.yml
-    # trace segment list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=consumer-py
+    # trace list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=consumer-py
       expected: expected/traces-list-consumer-py.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=provider-py
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=provider-py
       expected: expected/traces-list-provider-py.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=provider-py-kafka
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=provider-py-kafka
       expected: expected/traces-list-provider-py-kafka.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=e2e-service-consumer
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=e2e-service-consumer
       expected: expected/traces-list-consumer-java.yml
     # trace detail
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --service-name=consumer-py\
-            | yq e '.traces | select(.[].endpointnames[0]=="/test") | .[0].traceids[0]' -
-        )
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=consumer-py endpoint-name=/test
       expected: expected/trace-test-detail.yml
     # dependency service
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=consumer-py

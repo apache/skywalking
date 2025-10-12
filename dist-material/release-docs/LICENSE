@@ -208,8 +208,8 @@ Apache-2.0 licenses
 ========================================================================
 The following components are provided under the Apache-2.0 License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
-    https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/pgv-java-stub/0.6.13 Apache-2.0
-    https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/protoc-gen-validate/0.6.13 Apache-2.0
+    https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/pgv-java-stub/1.2.1 Apache-2.0
+    https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/protoc-gen-validate/1.2.1 Apache-2.0
     https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j/1.18.0 Apache-2.0
     https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/service/1.18.0 Apache-2.0
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-auth-plugin/2.3.2 Apache-2.0
@@ -254,7 +254,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/commons-codec/commons-codec/1.11 Apache-2.0
     https://mvnrepository.com/artifact/commons-io/commons-io/2.17.0 Apache-2.0
     https://mvnrepository.com/artifact/commons-net/commons-net/3.9.0 Apache-2.0
-    https://mvnrepository.com/artifact/commons-validator/commons-validator/1.7 Apache-2.0
+    https://mvnrepository.com/artifact/commons-validator/commons-validator/1.9.0 Apache-2.0
     https://npmjs.com/package/d3-flame-graph/v/4.1.3 4.1.3 Apache-2.0
     https://npmjs.com/package/echarts/v/5.4.1 5.4.1 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-api/0.6.1 Apache-2.0
@@ -303,29 +303,33 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.14.4 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.14.4 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.14.4 Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-dns/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-haproxy/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-common/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-classes-macos/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos/4.1.118.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-base/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-compression/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-dns/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-haproxy/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-marshalling/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-protobuf/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-common/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-handler/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-classes-macos/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos/4.2.5.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.69.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.70.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-tcnative-classes/2.0.70.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-epoll/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-kqueue/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-kqueue/4.1.118.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.1.118.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.73.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-tcnative-classes/2.0.73.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-epoll/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-kqueue/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-kqueue/4.2.5.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.2.5.Final Apache-2.0
     https://mvnrepository.com/artifact/io.perfmark/perfmark-api/0.27.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_common/0.6.0 Apache-2.0
@@ -337,7 +341,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/javax.inject/javax.inject/1 Apache-2.0
     https://mvnrepository.com/artifact/joda-time/joda-time/2.10.5 Apache-2.0
     https://mvnrepository.com/artifact/net.jodah/failsafe/2.4.4 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.12.0 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.18.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.commons/commons-text/1.4 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-client/4.3.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-framework/4.3.0 Apache-2.0
@@ -473,21 +477,20 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@floating-ui/core/v/1.6.9 1.6.9 MIT
     https://npmjs.com/package/@floating-ui/dom/v/1.6.13 1.6.13 MIT
     https://npmjs.com/package/@floating-ui/utils/v/0.2.9 0.2.9 MIT
-    https://npmjs.com/package/@interactjs/actions/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/auto-scroll/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/auto-start/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/core/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/dev-tools/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/inertia/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/interact/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/interactjs/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/modifiers/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/offset/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/pointer-events/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/reflow/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/snappers/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/types/v/1.10.17 1.10.17 MIT
-    https://npmjs.com/package/@interactjs/utils/v/1.10.17 1.10.17 MIT
+    https://npmjs.com/package/@interactjs/actions/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/auto-scroll/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/auto-start/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/core/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/dev-tools/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/inertia/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/interact/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/interactjs/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/modifiers/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/offset/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/pointer-events/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/reflow/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/snappers/v/1.10.27 1.10.27 MIT
+    https://npmjs.com/package/@interactjs/utils/v/1.10.27 1.10.27 MIT
     https://npmjs.com/package/@intlify/core-base/v/9.14.5 9.14.5 MIT
     https://npmjs.com/package/@intlify/message-compiler/v/9.14.5 9.14.5 MIT
     https://npmjs.com/package/@intlify/shared/v/9.14.5 9.14.5 MIT
@@ -525,7 +528,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/d3-dsv/node_modules/commander/v/7.2.0 7.2.0 MIT
     https://npmjs.com/package/d3-tip/v/0.9.1 0.9.1 MIT
     https://npmjs.com/package/dayjs/v/1.11.13 1.11.13 MIT
-    https://npmjs.com/package/element-plus/v/2.9.4 2.9.4 MIT
+    https://npmjs.com/package/element-plus/v/2.11.0 2.11.0 MIT
     https://npmjs.com/package/element-resize-detector/v/1.2.4 1.2.4 MIT
     https://npmjs.com/package/escape-html/v/1.0.3 1.0.3 MIT
     https://npmjs.com/package/estree-walker/v/2.0.2 2.0.2 MIT
@@ -588,7 +591,7 @@ https://golang.org/LICENSE licenses
 The following components are provided under the https://golang.org/LICENSE License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://mvnrepository.com/artifact/com.google.re2j/re2j/1.5 https://golang.org/LICENSE
+    https://mvnrepository.com/artifact/com.google.re2j/re2j/1.7 https://golang.org/LICENSE
 
 ========================================================================
 https://opensource.org/licenses/BSD-2-Clause;description=BSD 2-Clause License licenses

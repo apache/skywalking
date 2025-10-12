@@ -38,6 +38,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class BanyanDBStorageConfig extends ModuleConfig {
     private Global global = new Global();
     private RecordsNormal recordsNormal = new RecordsNormal();
+    private Trace trace = new Trace();
+    private ZipkinTrace zipkinTrace = new ZipkinTrace();
     private RecordsTrace recordsTrace = new RecordsTrace();
     private RecordsZipkinTrace recordsZipkinTrace = new RecordsZipkinTrace();
     private RecordsLog recordsLog = new RecordsLog();
@@ -87,6 +89,8 @@ public class BanyanDBStorageConfig extends ModuleConfig {
          */
         private int profileTaskQueryMaxSize;
 
+        private String user;
+        private String password;
         /**
          * If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection.
          */
@@ -107,6 +111,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int segmentQueryMaxSize = 200;
         private int profileDataQueryBatchSize = 100;
         private boolean cleanupUnusedTopNRules = true;
+        private String namespace = "sw";
     }
 
     // The configuration of the groups.
@@ -122,6 +127,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int shardNum;
         private int segmentInterval;
         private int ttl;
+        private int replicas;
         // Indicates whether segments that are no longer live should be closed.
         private boolean close = false;
     }
@@ -138,6 +144,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int shardNum;
         private int segmentInterval;
         private int ttl;
+        private int replicas;
         private boolean enableWarmStage = false;
         private boolean enableColdStage = false;
         private List<String> defaultQueryStages = new ArrayList<>(2);
@@ -164,6 +171,14 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     @Getter
     @Setter
     public static class RecordsLog extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    public static class Trace extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    @Getter
+    @Setter
+    public static class ZipkinTrace extends BanyanDBStorageConfig.GroupResource {
     }
 
     @Getter

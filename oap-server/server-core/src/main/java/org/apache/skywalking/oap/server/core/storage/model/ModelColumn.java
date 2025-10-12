@@ -112,6 +112,7 @@ public class ModelColumn {
     }
 
     /**
+     * Notice, for BanyanDB, should use {@link BanyanDBExtension#shouldIndex()} instead.
      * @return true means this column should be indexed, as it would be a query condition.
      */
     public boolean shouldIndex() {

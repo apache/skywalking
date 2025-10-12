@@ -27,7 +27,6 @@ import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.encoding.DecodingService;
 import com.linecorp.armeria.server.logging.LoggingService;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,7 +59,6 @@ public class HTTPServer implements Server {
             .builder()
             .baseContextPath(config.getContextPath())
             .serviceUnder("/docs", DocService.builder().build())
-            .workerGroup(config.getMaxThreads())
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
             .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
             .decorator(Route.ofCatchAll(), (delegate, ctx, req) -> {

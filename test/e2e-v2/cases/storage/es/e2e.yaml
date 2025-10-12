@@ -50,3 +50,24 @@ verify:
       - ../storage-cases.yaml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des,attr0='GENERAL',attr1!='Not_exist')/100"
       expected: ../expected/topN-OP-service.yml
+    # trace segment list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
+      expected: ../expected/traces-list.yml
+    # negative tags search: relationship should be logical AND instead of logical OR
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=POST,http.status_code=201
+      expected: ../expected/empty-traces-list.yml
+    # trace detail
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls \
+            | yq e '.traces | select(.[].endpointnames[0]=="POST:/users") | .[0].traceids[0]' -
+        )
+      expected: ../expected/trace-users-detail.yml
+    - query: |
+        curl -s -XPOST http://${provider_host}:${provider_9090}/users -d '{"id":"123","name":"SinglesBar"}' -H "Content-Type: application/json" > /dev/null;
+        sleep 5;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --order startTime --service-name "e2e-service-provider" --endpoint-name "POST:/users" \
+            | yq e '.traces[0].traceids[0]' - \
+        )
+      expected: ../expected/trace-users-detail.yml

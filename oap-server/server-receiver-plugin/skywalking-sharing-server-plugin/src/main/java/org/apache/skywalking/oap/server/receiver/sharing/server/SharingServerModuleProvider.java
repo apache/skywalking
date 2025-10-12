@@ -79,7 +79,6 @@ public class SharingServerModuleProvider extends ModuleProvider {
                 HTTPServerConfig.builder()
                                 .host(config.getRestHost()).port(config.getRestPort())
                                 .contextPath(config.getRestContextPath())
-                                .maxThreads(config.getRestMaxThreads())
                                 .acceptQueueSize(config.getRestAcceptQueueSize())
                                 .idleTimeOut(config.getRestIdleTimeOut())
                                 .maxRequestHeaderSize(config.getHttpMaxRequestHeaderSize()).build();

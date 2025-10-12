@@ -71,6 +71,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBEBPFProfilingScheduleQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBHierarchyQueryDAO;
@@ -98,7 +99,8 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBP
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBSpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStorageDAO;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBTraceQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBTraceQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBZipkinQueryDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
@@ -138,7 +140,9 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         // load banyandb config
         config = new BanyanDBConfigLoader(this).loadConfig();
-
+        if (StringUtil.isBlank(config.getGlobal().getNamespace())) {
+            config.getGlobal().setNamespace("sw");
+        }
         if (config.getMetricsDay().getTtl() > config.getMetadata().getTtl()) {
             throw new ModuleStartException("metricsDay ttl must be less than or equal to metadata ttl");
         }
@@ -160,7 +164,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
             ));
         this.registerServiceImplementation(StorageDAO.class, new BanyanDBStorageDAO(client));
         this.registerServiceImplementation(INetworkAddressAliasDAO.class, new BanyanDBNetworkAddressAliasDAO(client, this.config));
-        this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(client, this.config.getGlobal().getSegmentQueryMaxSize()));
+        this.registerServiceImplementation(ITraceQueryDAO.class, new BanyanDBTraceQueryDAO(client, this.config.getGlobal().getSegmentQueryMaxSize(), getManager()));
         this.registerServiceImplementation(IBrowserLogQueryDAO.class, new BanyanDBBrowserLogQueryDAO(client));
         this.registerServiceImplementation(IMetadataQueryDAO.class, new BanyanDBMetadataQueryDAO(client, this.config));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new BanyanDBAlarmQueryDAO(client));

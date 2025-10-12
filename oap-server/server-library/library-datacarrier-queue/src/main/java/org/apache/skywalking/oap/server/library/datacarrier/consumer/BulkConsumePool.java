@@ -34,11 +34,12 @@ public class BulkConsumePool implements ConsumerPool {
     private List<MultipleChannelsConsumer> allConsumers;
     private volatile boolean isStarted = false;
 
-    public BulkConsumePool(String name, int size, long consumeCycle) {
+    public BulkConsumePool(String name, int size, long consumeCycle, boolean isSignalDrivenMode) {
         size = EnvUtil.getInt(name + "_THREAD", size);
         allConsumers = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
-            MultipleChannelsConsumer multipleChannelsConsumer = new MultipleChannelsConsumer("DataCarrier." + name + ".BulkConsumePool." + i + ".Thread", consumeCycle);
+            MultipleChannelsConsumer multipleChannelsConsumer = new MultipleChannelsConsumer(
+                "DataCarrier." + name + ".BulkConsumePool." + i + ".Thread", consumeCycle, isSignalDrivenMode);
             multipleChannelsConsumer.setDaemon(true);
             allConsumers.add(multipleChannelsConsumer);
         }
@@ -92,6 +93,12 @@ public class BulkConsumePool implements ConsumerPool {
         isStarted = true;
     }
 
+    public void notifyConsumers() {
+        for (MultipleChannelsConsumer consumer : allConsumers) {
+            consumer.setConsumeFlag(true);
+        }
+    }
+
     /**
      * The creator for {@link BulkConsumePool}.
      */
@@ -99,16 +106,19 @@ public class BulkConsumePool implements ConsumerPool {
         private String name;
         private int size;
         private long consumeCycle;
+        // Consumer has two modes to drive consumption. 1. Polling mode. 2. Signal-Driven mode.
+        private final boolean isSignalDrivenMode;
 
-        public Creator(String name, int poolSize, long consumeCycle) {
+        public Creator(String name, int poolSize, long consumeCycle, boolean isSignalDrivenMode) {
             this.name = name;
             this.size = poolSize;
             this.consumeCycle = consumeCycle;
+            this.isSignalDrivenMode = isSignalDrivenMode;
         }
 
         @Override
         public ConsumerPool call() {
-            return new BulkConsumePool(name, size, consumeCycle);
+            return new BulkConsumePool(name, size, consumeCycle, isSignalDrivenMode);
         }
 
         public static int recommendMaxSize() {

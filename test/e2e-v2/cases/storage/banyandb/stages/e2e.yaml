@@ -60,15 +60,9 @@ verify:
       expected: ../../expected/cold/dependency-instance.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency endpoint --service-name=mock_a_service --endpoint-name=/dubbox-case/case/dubbox-rest/404-test --start="-96h" --end="-48h" --cold=true --step=DAY
       expected: ../../expected/cold/dependency-endpoint.yml
-    # trace segment list
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=get --start="-96h" --end="-48h" --cold=true
+    # trace list
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=mock_a_service --endpoint-name=/dubbox-case/case/dubbox-rest/404-test --tags http.method=get --start="-96h" --end="-48h" --cold=true
       expected: ../../expected/cold/traces-list.yml
-    - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --trace-id=$( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=get --start="-96h" --end="-48h" --cold=true \
-            | yq e '.traces | select(.[].endpointnames[0]=="/dubbox-case/case/dubbox-rest/404-test") | .[0].traceids[0]' -
-        ) --start="-96h" --end="-48h" --cold=true
-      expected: ../../expected/cold/trace-detail.yml
     ## topN
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des,attr0='GENERAL')" --start="-96h" --end="-48h" --cold=true --step=DAY
       expected: ../../expected/cold/topN-OP-service.yml

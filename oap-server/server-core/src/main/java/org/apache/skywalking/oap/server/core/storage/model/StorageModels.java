@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBModelExtension.TraceIndexRule;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -96,11 +98,48 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         //Add timestampColumn for BanyanDB
         if (aClass.isAnnotationPresent(BanyanDB.TimestampColumn.class)) {
             String timestampColumn = aClass.getAnnotation(BanyanDB.TimestampColumn.class).value();
+            if (StringUtil.isBlank(timestampColumn)) {
+                throw new IllegalStateException(
+                    "Model[" + storage.getModelName() + "] missing defined @BanyanDB.TimestampColumn");
+            }
             banyanDBModelExtension.setTimestampColumn(timestampColumn);
         }
 
-        if (aClass.isAnnotationPresent(BanyanDB.StoreIDAsTag.class)) {
-            banyanDBModelExtension.setStoreIDTag(true);
+        if (aClass.isAnnotationPresent(BanyanDB.Trace.TraceIdColumn.class)) {
+            String traceIdColumn = aClass.getAnnotation(BanyanDB.Trace.TraceIdColumn.class).value();
+            if (StringUtil.isBlank(traceIdColumn)) {
+                throw new IllegalStateException(
+                    "Model[trace." + storage.getModelName() + "] missing defined @BanyanDB.TraceIdColumn");
+            }
+            banyanDBModelExtension.setTraceIdColumn(traceIdColumn);
+        }
+
+        if (aClass.isAnnotationPresent(BanyanDB.Trace.SpanIdColumn.class)) {
+            String spanIdColumn = aClass.getAnnotation(BanyanDB.Trace.SpanIdColumn.class).value();
+            if (StringUtil.isBlank(spanIdColumn)) {
+                throw new IllegalStateException(
+                    "Model[trace." + storage.getModelName() + "] missing defined @BanyanDB.SpanIdColumn");
+            }
+            banyanDBModelExtension.setSpanIdColumn(spanIdColumn);
+        }
+
+        // Add index rules for BanyanDB trace model
+        if (aClass.isAnnotationPresent(BanyanDB.Trace.TraceIdColumn.class) ||
+            aClass.isAnnotationPresent(BanyanDB.Trace.IndexRule.List.class)) {
+            List<TraceIndexRule> traceIndexRules = new ArrayList<>();
+            if (aClass.isAnnotationPresent(BanyanDB.Trace.IndexRule.class)) {
+                BanyanDB.Trace.IndexRule indexRule = aClass.getAnnotation(
+                    BanyanDB.Trace.IndexRule.class);
+                traceIndexRules.add(createTraceIndexRule(aClass, indexRule));
+            }
+            if (aClass.isAnnotationPresent(BanyanDB.Trace.IndexRule.List.class)) {
+                BanyanDB.Trace.IndexRule.List indexRules = aClass.getAnnotation(
+                    BanyanDB.Trace.IndexRule.List.class);
+                for (BanyanDB.Trace.IndexRule indexRule : indexRules.value()) {
+                    traceIndexRules.add(createTraceIndexRule(aClass, indexRule));
+                }
+            }
+            banyanDBModelExtension.setTraceIndexRules(traceIndexRules);
         }
 
         if (aClass.isAnnotationPresent(BanyanDB.IndexMode.class)) {
@@ -108,8 +147,11 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         if (aClass.isAnnotationPresent(BanyanDB.Group.class)) {
-            BanyanDB.StreamGroup streamGroup = aClass.getAnnotation(BanyanDB.Group.class).streamGroup();
-            banyanDBModelExtension.setStreamGroup(streamGroup);
+            BanyanDB.Group group = aClass.getAnnotation(BanyanDB.Group.class);
+            banyanDBModelExtension.setStreamGroup(group.streamGroup());
+            if (!group.traceGroup().equals(BanyanDB.TraceGroup.NONE)) {
+                banyanDBModelExtension.setTraceGroup(group.traceGroup());
+            }
         }
 
         // Set routing rules for ElasticSearch
@@ -332,6 +374,19 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     @Override
     public List<Model> allModels() {
         return models;
+    }
+
+    private TraceIndexRule createTraceIndexRule(Class<?> aClass, BanyanDB.Trace.IndexRule indexRuleColumns) {
+        String name = indexRuleColumns.name();
+        String[] columns = indexRuleColumns.columns();
+        String orderBy = indexRuleColumns.orderByColumn();
+
+        if (Objects.isNull(name) || Objects.isNull(columns) || columns.length == 0 || Objects.isNull(orderBy)) {
+            throw new IllegalArgumentException(
+                "The @BanyanDB.Trace.IndexRuleColumns of " + aClass.getName() + " has invalid definition.");
+        }
+
+        return new TraceIndexRule(name, columns, orderBy);
     }
 
     private static class SeriesIDChecker {

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.library.datacarrier;
 
 import java.util.Properties;
+import lombok.Getter;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.Channels;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumeDriver;
@@ -32,6 +33,7 @@ import org.apache.skywalking.oap.server.library.datacarrier.partition.SimpleRoll
  * DataCarrier main class. use this instance to set Producer/Consumer Model.
  */
 public class DataCarrier<T> {
+    @Getter
     private Channels<T> channels;
     private IDriver driver;
     private String name;

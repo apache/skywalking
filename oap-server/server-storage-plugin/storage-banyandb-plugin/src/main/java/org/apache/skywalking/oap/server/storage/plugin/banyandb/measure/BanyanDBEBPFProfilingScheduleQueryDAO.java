@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 
      @Override
      public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
-         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EBPFProfilingScheduleRecord.INDEX_NAME, DownSampling.Minute);
+         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(EBPFProfilingScheduleRecord.INDEX_NAME, DownSampling.Minute);
          MeasureQueryResponse resp = query(false, schema,
                  TAGS,
                                            Collections.emptySet(), new QueryBuilder<MeasureQuery>() {

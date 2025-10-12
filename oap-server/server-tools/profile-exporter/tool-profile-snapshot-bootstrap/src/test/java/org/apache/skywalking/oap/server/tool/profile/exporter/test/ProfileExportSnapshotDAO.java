@@ -36,8 +36,16 @@ public class ProfileExportSnapshotDAO implements IProfileThreadSnapshotQueryDAO 
     }
 
     @Override
-    public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
-        return Arrays.asList(exportedData.getSegmentId());
+    public List<ProfileThreadSnapshotRecord> queryRecords(String taskId)  throws IOException {
+        ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
+        record.setTaskId(taskId);
+        record.setSegmentId(exportedData.getSegmentId());
+        record.setSequence(0);
+        record.setDumpTime(System.currentTimeMillis());
+        final ThreadStack.Builder stack = ThreadStack.newBuilder().addAllCodeSignatures(Arrays.asList(exportedData.getSnapshots().get(0).split("-")));
+        record.setStackBinary(stack.build().toByteArray());
+
+        return Arrays.asList(record);
     }
 
     @Override

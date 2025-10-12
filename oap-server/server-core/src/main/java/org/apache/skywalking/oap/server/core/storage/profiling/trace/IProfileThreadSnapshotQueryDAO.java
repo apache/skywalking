@@ -30,11 +30,11 @@ import org.apache.skywalking.oap.server.core.storage.DAO;
 public interface IProfileThreadSnapshotQueryDAO extends DAO {
 
     /**
-     * search all profiled segment id list, need appoint taskId and snapshot sequence equals 0 sort by segment start time
+     * search all profiled segment list, need appoint taskId and snapshot sequence equals 0 sort by segment start time
      *
      * @return it represents the segments having profile snapshot data.
      */
-    List<String> queryProfiledSegmentIdList(String taskId) throws IOException;
+    List<ProfileThreadSnapshotRecord> queryRecords(String taskId) throws IOException;
 
     /**
      * search snapshots min sequence

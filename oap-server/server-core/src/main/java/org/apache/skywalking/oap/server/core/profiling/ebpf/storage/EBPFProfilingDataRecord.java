@@ -40,6 +40,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @Stream(name = EBPFProfilingDataRecord.INDEX_NAME, scopeId = EBPF_PROFILING_DATA,
     builder = EBPFProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(EBPFProfilingDataRecord.UPLOAD_TIME)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class EBPFProfilingDataRecord extends Record {
 
     public static final String INDEX_NAME = "ebpf_profiling_data";
@@ -66,12 +67,7 @@ public class EBPFProfilingDataRecord extends Record {
 
     @Override
     public StorageID id() {
-        return new StorageID().appendMutant(
-            new String[] {
-                SCHEDULE_ID,
-                STACK_ID_LIST,
-                UPLOAD_TIME
-            },
+        return new StorageID().append(
             Hashing.sha256().newHasher()
                    .putString(scheduleId, Charsets.UTF_8)
                    .putString(stackIdList, Charsets.UTF_8)

@@ -68,7 +68,6 @@ public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
         final HTTPServerConfig httpServerConfig = HTTPServerConfig.builder().host(moduleConfig.getHost())
                                                                   .port(moduleConfig.getPort())
                                                                   .contextPath(moduleConfig.getContextPath())
-                                                                  .maxThreads(moduleConfig.getMaxThreads())
                                                                   .idleTimeOut(moduleConfig.getIdleTimeOut())
                                                                   .acceptQueueSize(
                                                                       moduleConfig.getAcceptQueueSize())

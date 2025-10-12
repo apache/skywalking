@@ -42,6 +42,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @ScopeDeclaration(id = PROFILE_TASK, name = "ProfileTask")
 @Stream(name = ProfileTaskRecord.INDEX_NAME, scopeId = PROFILE_TASK, builder = ProfileTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
 @BanyanDB.TimestampColumn(ProfileTaskRecord.START_TIME)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class ProfileTaskRecord extends NoneStream {
 
     public static final String INDEX_NAME = "profile_task";
@@ -69,7 +70,6 @@ public class ProfileTaskRecord extends NoneStream {
     private String taskId;
     @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
-    @BanyanDB.NoIndexing
     private long startTime;
     @Column(name = DURATION)
     private int duration;

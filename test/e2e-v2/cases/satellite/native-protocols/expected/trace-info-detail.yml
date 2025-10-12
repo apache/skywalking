@@ -14,57 +14,65 @@
 # limitations under the License.
 
 debuggingtrace: null
-spans:
-  {{- contains .spans }}
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ notEmpty .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs:
-      {{- if eq .servicecode "e2e-service-provider" }}
-      {{- contains .refs }}
-        - traceid: {{ notEmpty .traceid }}
-          parentsegmentid: {{ notEmpty .parentsegmentid }}
-          parentspanid: 1
-          type: CROSS_PROCESS
-      {{- end }}
-      {{- end }}
-      {{- if eq .servicecode "e2e-service-consumer" }}
-        []
-      {{- end }}
-    servicecode: {{ notEmpty .servicecode }}
-    serviceinstancename: {{ notEmpty .serviceinstancename }}
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname:
+retrievedtimerange:
+  {{- with .retrievedtimerange }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+  {{- end }}
+traces:
+  {{- contains .traces }}
+  - spans:
+    {{- contains .spans }}
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ notEmpty .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs:
+        {{- if eq .servicecode "e2e-service-provider" }}
+        {{- contains .refs }}
+          - traceid: {{ notEmpty .traceid }}
+            parentsegmentid: {{ notEmpty .parentsegmentid }}
+            parentspanid: 1
+            type: CROSS_PROCESS
+        {{- end }}
+        {{- end }}
+        {{- if eq .servicecode "e2e-service-consumer" }}
+          []
+        {{- end }}
+      servicecode: {{ notEmpty .servicecode }}
+      serviceinstancename: {{ notEmpty .serviceinstancename }}
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname:
+        {{- if eq .type "Exit" }}
+          /info
+        {{ else }}
+          POST:/info
+        {{- end }}
+      type: {{ notEmpty .type }}
+      peer:
       {{- if eq .type "Exit" }}
-        /info
+        provider:9090
       {{ else }}
-        POST:/info
+        ""
       {{- end }}
-    type: {{ notEmpty .type }}
-    peer:
-    {{- if eq .type "Exit" }}
-      provider:9090
-    {{ else }}
-      ""
-    {{- end }}
-    component:
-    {{- if eq .type "Exit" }}
-      SpringRestTemplate
-    {{- end }}
-    {{- if eq .type "Entry" }}
-      Tomcat
-    {{- end }}
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: http.method
-        value: POST
-      - key: url
-        value: {{ notEmpty .value }}
+      component:
+      {{- if eq .type "Exit" }}
+        SpringRestTemplate
       {{- end }}
-    logs: []
-    attachedevents: []
+      {{- if eq .type "Entry" }}
+        Tomcat
+      {{- end }}
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: http.method
+          value: POST
+        - key: url
+          value: {{ notEmpty .value }}
+        {{- end }}
+      logs: []
+      attachedevents: []
+    {{- end }}
   {{- end }}

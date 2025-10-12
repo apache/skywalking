@@ -126,13 +126,12 @@ cases:
       --dest-service-name service --dest-instance-name test-instance --dest-process-name UNKNOWN_REMOTE \
       --expression=process_relation_http1_client_duration
     expected: expected/metrics-has-value.yml
-
-  # slow traces
+    # slow traces
   - query: |
       traceid=$(swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql records list \
       --name=sampled_slow_trace_record --service-name service --instance-name test-instance --process-name service \
       --dest-service-name service --dest-instance-name test-instance --dest-process-name UNKNOWN_REMOTE 100 | yq e '. | map(select(.name == "skywalking-/provider")).[0].id' -);
-       swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql trace $traceid
+      swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql trace $traceid
     expected: expected/skywalking-trace.yml
   # not founds
   - query: |

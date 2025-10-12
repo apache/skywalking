@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 import org.apache.skywalking.oap.server.receiver.zipkin.SpanForwardService;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverModule;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
@@ -75,6 +76,13 @@ public class OpenTelemetryTraceHandler
     private final HistogramMetrics processHistogram = getMetricsCreator().createHistogramMetric(
         "otel_spans_latency",
         "The latency to process the span request",
+        MetricsTag.EMPTY_KEY,
+        MetricsTag.EMPTY_VALUE
+    );
+    @Getter(lazy = true)
+    private final CounterMetrics droppedSpans = getMetricsCreator().createCounter(
+        "otel_spans_dropped",
+        "The count of spans that were dropped due to rate limit",
         MetricsTag.EMPTY_KEY,
         MetricsTag.EMPTY_VALUE
     );
@@ -127,7 +135,10 @@ public class OpenTelemetryTraceHandler
                     log.warn("convert span error, discarding the span: {}", e.getMessage());
                 }
             });
-            getForwardService().send(result);
+            final var processedSpans = getForwardService().send(result);
+            if (processedSpans.size() < result.size()) {
+                getDroppedSpans().inc(result.size() - processedSpans.size());
+            }
         }
 
         responseObserver.onNext(ExportTraceServiceResponse.getDefaultInstance());
@@ -375,7 +386,7 @@ public class OpenTelemetryTraceHandler
             return String.valueOf(value.getIntValue());
         } else if (value.hasKvlistValue()) {
             final JsonObject kvObj = convertToString(value.getKvlistValue().getValuesList());
-            return kvObj.getAsString();
+            return kvObj.toString();
         } else if (value.hasBytesValue()) {
             return new String(Base64.getEncoder().encode(value.getBytesValue().toByteArray()), StandardCharsets.UTF_8);
         }

@@ -133,10 +133,10 @@ dependency:
       version: 1.12.0
       license: Apache-2.0
     - name: build.buf.protoc-gen-validate:pgv-java-stub
-      version: 0.6.13
+      version: 1.2.1
       license: Apache-2.0
     - name: build.buf.protoc-gen-validate:protoc-gen-validate
-      version: 0.6.13
+      version: 1.2.1
       license: Apache-2.0
     - name: com.aayushatharva.brotli4j:service
       version: 1.18.0

@@ -27,6 +27,7 @@ import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.banyandb.v1.client.TraceWrite;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -40,9 +41,9 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.util.List;
 
-public class BanyanDBConverter {
+import static org.apache.skywalking.oap.server.core.storage.StorageData.ID;
 
-    public static final String ID = "id";
+public class BanyanDBConverter {
 
     public static class StorageToStream implements Convert2Entity {
         private final MetadataRegistry.Schema schema;
@@ -56,7 +57,7 @@ public class BanyanDBConverter {
         @Override
         public Object get(String fieldName) {
             if (fieldName.equals(Record.TIME_BUCKET)) {
-                final String timestampColumnName = schema.getTimestampColumn4Stream();
+                final String timestampColumnName = schema.getTimestampColumn();
                 long timestampMillis = ((Number) this.get(timestampColumnName)).longValue();
                 return TimeBucket.getTimeBucket(timestampMillis, schema.getMetadata().getDownSampling());
             }
@@ -85,7 +86,7 @@ public class BanyanDBConverter {
             if (fieldName.equals(Record.TIME_BUCKET)) {
                 return;
             }
-            if (fieldName.equals(this.schema.getTimestampColumn4Stream())) {
+            if (fieldName.equals(this.schema.getTimestampColumn())) {
                 streamWrite.setTimestamp((long) fieldValue);
             }
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
@@ -197,6 +198,75 @@ public class BanyanDBConverter {
         @Override
         public MeasureWrite obtain() {
             return this.measureWrite;
+        }
+    }
+
+    @Slf4j
+    @RequiredArgsConstructor
+    public static class TraceToStorage implements Convert2Storage<TraceWrite> {
+        private final MetadataRegistry.Schema schema;
+        private final TraceWrite traceWrite;
+
+        @Override
+        public void accept(String fieldName, Object fieldValue) {
+            if (fieldName.equals(Record.TIME_BUCKET)) {
+                return;
+            }
+            MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
+            // storage columns are not stored in tags
+            if (columnSpec == null) {
+                return;
+            }
+            if (columnSpec.getColumnType() != MetadataRegistry.ColumnType.TAG) {
+                throw new IllegalArgumentException("ColumnType other than TAG is not supported for Trace, " +
+                                                       "it should be an internal error, please submit an issue to the SkyWalking community");
+            }
+            try {
+                String timestampColumn = schema.getTimestampColumn();
+                if (fieldName.equals(timestampColumn)) {
+                    this.traceWrite.tag(fieldName, TagAndValue.timestampTagValue((Long) fieldValue));
+                } else {
+                    this.traceWrite.tag(fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
+                }
+            } catch (BanyanDBException ex) {
+                log.error("fail to add tag", ex);
+            }
+        }
+
+        @Override
+        public void accept(String fieldName, byte[] fieldValue) {
+            MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
+            if (columnSpec == null) {
+                return;
+            }
+            try {
+                this.traceWrite.tag(fieldName, TagAndValue.binaryTagValue(fieldValue));
+            } catch (BanyanDBException ex) {
+                log.error("fail to add tag", ex);
+            }
+        }
+
+        @Override
+        public void accept(String fieldName, List<String> fieldValue) {
+            MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
+            if (columnSpec == null) {
+                return;
+            }
+            try {
+                this.traceWrite.tag(fieldName, TagAndValue.stringArrayTagValue(fieldValue));
+            } catch (BanyanDBException ex) {
+                log.error("fail to accept string array tag", ex);
+            }
+        }
+
+        @Override
+        public Object get(String fieldName) {
+            throw new IllegalStateException("should not reach here");
+        }
+
+        @Override
+        public TraceWrite obtain() {
+            return this.traceWrite;
         }
     }
 
