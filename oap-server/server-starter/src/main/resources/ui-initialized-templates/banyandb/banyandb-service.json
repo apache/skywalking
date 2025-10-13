@@ -1,0 +1,85 @@
+[
+    {
+        "id": "BanyanDB-Service",
+        "configuration": {
+            "children": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 24,
+                    "h": 33,
+                    "i": "0",
+                    "type": "Tab",
+                    "children": [
+                        {
+                            "name": "Instances",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 24,
+                                    "h": 29,
+                                    "i": "0",
+                                    "type": "Widget",
+                                    "graph": {
+                                        "type": "InstanceList",
+                                        "dashboardName": "BanyanDB-Instance",
+                                        "fontSize": 12
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "unit": "rps",
+                                            "label": "Write Rate"
+                                        },
+                                        {
+                                            "unit": "rps",
+                                            "label": "Query Rate"
+                                        }
+                                    ],
+                                    "expressions": [
+                                        "meter_banyandb_write_rate",
+                                        "meter_banyandb_query_rate"
+                                    ],
+                                    "subExpressions": [
+                                        "",
+                                        ""
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "layer": "BANYANDB",
+            "entity": "Service",
+            "name": "BanyanDB-Service",
+            "isRoot": false,
+            "isDefault": true,
+            "expressions": [
+                "avg(aggregate_labels(meter_banyandb_write_rate,sum))",
+                "avg(aggregate_labels(meter_banyandb_query_rate,sum))",
+                "avg(aggregate_labels(meter_banyandb_cpu_usage,sum))",
+                "avg(aggregate_labels(meter_banyandb_total_memory,sum))"
+            ],
+            "expressionsConfig": [
+                {
+                    "unit": "ops / s",
+                    "label": "Write Rate"
+                },
+                {
+                    "unit": "ops / s",
+                    "label": "Query Rate"
+                },
+                {
+                    "unit": "%",
+                    "label": "CPU Usage"
+                },
+                {
+                    "unit": "GB",
+                    "label": "Memory Usage"
+                }
+            ],
+            "id": "BanyanDB-Service"
+        }
+    }
+]
