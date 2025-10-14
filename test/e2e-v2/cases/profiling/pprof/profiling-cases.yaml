@@ -32,19 +32,19 @@ cases:
   # list task
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling async list --service-name=e2e-service-provider \
+        profiling pprof list --service-name=e2e-service-provider \
     expected: expected/list.yml
   # get task progress
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling async progress --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling async list --service-name=e2e-service-provider | yq e '.tasks[0].id')
+        profiling pprof progress --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling pprof list --service-name=e2e-service-provider | yq e '.tasks[0].id')
     expected: expected/progress.yml
   # get task analysis
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling async analysis --service-name=e2e-service-provider \
+        profiling pprof analysis --service-name=e2e-service-provider \
         --event=execution_sample \
         --instance-name-list=provider1 \
-        --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling async list --service-name=e2e-service-provider | yq e '.tasks[0].id')
+        --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling pprof list --service-name=e2e-service-provider | yq e '.tasks[0].id')
     expected: expected/analysis.yml
 
