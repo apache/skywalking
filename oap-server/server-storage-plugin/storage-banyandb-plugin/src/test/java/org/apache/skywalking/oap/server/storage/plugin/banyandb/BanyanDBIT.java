@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
-import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
@@ -51,13 +50,21 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.it.ITVersions;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.MeasureBulkWriteProcessor;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -98,10 +105,21 @@ public class BanyanDBIT {
     private BanyanDBStorageConfig config;
 
     protected void setUpConnection() throws Exception {
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        ModuleDefine storageModule = mock(ModuleDefine.class);
+        BanyanDBStorageProvider provider = mock(BanyanDBStorageProvider.class);
+        Mockito.when(provider.getModule()).thenReturn(storageModule);
+
+        NoneTelemetryProvider telemetryProvider = mock(NoneTelemetryProvider.class);
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+               .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         log.info("create BanyanDB client and try to connect");
-        config = new BanyanDBStorageConfig();
+        config = new BanyanDBConfigLoader(provider).loadConfig();
         config.getGlobal().setTargets(banyanDB.getHost() + ":" + banyanDB.getMappedPort(GRPC_PORT));
-        client = new BanyanDBStorageClient(config);
+        client = new BanyanDBStorageClient(moduleManager, config);
         client.connect();
     }
 
@@ -112,7 +130,7 @@ public class BanyanDBIT {
         DEFAULT_SCOPE_DEFINE_MOCKED_STATIC = mockStatic(DefaultScopeDefine.class);
         DEFAULT_SCOPE_DEFINE_MOCKED_STATIC.when(() -> DefaultScopeDefine.nameOf(1)).thenReturn("any");
         setUpConnection();
-        processor = client.client.buildMeasureWriteProcessor(1000, 1, 1, 10);
+        processor = client.createMeasureBulkProcessor(1000, 1, 1);
     }
 
     @Test
@@ -132,7 +150,11 @@ public class BanyanDBIT {
         BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
         installer.isExists(model);
         //test Group install
-        BanyandbCommon.Group group = client.client.findGroup(DownSampling.Minute.getName());
+        String groupName = MetadataRegistry.convertGroupName(
+            config.getGlobal().getNamespace(),
+            BanyanDB.MeasureGroup.METRICS_MINUTE.getName()
+        );
+        BanyandbCommon.Group group = client.client.findGroup(groupName);
         assertEquals(BanyandbCommon.Catalog.CATALOG_MEASURE, group.getCatalog());
         assertEquals(config.getMetricsMin().getSegmentInterval(), group.getResourceOpts().getSegmentInterval().getNum());
         assertEquals(config.getMetricsMin().getShardNum(), group.getResourceOpts().getShardNum());
@@ -142,7 +164,7 @@ public class BanyanDBIT {
 
         installer.createTable(model);
         //test Measure install
-        BanyandbDatabase.Measure measure = client.client.findMeasure("minute", "testMetric_minute");
+        BanyandbDatabase.Measure measure = client.client.findMeasure(groupName, "testMetric_minute");
         assertEquals("default", measure.getTagFamilies(0).getName());
         assertEquals("tag", measure.getTagFamilies(0).getTags(0).getName());
         assertEquals(BanyandbDatabase.TagType.TAG_TYPE_STRING, measure.getTagFamilies(0).getTags(0).getType());
@@ -154,25 +176,25 @@ public class BanyanDBIT {
         assertEquals(BanyandbDatabase.FieldType.FIELD_TYPE_INT, measure.getFields(0).getFieldType());
         //test TopNAggregation install
         BanyandbDatabase.TopNAggregation topNAggregation = client.client.findTopNAggregation(
-            "minute", "testMetric_minute_topn");
+            groupName, "testMetric-service");
         assertEquals("value", topNAggregation.getFieldName());
         assertEquals("service_id", topNAggregation.getGroupByTagNames(0));
-        assertEquals(BanyandbModel.Sort.SORT_UNSPECIFIED, topNAggregation.getFieldValueSort());
-        assertEquals(2, topNAggregation.getLruSize());
+        assertEquals(BanyandbModel.Sort.SORT_DESC, topNAggregation.getFieldValueSort());
+        assertEquals(10, topNAggregation.getLruSize());
         assertEquals(1000, topNAggregation.getCountersNumber());
         //test IndexRule install
-        BanyandbDatabase.IndexRule indexRuleTag = client.client.findIndexRule("minute", "tag");
+        BanyandbDatabase.IndexRule indexRuleTag = client.client.findIndexRule(groupName, "tag");
         assertEquals("url", indexRuleTag.getAnalyzer());
         assertTrue(indexRuleTag.getNoSort());
         //test IndexRuleBinding install
         BanyandbDatabase.IndexRuleBinding indexRuleBinding = client.client.findIndexRuleBinding(
-            "minute", "testMetric_minute");
+            groupName, "testMetric_minute");
         assertEquals("tag", indexRuleBinding.getRules(0));
         assertEquals("testMetric_minute", indexRuleBinding.getSubject().getName());
         //test data query
         Instant now = Instant.now();
         Instant begin = now.minus(15, ChronoUnit.MINUTES);
-        MeasureWrite measureWrite = client.createMeasureWrite("minute", "testMetric_minute", now.toEpochMilli());
+        MeasureWrite measureWrite = client.createMeasureWrite(groupName, "testMetric_minute", now.toEpochMilli());
         measureWrite.tag("service_id", TagAndValue.stringTagValue("service1"))
                     .tag("tag", TagAndValue.stringTagValue("tag1"))
                     .field("value", TagAndValue.longFieldValue(100));
@@ -183,7 +205,7 @@ public class BanyanDBIT {
         });
         f.get(10, TimeUnit.SECONDS);
 
-        MeasureQuery query = new MeasureQuery(Lists.newArrayList("minute"), "testMetric_minute",
+        MeasureQuery query = new MeasureQuery(Lists.newArrayList(groupName), "testMetric_minute",
                                               new TimestampRange(
                                                   begin.toEpochMilli(),
                                                   now.plus(1, ChronoUnit.MINUTES).toEpochMilli()
@@ -202,18 +224,18 @@ public class BanyanDBIT {
         Model updatedModel = models.add(UpdateTestMetric.class, DefaultScopeDefine.SERVICE,
                                         new Storage("testMetric", true, DownSampling.Minute)
         );
-        config.getMetricsMin().setShardNum(config.getMetricsDay().getShardNum() + 1);
-        config.getMetricsMin().setSegmentInterval(config.getMetricsDay().getSegmentInterval() + 2);
-        config.getMetricsMin().setTtl(config.getMetricsDay().getTtl() + 3);
+        config.getMetricsMin().setShardNum(config.getMetricsMin().getShardNum() + 1);
+        config.getMetricsMin().setSegmentInterval(config.getMetricsMin().getSegmentInterval() + 2);
+        config.getMetricsMin().setTtl(config.getMetricsMin().getTtl() + 3);
         BanyanDBIndexInstaller newInstaller = new BanyanDBIndexInstaller(client, moduleManager, config);
         newInstaller.isExists(updatedModel);
         //test Group update
-        BanyandbCommon.Group updatedGroup = client.client.findGroup(DownSampling.Minute.getName());
-        assertEquals(updatedGroup.getResourceOpts().getShardNum(), 2);
+        BanyandbCommon.Group updatedGroup = client.client.findGroup(groupName);
+        assertEquals(updatedGroup.getResourceOpts().getShardNum(), 3);
         assertEquals(updatedGroup.getResourceOpts().getSegmentInterval().getNum(), 3);
-        assertEquals(updatedGroup.getResourceOpts().getTtl().getNum(), 33);
+        assertEquals(updatedGroup.getResourceOpts().getTtl().getNum(), 10);
         //test Measure update
-        BanyandbDatabase.Measure updatedMeasure = client.client.findMeasure("minute", "testMetric_minute");
+        BanyandbDatabase.Measure updatedMeasure = client.client.findMeasure(groupName, "testMetric_minute");
         assertEquals("default", updatedMeasure.getTagFamilies(0).getName());
         assertEquals("tag", updatedMeasure.getTagFamilies(0).getTags(0).getName());
         assertEquals("new_tag", updatedMeasure.getTagFamilies(0).getTags(1).getName());
@@ -228,20 +250,20 @@ public class BanyanDBIT {
         assertEquals("new_value", updatedMeasure.getFields(1).getName());
         assertEquals(BanyandbDatabase.FieldType.FIELD_TYPE_INT, updatedMeasure.getFields(1).getFieldType());
         //test IndexRule update
-        BanyandbDatabase.IndexRule updatedIndexRuleTag = client.client.findIndexRule("minute", "tag");
+        BanyandbDatabase.IndexRule updatedIndexRuleTag = client.client.findIndexRule(groupName, "tag");
         assertEquals("", updatedIndexRuleTag.getAnalyzer());
         assertFalse(updatedIndexRuleTag.getNoSort());
-        BanyandbDatabase.IndexRule updatedIndexRuleNewTag = client.client.findIndexRule("minute", "new_tag");
+        BanyandbDatabase.IndexRule updatedIndexRuleNewTag = client.client.findIndexRule(groupName, "new_tag");
         assertTrue(updatedIndexRuleNewTag.getNoSort());
         //test IndexRuleBinding update
         BanyandbDatabase.IndexRuleBinding updatedIndexRuleBinding = client.client.findIndexRuleBinding(
-            "minute", "testMetric_minute");
+            groupName, "testMetric_minute");
         assertEquals("tag", updatedIndexRuleBinding.getRules(0));
         assertEquals("new_tag", updatedIndexRuleBinding.getRules(1));
         assertEquals("testMetric_minute", updatedIndexRuleBinding.getSubject().getName());
         //test data
-        client.client.updateMeasureMetadataCacheFromSever("minute", "testMetric_minute");
-        MeasureWrite updatedMeasureWrite = client.createMeasureWrite("minute", "testMetric_minute", now.plus(10, ChronoUnit.MINUTES).toEpochMilli());
+        client.client.updateMeasureMetadataCacheFromSever(groupName, "testMetric_minute");
+        MeasureWrite updatedMeasureWrite = client.createMeasureWrite(groupName, "testMetric_minute", now.plus(10, ChronoUnit.MINUTES).toEpochMilli());
         updatedMeasureWrite.tag("service_id", TagAndValue.stringTagValue("service2"))
                            .tag("tag", TagAndValue.stringTagValue("tag1"))
                            .tag("new_tag", TagAndValue.stringTagValue("new_tag1"))
@@ -253,7 +275,7 @@ public class BanyanDBIT {
             return null;
         });
         cf.get(10, TimeUnit.SECONDS);
-        MeasureQuery updatedQuery = new MeasureQuery(Lists.newArrayList("minute"), "testMetric_minute",
+        MeasureQuery updatedQuery = new MeasureQuery(Lists.newArrayList(groupName), "testMetric_minute",
                                               new TimestampRange(
                                                   begin.toEpochMilli(),
                                                   now.plus(15, ChronoUnit.MINUTES).toEpochMilli()

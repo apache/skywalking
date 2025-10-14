@@ -105,6 +105,7 @@
 * BanyanDB: support add group prefix (namespace) for BanyanDB groups.
 * BanyanDB: fix when setting `@BanyanDB.TimestampColumn`, the column should not be indexed.
 * OAP Self Observability: make Trace analysis metrics separate by label `protocol`, add Zipkin span dropped metrics.
+* BanyanDB: Move data write logic from BanyanDB Java Client to OAP and support observe metrics for write operations.
 
 #### UI
 
