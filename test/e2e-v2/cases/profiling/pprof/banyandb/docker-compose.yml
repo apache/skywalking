@@ -25,7 +25,7 @@ services:
 
   go-service:
     extends:
-      file: ../../../../go/docker-compose.yml
+      file: ../../../go/docker-compose.yml
       service: go-service
     privileged: true
     depends_on:

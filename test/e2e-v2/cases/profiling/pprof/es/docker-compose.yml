@@ -31,10 +31,10 @@ services:
       timeout: 60s
       retries: 120
 
-  provider:
+  go-service:
     extends:
-      file: ../../../../script/docker-compose/base-compose.yml
-      service: provider
+      file: ../../../go/docker-compose.yml
+      service: go-service
     privileged: true
     depends_on:
       oap:
