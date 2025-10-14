@@ -20,31 +20,30 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected: expected/service.yml
   # service instance list
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service
     expected: expected/service-instance.yml
   # create task
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling pprof create --service-name=e2e-service-provider \
-        --duration=20 --events=CPU \
+        profiling pprof create --service-name=go-service \
+        --duration=2 --events=CPU \
         --instance-name-list=provider1
     expected: expected/create.yml
   # list task
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling pprof list --service-name=e2e-service-provider \
+        profiling pprof list --service-name=go-service \
     expected: expected/list.yml
   # get task progress
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling pprof progress --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling pprof list --service-name=e2e-service-provider | yq e '.tasks[0].id')
+        profiling pprof progress --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling pprof list --service-name=go-service | yq e '.tasks[0].id')
     expected: expected/progress.yml
   # get task analysis
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling pprof analysis --service-name=e2e-service-provider \
-        --event=execution_sample \
+        profiling pprof analysis --service-name=go-service \
         --instance-name-list=provider1 \
-        --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling pprof list --service-name=e2e-service-provider | yq e '.tasks[0].id')
+        --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling pprof list --service-name=go-service | yq e '.tasks[0].id')
     expected: expected/analysis.yml
 

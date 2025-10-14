@@ -17,9 +17,9 @@ errorreason: null
 tasks:
   {{- contains .tasks }}
 - id: {{ notEmpty .id }}
-  serviceid: {{ b64enc "e2e-service-provider" }}.1
+  serviceid: {{ b64enc "go-service" }}.1
   serviceinstanceids:
-    - {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+    - {{ b64enc "go-service" }}.1_{{ b64enc "provider1" }}
   createtime: {{ gt .createtime 0 }}
   events:
     - CPU

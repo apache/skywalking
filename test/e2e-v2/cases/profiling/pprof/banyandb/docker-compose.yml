@@ -25,11 +25,14 @@ services:
 
   go-service:
     extends:
-      file: ../../../../script/docker-compose/base-compose.yml
+      file: ../../../../go/docker-compose.yml
       service: go-service
+    privileged: true
     depends_on:
       oap:
         condition: service_healthy
+    ports:
+      - 9090
 
   oap:
     extends:

@@ -16,8 +16,8 @@
 # under the License.
 
 {{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-  name: provider1
+- id: {{ notEmpty .id }}
+  name: {{ notEmpty .name }}
   attributes:
   {{- contains .attributes }}
   - name: OS Name
@@ -30,5 +30,5 @@
     value: {{ notEmpty .value }}
   {{- end}}
   language: GO
-  instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+  instanceuuid: {{ notEmpty .instanceuuid }}
 {{- end}}

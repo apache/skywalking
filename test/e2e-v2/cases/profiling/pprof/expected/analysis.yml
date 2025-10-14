@@ -14,7 +14,6 @@
 # limitations under the License.
 
 tree:
-  type: EXECUTION_SAMPLE
   elements:
   {{- contains .tree.elements }}
   - id: {{ notEmpty .id }}

@@ -16,11 +16,11 @@
 logs:
   {{- contains .logs }}
 - id: {{ notEmpty .id}}
-  instanceid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+  instanceid: {{ b64enc "go-service" }}.1_{{ b64enc "provider1" }}
   instancename: {{ notEmpty .instancename}}
   operationtype: {{ notEmpty .operationtype}}
   operationtime: {{ ge .operationtime 0 }}
   {{- end }}
 errorinstanceids: []
 successinstanceids:
-  - {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
+  - {{ b64enc "go-service" }}.1_{{ b64enc "provider1" }}

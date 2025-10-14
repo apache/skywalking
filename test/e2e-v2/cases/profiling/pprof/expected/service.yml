@@ -14,11 +14,12 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "e2e-service-provider" }}.1
-  name: e2e-service-provider
+- id: {{ b64enc "go-service" }}.1
+  name: go-service
   group: ""
-  shortname: e2e-service-provider
+  shortname: go-service
   normal: true
   layers:
     - GENERAL
+    - SO11Y_GO_AGENT
 {{- end }}
