@@ -23,16 +23,13 @@ services:
     networks:
       - e2e
 
-  provider:
+  go-service:
     extends:
       file: ../../../../script/docker-compose/base-compose.yml
-      service: provider
-    privileged: true
+      service: go-service
     depends_on:
       oap:
         condition: service_healthy
-    ports:
-      - 9090
 
   oap:
     extends:

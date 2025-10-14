@@ -23,7 +23,5 @@ tasks:
   createtime: {{ gt .createtime 0 }}
   events:
     - CPU
-    - ALLOC
   duration: {{ ge .duration 0 }}
-  execargs: null
   {{- end }}
