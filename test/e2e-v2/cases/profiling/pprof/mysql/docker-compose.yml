@@ -32,13 +32,28 @@ services:
       timeout: 60s
       retries: 120
   go-service:
-    extends:
-      file: ../../../go/docker-compose.yml
-      service: go-service
+    build:
+      context: ../../../go/service
+      dockerfile: Dockerfile
+      args:
+        - SW_AGENT_GO_COMMIT=${SW_AGENT_GO_COMMIT}
+    networks:
+      - e2e
+    expose:
+      - 8080
+    environment:
+      SW_AGENT_NAME: go-service
+      SW_AGENT_INSTANCE_NAME: provider1
+      SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE: oap:11800
     privileged: true
     depends_on:
       oap:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 8080"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
     ports:
     - 9090
 
