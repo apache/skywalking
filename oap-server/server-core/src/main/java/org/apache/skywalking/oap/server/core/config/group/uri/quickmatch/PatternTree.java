@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.config.group.uri.quickmatch;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @EqualsAndHashCode
 @ToString
