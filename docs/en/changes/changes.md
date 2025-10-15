@@ -107,6 +107,7 @@
 * OAP Self Observability: make Trace analysis metrics separate by label `protocol`, add Zipkin span dropped metrics.
 * Enhance the alarm kernel with recovered status notification capability
 * BanyanDB: Move data write logic from BanyanDB Java Client to OAP and support observe metrics for write operations.
+* Self Observability: add write latency metrics for BanyanDB and ElasticSearch.
 
 #### UI
 
@@ -138,6 +139,7 @@
 * Adapt new trace protocol and implement new trace view.
 * Implement Trace page.
 * Support collapsing and expanding for the event widget.
+* UI-template: add BanyanDB and Elasticsearch write latency dashboards for OAP self observability.
 
 #### Documentation
 
@@ -149,6 +151,7 @@
 * Enhance the async-profiling duration options.
 * Enhance the TTL Tab on Setting page.
 * Fix the snapshot charts in alarm page.
+* Fix `Fluent Bit` dead links.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/230?closed=1)
 

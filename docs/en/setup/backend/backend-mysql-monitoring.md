@@ -45,7 +45,7 @@ SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for 
 3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
 
 ### Set up
-1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
+1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit).
 2. Config fluentbit from [here](../../../../test/e2e-v2/cases/mysql/mysql-slowsql/fluent-bit.conf) for MySQL or [here](../../../../test/e2e-v2/cases/mariadb/mariadb-slowsql/fluent-bit.conf) for MariaDB.
 3. Enable slow log from [here](../../../../test/e2e-v2/cases/mysql/mysql-slowsql/my.cnf) for MySQL or [here](../../../../test/e2e-v2/cases/mariadb/mariadb-slowsql/my.cnf) for MariaDB.
 
