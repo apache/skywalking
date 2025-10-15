@@ -257,11 +257,6 @@ menus:
         description: "Satellite: an open-source agent designed for the cloud-native infrastructures, which provides a low-cost, high-efficient, and more secure way to collect telemetry data. It is the recommended load balancer for telemetry collecting."
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-load-balancer/
         i18nKey: self_observability_satellite
-      - title: BanyanDB Server
-        layer: BANYANDB
-        description: BanyanDB is a time-series database designed for observability data storage and analysis.
-        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-banyandb/
-        i18nKey: self_observability_banyandb
       - title: SkyWalking Java Agent
         layer: SO11Y_JAVA_AGENT
         description: The Java Agent for Apache SkyWalking, which provides the native tracing/metrics/logging/event/profiling abilities for Java projects.

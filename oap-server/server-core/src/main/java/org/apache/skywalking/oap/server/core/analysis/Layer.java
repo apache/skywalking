@@ -261,7 +261,7 @@ public enum Layer {
     /**
      * BanyanDB is a distributed time-series database with built-in self-monitoring for real-time tracking of system health, performance, and resource utilization.
      */
-    BANYANDB(43, true);
+    BANYANDB(43,true);
 
     private final int value;
     /**

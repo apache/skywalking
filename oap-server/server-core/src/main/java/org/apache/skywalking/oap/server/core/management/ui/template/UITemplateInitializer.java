@@ -80,7 +80,6 @@ public class UITemplateInitializer {
         Layer.KONG.name(),
         Layer.SO11Y_GO_AGENT.name(),
         Layer.FLINK.name(),
-        Layer.BANYANDB.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
