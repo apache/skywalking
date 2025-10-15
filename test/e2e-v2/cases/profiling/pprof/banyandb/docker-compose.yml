@@ -39,6 +39,7 @@ services:
       SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE: oap:11800
       UPSTREAM_URL: http://localhost:8080/ignored.html
     privileged: true
+    stop_grace_period: 30s
     depends_on:
       oap:
         condition: service_healthy
