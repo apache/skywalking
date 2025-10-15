@@ -59,7 +59,7 @@ public final class BulkProcessorBuilder {
         return this;
     }
 
-    public  BulkProcessorBuilder bulkMetrics(HistogramMetrics bulkMetrics) {
+    public BulkProcessorBuilder bulkMetrics(HistogramMetrics bulkMetrics) {
         checkArgument(bulkMetrics != null, "bulkMetrics must not be null");
         this.bulkMetrics = bulkMetrics;
         return this;

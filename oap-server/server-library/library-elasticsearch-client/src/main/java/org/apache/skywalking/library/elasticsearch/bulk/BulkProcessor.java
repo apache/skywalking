@@ -136,9 +136,9 @@ public final class BulkProcessor {
             log.error("Interrupted when trying to get semaphore to execute bulk requests", e);
             return;
         }
-        HistogramMetrics.Timer timer = bulkMetrics.createTimer();
         final List<Holder> batch = new ArrayList<>(requests.size());
         requests.drainTo(batch);
+        HistogramMetrics.Timer timer = bulkMetrics.createTimer();
         final List<CompletableFuture<Void>> futures = doFlush(batch);
         final CompletableFuture<Void> future = CompletableFuture.allOf(
             futures.toArray(new CompletableFuture[futures.size()]));
