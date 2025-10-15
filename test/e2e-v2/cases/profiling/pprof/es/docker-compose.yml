@@ -57,7 +57,7 @@ services:
       timeout: 60s
       retries: 120
     ports:
-      - 9090
+      - 8080
 
   oap:
     extends:
