@@ -26,17 +26,17 @@ cases:
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling pprof create --service-name=go-service \
-        --duration=1 --events=CPU \
+        --dump-period=1 --events=HEAP \
         --instance-name-list=provider1
     expected: expected/create.yml
   # list task
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
-        profiling pprof list --service-name=go-service \
+        profiling pprof list --service-name=go-service
     expected: expected/list.yml
-  # get task progress
+  # get task progress finished
   - query: |
-      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
+      sleep 15 && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling pprof progress --task-id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling pprof list --service-name=go-service | yq e '.tasks[0].id')
     expected: expected/progress.yml
   # get task analysis
