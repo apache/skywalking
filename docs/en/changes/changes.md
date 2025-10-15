@@ -50,6 +50,15 @@
 * GraphQL API: metadata, topology, log and trace support query by name.
 * [Break Change] MQE function `sort_values` sorts according to the aggregation result and labels rather than the simple time series values.
 * Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
+* Optimize metrics aggregate/persistent worker: separate `OAL` and `MAL` workers and consume pools. The dataflow signal drives the new MAL consumer, 
+  the following table shows the pool size，driven mode and queue size for each worker.
+  
+| Worker                        | poolSize                                 | isSignalDrivenMode | queueChannelSize | queueBufferSize |
+|-------------------------------|------------------------------------------|--------------------|------------------|-----------------|
+| MetricsAggregateOALWorker     | Math.ceil(availableProcessors * 2 * 1.5) | false              | 2                | 10000           |
+| MetricsAggregateMALWorker     | availableProcessors * 2 / 8, at least 1  | true               | 1                | 1000            |
+| MetricsPersistentMinOALWorker | availableProcessors * 2 / 8, at least 1  | false              | 1                | 2000            |
+| MetricsPersistentMinMALWorker | availableProcessors * 2 / 16, at least 1 | true               | 1                | 1000            |
 * Support pprof profiling feature
 
 #### UI
