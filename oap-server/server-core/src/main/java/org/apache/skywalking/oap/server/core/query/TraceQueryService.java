@@ -29,6 +29,7 @@ import java.util.Objects;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import javax.annotation.Nullable;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
@@ -43,6 +44,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAt
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyNumericValue;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.LogEntity;
@@ -56,9 +58,15 @@ import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
+import org.apache.skywalking.oap.server.core.query.type.trace.v2.TraceList;
+import org.apache.skywalking.oap.server.core.query.type.trace.v2.TraceV2;
+import org.apache.skywalking.oap.server.core.query.type.trace.v2.TracesQueryResult;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryV2DAO;
+import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -72,14 +80,19 @@ public class TraceQueryService implements Service {
     private ITraceQueryDAO traceQueryDAO;
     private ISpanAttachedEventQueryDAO spanAttachedEventQueryDAO;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
+    @Getter
+    private boolean supportTraceV2 = false;
 
     public TraceQueryService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
     }
 
-    private ITraceQueryDAO getTraceQueryDAO() {
+    protected ITraceQueryDAO getTraceQueryDAO() {
         if (traceQueryDAO == null) {
             this.traceQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ITraceQueryDAO.class);
+            if (ITraceQueryV2DAO.class.isAssignableFrom(traceQueryDAO.getClass())) {
+                this.supportTraceV2 = true;
+            }
         }
         return traceQueryDAO;
     }
@@ -91,7 +104,7 @@ public class TraceQueryService implements Service {
         return spanAttachedEventQueryDAO;
     }
 
-    private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
+    protected IComponentLibraryCatalogService getComponentLibraryCatalogService() {
         if (componentLibraryCatalogService == null) {
             this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
                                                                .provider()
@@ -156,12 +169,45 @@ public class TraceQueryService implements Service {
                 msg.append("Condition: TraceId: ").append(traceId);
                 span.setMsg(msg.toString());
             }
-            return invokeQueryTrace(traceId, duration);
+            getTraceQueryDAO();
+            if (supportTraceV2) {
+                return invokeQueryTraceV2(traceId, duration);
+            } else {
+                return invokeQueryTrace(traceId, duration);
+            }
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
             }
         }
+    }
+
+    public TraceList queryTraces(final TraceQueryCondition condition) throws IOException {
+        DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            if (traceContext != null) {
+                StringBuilder msg = new StringBuilder();
+                span = traceContext.createSpan("Query Service: queryTraces");
+                msg.append("Condition: TraceQueryCondition: ").append(condition);
+                span.setMsg(msg.toString());
+            }
+            getTraceQueryDAO();
+            if (supportTraceV2) {
+                return invokeQueryTraces(condition);
+            } else {
+                throw new UnsupportedOperationException("Only BanyanDB storage support Trace V2 query now.");
+            }
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    public boolean hasQueryTracesV2Support() {
+        getTraceQueryDAO();
+        return isSupportTraceV2();
     }
 
     private Trace invokeQueryTrace(final String traceId, @Nullable final Duration duration) throws IOException {
@@ -180,29 +226,69 @@ public class TraceQueryService implements Service {
             }
         }
 
-        List<Span> sortedSpans = new LinkedList<>();
-        if (CollectionUtils.isNotEmpty(trace.getSpans())) {
-            List<Span> rootSpans = findRoot(trace.getSpans());
-
-            if (CollectionUtils.isNotEmpty(rootSpans)) {
-                rootSpans.forEach(span -> {
-                    List<Span> childrenSpan = new ArrayList<>();
-                    childrenSpan.add(span);
-                    findChildren(trace.getSpans(), span, childrenSpan);
-                    sortedSpans.addAll(childrenSpan);
-                });
-            }
-        }
+        List<Span> sortedSpans = sortSpans(trace.getSpans());
 
         if (CollectionUtils.isNotEmpty(sortedSpans)) {
             final List<SWSpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().
                 querySWSpanAttachedEventsDebuggable(SpanAttachedEventTraceType.SKYWALKING, Arrays.asList(traceId), duration);
-            appendAttachedEventsToSpanDebuggable(sortedSpans, spanAttachedEvents);
+            List<SpanAttachedEvent> events = new ArrayList<>();
+            for (SWSpanAttachedEventRecord record : spanAttachedEvents) {
+                events.add(SpanAttachedEvent.parseFrom(record.getDataBinary()));
+            }
+            appendAttachedEventsToSpanDebuggable(sortedSpans, events);
         }
 
         trace.getSpans().clear();
         trace.getSpans().addAll(sortedSpans);
         return trace;
+    }
+
+    private Trace invokeQueryTraceV2(final String traceId, @Nullable final Duration duration) throws IOException {
+        Trace trace = new Trace();
+        List<SpanWrapper> spanWrappers = ((ITraceQueryV2DAO) getTraceQueryDAO()).queryByTraceIdV2(traceId, duration);
+        if (CollectionUtils.isNotEmpty(spanWrappers)) {
+            List<SpanAttachedEvent> events = new ArrayList<>();
+            for (SpanWrapper spanWrapper : spanWrappers) {
+                if (spanWrapper.getSource().equals(Source.SKYWALKING)) {
+                    SegmentObject segmentObject = SegmentObject.parseFrom(spanWrapper.getSpan());
+                    trace.getSpans().addAll(buildSpanList(segmentObject));
+                } else if (spanWrapper.getSource().equals(Source.SKYWALKING_EVENT)) {
+                    SpanAttachedEvent event = SpanAttachedEvent.parseFrom(spanWrapper.getSpan());
+                    events.add(event);
+                }
+            }
+            List<Span> sortedSpans = sortSpans(trace.getSpans());
+            appendAttachedEventsToSpanDebuggable(sortedSpans, events);
+            trace.getSpans().clear();
+            trace.getSpans().addAll(sortedSpans);
+        }
+        return trace;
+    }
+
+    private TraceList invokeQueryTraces(final TraceQueryCondition condition) throws IOException {
+        TracesQueryResult tracesResult = ((ITraceQueryV2DAO) getTraceQueryDAO()).queryTracesDebuggable(condition);
+        TraceList traceList = new TraceList(tracesResult.getRetrievedTimeRange());
+        List<TraceV2> traces = new ArrayList<>();
+        for (List<SpanWrapper> spans : tracesResult.getTraces()) {
+            TraceV2 trace = new TraceV2();
+            List<SpanAttachedEvent> events = new ArrayList<>();
+            for (SpanWrapper spanWrapper : spans) {
+                if (spanWrapper.getSource().equals(Source.SKYWALKING)) {
+                    SegmentObject segmentObject = SegmentObject.parseFrom(spanWrapper.getSpan());
+                    trace.getSpans().addAll(buildSpanList(segmentObject));
+                } else if (spanWrapper.getSource().equals(Source.SKYWALKING_EVENT)) {
+                    SpanAttachedEvent event = SpanAttachedEvent.parseFrom(spanWrapper.getSpan());
+                    events.add(event);
+                }
+            }
+            List<Span> sortedSpans = sortSpans(trace.getSpans());
+            trace.getSpans().clear();
+            trace.getSpans().addAll(sortedSpans);
+            appendAttachedEventsToSpanDebuggable(sortedSpans, events);
+            traces.add(trace);
+        }
+        traceList.getTraces().addAll(traces);
+        return traceList;
     }
 
     private List<Span> buildSpanList(SegmentObject segmentObject) {
@@ -283,6 +369,23 @@ public class TraceQueryService implements Service {
         return spans;
     }
 
+    private List<Span> sortSpans(List<Span> spans) {
+        List<Span> sortedSpans = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(spans)) {
+            List<Span> rootSpans = findRoot(spans);
+
+            if (CollectionUtils.isNotEmpty(rootSpans)) {
+                rootSpans.forEach(span -> {
+                    List<Span> childrenSpan = new ArrayList<>();
+                    childrenSpan.add(span);
+                    findChildren(spans, span, childrenSpan);
+                    sortedSpans.addAll(childrenSpan);
+                });
+            }
+        }
+        return  sortedSpans;
+    }
+
     private List<Span> findRoot(List<Span> spans) {
         List<Span> rootSpans = new ArrayList<>();
         spans.forEach(span -> {
@@ -322,7 +425,7 @@ public class TraceQueryService implements Service {
         });
     }
 
-    private void appendAttachedEventsToSpanDebuggable(List<Span> spans, List<SWSpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+    private void appendAttachedEventsToSpanDebuggable(List<Span> spans, List<SpanAttachedEvent> events) throws InvalidProtocolBufferException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan debuggingSpan = null;
         try {
@@ -338,32 +441,32 @@ public class TraceQueryService implements Service {
         }
     }
 
-    private void appendAttachedEventsToSpan(List<Span> spans, List<SWSpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+    private void appendAttachedEventsToSpan(List<Span> spans, List<SpanAttachedEvent> events) throws InvalidProtocolBufferException {
         if (CollectionUtils.isEmpty(events)) {
             return;
         }
 
         // sort by start time
         events.sort((e1, e2) -> {
-            final int second = Long.compare(e1.getStartTimeSecond(), e2.getStartTimeSecond());
+            final int second = Long.compare(e1.getStartTime().getSeconds(), e2.getStartTime().getSeconds());
             if (second == 0) {
-                return Long.compare(e1.getStartTimeNanos(), e2.getStartTimeNanos());
+                return Long.compare(e1.getStartTime().getNanos(), e2.getStartTime().getNanos());
             }
             return second;
         });
 
         final HashMap<String, Span> spanMatcher = new HashMap<>();
-        for (SWSpanAttachedEventRecord record : events) {
-            if (!StringUtils.isNumeric(record.getTraceSpanId())) {
+        for (SpanAttachedEvent event : events) {
+            if (!StringUtils.isNumeric(event.getTraceContext().getSpanId())) {
                 continue;
             }
-            SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
-            final String spanMatcherKey = record.getTraceSegmentId() + "_" + record.getTraceSpanId();
+            SpanAttachedEvent.SpanReference spanReference = event.getTraceContext();
+            final String spanMatcherKey = spanReference.getTraceSegmentId() + "_" + spanReference.getSpanId();
             Span span = spanMatcher.get(spanMatcherKey);
             if (span == null) {
                 // find the matches span
-                final int eventSpanId = Integer.parseInt(record.getTraceSpanId());
-                span = spans.stream().filter(s -> Objects.equals(s.getSegmentId(), record.getTraceSegmentId()) &&
+                final int eventSpanId = Integer.parseInt(spanReference.getSpanId());
+                span = spans.stream().filter(s -> Objects.equals(s.getSegmentId(), spanReference.getTraceSegmentId()) &&
                     (s.getSpanId() == eventSpanId)).findFirst().orElse(null);
                 if (span == null) {
                     continue;

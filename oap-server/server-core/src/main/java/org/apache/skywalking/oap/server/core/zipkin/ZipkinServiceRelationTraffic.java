@@ -51,19 +51,15 @@ public class ZipkinServiceRelationTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = SERVICE_NAME)
-    @BanyanDB.SeriesID(index = 0)
     private String serviceName;
     @Setter
     @Getter
     @Column(name = REMOTE_SERVICE_NAME)
-    @BanyanDB.SeriesID(index = 1)
     private String remoteServiceName;
 
     @Override
     protected StorageID id0() {
-        return new StorageID()
-            .append(SERVICE_NAME, serviceName)
-            .append(REMOTE_SERVICE_NAME, remoteServiceName);
+        return new StorageID().append(serviceName).append(remoteServiceName);
     }
 
     @Override

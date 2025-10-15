@@ -50,6 +50,7 @@ services:
       - 8080
     environment:
       SW_AGENT_NAME: go-service
+      SW_AGENT_INSTANCE_NAME: provider1
       SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE: oap:11800
       UPSTREAM_URL: http://provider:9090/correlation
     depends_on:

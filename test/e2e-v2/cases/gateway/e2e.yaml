@@ -60,7 +60,7 @@ verify:
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql endpoint list --keyword=users --service-name=e2e-service-consumer
       expected: expected/service-endpoint-consumer.yml
     # trace segment list
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql trace ls
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql tv2 ls
       expected: expected/traces-list.yml
     # dependency service
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql dependency service --service-name=e2e-service-consumer

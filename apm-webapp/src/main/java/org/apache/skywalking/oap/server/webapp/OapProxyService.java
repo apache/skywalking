@@ -67,7 +67,7 @@ public final class OapProxyService extends AbstractHttpService {
         healthCheckedGroup.whenReady().get();
 
         return WebClient
-            .builder(SessionProtocol.HTTP, oapGroup)
+            .builder(SessionProtocol.HTTP, healthCheckedGroup)
             .decorator(LoggingClient.newDecorator())
             .build();
     }

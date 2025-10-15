@@ -14,30 +14,38 @@
 # limitations under the License.
 
 debuggingtrace: null
-spans:
-  {{- with (index .spans 0) }}
-  - traceid: {{ .traceid }}
-    segmentid: {{ .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs: []
-    servicecode: e2e-service-provider
-    serviceinstancename: provider1
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: POST:/users
-    type: Entry
-    peer: ""
-    component: Tomcat
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: http.method
-        value: POST
-      - key: url
-        value: {{ notEmpty .value }}
-      {{- end }}
-    logs: []
-    attachedevents: []
+retrievedtimerange:
+  {{- with .retrievedtimerange }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+  {{- end }}
+traces:
+  {{- contains .traces }}
+  - spans:
+    {{- with (index .spans 0) }}
+    - traceid: {{ .traceid }}
+      segmentid: {{ .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: e2e-service-provider
+      serviceinstancename: provider1
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: POST:/users
+      type: Entry
+      peer: ""
+      component: Tomcat
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: http.method
+          value: POST
+        - key: url
+          value: {{ notEmpty .value }}
+        {{- end }}
+      logs: []
+      attachedevents: []
+    {{- end }}
   {{- end }}

@@ -169,9 +169,8 @@ extend type Query {
     queryBasicTraces(condition: TraceQueryCondition, debug: Boolean): TraceBrief
     queryBasicTracesByName(condition: TraceQueryConditionByName, debug: Boolean): TraceBrief
     # Read the specific trace ID with given trace ID
-    queryTrace(traceId: ID!, debug: Boolean): Trace
-    # Only for BanyanDB, can be used to query the trace in the cold stage.
-    queryTraceFromColdStage(traceId: ID!, duration: Duration!, debug: Boolean): Trace
+    # duration is optional, and only for BanyanDB. If not provided, means search in the last 1 day.
+    queryTrace(traceId: ID!, duration: Duration, debug: Boolean): Trace
     # Read the list of searchable keys
     queryTraceTagAutocompleteKeys(duration: Duration!):[String!]
     # Search the available value options of the given key.
@@ -180,6 +179,17 @@ extend type Query {
 ```
 
 Trace query fetches trace segment lists and spans of given trace IDs.
+
+### Trace-v2
+```graphql
+extend type Query {
+    queryTraces(condition: TraceQueryCondition, debug: Boolean): TraceList
+    # Feature detection endpoint: returns true if the backend supports the Query Traces V2 API.
+    # Returns false if the backend does not support Query Traces V2.
+    # This field is intended to assist clients in migrating to the new API.
+    hasQueryTracesV2Support: Boolean!
+}
+```
 
 ### Alarm
 ```graphql

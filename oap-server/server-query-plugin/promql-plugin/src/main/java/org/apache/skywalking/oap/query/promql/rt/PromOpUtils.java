@@ -224,7 +224,8 @@ public class PromOpUtils {
         return v ? 1 : 0;
     }
 
-    static MetricsRangeResult matrixScalarCompareOp(MetricsRangeResult matrix, ScalarResult scalar, int opType) {
+    static MetricsRangeResult matrixScalarCompareOp(MetricsRangeResult matrix, ScalarResult scalar,
+                                                    int opType, boolean boolModifier) {
         MetricsRangeResult result = new MetricsRangeResult();
         result.setResultType(ParseResultType.METRICS_RANGE);
         result.setRangeExpression(matrix.isRangeExpression());
@@ -232,14 +233,32 @@ public class PromOpUtils {
             MetricRangeData newData = new MetricRangeData();
             result.getMetricDataList().add(newData);
             newData.setMetric(metricData.getMetric());
-            List<TimeValuePair> newValues = metricData.getValues()
-                                                      .stream()
-                                                      .filter(timeValuePair -> scalarCompareOp(
-                                                          Double.parseDouble(timeValuePair.getValue()),
-                                                          scalar.getValue(), opType
-                                                      ) == 1)
-                                                      .collect(
-                                                          Collectors.toList());
+
+            List<TimeValuePair> newValues;
+            if (boolModifier) {
+                newValues = metricData.getValues()
+                                      .stream()
+                                      .map(timeValuePair -> {
+                                          return new TimeValuePair(
+                                              timeValuePair.getTime(),
+                                              Integer.toString(scalarCompareOp(
+                                                  Double.parseDouble(timeValuePair.getValue()),
+                                                  scalar.getValue(), opType
+                                              ))
+                                          );
+                                      })
+                                      .collect(Collectors.toList());
+            } else {
+                newValues = metricData.getValues()
+                                      .stream()
+                                      .filter(timeValuePair ->
+                                                  scalarCompareOp(
+                                                      Double.parseDouble(timeValuePair.getValue()),
+                                                      scalar.getValue(), opType
+                                                  ) == 1
+                                      )
+                                      .collect(Collectors.toList());
+            }
             newData.setValues(newValues);
         });
         return result;
@@ -247,7 +266,7 @@ public class PromOpUtils {
 
     static MetricsRangeResult matrixCompareOp(MetricsRangeResult matrixLeft,
                                               MetricsRangeResult matrixRight,
-                                              int opType) throws IllegalExpressionException {
+                                              int opType, boolean boolModifier) throws IllegalExpressionException {
         MetricsRangeResult result = new MetricsRangeResult();
         result.setResultType(ParseResultType.METRICS_RANGE);
         result.setRangeExpression(matrixLeft.isRangeExpression());
@@ -264,14 +283,26 @@ public class PromOpUtils {
             }
             MetricRangeData newData = new MetricRangeData();
             result.getMetricDataList().add(newData);
-            newData.setMetric(dataLeft.getMetric());
+            if (boolModifier) {
+                // metric name should be removed between two matrix bool compare
+                MetricInfo metricInfo = new MetricInfo(null);
+                metricInfo.setLabels(dataLeft.getMetric().getLabels());
+                newData.setMetric(metricInfo);
+            } else {
+                newData.setMetric(dataLeft.getMetric());
+            }
             List<TimeValuePair> newValues = new ArrayList<>();
             newData.setValues(newValues);
             for (int j = 0; j < dataLeft.getValues().size(); j++) {
                 double lv = Double.parseDouble(dataLeft.getValues().get(j).getValue());
                 double rv = Double.parseDouble(dataRight.getValues().get(j).getValue());
-                if (scalarCompareOp(lv, rv, opType) == 1) {
-                    newValues.add(dataLeft.getValues().get(j));
+                if (boolModifier) {
+                    long time = dataLeft.getValues().get(j).getTime();
+                    newValues.add(new TimeValuePair(time, Integer.toString(scalarCompareOp(lv, rv, opType))));
+                } else {
+                    if (scalarCompareOp(lv, rv, opType) == 1) {
+                        newValues.add(dataLeft.getValues().get(j));
+                    }
                 }
             }
         }

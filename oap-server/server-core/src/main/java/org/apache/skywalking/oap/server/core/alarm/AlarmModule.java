@@ -34,6 +34,6 @@ public class AlarmModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[] {MetricsNotify.class};
+        return new Class[] {MetricsNotify.class, AlarmRulesWatcherService.class};
     }
 }

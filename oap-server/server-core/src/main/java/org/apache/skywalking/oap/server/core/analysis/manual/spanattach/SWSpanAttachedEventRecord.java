@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.spanattach;
 
+import com.google.protobuf.ByteString;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
@@ -28,6 +32,8 @@ import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -39,8 +45,10 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SW
 @ScopeDeclaration(id = SW_SPAN_ATTACHED_EVENT, name = "SWSpanAttachedEvent")
 @Stream(name = SWSpanAttachedEventRecord.INDEX_NAME, scopeId = SW_SPAN_ATTACHED_EVENT, builder = SWSpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(SWSpanAttachedEventRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_TRACE)
-public class SWSpanAttachedEventRecord extends Record {
+@BanyanDB.Trace.TraceIdColumn(SWSpanAttachedEventRecord.RELATED_TRACE_ID)
+@BanyanDB.Trace.SpanIdColumn(StorageData.ID)
+@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.TRACE)
+public class SWSpanAttachedEventRecord extends Record implements BanyanDBTrace, BanyanDBTrace.MergeTable {
 
     public static final String INDEX_NAME = "sw_span_attached_event_record";
     public static final String START_TIME_SECOND = "start_time_second";
@@ -62,7 +70,6 @@ public class SWSpanAttachedEventRecord extends Record {
     @Column(name = START_TIME_NANOS)
     private int startTimeNanos;
     @Column(name = EVENT)
-    @BanyanDB.SeriesID(index = 0)
     private String event;
     @Column(name = END_TIME_SECOND)
     private long endTimeSecond;
@@ -82,7 +89,6 @@ public class SWSpanAttachedEventRecord extends Record {
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
-    @BanyanDB.NoIndexing
     private long timestamp;
 
     @Override
@@ -92,6 +98,51 @@ public class SWSpanAttachedEventRecord extends Record {
             .append(START_TIME_SECOND, startTimeSecond)
             .append(START_TIME_NANOS, startTimeNanos)
             .append(EVENT, event);
+    }
+
+    @Override
+    public SpanWrapper getSpanWrapper() {
+        SpanWrapper.Builder builder = SpanWrapper.newBuilder();
+        builder.setSpan(ByteString.copyFrom(dataBinary));
+        builder.setSource(Source.SKYWALKING_EVENT);
+        return builder.build();
+    }
+
+    // In BanyanDB, attached event share the same table with segment.
+    // So the table name is SegmentRecord.INDEX_NAME
+    @Override
+    public String getMergeTableName() {
+        return SegmentRecord.INDEX_NAME;
+    }
+
+    @Override
+    public String getMergeTraceIdColumnName() {
+        return SegmentRecord.TRACE_ID;
+    }
+
+    @Override
+    public String getTraceIdColumnValue() {
+        return relatedTraceId;
+    }
+
+    @Override
+    public String getMergeTimestampColumnName() {
+        return SegmentRecord.START_TIME;
+    }
+
+    @Override
+    public long getTimestampColumnValue() {
+        return timestamp;
+    }
+
+    @Override
+    public String getMergeSpanIdColumnName() {
+        return SegmentRecord.SEGMENT_ID;
+    }
+
+    @Override
+    public String getSpanIdColumnValue() {
+        return id().build();
     }
 
     public static class Builder implements StorageBuilder<SWSpanAttachedEventRecord> {

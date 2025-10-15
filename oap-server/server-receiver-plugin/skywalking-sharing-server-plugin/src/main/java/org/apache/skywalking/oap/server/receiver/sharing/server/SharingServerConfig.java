@@ -31,7 +31,6 @@ public class SharingServerConfig extends ModuleConfig {
      */
     private int restPort;
     private String restContextPath;
-    private int restMaxThreads = 200;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
 

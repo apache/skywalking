@@ -62,15 +62,16 @@ public class ApplicationStartUp {
                 .of(ApplicationStartUp.class.getClassLoader(), "/zipkin-lens/index.html")
                 .asService();
 
-        final ZipkinProxyService zipkin = new ZipkinProxyService(configuration.zipkinServices());
+        final var zipkin = new ZipkinProxyService(configuration.zipkinServices());
+        final var oap = new OapProxyService(oapServices);
 
         Server
             .builder()
             .port(port, SessionProtocol.HTTP)
-            .service("/graphql", new OapProxyService(oapServices))
-            .service("/debugging/config/dump", new OapProxyService(oapServices))
-            .service("/status/config/ttl", new OapProxyService(oapServices))
-            .service("/status/cluster/nodes", new OapProxyService(oapServices))
+            .service("/graphql", oap)
+            .service("/debugging/config/dump", oap)
+            .service("/status/config/ttl", oap)
+            .service("/status/cluster/nodes", oap)
             .service("/internal/l7check", HealthCheckService.of())
             .service("/zipkin/config.json", zipkin)
             .serviceUnder("/zipkin/api", zipkin)

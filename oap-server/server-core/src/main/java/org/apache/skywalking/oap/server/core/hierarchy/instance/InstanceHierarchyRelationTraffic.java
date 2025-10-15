@@ -51,25 +51,21 @@ public class InstanceHierarchyRelationTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = INSTANCE_ID, length = 250)
-    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
 
     @Setter
     @Getter
     @Column(name = SERVICE_LAYER)
-    @BanyanDB.SeriesID(index = 1)
     private Layer serviceLayer = Layer.UNDEFINED;
 
     @Setter
     @Getter
     @Column(name = RELATED_INSTANCE_ID, length = 250)
-    @BanyanDB.SeriesID(index = 2)
     private String relatedInstanceId;
 
     @Setter
     @Getter
     @Column(name = RELATED_SERVICE_LAYER)
-    @BanyanDB.SeriesID(index = 3)
     private Layer relatedServiceLayer = Layer.UNDEFINED;
 
     @Override
@@ -77,12 +73,7 @@ public class InstanceHierarchyRelationTraffic extends Metrics {
         String id = IDManager.ServiceInstanceID.buildInstanceHierarchyRelationId(
             new IDManager.ServiceInstanceID.InstanceHierarchyRelationDefine(
                 instanceId, serviceLayer, relatedInstanceId, relatedServiceLayer));
-        return new StorageID().appendMutant(new String[] {
-            INSTANCE_ID,
-            RELATED_INSTANCE_ID,
-            SERVICE_LAYER,
-            RELATED_SERVICE_LAYER
-        }, id);
+        return new StorageID().append(id);
     }
 
     @Override

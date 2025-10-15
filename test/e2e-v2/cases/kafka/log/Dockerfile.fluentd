@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM bitnami/fluentd:1.12.1
+FROM bitnamilegacy/fluentd:1.12.1
 
 ## Install output kafka plugins
 RUN fluent-gem install fluent-plugin-kafka -v 0.19.3

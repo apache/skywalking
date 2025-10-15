@@ -49,12 +49,17 @@ import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TraceBulkWriteProcessor;
+import org.apache.skywalking.banyandb.v1.client.TraceQuery;
+import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TraceWrite;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * BanyanDBStorageClient is a simple wrapper for the underlying {@link BanyanDBClient},
@@ -70,6 +75,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public BanyanDBStorageClient(BanyanDBStorageConfig config) {
         Options options = new Options();
         options.setSslTrustCAPath(config.getGlobal().getSslTrustCAPath());
+        String username = config.getGlobal().getUser();
+        String password = config.getGlobal().getPassword();
+        if (StringUtil.isNotBlank(username)) {
+            if (StringUtil.isBlank(password)) {
+                throw new IllegalArgumentException("User is set, but password is not set.");
+            }
+            options.setUsername(username);
+            options.setPassword(password);
+        } else if (StringUtil.isNotBlank(password)) {
+            throw new IllegalArgumentException("Password is set, but user is not set.");
+        }
         this.client = new BanyanDBClient(config.getTargetArray(), options);
         this.flushTimeout = config.getGlobal().getFlushTimeout();
     }
@@ -123,11 +139,12 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         this.client.close();
     }
 
-    public List<Property> listProperties(String group, String name) throws IOException {
+    public List<Property> listProperties(String name) throws IOException {
         try {
+            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
             BanyandbProperty.QueryResponse resp
                 = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                                                                 .addGroups(group)
+                                                                 .addGroups(schema.getMetadata().getGroup())
                                                                  .setName(name)
                                                                  .setLimit(Integer.MAX_VALUE)
                                                                  .build());
@@ -144,10 +161,11 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public Property queryProperty(String group, String name, String id) throws IOException {
+    public Property queryProperty(String name, String id) throws IOException {
         try {
+            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
             BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                                                                                                 .addGroups(group)
+                                                                                                 .addGroups(schema.getMetadata().getGroup())
                                                                                                  .setName(name)
                                                                                                  .addIds(id)
                                                                                                  .build());
@@ -167,9 +185,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public DeleteResponse deleteProperty(String group, String name, String id) throws IOException {
+    public DeleteResponse deleteProperty(String name, String id) throws IOException {
         try {
-            DeleteResponse result = this.client.deleteProperty(group, name, id);
+            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
+            DeleteResponse result = this.client.deleteProperty(schema.getMetadata().getGroup(), name, id);
             this.healthChecker.health();
             return result;
         } catch (BanyanDBException ex) {
@@ -197,6 +216,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
             throw new IOException("fail to query measure", ex);
+        }
+    }
+
+    public TraceQueryResponse query(TraceQuery q) throws IOException {
+        try {
+            TraceQueryResponse response = this.client.query(q);
+            this.healthChecker.health();
+            return response;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to query trace", ex);
         }
     }
 
@@ -324,6 +354,14 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public TraceWrite createTraceWrite(String group, String name) throws IOException {
+        try {
+            return this.client.createTraceWrite(group, name);
+        } catch (BanyanDBException e) {
+            throw new IOException("fail to create trace write", e);
+        }
+    }
+
     public void write(StreamWrite streamWrite) {
         this.client.write(streamWrite);
     }
@@ -334,6 +372,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public MeasureBulkWriteProcessor createMeasureBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
         return this.client.buildMeasureWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
+    }
+
+    public TraceBulkWriteProcessor createTraceBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
+        return this.client.buildTraceWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
     }
 
     @Override

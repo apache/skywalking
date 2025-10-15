@@ -14,190 +14,198 @@
 # limitations under the License.
 
 debuggingtrace: null
-spans:
-  {{- contains .spans }}
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ notEmpty .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs: []
-    servicecode: consumer-py
-    serviceinstancename: consumer-py-instance
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: /test
-    type: Entry
-    peer: {{ notEmpty .peer }}
-    component: Python
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: http.method
-        value: POST
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ notEmpty .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs: []
-    servicecode: consumer-py
-    serviceinstancename: consumer-py-instance
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: /users
-    type: Exit
-    peer: medium-java:9092
-    component: Python
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: http.method
-        value: POST
-      - key: http.url
-        value: http://medium-java:9092/users
-      - key: http.status.code
-        value: "200"
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ notEmpty .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs:
-      {{- contains .refs }}
-      - traceid: {{ notEmpty .traceid }}
-        parentsegmentid: {{ .parentsegmentid }}
-        parentspanid: {{ .parentspanid }}
-        type: CROSS_PROCESS
-      {{- end }}
-    servicecode: e2e-service-consumer
-    serviceinstancename: consumer1
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: POST:/users
-    type: Entry
-    peer: ""
-    component: Tomcat
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: url
-        value: http://medium-java:9092/users
-      - key: http.method
-        value: POST
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ notEmpty .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs: []
-    servicecode: e2e-service-consumer
-    serviceinstancename: consumer1
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: /users
-    type: Exit
-    peer: provider-py:9091
-    component: SpringRestTemplate
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: url
-        value: http://provider-py:9091/users
-      - key: http.method
-        value: POST
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ notEmpty .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs:
-      {{- contains .refs }}
-      - traceid: {{ notEmpty .traceid }}
-        parentsegmentid: {{ .parentsegmentid }}
-        parentspanid: {{ .parentspanid }}
-        type: CROSS_PROCESS
-      {{- end }}
-    servicecode: provider-py
-    serviceinstancename: provider-py-instance
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: /users
-    type: Entry
-    peer: {{ notEmpty .peer }}
-    component: Python
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: http.method
-        value: POST
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ notEmpty .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs: []
-    servicecode: consumer-py
-    serviceinstancename: consumer-py-instance
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: /users
-    type: Exit
-    peer: provider-py-kafka:9089
-    component: Python
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: http.method
-        value: POST
-      - key: http.url
-        value: http://provider-py-kafka:9089/users
-      - key: http.status.code
-        value: "200"
-      {{- end }}
-    logs: []
-    attachedevents: []
-  - traceid: {{ notEmpty .traceid }}
-    segmentid: {{ notEmpty .segmentid }}
-    spanid: {{ .spanid }}
-    parentspanid: {{ .parentspanid }}
-    refs:
-      {{- contains .refs }}
-      - traceid: {{ notEmpty .traceid }}
-        parentsegmentid: {{ .parentsegmentid }}
-        parentspanid: {{ .parentspanid }}
-        type: CROSS_PROCESS
-      {{- end }}
-    servicecode: provider-py-kafka
-    serviceinstancename: provider-py-kafka-instance
-    starttime: {{ gt .starttime 0 }}
-    endtime: {{ gt .endtime 0 }}
-    endpointname: /users
-    type: Entry
-    peer: {{ notEmpty .peer }}
-    component: Python
-    iserror: false
-    layer: Http
-    tags:
-      {{- contains .tags }}
-      - key: http.method
-        value: POST
-      {{- end }}
-    logs: []
-    attachedevents: []
+retrievedtimerange:
+  {{- with .retrievedtimerange }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
   {{- end }}
+traces:
+  {{- contains .traces }}
+  - spans:
+    {{- contains .spans }}
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ notEmpty .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: consumer-py
+      serviceinstancename: consumer-py-instance
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: /test
+      type: Entry
+      peer: {{ notEmpty .peer }}
+      component: Python
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: http.method
+          value: POST
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ notEmpty .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: consumer-py
+      serviceinstancename: consumer-py-instance
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: /users
+      type: Exit
+      peer: medium-java:9092
+      component: Python
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: http.method
+          value: POST
+        - key: http.url
+          value: http://medium-java:9092/users
+        - key: http.status.code
+          value: "200"
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ notEmpty .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs:
+        {{- contains .refs }}
+        - traceid: {{ notEmpty .traceid }}
+          parentsegmentid: {{ .parentsegmentid }}
+          parentspanid: {{ .parentspanid }}
+          type: CROSS_PROCESS
+        {{- end }}
+      servicecode: e2e-service-consumer
+      serviceinstancename: consumer1
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: POST:/users
+      type: Entry
+      peer: ""
+      component: Tomcat
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: url
+          value: http://medium-java:9092/users
+        - key: http.method
+          value: POST
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ notEmpty .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: e2e-service-consumer
+      serviceinstancename: consumer1
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: /users
+      type: Exit
+      peer: provider-py:9091
+      component: SpringRestTemplate
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: url
+          value: http://provider-py:9091/users
+        - key: http.method
+          value: POST
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ notEmpty .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs:
+        {{- contains .refs }}
+        - traceid: {{ notEmpty .traceid }}
+          parentsegmentid: {{ .parentsegmentid }}
+          parentspanid: {{ .parentspanid }}
+          type: CROSS_PROCESS
+        {{- end }}
+      servicecode: provider-py
+      serviceinstancename: provider-py-instance
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: /users
+      type: Entry
+      peer: {{ notEmpty .peer }}
+      component: Python
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: http.method
+          value: POST
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ notEmpty .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs: []
+      servicecode: consumer-py
+      serviceinstancename: consumer-py-instance
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: /users
+      type: Exit
+      peer: provider-py-kafka:9089
+      component: Python
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: http.method
+          value: POST
+        - key: http.url
+          value: http://provider-py-kafka:9089/users
+        - key: http.status.code
+          value: "200"
+        {{- end }}
+      logs: []
+      attachedevents: []
+    - traceid: {{ notEmpty .traceid }}
+      segmentid: {{ notEmpty .segmentid }}
+      spanid: {{ .spanid }}
+      parentspanid: {{ .parentspanid }}
+      refs:
+        {{- contains .refs }}
+        - traceid: {{ notEmpty .traceid }}
+          parentsegmentid: {{ .parentsegmentid }}
+          parentspanid: {{ .parentspanid }}
+          type: CROSS_PROCESS
+        {{- end }}
+      servicecode: provider-py-kafka
+      serviceinstancename: provider-py-kafka-instance
+      starttime: {{ gt .starttime 0 }}
+      endtime: {{ gt .endtime 0 }}
+      endpointname: /users
+      type: Entry
+      peer: {{ notEmpty .peer }}
+      component: Python
+      iserror: false
+      layer: Http
+      tags:
+        {{- contains .tags }}
+        - key: http.method
+          value: POST
+        {{- end }}
+      logs: []
+      attachedevents: []
+    {{- end }}
+{{- end }}

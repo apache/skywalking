@@ -57,18 +57,15 @@ public class TagAutocompleteData extends Metrics {
     @Getter
     @Column(name = TAG_KEY)
     @ElasticSearch.EnableDocValues
-    @BanyanDB.SeriesID(index = 1)
     private String tagKey;
     @Setter
     @Getter
     @Column(name = TAG_VALUE, length = Tag.TAG_LENGTH)
-    @BanyanDB.SeriesID(index = 2)
     private String tagValue;
 
     @Setter
     @Getter
     @Column(name = TAG_TYPE)
-    @BanyanDB.SeriesID(index = 0)
     private String tagType;
 
     @Override
@@ -94,10 +91,10 @@ public class TagAutocompleteData extends Metrics {
     @Override
     protected StorageID id0() {
         return new StorageID()
-            .appendMutant(new String[] {TIME_BUCKET}, toTimeBucketInDay())
-            .append(TAG_TYPE, tagType)
-            .append(TAG_KEY, tagKey)
-            .append(TAG_VALUE, tagValue);
+            .append(toTimeBucketInDay())
+            .append(tagType)
+            .append(tagKey)
+            .append(tagValue);
     }
 
     @Override

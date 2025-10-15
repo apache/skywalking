@@ -16,6 +16,8 @@ receiver-zipkin:
     searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
     # The sample rate precision is 1/10000, should be between 0 and 10000
     sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
+    # The maximum spans to be collected per second. 0 means no limit. Spans exceeding this threshold will be dropped.
+    maxSpansPerSecond: ${SW_ZIPKIN_MAX_SPANS_PER_SECOND:0}
     ## The below configs are for OAP collect zipkin trace from HTTP
     enableHttpCollector: ${SW_ZIPKIN_HTTP_COLLECTOR_ENABLED:true}
     restHost: ${SW_RECEIVER_ZIPKIN_REST_HOST:0.0.0.0}

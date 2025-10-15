@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -61,6 +60,22 @@ public class StorageID {
         fragments = new ArrayList<>(2);
     }
 
+    public StorageID append(String value) {
+        if (sealed) {
+            throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment");
+        }
+        fragments.add(new Fragment(null, String.class, value));
+        return this;
+    }
+
+    public StorageID append(long value) {
+        if (sealed) {
+            throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, name=");
+        }
+        fragments.add(new Fragment(null, Long.class, value));
+        return this;
+    }
+
     public StorageID append(String name, String value) {
         if (StringUtil.isBlank(name)) {
             throw new IllegalArgumentException("The name of storage ID should not be null or empty.");
@@ -68,7 +83,7 @@ public class StorageID {
         if (sealed) {
             throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, name=" + name);
         }
-        fragments.add(new Fragment(new String[] {name}, String.class, false, value));
+        fragments.add(new Fragment(name, String.class, value));
         return this;
     }
 
@@ -79,7 +94,7 @@ public class StorageID {
         if (sealed) {
             throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, name=" + name);
         }
-        fragments.add(new Fragment(new String[] {name}, Long.class, false, value));
+        fragments.add(new Fragment(name, Long.class, value));
         return this;
     }
 
@@ -90,23 +105,7 @@ public class StorageID {
         if (sealed) {
             throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, name=" + name);
         }
-        fragments.add(new Fragment(new String[] {name}, Integer.class, false, value));
-        return this;
-    }
-
-    public StorageID appendMutant(String[] source, long value) {
-        if (sealed) {
-            throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, source=" + Arrays.toString(source));
-        }
-        fragments.add(new Fragment(source, Long.class, true, value));
-        return this;
-    }
-
-    public StorageID appendMutant(final String[] source, final String value) {
-        if (sealed) {
-            throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, source=" + Arrays.toString(source));
-        }
-        fragments.add(new Fragment(source, String.class, true, value));
+        fragments.add(new Fragment(name, Integer.class, value));
         return this;
     }
 
@@ -145,24 +144,18 @@ public class StorageID {
          * The column name of the value, or the original column names of the mutate value.
          *
          * The names could be
-         * 1. Always one column if this is not {@link #mutate} and from a certain persistent column.
-         * 2. Be null if {@link #mutate} is true and no relative column, such as the original value is not in
-         * the persistence.
-         * 3. One or multi-values if the value is built through a symmetrical or asymmetrical encoding algorithm.
+         * 1. Always one column if this is from a certain persistent column.
+         * 2. Be null if no relative column, such as the original value is not in the persistence.
          */
-        private final String[] name;
+        private final String name;
         /**
          * Represent the class type of the {@link #value}.
          */
         private final Class<?> type;
-        /**
-         * If true, the field was from {@link #name}, and value is changed by internal rules.
-         * Such as time bucket downsampling, use a day-level time-bucket to build the ID for a minute dimension metric.
-         */
-        private final boolean mutate;
+
         private final Object value;
 
-        public Optional<String[]> getName() {
+        public Optional<String> getName() {
             return Optional.ofNullable(name);
         }
 

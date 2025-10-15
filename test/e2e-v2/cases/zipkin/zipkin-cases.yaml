@@ -18,16 +18,16 @@ cases:
   - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/services
     expected: expected/service-name.yml
   # remote-service name
-  - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/remoteServices?serviceName=frontend
+  - query: curl "http://${oap_host}:${oap_9412}/zipkin/api/v2/remoteServices?serviceName=frontend"
     expected: expected/remote-service-name.yml
   # span name
-  - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/spans?serviceName=frontend
+  - query: curl "http://${oap_host}:${oap_9412}/zipkin/api/v2/spans?serviceName=frontend"
     expected: expected/span-name.yml
   # traces
-  - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=frontend&remoteServiceName=backend&spanName=get&annotationQuery=wr&limit=1
+  - query: curl "http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=frontend&remoteServiceName=backend&spanName=get&annotationQuery=wr&limit=1"
     expected: expected/traces.yml
   # autocomplete
   - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/autocompleteKeys
     expected: expected/autocomplete-keys.yml
-  - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/autocompleteValues?key=http.method
+  - query: curl "http://${oap_host}:${oap_9412}/zipkin/api/v2/autocompleteValues?key=http.method"
     expected: expected/autocomplete-value.yml

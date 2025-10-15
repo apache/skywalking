@@ -18,9 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.banyandb.v1.client.TraceWrite;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -30,7 +36,9 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import java.io.IOException;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBTraceInsertRequest;
 
+@Slf4j
 public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO {
     private final StorageBuilder<Record> storageBuilder;
 
@@ -45,14 +53,68 @@ public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        StreamWrite streamWrite = getClient().createStreamWrite(
-            schema.getMetadata().getGroup(), // group name
-            model.getName(), // index-name
-            record.id().build() // identity
-        ); // set timestamp inside `BanyanDBConverter.StreamToStorage`
-        Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(schema, streamWrite);
-        storageBuilder.entity2Storage(record, convert2Storage);
+        if (BanyanDB.TraceGroup.NONE != model.getBanyanDBModelExtension().getTraceGroup()) {
+            TraceWrite traceWrite;
+            if (record instanceof BanyanDBTrace) {
+                if (record instanceof BanyanDBTrace.MergeTable) {
+                    BanyanDBTrace.MergeTable mergeTable = (BanyanDBTrace.MergeTable) record;
+                    MetadataRegistry.Schema mergeTableSchema = MetadataRegistry.INSTANCE.findRecordMetadata(mergeTable.getMergeTableName());
 
-        return new BanyanDBStreamInsertRequest(convert2Storage.obtain());
+                    traceWrite = getClient().createTraceWrite(
+                        schema.getMetadata().getGroup(),
+                        mergeTable.getMergeTableName()
+                    );
+                    try {
+                        for (String tag : mergeTableSchema.getTags()) {
+                            if (tag.equals(mergeTable.getMergeTraceIdColumnName())) {
+                                traceWrite.tag(
+                                    tag,
+                                    TagAndValue.stringTagValue(mergeTable.getTraceIdColumnValue())
+                                );
+                            } else if (tag.equals(mergeTable.getMergeTimestampColumnName())) {
+                                traceWrite.tag(
+                                    tag,
+                                    TagAndValue.timestampTagValue(mergeTable.getTimestampColumnValue())
+                                );
+                            } else if (tag.equals(mergeTable.getMergeSpanIdColumnName())) {
+                                traceWrite.tag(
+                                    tag,
+                                    TagAndValue.stringTagValue(mergeTable.getSpanIdColumnValue())
+                                );
+                            } else  {
+                                traceWrite.tag(tag, TagAndValue.nullTagValue());
+                            }
+                        }
+                    } catch (BanyanDBException e) {
+                        log.error("fail to add tag", e);
+                    }
+                } else {
+                    traceWrite = getClient().createTraceWrite(
+                        schema.getMetadata().getGroup(),
+                        model.getName()
+                    );
+                    Convert2Storage<TraceWrite> convert2Storage = new BanyanDBConverter.TraceToStorage(
+                        schema, traceWrite);
+                    storageBuilder.entity2Storage(record, convert2Storage);
+                    traceWrite = convert2Storage.obtain();
+                }
+
+                traceWrite.span(((BanyanDBTrace) record).getSpanWrapper().toByteArray());
+            } else {
+                throw new IOException(
+                    model.getName() + " is a banyandb trace model, the record should implement " + BanyanDBTrace.class.getName());
+            }
+
+            return new BanyanDBTraceInsertRequest(traceWrite);
+        } else {
+            StreamWrite streamWrite = getClient().createStreamWrite(
+                schema.getMetadata().getGroup(), // group name
+                model.getName(), // index-name
+                record.id().build() // identity
+            ); // set timestamp inside `BanyanDBConverter.StreamToStorage`
+            Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(schema, streamWrite);
+            storageBuilder.entity2Storage(record, convert2Storage);
+            return new BanyanDBStreamInsertRequest(convert2Storage.obtain());
+        }
     }
 }

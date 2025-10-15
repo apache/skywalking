@@ -54,6 +54,7 @@ import java.util.stream.IntStream;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import lombok.Getter;
 import org.apache.skywalking.apm.network.common.v3.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEvent;
@@ -69,6 +70,9 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryV2DAO;
+import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -78,6 +82,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import zipkin2.Span;
+import zipkin2.codec.SpanBytesDecoder;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.storage.QueryRequest;
 
@@ -99,6 +104,7 @@ public class ZipkinQueryHandler {
     private final long defaultLookback;
     private final int namesMaxAge;
     private static final Gson GSON = new Gson();
+    private boolean supportTraceV2 = false;
 
     volatile int serviceCount;
 
@@ -113,6 +119,9 @@ public class ZipkinQueryHandler {
     private IZipkinQueryDAO getZipkinQueryDAO() {
         if (zipkinQueryDAO == null) {
             zipkinQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IZipkinQueryDAO.class);
+            if (IZipkinQueryV2DAO.class.isAssignableFrom(zipkinQueryDAO.getClass())) {
+                this.supportTraceV2 = true;
+            }
         }
         return zipkinQueryDAO;
     }
@@ -187,12 +196,27 @@ public class ZipkinQueryHandler {
             if (StringUtil.isEmpty(traceId)) {
                 return AggregatedHttpResponse.of(BAD_REQUEST, ANY_TEXT_TYPE, "traceId is empty or null");
             }
-            List<Span> trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()), null);
-            if (CollectionUtils.isEmpty(trace)) {
-                return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
+            IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
+            List<Span> trace;
+            if (supportTraceV2) {
+                List<SpanWrapper> wrappedTrace = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTraceV2(
+                    Span.normalizeTraceId(traceId.trim()), null);
+                TraceV2 traceV2 = buildTraceV2(wrappedTrace);
+                trace = traceV2.getSpans();
+                appendEventsDebuggable(trace, traceV2.getEvents());
+            } else {
+                trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()), null);
+                if (CollectionUtils.isEmpty(trace)) {
+                    return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
+                }
+                List<SpanAttachedEventRecord> eventRecords = getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(
+                    SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(Span.normalizeTraceId(traceId.trim())), null);
+                List<SpanAttachedEvent> events = new ArrayList<>(eventRecords.size());
+                for (SpanAttachedEventRecord eventRecord : eventRecords) {
+                    events.add(SpanAttachedEvent.parseFrom(eventRecord.getDataBinary()));
+                }
+                appendEventsDebuggable(trace, events);
             }
-            appendEventsDebuggable(trace, getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(
-                SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(traceId), null));
             return response(SpanBytesEncoder.JSON_V2.encodeList(trace));
         } finally {
             if (traceContext != null && debuggingSpan != null) {
@@ -241,8 +265,20 @@ public class ZipkinQueryHandler {
             DateTime startTime = endTime.minus(org.joda.time.Duration.millis(queryRequest.lookback()));
             duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
             duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
-            List<List<Span>> traces = getZipkinQueryDAO().getTracesDebuggable(queryRequest, duration);
-            appendEventsToTracesDebuggable(traces);
+            IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
+            List<List<Span>> traces;
+            if (supportTraceV2) {
+                traces = new ArrayList<>();
+                List<List<SpanWrapper>> wrappedTraces = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTracesV2(queryRequest, duration);
+                for (List<SpanWrapper> wrappedTrace : wrappedTraces) {
+                    TraceV2 traceV2 =  buildTraceV2(wrappedTrace);
+                    traces.add(traceV2.getSpans());
+                    appendEventsDebuggable(traceV2.getSpans(), traceV2.events);
+                }
+            } else {
+                traces = zipkinQueryDAO.getTracesDebuggable(queryRequest, duration);
+                appendEventsToTracesDebuggable(traces);
+            }
             return response(encodeTraces(traces));
         } finally {
             if (traceContext != null && debuggingSpan != null) {
@@ -265,9 +301,20 @@ public class ZipkinQueryHandler {
                 return AggregatedHttpResponse.of(BAD_REQUEST, ANY_TEXT_TYPE, "traceId: " + traceId + " duplicate ");
             }
         }
-
-        List<List<Span>> traces = getZipkinQueryDAO().getTraces(normalizeTraceIds, null);
-        appendEventsToTraces(traces);
+        IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
+        List<List<Span>> traces;
+        if (supportTraceV2) {
+            traces = new ArrayList<>();
+            List<List<SpanWrapper>> wrappedTraces = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTracesV2(normalizeTraceIds, null);
+            for (List<SpanWrapper> wrappedTrace : wrappedTraces) {
+                TraceV2 traceV2 =  buildTraceV2(wrappedTrace);
+                traces.add(traceV2.getSpans());
+                appendEventsDebuggable(traceV2.getSpans(), traceV2.events);
+            }
+        } else {
+            traces = getZipkinQueryDAO().getTraces(normalizeTraceIds, null);
+            appendEventsToTraces(traces);
+        }
         return response(encodeTraces(traces));
     }
 
@@ -366,13 +413,17 @@ public class ZipkinQueryHandler {
 
         final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(SpanAttachedEventTraceType.ZIPKIN,
             new ArrayList<>(traceIdWithSpans.keySet()), null);
-        final Map<String, List<SpanAttachedEventRecord>> traceEvents = records.stream().collect(Collectors.groupingBy(SpanAttachedEventRecord::getRelatedTraceId));
-        for (Map.Entry<String, List<SpanAttachedEventRecord>> entry : traceEvents.entrySet()) {
+        List<SpanAttachedEvent> events = new ArrayList<>(records.size());
+        for (SpanAttachedEventRecord record : records) {
+            events.add(SpanAttachedEvent.parseFrom(record.getDataBinary()));
+        }
+        final Map<String, List<SpanAttachedEvent>> traceEvents = events.stream().collect(Collectors.groupingBy(e -> e.getTraceContext().getTraceId()));
+        for (Map.Entry<String, List<SpanAttachedEvent>> entry : traceEvents.entrySet()) {
             appendEventsDebuggable(traceIdWithSpans.get(entry.getKey()), entry.getValue());
         }
     }
 
-    private void appendEventsDebuggable(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+    private void appendEventsDebuggable(List<Span> spans, List<SpanAttachedEvent> events) throws InvalidProtocolBufferException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan debuggingSpan = null;
         try {
@@ -387,7 +438,7 @@ public class ZipkinQueryHandler {
         }
     }
 
-    private void appendEvents(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+    private void appendEvents(List<Span> spans, List<SpanAttachedEvent> events) throws InvalidProtocolBufferException {
         if (CollectionUtils.isEmpty(spans) || CollectionUtils.isEmpty(events)) {
             return;
         }
@@ -396,27 +447,28 @@ public class ZipkinQueryHandler {
 
         // sort by start time
         events.sort((e1, e2) -> {
-            final int second = Long.compare(e1.getStartTimeSecond(), e2.getStartTimeSecond());
+            final int second = Long.compare(e1.getStartTime().getSeconds(), e2.getStartTime().getSeconds());
             if (second == 0) {
-                return Long.compare(e1.getStartTimeNanos(), e2.getStartTimeNanos());
+                return Long.compare(e1.getStartTime().getNanos(), e2.getStartTime().getNanos());
             }
             return second;
         });
 
-        final Map<String, List<SpanAttachedEventRecord>> namedEvents = events.stream()
-            .collect(Collectors.groupingBy(SpanAttachedEventRecord::getEvent, Collectors.toList()));
+        final Map<String, List<SpanAttachedEvent>> namedEvents = events.stream()
+            .collect(Collectors.groupingBy(SpanAttachedEvent::getEvent, Collectors.toList()));
 
         final Map<String, Tuple2<Span.Builder, Integer>> spanCache = new HashMap<>();
-        for (Map.Entry<String, List<SpanAttachedEventRecord>> namedEntry : namedEvents.entrySet()) {
+        for (Map.Entry<String, List<SpanAttachedEvent>> namedEntry : namedEvents.entrySet()) {
             for (int i = 1; i <= namedEntry.getValue().size(); i++) {
-                final SpanAttachedEventRecord record = namedEntry.getValue().get(i - 1);
-                String eventName = record.getEvent() + (namedEntry.getValue().size() == 1 ? "" : "-" + i);
-                final SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
+                final SpanAttachedEvent event = namedEntry.getValue().get(i - 1);
+                String spanId = event.getTraceContext().getSpanId();
+                String eventName = event.getEvent() + (namedEntry.getValue().size() == 1 ? "" : "-" + i);
+               // final SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
 
                 // find matched span
-                Tuple2<Span.Builder, Integer> spanBuilder = spanCache.get(record.getTraceSpanId());
+                Tuple2<Span.Builder, Integer> spanBuilder = spanCache.get(spanId);
                 if (spanBuilder == null) {
-                    Tuple2<Integer, Span> matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.id(), record.getTraceSpanId())).
+                    Tuple2<Integer, Span> matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.id(), spanId)).
                         findFirst().orElse(null);
                     if (matchesSpan == null) {
                         continue;
@@ -432,7 +484,7 @@ public class ZipkinQueryHandler {
                     }
 
                     spanBuilder = Tuple.of(matchesSpan._2.toBuilder(), matchesSpan._1);
-                    spanCache.put(record.getTraceSpanId(), spanBuilder);
+                    spanCache.put(spanId, spanBuilder);
                 }
 
                 appendEventDebuggable(spanBuilder._1, eventName, event);
@@ -494,5 +546,31 @@ public class ZipkinQueryHandler {
             }
         }
         return null;
+    }
+
+    private TraceV2 buildTraceV2(List<SpanWrapper> wrappedTrace) {
+        TraceV2 traceV2 = new TraceV2();
+        if (CollectionUtils.isEmpty(wrappedTrace)) {
+            return traceV2;
+        }
+        List<SpanAttachedEvent> events = new ArrayList<>();
+        for (SpanWrapper wrappedSpan : wrappedTrace) {
+            if (wrappedSpan.getSource().equals(Source.ZIPKIN)) {
+                traceV2.getSpans().add(SpanBytesDecoder.PROTO3.decodeOne(wrappedSpan.getSpan().toByteArray()));
+            } else if (wrappedSpan.getSource().equals(Source.ZIPKIN_EVENT)) {
+                try {
+                    traceV2.getEvents().add(SpanAttachedEvent.parseFrom(wrappedSpan.getSpan()));
+                } catch (InvalidProtocolBufferException e) {
+                    // ignore
+                }
+            }
+        }
+        return traceV2;
+    }
+
+    @Getter
+    static class TraceV2 {
+        private List<Span> spans = new ArrayList<>();
+        private List<SpanAttachedEvent> events = new ArrayList<>();
     }
 }

@@ -58,12 +58,7 @@ public class PprofProfilingDataRecord extends Record {
 
    @Override
     public StorageID id() {
-        return new StorageID().appendMutant(
-                new String[]{
-                        TASK_ID,
-                        INSTANCE_ID,
-                        UPLOAD_TIME
-                },
+        return new StorageID().append(
                 Hashing.sha256().newHasher()
                         .putString(taskId, StandardCharsets.UTF_8)
                         .putString(instanceId, StandardCharsets.UTF_8)

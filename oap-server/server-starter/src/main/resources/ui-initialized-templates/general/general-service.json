@@ -860,6 +860,32 @@
                   "type": "Log"
                 }
               ]
+            },
+            {
+              "name": "Slow Statements",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Slow Statements (ms)"
+                  },
+                  "graph": {
+                    "type": "TopList",
+                    "color": "purple"
+                  },
+                  "expressions": [
+                    "top_n(top_n_service_database_statement,20,des)"
+                  ],
+                  "relatedTrace": {
+                    "refIdType": "traceId"
+                  }
+                }
+              ]
             }
           ]
         },

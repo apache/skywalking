@@ -28,7 +28,6 @@ public class ZipkinQueryConfig extends ModuleConfig {
     private String restHost;
     private int restPort;
     private String restContextPath;
-    private int restMaxThreads = 200;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
     private long lookback = 86400000L;

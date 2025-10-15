@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PprofTaskCache implements Service {
     private final Cache<String, PprofTask> serviceId2taskCache;
+    
     public PprofTaskCache(CoreModuleConfig moduleConfig) {
         long initialSize = moduleConfig.getMaxSizeOfProfileTask() / 10L;
         int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);

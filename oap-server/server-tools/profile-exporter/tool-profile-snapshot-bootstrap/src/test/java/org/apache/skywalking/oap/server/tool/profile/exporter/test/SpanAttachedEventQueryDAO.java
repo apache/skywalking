@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.tool.profile.exporter.test;
 
+import java.util.ArrayList;
 import javax.annotation.Nullable;
 
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
@@ -31,11 +32,11 @@ import java.util.List;
 public class SpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO {
     @Override
     public List<SWSpanAttachedEventRecord> querySWSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public List<SpanAttachedEventRecord> queryZKSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException {
-        return null;
+        return new ArrayList<>();
     }
 }

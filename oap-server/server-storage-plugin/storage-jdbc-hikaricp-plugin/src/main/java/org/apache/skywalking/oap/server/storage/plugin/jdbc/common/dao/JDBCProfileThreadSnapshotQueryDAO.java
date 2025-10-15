@@ -41,19 +41,19 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
 
     @SneakyThrows
     @Override
-    public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecords(String taskId)  throws IOException {
         final var snapshotTables = tableHelper.getTablesWithinTTL(ProfileThreadSnapshotRecord.INDEX_NAME);
-        final var segments = new ArrayList<String>();
+        final var segments = new ArrayList<ProfileThreadSnapshotRecord>();
         for (String table : snapshotTables) {
             segments.addAll(querySegments(taskId, table));
         }
         return segments;
     }
 
-    protected ArrayList<String> querySegments(String taskId, String table) throws SQLException {
+    protected ArrayList<ProfileThreadSnapshotRecord> querySegments(String taskId, String table) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append("select ")
-           .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
+           .append("*")
            .append(" from ")
            .append(table);
 
@@ -66,11 +66,21 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
            .append(" = 0");
 
         return jdbcClient.executeQuery(sql.toString(), resultSet -> {
-            final var segments = new ArrayList<String>();
+            final var records = new ArrayList<ProfileThreadSnapshotRecord>();
             while (resultSet.next()) {
-                segments.add(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
+                ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
+
+                record.setTaskId(resultSet.getString(ProfileThreadSnapshotRecord.TASK_ID));
+                record.setSegmentId(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
+                record.setDumpTime(resultSet.getLong(ProfileThreadSnapshotRecord.DUMP_TIME));
+                record.setSequence(resultSet.getInt(ProfileThreadSnapshotRecord.SEQUENCE));
+                String dataBinaryBase64 = resultSet.getString(ProfileThreadSnapshotRecord.STACK_BINARY);
+                if (StringUtil.isNotEmpty(dataBinaryBase64)) {
+                    record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                }
+                records.add(record);
             }
-            return segments;
+            return records;
         }, ProfileThreadSnapshotRecord.INDEX_NAME, taskId);
     }
 

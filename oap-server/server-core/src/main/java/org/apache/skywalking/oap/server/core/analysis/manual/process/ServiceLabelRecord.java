@@ -55,10 +55,8 @@ public class ServiceLabelRecord extends Metrics {
     public static final String SERVICE_ID = "service_id";
     public static final String LABEL = "label";
 
-    @BanyanDB.SeriesID(index = 0)
     @Column(name = SERVICE_ID)
     private String serviceId;
-    @BanyanDB.SeriesID(index = 1)
     @Column(name = LABEL, length = 50)
     private String label;
 
@@ -83,9 +81,7 @@ public class ServiceLabelRecord extends Metrics {
 
     @Override
     protected StorageID id0() {
-        return new StorageID()
-            .append(SERVICE_ID, serviceId)
-            .append(LABEL, label);
+        return new StorageID().append(serviceId).append(label);
     }
 
     @Override

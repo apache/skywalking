@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -144,14 +145,14 @@ public class TraceQuery implements GraphQLQueryResolver {
         );
     }
 
-    public CompletableFuture<Trace> queryTrace(final String traceId, boolean debug) {
+    public CompletableFuture<Trace> queryTrace(final String traceId, @Nullable Duration duration, boolean debug) {
         return queryAsync(() -> {
             DebuggingTraceContext traceContext = new DebuggingTraceContext(
                 "TraceId: " + traceId, debug, false);
             DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
             DebuggingSpan span = traceContext.createSpan("Query trace");
             try {
-                Trace trace = getQueryService().queryTrace(traceId, null);
+                Trace trace = getQueryService().queryTrace(traceId, duration);
                 if (debug) {
                     trace.setDebuggingTrace(traceContext.getExecTrace());
                 }

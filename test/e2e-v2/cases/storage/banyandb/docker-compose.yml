@@ -20,6 +20,12 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: banyandb
+    volumes:
+      - ./auth-config.yaml:/auth-config.yaml
+    entrypoint: /bin/sh -c
+    command: |
+      "chmod 600 /auth-config.yaml &&
+       /banyand standalone --stream-root-path /tmp/stream-data --measure-root-path /tmp/measure-data --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m --auth-config-file=/auth-config.yaml"
     networks:
       - e2e
 
@@ -31,6 +37,8 @@ services:
       - ./config/bydb-topn.yml:/skywalking/config/bydb-topn.yml
     environment:
       SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_USER: admin
+      SW_STORAGE_BANYANDB_PASSWORD: admin
     ports:
       - 12800
     depends_on:

@@ -29,6 +29,7 @@ services:
       - ./../prepare/setup-oap/download-mysql.sh:/download-mysql.sh
       - ./../prepare/setup-oap/log4j2.xml:/skywalking/config/log4j2.xml
     environment:
+      SW_HEALTH_CHECKER: default
       SW_CLUSTER_ZK_HOST_PORT: zk:2181
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true

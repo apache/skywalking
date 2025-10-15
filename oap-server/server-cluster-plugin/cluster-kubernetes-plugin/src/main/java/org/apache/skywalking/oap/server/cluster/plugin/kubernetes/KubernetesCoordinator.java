@@ -18,15 +18,10 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
-import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.PodStatus;
-import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
-import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
-import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
@@ -39,66 +34,79 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.google.common.base.Strings;
+import com.linecorp.armeria.client.endpoint.EndpointGroup;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import static org.apache.skywalking.oap.server.cluster.plugin.kubernetes.EventType.ADDED;
-import static org.apache.skywalking.oap.server.cluster.plugin.kubernetes.EventType.DELETED;
-import static org.apache.skywalking.oap.server.cluster.plugin.kubernetes.EventType.MODIFIED;
 
 
 /**
- * Read collector pod info from api-server of kubernetes, then using all containerIp list to construct the list of
+ * Read collector pod info from Kubernetes using KubernetesLabelSelectorEndpointGroup, then construct the list of
  * {@link RemoteInstance}.
  */
 @Slf4j
 public class KubernetesCoordinator extends ClusterCoordinator {
     private final ModuleDefineHolder manager;
-    private final String uid;
     private volatile int port = -1;
     private HealthCheckMetrics healthChecker;
     private ClusterModuleKubernetesConfig config;
-    private final Map<String, RemoteInstance> remoteInstanceMap;
-    private volatile List<String> latestInstances;
+
+    private EndpointGroup endpointGroup;
+    private volatile List<RemoteInstance> remoteInstances;
 
     public KubernetesCoordinator(final ModuleDefineHolder manager,
                                  final ClusterModuleKubernetesConfig config) {
-        this.uid = new UidEnvSupplier(config.getUidEnvName()).get();
         this.manager = manager;
         this.config = config;
-        this.remoteInstanceMap = new ConcurrentHashMap<>(20);
-        this.latestInstances = new ArrayList<>(20);
+
+        if (Strings.isNullOrEmpty(config.getLabelSelector())) {
+            throw new IllegalArgumentException("kubernetes labelSelector must be provided");
+        }
+    }
+
+    private EndpointGroup createEndpointGroup() {
+        if (port == -1) {
+            port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
+        }
+        final var kubernetesClient = new KubernetesClientBuilder().build();
+        final var builder = KubernetesLabelSelectorEndpointGroup.builder(kubernetesClient);
+
+        if (StringUtil.isNotBlank(config.getNamespace())) {
+            builder.namespace(config.getNamespace());
+        }
+
+        final var labelMap = parseLabelSelector(config.getLabelSelector());
+        builder.labelSelector(labelMap);
+
+        builder.port(port);
+        builder.selfUid(new UidEnvSupplier(config.getUidEnvName()).get());
+
+        return builder.build();
+    }
+
+    private Map<String, String> parseLabelSelector(String labelSelector) {
+        final var labels = new HashMap<String, String>();
+        if (StringUtil.isBlank(labelSelector)) {
+            return labels;
+        }
+
+        final var pairs = labelSelector.split(",");
+        for (final var pair : pairs) {
+            final var keyValue = pair.trim().split("=", 2);
+            if (keyValue.length == 2) {
+                labels.put(keyValue[0].trim(), keyValue[1].trim());
+            }
+        }
+        return labels;
     }
 
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
         try {
-            List<Pod> pods = NamespacedPodListInformer.INFORMER.listPods().orElseGet(this::selfPod);
-            if (log.isDebugEnabled()) {
-                List<String> uidList = pods
-                    .stream()
-                    .map(item -> item.getMetadata().getUid())
-                    .collect(Collectors.toList());
-                log.debug("[kubernetes cluster pods uid list]:{}", uidList);
-            }
-            if (port == -1) {
-                port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
-            }
-            List<RemoteInstance> remoteInstances =
-                pods.stream()
-                    .filter(pod -> StringUtil.isNotBlank(pod.getStatus().getPodIP()))
-                    .map(pod -> new RemoteInstance(
-                        new Address(pod.getStatus().getPodIP(), port, pod.getMetadata().getUid().equals(uid))))
-                    .collect(Collectors.toList());
             healthChecker.health();
-            this.latestInstances = remoteInstances.stream().map(it -> it.getAddress().toString()).collect(Collectors.toList());
-            if (log.isDebugEnabled()) {
-                remoteInstances.forEach(instance -> log.debug("kubernetes cluster instance: {}", instance));
-            }
             return remoteInstances;
         } catch (Throwable e) {
             healthChecker.unHealth(e);
@@ -127,93 +135,33 @@ public class KubernetesCoordinator extends ClusterCoordinator {
         }
     }
 
-    private List<Pod> selfPod() {
-        Pod v1Pod = new Pod();
-        v1Pod.setMetadata(new ObjectMeta());
-        v1Pod.setStatus(new PodStatus());
-        v1Pod.getMetadata().setUid(uid);
-        v1Pod.getStatus().setPodIP("127.0.0.1");
-        return Collections.singletonList(v1Pod);
-    }
-
     @Override
     public void start() {
-        initHealthChecker();
-        NamespacedPodListInformer.INFORMER.init(config, new K8sResourceEventHandler());
-    }
-
-    class K8sResourceEventHandler implements ResourceEventHandler<Pod> {
-
-        @Override
-        public void onAdd(final Pod obj) {
-            updateRemoteInstances(obj, ADDED);
-        }
-
-        @Override
-        public void onUpdate(final Pod oldObj, final Pod newObj) {
-            updateRemoteInstances(newObj, MODIFIED);
-        }
-
-        @Override
-        public void onDelete(final Pod obj, final boolean deletedFinalStateUnknown) {
-            updateRemoteInstances(obj, DELETED);
-        }
-    }
-
-    /**
-     * When a remote instance up/off line, will receive multi event according to the pod status.
-     * To avoid notify the watchers too frequency, here use a `remoteInstanceMap` to cache them.
-     * Only notify watchers once when the instances changed.
-     */
-    private void updateRemoteInstances(Pod pod, EventType event) {
-        try {
-            initHealthChecker();
-            if (StringUtil.isNotBlank(pod.getStatus().getPodIP())) {
-                if (port == -1) {
-                    port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
-                }
-
-                RemoteInstance remoteInstance = new RemoteInstance(
-                    new Address(pod.getStatus().getPodIP(), this.port, pod.getMetadata().getUid().equals(uid)));
-                switch (event) {
-                    case ADDED:
-                    case MODIFIED:
-                        if ("Running".equalsIgnoreCase(pod.getStatus().getPhase())) {
-                            remoteInstanceMap.put(remoteInstance.getAddress().toString(), remoteInstance);
-                        } else if ("Terminating".equalsIgnoreCase(pod.getStatus().getPhase())) {
-                            remoteInstanceMap.remove(remoteInstance.getAddress().toString());
-                        }
-                        break;
-                    case DELETED:
-                        this.remoteInstanceMap.remove(remoteInstance.getAddress().toString());
-                        break;
-                    default:
-                        return;
-                }
-                updateRemoteInstances();
+        endpointGroup = createEndpointGroup();
+        endpointGroup.addListener(endpoints -> {
+            if (port == -1) {
+                port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
             }
-        } catch (Throwable e) {
-            healthChecker.unHealth(e);
-            log.error("Failed to notify RemoteInstances update.", e);
-        }
-    }
 
-    private void updateRemoteInstances() {
-        List<String> updatedInstances = new ArrayList<>(this.remoteInstanceMap.keySet());
-        if (this.latestInstances.size() != updatedInstances.size() || !this.latestInstances.containsAll(updatedInstances)) {
-            List<RemoteInstance> remoteInstances = new ArrayList<>(this.remoteInstanceMap.values());
-            this.latestInstances = updatedInstances;
-            checkHealth(remoteInstances);
-            notifyWatchers(remoteInstances);
-        }
-    }
+            if (log.isDebugEnabled()) {
+                log.debug("[kubernetes cluster endpoints]: {}", endpoints);
+            }
 
-    private void checkHealth(List<RemoteInstance> remoteInstances) {
-        ClusterHealthStatus healthStatus = OAPNodeChecker.isHealth(remoteInstances);
-        if (healthStatus.isHealth()) {
-            this.healthChecker.health();
-        } else {
-            this.healthChecker.unHealth(healthStatus.getReason());
-        }
+            final var instances = endpoints.stream()
+                    .map(endpoint -> new RemoteInstance(new Address(endpoint.host(), endpoint.port(), false)))
+                    .collect(Collectors.toList());
+
+            // The endpoint group will never include itself, add it.
+            final var selfInstance = new RemoteInstance(new Address("127.0.0.1", port, true));
+            instances.add(selfInstance);
+
+            if (log.isDebugEnabled()) {
+                instances.forEach(instance -> log.debug("kubernetes cluster instance: {}", instance));
+            }
+
+            this.remoteInstances = instances;
+            notifyWatchers(instances);
+        }, true);
+        initHealthChecker();
     }
 }

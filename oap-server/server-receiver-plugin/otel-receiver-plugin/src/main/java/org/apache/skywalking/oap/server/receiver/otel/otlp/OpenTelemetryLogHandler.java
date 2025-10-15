@@ -114,9 +114,9 @@ public class OpenTelemetryLogHandler
                         doAnalysisQuietly(service, layer, serviceInstance, logRecord);
                     }
                 });
-            responseObserver.onNext(ExportLogsServiceResponse.getDefaultInstance());
-            responseObserver.onCompleted();
         });
+        responseObserver.onNext(ExportLogsServiceResponse.getDefaultInstance());
+        responseObserver.onCompleted();
     }
 
     private void doAnalysisQuietly(String service, String layer, String serviceInstance, LogRecord logRecord) {

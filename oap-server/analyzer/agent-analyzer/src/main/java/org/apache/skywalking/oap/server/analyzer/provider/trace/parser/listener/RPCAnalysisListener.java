@@ -131,7 +131,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             sourceBuilder.setSourceServiceName(span.getPeer());
             sourceBuilder.setSourceServiceInstanceName(span.getPeer());
             sourceBuilder.setDestEndpointName(span.getOperationName());
-            sourceBuilder.setSourceLayer(Layer.MQ);
+            sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
             sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));

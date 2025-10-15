@@ -67,7 +67,6 @@ public class ServiceTraffic extends Metrics {
     @Column(name = NAME)
     @ElasticSearch.Column(legacyName = "name")
     @ElasticSearch.MatchQuery
-    @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;
 
     @Setter
@@ -90,7 +89,6 @@ public class ServiceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = LAYER)
-    @BanyanDB.SeriesID(index = 0)
     private Layer layer = Layer.UNDEFINED;
 
     /**
@@ -107,10 +105,7 @@ public class ServiceTraffic extends Metrics {
         } else {
             id = encode(name) + Const.POINT + Layer.UNDEFINED.value();
         }
-        return new StorageID().appendMutant(new String[] {
-            NAME,
-            LAYER
-        }, id);
+        return new StorageID().append(id);
 
     }
 

@@ -109,7 +109,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceRelationServerSideMetrics.INDEX_NAME :
                 ServiceRelationClientSideMetrics.INDEX_NAME;
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(modelName, duration.getStep());
         MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(
                         ServiceRelationClientSideMetrics.COMPONENT_IDS,
@@ -183,7 +183,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceInstanceRelationServerSideMetrics.INDEX_NAME :
                 ServiceInstanceRelationClientSideMetrics.INDEX_NAME;
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(modelName, duration.getStep());
         MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(
                         Metrics.ENTITY_ID
@@ -238,7 +238,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
                                                 QueryBuilder<MeasureQuery> queryBuilder,
                                                 DetectPoint detectPoint) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(EndpointRelationServerSideMetrics.INDEX_NAME, duration.getStep());
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(EndpointRelationServerSideMetrics.INDEX_NAME, duration.getStep());
         MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(
                         Metrics.ENTITY_ID
@@ -265,7 +265,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         final String modelName = detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME :
                 ProcessRelationClientSideMetrics.INDEX_NAME;
         // process relation only has minute data
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, DownSampling.Minute);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(modelName, DownSampling.Minute);
         MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID),
                 Collections.emptySet(), getTimestampRange(duration), new QueryBuilder<MeasureQuery>() {

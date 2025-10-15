@@ -189,8 +189,7 @@ childSpans:
   |--------------------|---------------------------------------------------------------------------|----------|
   | startTime          | The start time of the query                                               | Yes      |               
   | endTime            | The end time of the query                                                 | Yes      |               
-  | step               | The query step                                                            | Yes      |  
-  | coldStage          | Only for BanyanDB, the flag to query from cold stage, default is false.   | No       | 
+  | step               | The query step                                                            | Yes      |
   | service            | The service name                                                          | Yes      |               
   | serviceLayer       | The service layer name                                                    | No       |               
   | serviceInstance    | The service instance name                                                 | No       |               
@@ -222,13 +221,16 @@ debuggingTrace:
 - URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/trace/queryTrace?{parameters}`.
 - Parameters
 
-  | Field             | Description         | Required           |
-  |-------------------|---------------------|--------------------|
-  | traceId           | The ID of the trace | Yes                |
+  | Field           | Description                      | Required        |
+  |-----------------|----------------------------------|-----------------|
+  | traceId         | The ID of the trace              | Yes             |
+  | startTime       | The start time of the query      | Yes             |               
+  | endTime         | The end time of the query        | Yes             |               
+  | step            | The query step                   | Yes             |
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/trace/queryTrace?traceId=8211a1d1-de0f-4485-8766-c88866a8f034'
+curl -X GET 'http://127.0.0.1:12800/debugging/query/trace/queryTrace?traceId=8211a1d1-de0f-4485-8766-c88866a8f034&startTime=2025-09-28&endTime=2025-09-28%200915&step=DAY'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -239,19 +241,6 @@ spans:
 debuggingTrace:
 ...
 ```
-
-#### Tracing SkyWalking API queryTraceFromColdStage
-Only for BanyanDB, can be used to query the trace in the cold stage.
-
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/trace/queryTraceFromColdStage?{parameters}`.
-- Parameters
-
-  | Field           | Description                      | Required        |
-  |-----------------|----------------------------------|-----------------|
-  | traceId         | The ID of the trace              | Yes             |
-  | startTime       | The start time of the query      | Yes             |               
-  | endTime         | The end time of the query        | Yes             |               
-  | step            | The query step                   | Yes             |
 
 ### Tracing Zipkin Trace Query
 

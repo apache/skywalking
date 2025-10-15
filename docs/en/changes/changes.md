@@ -6,6 +6,7 @@
 * Fix CVE-2025-54057, restrict and validate url for widgets.
 * Fix `MetricsPersistentWorker`, remove DataCarrier queue from `Hour/Day` dimensions metrics persistent process.
   This is important to reduce memory cost and `Hour/Day` dimensions metrics persistent latency.
+* [Break Change] BanyanDB: support new Trace model.
 
 #### OAP Server
 
@@ -48,6 +49,7 @@
 * Add UI dashboard for Ruby runtime metrics.
 * Tracing Query Execution HTTP APIs: make the argument `service layer` optional.
 * GraphQL API: metadata, topology, log and trace support query by name.
+* Support pprof profiling feature
 * [Break Change] MQE function `sort_values` sorts according to the aggregation result and labels rather than the simple time series values.
 * Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
 * Optimize metrics aggregate/persistent worker: separate `OAL` and `MAL` workers and consume pools. The dataflow signal drives the new MAL consumer, 
@@ -59,7 +61,51 @@
 | MetricsAggregateMALWorker     | availableProcessors * 2 / 8, at least 1  | true               | 1                | 1000            |
 | MetricsPersistentMinOALWorker | availableProcessors * 2 / 8, at least 1  | false              | 1                | 2000            |
 | MetricsPersistentMinMALWorker | availableProcessors * 2 / 16, at least 1 | true               | 1                | 1000            |
-* Support pprof profiling feature
+
+* Bump up netty to 4.2.4.Final.
+* Bump up commons-lang to 3.18.0.
+* BanyanDB: support group `replicas` and `user/password` for basic authentication.
+* BanyanDB: fix Zipkin query missing tag `QUERY`.
+* Fix `IllegalArgumentException: Incorrect number of labels`, tags in the `LogReportServiceHTTPHandler` and `LogReportServiceGrpcHandler` inconsistent with `LogHandler`.
+* BanyanDB: fix Zipkin query by `annotationQuery`
+* HTTP Server: Use the default shared thread pool rather than creating a new event loop thread pool for each server. Remove the `MAX_THREADS` from each server config.
+* Optimize all Armeria HTTP Server(s) to share the `CommonPools` for the whole JVM.
+  In the `CommonPools`, the max threads for `EventLoopGroup` is `processor * 2`, and for `BlockingTaskExecutor` is `200` and can be recycled if over the keepAliveTimeMillis (60000L by default).
+  Here is a summary of the thread dump without UI query in a simple Kind env deployed by SkyWalking showcase:
+
+| **Thread Type**                 | **Count** | **Main State**              | **Description**                                                                                                                       |
+|---------------------------------|-----------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| **JVM System Threads**          | 12        | RUNNABLE/WAITING            | Includes Reference Handler, Finalizer, Signal Dispatcher, Service Thread, C2/C1 CompilerThreads, Sweeper thread, Common-Cleaner, etc. |
+| **Netty I/O Worker Threads**    | 32        | RUNNABLE                    | Threads named "armeria-common-worker-epoll-*", handling network I/O operations.                                                       |
+| **gRPC Worker Threads**         | 16        | RUNNABLE                    | Threads named "grpc-default-worker-*".                                                                                                |
+| **HTTP Client Threads**         | 4         | RUNNABLE                    | Threads named "HttpClient-*-SelectorManager".                                                                                         |
+| **Data Consumer Threads**       | 47        | TIMED_WAITING (sleeping)    | Threads named "DataCarrier.*", used for metrics data consumption.                                                                     |
+| **Scheduled Task Threads**      | 10        | TIMED_WAITING (parking)     | Threads named "pool-*-thread-*".                                                                                                      |
+| **ForkJoinPool Worker Threads** | 2         | WAITING (parking)           | Threads named "ForkJoinPool-*".                                                                                                       |
+| **BanyanDB Processor Threads**  | 2         | TIMED_WAITING (parking)     | Threads named "BanyanDB BulkProcessor".                                                                                               |
+| **gRPC Executor Threads**       | 3         | TIMED_WAITING (parking)     | Threads named "grpc-default-executor-*".                                                                                              |
+| **JVM GC Threads**              | 13        | RUNNABLE                    | Threads named "GC Thread#*" for garbage collection.                                                                                   |
+| **Other JVM Internal Threads**  | 3         | RUNNABLE                    | Includes VM Thread, G1 Main Marker, VM Periodic Task Thread.                                                                          |
+| **Attach Listener**             | 1         | RUNNABLE                    | JVM attach listener thread.                                                                                                           |
+| **Total**                       | **158**   | -                           | -                                                                                                                                     |
+
+* BanyanDB: make `BanyanDBMetricsDAO` output `scan all blocks` info log only when the model is not `indexModel`.
+* BanyanDB: fix the `BanyanDBMetricsDAO.multiGet` not work properly in `IndexMode`.
+* BanyanDB: remove `@StoreIDAsTag`, and automatically create a virtual String tag `id` for the SeriesID in `IndexMode`.
+* Remove method `appendMutant` from StorageID.
+* Fix otlp log handler reponse error and otlp span convert error.
+* Fix service_relation source layer in mq entry span analyse.
+* Fix metrics comparison in promql with bool modifier.
+* Add rate limiter for Zipkin trace receiver to limit maximum spans per second.
+* Open `health-checker` module by default due to latest UI changes. Change the default check period to 30s.
+* Refactor Kubernetes coordinator to be more accurate about node readiness.
+* Bump up netty to 4.2.5.Final.
+* BanyanDB: fix log query missing order by condition, and fix missing service id condition when query by instance id or endpoint id.
+* Fix potential NPE in the `AlarmStatusQueryHandler`.
+* Aggregate TopN Slow SQL by service dimension.
+* BanyanDB: support add group prefix (namespace) for BanyanDB groups.
+* BanyanDB: fix when setting `@BanyanDB.TimestampColumn`, the column should not be indexed.
+* OAP Self Observability: make Trace analysis metrics separate by label `protocol`, add Zipkin span dropped metrics.
 
 #### UI
 
@@ -69,7 +115,7 @@
 * Support cold stage data for metrics, trace and log.
 * Add route to status API `/debugging/config/dump` in the UI.
 * Implement the Status API on Settings page.
-* Bump vite from 6.2.6 to 6.3.4.
+* Bump vite from 6.2.6 to 6.3.6.
 * Enhance async profiling by adding shorter and custom duration options.
 * Fix select wrong span to analysis in trace profiling.
 * Correct the service list for legends in trace graphs.
@@ -78,6 +124,19 @@
 * Bump vue-i18n from 9.14.3 to 9.14.5.
 * Fix split queries for topology to avoid page crash.
 * Self Observability ui-template: Add new panels for monitor `metrics aggregation queue used percentage` and `metrics persistent collection cached size`.
+* test: introduce and set up unit tests in the UI.
+* test: implement comprehensive unit tests for components.
+* refactor: optimize data types for widgets and dashboards.
+* fix: optimize appearing the wrong prompt by pop-up for the HTTP environments in copy function.
+* refactor the configuration view and implement the optional config for displaying timestamp in Log widget.
+* test: implement unit tests for hooks and refactor some types.
+* fix: share OAP proxy servies for different endpoins and use health checked endpoints group.
+* Optimize buttons in time picker component.
+* Optimize the router system and implement unit tests for router.
+* Bump element-plus from 2.9.4 to 2.11.0.
+* Adapt new trace protocol and implement new trace view.
+* Implement Trace page.
+* Support collapsing and expanding for the event widget.
 
 #### Documentation
 

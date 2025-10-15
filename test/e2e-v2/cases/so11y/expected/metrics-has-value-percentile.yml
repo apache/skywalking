@@ -21,6 +21,8 @@ results:
     labels:
       - key: p
         value: "90"
+      - key: protocol
+        value: grpc
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -36,6 +38,8 @@ results:
     labels:
       - key: p
         value: "99"
+      - key: protocol
+        value: grpc
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}

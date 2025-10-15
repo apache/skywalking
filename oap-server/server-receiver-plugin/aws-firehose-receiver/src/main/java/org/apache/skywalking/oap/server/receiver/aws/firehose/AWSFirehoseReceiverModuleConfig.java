@@ -25,7 +25,6 @@ public class AWSFirehoseReceiverModuleConfig extends ModuleConfig {
     private String host;
     private int port;
     private String contextPath;
-    private int maxThreads = 200;
     private long idleTimeOut = 30000;
     private int acceptQueueSize = 0;
     private int maxRequestHeaderSize = 8192;

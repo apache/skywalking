@@ -14,14 +14,36 @@
 # limitations under the License.
 
 debuggingtrace: null
+retrievedtimerange:
+  {{- with .retrievedtimerange }}
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+  {{- end }}
 traces:
-{{- contains .traces }}
-- segmentid: {{ notEmpty .segmentid }}
-  endpointnames:
-    - POST:/users
-  duration: {{ ge .duration 0 }}
-  start: "{{ notEmpty .start}}"
-  iserror: false
-  traceids:
-    - {{ (index .traceids 0) }}
-{{- end }}
+  {{- contains .traces }}
+  - spans:
+      {{- contains .spans }}
+      - traceid: {{ .traceid }}
+        segmentid: {{ .segmentid }}
+        spanid: {{ .spanid }}
+        parentspanid: {{ .parentspanid }}
+        refs: []
+        servicecode: {{ .servicecode }}
+        serviceinstancename: {{ .serviceinstancename }}
+        starttime: {{ gt .starttime 0 }}
+        endtime: {{ gt .endtime 0 }}
+        endpointname: {{ .endpointname }}
+        type: {{ .type }}
+        peer: {{ .peer }}
+        component: {{ .component }}
+        iserror: {{ .iserror }}
+        layer: {{ .layer }}
+        tags:
+          {{- contains .tags }}
+          - key: {{ .key }}
+            value: {{ .value }}
+          {{- end }}
+        logs: []
+        attachedevents: []
+        {{- end }}
+  {{- end }}

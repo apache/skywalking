@@ -83,9 +83,6 @@ public interface IZipkinQueryDAO extends DAO {
      */
     List<Span> getTrace(final String traceId, @Nullable final Duration duration) throws IOException;
 
-    /**
-     * @param duration nullable unless for BanyanDB query from cold stage
-     */
     List<List<Span>> getTraces(final QueryRequest request, final Duration duration) throws IOException;
 
     /**

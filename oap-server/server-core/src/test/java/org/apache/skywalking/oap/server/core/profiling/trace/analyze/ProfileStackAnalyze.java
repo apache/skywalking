@@ -65,7 +65,7 @@ public class ProfileStackAnalyze {
         }
 
         @Override
-        public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
+        public List<ProfileThreadSnapshotRecord> queryRecords(String taskId)  throws IOException {
             return null;
         }
 
