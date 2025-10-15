@@ -21,14 +21,14 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
-import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
-import org.apache.skywalking.banyandb.v1.client.TraceBulkWriteProcessor;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.MeasureBulkWriteProcessor;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.StreamBulkWriteProcessor;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.TraceBulkWriteProcessor;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureInsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureUpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStreamInsertRequest;
@@ -42,7 +42,7 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
 
     private MeasureBulkWriteProcessor measureBulkWriteProcessor;
 
-    private  TraceBulkWriteProcessor traceBulkWriteProcessor;
+    private TraceBulkWriteProcessor traceBulkWriteProcessor;
 
     private final int maxBulkSize;
 
