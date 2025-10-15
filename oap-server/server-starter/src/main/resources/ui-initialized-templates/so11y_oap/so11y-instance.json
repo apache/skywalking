@@ -156,7 +156,7 @@
                   "i": "9",
                   "type": "Widget",
                   "widget": {
-                    "title": "Persistence Preparing Latency Per Metric Type (ms / 5min)"
+                    "title": "Persistence Preparing Latency Per Metric Type (ms / min)"
                   },
                   "graph": {
                     "type": "Line",
@@ -178,7 +178,7 @@
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "Persistence Execution Latency Per Metric Type (ms / 5min)"
+                    "title": "Persistence Execution Latency Per Metric Type (ms / min)"
                   },
                   "graph": {
                     "type": "Line",
@@ -927,6 +927,172 @@
                   },
                   "expressions": [
                     "meter_oap_instance_spans_dropped_count"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "BanyanDB Write Latency",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 12,
+                  "h": 15,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "BanyanDB Measure Bulk Latency (ms / min)",
+                    "tips": "bulk_write include write/update"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_oap_banyandb_write_latency_percentile{catalog='measure',operation='bulk_write'}"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 15,
+                  "w": 12,
+                  "h": 15,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "BanyanDB Stream Bulk Latency (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_oap_banyandb_write_latency_percentile{catalog='stream',operation='bulk_write'}"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 15,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "BanyanDB Trace Bulk Latency (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_oap_banyandb_write_latency_percentile{catalog='trace',operation='bulk_write'}"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 30,
+                  "w": 12,
+                  "h": 15,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "BanyanDB Stream Single Latency (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_oap_banyandb_write_latency_percentile{catalog='stream',operation='single_write'}"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 15,
+                  "w": 12,
+                  "h": 15,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "BanyanDB Property Single Latency (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_oap_banyandb_write_latency_percentile{catalog='property'}"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Elasticsearch Write Latency",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 24,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Elasticsearch Single Latency (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_oap_elasticsearch_write_latency_percentile{operation='single_write,single_update,single_delete'}"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Elasticsearch Bulk Latency (ms / min)",
+                    "tips": "bulk_write include write/update"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_oap_elasticsearch_write_latency_percentile{operation='bulk_write'}"
                   ]
                 }
               ]

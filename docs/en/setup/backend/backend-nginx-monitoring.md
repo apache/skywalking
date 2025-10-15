@@ -121,7 +121,7 @@ SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for 
 3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
 
 ### Set up
-1. Install [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
+1. Install [fluentbit](https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit).
 2. Config fluent bit with fluent-bit.conf, refer to [here](../../../../test/e2e-v2/cases/nginx/fluent-bit.conf).
 
 ### Error Log Monitoring

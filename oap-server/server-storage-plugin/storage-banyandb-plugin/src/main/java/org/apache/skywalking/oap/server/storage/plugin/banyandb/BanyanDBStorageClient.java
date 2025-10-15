@@ -20,46 +20,58 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
-import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
-import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
-import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.ApplyRequest.Strategy;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.DeleteResponse;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
+import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
-import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.banyandb.v1.client.Options;
-import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
+import org.apache.skywalking.banyandb.v1.client.PropertyStore;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TraceBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.TraceQuery;
 import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TraceWrite;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.InternalException;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.InvalidArgumentException;
+import org.apache.skywalking.banyandb.v1.client.util.StatusUtil;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.MeasureBulkWriteProcessor;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.StreamBulkWriteProcessor;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.TraceBulkWriteProcessor;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * BanyanDBStorageClient is a simple wrapper for the underlying {@link BanyanDBClient},
@@ -71,8 +83,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
+    private final ModuleManager moduleManager;
+    private final Options options;
+    private BanyandbDatabase database;
+    private HistogramMetrics propertySingleWriteHistogram;
+    private HistogramMetrics propertySingleDeleteHistogram;
+    private HistogramMetrics streamSingleWriteHistogram;
+    private HistogramMetrics measureWriteHistogram;
+    private HistogramMetrics streamWriteHistogram;
+    private HistogramMetrics traceWriteHistogram;
 
-    public BanyanDBStorageClient(BanyanDBStorageConfig config) {
+    public BanyanDBStorageClient(ModuleManager moduleManager, BanyanDBStorageConfig config) {
         Options options = new Options();
         options.setSslTrustCAPath(config.getGlobal().getSslTrustCAPath());
         String username = config.getGlobal().getUser();
@@ -88,10 +109,13 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
         this.client = new BanyanDBClient(config.getTargetArray(), options);
         this.flushTimeout = config.getGlobal().getFlushTimeout();
+        this.options = options;
+        this.moduleManager = moduleManager;
     }
 
     @Override
     public void connect() throws Exception {
+        initTelemetry();
         this.client.connect();
         final Properties properties = new Properties();
         try (final InputStream resourceAsStream
@@ -186,9 +210,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     }
 
     public DeleteResponse deleteProperty(String name, String id) throws IOException {
-        try {
+        try (HistogramMetrics.Timer timer = propertySingleDeleteHistogram.createTimer()) {
             MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
-            DeleteResponse result = this.client.deleteProperty(schema.getMetadata().getGroup(), name, id);
+            PropertyStore store = new PropertyStore(checkNotNull(client.getChannel()));
+            DeleteResponse result = store.delete(schema.getMetadata().getGroup(), name, id);
             this.healthChecker.health();
             return result;
         } catch (BanyanDBException ex) {
@@ -253,88 +278,37 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     }
 
     /**
-     * PropertyStore.Strategy is default to {@link Strategy#STRATEGY_MERGE}
+     * Apply(Create or update) the property with {@link BanyandbProperty.ApplyRequest.Strategy#STRATEGY_MERGE}
+     *
+     * @param property the property to be stored in the BanyanBD
      */
-    public void apply(Property property) throws IOException {
-        try {
-            this.client.apply(property);
+    public BanyandbProperty.ApplyResponse apply(Property property) throws IOException {
+        try (HistogramMetrics.Timer timer = propertySingleWriteHistogram.createTimer()) {
+            PropertyStore store = new PropertyStore(checkNotNull(client.getChannel()));
+            BanyandbProperty.ApplyResponse response = store.apply(property);
             this.healthChecker.health();
+            return response;
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
-            throw new IOException("fail to define property", ex);
+            throw new IOException("fail to create property", ex);
         }
     }
 
-    public void apply(Property property, Strategy strategy) throws IOException {
-        try {
-            this.client.apply(property, strategy);
+    /**
+     * Apply(Create or update) the property
+     *
+     * @param property the property to be stored in the BanyanBD
+     * @param strategy dedicates how to apply the property
+     */
+    public BanyandbProperty.ApplyResponse apply(Property property, Strategy strategy) throws IOException {
+        try (HistogramMetrics.Timer timer = propertySingleWriteHistogram.createTimer()) {
+            PropertyStore store = new PropertyStore(checkNotNull(client.getChannel()));
+            BanyandbProperty.ApplyResponse response = store.apply(property, strategy);
             this.healthChecker.health();
+            return response;
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
-            throw new IOException("fail to define property", ex);
-        }
-    }
-
-    public void define(Stream stream) throws BanyanDBException {
-        try {
-            this.client.define(stream);
-            this.healthChecker.health();
-        } catch (BanyanDBException ex) {
-            healthChecker.unHealth(ex);
-            throw ex;
-        }
-    }
-
-    public void define(Stream stream, List<BanyandbDatabase.IndexRule> indexRules) throws BanyanDBException {
-        try {
-            this.client.define(stream, indexRules);
-            this.healthChecker.health();
-        } catch (BanyanDBException ex) {
-            healthChecker.unHealth(ex);
-            throw ex;
-        }
-    }
-
-    public void define(Measure measure) throws BanyanDBException {
-        try {
-            this.client.define(measure);
-            this.healthChecker.health();
-        } catch (BanyanDBException ex) {
-            healthChecker.unHealth(ex);
-            throw ex;
-        }
-    }
-
-    public void define(Measure measure, List<BanyandbDatabase.IndexRule> indexRules) throws BanyanDBException {
-        try {
-            this.client.define(measure, indexRules);
-            this.healthChecker.health();
-        } catch (BanyanDBException ex) {
-            healthChecker.unHealth(ex);
-            throw ex;
-        }
-    }
-
-    public void defineIfEmpty(Group group) throws IOException {
-        try {
-            try {
-                this.client.define(group);
-            } catch (AlreadyExistsException ignored) {
-            }
-            this.healthChecker.health();
-        } catch (BanyanDBException ex) {
-            healthChecker.unHealth(ex);
-            throw new IOException("fail to define group", ex);
-        }
-    }
-
-    public void define(TopNAggregation topNAggregation) throws IOException {
-        try {
-            this.client.define(topNAggregation);
-            this.healthChecker.health();
-        } catch (BanyanDBException ex) {
-            healthChecker.unHealth(ex);
-            throw new IOException("fail to define TopNAggregation", ex);
+            throw new IOException("fail to create property", ex);
         }
     }
 
@@ -362,24 +336,201 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public void write(StreamWrite streamWrite) {
-        this.client.write(streamWrite);
+    /**
+     * Perform a single write with given entity.
+     *
+     * @param streamWrite the entity to be written
+     * @return a future of write result
+     */
+    public CompletableFuture<Void> write(StreamWrite streamWrite) {
+        checkState(client.getStreamServiceStub() != null, "stream service is null");
+        HistogramMetrics.Timer timer = streamSingleWriteHistogram.createTimer();
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        final StreamObserver<BanyandbStream.WriteRequest> writeRequestStreamObserver
+            = client.getStreamServiceStub()
+                    .withDeadlineAfter(options.getDeadline(), TimeUnit.SECONDS)
+                    .write(
+                        new StreamObserver<BanyandbStream.WriteResponse>() {
+                            private BanyanDBException responseException;
+
+                            @Override
+                            public void onNext(BanyandbStream.WriteResponse writeResponse) {
+                                BanyandbModel.Status status = StatusUtil.convertStringToStatus(
+                                    writeResponse.getStatus());
+                                switch (status) {
+                                    case STATUS_SUCCEED:
+                                        break;
+                                    case STATUS_INVALID_TIMESTAMP:
+                                        responseException = new InvalidArgumentException(
+                                            "Invalid timestamp: " + streamWrite.getTimestamp(), null,
+                                            Status.Code.INVALID_ARGUMENT, false
+                                        );
+                                        break;
+                                    case STATUS_NOT_FOUND:
+                                        responseException = new InvalidArgumentException(
+                                            "Invalid metadata: " + streamWrite.getEntityMetadata(), null,
+                                            Status.Code.INVALID_ARGUMENT, false
+                                        );
+                                        break;
+                                    case STATUS_EXPIRED_SCHEMA:
+                                        BanyandbCommon.Metadata metadata = writeResponse.getMetadata();
+                                        log.warn(
+                                            "The schema {}.{} is expired, trying update the schema...",
+                                            metadata.getGroup(), metadata.getName()
+                                        );
+                                        try {
+                                            client.updateStreamMetadataCacheFromSever(
+                                                metadata.getGroup(), metadata.getName());
+                                        } catch (BanyanDBException e) {
+                                            String warnMessage = String.format(
+                                                "Failed to refresh the stream schema %s.%s",
+                                                metadata.getGroup(), metadata.getName()
+                                            );
+                                            log.warn(warnMessage, e);
+                                        }
+                                        responseException = new InvalidArgumentException(
+                                            "Expired revision: " + metadata.getModRevision(), null,
+                                            Status.Code.INVALID_ARGUMENT, true
+                                        );
+                                        break;
+                                    default:
+                                        responseException = new InternalException(
+                                            String.format(
+                                                "Internal error (%s) occurs in server", writeResponse.getStatus()),
+                                            null, Status.Code.INTERNAL, true
+                                        );
+                                        break;
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable throwable) {
+                                timer.close();
+                                log.error("Error occurs in flushing streams.", throwable);
+                                future.completeExceptionally(throwable);
+                            }
+
+                            @Override
+                            public void onCompleted() {
+                                timer.close();
+                                if (responseException == null) {
+                                    future.complete(null);
+                                } else {
+                                    future.completeExceptionally(responseException);
+                                }
+                            }
+                        });
+        try {
+            writeRequestStreamObserver.onNext(streamWrite.build());
+        } finally {
+            writeRequestStreamObserver.onCompleted();
+        }
+        return future;
     }
 
+    /**
+     * Create a build process for stream write.
+     *
+     * @param maxBulkSize   the max bulk size for the flush operation
+     * @param flushInterval if given maxBulkSize is not reached in this period, the flush would be trigger
+     *                      automatically. Unit is second
+     * @param concurrency   the number of concurrency would run for the flush max
+     * @return stream bulk write processor
+     */
     public StreamBulkWriteProcessor createStreamBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.client.buildStreamWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
+        checkState(client.getStreamServiceStub() != null, "stream service is null");
+        return new StreamBulkWriteProcessor(client, maxBulkSize, flushInterval, concurrency, flushTimeout, streamWriteHistogram, options);
     }
 
+    /**
+     * Create a build process for measure write.
+     *
+     * @param maxBulkSize   the max bulk size for the flush operation
+     * @param flushInterval if given maxBulkSize is not reached in this period, the flush would be trigger
+     *                      automatically. Unit is second
+     * @param concurrency   the number of concurrency would run for the flush max
+     * @return stream bulk write processor
+     */
     public MeasureBulkWriteProcessor createMeasureBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.client.buildMeasureWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
+        checkState(client.getMeasureServiceStub() != null, "measure service is null");
+        return new MeasureBulkWriteProcessor(client, maxBulkSize, flushInterval, concurrency, flushTimeout, measureWriteHistogram, options);
     }
 
+    /**
+     * Build a trace bulk write processor.
+     *
+     * @param maxBulkSize   the max size of each flush. The actual size is determined by the length of byte array.
+     * @param flushInterval if given maxBulkSize is not reached in this period, the flush would be trigger
+     *                      automatically. Unit is second.
+     * @param concurrency   the number of concurrency would run for the flush max.
+     * @return trace bulk write processor
+     */
     public TraceBulkWriteProcessor createTraceBulkProcessor(int maxBulkSize, int flushInterval, int concurrency) {
-        return this.client.buildTraceWriteProcessor(maxBulkSize, flushInterval, concurrency, flushTimeout);
+        return new TraceBulkWriteProcessor(client, maxBulkSize, flushInterval, concurrency, flushTimeout, traceWriteHistogram, options);
     }
 
     @Override
     public void registerChecker(HealthChecker healthChecker) {
         this.healthChecker.register(healthChecker);
+    }
+
+    private void initTelemetry() {
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
+        if (propertySingleWriteHistogram == null) {
+            propertySingleWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("property", "single_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (propertySingleDeleteHistogram == null) {
+            propertySingleDeleteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("property", "single_delete"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (streamSingleWriteHistogram == null) {
+            streamSingleWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("stream", "single_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (measureWriteHistogram == null) {
+            measureWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("measure", "bulk_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (streamWriteHistogram == null) {
+            streamWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("stream", "bulk_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (traceWriteHistogram == null) {
+            traceWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("trace", "bulk_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
     }
 }

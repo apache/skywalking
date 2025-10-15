@@ -34,11 +34,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.response.Documents;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchBuilder;
@@ -55,12 +55,15 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * ElasticSearchClient connects to the ES server by using ES client APIs.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class ElasticSearchClient implements Client, HealthCheckable {
     public static final String TYPE = "type";
 
@@ -93,7 +96,14 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     private final AtomicReference<ElasticSearch> es = new AtomicReference<>();
 
-    public ElasticSearchClient(String clusterNodes,
+    private final ModuleManager moduleManager;
+    private HistogramMetrics singleWriteHistogram;
+    private HistogramMetrics singleUpdateHistogram;
+    private HistogramMetrics singleDeleteHistogram;
+    private HistogramMetrics bulkWriteHistogram;
+
+    public ElasticSearchClient(ModuleManager moduleManager,
+                               String clusterNodes,
                                String protocol,
                                String trustStorePath,
                                String trustStorePass,
@@ -104,6 +114,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                                int socketTimeout,
                                int responseTimeout,
                                int numHttpClientThread) {
+        this.moduleManager = moduleManager;
         this.clusterNodes = clusterNodes;
         this.protocol = protocol;
         this.trustStorePath = trustStorePath;
@@ -119,6 +130,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     @Override
     public void connect() {
+        initTelemetry();
         final ElasticSearch oldOne = es.get();
 
         final ElasticSearchBuilder cb =
@@ -345,21 +357,27 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     }
 
     public void forceInsert(String indexName, String id, Map<String, Object> source) {
-        IndexRequestWrapper wrapper = prepareInsert(indexName, id, source);
-        Map<String, Object> params = ImmutableMap.of("refresh", "true");
-        es.get().documents().index(wrapper.getRequest(), params);
+        try (HistogramMetrics.Timer timer = singleWriteHistogram.createTimer()) {
+            IndexRequestWrapper wrapper = prepareInsert(indexName, id, source);
+            Map<String, Object> params = ImmutableMap.of("refresh", "true");
+            es.get().documents().index(wrapper.getRequest(), params);
+        }
     }
 
     public void forceUpdate(String indexName, String id, Map<String, Object> source) {
-        UpdateRequestWrapper wrapper = prepareUpdate(indexName, id, source);
-        Map<String, Object> params = ImmutableMap.of("refresh", "true");
-        es.get().documents().update(wrapper.getRequest(), params);
+        try (HistogramMetrics.Timer timer = singleUpdateHistogram.createTimer()) {
+            UpdateRequestWrapper wrapper = prepareUpdate(indexName, id, source);
+            Map<String, Object> params = ImmutableMap.of("refresh", "true");
+            es.get().documents().update(wrapper.getRequest(), params);
+        }
     }
 
     public void deleteById(String indexName, String id) {
-        indexName = indexNameConverter.apply(indexName);
-        Map<String, Object> params = ImmutableMap.of("refresh", "true");
-        es.get().documents().deleteById(indexName, TYPE, id, params);
+        try (HistogramMetrics.Timer timer = singleDeleteHistogram.createTimer()) {
+            indexName = indexNameConverter.apply(indexName);
+            Map<String, Object> params = ImmutableMap.of("refresh", "true");
+            es.get().documents().deleteById(indexName, TYPE, id, params);
+        }
     }
 
     public IndexRequestWrapper prepareInsert(String indexName, String id,
@@ -388,10 +406,53 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                             .batchOfBytes(batchOfBytes)
                             .flushInterval(Duration.ofSeconds(flushInterval))
                             .concurrentRequests(concurrentRequests)
+                            .bulkMetrics(bulkWriteHistogram)
                             .build(es);
     }
 
     public String formatIndexName(String indexName) {
         return indexNameConverter.apply(indexName);
+    }
+
+    private void initTelemetry() {
+        MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
+                                                     .provider()
+                                                     .getService(MetricsCreator.class);
+        if (singleWriteHistogram == null) {
+            singleWriteHistogram = metricsCreator.createHistogramMetric(
+                "elasticsearch_write_latency",
+                "Elasticsearch write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("operation"),
+                new MetricsTag.Values("single_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (singleUpdateHistogram == null) {
+            singleUpdateHistogram = metricsCreator.createHistogramMetric(
+                "elasticsearch_write_latency",
+                "Elasticsearch write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("operation"),
+                new MetricsTag.Values("single_update"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (singleDeleteHistogram == null) {
+            singleDeleteHistogram = metricsCreator.createHistogramMetric(
+                "elasticsearch_write_latency",
+                "Elasticsearch write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("operation"),
+                new MetricsTag.Values("single_delete"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (bulkWriteHistogram == null) {
+            bulkWriteHistogram = metricsCreator.createHistogramMetric(
+                "elasticsearch_write_latency",
+                "Elasticsearch write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("operation"),
+                new MetricsTag.Values("bulk_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
     }
 }
