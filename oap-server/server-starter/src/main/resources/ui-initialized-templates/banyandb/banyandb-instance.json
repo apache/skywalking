@@ -567,7 +567,7 @@
             ],
             "layer": "BANYANDB",
             "entity": "ServiceInstance",
-            "name": "BANYANDB-Instance",
+            "name": "BanyanDB-Instance",
             "isRoot": false
         }
     }
