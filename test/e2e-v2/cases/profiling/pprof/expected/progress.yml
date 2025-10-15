@@ -13,14 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-logs:
-  {{- contains .logs }}
-- id: {{ notEmpty .id}}
-  instanceid: {{ b64enc "go-service" }}.1_{{ b64enc "provider1" }}
-  instancename: {{ notEmpty .instancename}}
-  operationtype: {{ notEmpty .operationtype}}
-  operationtime: {{ ge .operationtime 0 }}
-  {{- end }}
+logs: []
 errorinstanceids: []
 successinstanceids:
   - {{ b64enc "go-service" }}.1_{{ b64enc "provider1" }}

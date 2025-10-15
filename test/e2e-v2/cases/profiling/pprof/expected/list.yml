@@ -21,7 +21,7 @@ tasks:
   serviceinstanceids:
     - {{ b64enc "go-service" }}.1_{{ b64enc "provider1" }}
   createtime: {{ gt .createtime 0 }}
-  events:
-    - CPU
+  dumpperiod: {{ ge .dumpperiod 0 }}
+  events: HEAP
   duration: {{ ge .duration 0 }}
   {{- end }}

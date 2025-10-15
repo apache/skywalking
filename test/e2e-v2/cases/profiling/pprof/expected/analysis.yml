@@ -19,6 +19,6 @@ tree:
   - id: {{ notEmpty .id }}
     parentid: {{ notEmpty .parentid }}
     codesignature: {{ notEmpty .codesignature }}
-    total: {{ ge .total -1 }}
-    self: {{ ge .self -1 }}
+    total: {{ gt .total -1 }}
+    self: {{ gt .self -1 }}
   {{- end }}
