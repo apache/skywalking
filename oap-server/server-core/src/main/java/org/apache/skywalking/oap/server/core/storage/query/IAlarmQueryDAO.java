@@ -68,14 +68,14 @@ public interface IAlarmQueryDAO extends DAO {
      * Build the alarm message from the alarm record.
      * The Tags in JDBC storage is base64 encoded, need to decode in different way.
      */
-    default AlarmMessage buildAlarmMessage(AlarmRecord alarmRecord, Long recoveryTime) {
+    default AlarmMessage buildAlarmMessage(AlarmRecord alarmRecord) {
         AlarmMessage message = new AlarmMessage();
         message.setId(String.valueOf(alarmRecord.getId0()));
         message.setId1(String.valueOf(alarmRecord.getId1()));
+        message.setUuid(alarmRecord.getUuid());
         message.setName(alarmRecord.getName());
         message.setMessage(alarmRecord.getAlarmMessage());
         message.setStartTime(alarmRecord.getStartTime());
-        message.setRecoveryTime(recoveryTime);
         message.setScope(Scope.Finder.valueOf(alarmRecord.getScope()));
         message.setScopeId(alarmRecord.getScope());
         AlarmSnapshot alarmSnapshot = message.getSnapshot();

@@ -37,9 +37,12 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.alarm.AlarmRecord} is a stream,
@@ -63,7 +66,7 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
         final boolean isColdStage = duration != null && duration.isColdStage();
         StreamQueryResponse resp = query(isColdStage, AlarmRecord.INDEX_NAME, TAGS,
                 getTimestampRange(duration),
-                new QueryBuilder<StreamQuery>() {
+                new QueryBuilder<>() {
                     @Override
                     public void apply(StreamQuery query) {
                         if (Objects.nonNull(scopeId)) {
@@ -93,35 +96,51 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
             AlarmRecord alarmRecord = builder.storage2Entity(
                     new BanyanDBConverter.StorageToStream(AlarmRecord.INDEX_NAME, rowEntity)
             );
-            Long recoveryTime = getAlarmRecoveryTime(alarmRecord.getUuid(), duration);
-            AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord, recoveryTime);
+            AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord);
             if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
                 parseDataBinary(alarmRecord.getTagsRawData(), alarmMessage.getTags());
             }
             alarms.getMsgs().add(alarmMessage);
         }
+        updateAlarmRecoveryTime(alarms, duration);
         return alarms;
     }
 
-    private Long getAlarmRecoveryTime(String uuid, Duration duration) throws IOException {
-        if (StringUtil.isBlank(uuid)) {
-            return null;
+    private void updateAlarmRecoveryTime(Alarms alarms, Duration duration) throws IOException {
+        List<AlarmMessage> alarmMessages = alarms.getMsgs();
+        Map<String, AlarmRecoveryRecord> alarmRecoveryRecordMap = getAlarmRecoveryRecord(alarmMessages, duration);
+        alarmMessages.forEach(alarmMessage -> {
+            AlarmRecoveryRecord alarmRecoveryRecord = alarmRecoveryRecordMap.get(alarmMessage.getUuid());
+            if (alarmRecoveryRecord != null) {
+                alarmMessage.setRecoveryTime(alarmRecoveryRecord.getRecoveryTime());
+            }
+        });
+
+    }
+
+    private Map<String, AlarmRecoveryRecord> getAlarmRecoveryRecord(List<AlarmMessage> msgs, Duration duration) throws IOException {
+        Map<String, AlarmRecoveryRecord> result = new HashMap<>();
+        if (CollectionUtils.isEmpty(msgs)) {
+            return result;
         }
         final boolean isColdStage = duration != null && duration.isColdStage();
+        List<String> uuids = msgs.stream().map(AlarmMessage::getUuid).collect(Collectors.toList());
         StreamQueryResponse resp = query(isColdStage, AlarmRecoveryRecord.INDEX_NAME, RECOVERY_TAGS,
-                getTimestampRange(duration), new QueryBuilder<StreamQuery>() {
+                getTimestampRange(duration),
+                new QueryBuilder<>() {
                     @Override
                     public void apply(StreamQuery query) {
-                        query.and(eq(AlarmRecoveryRecord.UUID, uuid));
+                        query.and(in(AlarmRecoveryRecord.UUID, uuids));
                     }
                 });
+
         for (final RowEntity rowEntity : resp.getElements()) {
             AlarmRecoveryRecord.Builder builder = new AlarmRecoveryRecord.Builder();
             AlarmRecoveryRecord alarmRecoveryRecord = builder.storage2Entity(
                     new BanyanDBConverter.StorageToStream(AlarmRecoveryRecord.INDEX_NAME, rowEntity)
             );
-            return alarmRecoveryRecord.getRecoveryTime();
+            result.put(alarmRecoveryRecord.getUuid(), alarmRecoveryRecord);
         }
-        return null;
+        return result;
     }
 }

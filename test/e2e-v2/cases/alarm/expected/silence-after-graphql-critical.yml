@@ -19,7 +19,7 @@ msgs:
     scope: Service
     id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
     name: e2e-service-provider
-    message: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
+    message: Service e2e-service-provider response time is more than 100ms and sla is more than 1%.
     tags:
       - key: level
         value: CRITICAL

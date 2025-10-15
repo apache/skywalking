@@ -37,7 +37,6 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityConverters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
@@ -46,14 +45,17 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -96,8 +98,7 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
                     AlarmRecord.Builder builder = new AlarmRecord.Builder();
                     Convert2Entity convert2Entity = JDBCEntityConverters.toEntity(resultSet);
                     AlarmRecord alarmRecord = builder.storage2Entity(convert2Entity);
-                    Long recoveryTime = getRecoveryTime(alarmRecord.getUuid(), duration);
-                    AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord, recoveryTime);
+                    AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord);
                     if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
                         parseDataBinaryBase64(
                                 new String(alarmRecord.getTagsRawData(), Charsets.UTF_8), alarmMessage.getTags());
@@ -107,7 +108,7 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
                 return null;
             }, sqlAndParameters.parameters());
         }
-        return new Alarms(
+        Alarms alarms = new Alarms(
                 alarmMsgs
                         .stream()
                         .sorted(comparing(AlarmMessage::getStartTime).reversed())
@@ -115,6 +116,44 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
                         .limit(limit)
                         .collect(toList())
         );
+        updateAlarmRecoveryTime(alarms, duration);
+        return alarms;
+    }
+
+    private void updateAlarmRecoveryTime(Alarms alarms, Duration duration) throws SQLException {
+        List<AlarmMessage> alarmMessages = alarms.getMsgs();
+        Map<String, AlarmRecoveryRecord> alarmRecoveryRecordMap = getAlarmRecoveryRecord(alarmMessages, duration);
+        alarmMessages.forEach(alarmMessage -> {
+            AlarmRecoveryRecord alarmRecoveryRecord = alarmRecoveryRecordMap.get(alarmMessage.getUuid());
+            if (alarmRecoveryRecord != null) {
+                alarmMessage.setRecoveryTime(alarmRecoveryRecord.getRecoveryTime());
+            }
+        });
+
+    }
+
+    private Map<String, AlarmRecoveryRecord> getAlarmRecoveryRecord(List<AlarmMessage> msgs, Duration duration) throws SQLException {
+        Map<String, AlarmRecoveryRecord> result = new HashMap<>();
+        if (CollectionUtils.isEmpty(msgs)) {
+            return result;
+        }
+        List<String> uuids = msgs.stream().map(AlarmMessage::getUuid).collect(toList());
+        final var tables = tableHelper.getTablesForRead(
+                AlarmRecoveryRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket()
+        );
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQL4Recovery(uuids, table);
+            jdbcClient.executeQuery(sqlAndParameters.sql(), resultSet -> {
+                while (resultSet.next()) {
+                    AlarmRecoveryRecord.Builder builder = new AlarmRecoveryRecord.Builder();
+                    Convert2Entity convert2Entity = JDBCEntityConverters.toEntity(resultSet);
+                    AlarmRecoveryRecord alarmRecoveryRecord = builder.storage2Entity(convert2Entity);
+                    result.put(alarmRecoveryRecord.getUuid(), alarmRecoveryRecord);
+                }
+                return null;
+            }, sqlAndParameters.parameters());
+        }
+        return result;
     }
 
     protected SQLAndParameters buildSQL(Integer scopeId, String keyword, int limit, int from,
@@ -175,37 +214,16 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
         return new SQLAndParameters(sql.toString(), parameters);
     }
 
-    private Long getRecoveryTime(String uuid, Duration duration) throws SQLException {
-        if (StringUtil.isBlank(uuid)) {
-            return null;
-        }
-        final var tables = tableHelper.getTablesForRead(
-                AlarmRecoveryRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket()
-        );
-        final AlarmRecoveryRecord[] alarmRecoveryRecords = {null};
-        for (final var table : tables) {
-            final var sqlAndParameters = buildSQL4Recovery(uuid, duration, table);
-            jdbcClient.executeQuery(sqlAndParameters.sql(), resultSet -> {
-                while (resultSet.next()) {
-                    AlarmRecoveryRecord.Builder builder = new AlarmRecoveryRecord.Builder();
-                    Convert2Entity convert2Entity = JDBCEntityConverters.toEntity(resultSet);
-                    alarmRecoveryRecords[0] = builder.storage2Entity(convert2Entity);
-                }
-                return null;
-            }, sqlAndParameters.parameters());
-        }
-        return alarmRecoveryRecords[0] == null ? null : alarmRecoveryRecords[0].getRecoveryTime();
-    }
-
-    private SQLAndParameters buildSQL4Recovery(String uuid, Duration duration, String table) {
+    private SQLAndParameters buildSQL4Recovery(List<String> uuids, String table) {
         final var sql = new StringBuilder();
         final var parameters = new ArrayList<>();
         sql.append("select * from ").append(table);
         sql.append(" where ")
                 .append(table).append(".").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
         parameters.add(AlarmRecoveryRecord.INDEX_NAME);
-        sql.append(" and ").append(AlarmRecoveryRecord.UUID).append(" = ?");
-        parameters.add(uuid);
+        sql.append(" and ").append(AlarmRecoveryRecord.UUID).append(" in ")
+                .append(uuids.stream().map(it -> "?").collect(joining(", ", "(", ")")));
+        parameters.addAll(uuids);
         return new SQLAndParameters(sql.toString(), parameters);
     }
 }

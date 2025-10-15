@@ -19,11 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
-
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -40,11 +35,17 @@ import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
 
@@ -96,20 +97,34 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
             AlarmRecord alarmRecord = builder.storage2Entity(new ElasticSearchConverter.ToEntity(AlarmRecord.INDEX_NAME, searchHit.getSource()));
-            Long recoveryTime = getAlarmRecoveryTime(alarmRecord.getUuid(), duration);
-            AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord, recoveryTime);
+            AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord);
             if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
                 parseDataBinary(alarmRecord.getTagsRawData(), alarmMessage.getTags());
             }
             alarms.getMsgs().add(alarmMessage);
         }
+        updateAlarmRecoveryTime(alarms, duration);
         return alarms;
     }
 
-    private Long getAlarmRecoveryTime(String uuid, Duration duration) {
-        if (StringUtil.isBlank(uuid)) {
-            return null;
+    private void updateAlarmRecoveryTime(Alarms alarms, Duration duration) throws IOException {
+        List<AlarmMessage> alarmMessages = alarms.getMsgs();
+        Map<String, AlarmRecoveryRecord> alarmRecoveryRecordMap = getAlarmRecoveryRecord(alarmMessages, duration);
+        alarmMessages.forEach(alarmMessage -> {
+            AlarmRecoveryRecord alarmRecoveryRecord = alarmRecoveryRecordMap.get(alarmMessage.getUuid());
+            if (alarmRecoveryRecord != null) {
+                alarmMessage.setRecoveryTime(alarmRecoveryRecord.getRecoveryTime());
+            }
+        });
+
+    }
+
+    private Map<String, AlarmRecoveryRecord> getAlarmRecoveryRecord(List<AlarmMessage> msgs, Duration duration) throws IOException {
+        Map<String, AlarmRecoveryRecord> result = new HashMap<>();
+        if (CollectionUtils.isEmpty(msgs)) {
+            return result;
         }
+        List<String> uuids = msgs.stream().map(AlarmMessage::getUuid).collect(Collectors.toList());
         long startTB = duration.getStartTimeBucketInSec();
         long endTB = duration.getEndTimeBucketInSec();
         final String index =
@@ -121,16 +136,15 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         if (startTB != 0 && endTB != 0) {
             query.must(Query.range(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));
         }
-        query.must(Query.term(AlarmRecoveryRecord.UUID, uuid));
+        query.must(Query.terms(AlarmRecoveryRecord.UUID, uuids));
         final SearchBuilder search =
-                Search.builder().query(query)
-                        .size(1).from(1);
+                Search.builder().query(query);
         SearchResponse response = getClient().search(index, search.build());
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecoveryRecord.Builder builder = new AlarmRecoveryRecord.Builder();
             AlarmRecoveryRecord alarmRecoveryRecord = builder.storage2Entity(new ElasticSearchConverter.ToEntity(AlarmRecoveryRecord.INDEX_NAME, searchHit.getSource()));
-            return alarmRecoveryRecord.getRecoveryTime();
+            result.put(alarmRecoveryRecord.getUuid(), alarmRecoveryRecord);
         }
-        return null;
+        return result;
     }
 }

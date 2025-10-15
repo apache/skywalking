@@ -30,7 +30,7 @@ rules:
     expression: sum(service_percentile{p='50,75,90,95,99'} > 100) >= 3
     period: 10
     silence-period: 1
-    message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 10, p75 > 10, p90 > 10, p95 > 10, p99 > 10.
+    message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 100, p75 > 100, p90 > 100, p95 > 100, p99 > 100.
     tags:
       level: WARNING
       receivers: lisi
@@ -40,7 +40,7 @@ rules:
     expression: sum((service_resp_time > 100) && (service_sla > 1)) >= 1
     period: 10
     recovery-observation-period: 3
-    message: Service {name} response time is more than 10ms and sla is more than 1%.
+    message: Service {name} response time is more than 100ms and sla is more than 1%.
     tags:
       level: CRITICAL
       receivers: zhangsan
