@@ -87,7 +87,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     private final Options options;
     private BanyandbDatabase database;
     private HistogramMetrics propertySingleWriteHistogram;
-    private HistogramMetrics propertyDeleteHistogram;
+    private HistogramMetrics propertySingleDeleteHistogram;
     private HistogramMetrics streamSingleWriteHistogram;
     private HistogramMetrics measureWriteHistogram;
     private HistogramMetrics streamWriteHistogram;
@@ -210,7 +210,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     }
 
     public DeleteResponse deleteProperty(String name, String id) throws IOException {
-        try (HistogramMetrics.Timer timer = propertySingleWriteHistogram.createTimer()) {
+        try (HistogramMetrics.Timer timer = propertySingleDeleteHistogram.createTimer()) {
             MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
             PropertyStore store = new PropertyStore(checkNotNull(client.getChannel()));
             DeleteResponse result = store.delete(schema.getMetadata().getGroup(), name, id);
@@ -478,41 +478,59 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
-        propertySingleWriteHistogram = metricsCreator.createHistogramMetric(
-            "banyandb_write_latency_seconds",
-            "BanyanDB Write latency in seconds",
-            new MetricsTag.Keys("catalog", "operation"),
-            new MetricsTag.Values("property", "single_write")
-        );
-        propertyDeleteHistogram = metricsCreator.createHistogramMetric(
-            "banyandb_write_latency_seconds",
-            "BanyanDB Write latency in seconds",
-            new MetricsTag.Keys("catalog", "operation"),
-            new MetricsTag.Values("property", "delete")
-        );
-        streamSingleWriteHistogram = metricsCreator.createHistogramMetric(
-            "banyandb_write_latency_seconds",
-            "BanyanDB Write latency in seconds",
-            new MetricsTag.Keys("catalog", "operation"),
-            new MetricsTag.Values("stream", "single_write")
-        );
-        measureWriteHistogram = metricsCreator.createHistogramMetric(
-            "banyandb_write_latency_seconds",
-            "BanyanDB Write latency in seconds",
-            new MetricsTag.Keys("catalog", "operation"),
-            new MetricsTag.Values("measure", "bulk_write")
-        );
-        streamWriteHistogram = metricsCreator.createHistogramMetric(
-            "banyandb_write_latency_seconds",
-            "BanyanDB Write latency in seconds",
-            new MetricsTag.Keys("catalog", "operation"),
-            new MetricsTag.Values("stream", "bulk_write")
-        );
-        traceWriteHistogram = metricsCreator.createHistogramMetric(
-            "banyandb_write_latency_seconds",
-            "BanyanDB Write latency in seconds",
-            new MetricsTag.Keys("catalog", "operation"),
-            new MetricsTag.Values("trace", "bulk_write")
-        );
+        if (propertySingleWriteHistogram == null) {
+            propertySingleWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("property", "single_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (propertySingleDeleteHistogram == null) {
+            propertySingleDeleteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("property", "single_delete"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (streamSingleWriteHistogram == null) {
+            streamSingleWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("stream", "single_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (measureWriteHistogram == null) {
+            measureWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("measure", "bulk_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (streamWriteHistogram == null) {
+            streamWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("stream", "bulk_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
+        if (traceWriteHistogram == null) {
+            traceWriteHistogram = metricsCreator.createHistogramMetric(
+                "banyandb_write_latency",
+                "BanyanDB write/update/delete latency in seconds, bulk_write include write/update",
+                new MetricsTag.Keys("catalog", "operation"),
+                new MetricsTag.Values("trace", "bulk_write"),
+                0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0
+            );
+        }
     }
 }

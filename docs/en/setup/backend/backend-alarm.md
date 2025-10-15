@@ -309,7 +309,7 @@ slack:
 ```
 
 ### WeChat
-Note that only the WeChat Company Edition (WeCom) supports WebHooks. To use the WeChat WebHook, follow the [Wechat Webhooks guide](https://work.weixin.qq.com/help?doc_id=13376).
+Note that only the WeChat Company Edition (WeCom) supports WebHooks. To use the WeChat WebHook, follow the [Wechat Webhooks guide](https://open.work.weixin.qq.com/help2/pc/14931).
 The alarm message will be sent through HTTP post by `application/json` content type after you have set up Wechat Webhooks as follows:
 ```yml
 wechat:

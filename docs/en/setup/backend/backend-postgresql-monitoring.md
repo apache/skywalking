@@ -58,7 +58,7 @@ SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for 
 3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
 
 ### Set up
-1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
+1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit).
 2. Config [fluentbit](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/fluent-bit.conf)
 3. Config PostgreSQL to enable slow log. [Example](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/postgresql.conf).
 

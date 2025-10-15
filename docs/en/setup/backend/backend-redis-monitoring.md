@@ -46,7 +46,7 @@ SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for 
 4. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
 
 ### Set up
-1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
+1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/getting-started-with-fluent-bit).
 2. Config fluentbit from [here](../../../../test/e2e-v2/cases/redis/redis-exporter/fluent-bit.conf) for Redis.
 3. Config slow log from [here](../../../../test/e2e-v2/cases/redis/redis-exporter/redis.conf) for Redis.
 4. Periodically execute the [commands](../../../../test/e2e-v2/cases/redis/redis-exporter/scripts/slowlog.sh).
