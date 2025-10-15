@@ -26,7 +26,7 @@ cases:
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
         profiling pprof create --service-name=go-service \
-        --duration=2 --events=CPU \
+        --duration=1 --events=CPU \
         --instance-name-list=provider1
     expected: expected/create.yml
   # list task
