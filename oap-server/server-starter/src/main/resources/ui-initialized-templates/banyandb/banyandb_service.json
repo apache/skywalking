@@ -1,6 +1,6 @@
 [
     {
-        "id": "BanyanDB-Instance",
+        "id": "da8ac0c1-3a83-4225-aec8-88d32a1496fb",
         "configuration": {
             "children": [
                 {
@@ -567,7 +567,7 @@
             ],
             "layer": "BANYANDB",
             "entity": "ServiceInstance",
-            "name": "BanyanDB-Instance",
+            "name": "BANYANDB",
             "isRoot": false
         }
     }
