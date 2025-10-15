@@ -47,6 +47,20 @@ Async Profiler can trace the following kinds of events:
 
 Only Java agent support this.
 
+### Go App Profiling
+
+Go App Profiling uses the [Pprof](https://github.com/google/pprof) for sampling.
+
+pprof is a profiling tool by Google for visualizing and analyzing sampled performance data.
+It reads samples in profile.proto format and generates text or graphical reports (via the dot visualization) to highlight performance hotspots. 
+
+pprof supports profiling of:
+
+- CPU.
+- Memory allocs / heap.
+- Block / mutex.
+- Gouroutine / threadcreate.
+
 ## Out-of-process profiling
 
 Out-of-process profiling leverage [eBPF](https://ebpf.io/) technology with origins in the Linux kernel.
