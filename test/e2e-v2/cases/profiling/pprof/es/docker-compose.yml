@@ -45,6 +45,7 @@ services:
       SW_AGENT_NAME: go-service
       SW_AGENT_INSTANCE_NAME: provider1
       SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE: oap:11800
+      UPSTREAM_URL: http://localhost:8080/ignored.html
     privileged: true
     depends_on:
       oap:
