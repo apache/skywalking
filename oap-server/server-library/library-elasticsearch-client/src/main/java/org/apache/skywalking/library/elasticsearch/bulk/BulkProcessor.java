@@ -41,6 +41,7 @@ import org.apache.skywalking.library.elasticsearch.requests.factory.Codec;
 import org.apache.skywalking.library.elasticsearch.requests.factory.RequestFactory;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 
 import static java.util.Objects.requireNonNull;
 
@@ -54,6 +55,7 @@ public final class BulkProcessor {
     private final long flushInternalInMillis;
     private volatile long lastFlushTS = 0;
     private final int batchOfBytes;
+    private final HistogramMetrics bulkMetrics;
 
     public static BulkProcessorBuilder builder() {
         return new BulkProcessorBuilder();
@@ -63,7 +65,8 @@ public final class BulkProcessor {
                   final int bulkActions,
                   final Duration flushInterval,
                   final int concurrentRequests,
-                  final int batchOfBytes) {
+                  final int batchOfBytes,
+                  final HistogramMetrics bulkMetrics) {
         requireNonNull(flushInterval, "flushInterval");
 
         this.es = requireNonNull(es, "es");
@@ -71,6 +74,7 @@ public final class BulkProcessor {
         this.batchOfBytes = batchOfBytes;
         this.semaphore = new Semaphore(concurrentRequests > 0 ? concurrentRequests : 1);
         this.requests = new ArrayBlockingQueue<>(bulkActions + 1);
+        this.bulkMetrics = bulkMetrics;
 
         final ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, r -> {
             final Thread thread = new Thread(r);
@@ -132,13 +136,16 @@ public final class BulkProcessor {
             log.error("Interrupted when trying to get semaphore to execute bulk requests", e);
             return;
         }
-
+        HistogramMetrics.Timer timer = bulkMetrics.createTimer();
         final List<Holder> batch = new ArrayList<>(requests.size());
         requests.drainTo(batch);
         final List<CompletableFuture<Void>> futures = doFlush(batch);
         final CompletableFuture<Void> future = CompletableFuture.allOf(
             futures.toArray(new CompletableFuture[futures.size()]));
-        future.whenComplete((v, t) -> semaphore.release());
+        future.whenComplete((v, t) -> {
+            timer.close();
+            semaphore.release();
+        });
         future.join();
         lastFlushTS = System.currentTimeMillis();
     }

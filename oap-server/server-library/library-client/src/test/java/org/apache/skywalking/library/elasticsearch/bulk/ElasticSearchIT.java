@@ -31,10 +31,20 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchRespons
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchScroller;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexRequestWrapper;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
+import org.powermock.reflect.Whitebox;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -46,8 +56,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static org.mockito.Mockito.mock;
+
 @Slf4j
 public class ElasticSearchIT {
+    private ModuleManager moduleManager;
 
     public static Collection<Object[]> versions() {
         // noinspection resource
@@ -75,6 +88,21 @@ public class ElasticSearchIT {
         });
     }
 
+    @BeforeEach
+    public void setUp() throws Exception {
+        moduleManager = mock(ModuleManager.class);
+        ModuleDefine storageModule = mock(ModuleDefine.class);
+        ModuleProvider provider = mock(ModuleProvider.class);
+        Mockito.when(provider.getModule()).thenReturn(storageModule);
+
+        NoneTelemetryProvider telemetryProvider = mock(NoneTelemetryProvider.class);
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+               .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
+    }
+
     @ParameterizedTest(name = "version: {0}")
     @MethodSource("versions")
     public void indexOperate(final ElasticsearchContainer server,
@@ -82,10 +110,11 @@ public class ElasticSearchIT {
         server.start();
 
         final ElasticSearchClient client = new ElasticSearchClient(
-                server.getHttpHostAddress(),
-                "http", "", "", "test", "test",
-                indexNameConverter(namespace), 500, 6000,
-                0, 15
+            moduleManager,
+            server.getHttpHostAddress(),
+            "http", "", "", "test", "test",
+            indexNameConverter(namespace), 500, 6000,
+            0, 15
         );
         client.connect();
 
@@ -134,10 +163,11 @@ public class ElasticSearchIT {
         server.start();
 
         final ElasticSearchClient client = new ElasticSearchClient(
-                server.getHttpHostAddress(),
-                "http", "", "", "test", "test",
-                indexNameConverter(namespace), 500, 6000,
-                0, 15
+            moduleManager,
+            server.getHttpHostAddress(),
+            "http", "", "", "test", "test",
+            indexNameConverter(namespace), 500, 6000,
+            0, 15
         );
         client.connect();
 
@@ -209,10 +239,11 @@ public class ElasticSearchIT {
         server.start();
 
         final ElasticSearchClient client = new ElasticSearchClient(
-                server.getHttpHostAddress(),
-                "http", "", "", "test", "test",
-                indexNameConverter(namespace), 500, 6000,
-                0, 15
+            moduleManager,
+            server.getHttpHostAddress(),
+            "http", "", "", "test", "test",
+            indexNameConverter(namespace), 500, 6000,
+            0, 15
         );
         client.connect();
 
@@ -264,10 +295,11 @@ public class ElasticSearchIT {
         server.start();
 
         final ElasticSearchClient client = new ElasticSearchClient(
-                server.getHttpHostAddress(),
-                "http", "", "", "test", "test",
-                indexNameConverter(namespace), 500, 6000,
-                0, 15
+            moduleManager,
+            server.getHttpHostAddress(),
+            "http", "", "", "test", "test",
+            indexNameConverter(namespace), 500, 6000,
+            0, 15
         );
         client.connect();
 
@@ -297,10 +329,11 @@ public class ElasticSearchIT {
         server.start();
 
         final ElasticSearchClient client = new ElasticSearchClient(
-                server.getHttpHostAddress(),
-                "http", "", "", "test", "test",
-                indexNameConverter(namespace), 500, 6000,
-                0, 15
+            moduleManager,
+            server.getHttpHostAddress(),
+            "http", "", "", "test", "test",
+            indexNameConverter(namespace), 500, 6000,
+            0, 15
         );
         client.connect();
 
@@ -326,10 +359,11 @@ public class ElasticSearchIT {
         server.start();
 
         final ElasticSearchClient client = new ElasticSearchClient(
-                server.getHttpHostAddress(),
-                "http", "", "", "test", "test",
-                indexNameConverter(namespace), 500, 6000,
-                0, 15
+            moduleManager,
+            server.getHttpHostAddress(),
+            "http", "", "", "test", "test",
+            indexNameConverter(namespace), 500, 6000,
+            0, 15
         );
         client.connect();
 
