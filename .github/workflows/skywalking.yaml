@@ -17,9 +17,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - ci
   pull_request:
   schedule:
     - cron: "0 18 * * *" # TimeZone: UTC 0
@@ -35,7 +32,7 @@ env:
 
 jobs:
   license-header:
-    if: (github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || (github.event_name != 'schedule')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: License header
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -48,7 +45,7 @@ jobs:
         uses: apache/skywalking-eyes@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
 
   code-style:
-    if: (github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || (github.event_name != 'schedule')
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Code style
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -63,7 +60,7 @@ jobs:
   dependency-license:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
     name: Dependency licenses
     needs: [changes]
     runs-on: ubuntu-latest
@@ -93,7 +90,7 @@ jobs:
           fi
 
   sanity-check:
-    if: ( always() && ! cancelled() ) && (github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || (github.event_name != 'schedule')
+    if: ( always() && ! cancelled() ) && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Sanity check results
     needs: [license-header, code-style, dependency-license]
     runs-on: ubuntu-latest
@@ -162,7 +159,7 @@ jobs:
   dist-tar:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Build dist tar
     needs: [changes]
     runs-on: ubuntu-latest
@@ -194,7 +191,7 @@ jobs:
   docker:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Docker images
     needs: [sanity-check, dist-tar, changes]
     runs-on: ubuntu-latest
@@ -233,7 +230,7 @@ jobs:
   unit-test:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Unit test
     needs: [sanity-check, changes]
     runs-on: ${{ matrix.os }}
@@ -268,7 +265,7 @@ jobs:
   integration-test:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Integration test
     needs: [sanity-check, changes]
     runs-on: ubuntu-latest
@@ -301,7 +298,7 @@ jobs:
   slow-integration-test:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Slow Integration Tests
     needs: [sanity-check, changes]
     runs-on: ubuntu-latest
@@ -334,7 +331,7 @@ jobs:
   e2e-test:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker, dist-tar]
     runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
@@ -796,7 +793,7 @@ jobs:
   e2e-test-istio:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
     runs-on: ubuntu-24.04
@@ -864,7 +861,7 @@ jobs:
   e2e-test-istio-ambient:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
     runs-on: ubuntu-24.04
@@ -925,7 +922,7 @@ jobs:
   e2e-test-java-versions:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'JophieQu/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
     runs-on: ubuntu-latest
