@@ -17,9 +17,6 @@
 name: Dead Link Checker
 
 on:
-  push:
-    branches:
-      - ci
   pull_request:
     paths:
         - 'docs/**'

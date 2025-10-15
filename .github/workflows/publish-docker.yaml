@@ -20,7 +20,6 @@ on:
   push:
     branches:
       - master
-      - ci
   release:
     types:
       - released

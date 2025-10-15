@@ -345,6 +345,381 @@ jobs:
       fail-fast: false
       matrix:
         test:
+          - name: Cluster ZK/ES
+            config: test/e2e-v2/cases/cluster/zk/es/e2e.yaml
+
+          - name: Agent NodeJS Backend
+            config: test/e2e-v2/cases/nodejs/e2e.yaml
+          - name: Agent Golang
+            config: test/e2e-v2/cases/go/e2e.yaml
+          - name: Agent NodeJS Frontend
+            config: test/e2e-v2/cases/browser/e2e.yaml
+          - name: Agent NodeJS Frontend ES
+            config: test/e2e-v2/cases/browser/es/e2e.yaml
+          - name: Agent NodeJS Frontend ES Sharding
+            config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
+          - name: Agent PHP
+            config: test/e2e-v2/cases/php/e2e.yaml
+          - name: Agent Python
+            config: test/e2e-v2/cases/python/e2e.yaml
+          - name: Agent Lua
+            config: test/e2e-v2/cases/lua/e2e.yaml
+
+          - name: BanyanDB
+            config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
+          - name: BanyanDB TLS
+            config: test/e2e-v2/cases/storage/banyandb/tls/e2e.yaml
+          - name: Storage MySQL
+            config: test/e2e-v2/cases/storage/mysql/e2e.yaml
+          - name: Storage PostgreSQL
+            config: test/e2e-v2/cases/storage/postgres/e2e.yaml
+          - name: Storage ES 7.16.3
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=7.16.3
+          - name: Storage ES 7.17.10
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=7.17.10
+          - name: Storage ES 8.1.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=8.1.0
+          - name: Storage ES 8.9.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=8.9.0
+          - name: Storage ES 8.9.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=8.18.1
+          - name: Storage OpenSearch 1.1.0
+            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: Storage OpenSearch 1.3.10
+            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.10
+          - name: Storage OpenSearch 2.4.0
+            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
+          - name: Storage OpenSearch 2.8.0
+            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.8.0
+          - name: Storage OpenSearch 3.0.0
+            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=3.0.0
+          - name: Storage ES Sharding
+            config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
+
+          - name: Alarm ES
+            config: test/e2e-v2/cases/alarm/es/e2e.yaml
+          - name: Alarm ES Sharding
+            config: test/e2e-v2/cases/alarm/es/es-sharding/e2e.yaml
+          - name: Alarm MySQL
+            config: test/e2e-v2/cases/alarm/mysql/e2e.yaml
+          - name: Alarm PostgreSQL
+            config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
+          - name: Alarm BanyanDB
+            config: test/e2e-v2/cases/alarm/banyandb/e2e.yaml
+
+          - name: Baseline-driven Alarm ES
+            config: test/e2e-v2/cases/baseline/es/e2e.yaml
+          - name: Baseline-driven Alarm ES Sharding
+            config: test/e2e-v2/cases/baseline/es/es-sharding/e2e.yaml
+          - name: Baseline-driven Alarm BanyanDB
+            config: test/e2e-v2/cases/baseline/banyandb/e2e.yaml
+
+          - name: TTL ES 7.16.3
+            config: test/e2e-v2/cases/ttl/es/e2e.yaml
+            env: ES_VERSION=7.16.3
+          - name: TTL ES 8.8.1
+            config: test/e2e-v2/cases/ttl/es/e2e.yaml
+            env: ES_VERSION=8.8.1
+          - name: TTL ES 8.18.1
+            config: test/e2e-v2/cases/ttl/es/e2e.yaml
+            env: ES_VERSION=8.18.1
+
+          - name: Event BanyanDB
+            config: test/e2e-v2/cases/event/banyandb/e2e.yaml
+          - name: Event ES
+            config: test/e2e-v2/cases/event/es/e2e.yaml
+          - name: Event MySQL
+            config: test/e2e-v2/cases/event/mysql/e2e.yaml
+
+          - name: Log MySQL
+            config: test/e2e-v2/cases/log/mysql/e2e.yaml
+          - name: Log PostgreSQL
+            config: test/e2e-v2/cases/log/postgres/e2e.yaml
+          - name: Log ES 7.16.3
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=7.16.3
+          - name: Log ES 7.17.10
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=7.17.10
+          - name: Log ES 8.8.1 Sharding
+            config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.8.1
+          - name: Log ES 8.18.1 Sharding
+            config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.18.1
+          - name: Log BanyanDB
+            config: test/e2e-v2/cases/log/banyandb/e2e.yaml
+
+          - name: Log FluentBit ES 7.16.3
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=7.16.3
+          - name: Log FluentBit ES 7.17.10
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=7.17.10
+          - name: Log FluentBit ES 8.8.1
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=8.8.1
+          - name: Log FluentBit ES 8.18.1
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=8.18.1
+
+          - name: Trace Profiling BanyanDB
+            config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
+          - name: Trace Profiling ES
+            config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
+          - name: Trace Profiling ES Sharding
+            config: test/e2e-v2/cases/profiling/trace/es/es-sharding/e2e.yaml
+          - name: Trace Profiling MySQL
+            config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
+          - name: Trace Profiling Postgres
+            config: test/e2e-v2/cases/profiling/trace/postgres/e2e.yaml
+          - name: Trace Profiling OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: Trace Profiling OpenSearch 1.3.6
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: Trace Profiling OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
+
+          - name: eBPF Profiling On CPU BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/oncpu/
+              file: Dockerfile.sqrt
+              name: test/oncpu:test
+          - name: eBPF Profiling On CPU ES
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/oncpu/
+              file: Dockerfile.sqrt
+              name: test/oncpu:test
+          - name: eBPF Profiling On CPU ES Sharding
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/es-sharding/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/oncpu/
+              file: Dockerfile.sqrt
+              name: test/oncpu:test
+          - name: eBPF Profiling Off CPU
+            config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/offcpu/
+              file: Dockerfile.file
+              name: test/offcpu:test
+            runs-on: ubuntu-24.04
+
+          - name: eBPF Profiling Network BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/network/banyandb/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/network/
+              file: Dockerfile.service
+              name: test/network:test
+          - name: eBPF Profiling Network ES
+            config: test/e2e-v2/cases/profiling/ebpf/network/es/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/network/
+              file: Dockerfile.service
+              name: test/network:test
+          - name: eBPF Profiling Network ES Sharding
+            config: test/e2e-v2/cases/profiling/ebpf/network/es/es-sharding/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/network/
+              file: Dockerfile.service
+              name: test/network:test
+
+          - name: Continuous Profiling BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/banyandb/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/continuous/
+              file: Dockerfile.sqrt
+              name: test/continuous:test
+          - name: Continuous Profiling ES
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/continuous/
+              file: Dockerfile.sqrt
+              name: test/continuous:test
+          - name: Continuous Profiling Sharding ES
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/es-sharding/e2e.yaml
+            docker:
+              base: test/e2e-v2/cases/profiling/ebpf/continuous/
+              file: Dockerfile.sqrt
+              name: test/continuous:test
+
+          # eBPF Access Log
+          - name: eBPF Access Log BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/access_log/banyandb/e2e.yaml
+          - name: eBPF Access Log ES
+            config: test/e2e-v2/cases/profiling/ebpf/access_log/es/e2e.yaml
+          - name: eBPF Access Log ES Sharding
+            config: test/e2e-v2/cases/profiling/ebpf/access_log/es/es-sharding/e2e.yaml
+
+          - name: Kafka Basic
+            config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
+          - name: Kafka Profiling
+            config: test/e2e-v2/cases/kafka/profile/e2e.yaml
+          - name: Kafka Meter
+            config: test/e2e-v2/cases/kafka/meter/e2e.yaml
+          - name: Kafka Log
+            config: test/e2e-v2/cases/kafka/log/e2e.yaml
+
+          - name: Istio Metrics Service 1.20.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.20.0
+              KUBERNETES_VERSION=28
+          - name: Istio Metrics Service 1.21.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.21.0
+              KUBERNETES_VERSION=28
+          - name: Istio Metrics Service 1.22.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.22.0
+              KUBERNETES_VERSION=28
+          - name: Istio Metrics Service 1.23.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.23.0
+              KUBERNETES_VERSION=28
+          - name: Istio Metrics Service 1.24.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.24.0
+              KUBERNETES_VERSION=28
+
+          - name: Rover with Istio Process 1.15.0
+            config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
+            env: ISTIO_VERSION=1.15.0
+            runs-on: ubuntu-24.04
+
+          - name: Satellite
+            config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
+          - name: Auth
+            config: test/e2e-v2/cases/simple/auth/e2e.yaml
+          - name: SSL
+            config: test/e2e-v2/cases/simple/ssl/e2e.yaml
+          - name: mTLS
+            config: test/e2e-v2/cases/simple/mtls/e2e.yaml
+          - name: Virtual Gateway
+            config: test/e2e-v2/cases/gateway/e2e.yaml
+          - name: Meter
+            config: test/e2e-v2/cases/meter/e2e.yaml
+          - name: VM Zabbix
+            config: test/e2e-v2/cases/vm/zabbix/e2e.yaml
+          - name: VM Prometheus
+            config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
+          - name: VM Telegraf
+            config: test/e2e-v2/cases/vm/telegraf/e2e.yaml
+          - name: So11y
+            config: test/e2e-v2/cases/so11y/e2e.yaml
+          - name: MySQL Prometheus and slowsql
+            config: test/e2e-v2/cases/mysql/mysql-slowsql/e2e.yaml
+          - name: PostgreSQL Prometheus
+            config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
+          - name: MariaDB Prometheus and slowsql
+            config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
+
+          - name: Zipkin ES
+            config: test/e2e-v2/cases/zipkin/es/e2e.yaml
+          - name: Zipkin ES Sharding
+            config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
+          - name: Zipkin MySQL
+            config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
+          - name: Zipkin Opensearch
+            config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
+          - name: Zipkin Postgres
+            config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
+          - name: Zipkin Kafka
+            config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
+          - name: Zipkin BanyanDB
+            config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
+
+          - name: Nginx
+            config: test/e2e-v2/cases/nginx/e2e.yaml
+          - name: APISIX metrics
+            config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
+          - name: Exporter Kafka
+            config: test/e2e-v2/cases/exporter/kafka/e2e.yaml
+          - name: Virtual MQ
+            config: test/e2e-v2/cases/virtual-mq/e2e.yaml
+          - name: AWS Cloud EKS
+            config: test/e2e-v2/cases/aws/eks/e2e.yaml
+          - name: Windows
+            config: test/e2e-v2/cases/win/e2e.yaml
+          - name: AWS Cloud S3
+            config: test/e2e-v2/cases/aws/s3/e2e.yaml
+          - name: AWS Cloud DynamoDB
+            config: test/e2e-v2/cases/aws/dynamodb/e2e.yaml
+          - name: PromQL Service
+            config: test/e2e-v2/cases/promql/e2e.yaml
+          - name: LogQL Service
+            config: test/e2e-v2/cases/logql/e2e.yaml
+          - name: AWS API Gateway
+            config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
+          - name: Redis Prometheus and Log Collecting
+            config: test/e2e-v2/cases/redis/redis-exporter/e2e.yaml
+          - name: Elasticsearch
+            config: test/e2e-v2/cases/elasticsearch/e2e.yaml
+          - name: MongoDB
+            config: test/e2e-v2/cases/mongodb/e2e.yaml
+          - name: RabbitMQ
+            config: test/e2e-v2/cases/rabbitmq/e2e.yaml
+          - name: Kafka
+            config: test/e2e-v2/cases/kafka/kafka-monitoring/e2e.yaml
+          - name: MQE Service
+            config: test/e2e-v2/cases/mqe/e2e.yaml
+          - name: Pulsar and BookKeeper
+            config: test/e2e-v2/cases/pulsar/e2e.yaml
+          - name: RocketMQ
+            config: test/e2e-v2/cases/rocketmq/e2e.yaml
+          - name: ClickHouse
+            config: test/e2e-v2/cases/clickhouse/clickhouse-prometheus-endpoint/e2e.yaml
+          - name: ActiveMQ
+            config: test/e2e-v2/cases/activemq/e2e.yaml
+          - name: Kong
+            config: test/e2e-v2/cases/kong/e2e.yaml
+          - name: Flink
+            config: test/e2e-v2/cases/flink/e2e.yaml
+
+          - name: UI Menu BanyanDB
+            config: test/e2e-v2/cases/menu/banyandb/e2e.yaml
+          - name: UI Menu ES
+            config: test/e2e-v2/cases/menu/es/e2e.yaml
+          - name: UI Menu Sharding ES
+            config: test/e2e-v2/cases/menu/es/es-sharding/e2e.yaml
+          - name: UI Menu MySQL
+            config: test/e2e-v2/cases/menu/mysql/e2e.yaml
+          - name: UI Menu Postgres
+            config: test/e2e-v2/cases/menu/postgres/e2e.yaml
+          - name: UI Menu OpenSearch 1.1.0
+            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: UI Menu OpenSearch 1.3.6
+            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: UI Menu OpenSearch 2.4.0
+            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
+
+          - name: OTLP Trace
+            config: test/e2e-v2/cases/otlp-traces/e2e.yaml
+
+          - name: Cilium Service
+            config: test/e2e-v2/cases/cilium/e2e.yaml
+
           - name: Async Profiler ES
             config: test/e2e-v2/cases/profiling/async-profiler/es/e2e.yaml
           - name: Async Profiler BanyanDB

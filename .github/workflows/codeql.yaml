@@ -18,8 +18,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches:
-      - ci
+    branches: ["master"]
   pull_request:
     branches: ["master"]
     paths:
