@@ -26,8 +26,6 @@ RUN go mod tidy && go build -toolexec="skywalking-go-agent" -a -o service
 
 FROM alpine:3.10
 
-RUN apk add --no-cache busybox-extras
-
 COPY --from=base /go-service/service /service
 
 ENTRYPOINT ["/service"]

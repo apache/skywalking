@@ -20,13 +20,8 @@ services:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: oap
-    environment:
-      SW_STORAGE: banyandb
     ports:
       - 12800
-    depends_on:
-      banyandb:
-        condition: service_healthy
 
   banyandb:
     extends:
@@ -55,7 +50,6 @@ services:
       - 8080
     environment:
       SW_AGENT_NAME: go-service
-      SW_AGENT_INSTANCE_NAME: provider1
       SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE: oap:11800
       UPSTREAM_URL: http://provider:9090/correlation
     depends_on:
