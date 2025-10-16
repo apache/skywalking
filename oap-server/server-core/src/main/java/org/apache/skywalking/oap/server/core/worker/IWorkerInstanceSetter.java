@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.worker;
 
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -29,7 +30,9 @@ public interface IWorkerInstanceSetter extends Service {
     /**
      * @param remoteReceiverWorkName worker name
      * @param instance The worker instance processes the given streamDataClass.
+     * @param kind Metric kind (OAL, MAL).
      * @param streamDataClass Type of metrics.
      */
-    void put(String remoteReceiverWorkName, AbstractWorker instance, Class<? extends StreamData> streamDataClass);
+    void put(String remoteReceiverWorkName, AbstractWorker instance,
+             MetricStreamKind kind, Class<? extends StreamData> streamDataClass);
 }
