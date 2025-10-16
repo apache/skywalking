@@ -71,9 +71,9 @@ metricsRules:
   - name: instance_metrics_aggregation_queue_used_percentage
     exp: metrics_aggregation_queue_used_percentage.sum(['service', 'host_name', 'level', 'kind', 'metricName'])
   - name: instance_persistence_execute_percentile
-    exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+    exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_prepare_percentile
-    exp: persistence_timer_bulk_prepare_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+    exp: persistence_timer_bulk_prepare_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
   - name: instance_persistence_error_count
     exp: persistence_timer_bulk_error_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_persistence_execute_count
@@ -138,3 +138,9 @@ metricsRules:
     exp: watermark_circuit_breaker_break_count.sum(['service', 'host_name', 'listener', 'event'])
   - name: instance_watermark_circuit_breaker_recover_count
     exp: watermark_circuit_breaker_recover_count.sum(['service', 'host_name', 'listener'])
+  - name: instance_persistence_execute_percentile
+    exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: elasticsearch_write_latency_percentile
+    exp: elasticsearch_write_latency.sum(['le', 'service', 'host_name', 'operation']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: banyandb_write_latency_percentile
+    exp: banyandb_write_latency.sum(['le', 'service', 'host_name', 'catalog', 'operation']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
