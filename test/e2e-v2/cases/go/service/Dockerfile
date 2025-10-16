@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ARG SW_AGENT_GO_COMMIT
 FROM ghcr.io/apache/skywalking-go/skywalking-go:${SW_AGENT_GO_COMMIT}-go1.19 AS base
 
 ENV CGO_ENABLED=0
@@ -24,6 +25,8 @@ COPY .. /go-service
 RUN go mod tidy && go build -toolexec="skywalking-go-agent" -a -o service
 
 FROM alpine:3.10
+
+RUN apk add --no-cache busybox-extras
 
 COPY --from=base /go-service/service /service
 
