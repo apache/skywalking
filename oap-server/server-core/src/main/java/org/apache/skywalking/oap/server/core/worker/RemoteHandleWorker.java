@@ -51,7 +51,7 @@ public class RemoteHandleWorker {
     /**
      * Create a new StreamData instance with metadata {@link WithMetadata} for RemoteServiceHandler to deserialize the RemoteMessage.
      * OAL metrics can initialize metadata through the constructor,
-     * while MAL metrics need to initialize metadata through the {@link AcceptableValue} createNew method.
+     * while MAL metrics need to initialize metadata through {@link AcceptableValue#createNew}.
      */
     public StreamData newStreamDataInstance() throws InstantiationException, IllegalAccessException {
         switch (kind) {
