@@ -44,7 +44,7 @@ services:
       oap:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 8080"]
+      test: ["CMD", "sh", "-c", "nc -z 127.0.0.1 8080 || (echo '[HEALTHCHECK] nc command failed' >&2; which nc >&2 || echo '[HEALTHCHECK] nc not found' >&2; netstat -tuln 2>&1 | grep 8080 || echo '[HEALTHCHECK] Port 8080 not listening' >&2; exit 1)"]
       interval: 5s
       timeout: 60s
       retries: 120

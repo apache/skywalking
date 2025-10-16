@@ -410,9 +410,16 @@ jobs:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() }}
         run: |
-          df -h
-          du -sh .
-          docker images
+          echo "=== Container Status ==="
+          docker ps -a
+          
+          echo "=== Container Logs ==="
+          docker-compose -f ${{ matrix.test.config }} logs --tail=100
+          
+          echo "=== Health Check Details ==="
+          for container in $(docker ps -a -q); do
+            docker inspect $container | jq '.[0].State.Health'
+          done
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         name: Upload Logs
