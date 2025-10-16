@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG SW_AGENT_GO_COMMIT
-FROM ghcr.io/apache/skywalking-go/skywalking-go:${SW_AGENT_GO_COMMIT}-go1.19 AS base
+ARG SW_AGENT_GO_COMMIT=
+FROM ghcr.io/apache/skywalking-go/skywalking-go:${SW_AGENT_GO_COMMIT}-go1.19 as base
 
 ENV CGO_ENABLED=0
 ENV GO111MODULE=on
