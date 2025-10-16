@@ -16,7 +16,7 @@
  *
  */
 
- package org.apache.skywalking.oap.server.core.profiling.pprof.storage;
+package org.apache.skywalking.oap.server.core.profiling.pprof.storage;
 
 import com.google.gson.Gson;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;

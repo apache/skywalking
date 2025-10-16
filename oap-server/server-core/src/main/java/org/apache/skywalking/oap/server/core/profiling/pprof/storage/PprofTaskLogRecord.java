@@ -40,6 +40,7 @@ import lombok.Setter;
 @ScopeDeclaration(id = PPROF_TASK_LOG, name = "PprofTaskLog")
 @Stream(name = PprofTaskLogRecord.INDEX_NAME, scopeId = PPROF_TASK_LOG, builder = PprofTaskLogRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(PprofTaskLogRecord.TIMESTAMP)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class PprofTaskLogRecord extends Record {
     public static final String INDEX_NAME = "pprof_task_log";
     public static final String TASK_ID = "task_id";

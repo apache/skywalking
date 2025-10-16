@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 @Stream(name = PprofProfilingDataRecord.INDEX_NAME, scopeId = PPROF_PROFILING_DATA,
         builder = PprofProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(PprofProfilingDataRecord.UPLOAD_TIME)
+@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class PprofProfilingDataRecord extends Record {
     public static final String INDEX_NAME = "pprof_profiling_data";
     public static final String TASK_ID = "task_id";
