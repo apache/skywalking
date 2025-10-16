@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
-import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.status.BootingStatus;
@@ -293,9 +292,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
     }
 
     private void nextWorker(Metrics metrics) {
-        if (metrics instanceof Meter) {
-            ((Meter) metrics).initMeta(model.getName(), model.getScopeId());
-        }
         nextAlarmWorker.ifPresent(nextAlarmWorker -> nextAlarmWorker.in(metrics));
         nextExportWorker.ifPresent(
             nextExportWorker -> nextExportWorker.in(new ExportEvent(metrics, ExportEvent.EventType.TOTAL)));
