@@ -17,6 +17,9 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - citest
   pull_request:
   schedule:
     - cron: "0 18 * * *" # TimeZone: UTC 0
