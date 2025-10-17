@@ -611,4 +611,4 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
 
 =======================================================================
 The zipkin-lens.jar dependency has more front-end dependencies in it and the front-end dependencies' licenses
-are listed in zipkin-LICENSE. 
+are listed in zipkin-LICENSE.
