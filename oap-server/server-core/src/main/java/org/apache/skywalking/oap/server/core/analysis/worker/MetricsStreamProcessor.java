@@ -191,7 +191,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
                                                                        .provider()
                                                                        .getService(IWorkerInstanceSetter.class);
-        workerInstanceSetter.put(remoteReceiverWorkerName, minutePersistentWorker, metricsClass);
+        workerInstanceSetter.put(remoteReceiverWorkerName, minutePersistentWorker, kind, metricsClass);
 
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
         MetricsAggregateWorker aggregateWorker;

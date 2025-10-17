@@ -108,6 +108,7 @@
 * OAP Self Observability: make Trace analysis metrics separate by label `protocol`, add Zipkin span dropped metrics.
 * BanyanDB: Move data write logic from BanyanDB Java Client to OAP and support observe metrics for write operations.
 * Self Observability: add write latency metrics for BanyanDB and ElasticSearch.
+* Fix the malfunctioning alarm feature of MAL metrics due to unknown metadata in L2 aggregate worker.
 
 #### UI
 
