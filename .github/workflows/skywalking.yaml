@@ -17,9 +17,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - citest
   pull_request:
   schedule:
     - cron: "0 18 * * *" # TimeZone: UTC 0
@@ -796,7 +793,7 @@ jobs:
   e2e-test-istio:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'Apache/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
     runs-on: ubuntu-24.04
@@ -864,7 +861,7 @@ jobs:
   e2e-test-istio-ambient:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'Apache/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
     runs-on: ubuntu-24.04
@@ -925,7 +922,7 @@ jobs:
   e2e-test-java-versions:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'Apache/skywalking') || needs.changes.outputs.oap == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
     runs-on: ubuntu-latest
