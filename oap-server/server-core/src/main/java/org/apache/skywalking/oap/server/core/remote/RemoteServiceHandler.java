@@ -122,7 +122,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                         AbstractWorker nextWorker = handleWorker.getWorker();
                         StreamData streamData;
                         try {
-                            streamData = handleWorker.getStreamDataClass().newInstance();
+                            streamData = handleWorker.newStreamDataInstance();
                         } catch (Throwable t) {
                             remoteInErrorCounter.inc();
                             LOGGER.error(t.getMessage(), t);
