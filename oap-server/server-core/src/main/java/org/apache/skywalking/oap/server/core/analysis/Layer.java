@@ -256,7 +256,12 @@ public enum Layer {
     /**
      * Apache Flink is a framework and distributed processing engine for stateful computations over unbounded and bounded data streams
      */
-    FLINK(42, true);
+    FLINK(42, true),
+
+    /**
+     * BanyanDB is a distributed time-series database with built-in self-monitoring for real-time tracking of system health, performance, and resource utilization.
+     */
+    BANYANDB(43, true);
 
     private final int value;
     /**

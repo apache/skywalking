@@ -1,0 +1,47 @@
+[
+    {
+        "id": "BanyanDB-Service",
+        "configuration": {
+            "children": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 24,
+                    "h": 33,
+                    "i": "0",
+                    "type": "Tab",
+                    "children": [
+                        {
+                            "name": "Instances",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 24,
+                                    "h": 29,
+                                    "i": "0",
+                                    "type": "Widget",
+                                    "graph": {
+                                        "type": "InstanceList",
+                                        "dashboardName": "BanyanDB-Instance",
+                                        "fontSize": 12
+                                    },
+                                    "expressions": [
+                                        ""
+                                    ],
+                                    "subExpressions": [
+                                        ""
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "layer": "BANYANDB",
+            "entity": "Service",
+            "name": "BanyanDB-Service",
+            "isRoot": false
+        }
+    }
+]
