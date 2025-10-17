@@ -156,7 +156,7 @@
                   "i": "9",
                   "type": "Widget",
                   "widget": {
-                    "title": "Persistence Preparing Latency Per Metric Type (ms / min)"
+                    "title": "Persistence Preparing Latency Per Metric Type (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -178,7 +178,7 @@
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "Persistence Execution Latency Per Metric Type (ms / min)"
+                    "title": "Persistence Execution Latency Per Metric Type (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -634,7 +634,7 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "Trace Analysis Latency (ms / min)"
+                    "title": "Trace Analysis Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -683,7 +683,7 @@
                   "i": "12",
                   "type": "Widget",
                   "widget": {
-                    "title": "Mesh Analysis Latency (ms / min)"
+                    "title": "Mesh Analysis Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -732,7 +732,7 @@
                   "i": "18",
                   "type": "Widget",
                   "widget": {
-                    "title": "K8S ALS Analysis Latency (ms / min)"
+                    "title": "K8S ALS Analysis Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -841,7 +841,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "OpenTelemetry Metrics Latency (ms / min)"
+                    "title": "OpenTelemetry Metrics Latency (ms)"
                   }
                 },
                 {
@@ -863,7 +863,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "OpenTelemetry Spans Latency (ms / min)"
+                    "title": "OpenTelemetry Spans Latency (ms)"
                   }
                 },
                 {
@@ -885,7 +885,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "OpenTelemetry Logs Latency (ms / min)"
+                    "title": "OpenTelemetry Logs Latency (ms)"
                   }
                 },
                 {
@@ -942,7 +942,7 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "BanyanDB Measure Bulk Latency (ms / min)",
+                    "title": "BanyanDB Measure Bulk Latency (ms)",
                     "tips": "bulk_write include write/update"
                   },
                   "graph": {
@@ -965,7 +965,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "BanyanDB Stream Bulk Latency (ms / min)"
+                    "title": "BanyanDB Stream Bulk Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -987,7 +987,7 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "BanyanDB Trace Bulk Latency (ms / min)"
+                    "title": "BanyanDB Trace Bulk Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -1009,7 +1009,7 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "BanyanDB Stream Single Latency (ms / min)"
+                    "title": "BanyanDB Stream Single Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -1031,7 +1031,7 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "BanyanDB Property Single Latency (ms / min)"
+                    "title": "BanyanDB Property Single Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -1058,7 +1058,7 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Elasticsearch Single Latency (ms / min)"
+                    "title": "Elasticsearch Single Latency (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -1080,7 +1080,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Elasticsearch Bulk Latency (ms / min)",
+                    "title": "Elasticsearch Bulk Latency (ms)",
                     "tips": "bulk_write include write/update"
                   },
                   "graph": {

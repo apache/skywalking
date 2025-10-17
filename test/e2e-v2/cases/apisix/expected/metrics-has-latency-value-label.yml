@@ -39,7 +39,7 @@ results:
       - key: type
         value: "apisix"
       - key: p
-        value: "70"
+        value: "75"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -57,6 +57,23 @@ results:
         value: "apisix"
       - key: p
         value: "90"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+      owner: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+      owner: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "apisix"
+      - key: p
+        value: "95"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -107,7 +124,7 @@ results:
       - key: type
         value: "request"
       - key: p
-        value: "70"
+        value: "75"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -125,6 +142,23 @@ results:
         value: "request"
       - key: p
         value: "90"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+      owner: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+      owner: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "request"
+      - key: p
+        value: "95"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -175,7 +209,7 @@ results:
       - key: type
         value: "upstream"
       - key: p
-        value: "70"
+        value: "75"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -193,6 +227,23 @@ results:
         value: "upstream"
       - key: p
         value: "90"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+      owner: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+      owner: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "upstream"
+      - key: p
+        value: "95"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
