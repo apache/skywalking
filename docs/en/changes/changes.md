@@ -103,6 +103,9 @@
 * Fix potential NPE in the `AlarmStatusQueryHandler`.
 * Aggregate TopN Slow SQL by service dimension.
 * BanyanDB: support add group prefix (namespace) for BanyanDB groups.
+* Profile-receiver-plugin: feat: add go profile data receive func; add google pprof proto to prase.
+* Storage: feat: add isGo column to ProfileThreadSnapshotRecord.
+* Feat: add go profile analyzer.
 
 #### UI
 
