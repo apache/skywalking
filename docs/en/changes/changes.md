@@ -49,11 +49,11 @@
 * Add UI dashboard for Ruby runtime metrics.
 * Tracing Query Execution HTTP APIs: make the argument `service layer` optional.
 * GraphQL API: metadata, topology, log and trace support query by name.
-* Support pprof profiling feature
 * [Break Change] MQE function `sort_values` sorts according to the aggregation result and labels rather than the simple time series values.
 * Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
 * Optimize metrics aggregate/persistent worker: separate `OAL` and `MAL` workers and consume pools. The dataflow signal drives the new MAL consumer, 
   the following table shows the pool size，driven mode and queue size for each worker.
+* Support pprof profiling feature. 
   
 | Worker                        | poolSize                                 | isSignalDrivenMode | queueChannelSize | queueBufferSize |
 |-------------------------------|------------------------------------------|--------------------|------------------|-----------------|
