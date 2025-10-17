@@ -67,16 +67,16 @@ results:
         - key: p
           value: "95"
     values:
-      { { - contains .values } }
-      - id: { { notEmpty .id } }
-        value: { { .value } }
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
         owner: null
         traceid: null
-      - id: { { notEmpty .id } }
+      - id: {{ notEmpty .id }}
         value: null
         owner: null
         traceid: null
-      { { - end } }
+      {{- end}}
   - metric:
       labels:
         - key: p
