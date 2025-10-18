@@ -49,6 +49,7 @@
         <module>skywalking-telegraf-receiver-plugin</module>
         <module>aws-firehose-receiver</module>
         <module>skywalking-async-profiler-receiver-plugin</module>
+        <module>skywalking-pprof-receiver-plugin</module>
     </modules>
 
     <dependencies>

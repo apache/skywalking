@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.cache.AsyncProfilerTaskCache;
+import org.apache.skywalking.oap.server.core.cache.PprofTaskCache;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
@@ -41,6 +42,8 @@ import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProf
 import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingMutationService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
+import org.apache.skywalking.oap.server.core.profiling.pprof.PprofMutationService;
+import org.apache.skywalking.oap.server.core.profiling.pprof.PprofQueryService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -106,6 +109,7 @@ public class CoreModule extends ModuleDefine {
         addManagementService(classes);
         addEBPFProfilingService(classes);
         addAsyncProfilerService(classes);
+        addPprofService(classes);
 
         classes.add(CommandService.class);
         classes.add(HierarchyService.class);
@@ -135,6 +139,12 @@ public class CoreModule extends ModuleDefine {
         classes.add(AsyncProfilerMutationService.class);
         classes.add(AsyncProfilerQueryService.class);
         classes.add(AsyncProfilerTaskCache.class);
+    }
+
+    private void addPprofService(List<Class> classes) {
+        classes.add(PprofMutationService.class);
+        classes.add(PprofQueryService.class);
+        classes.add(PprofTaskCache.class);
     }
 
     private void addOALService(List<Class> classes) {

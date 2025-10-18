@@ -43,6 +43,7 @@ global:
   # The batch size for querying profile data.
   profileDataQueryBatchSize: ${SW_STORAGE_BANYANDB_QUERY_PROFILE_DATA_BATCH_SIZE:100}
   asyncProfilerTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_ASYNC_PROFILER_TASK_QUERY_MAX_SIZE:200}
+  pprofTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PPROF_TASK_QUERY_MAX_SIZE:200}
   user: ${SW_STORAGE_BANYANDB_USER:""}
   password: ${SW_STORAGE_BANYANDB_PASSWORD:""}
   # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.

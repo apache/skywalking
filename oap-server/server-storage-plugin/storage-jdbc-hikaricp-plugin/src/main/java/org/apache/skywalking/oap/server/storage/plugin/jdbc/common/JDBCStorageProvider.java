@@ -33,6 +33,9 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -66,6 +69,9 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCAggre
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCAlarmQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCAsyncProfilerTaskQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCPprofDataQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCPprofTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCPprofTaskQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCBatchDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCContinuousProfilingPolicyDAO;
@@ -254,6 +260,18 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IJFRDataQueryDAO.class,
             new JDBCJFRDataQueryDAO(jdbcClient, tableHelper)
+        );
+        this.registerServiceImplementation(
+            IPprofTaskQueryDAO.class,
+            new JDBCPprofTaskQueryDAO(jdbcClient, tableHelper)
+        );
+        this.registerServiceImplementation(
+            IPprofTaskLogQueryDAO.class,
+            new JDBCPprofTaskLogQueryDAO(jdbcClient, tableHelper)
+        );
+        this.registerServiceImplementation(
+            IPprofDataQueryDAO.class,
+            new JDBCPprofDataQueryDAO(jdbcClient, tableHelper)
         );
         this.registerServiceImplementation(
             StorageTTLStatusQuery.class,

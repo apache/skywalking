@@ -39,6 +39,9 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
@@ -81,6 +84,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.Aggre
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AlarmQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AsyncProfilerTaskLogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AsyncProfilerTaskQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.PprofTaskLogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.BrowserLogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ContinuousProfilingPolicyEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFProfilingDataEsDAO;
@@ -89,12 +93,14 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFP
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.HierarchyQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.JFRDataQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.PprofDataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.LogQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetadataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.MetricsQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskLogEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileTaskQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ProfileThreadSnapshotQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.PprofTaskQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.RecordsQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ServiceLabelEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.SpanAttachedEventEsDAO;
@@ -275,6 +281,18 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.registerServiceImplementation(
                 IJFRDataQueryDAO.class,
                 new JFRDataQueryEsDAO(elasticSearchClient)
+        );
+        this.registerServiceImplementation(
+                IPprofTaskQueryDAO.class,
+                new PprofTaskQueryEsDAO(elasticSearchClient, config.getPprofTaskQueryMaxSize())
+        );
+        this.registerServiceImplementation(
+                IPprofTaskLogQueryDAO.class,
+                new PprofTaskLogQueryEsDAO(elasticSearchClient, config.getPprofTaskQueryMaxSize())
+        );
+        this.registerServiceImplementation(
+                IPprofDataQueryDAO.class,
+                new PprofDataQueryEsDAO(elasticSearchClient)
         );
         this.registerServiceImplementation(
             StorageTTLStatusQuery.class,

@@ -178,6 +178,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-pprof-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-telegraf-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

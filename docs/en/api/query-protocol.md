@@ -215,7 +215,7 @@ extend type Query {
 Event query fetches the event list based on given sources and time range conditions.
 
 ### Profiling
-SkyWalking offers two types of [profiling](../concepts-and-designs/profiling.md), in-process(tracing profiling and async-profiler) and out-process(ebpf profiling), allowing users to create tasks and check their execution status.
+SkyWalking offers two types of [profiling](../concepts-and-designs/profiling.md), in-process(tracing profiling, async-profiler and pprof) and out-process(ebpf profiling), allowing users to create tasks and check their execution status.
 
 #### In-process profiling
 
@@ -255,6 +255,25 @@ extend type Query {
     queryAsyncProfilerAnalyze(request: AsyncProfilerAnalyzationRequest!): AsyncProfilerAnalyzation!
 }
 ```
+
+##### pprof
+
+```graphql
+extend type Mutation {
+    # Create a new pprof task
+    createPprofTask(pprofTaskCreationRequest: PprofTaskCreationRequest!): PprofTaskCreationResult!
+}
+
+extend type Query {
+    # Query all task lists and sort them in descending order by create time
+    queryPprofTaskList(request: PprofTaskListRequest!): PprofTaskListResult!
+    # Query task progress, including task logs
+    queryPprofTaskProgress(taskId: String!): PprofTaskProgress!
+    # Query the flame graph produced by pprof
+    queryPprofAnalyze(request: PprofAnalyzationRequest!): PprofAnalyzation!
+}
+```
+
 
 #### Out-process profiling
 

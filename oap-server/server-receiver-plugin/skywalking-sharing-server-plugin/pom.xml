@@ -27,4 +27,12 @@
 
     <artifactId>skywalking-sharing-server-plugin</artifactId>
     <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

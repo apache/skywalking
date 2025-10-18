@@ -167,4 +167,9 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * in a single request.
      */
     private int asyncProfilerTaskQueryMaxSize;
+    /**
+     * Max size of {@link org.apache.skywalking.oap.server.core.query.type.PprofTask} to be fetched
+     * in a single request.
+     */
+    private int pprofTaskQueryMaxSize;
 }
