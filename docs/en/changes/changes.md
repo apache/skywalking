@@ -108,6 +108,9 @@
 * Enhance the alarm kernel with recovered status notification capability
 * BanyanDB: Move data write logic from BanyanDB Java Client to OAP and support observe metrics for write operations.
 * Self Observability: add write latency metrics for BanyanDB and ElasticSearch.
+* Fix the malfunctioning alarm feature of MAL metrics due to unknown metadata in L2 aggregate worker.
+* Make MAL percentile align with OAL percentile calculation.
+* Update Grafana dashboards for OAP observability.
 
 #### UI
 

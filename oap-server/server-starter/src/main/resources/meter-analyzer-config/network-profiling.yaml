@@ -72,11 +72,11 @@ metricsRules:
   - name: client_drop_cpm
     exp: rover_net_p_client_drop_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
   - name: client_write_rtt_time_percentile
-    exp: rover_net_p_client_write_rtt_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_client_write_rtt_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: client_write_exe_time_percentile
-    exp: rover_net_p_client_write_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_client_write_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: client_read_exe_time_percentile
-    exp: rover_net_p_client_read_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_client_read_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
 
   # TCP Metrics: server side
   - name: server_write_cpm
@@ -106,11 +106,11 @@ metricsRules:
   - name: server_drop_cpm
     exp: rover_net_p_server_drop_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
   - name: server_write_rtt_time_percentile
-    exp: rover_net_p_server_write_rtt_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_server_write_rtt_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: server_write_exe_time_percentile
-    exp: rover_net_p_server_write_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_server_write_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: server_read_exe_time_percentile
-    exp: rover_net_p_server_read_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_server_read_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
 
   # HTTP/1.x Metrics
   - name: http1_request_cpm
@@ -122,14 +122,14 @@ metricsRules:
   - name: http1_response_package_size
     exp: rover_net_p_http1_response_package_size_avg.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
   - name: http1_request_package_size_percentile
-    exp: rover_net_p_http1_request_package_size_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_http1_request_package_size_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: http1_response_package_size_percentile
-    exp: rover_net_p_http1_response_package_size_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_http1_response_package_size_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: http1_client_duration
     exp: rover_net_p_http1_client_duration_avg.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
   - name: http1_server_duration
     exp: rover_net_p_http1_server_duration_avg.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
   - name: http1_client_duration_percentile
-    exp: rover_net_p_http1_client_duration_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_http1_client_duration_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: http1_server_duration_percentile
-    exp: rover_net_p_http1_server_duration_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: rover_net_p_http1_server_duration_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
