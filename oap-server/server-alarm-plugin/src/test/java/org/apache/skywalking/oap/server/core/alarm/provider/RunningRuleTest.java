@@ -50,6 +50,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.apache.skywalking.oap.server.core.alarm.provider.AlarmCore.getAlarmFiringMessageList;
+import static org.apache.skywalking.oap.server.core.alarm.provider.AlarmCore.getAlarmRecoveryMessageList;
+
 /**
  * Running rule is the core of how does alarm work.
  * <p>
@@ -59,11 +62,11 @@ public class RunningRuleTest {
     @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Endpoint.getScopeId());
+                "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Endpoint.getScopeId());
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_multiple_values", "testColumn", Column.ValueDataType.LABELED_VALUE, 0, Scope.Endpoint.getScopeId());
+                "endpoint_multiple_values", "testColumn", Column.ValueDataType.LABELED_VALUE, 0, Scope.Endpoint.getScopeId());
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_cpm", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Endpoint.getScopeId());
+                "endpoint_cpm", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Endpoint.getScopeId());
     }
 
     @Test
@@ -119,12 +122,12 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
 
         // check at startTime - 4
-        List<AlarmMessage> alarmMessages = runningRule.check();
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size());
 
         // check at startTime - 2
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
-        alarmMessages = runningRule.check();
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(1, alarmMessages.size());
     }
 
@@ -152,14 +155,14 @@ public class RunningRuleTest {
 
         // check at startTime
         runningRule.moveTo(startTime.toLocalDateTime());
-        List<AlarmMessage> alarmMessages = runningRule.check();
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size());
     }
 
     @Test
     public void testLabeledAlarm() throws IllegalExpressionException {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_labeled", "testColumn", Column.ValueDataType.LABELED_VALUE, 0, Scope.Endpoint.getScopeId());
+                "endpoint_labeled", "testColumn", Column.ValueDataType.LABELED_VALUE, 0, Scope.Endpoint.getScopeId());
         AlarmRule alarmRule = new AlarmRule(null);
         alarmRule.setExpression("sum(endpoint_labeled{p='95,99'} > 10) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_labeled");
@@ -202,13 +205,13 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123, "endpoint_cpm"), getMetrics(timeInPeriod1, 50));
         runningRule.in(getMetaInAlarm(123, "endpoint_cpm"), getMetrics(timeInPeriod2, 99));
 
-        List<AlarmMessage> alarmMessages = runningRule.check();
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
         runningRule.in(getMetaInAlarm(123, "endpoint_cpm"), getMetrics(timeInPeriod3, 60));
 
-        alarmMessages = runningRule.check();
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(alarmMsgSize, alarmMessages.size());
     }
 
@@ -231,6 +234,11 @@ public class RunningRuleTest {
             public void doAlarm(List<AlarmMessage> alarmMessage) {
                 isAlarm[0] = true;
             }
+
+            @Override
+            public void doAlarmRecovery(List<AlarmMessage> alarmResolvedMessages) {
+                isAlarm[0] = false;
+            }
         };
         LinkedList<AlarmCallback> callbackList = new LinkedList<>();
         callbackList.add(assertCallback);
@@ -249,15 +257,15 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod5, 95));
 
         // check at startTime - 1
-        Assertions.assertEquals(0, runningRule.check().size());
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size());
 
         // check at startTime
         runningRule.moveTo(startTime.toLocalDateTime());
-        Assertions.assertEquals(0, runningRule.check().size());
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size());
 
         // check at startTime + 1
         runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
-        Assertions.assertEquals(0, runningRule.check().size());
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size());
     }
 
     @Test
@@ -282,21 +290,78 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
 
         // check at startTime - 4
-        Assertions.assertEquals(0, runningRule.check().size()); //check matches, no alarm
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size()); //check matches, no alarm
 
         // check at startTime
         runningRule.moveTo(startTime.toLocalDateTime());
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
-        Assertions.assertEquals(1, runningRule.check().size()); //alarm
+        Assertions.assertEquals(1, getAlarmFiringMessageList(runningRule.check()).size()); //alarm
 
         // check at starTime + 1
         runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
-        Assertions.assertEquals(0, runningRule.check().size()); //silence, no alarm
-        Assertions.assertEquals(0, runningRule.check().size()); //silence, no alarm
-        Assertions.assertNotEquals(0, runningRule.check().size()); //alarm
-        Assertions.assertEquals(0, runningRule.check().size()); //silence, no alarm
-        Assertions.assertEquals(0, runningRule.check().size()); //silence, no alarm
-        Assertions.assertNotEquals(0, runningRule.check().size()); //alarm
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size()); //silence, no alarm
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size()); //silence, no alarm
+        Assertions.assertNotEquals(0, getAlarmFiringMessageList(runningRule.check()).size()); //alarm
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size()); //silence, no alarm
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size()); //silence, no alarm
+        Assertions.assertNotEquals(0, getAlarmFiringMessageList(runningRule.check()).size()); //alarm
+    }
+
+    @Test
+    public void testRecoverObservation() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule(null);
+        alarmRule.setAlarmRuleName("endpoint_percent_rule");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(15);
+        alarmRule.setRecoveryObservationPeriod(2);
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+        RunningRule runningRule = new RunningRule(alarmRule, null);
+
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
+        runningRule.moveTo(startTime.toLocalDateTime());
+        Assertions.assertEquals(1, getAlarmFiringMessageList(runningRule.check()).size()); //alarm
+        runningRule.moveTo(startTime.plusMinutes(8).toLocalDateTime());
+        Assertions.assertEquals(0, getAlarmRecoveryMessageList(runningRule.check()).size()); //no recovery
+        runningRule.moveTo(startTime.plusMinutes(9).toLocalDateTime());
+        Assertions.assertEquals(0, getAlarmRecoveryMessageList(runningRule.check()).size()); //recoverObserving
+        Assertions.assertEquals(0, getAlarmRecoveryMessageList(runningRule.check()).size()); //recoverObserving
+        Assertions.assertEquals(1, getAlarmRecoveryMessageList(runningRule.check()).size()); //recovered
+    }
+
+    @Test
+    public void testRecover() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule(null);
+        alarmRule.setAlarmRuleName("endpoint_percent_rule");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(15);
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+        RunningRule runningRule = new RunningRule(alarmRule, null);
+
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
+        runningRule.moveTo(startTime.toLocalDateTime());
+        Assertions.assertEquals(1, getAlarmFiringMessageList(runningRule.check()).size()); //alarm
+        runningRule.moveTo(startTime.plusMinutes(9).toLocalDateTime());
+        Assertions.assertEquals(1, getAlarmRecoveryMessageList(runningRule.check()).size()); //recovery
     }
 
     @Test
@@ -323,15 +388,15 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
 
         // check at startTime - 2
-        Assertions.assertEquals(0, runningRule.check().size());
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size());
 
         // check at startTime
         runningRule.moveTo(startTime.toLocalDateTime());
-        Assertions.assertEquals(0, runningRule.check().size());
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size());
 
         // check at startTime + 1
         runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
-        Assertions.assertEquals(0, runningRule.check().size());
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size());
     }
 
     @Test
@@ -342,7 +407,7 @@ public class RunningRuleTest {
         alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(10);
         alarmRule.setMessage(
-            "Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
+                "Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
         alarmRule.setIncludeNamesRegex("Service\\_1(\\d)+");
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
@@ -359,15 +424,15 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(223), getMetrics(timeInPeriod3, 74));
 
         // check at startTime - 1
-        Assertions.assertEquals(1, runningRule.check().size());
+        Assertions.assertEquals(1, getAlarmFiringMessageList(runningRule.check()).size());
 
         // check at startTime
         runningRule.moveTo(startTime.toLocalDateTime());
-        Assertions.assertEquals(1, runningRule.check().size());
+        Assertions.assertEquals(1, getAlarmFiringMessageList(runningRule.check()).size());
 
         // check at startTime + 6
         runningRule.moveTo(startTime.plusMinutes(6).toLocalDateTime());
-        Assertions.assertEquals(0, runningRule.check().size());
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size());
     }
 
     @Test
@@ -378,7 +443,7 @@ public class RunningRuleTest {
         alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(10);
         alarmRule.setMessage(
-            "Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
+                "Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
         alarmRule.setExcludeNamesRegex("Service\\_2(\\d)+");
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
@@ -395,15 +460,15 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(223), getMetrics(timeInPeriod3, 74));
 
         // check at startTime - 1
-        Assertions.assertEquals(1, runningRule.check().size());
+        Assertions.assertEquals(1, getAlarmFiringMessageList(runningRule.check()).size());
 
         // check at startTime
         runningRule.moveTo(startTime.toLocalDateTime());
-        Assertions.assertEquals(1, runningRule.check().size());
+        Assertions.assertEquals(1, getAlarmFiringMessageList(runningRule.check()).size());
 
         // check at startTime + 6
         runningRule.moveTo(startTime.plusMinutes(6).toLocalDateTime());
-        Assertions.assertEquals(0, runningRule.check().size());
+        Assertions.assertEquals(0, getAlarmFiringMessageList(runningRule.check()).size());
     }
 
     private MetaInAlarm getMetaInAlarm(int id) {
@@ -472,7 +537,7 @@ public class RunningRuleTest {
     private AlarmEntity getAlarmEntity(int id) {
         MetaInAlarm metaInAlarm = getMetaInAlarm(id);
         return new AlarmEntity(metaInAlarm.getScope(), metaInAlarm.getScopeId(), metaInAlarm.getName(),
-                               metaInAlarm.getId0(), metaInAlarm.getId1()
+                metaInAlarm.getId0(), metaInAlarm.getId1()
         );
     }
 
@@ -594,13 +659,13 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod2, value2));
 
         // check at startTime - 4
-        List<AlarmMessage> alarmMessages = runningRule.check();
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size());
 
         // check at startTime
         runningRule.moveTo(startTime.toLocalDateTime());
         runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod3, value3));
-        alarmMessages = runningRule.check();
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(alarmMsgSize, alarmMessages.size());
     }
 }

@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 public class FeishuSettings extends AlarmHookSettings {
 
     private String textTemplate;
+    private String recoveryTextTemplate;
     @Builder.Default
     private List<WebHookUrl> webhooks = new ArrayList<>();
 

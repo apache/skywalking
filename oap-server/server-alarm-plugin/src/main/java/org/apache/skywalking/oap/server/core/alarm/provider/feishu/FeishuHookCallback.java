@@ -48,11 +48,7 @@ import java.util.stream.Collectors;
 public class FeishuHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
 
-    /**
-     * Send alarm message if the settings not empty
-     */
-    @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+    protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, FeishuSettings> settingsMap = alarmRulesWatcher.getFeishuSettings();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
@@ -63,12 +59,12 @@ public class FeishuHookCallback extends HttpAlarmCallback {
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
             if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
-                messages)) {
+                    messages)) {
                 continue;
             }
             for (final var webHookUrl : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
-                    final var requestBody = getRequestBody(webHookUrl, alarmMessage, setting.getTextTemplate());
+                    final var requestBody = getRequestBody(webHookUrl, alarmMessage, getTemplate(setting, isRecovery));
                     try {
                         post(URI.create(webHookUrl.getUrl()), requestBody, Map.of());
                     } catch (Exception e) {
@@ -77,6 +73,10 @@ public class FeishuHookCallback extends HttpAlarmCallback {
                 }
             }
         }
+    }
+
+    private String getTemplate(FeishuSettings setting, boolean isRecovery) {
+        return isRecovery ? setting.getRecoveryTextTemplate() : setting.getTextTemplate();
     }
 
     /**

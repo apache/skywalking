@@ -31,6 +31,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 @Slf4j
@@ -42,7 +43,7 @@ public class PagerDutyHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
 
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+    protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, PagerDutySettings> settingsMap = alarmRulesWatcher.getPagerDutySettings();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
@@ -54,15 +55,15 @@ public class PagerDutyHookCallback extends HttpAlarmCallback {
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
             if (setting == null || CollectionUtils.isEmpty(setting.getIntegrationKeys()) || CollectionUtils.isEmpty(
-                messages)) {
+                    messages)) {
                 continue;
             }
             for (final var integrationKey : setting.getIntegrationKeys()) {
                 for (final var alarmMessage : messages) {
                     try {
                         post(
-                            URI.create(PAGER_DUTY_EVENTS_API_V2_URL),
-                            getMessageBody(alarmMessage, integrationKey, setting.getTextTemplate()), Map.of()
+                                URI.create(PAGER_DUTY_EVENTS_API_V2_URL),
+                                getMessageBody(alarmMessage, integrationKey, getTemplate(isRecovery, setting)), Map.of()
                         );
                     } catch (Exception e) {
                         log.error("Failed to send alarm message to PagerDuty: {}", integrationKey, e);
@@ -70,6 +71,10 @@ public class PagerDutyHookCallback extends HttpAlarmCallback {
                 }
             }
         }
+    }
+
+    private String getTemplate(boolean isRecovery, PagerDutySettings setting) {
+        return isRecovery ? setting.getRecoveryTextTemplate() : setting.getTextTemplate();
     }
 
     private String getMessageBody(AlarmMessage alarmMessage, String integrationKey, String textTemplate) {

@@ -33,6 +33,8 @@ public class WechatSettings extends AlarmHookSettings {
 
     private String textTemplate;
 
+    private String recoveryTextTemplate;
+
     private List<String> webhooks = new ArrayList<>();
 
     public WechatSettings(final String name,

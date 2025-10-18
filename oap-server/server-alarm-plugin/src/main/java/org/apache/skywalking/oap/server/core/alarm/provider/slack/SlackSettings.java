@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 public class SlackSettings extends AlarmHookSettings {
 
     private String textTemplate;
+    private String recoveryTextTemplate;
 
     private List<String> webhooks = new ArrayList<>();
 

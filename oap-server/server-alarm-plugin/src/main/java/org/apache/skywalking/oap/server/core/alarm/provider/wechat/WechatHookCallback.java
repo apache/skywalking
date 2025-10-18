@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
@@ -38,7 +39,7 @@ public class WechatHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
 
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+    public void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, WechatSettings> settingsMap = alarmRulesWatcher.getWechatSettings();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
@@ -50,13 +51,13 @@ public class WechatHookCallback extends HttpAlarmCallback {
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
             if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
-                messages)) {
+                    messages)) {
                 continue;
             }
             for (final var url : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
                     final var requestBody = String.format(
-                        setting.getTextTemplate(), alarmMessage.getAlarmMessage()
+                            getTemplate(setting, isRecovery), alarmMessage.getAlarmMessage()
                     );
                     try {
                         post(URI.create(url), requestBody, Map.of());
@@ -66,5 +67,9 @@ public class WechatHookCallback extends HttpAlarmCallback {
                 }
             }
         }
+    }
+
+    private String getTemplate(WechatSettings setting, boolean isRecovery) {
+        return isRecovery ? setting.getRecoveryTextTemplate() : setting.getTextTemplate();
     }
 }

@@ -66,6 +66,7 @@ public class AlarmController {
         private String alarmMessage;
         private long startTime;
         private List<KeyValue> tags;
+        private long recoveryTime;
     }
 
     /**
