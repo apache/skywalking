@@ -148,7 +148,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         }
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        this.client = new BanyanDBStorageClient(config);
+        this.client = new BanyanDBStorageClient(getManager(), config);
         this.modelInstaller = new BanyanDBIndexInstaller(client, getManager(), this.config);
 
         // Stream

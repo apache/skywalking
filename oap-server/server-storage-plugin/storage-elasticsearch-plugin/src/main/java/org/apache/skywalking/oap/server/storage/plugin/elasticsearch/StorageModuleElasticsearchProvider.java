@@ -191,6 +191,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         }
 
         elasticSearchClient = new ElasticSearchClient(
+            getManager(),
             config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
             .getTrustStorePass(), config.getUser(), config.getPassword(),
             indexNameConverter(config.getNamespace()), config.getConnectTimeout(),
