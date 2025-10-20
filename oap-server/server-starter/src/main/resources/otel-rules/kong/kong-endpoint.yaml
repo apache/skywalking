@@ -31,10 +31,10 @@ metricsRules:
   # histogram
     # Latency added by Kong and enabled plugins for each service/route in Kong
   - name: kong_latency
-    exp: kong_kong_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,70,90,99])
+    exp: kong_kong_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,75,90,95,99])
     # Total latency incurred during requests for each service/route in Kong
   - name: request_latency
-    exp: kong_request_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,70,90,99])
+    exp: kong_request_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,75,90,95,99])
     # Latency added by upstream response for each service/route in Kong
   - name: upstream_latency
-    exp: kong_upstream_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,70,90,99])
+    exp: kong_upstream_latency_ms.tagNotEqual('route','').sum(['host_name','route','le']).histogram().histogram_percentile([50,75,90,95,99])
