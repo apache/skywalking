@@ -150,8 +150,6 @@ public class PprofFileCollectionObserver implements StreamObserver<PprofData> {
 
     public void parsePprofAndStorage(PprofCollectionMetaData taskMetaData, 
                                      String fileName) throws IOException {
-    log.info("Parsing pprof file for service: {}, instance: {}", 
-    taskMetaData.getServiceId(), taskMetaData.getInstanceId());
     PprofTask task = taskMetaData.getTask();
     FrameTree tree = PprofParser.dumpTree(fileName);
     PprofProfilingData data = new PprofProfilingData();
@@ -160,11 +158,6 @@ public class PprofFileCollectionObserver implements StreamObserver<PprofData> {
     data.setTaskId(task.getId());
     data.setInstanceId(taskMetaData.getInstanceId());
     data.setUploadTime(taskMetaData.getUploadTime());
-    log.info("data eventType: {}", data.getEventType());
-    log.info("data frameTree: {}", tree);
-    log.info("data taskId: {}", task.getId());
-    log.info("data instanceId: {}", taskMetaData.getInstanceId());
-    log.info("data uploadTime: {}", taskMetaData.getUploadTime());
     sourceReceiver.receive(data);
     }
 }

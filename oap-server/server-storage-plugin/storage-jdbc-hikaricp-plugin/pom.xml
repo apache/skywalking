@@ -48,12 +48,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.13</version>
-            <scope>provided</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -61,44 +55,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <executions>
-                    <!-- Default execution with MySQL driver excluded -->
-                    <execution>
-                        <id>default-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/PreventRedistributionMySQLDriverTest.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                    <!-- Separate execution for MySQL driver prevention test -->
-                    <execution>
-                        <id>test-without-mysql</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/PreventRedistributionMySQLDriverTest.java</include>
-                            </includes>
-                            <classpathDependencyExcludes>
-                                <classpathDependencyExclude>mysql:mysql-connector-java</classpathDependencyExclude>
-                            </classpathDependencyExcludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>

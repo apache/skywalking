@@ -17,8 +17,8 @@ logs:
   {{- contains .logs }}
 - id: {{ notEmpty .id}}
   instanceid: {{ b64enc "go-service" }}.1_{{ b64enc "provider1" }}
-  instancename: {{ notEmpty .instancename}}
-  operationtype: {{ notEmpty .operationtype}}
+  instancename: provider1
+  operationtype: EXECUTION_FINISHED
   operationtime: {{ ge .operationtime 0 }}
   {{- end }}
 errorinstanceids: []

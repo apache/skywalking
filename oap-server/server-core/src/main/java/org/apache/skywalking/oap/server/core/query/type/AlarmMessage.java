@@ -35,7 +35,6 @@ public class AlarmMessage {
     private String name;
     private String message;
     private Long startTime;
-    private Long recoveryTime;
     private transient String id1;
     private final List<KeyValue> tags;
     private List<Event> events = new ArrayList<>(2);
