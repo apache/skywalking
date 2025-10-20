@@ -29,4 +29,4 @@ metricsRules:
   - name: interceptor_error_count
     exp: interceptor_error_counter.sum(['plugin_name', 'inter_type', 'service', 'instance']).increase('PT1M')
   - name: tracing_context_execution_time_percentile
-    exp: tracing_context_performance.sum(['le', 'service', 'instance']).histogram().histogram_percentile([50,70,90,99])
+    exp: tracing_context_performance.sum(['le', 'service', 'instance']).histogram().histogram_percentile([50,75,90,95,99])
