@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.core.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -28,10 +30,10 @@ import org.apache.skywalking.oap.server.core.query.type.PprofTask;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public class PprofTaskCache implements Service {
-    private final Cache<String, PprofTask> serviceId2taskCache;
+    private final Cache<String, List<PprofTask>> serviceId2taskCache;
 
     public PprofTaskCache(CoreModuleConfig moduleConfig) {
-        long initialSize = moduleConfig.getMaxSizeOfProfileTask() / 10L;
+        long initialSize = moduleConfig.getMaxSizeOfPprofTask() / 10L;
         int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
 
         serviceId2taskCache = CacheBuilder.newBuilder()
@@ -42,17 +44,21 @@ public class PprofTaskCache implements Service {
                                           .build();
     }
 
-    public PprofTask getPprofTask(String serviceId) {
-        PprofTask task = serviceId2taskCache.getIfPresent(serviceId);
-        return task;
+    public List<PprofTask> getPprofTaskList(String serviceId) {
+        // read pprof task list from cache only, use cache update timer mechanism
+        List<PprofTask> pprofTaskList = serviceId2taskCache.getIfPresent(serviceId);
+        return pprofTaskList;
     }
 
-    public void saveTask(String serviceId, PprofTask task) {
-        if (task == null) {
-            return;
+    /**
+     * save service task list
+     */
+    public void saveTaskList(String serviceId, List<PprofTask> taskList) {
+        if (taskList == null) {
+            taskList = Collections.emptyList();
         }
 
-        serviceId2taskCache.put(serviceId, task);
+        serviceId2taskCache.put(serviceId, taskList);
     }
 
     /**

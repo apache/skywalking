@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.receiver.pprof.provider.handler;
 
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
-import java.util.Objects;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
@@ -79,20 +79,31 @@ public class PprofServiceHandler extends PprofTaskGrpc.PprofTaskImplBase impleme
     public void getPprofTaskCommands(PprofTaskCommandQuery request, StreamObserver<Commands> responseObserver) {
         String serviceId = IDManager.ServiceID.buildId(request.getService(), true);
         String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, request.getServiceInstance());
-        PprofTask task = taskCache.getPprofTask(serviceId);
+        List<PprofTask> taskList = taskCache.getPprofTaskList(serviceId);
         // if task is null or createTime is less than lastCommandTime, return empty commands
-        if (Objects.isNull(task) || task.getCreateTime() <= request.getLastCommandTime() || (!CollectionUtils.isEmpty(
-            task.getServiceInstanceIds()) && !task.getServiceInstanceIds().contains(serviceInstanceId))) {
+        if (CollectionUtils.isEmpty(taskList)) {
             responseObserver.onNext(Commands.newBuilder().build());
             responseObserver.onCompleted();
             return;
         }
 
-        PprofTaskCommand pprofTaskCommand = commandService.newPprofTaskCommand(task);
+        final long lastCommandTime = request.getLastCommandTime();
+        long minCreateTime = Long.MAX_VALUE;
+        PprofTask taskResult = null;
+        for (PprofTask task : taskList) {
+            if (task.getCreateTime() > lastCommandTime) {
+                if (task.getCreateTime() < minCreateTime) {
+                    minCreateTime = task.getCreateTime();
+                    taskResult = task;
+                }
+            }
+        }
+
+        PprofTaskCommand pprofTaskCommand = commandService.newPprofTaskCommand(taskResult);
         Commands commands = Commands.newBuilder().addCommands(pprofTaskCommand.serialize()).build();
         responseObserver.onNext(commands);
         responseObserver.onCompleted();
-        recordPprofTaskLog(task, serviceInstanceId, PprofTaskLogOperationType.NOTIFIED);
+        recordPprofTaskLog(taskResult, serviceInstanceId, PprofTaskLogOperationType.NOTIFIED);
     }
 
     public static void recordPprofTaskLog(PprofTask task, String instanceId, PprofTaskLogOperationType operationType) {
