@@ -19,6 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import org.apache.skywalking.banyandb.v1.client.Element;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -28,20 +32,15 @@ import org.apache.skywalking.oap.server.core.query.type.PprofTaskLogOperationTyp
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 /**
  * {@link PprofTaskLogRecord} is a stream
  */
 public class BanyanDBPprofTaskLogQueryDAO extends AbstractBanyanDBDAO implements IPprofTaskLogQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(
-            PprofTaskLogRecord.OPERATION_TIME,
-            PprofTaskLogRecord.INSTANCE_ID,
-            PprofTaskLogRecord.TASK_ID,
-            PprofTaskLogRecord.OPERATION_TYPE
+        PprofTaskLogRecord.OPERATION_TIME,
+        PprofTaskLogRecord.INSTANCE_ID,
+        PprofTaskLogRecord.TASK_ID,
+        PprofTaskLogRecord.OPERATION_TYPE
     );
 
     private final int queryMaxSize;
@@ -54,13 +53,15 @@ public class BanyanDBPprofTaskLogQueryDAO extends AbstractBanyanDBDAO implements
 
     @Override
     public List<PprofTaskLog> getTaskLogList() throws IOException {
-        StreamQueryResponse resp = query(false, PprofTaskLogRecord.INDEX_NAME, TAGS,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.setLimit(BanyanDBPprofTaskLogQueryDAO.this.queryMaxSize);
-                    }
-                });
+        StreamQueryResponse resp = query(
+            false, PprofTaskLogRecord.INDEX_NAME, TAGS,
+            new QueryBuilder<StreamQuery>() {
+                @Override
+                public void apply(StreamQuery query) {
+                    query.setLimit(BanyanDBPprofTaskLogQueryDAO.this.queryMaxSize);
+                }
+            }
+        );
 
         final LinkedList<PprofTaskLog> tasks = new LinkedList<>();
         for (final Element element : resp.getElements()) {
@@ -73,10 +74,10 @@ public class BanyanDBPprofTaskLogQueryDAO extends AbstractBanyanDBDAO implements
         int operationTypeInt = ((Number) data.getTagValue(PprofTaskLogRecord.OPERATION_TYPE)).intValue();
         PprofTaskLogOperationType operationType = PprofTaskLogOperationType.parse(operationTypeInt);
         return PprofTaskLog.builder()
-            .id(data.getTagValue(PprofTaskLogRecord.TASK_ID))
-            .instanceId(data.getTagValue(PprofTaskLogRecord.INSTANCE_ID))
-            .operationType(operationType)
-            .operationTime(((Number) data.getTagValue(PprofTaskLogRecord.OPERATION_TIME)).longValue())
-            .build();
+                           .id(data.getTagValue(PprofTaskLogRecord.TASK_ID))
+                           .instanceId(data.getTagValue(PprofTaskLogRecord.INSTANCE_ID))
+                           .operationType(operationType)
+                           .operationTime(((Number) data.getTagValue(PprofTaskLogRecord.OPERATION_TIME)).longValue())
+                           .build();
     }
 }

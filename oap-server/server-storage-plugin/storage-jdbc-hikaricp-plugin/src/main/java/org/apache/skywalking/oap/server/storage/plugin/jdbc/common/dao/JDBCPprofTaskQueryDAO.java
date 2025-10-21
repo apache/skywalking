@@ -21,6 +21,12 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskRecord;
@@ -31,13 +37,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -50,16 +49,19 @@ public class JDBCPprofTaskQueryDAO implements IPprofTaskQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<PprofTask> getTaskList(String serviceId, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
+    public List<PprofTask> getTaskList(String serviceId,
+                                       Long startTimeBucket,
+                                       Long endTimeBucket,
+                                       Integer limit) throws IOException {
         final var results = new ArrayList<PprofTask>();
         final var tables = startTimeBucket == null || endTimeBucket == null ?
-                tableHelper.getTablesWithinTTL(PprofTaskRecord.INDEX_NAME) :
-                tableHelper.getTablesForRead(PprofTaskRecord.INDEX_NAME, startTimeBucket, endTimeBucket);
+            tableHelper.getTablesWithinTTL(PprofTaskRecord.INDEX_NAME) :
+            tableHelper.getTablesForRead(PprofTaskRecord.INDEX_NAME, startTimeBucket, endTimeBucket);
         for (final var table : tables) {
             List<Object> condition = new ArrayList<>(4);
             StringBuilder sql = new StringBuilder()
-                    .append("select * from ").append(table)
-                    .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+                .append("select * from ").append(table)
+                .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(PprofTaskRecord.INDEX_NAME);
 
             if (StringUtil.isNotEmpty(serviceId)) {
@@ -84,24 +86,25 @@ public class JDBCPprofTaskQueryDAO implements IPprofTaskQueryDAO {
             }
 
             results.addAll(
-                    jdbcClient.executeQuery(
-                            sql.toString(),
-                            resultSet -> {
-                                final var tasks = new ArrayList<PprofTask>();
-                                while (resultSet.next()) {
-                                    tasks.add(buildPprofTask(resultSet));
-                                }
-                                return tasks;
-                            },
-                            condition.toArray(new Object[0]))
+                jdbcClient.executeQuery(
+                    sql.toString(),
+                    resultSet -> {
+                        final var tasks = new ArrayList<PprofTask>();
+                        while (resultSet.next()) {
+                            tasks.add(buildPprofTask(resultSet));
+                        }
+                        return tasks;
+                    },
+                    condition.toArray(new Object[0])
+                )
             );
         }
         return limit == null ?
-                results :
-                results
-                        .stream()
-                        .limit(limit)
-                        .collect(toList());
+            results :
+            results
+                .stream()
+                .limit(limit)
+                .collect(toList());
     }
 
     @Override
@@ -112,22 +115,23 @@ public class JDBCPprofTaskQueryDAO implements IPprofTaskQueryDAO {
             final StringBuilder sql = new StringBuilder();
             final List<Object> condition = new ArrayList<>(1);
             sql.append("select * from ").append(table)
-                    .append(" where ")
-                    .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ")
-                    .append(" and ")
-                    .append(PprofTaskRecord.TASK_ID + "=? LIMIT 1");
+               .append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ")
+               .append(" and ")
+               .append(PprofTaskRecord.TASK_ID + "=? LIMIT 1");
             condition.add(PprofTaskRecord.INDEX_NAME);
             condition.add(id);
 
             final var r = jdbcClient.executeQuery(
-                    sql.toString(),
-                    resultSet -> {
-                        if (resultSet.next()) {
-                            return buildPprofTask(resultSet);
-                        }
-                        return null;
-                    },
-                    condition.toArray(new Object[0]));
+                sql.toString(),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return buildPprofTask(resultSet);
+                    }
+                    return null;
+                },
+                condition.toArray(new Object[0])
+            );
             if (r != null) {
                 return r;
             }
@@ -142,14 +146,14 @@ public class JDBCPprofTaskQueryDAO implements IPprofTaskQueryDAO {
         String serviceInstanceIds = data.getString(PprofTaskRecord.SERVICE_INSTANCE_IDS);
         List<String> serviceInstanceIdList = GSON.fromJson(serviceInstanceIds, listType);
         return PprofTask.builder()
-                .id(data.getString(PprofTaskRecord.TASK_ID))
-                .serviceId(data.getString(PprofTaskRecord.SERVICE_ID))
-                .serviceInstanceIds(serviceInstanceIdList)
-                .createTime(data.getLong(PprofTaskRecord.CREATE_TIME))
-                .duration(data.getInt(PprofTaskRecord.DURATION))
-                .events(PprofEventType.valueOfString(events))
-                .dumpPeriod(data.getInt(PprofTaskRecord.DUMP_PERIOD))
-                .build();
+                        .id(data.getString(PprofTaskRecord.TASK_ID))
+                        .serviceId(data.getString(PprofTaskRecord.SERVICE_ID))
+                        .serviceInstanceIds(serviceInstanceIdList)
+                        .createTime(data.getLong(PprofTaskRecord.CREATE_TIME))
+                        .duration(data.getInt(PprofTaskRecord.DURATION))
+                        .events(PprofEventType.valueOfString(events))
+                        .dumpPeriod(data.getInt(PprofTaskRecord.DUMP_PERIOD))
+                        .build();
     }
-    
+
 }

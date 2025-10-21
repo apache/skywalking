@@ -18,27 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.profiling.pprof;
 
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
-import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.type.PprofTask;
-import java.util.Objects;
-import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofProfilingDataRecord;
-import java.io.IOException;
-import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
-import org.apache.skywalking.oap.server.core.query.type.PprofStackTree;
-import org.apache.skywalking.oap.server.library.pprof.parser.PprofMergeBuilder;
-import java.util.List;
 import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofProfilingDataRecord;
+import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.PprofStackTree;
+import org.apache.skywalking.oap.server.core.query.type.PprofTask;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.pprof.parser.PprofMergeBuilder;
+import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -54,8 +54,8 @@ public class PprofQueryService implements Service {
     private IPprofTaskQueryDAO getTaskQueryDAO() {
         if (taskQueryDAO == null) {
             this.taskQueryDAO = moduleManager.find(StorageModule.NAME)
-                    .provider()
-                    .getService(IPprofTaskQueryDAO.class);
+                                             .provider()
+                                             .getService(IPprofTaskQueryDAO.class);
         }
         return taskQueryDAO;
     }
@@ -63,8 +63,8 @@ public class PprofQueryService implements Service {
     private IPprofDataQueryDAO getPprofDataQueryDAO() {
         if (dataQueryDAO == null) {
             this.dataQueryDAO = moduleManager.find(StorageModule.NAME)
-                    .provider()
-                    .getService(IPprofDataQueryDAO.class);
+                                             .provider()
+                                             .getService(IPprofDataQueryDAO.class);
         }
         return dataQueryDAO;
     }
@@ -72,8 +72,8 @@ public class PprofQueryService implements Service {
     private IPprofTaskLogQueryDAO getTaskLogQueryDAO() {
         if (logQueryDAO == null) {
             this.logQueryDAO = moduleManager.find(StorageModule.NAME)
-                    .provider()
-                    .getService(IPprofTaskLogQueryDAO.class);
+                                            .provider()
+                                            .getService(IPprofTaskLogQueryDAO.class);
         }
         return logQueryDAO;
     }
@@ -90,13 +90,17 @@ public class PprofQueryService implements Service {
     }
 
     public PprofStackTree queryPprofData(String taskId, List<String> instanceIds) throws IOException {
-        List<PprofProfilingDataRecord> pprofDataList = getPprofDataQueryDAO().getByTaskIdAndInstances(taskId, instanceIds);
+        List<PprofProfilingDataRecord> pprofDataList = getPprofDataQueryDAO().getByTaskIdAndInstances(
+            taskId, instanceIds);
         List<FrameTree> trees = pprofDataList.stream()
-                .map(data -> GSON.fromJson(new String(data.getDataBinary()), FrameTree.class))
-                .collect(Collectors.toList());
+                                             .map(data -> GSON.fromJson(
+                                                 new String(data.getDataBinary()),
+                                                 FrameTree.class
+                                             ))
+                                             .collect(Collectors.toList());
         FrameTree resultTree = new PprofMergeBuilder()
-                .merge(trees)
-                .build();
+            .merge(trees)
+            .build();
         return new PprofStackTree(resultTree);
     }
 
@@ -104,19 +108,19 @@ public class PprofQueryService implements Service {
         List<PprofTaskLog> taskLogList = getTaskLogQueryDAO().getTaskLogList();
         return findMatchedLogs(taskId, taskLogList);
     }
-    
+
     private List<PprofTaskLog> findMatchedLogs(final String taskID, final List<PprofTaskLog> allLogs) {
         return allLogs.stream()
-                .filter(l -> Objects.equals(l.getId(), taskID))
-                .map(this::extendTaskLog)
-                .collect(Collectors.toList());
+                      .filter(l -> Objects.equals(l.getId(), taskID))
+                      .map(this::extendTaskLog)
+                      .collect(Collectors.toList());
     }
 
     private PprofTaskLog extendTaskLog(PprofTaskLog log) {
         final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID
-                .analysisId(log.getInstanceId());
+            .analysisId(log.getInstanceId());
         log.setInstanceName(instanceIDDefinition.getName());
         return log;
     }
-    
+
 }

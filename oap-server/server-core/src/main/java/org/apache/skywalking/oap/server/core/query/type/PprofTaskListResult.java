@@ -19,10 +19,9 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @AllArgsConstructor

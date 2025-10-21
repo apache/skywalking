@@ -34,5 +34,5 @@ public class PprofStackElement {
 
     private long total;
     private long self;
-    
+
 }

@@ -19,18 +19,19 @@
 
 package org.apache.skywalking.oap.server.core.storage.profiling.pprof;
 
-import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofProfilingDataRecord;
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofProfilingDataRecord;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface IPprofDataQueryDAO extends Service {
     /**
      * get pprof data record
      *
-     * @param taskId taskId
+     * @param taskId      taskId
      * @param instanceIds instances of successfully uploaded file and parsed
      * @return record list
      */
-    List<PprofProfilingDataRecord> getByTaskIdAndInstances(final String taskId, List<String> instanceIds) throws IOException;
+    List<PprofProfilingDataRecord> getByTaskIdAndInstances(final String taskId,
+                                                           List<String> instanceIds) throws IOException;
 }

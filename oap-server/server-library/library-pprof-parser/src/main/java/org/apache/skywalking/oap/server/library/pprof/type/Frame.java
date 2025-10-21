@@ -28,8 +28,7 @@ public class Frame extends HashMap<Integer, Frame> {
     final String signature;
     long total;
     long self;
-    
-    
+
     public Frame(String signature) {
         this.signature = signature;
     }

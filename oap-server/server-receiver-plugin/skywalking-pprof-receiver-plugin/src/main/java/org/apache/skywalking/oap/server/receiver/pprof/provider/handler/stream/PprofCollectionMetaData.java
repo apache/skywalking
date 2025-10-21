@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oap.server.receiver.pprof.provider.handler.stream;
 
-import org.apache.skywalking.oap.server.core.query.type.PprofTask;
-
-import org.apache.skywalking.apm.network.pprof.v10.PprofProfilingStatus;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.skywalking.apm.network.pprof.v10.PprofProfilingStatus;
+import org.apache.skywalking.oap.server.core.query.type.PprofTask;
 
 @Data
 @Builder

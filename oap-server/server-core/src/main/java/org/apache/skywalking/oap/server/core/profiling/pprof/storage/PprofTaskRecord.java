@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.profiling.pprof.storage;
 
+import com.google.gson.Gson;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -31,9 +33,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import java.util.List;
-
-import com.google.gson.Gson;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PPROF_TASK;
 

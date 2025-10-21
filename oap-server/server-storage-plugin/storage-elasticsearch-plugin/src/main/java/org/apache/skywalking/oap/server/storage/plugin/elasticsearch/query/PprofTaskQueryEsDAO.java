@@ -18,16 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import com.google.gson.Gson;
 import java.util.Objects;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -36,10 +34,11 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskRecord;
-import org.apache.skywalking.oap.server.core.query.type.PprofTask;
 import org.apache.skywalking.oap.server.core.query.type.PprofEventType;
+import org.apache.skywalking.oap.server.core.query.type.PprofTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
@@ -54,7 +53,10 @@ public class PprofTaskQueryEsDAO extends EsDAO implements IPprofTaskQueryDAO {
     }
 
     @Override
-    public List<PprofTask> getTaskList(String serviceId, Long startTimeBucket, Long endTimeBucket, Integer limit) throws IOException {
+    public List<PprofTask> getTaskList(String serviceId,
+                                       Long startTimeBucket,
+                                       Long endTimeBucket,
+                                       Integer limit) throws IOException {
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(PprofTaskRecord.INDEX_NAME);
         BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(PprofTaskRecord.INDEX_NAME)) {
@@ -116,13 +118,13 @@ public class PprofTaskQueryEsDAO extends EsDAO implements IPprofTaskQueryDAO {
 
         List<String> instanceIdList = GSON.fromJson(serviceInstanceIds, listType);
         return PprofTask.builder()
-                .id((String) source.get(PprofTaskRecord.TASK_ID))
-                .serviceId((String) source.get(PprofTaskRecord.SERVICE_ID))
-                .serviceInstanceIds(instanceIdList)
-                .createTime(((Number) source.get(PprofTaskRecord.CREATE_TIME)).longValue())
-                .events(PprofEventType.valueOfString((String) source.get(PprofTaskRecord.EVENT_TYPES)))
-                .duration(((Number) source.get(PprofTaskRecord.DURATION)).intValue())
-                .dumpPeriod(((Number) source.get(PprofTaskRecord.DUMP_PERIOD)).intValue())
-                .build();
+                        .id((String) source.get(PprofTaskRecord.TASK_ID))
+                        .serviceId((String) source.get(PprofTaskRecord.SERVICE_ID))
+                        .serviceInstanceIds(instanceIdList)
+                        .createTime(((Number) source.get(PprofTaskRecord.CREATE_TIME)).longValue())
+                        .events(PprofEventType.valueOfString((String) source.get(PprofTaskRecord.EVENT_TYPES)))
+                        .duration(((Number) source.get(PprofTaskRecord.DURATION)).intValue())
+                        .dumpPeriod(((Number) source.get(PprofTaskRecord.DUMP_PERIOD)).intValue())
+                        .build();
     }
 }

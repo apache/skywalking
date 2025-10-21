@@ -18,28 +18,28 @@
 
 package org.apache.skywalking.oap.server.core.cache;
 
-import org.apache.skywalking.oap.server.library.module.Service;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.type.PprofTask;
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.library.module.Service;
 
 public class PprofTaskCache implements Service {
     private final Cache<String, PprofTask> serviceId2taskCache;
-    
+
     public PprofTaskCache(CoreModuleConfig moduleConfig) {
         long initialSize = moduleConfig.getMaxSizeOfProfileTask() / 10L;
         int initialCapacitySize = (int) (initialSize > Integer.MAX_VALUE ? Integer.MAX_VALUE : initialSize);
-    
+
         serviceId2taskCache = CacheBuilder.newBuilder()
-                .initialCapacity(initialCapacitySize)
-                .maximumSize(moduleConfig.getMaxSizeOfProfileTask())
-                // remove old pprof task data
-                .expireAfterWrite(Duration.ofMinutes(1))
-                .build();
+                                          .initialCapacity(initialCapacitySize)
+                                          .maximumSize(moduleConfig.getMaxSizeOfProfileTask())
+                                          // remove old pprof task data
+                                          .expireAfterWrite(Duration.ofMinutes(1))
+                                          .build();
     }
 
     public PprofTask getPprofTask(String serviceId) {
@@ -49,7 +49,7 @@ public class PprofTaskCache implements Service {
 
     public void saveTask(String serviceId, PprofTask task) {
         if (task == null) {
-            return ;
+            return;
         }
 
         serviceId2taskCache.put(serviceId, task);

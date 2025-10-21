@@ -18,10 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import java.util.List;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
-
-import java.util.List;
 
 @Data
 public class PprofTaskProgress {

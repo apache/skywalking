@@ -17,26 +17,26 @@
  * under the License.
  */
 
- package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofProfilingDataRecord;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
-import org.apache.skywalking.library.elasticsearch.requests.search.Query;
-import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
-import org.apache.skywalking.library.elasticsearch.requests.search.Search;
-import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
-import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import com.google.common.collect.Lists;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Query;
+import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
+import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofProfilingDataRecord;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 public class PprofDataQueryEsDAO extends EsDAO implements IPprofDataQueryDAO {
     public PprofDataQueryEsDAO(ElasticSearchClient client) {
@@ -48,10 +48,14 @@ public class PprofDataQueryEsDAO extends EsDAO implements IPprofDataQueryDAO {
         if (StringUtil.isBlank(taskId) || CollectionUtils.isEmpty(instanceIds)) {
             return new ArrayList<>();
         }
-        final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(PprofProfilingDataRecord.INDEX_NAME);
+        final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
+            PprofProfilingDataRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(PprofProfilingDataRecord.INDEX_NAME)) {
-            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, PprofProfilingDataRecord.INDEX_NAME));
+            query.must(Query.term(
+                IndexController.LogicIndicesRegister.RECORD_TABLE_NAME,
+                PprofProfilingDataRecord.INDEX_NAME
+            ));
         }
         query.must(Query.term(PprofProfilingDataRecord.TASK_ID, taskId));
         query.must(Query.terms(PprofProfilingDataRecord.INSTANCE_ID, instanceIds));
@@ -67,6 +71,7 @@ public class PprofDataQueryEsDAO extends EsDAO implements IPprofDataQueryDAO {
     private PprofProfilingDataRecord parseData(SearchHit data) {
         final Map<String, Object> sourceAsMap = data.getSource();
         final PprofProfilingDataRecord.Builder builder = new PprofProfilingDataRecord.Builder();
-        return builder.storage2Entity(new ElasticSearchConverter.ToEntity(PprofProfilingDataRecord.INDEX_NAME, sourceAsMap));
+        return builder.storage2Entity(
+            new ElasticSearchConverter.ToEntity(PprofProfilingDataRecord.INDEX_NAME, sourceAsMap));
     }
 }

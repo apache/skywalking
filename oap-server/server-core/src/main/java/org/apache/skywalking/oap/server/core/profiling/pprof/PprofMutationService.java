@@ -18,25 +18,24 @@
 
 package org.apache.skywalking.oap.server.core.profiling.pprof;
 
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.library.module.Service;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.query.type.PprofEventType;
 import java.io.IOException;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import java.util.concurrent.TimeUnit;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
+import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskRecord;
+import org.apache.skywalking.oap.server.core.query.type.PprofEventType;
+import org.apache.skywalking.oap.server.core.query.type.PprofTask;
 import org.apache.skywalking.oap.server.core.query.type.PprofTaskCreationResult;
 import org.apache.skywalking.oap.server.core.query.type.PprofTaskCreationType;
-import org.apache.skywalking.oap.server.core.query.type.PprofTask;
-import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskRecord;
-
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,12 +47,12 @@ public class PprofMutationService implements Service {
     private IPprofTaskQueryDAO getPprofTaskDAO() {
         if (taskQueryDAO == null) {
             this.taskQueryDAO = moduleManager.find(StorageModule.NAME)
-                    .provider()
-                    .getService(IPprofTaskQueryDAO.class);
+                                             .provider()
+                                             .getService(IPprofTaskQueryDAO.class);
         }
         return taskQueryDAO;
     }
-    
+
     public PprofTaskCreationResult createTask(String serviceId,
                                               List<String> serviceInstanceIds,
                                               int duration,
@@ -62,7 +61,7 @@ public class PprofMutationService implements Service {
         long createTime = System.currentTimeMillis();
         // check data
         PprofTaskCreationResult checkResult = checkDataSuccess(
-                serviceId, serviceInstanceIds, duration, createTime, events, dumpPeriod
+            serviceId, serviceInstanceIds, duration, createTime, events, dumpPeriod
         );
         if (checkResult != null) {
             return checkResult;
@@ -80,30 +79,30 @@ public class PprofMutationService implements Service {
         task.setTimeBucket(TimeBucket.getRecordTimeBucket(createTime));
         NoneStreamProcessor.getInstance().in(task);
         return PprofTaskCreationResult.builder()
-                .id(task.id().build())
-                .code(PprofTaskCreationType.SUCCESS)
-                .build();
+                                      .id(task.id().build())
+                                      .code(PprofTaskCreationType.SUCCESS)
+                                      .build();
     }
 
     private PprofTaskCreationResult checkDataSuccess(String serviceId,
-                                              List<String> serviceInstanceIds,
-                                              int duration,
-                                              long createTime,
-                                              PprofEventType events,
-                                              int dumpPeriod) throws IOException {
+                                                     List<String> serviceInstanceIds,
+                                                     int duration,
+                                                     long createTime,
+                                                     PprofEventType events,
+                                                     int dumpPeriod) throws IOException {
         String checkArgumentMessage = checkArgumentError(serviceId, serviceInstanceIds, duration, events, dumpPeriod);
         if (checkArgumentMessage != null) {
             return PprofTaskCreationResult.builder()
-                    .code(PprofTaskCreationType.ARGUMENT_ERROR)
-                    .errorReason(checkArgumentMessage)
-                    .build();
+                                          .code(PprofTaskCreationType.ARGUMENT_ERROR)
+                                          .errorReason(checkArgumentMessage)
+                                          .build();
         }
         String checkTaskProfilingMessage = checkTaskProfiling(serviceId, createTime);
         if (checkTaskProfilingMessage != null) {
             return PprofTaskCreationResult.builder()
-                    .code(PprofTaskCreationType.ALREADY_PROFILING_ERROR)
-                    .errorReason(checkTaskProfilingMessage)
-                    .build();
+                                          .code(PprofTaskCreationType.ALREADY_PROFILING_ERROR)
+                                          .errorReason(checkTaskProfilingMessage)
+                                          .build();
         }
         return null;
     }
@@ -140,7 +139,7 @@ public class PprofMutationService implements Service {
         // Each service can only enable one task at a time
         long endTimeBucket = TimeBucket.getMinuteTimeBucket(createTime);
         final List<PprofTask> alreadyHaveTaskList = getPprofTaskDAO().getTaskList(
-                serviceId, null, endTimeBucket, 1
+            serviceId, null, endTimeBucket, 1
         );
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
             for (PprofTask task : alreadyHaveTaskList) {

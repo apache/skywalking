@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.library.pprof.type;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+
 @Getter
 public class FrameTree {
     private String signature;
@@ -34,6 +35,7 @@ public class FrameTree {
         this.self = frame.getSelf();
         this.children = new ArrayList<>(frame.size());
     }
+
     public FrameTree(String signature, long total, long self) {
         this.signature = signature;
         this.total = total;
@@ -42,7 +44,8 @@ public class FrameTree {
     }
 
     public static FrameTree buildTree(Frame frame) {
-        if (frame == null) return null;
+        if (frame == null)
+            return null;
 
         FrameTree frameTree = new FrameTree(frame);
         // has children?

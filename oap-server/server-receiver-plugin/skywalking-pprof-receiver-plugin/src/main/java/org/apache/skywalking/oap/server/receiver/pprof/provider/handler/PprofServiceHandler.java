@@ -19,36 +19,31 @@
 package org.apache.skywalking.oap.server.receiver.pprof.provider.handler;
 
 import io.grpc.stub.StreamObserver;
-import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
-import org.apache.skywalking.oap.server.core.query.type.PprofTaskLogOperationType;
-import org.apache.skywalking.apm.network.pprof.v10.PprofData;
-import org.apache.skywalking.apm.network.pprof.v10.PprofTaskGrpc;
-import org.apache.skywalking.apm.network.pprof.v10.PprofCollectionResponse;
-import org.apache.skywalking.apm.network.pprof.v10.PprofMetaData;
-
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
+import org.apache.skywalking.apm.network.pprof.v10.PprofCollectionResponse;
+import org.apache.skywalking.apm.network.pprof.v10.PprofData;
+import org.apache.skywalking.apm.network.pprof.v10.PprofMetaData;
 import org.apache.skywalking.apm.network.pprof.v10.PprofTaskCommandQuery;
-
+import org.apache.skywalking.apm.network.pprof.v10.PprofTaskGrpc;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.command.CommandService;
-import java.util.Objects;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.core.query.type.PprofTask;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.cache.PprofTaskCache;
-import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskLogRecord;
-import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import java.util.concurrent.TimeUnit;
-
-//import org.apache.skywalking.oap.server.core.storage.StorageModule;
-//import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.cache.PprofTaskCache;
+import org.apache.skywalking.oap.server.core.command.CommandService;
+import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskLogRecord;
+import org.apache.skywalking.oap.server.core.query.type.PprofTask;
+import org.apache.skywalking.oap.server.core.query.type.PprofTaskLogOperationType;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.network.trace.component.command.PprofTaskCommand;
 import org.apache.skywalking.oap.server.receiver.pprof.provider.handler.stream.PprofByteBufCollectionObserver;
 import org.apache.skywalking.oap.server.receiver.pprof.provider.handler.stream.PprofCollectionMetaData;
@@ -72,12 +67,12 @@ public class PprofServiceHandler extends PprofTaskGrpc.PprofTaskImplBase impleme
         this.pprofMaxSize = pprofMaxSize;
         this.memoryParserEnabled = memoryParserEnabled;
     }
-    
+
     @Override
     public StreamObserver<PprofData> collect(StreamObserver<PprofCollectionResponse> responseObserver) {
-        return memoryParserEnabled ?
-                new PprofByteBufCollectionObserver(taskDAO, responseObserver, sourceReceiver, pprofMaxSize)
-                : new PprofFileCollectionObserver(taskDAO, responseObserver, sourceReceiver, pprofMaxSize);
+        return memoryParserEnabled ? new PprofByteBufCollectionObserver(
+            taskDAO, responseObserver, sourceReceiver, pprofMaxSize) : new PprofFileCollectionObserver(
+            taskDAO, responseObserver, sourceReceiver, pprofMaxSize);
     }
 
     @Override
@@ -86,8 +81,8 @@ public class PprofServiceHandler extends PprofTaskGrpc.PprofTaskImplBase impleme
         String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, request.getServiceInstance());
         PprofTask task = taskCache.getPprofTask(serviceId);
         // if task is null or createTime is less than lastCommandTime, return empty commands
-        if (Objects.isNull(task) || task.getCreateTime() <= request.getLastCommandTime() ||
-            (!CollectionUtils.isEmpty(task.getServiceInstanceIds()) && !task.getServiceInstanceIds().contains(serviceInstanceId))) {
+        if (Objects.isNull(task) || task.getCreateTime() <= request.getLastCommandTime() || (!CollectionUtils.isEmpty(
+            task.getServiceInstanceIds()) && !task.getServiceInstanceIds().contains(serviceInstanceId))) {
             responseObserver.onNext(Commands.newBuilder().build());
             responseObserver.onCompleted();
             return;
@@ -112,19 +107,20 @@ public class PprofServiceHandler extends PprofTaskGrpc.PprofTaskImplBase impleme
         RecordStreamProcessor.getInstance().in(logRecord);
     }
 
-    public static PprofCollectionMetaData parseMetaData(PprofMetaData metaData, IPprofTaskQueryDAO taskDAO) throws IOException {
+    public static PprofCollectionMetaData parseMetaData(PprofMetaData metaData,
+                                                        IPprofTaskQueryDAO taskDAO) throws IOException {
         String taskId = metaData.getTaskId();
         PprofTask task = taskDAO.getById(taskId);
         String serviceId = IDManager.ServiceID.buildId(metaData.getService(), true);
         String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, metaData.getServiceInstance());
-        
+
         return PprofCollectionMetaData.builder()
-                .task(task)
-                .serviceId(serviceId)
-                .instanceId(serviceInstanceId)
-                .type(metaData.getType())
-                .contentSize(metaData.getContentSize())
-                .uploadTime(System.currentTimeMillis())
-                .build();
+                                      .task(task)
+                                      .serviceId(serviceId)
+                                      .instanceId(serviceInstanceId)
+                                      .type(metaData.getType())
+                                      .contentSize(metaData.getContentSize())
+                                      .uploadTime(System.currentTimeMillis())
+                                      .build();
     }
 }

@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.profiling.pprof;
 
-import org.apache.skywalking.oap.server.core.storage.DAO;
-import org.apache.skywalking.oap.server.core.query.type.PprofTask;
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.query.type.PprofTask;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IPprofTaskQueryDAO extends DAO {
 
@@ -34,7 +34,7 @@ public interface IPprofTaskQueryDAO extends DAO {
      * @param limit           limit count, if null means query all
      */
     List<PprofTask> getTaskList(final String serviceId, final Long startTimeBucket,
-                                        final Long endTimeBucket, final Integer limit) throws IOException;
+                                final Long endTimeBucket, final Integer limit) throws IOException;
 
     /**
      * query profile task by id

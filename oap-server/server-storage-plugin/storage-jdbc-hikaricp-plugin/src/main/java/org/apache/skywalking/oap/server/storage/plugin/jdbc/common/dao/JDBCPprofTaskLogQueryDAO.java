@@ -17,8 +17,12 @@
  * under the License.
  */
 
- package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskLogRecord;
@@ -29,11 +33,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCPprofTaskLogQueryDAO implements IPprofTaskLogQueryDAO {
@@ -48,15 +47,16 @@ public class JDBCPprofTaskLogQueryDAO implements IPprofTaskLogQueryDAO {
         for (String table : tables) {
             SQLAndParameters sqlAndParameters = buildSQL(table);
             List<PprofTaskLog> logs = jdbcClient.executeQuery(
-                    sqlAndParameters.sql(),
-                    resultSet -> {
-                        final List<PprofTaskLog> tasks = new ArrayList<>();
-                        while (resultSet.next()) {
-                            tasks.add(parseLog(resultSet));
-                        }
-                        return tasks;
-                    },
-                    sqlAndParameters.parameters());
+                sqlAndParameters.sql(),
+                resultSet -> {
+                    final List<PprofTaskLog> tasks = new ArrayList<>();
+                    while (resultSet.next()) {
+                        tasks.add(parseLog(resultSet));
+                    }
+                    return tasks;
+                },
+                sqlAndParameters.parameters()
+            );
             results.addAll(logs);
         }
         return results;
@@ -66,7 +66,7 @@ public class JDBCPprofTaskLogQueryDAO implements IPprofTaskLogQueryDAO {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(2);
         sql.append("select * from ").append(table)
-                .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
         parameters.add(PprofTaskLogRecord.INDEX_NAME);
         sql.append(" order by ").append(PprofTaskLogRecord.OPERATION_TIME).append(" desc");
         return new SQLAndParameters(sql.toString(), parameters);
@@ -74,10 +74,11 @@ public class JDBCPprofTaskLogQueryDAO implements IPprofTaskLogQueryDAO {
 
     private PprofTaskLog parseLog(ResultSet data) throws SQLException {
         return PprofTaskLog.builder()
-                .id(data.getString(PprofTaskLogRecord.TASK_ID))
-                .instanceId(data.getString(PprofTaskLogRecord.INSTANCE_ID))
-                .operationType(PprofTaskLogOperationType.parse(data.getInt(PprofTaskLogRecord.OPERATION_TYPE)))
-                .operationTime(data.getLong(PprofTaskLogRecord.OPERATION_TIME))
-                .build();
+                           .id(data.getString(PprofTaskLogRecord.TASK_ID))
+                           .instanceId(data.getString(PprofTaskLogRecord.INSTANCE_ID))
+                           .operationType(
+                               PprofTaskLogOperationType.parse(data.getInt(PprofTaskLogRecord.OPERATION_TYPE)))
+                           .operationTime(data.getLong(PprofTaskLogRecord.OPERATION_TIME))
+                           .build();
     }
 }

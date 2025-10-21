@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.core.query.type;
 
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
-import java.util.List;
-import java.util.Objects;
 
 @Setter
 @Getter

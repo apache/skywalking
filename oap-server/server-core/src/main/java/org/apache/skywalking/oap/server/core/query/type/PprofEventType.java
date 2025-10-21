@@ -32,7 +32,6 @@ public enum PprofEventType {
     THREADCREATE(5, "threadcreate"),
     ALLOCS(6, "allocs");
 
-
     private final int code;
     private final String name;
 

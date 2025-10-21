@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.storage.profiling.pprof;
 
-import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
-import org.apache.skywalking.oap.server.core.storage.DAO;
 import java.io.IOException;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IPprofTaskLogQueryDAO extends DAO {
     /**

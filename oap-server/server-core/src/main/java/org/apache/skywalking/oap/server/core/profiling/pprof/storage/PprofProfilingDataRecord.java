@@ -18,23 +18,24 @@
 
 package org.apache.skywalking.oap.server.core.profiling.pprof.storage;
 
+import com.google.common.hash.Hashing;
+import java.nio.charset.StandardCharsets;
 import lombok.Data;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.analysis.Stream;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PPROF_PROFILING_DATA;
-import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import com.google.common.hash.Hashing;
-import java.nio.charset.StandardCharsets;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PPROF_PROFILING_DATA;
 
 @Data
 @Stream(name = PprofProfilingDataRecord.INDEX_NAME, scopeId = PPROF_PROFILING_DATA,
-        builder = PprofProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
+    builder = PprofProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(PprofProfilingDataRecord.UPLOAD_TIME)
 @BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class PprofProfilingDataRecord extends Record {
@@ -57,14 +58,14 @@ public class PprofProfilingDataRecord extends Record {
     @Column(name = DATA_BINARY, storageOnly = true)
     private byte[] dataBinary;
 
-   @Override
+    @Override
     public StorageID id() {
         return new StorageID().append(
-                Hashing.sha256().newHasher()
-                        .putString(taskId, StandardCharsets.UTF_8)
-                        .putString(instanceId, StandardCharsets.UTF_8)
-                        .putLong(uploadTime)
-                        .hash().toString()
+            Hashing.sha256().newHasher()
+                   .putString(taskId, StandardCharsets.UTF_8)
+                   .putString(instanceId, StandardCharsets.UTF_8)
+                   .putLong(uploadTime)
+                   .hash().toString()
         );
     }
 

@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.library.pprof.parser;
 
 import com.google.perftools.profiles.ProfileProto;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,7 +32,7 @@ import org.apache.skywalking.oap.server.library.pprof.type.FrameTreeBuilder;
  * Parses pprof protobuf format files and converts them to frame trees.
  */
 public class PprofParser {
-    
+
     public static FrameTree dumpTree(ByteBuffer buf) throws IOException {
         byte[] bytes = new byte[buf.remaining()];
         buf.get(bytes);
@@ -42,7 +41,6 @@ public class PprofParser {
         ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(inputStream);
         FrameTree tree = new FrameTreeBuilder(profile).build();
         return tree;
-        
     }
 
     public static FrameTree dumpTree(String filePath) throws IOException {

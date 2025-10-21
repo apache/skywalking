@@ -66,10 +66,10 @@ public class PprofModuleProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
-                .provider()
-                .getService(GRPCHandlerRegister.class);
-        PprofServiceHandler pprofServiceHandler = new PprofServiceHandler(getManager(),
-                config.getPprofMaxSize(), config.isMemoryParserEnabled());
+                                                              .provider()
+                                                              .getService(GRPCHandlerRegister.class);
+        PprofServiceHandler pprofServiceHandler = new PprofServiceHandler(
+            getManager(), config.getPprofMaxSize(), config.isMemoryParserEnabled());
         grpcHandlerRegister.addHandler(pprofServiceHandler);
     }
 
@@ -79,10 +79,10 @@ public class PprofModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[]{
-                CoreModule.NAME,
-                SharingServerModule.NAME
+        return new String[] {
+            CoreModule.NAME,
+            SharingServerModule.NAME
         };
     }
-    
+
 }

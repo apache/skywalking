@@ -24,7 +24,8 @@ import java.util.Map;
 public enum PprofTaskLogOperationType {
     NOTIFIED(1), // when sniffer has execution finished to report
     EXECUTION_FINISHED(2), // when sniffer has execution finished to report
-    PPROF_UPLOAD_FILE_TOO_LARGE_ERROR(3), // when sniffer finished task but jfr file is to large that oap server can not receive
+    PPROF_UPLOAD_FILE_TOO_LARGE_ERROR(
+        3), // when sniffer finished task but jfr file is to large that oap server can not receive
     EXECUTION_TASK_ERROR(4) // when sniffer fails to execute its task
     ;
 

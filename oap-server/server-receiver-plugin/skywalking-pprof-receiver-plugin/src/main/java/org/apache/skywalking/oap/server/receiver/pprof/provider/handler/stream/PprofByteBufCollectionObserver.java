@@ -20,21 +20,22 @@ package org.apache.skywalking.oap.server.receiver.pprof.provider.handler.stream;
 
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.pprof.parser.PprofParser;
-import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
-import org.apache.skywalking.apm.network.pprof.v10.PprofData;
-import org.apache.skywalking.oap.server.core.query.type.PprofTask;
-import org.apache.skywalking.apm.network.pprof.v10.PprofCollectionResponse;
-import org.apache.skywalking.apm.network.pprof.v10.PprofProfilingStatus;
-import org.apache.skywalking.oap.server.core.source.PprofProfilingData;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.network.pprof.v10.PprofCollectionResponse;
+import org.apache.skywalking.apm.network.pprof.v10.PprofData;
+import org.apache.skywalking.apm.network.pprof.v10.PprofProfilingStatus;
 import org.apache.skywalking.oap.server.core.query.type.PprofEventType;
+import org.apache.skywalking.oap.server.core.query.type.PprofTask;
 import org.apache.skywalking.oap.server.core.query.type.PprofTaskLogOperationType;
+import org.apache.skywalking.oap.server.core.source.PprofProfilingData;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.pprof.parser.PprofParser;
+import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
+
 import static org.apache.skywalking.oap.server.receiver.pprof.provider.handler.PprofServiceHandler.parseMetaData;
 import static org.apache.skywalking.oap.server.receiver.pprof.provider.handler.PprofServiceHandler.recordPprofTaskLog;
 
@@ -47,9 +48,9 @@ public class PprofByteBufCollectionObserver implements StreamObserver<PprofData>
     private PprofCollectionMetaData taskMetaData;
     private ByteBuffer buf;
 
-    public PprofByteBufCollectionObserver(IPprofTaskQueryDAO taskDAO, 
-                                         StreamObserver<PprofCollectionResponse> responseObserver, 
-                                         SourceReceiver sourceReceiver, int pprofMaxSize) {
+    public PprofByteBufCollectionObserver(IPprofTaskQueryDAO taskDAO,
+                                          StreamObserver<PprofCollectionResponse> responseObserver,
+                                          SourceReceiver sourceReceiver, int pprofMaxSize) {
         this.taskDAO = taskDAO;
         this.responseObserver = responseObserver;
         this.sourceReceiver = sourceReceiver;
@@ -61,35 +62,45 @@ public class PprofByteBufCollectionObserver implements StreamObserver<PprofData>
         try {
             if (Objects.isNull(taskMetaData) && pprofData.hasMetadata()) {
                 taskMetaData = parseMetaData(pprofData.getMetadata(), taskDAO);
-            if (PprofProfilingStatus.PPROF_PROFILING_SUCCESS.equals(taskMetaData.getType())) {
-                int size = taskMetaData.getContentSize();
-                if (pprofMaxSize >= size) {
-                    buf = ByteBuffer.allocate(size);
-                    // Send success response to allow client to continue uploading
-                    responseObserver.onNext(PprofCollectionResponse.newBuilder()
-                            .setStatus(PprofProfilingStatus.PPROF_PROFILING_SUCCESS)
-                            .build());
+                if (PprofProfilingStatus.PPROF_PROFILING_SUCCESS.equals(taskMetaData.getType())) {
+                    int size = taskMetaData.getContentSize();
+                    if (pprofMaxSize >= size) {
+                        buf = ByteBuffer.allocate(size);
+                        // Send success response to allow client to continue uploading
+                        responseObserver.onNext(PprofCollectionResponse.newBuilder()
+                                                                       .setStatus(
+                                                                           PprofProfilingStatus.PPROF_PROFILING_SUCCESS)
+                                                                       .build());
+                    } else {
+                        responseObserver.onNext(PprofCollectionResponse.newBuilder()
+                                                                       .setStatus(
+                                                                           PprofProfilingStatus.PPROF_TERMINATED_BY_OVERSIZE)
+                                                                       .build());
+                        recordPprofTaskLog(
+                            taskMetaData.getTask(), taskMetaData.getInstanceId(),
+                            PprofTaskLogOperationType.PPROF_UPLOAD_FILE_TOO_LARGE_ERROR
+                        );
+                    }
                 } else {
                     responseObserver.onNext(PprofCollectionResponse.newBuilder()
-                            .setStatus(PprofProfilingStatus.PPROF_TERMINATED_BY_OVERSIZE)
-                            .build());
-                    recordPprofTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(), PprofTaskLogOperationType.PPROF_UPLOAD_FILE_TOO_LARGE_ERROR);
+                                                                   .setStatus(
+                                                                       PprofProfilingStatus.PPROF_EXECUTION_TASK_ERROR)
+                                                                   .build());
+                    recordPprofTaskLog(
+                        taskMetaData.getTask(), taskMetaData.getInstanceId(),
+                        PprofTaskLogOperationType.EXECUTION_TASK_ERROR
+                    );
                 }
-            } else {
-                responseObserver.onNext(PprofCollectionResponse.newBuilder()
-                        .setStatus(PprofProfilingStatus.PPROF_EXECUTION_TASK_ERROR)
-                        .build());
-                recordPprofTaskLog(taskMetaData.getTask(), taskMetaData.getInstanceId(), PprofTaskLogOperationType.EXECUTION_TASK_ERROR);
+            } else if (pprofData.hasContent()) {
+                if (buf != null) {
+                    pprofData.getContent().copyTo(buf);
+                    log.info("Received {} bytes of pprof data", pprofData.getContent().size());
+                }
             }
-        } else if (pprofData.hasContent()) {
-            if (buf != null) {
-                pprofData.getContent().copyTo(buf);
-                log.info("Received {} bytes of pprof data", pprofData.getContent().size());
-            }
-        }
         } catch (IOException e) {
             log.error("Error processing pprof data", e);
-            responseObserver.onError(Status.INTERNAL.withDescription("Error processing pprof data: " + e.getMessage()).asRuntimeException());
+            responseObserver.onError(
+                Status.INTERNAL.withDescription("Error processing pprof data: " + e.getMessage()).asRuntimeException());
         }
     }
 
@@ -103,7 +114,7 @@ public class PprofByteBufCollectionObserver implements StreamObserver<PprofData>
             return;
         }
         log.error("Error in receiving pprof profiling data", throwable);
-        
+
     }
 
     @Override
@@ -122,7 +133,10 @@ public class PprofByteBufCollectionObserver implements StreamObserver<PprofData>
     private void parseAndStorageData(PprofCollectionMetaData taskMetaData, ByteBuffer buf) throws IOException {
         PprofTask task = taskMetaData.getTask();
         if (task == null) {
-            log.error("Pprof instanceId:{} has not been assigned a task but still uploaded data", taskMetaData.getInstanceId());
+            log.error(
+                "Pprof instanceId:{} has not been assigned a task but still uploaded data",
+                taskMetaData.getInstanceId()
+            );
             return;
         }
         recordPprofTaskLog(task, taskMetaData.getInstanceId(), PprofTaskLogOperationType.EXECUTION_FINISHED);

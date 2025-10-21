@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.library.pprof.parser;
 
-import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
-import org.apache.skywalking.oap.server.library.pprof.type.Frame;
 import java.util.List;
+import org.apache.skywalking.oap.server.library.pprof.type.Frame;
+import org.apache.skywalking.oap.server.library.pprof.type.FrameTree;
 
 public class PprofMergeBuilder {
     private final Frame root = new Frame("root");

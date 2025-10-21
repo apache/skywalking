@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.profiling.pprof.storage;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
@@ -31,9 +33,6 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PPROF_TASK_LOG;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Setter
@@ -68,10 +67,10 @@ public class PprofTaskLogRecord extends Record {
     @Override
     public StorageID id() {
         return new StorageID()
-                .append(TASK_ID, getTaskId())
-                .append(INSTANCE_ID, getInstanceId())
-                .append(OPERATION_TYPE, getOperationType())
-                .append(OPERATION_TIME, getOperationTime());
+            .append(TASK_ID, getTaskId())
+            .append(INSTANCE_ID, getInstanceId())
+            .append(OPERATION_TYPE, getOperationType())
+            .append(OPERATION_TIME, getOperationTime());
     }
 
     public static class Builder implements StorageBuilder<PprofTaskLogRecord> {
