@@ -9,6 +9,9 @@ When service encounters performance issues (cpu usage, memory allocation, etc.),
 When the agent receives a task, it enables Pprof for sampling.
 After sampling is completed, the sampling results are analyzed by requesting the server to render a flame graph for performance 
 analysis to determine the specific business code lines that cause performance problems.
+Note, tracing profiling in the Go agent relies on the Go runtime’s global CPU sampling used by pprof.
+Since only one CPU profiler can run at a time within the same instance, tracing and pprof CPU profiling cannot be enabled simultaneously.
+If both are activated on the same instance, one task may fail to start.
 
 ## Activate Pprof in the OAP
 OAP and the agent use a brand-new protocol to exchange Pprof data, so it is necessary to start OAP with the following configuration:
