@@ -111,6 +111,7 @@
 * Fix the malfunctioning alarm feature of MAL metrics due to unknown metadata in L2 aggregate worker.
 * Make MAL percentile align with OAL percentile calculation.
 * Update Grafana dashboards for OAP observability.
+* BanyanDB: fix query `getInstance` by instance ID.
 
 #### UI
 
