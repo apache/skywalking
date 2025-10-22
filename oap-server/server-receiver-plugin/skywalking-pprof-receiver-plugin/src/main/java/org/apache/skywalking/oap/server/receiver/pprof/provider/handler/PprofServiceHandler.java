@@ -91,12 +91,25 @@ public class PprofServiceHandler extends PprofTaskGrpc.PprofTaskImplBase impleme
         long minCreateTime = Long.MAX_VALUE;
         PprofTask taskResult = null;
         for (PprofTask task : taskList) {
-            if (task.getCreateTime() > lastCommandTime) {
-                if (task.getCreateTime() < minCreateTime) {
-                    minCreateTime = task.getCreateTime();
-                    taskResult = task;
-                }
+            if (task.getCreateTime() <= lastCommandTime) {
+                continue;
             }
+            
+            if (!CollectionUtils.isEmpty(task.getServiceInstanceIds()) 
+                && !task.getServiceInstanceIds().contains(serviceInstanceId)) {
+                continue;
+            }
+            
+            if (task.getCreateTime() < minCreateTime) {
+                minCreateTime = task.getCreateTime();
+                taskResult = task;
+            }
+        }
+
+        if (taskResult == null) {
+            responseObserver.onNext(Commands.newBuilder().build());
+            responseObserver.onCompleted();
+            return;
         }
 
         PprofTaskCommand pprofTaskCommand = commandService.newPprofTaskCommand(taskResult);

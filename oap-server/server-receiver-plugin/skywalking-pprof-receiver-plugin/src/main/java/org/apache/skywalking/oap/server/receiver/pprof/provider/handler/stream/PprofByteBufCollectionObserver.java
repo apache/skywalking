@@ -94,7 +94,6 @@ public class PprofByteBufCollectionObserver implements StreamObserver<PprofData>
             } else if (pprofData.hasContent()) {
                 if (buf != null) {
                     pprofData.getContent().copyTo(buf);
-                    log.info("Received {} bytes of pprof data", pprofData.getContent().size());
                 }
             }
         } catch (IOException e) {
