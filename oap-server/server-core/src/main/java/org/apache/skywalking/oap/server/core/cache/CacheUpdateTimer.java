@@ -199,13 +199,12 @@ public enum CacheUpdateTimer {
             List<PprofTask> taskList = taskQueryDAO.getTaskList(
                     null, taskCache.getCacheStartTimeBucket(), taskCache.getCacheEndTimeBucket(), null
             );
-            if (CollectionUtils.isEmpty(taskList)) {
-                return;
-            }
+            taskList.stream().collect(Collectors.groupingBy(t -> t.getServiceId())).entrySet().stream().forEach(e -> {
+                final String serviceId = e.getKey();
+                final List<PprofTask> pprofTasks = e.getValue();
 
-            for (PprofTask task : taskList) {
-                taskCache.saveTask(task.getServiceId(), task);
-            }
+                pprofTaskCache.saveTaskList(serviceId, pprofTasks);
+            });
 
         } catch (IOException e) {
             log.warn("Unable to update pprof task cache", e);
