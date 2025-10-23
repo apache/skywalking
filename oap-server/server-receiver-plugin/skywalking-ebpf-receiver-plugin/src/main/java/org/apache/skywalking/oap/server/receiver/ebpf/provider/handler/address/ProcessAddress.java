@@ -22,6 +22,9 @@ package org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.address;
  * ProcessAddress indicate the address of eBPF process for generate entity name.
  */
 public interface ProcessAddress {
+
     String getServiceName();
+
     String getInstanceName();
+
 }
