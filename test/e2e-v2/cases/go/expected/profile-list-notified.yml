@@ -15,17 +15,15 @@
 
 {{- contains . }}
 - id: {{ notEmpty .id }}
-  serviceid: {{ b64enc "go-service" }}.1
-  servicename: {{ notEmpty .servicename }}
-  instanceid: {{ b64enc "go-service" }}.1
-  instancename: {{ notEmpty .instancename }}
-  endpointid: {{ b64enc "POST:/correlation" }}.1
-  endpointname: POST:/correlation
+  serviceid: {{ .serviceid }}
+  servicename: {{ .servicename }}
+  instanceid: {{ .instanceid }}
+  instancename: {{ .instancename }}
+  endpointname: POST:/correlation 
   starttime: {{ gt .starttime 0 }}
   duration: {{ gt .duration 0 }}
   mindurationthreshold: {{ gt .mindurationthreshold 0 }}
   dumpperiod: {{ gt .dumpperiod 0 }}
   maxsamplingcount: {{ gt .maxsamplingcount 0 }}
-  state: NOTIFIED
-  logs: {{ .logs }}
+  logs: {{ len .logs | gt 0 }}
 {{- end }}
