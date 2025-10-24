@@ -97,7 +97,7 @@ public class PprofMutationService implements Service {
                                           .errorReason(checkArgumentMessage)
                                           .build();
         }
-        String checkTaskProfilingMessage = checkTaskProfiling(serviceId,events, createTime);
+        String checkTaskProfilingMessage = checkTaskProfiling(serviceId, events, createTime);
         if (checkTaskProfilingMessage != null) {
             return PprofTaskCreationResult.builder()
                                           .code(PprofTaskCreationType.ALREADY_PROFILING_ERROR)
@@ -147,7 +147,8 @@ public class PprofMutationService implements Service {
         );
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
             for (PprofTask task : alreadyHaveTaskList) {
-                if (task.getEvents().equals(events) && task.getCreateTime() + TimeUnit.MINUTES.toMillis(task.getDuration()) >= createTime) {
+                if (task.getEvents().equals(events) && task.getCreateTime() + TimeUnit.MINUTES.toMillis(
+                    task.getDuration()) >= createTime) {
                     // if the endTime is greater or equal than the createTime of the newly created task, i.e. there is overlap between two tasks, it is an invalid case, it will return an error
                     return "current service already has monitor pprof task execute at this time";
                 }
