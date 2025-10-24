@@ -23,12 +23,5 @@
   mindurationthreshold: 1000
   dumpperiod: 500
   maxsamplingcount: 3
-  logs:
-    {{- contains .logs }}
-    - id: {{ notEmpty .id }}
-      instanceid: {{ b64enc "go-service" }}.1_{{ b64enc "go-service" }}
-      operationtype: NOTIFIED
-      instancename: ""
-      operationtime: {{ gt .operationtime 0 }}
-    {{- end }}
+  logs: {{ .logs }}
 {{- end }}
