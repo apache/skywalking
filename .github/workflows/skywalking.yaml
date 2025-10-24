@@ -490,6 +490,9 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
 
+          - name: Go Profiling
+            config: test/e2e-v2/cases/go/profiling-cases.yaml
+
           - name: eBPF Profiling On CPU BanyanDB
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
             docker:
