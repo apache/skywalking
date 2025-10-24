@@ -55,7 +55,6 @@ import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetrics;
-import org.apache.skywalking.library.elasticsearch.response.NodeInfo;
 import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.Const;
@@ -73,6 +72,8 @@ import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.address.K8sProcessAddress;
+import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.address.ProcessAddress;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -94,10 +95,10 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccessLogServiceImplBase {
-    protected static final KubernetesProcessAddress UNKNOWN_ADDRESS = KubernetesProcessAddress.newBuilder()
+    protected static final ProcessAddress UNKNOWN_ADDRESS = new K8sProcessAddress(KubernetesProcessAddress.newBuilder()
         .setServiceName(Const.UNKNOWN)
         .setPodName(Const.UNKNOWN)
-        .build();
+        .build());
     protected final SourceReceiver sourceReceiver;
     protected final NamingControl namingControl;
 
@@ -236,7 +237,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
     protected HTTPServiceMeshMetric generateHTTPServiceMeshMetrics(NodeInfo node, ConnectionInfo connection,
                                                                    AccessLogHTTPProtocol http, String tlsMode) {
-        KubernetesProcessAddress source, dest;
+        ProcessAddress source, dest;
         if (DetectPoint.client.equals(connection.getRole())) {
             source = connection.getLocal();
             dest = connection.getRemote();
@@ -284,7 +285,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 endTime = node.parseTimestamp(read.getEndTime());
                 break;
         }
-        KubernetesProcessAddress source, dest;
+        ProcessAddress source, dest;
         if (DetectPoint.client.equals(connection.getRole())) {
             source = connection.getLocal();
             dest = connection.getRemote();
@@ -545,12 +546,12 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
     }
 
-    protected String buildServiceNameByAddress(NodeInfo nodeInfo, KubernetesProcessAddress address) {
+    protected String buildServiceNameByAddress(NodeInfo nodeInfo, ProcessAddress address) {
         return namingControl.formatServiceName(address.getServiceName());
     }
 
-    protected String buildServiceInstanceName(KubernetesProcessAddress address) {
-        return namingControl.formatInstanceName(address.getPodName());
+    protected String buildServiceInstanceName(ProcessAddress address) {
+        return namingControl.formatInstanceName(address.getInstanceName());
     }
 
     protected String buildProtocolEndpointName(ConnectionInfo connectionInfo, AccessLogProtocolLogs protocol) {
@@ -623,7 +624,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         });
     }
 
-    protected KubernetesProcessAddress buildKubernetesAddressByIP(NodeInfo nodeInfo, AccessLogConnection connection, boolean isLocal, IPAddress ipAddress) {
+    protected ProcessAddress buildProcessAddressByIP(NodeInfo nodeInfo, AccessLogConnection connection, boolean isLocal, IPAddress ipAddress) {
         String host = ipAddress.getHost();
         // if the resolving address is not local, have attached ztunnel info,
         // and must is detected by outbound, then using the ztunnel mapped host
@@ -654,19 +655,19 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         return buildRemoteAddress(nodeInfo, serviceName, pod);
     }
 
-    protected KubernetesProcessAddress buildUnknownAddress() {
+    protected ProcessAddress buildUnknownAddress() {
         return UNKNOWN_ADDRESS;
     }
 
-    protected KubernetesProcessAddress buildRemoteAddress(NodeInfo nodeInfo, ObjectID service, ObjectID pod) {
+    protected ProcessAddress buildRemoteAddress(NodeInfo nodeInfo, ObjectID service, ObjectID pod) {
         String serviceName = service.name() + "." + service.namespace();
         if (StringUtil.isNotEmpty(nodeInfo.getClusterName())) {
             serviceName = nodeInfo.getClusterName() + "::" + serviceName;
         }
-        return KubernetesProcessAddress.newBuilder()
+        return new K8sProcessAddress(KubernetesProcessAddress.newBuilder()
             .setServiceName(serviceName)
             .setPodName(pod == null ? "" : pod.name())
-            .build();
+            .build());
     }
 
     protected List<Integer> buildConnectionComponentId(ConnectionInfo connectionInfo) {
@@ -702,8 +703,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
     public class ConnectionInfo {
         private final AccessLogConnection originalConnection;
         private final NamingControl namingControl;
-        private final KubernetesProcessAddress local;
-        private final KubernetesProcessAddress remote;
+        private final ProcessAddress local;
+        private final ProcessAddress remote;
         private final DetectPoint role;
         private final AccessLogConnectionTLSMode tlsMode;
         private final AccessLogProtocolType protocolType;
@@ -726,12 +727,12 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             }
         }
 
-        private KubernetesProcessAddress buildAddress(NodeInfo nodeInfo, AccessLogConnection connection, boolean local, ConnectionAddress address) {
+        private ProcessAddress buildAddress(NodeInfo nodeInfo, AccessLogConnection connection, boolean local, ConnectionAddress address) {
             switch (address.getAddressCase()) {
                 case KUBERNETES:
-                    return address.getKubernetes();
+                    return new K8sProcessAddress(address.getKubernetes());
                 case IP:
-                    return buildKubernetesAddressByIP(nodeInfo, connection, local, address.getIp());
+                    return buildProcessAddressByIP(nodeInfo, connection, local, address.getIp());
             }
             return null;
         }
@@ -766,7 +767,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public K8SServiceInstance toServiceInstance() {
-            if (Objects.equals(local, buildUnknownAddress()) || StringUtil.isEmpty(local.getPodName())) {
+            if (Objects.equals(local, buildUnknownAddress()) || StringUtil.isEmpty(local.getInstanceName())) {
                 return null;
             }
             final K8SServiceInstance serviceInstance = new K8SServiceInstance();
@@ -778,7 +779,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public K8SServiceRelation toServiceRelation() {
-            final Tuple2<KubernetesProcessAddress, KubernetesProcessAddress> tuple = convertSourceAndDestAddress();
+            final Tuple2<ProcessAddress, ProcessAddress> tuple = convertSourceAndDestAddress();
             final String sourceServiceName = buildServiceNameByAddress(nodeInfo, tuple._1);
             final String destServiceName = buildServiceNameByAddress(nodeInfo, tuple._2);
             if (Objects.equals(sourceServiceName, destServiceName)) {
@@ -800,10 +801,10 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public K8SServiceInstanceRelation toServiceInstanceRelation() {
-            if (StringUtil.isEmpty(local.getPodName()) || StringUtil.isEmpty(remote.getPodName())) {
+            if (StringUtil.isEmpty(local.getInstanceName()) || StringUtil.isEmpty(remote.getInstanceName())) {
                 return null;
             }
-            final Tuple2<KubernetesProcessAddress, KubernetesProcessAddress> tuple = convertSourceAndDestAddress();
+            final Tuple2<ProcessAddress, ProcessAddress> tuple = convertSourceAndDestAddress();
             final K8SServiceInstanceRelation serviceInstanceRelation = new K8SServiceInstanceRelation();
             final String sourceServiceName = buildServiceNameByAddress(nodeInfo, tuple._1);
             final String sourceServiceInstanceName = buildServiceInstanceName(tuple._1);
@@ -822,8 +823,8 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             return serviceInstanceRelation;
         }
 
-        public Tuple2<KubernetesProcessAddress, KubernetesProcessAddress> convertSourceAndDestAddress() {
-            KubernetesProcessAddress source, dest;
+        public Tuple2<ProcessAddress, ProcessAddress> convertSourceAndDestAddress() {
+            ProcessAddress source, dest;
             if (role == DetectPoint.server) {
                 source = this.remote;
                 dest = this.local;
