@@ -21,11 +21,11 @@
   instancename: {{ notEmpty .instancename }}
   endpointid: {{ b64enc "POST:/correlation" }}.1
   endpointname: POST:/correlation
-  starttime: {{ notEmpty .starttime }}
-  duration: {{ notEmpty .duration }}
-  mindurationthreshold: {{ notEmpty .mindurationthreshold }}
-  dumpperiod: {{ notEmpty .dumpperiod }}
-  maxsamplingcount: {{ notEmpty .maxsamplingcount }}
+  starttime: {{ gt .starttime 0 }}
+  duration: {{ gt .duration 0 }}
+  mindurationthreshold: {{ gt .mindurationthreshold 0 }}
+  dumpperiod: {{ gt .dumpperiod 0 }}
+  maxsamplingcount: {{ gt .maxsamplingcount 0 }}
   state: NOTIFIED
-  logs: {{ notEmpty .logs }}
+  logs: {{ .logs }}
 {{- end }}
