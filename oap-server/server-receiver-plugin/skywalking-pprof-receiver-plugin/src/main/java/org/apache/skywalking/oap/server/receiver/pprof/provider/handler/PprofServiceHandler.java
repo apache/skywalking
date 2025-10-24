@@ -80,7 +80,6 @@ public class PprofServiceHandler extends PprofTaskGrpc.PprofTaskImplBase impleme
         String serviceId = IDManager.ServiceID.buildId(request.getService(), true);
         String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, request.getServiceInstance());
         List<PprofTask> taskList = taskCache.getPprofTaskList(serviceId);
-        // if task is null or createTime is less than lastCommandTime, return empty commands
         if (CollectionUtils.isEmpty(taskList)) {
             responseObserver.onNext(Commands.newBuilder().build());
             responseObserver.onCompleted();

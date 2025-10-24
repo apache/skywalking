@@ -97,7 +97,7 @@ public class PprofMutationService implements Service {
                                           .errorReason(checkArgumentMessage)
                                           .build();
         }
-        String checkTaskProfilingMessage = checkTaskProfiling(serviceId, createTime);
+        String checkTaskProfilingMessage = checkTaskProfiling(serviceId,events, createTime);
         if (checkTaskProfilingMessage != null) {
             return PprofTaskCreationResult.builder()
                                           .code(PprofTaskCreationType.ALREADY_PROFILING_ERROR)
@@ -122,6 +122,9 @@ public class PprofMutationService implements Service {
             if (duration <= 0) {
                 return "duration cannot be negative";
             }
+            if (duration > 15) {
+                return "duration cannot be greater than 15 minutes";
+            }
         }
         if (events == PprofEventType.BLOCK || events == PprofEventType.MUTEX) {
             if (dumpPeriod <= 0) {
@@ -135,15 +138,16 @@ public class PprofMutationService implements Service {
     }
 
     private String checkTaskProfiling(String serviceId,
+                                      PprofEventType events,
                                       long createTime) throws IOException {
         // Each service can only enable one task at a time
-        long endTimeBucket = TimeBucket.getMinuteTimeBucket(createTime);
+        long endTimeBucket = TimeBucket.getRecordTimeBucket(createTime);
         final List<PprofTask> alreadyHaveTaskList = getPprofTaskDAO().getTaskList(
-            serviceId, null, endTimeBucket, 1
+            serviceId, null, endTimeBucket, null
         );
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
             for (PprofTask task : alreadyHaveTaskList) {
-                if (task.getCreateTime() + TimeUnit.SECONDS.toMillis(task.getDuration()) >= createTime) {
+                if (task.getEvents().equals(events) && task.getCreateTime() + TimeUnit.MINUTES.toMillis(task.getDuration()) >= createTime) {
                     // if the endTime is greater or equal than the createTime of the newly created task, i.e. there is overlap between two tasks, it is an invalid case, it will return an error
                     return "current service already has monitor pprof task execute at this time";
                 }

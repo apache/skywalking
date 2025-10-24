@@ -17,12 +17,12 @@
   ~
   -->
 
-<Configuration status="DEBUG">
+<Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout>
                 <LevelPatternSelector defaultPattern="%d %c %L [%t] %-5p %x - %m%n">
-                    <PatternMatch key="ERROR" pattern="%d %c %L [%t] %-5p %x - [%swversion] %m%n" />
+                    <PatternMatch key="ERROR" pattern="%d %c %L [%t] %-5p %x - [%swversion] %m%n"/>
                 </LevelPatternSelector>
             </PatternLayout>
         </Console>
@@ -32,15 +32,15 @@
         <logger name="io.grpc.netty" level="INFO"/>
         <logger name="io.netty" level="INFO"/>
         <logger name="org.apache.http" level="INFO"/>
-        <logger name="org.apache.skywalking.oap.server.core" level="DEBUG"/>
+        <logger name="org.apache.skywalking.oap.server.core" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.core.storage.PersistenceTimer" level="INFO"/>
-        <logger name="org.apache.skywalking.oap.server.core.analysis.worker" level="DEBUG" />
-        <logger name="org.apache.skywalking.oap.server.core.remote.client" level="DEBUG"/>
+        <logger name="org.apache.skywalking.oap.server.core.analysis.worker" level="INFO"/>
+        <logger name="org.apache.skywalking.oap.server.core.remote.client" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.library.buffer" level="INFO"/>
         <logger name="org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandler" level="INFO"/>
         <logger name="org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter" level="INFO"/>
-        <logger name="org.apache.skywalking.library.elasticsearch" level="DEBUG"/>
-        <Root level="DEBUG">
+        <logger name="org.apache.skywalking.library.elasticsearch" level="INFO"/>
+        <Root level="INFO">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

@@ -1,20 +1,20 @@
 # Go App Profiling
 
-Go App Profiling uses the Pprof for sampling
+Go App Profiling uses the pprof for sampling
 
-Pprof is bound within the auto-instrument agent and corresponds to [In-Process Profiling](../../concepts-and-designs/profiling.md#in-process-profiling).
+pprof is bound within the auto-instrument agent and corresponds to [In-Process Profiling](../../concepts-and-designs/profiling.md#in-process-profiling).
 
 It is delivered to the agent in the form of a task, allowing it to be enabled or disabled dynamically.
-When service encounters performance issues (cpu usage, memory allocation, etc.), Pprof task can be created.
-When the agent receives a task, it enables Pprof for sampling.
+When service encounters performance issues (CPU usage, memory allocation, etc.), pprof task can be created.
+When the agent receives a task, it enables pprof for sampling.
 After sampling is completed, the sampling results are analyzed by requesting the server to render a flame graph for performance 
 analysis to determine the specific business code lines that cause performance problems.
 Note, tracing profiling in the Go agent relies on the Go runtime’s global CPU sampling used by pprof.
 Since only one CPU profiler can run at a time within the same instance, tracing and pprof CPU profiling cannot be enabled simultaneously.
 If both are activated on the same instance, one task may fail to start.
 
-## Activate Pprof in the OAP
-OAP and the agent use a brand-new protocol to exchange Pprof data, so it is necessary to start OAP with the following configuration:
+## Activate pprof in the OAP
+OAP and the agent use a brand-new protocol to exchange pprof data, so it is necessary to start OAP with the following configuration:
 
 ```yaml
 receiver-pprof:
@@ -32,18 +32,18 @@ receiver-pprof:
     memoryParserEnabled: ${SW_RECEIVER_PPROF_MEMORY_PARSER_ENABLED:true}
 ```
 
-## Pprof Task with Analysis
+## pprof Task with Analysis
 
-To use the Pprof feature, please follow these steps:
+To use the pprof feature, please follow these steps:
 
-1. **Create Pprof task**: Use the UI or CLI tool to create a task.
-2. **Wait agent collect data and upload**: Wait for Pprof to collect pprof data and report.
+1. **Create pprof task**: Use the UI or CLI tool to create a task.
+2. **Wait agent collect data and upload**: Wait for pprof to collect pprof data and report.
 3. **Query task progress**: Query the progress of tasks, including analyzing successful and failed instances and task logs.
 4. **Analyze the data**: Analyze the pprof data to determine where performance bottlenecks exist in the service.
 
-### Create an Pprof task
+### Create an pprof task
 
-Create an Pprof task to notify some go-agent instances in the execution service to start Pprof for data collection.
+Create an pprof task to notify some go-agent instances in the execution service to start pprof for data collection.
 
 When creating a task, the following configuration fields are required:
 
@@ -53,7 +53,7 @@ When creating a task, the following configuration fields are required:
 4. **events**: Define which event types this task needs to collect.
 5. **dumpPeriod**: Define the period of the pprof dump, required for BLOCK, MUTEX events.
 
-When the Agent receives a Pprof task from OAP, it automatically generates a log to notify that the task has been acknowledged. The log contains the following field information:
+When the Agent receives a pprof task from OAP, it automatically generates a log to notify that the task has been acknowledged. The log contains the following field information:
 
 1. **Instance**: The name of the instance where the Agent is located.
 2. **Type**: Supports "NOTIFIED" and "EXECUTION_FINISHED" and "PPROF_UPLOAD_FILE_TOO_LARGE_ERROR", "EXECUTION_TASK_ERROR", with the current log displaying "NOTIFIED".
@@ -61,7 +61,7 @@ When the Agent receives a Pprof task from OAP, it automatically generates a log 
 
 ### Wait the agent to collect data and upload
 
-At this point, Pprof will trace the events you selected when you created the task:
+At this point, pprof will trace the events you selected when you created the task:
 
 1. CPU: samples CPU usage over time to show which functions consume the most processing time.
 2. ALLOC, HEAP: 
@@ -74,12 +74,12 @@ At this point, Pprof will trace the events you selected when you created the tas
 	- GOROUTINE: stack traces of all current goroutines.
 	- THREADCREATE: stack traces that led to the creation of new OS threads.
 
-Finally, the agent will upload the pprof file produced by Pprof to the oap server for online performance analysis.
+Finally, the agent will upload the pprof file produced by pprof to the oap server for online performance analysis.
 
 ### Query the profiling task progresses
 
-Wait for Pprof to complete data collection and upload successfully.
-We can query the execution logs of the Pprof task and the task status, which includes the following information:
+Wait for pprof to complete data collection and upload successfully.
+We can query the execution logs of the pprof task and the task status, which includes the following information:
 
 1. **successInstanceIds**: SuccessInstanceIds gives instances that have executed the task successfully.
 2. **errorInstanceIds**: ErrorInstanceIds gives instances that failed to execute the task.
