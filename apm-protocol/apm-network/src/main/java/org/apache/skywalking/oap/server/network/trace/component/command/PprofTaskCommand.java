@@ -31,7 +31,9 @@ public class PprofTaskCommand extends BaseCommand implements Serializable, Deser
      * pprof taskId
      */
     private String taskId;
-    // Type of profiling (CPU/Heap/Block/Mutex/Goroutine/Threadcreate/Allocs)
+    /**
+     * event type of profiling (CPU/Heap/Block/Mutex/Goroutine/Threadcreate/Allocs)
+     */
     private String events;
     /**
      * run profiling for duration (minute)
@@ -45,8 +47,8 @@ public class PprofTaskCommand extends BaseCommand implements Serializable, Deser
      * pprof dump period parameters. There are different dumpperiod configurations for different events. 
      * Here is a table of parameters.
      *
-     * <p>For Block - sample an average of one blocking event per rate nanoseconds spent blocked. (default: 0)</p>
-     * <p>For Mutex - sample an average of 1/rate events are reported. (default: 0)</p>
+     * <p>for Block - sample an average of one blocking event per rate nanoseconds spent blocked. (default: 0)</p>
+     * <p>for Mutex - sample an average of 1/rate events are reported. (default: 0)</p>
      * details @see <a href="https://pkg.go.dev/runtime/pprof">pprof argument</a>
      */
     private int dumpPeriod;

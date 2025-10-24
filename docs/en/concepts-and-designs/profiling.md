@@ -49,7 +49,7 @@ Only Java agent support this.
 
 ### Go App Profiling
 
-Go App Profiling uses the [Pprof](https://github.com/google/pprof) for sampling.
+Go App Profiling uses the [pprof](https://github.com/google/pprof) for sampling.
 
 pprof is a profiling tool by Google for visualizing and analyzing sampled performance data.
 It reads samples in profile.proto format and generates text or graphical reports (via the dot visualization) to highlight performance hotspots. 

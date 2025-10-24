@@ -53,7 +53,6 @@
 * Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
 * Optimize metrics aggregate/persistent worker: separate `OAL` and `MAL` workers and consume pools. The dataflow signal drives the new MAL consumer, 
   the following table shows the pool size，driven mode and queue size for each worker.
-* Support the go agent(0.7.0 release) bundled pprof profiling feature. 
   
 | Worker                        | poolSize                                 | isSignalDrivenMode | queueChannelSize | queueBufferSize |
 |-------------------------------|------------------------------------------|--------------------|------------------|-----------------|
@@ -112,6 +111,8 @@
 * Make MAL percentile align with OAL percentile calculation.
 * Update Grafana dashboards for OAP observability.
 * BanyanDB: fix query `getInstance` by instance ID.
+* Support the go agent(0.7.0 release) bundled pprof profiling feature. 
+
 
 #### UI
 
