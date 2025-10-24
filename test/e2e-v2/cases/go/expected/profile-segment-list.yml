@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+{{- if . }}
 {{- contains . }}
 - segmentid: {{ notEmpty .segmentid }}
   spans:
@@ -37,4 +38,7 @@
       component: go-gin
       peer: ""
       skipanalysis: false
+{{- end }}
+{{- else }}
+[]
 {{- end }}
