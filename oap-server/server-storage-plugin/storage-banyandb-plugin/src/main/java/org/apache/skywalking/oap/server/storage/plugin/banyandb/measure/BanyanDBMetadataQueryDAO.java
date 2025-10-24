@@ -144,7 +144,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public ServiceInstance getInstance(String instanceId) throws IOException {
-        IDManager.ServiceInstanceID.InstanceIDDefinition id = IDManager.ServiceInstanceID.analysisId(instanceId);
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
         MeasureQueryResponse resp = query(false, schema,
                 INSTANCE_TRAFFIC_TAGS,
@@ -152,8 +151,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
-                        query.and(eq(InstanceTraffic.SERVICE_ID, id.getServiceId()))
-                                .and(eq(InstanceTraffic.NAME, id.getName()));
+                        query.and(eq(ID, instanceId));
                     }
                 });
         return resp.size() > 0 ? buildInstance(resp.getDataPoints().get(0), schema) : null;
