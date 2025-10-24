@@ -63,5 +63,10 @@ func main() {
 		context.String(200, "Nobody cares me.")
 	})
 
+	engine.Handle("POST", "/profile", func(context *gin.Context) {
+		time.Sleep(time.Duration(120) * time.Second)
+		context.String(200, "Profiling completed")
+	})
+
 	_ = engine.Run(":8080")
 }

@@ -13,13 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
+tip: null
 trees:
+  {{- if .trees }}
+  {{- contains .trees }}
   - elements:
-      - id: {{ notEmpty .id }}
-        parentId: {{ notEmpty .parentId }}
-        codeSignature: {{ notEmpty .codeSignature }}
-        duration: {{ notEmpty .duration }}
-        count: {{ notEmpty .count }}
-        children: []
-{{- end }}
+    {{- contains .elements }}
+    - id: "{{ notEmpty .id }}"
+      parentid: "{{ notEmpty .parentid }}"
+      codesignature: "{{ notEmpty .codesignature }}"
+      duration: {{ gt .duration 0 }}
+      durationchildexcluded: 0
+      count: {{ gt .count 0 }}
+    {{- end }}
+  {{- end }}
+  {{- else }}
+  []
+  {{- end }}

@@ -21,7 +21,7 @@
       parentspanid: -1
       starttime: {{ notEmpty .starttime }}
       endtime: {{ notEmpty .endtime }}
-      operationname: POST:/correlation
+      operationname: POST:/profile
       spanlayer: Http
       spantype: Entry
       iserror: false
@@ -29,7 +29,7 @@
         - key: http.method
           value: POST
         - key: http.url
-          value: /correlation
+          value: /profile
         - key: component
           value: go-gin
         - key: language
