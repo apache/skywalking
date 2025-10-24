@@ -16,16 +16,19 @@
 {{- contains . }}
 - id: {{ notEmpty .id }}
   serviceid: {{ b64enc "go-service" }}.1
-  servicename: {{ notEmpty .servicename }}
-  instanceid: {{ b64enc "go-service" }}.1
-  instancename: {{ notEmpty .instancename }}
-  endpointid: {{ b64enc "POST:/correlation" }}.1
+  servicename: ""
   endpointname: POST:/correlation
   starttime: {{ gt .starttime 0 }}
-  duration: {{ gt .duration 0 }}
-  mindurationthreshold: {{ gt .mindurationthreshold 0 }}
-  dumpperiod: {{ gt .dumpperiod 0 }}
-  maxsamplingcount: {{ gt .maxsamplingcount 0 }}
-  state: FINISHED
-  logs: {{ .logs }}
+  duration: 1
+  mindurationthreshold: 1000
+  dumpperiod: 500
+  maxsamplingcount: 3
+  logs:
+    {{- contains .logs }}
+    - id: {{ notEmpty .id }}
+      instanceid: {{ b64enc "go-service" }}.1_{{ b64enc "go-service" }}
+      operationtype: FINISHED
+      instancename: ""
+      operationtime: {{ gt .operationtime 0 }}
+    {{- end }}
 {{- end }}

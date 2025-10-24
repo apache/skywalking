@@ -15,15 +15,20 @@
 
 {{- contains . }}
 - id: {{ notEmpty .id }}
-  serviceid: {{ .serviceid }}
-  servicename: {{ .servicename }}
-  instanceid: {{ .instanceid }}
-  instancename: {{ .instancename }}
-  endpointname: POST:/correlation 
+  serviceid: {{ b64enc "go-service" }}.1
+  servicename: ""
+  endpointname: POST:/correlation
   starttime: {{ gt .starttime 0 }}
-  duration: {{ gt .duration 0 }}
-  mindurationthreshold: {{ gt .mindurationthreshold 0 }}
-  dumpperiod: {{ gt .dumpperiod 0 }}
-  maxsamplingcount: {{ gt .maxsamplingcount 0 }}
-  logs: {{ len .logs | gt 0 }}
+  duration: 1
+  mindurationthreshold: 1000
+  dumpperiod: 500
+  maxsamplingcount: 3
+  logs:
+    {{- contains .logs }}
+    - id: {{ notEmpty .id }}
+      instanceid: {{ b64enc "go-service" }}.1_{{ b64enc "go-service" }}
+      operationtype: NOTIFIED
+      instancename: ""
+      operationtime: {{ gt .operationtime 0 }}
+    {{- end }}
 {{- end }}
