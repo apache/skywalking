@@ -2,7 +2,7 @@
 
 Go App Profiling uses the pprof for sampling
 
-pprof is bound within the auto-instrument agent and corresponds to [In-Process Profiling](../../concepts-and-designs/profiling.md#in-process-profiling).
+pprof is bundled within the auto-instrument agent and corresponds to [In-Process Profiling](../../concepts-and-designs/profiling.md#in-process-profiling).
 
 It is delivered to the agent in the form of a task, allowing it to be enabled or disabled dynamically.
 When service encounters performance issues (CPU usage, memory allocation, etc.), pprof task can be created.
