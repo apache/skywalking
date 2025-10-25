@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.AsyncProfilerTaskCache;
 import org.apache.skywalking.oap.server.core.cache.CacheUpdateTimer;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
+import org.apache.skywalking.oap.server.core.cache.PprofTaskCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
@@ -65,6 +66,8 @@ import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProf
 import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingMutationService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
+import org.apache.skywalking.oap.server.core.profiling.pprof.PprofMutationService;
+import org.apache.skywalking.oap.server.core.profiling.pprof.PprofQueryService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskMutationService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -330,6 +333,12 @@ public class CoreModuleProvider extends ModuleProvider {
                 AsyncProfilerQueryService.class, new AsyncProfilerQueryService(getManager()));
         this.registerServiceImplementation(
                 AsyncProfilerTaskCache.class, new AsyncProfilerTaskCache(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+                PprofMutationService.class, new PprofMutationService(getManager()));
+        this.registerServiceImplementation(
+                PprofQueryService.class, new PprofQueryService(getManager()));
+        this.registerServiceImplementation(
+                PprofTaskCache.class, new PprofTaskCache(moduleConfig));
         this.registerServiceImplementation(
             EBPFProfilingMutationService.class, new EBPFProfilingMutationService(getManager()));
         this.registerServiceImplementation(
