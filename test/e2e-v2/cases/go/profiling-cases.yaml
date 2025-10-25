@@ -57,11 +57,12 @@ verify:
         echo "=== Sending requests and checking profiling list (FINISHED) ===" >&2
         # Send multiple requests to generate profiling data
         for i in {1..5}; do
-          echo "Sending request $i" >&2
-          curl -s -XGET http://${consumer_host}:${consumer_9092}/profile > /dev/null &
+          echo "Sending request $i to http://${consumer_host}:${consumer_9092}/profile" >&2
+          response=$(curl -s -XGET http://${consumer_host}:${consumer_9092}/profile)
+          echo "Request $i response: $response" >&2
         done
         echo "Waiting for profiling to complete..." >&2
-        sleep 30
+        sleep 360
         result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
         echo "Profiling list result: $result" >&2
         echo "$result"
