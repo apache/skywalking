@@ -73,7 +73,7 @@ func main() {
 
 func doWork() {
 	start := time.Now()
-	for time.Since(start) < 2*time.Second {
+	for time.Since(start) < 10*time.Second {
 		_ = 1
 		for i := 0; i < 1e6; i++ {
 			_ = i * i

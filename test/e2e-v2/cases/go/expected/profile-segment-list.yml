@@ -21,13 +21,13 @@
       parentspanid: -1
       starttime: {{ notEmpty .starttime }}
       endtime: {{ notEmpty .endtime }}
-      operationname: POST:/profile
+      operationname: GET:/profile
       spanlayer: Http
       spantype: Entry
       iserror: false
       tags:
         - key: http.method
-          value: POST
+          value: GET
         - key: http.url
           value: /profile
         - key: component

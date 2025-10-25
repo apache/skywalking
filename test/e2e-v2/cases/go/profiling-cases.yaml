@@ -38,7 +38,7 @@ verify:
         echo "=== Creating profiling task ===" >&2
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
           profiling trace create --service-name=go-service \
-            --endpoint-name=POST:/profile \
+            --endpoint-name=GET:/profile \
             --start-time=-1 \
             --duration=1 --min-duration-threshold=1000 \
             --dump-period=500 --max-sampling-count=3
@@ -48,7 +48,7 @@ verify:
     - query: |
         echo "=== Checking profiling list (NOTIFIED) ===" >&2
         sleep 3
-        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile)
+        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
         echo "Profiling list result: $result" >&2
         echo "$result"
       expected: expected/profile-list-notified.yml
@@ -58,11 +58,11 @@ verify:
         # Send multiple requests to generate profiling data
         for i in {1..5}; do
           echo "Sending request $i" >&2
-          curl -s -XPOST http://${consumer_host}:${consumer_9092}/profile -H "Content-Type: application/json" > /dev/null &
+          curl -s -XGET http://${consumer_host}:${consumer_9092}/profile > /dev/null &
         done
         echo "Waiting for profiling to complete..." >&2
         sleep 30
-        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile)
+        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
         echo "Profiling list result: $result" >&2
         echo "$result"
       expected: expected/profile-list-finished.yml
@@ -70,7 +70,7 @@ verify:
     - query: |
         echo "=== Getting profiled segment list ===" >&2
         sleep 5
-        task_id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' -)
+        task_id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile | yq e '.[0].id' -)
         echo "Task ID: $task_id" >&2
         if [ -z "$task_id" ]; then
           echo "ERROR: Task ID is empty!" >&2
@@ -84,7 +84,7 @@ verify:
     - query: |
         echo "=== Analyzing profiled segment ===" >&2
         sleep 5
-        task_id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' -)
+        task_id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile | yq e '.[0].id' -)
         echo "Task ID: $task_id" >&2
         if [ -z "$task_id" ]; then
           echo "ERROR: Task ID is empty!" >&2

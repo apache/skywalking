@@ -17,7 +17,7 @@
 - id: {{ notEmpty .id }}
   serviceid: {{ b64enc "go-service" }}.1
   servicename: ""
-  endpointname: POST:/profile
+  endpointname: GET:/profile
   starttime: {{ gt .starttime 0 }}
   duration: 1
   mindurationthreshold: 1000
