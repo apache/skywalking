@@ -47,6 +47,8 @@ import org.apache.skywalking.oap.query.graphql.resolver.Mutation;
 import org.apache.skywalking.oap.query.graphql.resolver.OndemandLogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.ProfileMutation;
 import org.apache.skywalking.oap.query.graphql.resolver.ProfileQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.PprofMutation;
+import org.apache.skywalking.oap.query.graphql.resolver.PprofQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Query;
 import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopNRecordsQuery;
@@ -153,7 +155,9 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .resolvers(new RecordsQuery(getManager()))
                      .file("query-protocol/hierarchy.graphqls").resolvers(new HierarchyQuery(getManager()))
                 .file("query-protocol/async-profiler.graphqls")
-                .resolvers(new AsyncProfilerQuery(getManager()), new AsyncProfilerMutation(getManager()));
+                .resolvers(new AsyncProfilerQuery(getManager()), new AsyncProfilerMutation(getManager()))
+                .file("query-protocol/pprof.graphqls")
+                .resolvers(new PprofQuery(getManager()), new PprofMutation(getManager()));
 
         if (config.isEnableOnDemandPodLog()) {
             schemaBuilder

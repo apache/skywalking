@@ -152,7 +152,10 @@ public class DefaultScopeDefine {
     public static final int BROWSER_APP_WEB_INTERACTION_PAGE_PERF = 89;
     public static final int SW_SPAN_ATTACHED_EVENT = 90;
     public static final int SERVICE_DATABASE_SLOW_STATEMENT = 91;
-    public static final int ALARM_RECOVERY = 92;
+    public static final int PPROF_TASK = 92;
+    public static final int PPROF_PROFILING_DATA = 93;
+    public static final int PPROF_TASK_LOG = 94;
+    public static final int ALARM_RECOVERY = 95;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
