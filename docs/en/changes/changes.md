@@ -10,6 +10,7 @@
 
 #### OAP Server
 
+* Implement self-monitoring for BanyanDB via OAP Server.
 * BanyanDB: Support `hot/warm/cold` stages configuration.
 * Fix query continues profiling policies error when the policy is already in the cache.
 * Support `hot/warm/cold` stages TTL query in the status API and graphQL API.
@@ -116,6 +117,7 @@
 
 #### UI
 
+* Implement self-monitoring for BanyanDB via UI.
 * Enhance the trace `List/Tree/Table` graph to support displaying multiple refs of spans and distinguishing different parents.
 * Fix: correct the same labels for metrics.
 * Refactor: use the Fetch API to instead of Axios.
