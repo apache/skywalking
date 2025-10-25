@@ -33,5 +33,27 @@
             <artifactId>skywalking-sharing-server-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Protobuf runtime for generated classes in this module -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${com.google.protobuf.protoc.version}</version>
+        </dependency>
+        <!-- Use centralized pprof parser -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-pprof-parser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>${os-maven-plugin.version}</version>
+            </extension>
+        </extensions>
+    </build>
 </project>

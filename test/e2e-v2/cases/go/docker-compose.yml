@@ -48,6 +48,8 @@ services:
       - e2e
     expose:
       - 8080
+    ports:
+      - 8080
     environment:
       SW_AGENT_NAME: go-service
       SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE: oap:11800

@@ -13,16 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-tip: null
-trees:
-  {{- contains .trees }}
-  - elements:
-    {{- contains .elements }}
-    - id: "{{ notEmpty .id }}"
-      parentid: "{{ notEmpty .parentid }}"
-      codesignature: "{{ notEmpty .codesignature }}"
-      duration: {{ gt .duration 0 }}
-      durationchildexcluded: 0
-      count: {{ gt .count 0 }}
-    {{- end }}
-  {{- end }}
+{{- contains . }}
+- id: {{ notEmpty .id }}
+  serviceid: {{ b64enc "go-service" }}.1
+  servicename: ""
+  endpointname: GET:/profile
+  starttime: {{ gt .starttime 0 }}
+  duration: 1
+  mindurationthreshold: 1000
+  dumpperiod: 500
+  maxsamplingcount: 3
+  logs: {{ .logs }}
+{{- end }}

@@ -1,0 +1,133 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+
+trigger:
+  action: http
+  interval: 3s
+  times: 60
+  url: http://localhost:8080/profile
+  method: GET
+
+verify:
+  retry:
+    count: 20
+    interval: 3s
+  cases:
+    # create profiling task for Go service
+    - query: |
+        echo "=== Creating profiling task ===" >&2
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
+          profiling trace create --service-name=go-service \
+            --endpoint-name=GET:/profile \
+            --start-time=-1 \
+            --duration=1 --min-duration-threshold=1000 \
+            --dump-period=500 --max-sampling-count=3
+        echo "=== Profiling task created ===" >&2
+      expected: expected/profile-create.yml
+    # profiling list notified: sleep to wait agent notices and query profiling list
+    - query: |
+        echo "=== Checking profiling list (NOTIFIED) ===" >&2
+        sleep 3
+        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
+        echo "Profiling list result: $result" >&2
+        echo "$result"
+      expected: expected/profile-list-notified.yml
+    # profiling list finished: trigger some requests and wait for profiling to complete
+    - query: |
+        echo "=== Sending requests and checking profiling list (FINISHED) ===" >&2
+        # Send multiple requests to generate profiling data
+        for i in {1..5}; do
+          echo "Sending request $i to http://localhost:8080/profile" >&2
+          response=$(curl -s -XGET http://localhost:8080/profile)
+          echo "Request $i response: $response" >&2
+        done
+        curl -s -XGET http://localhost:8080/profile
+        sleep 120
+        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
+        echo "Profiling list result: $result" >&2
+        echo "$result"
+      expected: expected/profile-list-finished.yml
+    # profiled segment list
+    - query: |
+        echo "=== Getting profiled segment list ===" >&2
+        sleep 5
+        task_id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile | yq e '.[0].id' -)
+        echo "Task ID: $task_id" >&2
+        if [ -z "$task_id" ]; then
+          echo "ERROR: Task ID is empty!" >&2
+          exit 1
+        fi
+        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$task_id)
+        echo "Segment list result: $result" >&2
+        echo "$result"
+      expected: expected/profile-segment-list.yml
+    # query profiled segment analyze
+    - query: |
+        echo "=== Analyzing profiled segment ===" >&2
+        sleep 5
+        task_id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile | yq e '.[0].id' -)
+        echo "Task ID: $task_id" >&2
+        if [ -z "$task_id" ]; then
+          echo "ERROR: Task ID is empty!" >&2
+          exit 1
+        fi
+        
+        segment_result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$task_id)
+        echo "Segment list result: $segment_result" >&2
+        
+        segmentid=$(echo "$segment_result" | yq e '.[0].spans.[] | select(.spanid == 0) | .segmentid' -)
+        echo "Segment ID: $segmentid" >&2
+        if [ -z "$segmentid" ]; then
+          echo "ERROR: Segment ID is empty!" >&2
+          exit 1
+        fi
+        
+        start=$(echo "$segment_result" | yq e '.[0].spans.[] | select(.spanid == 0) | .starttime' -)
+        echo "Start time: $start" >&2
+        if [ -z "$start" ]; then
+          echo "ERROR: Start time is empty!" >&2
+          exit 1
+        fi
+        
+        end=$(echo "$segment_result" | yq e '.[0].spans.[] | select(.spanid == 0) | .endtime' -)
+        echo "End time: $end" >&2
+        if [ -z "$end" ]; then
+          echo "ERROR: End time is empty!" >&2
+          exit 1
+        fi
+        
+        time_range=$(echo $start"-"$end)
+        echo "Time range: $time_range" >&2
+        
+        echo "Running analysis with segment-id=$segmentid and time-ranges=$time_range" >&2
+        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace analysis --segment-ids=$segmentid --time-ranges=$time_range)
+        echo "Analysis result: $result" >&2
+        echo "$result"
+      expected: expected/profile-segment-analyze.yml
