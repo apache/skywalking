@@ -54,7 +54,7 @@ verify:
       expected: expected/profile-list-notified.yml
     # profiling list finished: trigger some requests and wait for profiling to complete
     - query: |
-        curl -s -XPOST http://${go_host}:${go_8080}/profile -H "Content-Type: application/json" > /dev/null;
+        curl -s -XPOST http://${consumer_host}:${consumer_9092}/profile -H "Content-Type: application/json" > /dev/null;
         sleep 10;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile
       expected: expected/profile-list-finished.yml
