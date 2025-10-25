@@ -50,19 +50,19 @@ verify:
             --dump-period=500 --max-sampling-count=3
       expected: expected/profile-create.yml
     # profiling list notified: sleep to wait agent notices and query profiling list
-    - query: sleep 3 && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile
+    - query: sleep 3 && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile
       expected: expected/profile-list-notified.yml
     # profiling list finished: trigger some requests and wait for profiling to complete
     - query: |
         curl -s -XPOST http://${consumer_host}:${consumer_9092}/profile -H "Content-Type: application/json" > /dev/null;
         sleep 30;
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile
       expected: expected/profile-list-finished.yml
     # profiled segment list
     - query: |
         sleep 5;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
         )
       expected: expected/profile-segment-list.yml
     # query profiled segment analyze
@@ -70,17 +70,17 @@ verify:
         sleep 5;
         segmentid=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
           ) | yq e '.[0].spans.[] | select(.spanid == 0) | .segmentid' - \
         );
         start=$(
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
           ) | yq e '.[0].spans.[] | select(.spanid == 0) | .starttime' - \
         );
         end=$(
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
           ) | yq e '.[0].spans.[] | select(.spanid == 0) | .endtime' - \
         );
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace analysis --segment-ids=$segmentid --time-ranges=$(echo $start"-"$end)
