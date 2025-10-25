@@ -28,13 +28,6 @@ setup:
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
-trigger:
-  action: http
-  interval: 3s
-  times: 10
-  url: http://${consumer_host}:${consumer_9092}/correlation
-  method: POST
-
 verify:
   retry:
     count: 20
@@ -54,7 +47,10 @@ verify:
       expected: expected/profile-list-notified.yml
     # profiling list finished: trigger some requests and wait for profiling to complete
     - query: |
-        curl -s -XPOST http://${consumer_host}:${consumer_9092}/profile -H "Content-Type: application/json" > /dev/null;
+        # Send multiple requests to generate profiling data
+        for i in {1..5}; do
+          curl -s -XPOST http://${consumer_host}:${consumer_9092}/profile -H "Content-Type: application/json" > /dev/null &
+        done
         sleep 30;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=POST:/profile
       expected: expected/profile-list-finished.yml
