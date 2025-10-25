@@ -31,7 +31,7 @@ setup:
 trigger:
   action: http
   interval: 5s
-  times: 40
+  times: -1
   url: http://${consumer_host}:${consumer_9092}/users
   method: POST
   body: '{"id":"123","name":"skywalking"}'
