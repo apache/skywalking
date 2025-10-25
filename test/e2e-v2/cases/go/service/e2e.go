@@ -63,10 +63,20 @@ func main() {
 		context.String(200, "Nobody cares me.")
 	})
 
-	engine.Handle("POST", "/profile", func(context *gin.Context) {
-		time.Sleep(time.Duration(120) * time.Second)
+	engine.Handle("GET", "/profile", func(context *gin.Context) {
+		doWork()
 		context.String(200, "Profiling completed")
 	})
 
 	_ = engine.Run(":8080")
+}
+
+func doWork() {
+	start := time.Now()
+	for time.Since(start) < 2*time.Second {
+		_ = 1
+		for i := 0; i < 1e6; i++ {
+			_ = i * i
+		}
+	}
 }

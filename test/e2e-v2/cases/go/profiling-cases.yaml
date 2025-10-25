@@ -55,17 +55,19 @@ verify:
     # profiling list finished: trigger some requests and wait for profiling to complete
     - query: |
         curl -s -XPOST http://${consumer_host}:${consumer_9092}/profile -H "Content-Type: application/json" > /dev/null;
-        sleep 10;
+        sleep 30;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile
       expected: expected/profile-list-finished.yml
     # profiled segment list
     - query: |
+        sleep 5;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
         )
       expected: expected/profile-segment-list.yml
     # query profiled segment analyze
     - query: |
+        sleep 5;
         segmentid=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
             swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=go-service --endpoint-name=POST:/profile | yq e '.[0].id' - \
