@@ -28,6 +28,13 @@ setup:
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
+trigger:
+  action: http
+  interval: 3s
+  times: 60
+  url: http://${consumer_host}:${consumer_9092}/profile
+  method: GET
+
 verify:
   retry:
     count: 20
@@ -62,7 +69,7 @@ verify:
           echo "Request $i response: $response" >&2
         done
         echo "Waiting for profiling to complete..." >&2
-        sleep 360
+        sleep 120
         result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
         echo "Profiling list result: $result" >&2
         echo "$result"
