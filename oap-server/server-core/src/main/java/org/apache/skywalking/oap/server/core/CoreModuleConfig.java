@@ -91,6 +91,10 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private long maxSizeOfProfileTask = 10_000L;
     /**
+     * Following are cache setting for none stream(s)
+     */
+    private long maxSizeOfPprofTask = 10_000L;
+    /**
      * Analyze profile snapshots paging size.
      */
     private int maxPageSizeOfQueryProfileSnapshot = 500;

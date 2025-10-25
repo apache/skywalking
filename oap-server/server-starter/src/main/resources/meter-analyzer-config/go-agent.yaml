@@ -29,4 +29,4 @@ metricsRules:
   - name: sw_go_interceptor_error_count
     exp: sw_go_interceptor_error_counter.sum(['plugin_name', 'service', 'instance']).increase('PT1M')
   - name: sw_go_tracing_context_execution_time_percentile
-    exp: sw_go_tracing_context_performance.sum(['le', 'service', 'instance']).histogram().histogram_percentile([50,70,90,99])
+    exp: sw_go_tracing_context_performance.sum(['le', 'service', 'instance']).histogram().histogram_percentile([50,75,90,95,99])

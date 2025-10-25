@@ -35,7 +35,7 @@ results:
   - metric:
       labels:
         - key: p
-          value: "70"
+          value: "75"
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
@@ -51,6 +51,21 @@ results:
       labels:
         - key: p
           value: "90"
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        owner: null
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        owner: null
+        traceid: null
+      {{- end}}
+  - metric:
+      labels:
+        - key: p
+          value: "95"
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}

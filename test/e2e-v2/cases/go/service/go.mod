@@ -20,8 +20,8 @@ module sw-e2e
 go 1.19
 
 require (
-	github.com/apache/skywalking-go v0.6.1-0.20251017003410-a424bfc5615c
-	github.com/apache/skywalking-go/toolkit v0.6.0
+	github.com/apache/skywalking-go v0.6.1-0.20251023090254-afa75a3cc8c3
+	github.com/apache/skywalking-go/toolkit v0.5.1-0.20250301084827-154de50628e8
 	github.com/gin-gonic/gin v1.10.0
 )
 

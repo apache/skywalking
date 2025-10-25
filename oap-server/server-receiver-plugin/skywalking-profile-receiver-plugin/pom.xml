@@ -39,6 +39,12 @@
             <artifactId>protobuf-java</artifactId>
             <version>${com.google.protobuf.protoc.version}</version>
         </dependency>
+        <!-- Use centralized pprof parser -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-pprof-parser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -49,23 +55,5 @@
                 <version>${os-maven-plugin.version}</version>
             </extension>
         </extensions>
-        <plugins>
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>${protobuf-maven-plugin.version}</version>
-                <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:${com.google.protobuf.protoc.version}:exe:${os.detected.classifier}</protocArtifact>
-                    <protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
 </project>

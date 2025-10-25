@@ -56,6 +56,7 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(ZipkinSpanRecord.TIMESTAMP_MILLIS)
 @BanyanDB.Trace.TraceIdColumn(ZipkinSpanRecord.TRACE_ID)
+@BanyanDB.Trace.SpanIdColumn(ZipkinSpanRecord.SPAN_ID)
 @BanyanDB.Trace.IndexRule(name = ZipkinSpanRecord.TIMESTAMP_MILLIS, columns = {
     ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME,
 }, orderByColumn = ZipkinSpanRecord.TIMESTAMP_MILLIS)
@@ -118,7 +119,6 @@ public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP_MILLIS)
-    @BanyanDB.NoIndexing
     private long timestampMillis;
     @Setter
     @Getter

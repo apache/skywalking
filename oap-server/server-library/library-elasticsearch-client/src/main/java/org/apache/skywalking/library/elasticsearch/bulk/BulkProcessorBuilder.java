@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.ElasticSearch;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -33,6 +34,7 @@ public final class BulkProcessorBuilder {
     private Duration flushInterval;
     private int concurrentRequests = 2;
     private int batchOfBytes;
+    private HistogramMetrics bulkMetrics;
 
     public BulkProcessorBuilder bulkActions(int bulkActions) {
         checkArgument(bulkActions > 0, "bulkActions must be positive");
@@ -57,8 +59,14 @@ public final class BulkProcessorBuilder {
         return this;
     }
 
+    public BulkProcessorBuilder bulkMetrics(HistogramMetrics bulkMetrics) {
+        checkArgument(bulkMetrics != null, "bulkMetrics must not be null");
+        this.bulkMetrics = bulkMetrics;
+        return this;
+    }
+
     public BulkProcessor build(AtomicReference<ElasticSearch> es) {
         return new BulkProcessor(
-            es, bulkActions, flushInterval, concurrentRequests, batchOfBytes);
+            es, bulkActions, flushInterval, concurrentRequests, batchOfBytes, bulkMetrics);
     }
 }

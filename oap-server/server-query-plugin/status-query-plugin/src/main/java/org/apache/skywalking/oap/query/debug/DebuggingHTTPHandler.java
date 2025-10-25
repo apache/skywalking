@@ -183,7 +183,6 @@ public class DebuggingHTTPHandler {
                                    @Param("startTime") String startTime,
                                    @Param("endTime") String endTime,
                                    @Param("step") String step,
-                                   @Param("coldStage") Optional<Boolean> coldStage,
                                    @Param("minTraceDuration") Optional<Integer> minDuration,
                                    @Param("maxTraceDuration") Optional<Integer> maxDuration,
                                    @Param("traceState") String traceState,
@@ -203,7 +202,6 @@ public class DebuggingHTTPHandler {
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
-        coldStage.ifPresent(duration::setColdStage);
         Pagination pagination = new Pagination();
         pagination.setPageNum(pageNum);
         pagination.setPageSize(pageSize);
@@ -236,30 +234,22 @@ public class DebuggingHTTPHandler {
         return transToYAMLString(result);
     }
 
-    @SneakyThrows
-    @Get("/debugging/query/trace/queryTrace")
-    public String queryTrace(@Param("traceId") String traceId) {
-        Trace trace = traceQuery.queryTrace(traceId, null, true).join();
-        DebuggingQueryTraceRsp result = new DebuggingQueryTraceRsp(
-            trace.getSpans(), transformTrace(trace.getDebuggingTrace()));
-        return transToYAMLString(result);
-    }
-
     /**
-     * Only for BanyanDB, can be used to query the trace in the cold stage.
+     * Only BanyanDB can query the trace in the cold stage.
      */
     @SneakyThrows
-    @Get("/debugging/query/trace/queryTraceFromColdStage")
-    public String queryTraceFromColdStage(@Param("traceId") String traceId,
-                                          @Param("startTime") String startTime,
-                                          @Param("endTime") String endTime,
-                                          @Param("step") String step) {
+    @Get("/debugging/query/trace/queryTrace")
+    public String queryTrace(@Param("traceId") String traceId,
+                             @Param("startTime") String startTime,
+                             @Param("endTime") String endTime,
+                             @Param("step") String step,
+                             @Param("coldStage") Optional<Boolean> coldStage) {
         Duration duration = new Duration();
         duration.setStart(startTime);
         duration.setEnd(endTime);
         duration.setStep(Step.valueOf(step));
-        duration.setColdStage(true);
-        Trace trace = traceQuery.queryTraceFromColdStage(traceId, duration, true).join();
+        coldStage.ifPresent(duration::setColdStage);
+        Trace trace = traceQuery.queryTrace(traceId, duration, true).join();
         DebuggingQueryTraceRsp result = new DebuggingQueryTraceRsp(
             trace.getSpans(), transformTrace(trace.getDebuggingTrace()));
         return transToYAMLString(result);

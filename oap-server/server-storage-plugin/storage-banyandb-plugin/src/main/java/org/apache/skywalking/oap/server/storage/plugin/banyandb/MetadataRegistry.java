@@ -229,10 +229,11 @@ public enum MetadataRegistry {
                                                    .setName(schemaMetadata.name()));
         builder.setTraceIdTagName(model.getBanyanDBModelExtension().getTraceIdColumn());
         builder.setTimestampTagName(timestampColumn);
+        builder.setSpanIdTagName(model.getBanyanDBModelExtension().getSpanIdColumn());
         for (final ModelColumn col : model.getColumns()) {
             final String columnStorageName = col.getColumnName().getStorageName();
-            // skip storage only column, since they are not supposed to be queried
-            if (col.isStorageOnly()) {
+            // skip no index column, since they are not supposed to be queried
+            if (!col.getBanyanDBExtension().shouldIndex()) {
                 continue;
             }
             if (columnStorageName.equals(Record.TIME_BUCKET)) {
@@ -538,7 +539,7 @@ public enum MetadataRegistry {
             final TagSpec tagSpec = parseTagSpec(col);
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
-            if (col.getBanyanDBExtension().shouldIndex()) {
+            if (col.getBanyanDBExtension().shouldIndex() && !colName.equals(model.getBanyanDBModelExtension().getTimestampColumn())) {
                 if (!seriesIDColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
                     tagMetadataList.add(new TagMetadata(
                         indexRule(
@@ -593,7 +594,7 @@ public enum MetadataRegistry {
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
 
-            if (col.getBanyanDBExtension().shouldIndex()) {
+            if (col.getBanyanDBExtension().shouldIndex() && !colName.equals(model.getBanyanDBModelExtension().getTimestampColumn())) {
                 if (!seriesIDColumns.contains(colName) || null != col.getBanyanDBExtension().getAnalyzer()) {
                     result.tag(new TagMetadata(
                         indexRule(

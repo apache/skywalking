@@ -16,7 +16,7 @@
 # This file is used to show how to write configuration files and can be used to test.
 
   cases:
-    # trace segment list
+    # trace list
     - query: |
         curl -s -XPOST http://${provider_host}:${provider_9090}/profile/users?e2e=true -d '{"enableProfiling":"false","name":"SkyWalking"}' -H "Content-Type: application/json" > /dev/null;
         sleep 3;

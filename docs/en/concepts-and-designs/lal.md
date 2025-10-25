@@ -291,7 +291,7 @@ like percentiles.
 
 metrics:
   - name: response_time_percentile
-    exp: http_response_time.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+    exp: http_response_time.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,75,90,95,99])
 ```
 
 - `slowSql`

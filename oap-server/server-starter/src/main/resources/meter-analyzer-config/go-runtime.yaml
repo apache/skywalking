@@ -71,10 +71,10 @@ metricsRules:
   - name: instance_golang_memory_total
     exp: instance_golang_memory_total
   - name: instance_golang_gc_heap_allocs_by_size
-    exp: instance_golang_gc_heap_allocs_by_size.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: instance_golang_gc_heap_allocs_by_size.histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: instance_golang_gc_heap_frees_by_size
-    exp: instance_golang_gc_heap_frees_by_size.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: instance_golang_gc_heap_frees_by_size.histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: instance_golang_gc_pauses
-    exp: instance_golang_gc_pauses.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: instance_golang_gc_pauses.histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)
   - name: instance_golang_sched_latencies
-    exp: instance_golang_sched_latencies.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+    exp: instance_golang_sched_latencies.histogram().histogram_percentile([50,75,90,95,99]).downsampling(SUM)

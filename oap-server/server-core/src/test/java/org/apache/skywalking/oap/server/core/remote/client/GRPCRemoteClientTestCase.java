@@ -24,6 +24,7 @@ import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.util.MutableHandlerRegistry;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -84,7 +85,7 @@ public class GRPCRemoteClientTestCase {
         moduleDefine.provider().registerServiceImplementation(IWorkerInstanceSetter.class, workerInstancesService);
 
         TestWorker worker = new TestWorker(moduleManager);
-        workerInstancesService.put(nextWorkerName, worker, TestStreamData.class);
+        workerInstancesService.put(nextWorkerName, worker, MetricStreamKind.OAL, TestStreamData.class);
     }
 
     @AfterEach

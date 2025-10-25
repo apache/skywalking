@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
@@ -45,6 +46,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SP
 @Stream(name = SpanAttachedEventRecord.INDEX_NAME, scopeId = SPAN_ATTACHED_EVENT, builder = SpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(SpanAttachedEventRecord.TIMESTAMP)
 @BanyanDB.Trace.TraceIdColumn(SpanAttachedEventRecord.RELATED_TRACE_ID)
+@BanyanDB.Trace.SpanIdColumn(StorageData.ID)
 @BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.ZIPKIN_TRACE)
 public class SpanAttachedEventRecord extends Record implements BanyanDBTrace, BanyanDBTrace.MergeTable {
 
@@ -87,7 +89,6 @@ public class SpanAttachedEventRecord extends Record implements BanyanDBTrace, Ba
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = TIMESTAMP)
-    @BanyanDB.NoIndexing
     private long timestamp;
 
     @Override
@@ -130,6 +131,16 @@ public class SpanAttachedEventRecord extends Record implements BanyanDBTrace, Ba
     @Override
     public long getTimestampColumnValue() {
         return timestamp;
+    }
+
+    @Override
+    public String getMergeSpanIdColumnName() {
+        return ZipkinSpanRecord.SPAN_ID;
+    }
+
+    @Override
+    public String getSpanIdColumnValue() {
+        return id().build();
     }
 
     public static class Builder implements StorageBuilder<SpanAttachedEventRecord> {

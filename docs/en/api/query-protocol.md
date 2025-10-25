@@ -169,9 +169,8 @@ extend type Query {
     queryBasicTraces(condition: TraceQueryCondition, debug: Boolean): TraceBrief
     queryBasicTracesByName(condition: TraceQueryConditionByName, debug: Boolean): TraceBrief
     # Read the specific trace ID with given trace ID
-    queryTrace(traceId: ID!, debug: Boolean): Trace
-    # Only for BanyanDB, can be used to query the trace in the cold stage.
-    queryTraceFromColdStage(traceId: ID!, duration: Duration!, debug: Boolean): Trace
+    # duration is optional, and only for BanyanDB. If not provided, means search in the last 1 day.
+    queryTrace(traceId: ID!, duration: Duration, debug: Boolean): Trace
     # Read the list of searchable keys
     queryTraceTagAutocompleteKeys(duration: Duration!):[String!]
     # Search the available value options of the given key.
@@ -180,6 +179,17 @@ extend type Query {
 ```
 
 Trace query fetches trace segment lists and spans of given trace IDs.
+
+### Trace-v2
+```graphql
+extend type Query {
+    queryTraces(condition: TraceQueryCondition, debug: Boolean): TraceList
+    # Feature detection endpoint: returns true if the backend supports the Query Traces V2 API.
+    # Returns false if the backend does not support Query Traces V2.
+    # This field is intended to assist clients in migrating to the new API.
+    hasQueryTracesV2Support: Boolean!
+}
+```
 
 ### Alarm
 ```graphql
@@ -205,7 +215,7 @@ extend type Query {
 Event query fetches the event list based on given sources and time range conditions.
 
 ### Profiling
-SkyWalking offers two types of [profiling](../concepts-and-designs/profiling.md), in-process(tracing profiling and async-profiler) and out-process(ebpf profiling), allowing users to create tasks and check their execution status.
+SkyWalking offers two types of [profiling](../concepts-and-designs/profiling.md), in-process(tracing profiling, async-profiler and pprof) and out-process(ebpf profiling), allowing users to create tasks and check their execution status.
 
 #### In-process profiling
 
@@ -245,6 +255,25 @@ extend type Query {
     queryAsyncProfilerAnalyze(request: AsyncProfilerAnalyzationRequest!): AsyncProfilerAnalyzation!
 }
 ```
+
+##### pprof
+
+```graphql
+extend type Mutation {
+    # Create a new pprof task
+    createPprofTask(pprofTaskCreationRequest: PprofTaskCreationRequest!): PprofTaskCreationResult!
+}
+
+extend type Query {
+    # Query all task lists and sort them in descending order by create time
+    queryPprofTaskList(request: PprofTaskListRequest!): PprofTaskListResult!
+    # Query task progress, including task logs
+    queryPprofTaskProgress(taskId: String!): PprofTaskProgress!
+    # Query the flame graph produced by pprof
+    queryPprofAnalyze(request: PprofAnalyzationRequest!): PprofAnalyzation!
+}
+```
+
 
 #### Out-process profiling
 

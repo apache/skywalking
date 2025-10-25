@@ -48,6 +48,7 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = SegmentRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(SegmentRecord.START_TIME)
 @BanyanDB.Trace.TraceIdColumn(SegmentRecord.TRACE_ID)
+@BanyanDB.Trace.SpanIdColumn(SegmentRecord.SEGMENT_ID)
 @BanyanDB.Trace.IndexRule(name = SegmentRecord.START_TIME, columns = {
         SegmentRecord.SERVICE_ID,
         SegmentRecord.IS_ERROR,
@@ -98,7 +99,6 @@ public class SegmentRecord extends Record implements BanyanDBTrace {
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
-    @BanyanDB.NoIndexing
     private long startTime;
     @Setter
     @Getter
