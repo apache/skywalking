@@ -43,7 +43,8 @@
           value: localhost:8080/profile
         - key: status_code
           value: "200"
+      type: Entry
     {{- end }}
-  start: {{ notEmpty .start }}
+  start: {{ gt .start 0 }}
   traceid: {{ notEmpty .traceid }}
 {{- end }}
