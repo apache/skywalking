@@ -26,8 +26,8 @@
   logs:
     {{- contains .logs }}
     - id: {{ notEmpty .id }}
-      instanceid: {{ b64enc "go-service" }}.1_{{ b64enc "go-service" }}
-      operationtype: NOTIFIED
+      instanceid: {{ notEmpty .instanceid }}
+      operationtype: {{ .operationtype }}
       instancename: ""
       operationtime: {{ gt .operationtime 0 }}
     {{- end }}
