@@ -69,9 +69,11 @@ verify:
         echo "go_service_host: '${go_service_host}'" >&2
         echo "go_service_8080: '${go_service_8080}'" >&2
         
-        # Use eval to properly expand variables with hyphens
-        go_host=$(eval echo \$$(echo go-service_host))
-        go_port=$(eval echo \$$(echo go-service_8080))
+        # Use indirect variable expansion for variables with hyphens
+        go_host_var="go-service_host"
+        go_port_var="go-service_8080"
+        go_host="${!go_host_var}"
+        go_port="${!go_port_var}"
         echo "Resolved go_host: $go_host" >&2
         echo "Resolved go_port: $go_port" >&2
         
@@ -91,9 +93,11 @@ verify:
       # profiling list finished: send some requests and wait for profiling to complete
     - query: |
         echo "=== Sending requests and checking profiling list (FINISHED) ===" >&2
-        # Use eval to properly expand variables with hyphens
-        go_host=$(eval echo \$$(echo go-service_host))
-        go_port=$(eval echo \$$(echo go-service_8080))
+        # Use indirect variable expansion for variables with hyphens
+        go_host_var="go-service_host"
+        go_port_var="go-service_8080"
+        go_host="${!go_host_var}"
+        go_port="${!go_port_var}"
         curl -s -XGET http://$go_host:$go_port/profile
         sleep 120
         result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
