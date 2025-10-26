@@ -211,7 +211,7 @@ jobs:
         env:
           SW_OAP_BASE_IMAGE: eclipse-temurin:${{ matrix.java-version }}-jre
         run: |
-          make docker.all || make docker.all
+          make docker || make docker
           docker save -o docker-images-skywalking-oap.tar skywalking/oap:latest
           docker save -o docker-images-skywalking-ui.tar skywalking/ui:latest
       - name: Upload docker images
