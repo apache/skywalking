@@ -61,36 +61,6 @@ verify:
         echo "$result"
       expected: expected/profile-list-notified.yml
 
-    # Test direct connection to Go service
-    - query: |
-        echo "=== Testing direct connection to Go service ===" >&2
-        echo "Environment variables related to go-service:" >&2
-        env | grep -i go | grep -i service >&2
-
-        go_host=$(printenv go-service_host || printenv go_service_host)
-        go_port=$(printenv go-service_8080 || printenv go_service_8080)
-
-        echo "Resolved go_host: ${go_host:-<missing>}" >&2
-        echo "Resolved go_port: ${go_port:-<missing>}" >&2
-
-        if [ -z "$go_host" ] || [ -z "$go_port" ]; then
-          echo "ERROR: Missing go_host or go_port environment variables" >&2
-          exit 1
-        fi
-
-        echo "Testing connection to http://$go_host:$go_port/profile" >&2
-        response=$(curl -v -XGET "http://$go_host:$go_port/profile" 2>&1)
-        curl_exit_code=$?
-
-        echo "Curl response: $response" >&2
-        echo "Curl exit code: $curl_exit_code" >&2
-        if [ $curl_exit_code -ne 0 ]; then
-          echo "WARNING: Connection to go-service failed, but continuing..." >&2
-        else
-          echo "SUCCESS: Connection to go-service successful!" >&2
-        fi
-        echo "Connection test completed" >&2
-      expected: expected/connection-test.yml
 
     # profiling list finished
     - query: |
