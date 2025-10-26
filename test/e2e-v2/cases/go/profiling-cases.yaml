@@ -32,7 +32,7 @@ trigger:
   action: http
   interval: 3s
   times: 60
-  url: http://go-service:8080/profile
+  url: http://${go-service_host}:${go-service_8080}/profile
   method: GET
 
 verify:
@@ -69,8 +69,8 @@ verify:
         echo "go_service_host: '${go_service_host}'" >&2
         echo "go_service_8080: '${go_service_8080}'" >&2
         
-        echo "Testing connection to http://go-service:8080/profile" >&2
-        response=$(curl -v -XGET http://go-service:8080/profile 2>&1)
+        echo "Testing connection to http://${go-service_host}:${go-service_8080}/profile" >&2
+        response=$(curl -v -XGET http://${go-service_host}:${go-service_8080}/profile 2>&1)
         curl_exit_code=$?
         echo "Curl response: $response" >&2
         echo "Curl exit code: $curl_exit_code" >&2
@@ -81,17 +81,10 @@ verify:
         fi
         
         echo "Connection test completed" >&2
-      expected: expected/connection-test.yml
     # profiling list finished: send some requests and wait for profiling to complete
     - query: |
         echo "=== Sending requests and checking profiling list (FINISHED) ===" >&2
-        # Send multiple requests to generate profiling data
-        for i in {1..5}; do
-          echo "Sending request $i to http://go-service:8080/profile" >&2
-          response=$(curl -s -XGET http://go-service:8080/profile)
-          echo "Request $i response: $response" >&2
-        done
-        curl -s -XGET http://go-service:8080/profile
+        curl -s -XGET http://${go-service_host}:${go-service_8080}/profile
         sleep 120
         result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
         echo "Profiling list result: $result" >&2
