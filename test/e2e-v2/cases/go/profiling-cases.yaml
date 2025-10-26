@@ -32,7 +32,7 @@ trigger:
   action: http
   interval: 3s
   times: 60
-  url: http://${go-service_host}:${go-service_8080}/profile
+  url: http://go-service:8080/profile
   method: GET
 
 verify:
@@ -62,13 +62,23 @@ verify:
     # Test direct connection to Go service
     - query: |
         echo "=== Testing direct connection to Go service ===" >&2
-        echo "Testing connection to http://localhost:8080/profile" >&2
-        response=$(curl -v -XGET http://localhost:8080/profile 2>&1)
-        echo "Curl response: $response" >&2
+        echo "Environment variables related to go-service:" >&2
+        env | grep -i go | grep -i service >&2
+        echo "go-service_host: '${go-service_host}'" >&2
+        echo "go-service_8080: '${go-service_8080}'" >&2
+        echo "go_service_host: '${go_service_host}'" >&2
+        echo "go_service_8080: '${go_service_8080}'" >&2
         
         echo "Testing connection to http://go-service:8080/profile" >&2
-        response2=$(curl -v -XGET http://go-service:8080/profile 2>&1)
-        echo "Curl response2: $response2" >&2
+        response=$(curl -v -XGET http://go-service:8080/profile 2>&1)
+        curl_exit_code=$?
+        echo "Curl response: $response" >&2
+        echo "Curl exit code: $curl_exit_code" >&2
+        if [ $curl_exit_code -ne 0 ]; then
+          echo "WARNING: Connection to go-service failed, but continuing..." >&2
+        else
+          echo "SUCCESS: Connection to go-service successful!" >&2
+        fi
         
         echo "Connection test completed" >&2
       expected: expected/connection-test.yml

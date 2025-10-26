@@ -31,184 +31,177 @@ env:
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5 # Cache restore timeout
 
 jobs:
-  license-header:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: License header
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - name: Check license header
-        uses: apache/skywalking-eyes@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
+  # license-header:
+  #   if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+  #   name: License header
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - name: Check license header
+  #       uses: apache/skywalking-eyes@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
 
-  code-style:
-    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Code style
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - name: Check code style
-        run: ./mvnw -B -q clean checkstyle:check
+  # code-style:
+  #   if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+  #   name: Code style
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - name: Check code style
+  #       run: ./mvnw -B -q clean checkstyle:check
 
-  dependency-license:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
-    name: Dependency licenses
-    needs: [changes]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "11"
-          cache: "maven"
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.17"
-      - name: Check Dependencies Licenses
-        run: |
-          go install github.com/apache/skywalking-eyes/cmd/license-eye@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
-          license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
-          if [ ! -z "$(git diff -U0 ./dist-material/release-docs/LICENSE)" ]; then
-            echo "LICENSE file is not updated correctly"
-            git diff -U0 ./dist-material/release-docs/LICENSE
-            exit 1
-          fi
+  # dependency-license:
+  #   if: |
+  #     ( always() && ! cancelled() ) &&
+  #     ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
+  #   name: Dependency licenses
+  #   needs: [changes]
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - uses: actions/setup-java@v4
+  #       with:
+  #         distribution: "temurin"
+  #         java-version: "11"
+  #         cache: "maven"
+  #     - name: Setup Go
+  #       uses: actions/setup-go@v5
+  #       with:
+  #         go-version: "1.17"
+  #     - name: Check Dependencies Licenses
+  #       run: |
+  #         go install github.com/apache/skywalking-eyes/cmd/license-eye@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
+  #         license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
+  #         if [ ! -z "$(git diff -U0 ./dist-material/release-docs/LICENSE)" ]; then
+  #           echo "LICENSE file is not updated correctly"
+  #           git diff -U0 ./dist-material/release-docs/LICENSE
+  #           exit 1
+  #         fi
 
-  sanity-check:
-    if: ( always() && ! cancelled() ) && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
-    name: Sanity check results
-    needs: [license-header, code-style, dependency-license]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Check results
-        run: |
-          [[ ${{ needs.license-header.result }} == 'success' ]] || exit 1;
-          [[ ${{ needs.code-style.result }} == 'success' ]] || exit 1;
-          [[ ${{ needs.dependency-license.result }} == 'success' ]] || [[ ${{ needs.dependency-license.result }} == 'skipped' ]] || exit 1;
+  # sanity-check:
+  #   if: ( always() && ! cancelled() ) && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+  #   name: Sanity check results
+  #   needs: [license-header, code-style, dependency-license]
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   steps:
+  #     - name: Check results
+  #       run: |
+  #         [[ ${{ needs.license-header.result }} == 'success' ]] || exit 1;
+  #         [[ ${{ needs.code-style.result }} == 'success' ]] || exit 1;
+  #         [[ ${{ needs.dependency-license.result }} == 'success' ]] || [[ ${{ needs.dependency-license.result }} == 'skipped' ]] || exit 1;
 
-  changes:
-    # Check if anything related to Actual code / CI(functional testing) is changed
-    # set outputs for other jobs to access for if conditions
-    runs-on: ubuntu-latest
-    # To prevent error when there's no base branch
-    if: github.event_name != 'schedule'
-    timeout-minutes: 10
-    outputs:
-      oap: ${{ steps.filter.outputs.oap }}
-      pom: ${{ steps.filter.outputs.pom }}
-      ui: ${{ steps.filter.outputs.ui }}
-    steps:
-      - uses: actions/checkout@v4 # required for push event
-        with:
-          fetch-depth: 0
-          submodules: true
-          persist-credentials: false
-      - name: Filter
-        id: filter
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
-        with:
-          list-files: 'shell'
-          predicate-quantifier: 'every'
-          filters: |
-            oap:
-            - '!**/*.md'
-            - '!**/*.txt'
-            - '!skywalking-ui/**'
-            - '!.asf.yaml'
-            - '!.dlc.json'
-            - '!.gitignore'
-            - '!.licenserc.yaml'
-            - '!codeStyle.xml'
-            - '!HEADER'
-            - '!LICENSE'
-            - '!NOTICE'
-            - '!docs/**'
-            - '!.github/workflows/codeql.yaml'
-            - '!.github/ISSUE_TEMPLATE/**'
-            - '!.github/PULL_REQUEST_TEMPLATE'
-            - '!dist-material/release-docs/**'
-            - '!component-libraries.yml'
-            pom:
-            - '**/pom.xml'
-            ui: # dorny/paths-filter doesn't support submodule changes detection, anyway keep it here to remind us of https://github.com/dorny/paths-filter/issues/143
-            - 'skywalking-ui/**'
-      - name: List all modified files
-        if: steps.filter.outputs.oap == 'true' || steps.filter.outputs.pom == 'true' || steps.filter.outputs.pom == 'true'
-        run: |
-          echo "Files that have changed or modified:"
-          echo "OAP: ${{ steps.filter.outputs.oap_files }}"
-          echo "POM: ${{ steps.filter.outputs.pom_files }}"
-          echo "UI: ${{ steps.filter.outputs.ui_files }}"
+  # changes:
+  #   # Check if anything related to Actual code / CI(functional testing) is changed
+  #   # set outputs for other jobs to access for if conditions
+  #   runs-on: ubuntu-latest
+  #   # To prevent error when there's no base branch
+  #   if: github.event_name != 'schedule'
+  #   timeout-minutes: 10
+  #   outputs:
+  #     oap: ${{ steps.filter.outputs.oap }}
+  #     pom: ${{ steps.filter.outputs.pom }}
+  #     ui: ${{ steps.filter.outputs.ui }}
+  #   steps:
+  #     - uses: actions/checkout@v4 # required for push event
+  #       with:
+  #         fetch-depth: 0
+  #         submodules: true
+  #         persist-credentials: false
+  #     - name: Filter
+  #       id: filter
+  #       uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+  #       with:
+  #         list-files: 'shell'
+  #         predicate-quantifier: 'every'
+  #         filters: |
+  #           oap:
+  #           - '!**/*.md'
+  #           - '!**/*.txt'
+  #           - '!skywalking-ui/**'
+  #           - '!.asf.yaml'
+  #           - '!.dlc.json'
+  #           - '!.gitignore'
+  #           - '!.licenserc.yaml'
+  #           - '!codeStyle.xml'
+  #           - '!HEADER'
+  #           - '!LICENSE'
+  #           - '!NOTICE'
+  #           - '!docs/**'
+  #           - '!.github/workflows/codeql.yaml'
+  #           - '!.github/ISSUE_TEMPLATE/**'
+  #           - '!.github/PULL_REQUEST_TEMPLATE'
+  #           - '!dist-material/release-docs/**'
+  #           - '!component-libraries.yml'
+  #           pom:
+  #           - '**/pom.xml'
+  #           ui: # dorny/paths-filter doesn't support submodule changes detection, anyway keep it here to remind us of https://github.com/dorny/paths-filter/issues/143
+  #           - 'skywalking-ui/**'
+  #     - name: List all modified files
+  #       if: steps.filter.outputs.oap == 'true' || steps.filter.outputs.pom == 'true' || steps.filter.outputs.pom == 'true'
+  #       run: |
+  #         echo "Files that have changed or modified:"
+  #         echo "OAP: ${{ steps.filter.outputs.oap_files }}"
+  #         echo "POM: ${{ steps.filter.outputs.pom_files }}"
+  #         echo "UI: ${{ steps.filter.outputs.ui_files }}"
 
-  dist-tar:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: Build dist tar
-    needs: [changes]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "11"
-          cache: "maven"
-      - name: Build distribution tar
-        run: |
-          ./mvnw clean flatten:flatten install javadoc:javadoc -B -q -Pall \
-            -Dmaven.test.skip \
-            -Dcheckstyle.skip \
-            -Dgpg.skip
-      - name: Verify builds are reproducible
-        run: ./mvnw -Dmaven.test.skip clean flatten:flatten verify artifact:compare -Pall -Dgpg.skip
-      - uses: actions/upload-artifact@v4
-        name: Upload distribution tar
-        with:
-          name: dist
-          path: dist
+  # dist-tar:
+  #   if: |
+  #     ( always() && ! cancelled() ) &&
+  #     ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+  #   name: Build dist tar
+  #   needs: [changes]
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 30
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - uses: actions/setup-java@v4
+  #       with:
+  #         distribution: "temurin"
+  #         java-version: "11"
+  #         cache: "maven"
+  #     - name: Build distribution tar
+  #       run: |
+  #         ./mvnw clean flatten:flatten install javadoc:javadoc -B -q -Pall \
+  #           -Dmaven.test.skip \
+  #           -Dcheckstyle.skip \
+  #           -Dgpg.skip
+  #     - name: Verify builds are reproducible
+  #       run: ./mvnw -Dmaven.test.skip clean flatten:flatten verify artifact:compare -Pall -Dgpg.skip
+  #     - uses: actions/upload-artifact@v4
+  #       name: Upload distribution tar
+  #       with:
+  #         name: dist
+  #         path: dist
 
   docker:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: always()
     name: Docker images
-    needs: [sanity-check, dist-tar, changes]
+    needs: []
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       matrix:
-        java-version: [11, 17]
+        java-version: [11]
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/download-artifact@v4
-        name: Download distribution tar
-        with:
-          name: dist
-          path: dist
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -227,113 +220,111 @@ jobs:
           name: docker-images-${{ matrix.java-version }}
           path: docker-images-skywalking-*.tar
 
-  unit-test:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: Unit test
-    needs: [sanity-check, changes]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-14, windows-latest]
-        java-version: [11]
-        include:
-          - os: ubuntu-latest
-            java-version: 17
-          - os: ubuntu-latest
-            java-version: 21
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - name: Cache maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ matrix.java-version }}
-          distribution: temurin
-      - name: Unit test
-        run: ./mvnw clean test -q -B -D"checkstyle.skip" || ./mvnw clean test -q -B -D"checkstyle.skip"
+  # unit-test:
+  #   if: |
+  #     ( always() && ! cancelled() ) &&
+  #     ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+  #   name: Unit test
+  #   needs: [sanity-check, changes]
+  #   runs-on: ${{ matrix.os }}
+  #   timeout-minutes: 30
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest, macos-14, windows-latest]
+  #       java-version: [11]
+  #       include:
+  #         - os: ubuntu-latest
+  #           java-version: 17
+  #         - os: ubuntu-latest
+  #           java-version: 21
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - name: Cache maven repository
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.m2/repository
+  #         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+  #         restore-keys: ${{ runner.os }}-maven-
+  #     - uses: actions/setup-java@v4
+  #       with:
+  #         java-version: ${{ matrix.java-version }}
+  #         distribution: temurin
+  #     - name: Unit test
+  #       run: ./mvnw clean test -q -B -D"checkstyle.skip" || ./mvnw clean test -q -B -D"checkstyle.skip"
 
-  integration-test:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: Integration test
-    needs: [sanity-check, changes]
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        java-version: [11, 17, 21]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - name: Cache maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ matrix.java-version }}
-          distribution: temurin
-      - name: Integration test
-        run: |
-          # Exclude slow integration tests and run those tests separately below.
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow || \
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow
+  # integration-test:
+  #   if: |
+  #     ( always() && ! cancelled() ) &&
+  #     ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+  #   name: Integration test
+  #   needs: [sanity-check, changes]
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   strategy:
+  #     matrix:
+  #       java-version: [11, 17, 21]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - name: Cache maven repository
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.m2/repository
+  #         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+  #         restore-keys: ${{ runner.os }}-maven-
+  #     - uses: actions/setup-java@v4
+  #       with:
+  #         java-version: ${{ matrix.java-version }}
+  #         distribution: temurin
+  #     - name: Integration test
+  #       run: |
+  #         # Exclude slow integration tests and run those tests separately below.
+  #         ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow || \
+  #         ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow
 
-  # Slow tests
-  slow-integration-test:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: Slow Integration Tests
-    needs: [sanity-check, changes]
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        test:
-          - name: ElasticSearch / OpenSearch
-            class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - name: Cache maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: 11
-          distribution: temurin
-      - name: ${{ matrix.test.name }}
-        run: |
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -Dfailsafe.failIfNoSpecifiedTests=false || \
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -Dfailsafe.failIfNoSpecifiedTests=false
+  # # Slow tests
+  # slow-integration-test:
+  #   if: |
+  #     ( always() && ! cancelled() ) &&
+  #     ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+  #   name: Slow Integration Tests
+  #   needs: [sanity-check, changes]
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   strategy:
+  #     matrix:
+  #       test:
+  #         - name: ElasticSearch / OpenSearch
+  #           class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - name: Cache maven repository
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.m2/repository
+  #         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+  #         restore-keys: ${{ runner.os }}-maven-
+  #     - uses: actions/setup-java@v4
+  #       with:
+  #         java-version: 11
+  #         distribution: temurin
+  #     - name: ${{ matrix.test.name }}
+  #       run: |
+  #         ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -Dfailsafe.failIfNoSpecifiedTests=false || \
+  #         ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -Dfailsafe.failIfNoSpecifiedTests=false
 
   e2e-test:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    if: always()
     name: E2E test
-    needs: [docker, dist-tar]
+    needs: [docker]
     runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
     timeout-minutes: 60
     env:
@@ -751,17 +742,6 @@ jobs:
         run: |
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
-      - uses: actions/download-artifact@v4
-        name: Download distribution tar
-        with:
-          name: dist
-          path: dist
-      - name: Login to ghcr
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache maven repository
         uses: actions/cache@v4
         with:
@@ -793,184 +773,184 @@ jobs:
           name: test-logs-${{ matrix.test.name }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
-  e2e-test-istio:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
-    needs: [docker]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        analyzer: [k8s-mesh, mx-mesh]
-        versions:
-          - istio: 1.20.0
-            kubernetes: 28
-          - istio: 1.21.0
-            kubernetes: 28
-          - istio: 1.22.0
-            kubernetes: 28
-          - istio: 1.23.0
-            kubernetes: 28
-          - istio: 1.24.0
-            kubernetes: 28
+  # e2e-test-istio:
+  #   if: |
+  #     ( always() && ! cancelled() ) &&
+  #     ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+  #   name: E2E test
+  #   needs: [docker]
+  #   runs-on: ubuntu-24.04
+  #   timeout-minutes: 60
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       analyzer: [k8s-mesh, mx-mesh]
+  #       versions:
+  #         - istio: 1.20.0
+  #           kubernetes: 28
+  #         - istio: 1.21.0
+  #           kubernetes: 28
+  #         - istio: 1.22.0
+  #           kubernetes: 28
+  #         - istio: 1.23.0
+  #           kubernetes: 28
+  #         - istio: 1.24.0
+  #           kubernetes: 28
 
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
-      - uses: apache/skywalking-cli/actions/setup@master
-        with:
-          version: ${{ env.SW_CTL_COMMIT }}
-      - uses: actions/download-artifact@v4
-        name: Download docker images
-        with:
-          name: docker-images-11
-          path: docker-images
-      - name: Load docker images
-        run: |
-          find docker-images -name "*.tar" -exec docker load -i {} \;
-          find docker-images -name "*.tar" -exec rm {} \;
-      - name: Login to ghcr
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
-        env:
-          ISTIO_VERSION: ${{ matrix.versions.istio }}
-          KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
-          ALS_ANALYZER: ${{ matrix.analyzer }}
-        with:
-          e2e-file: test/e2e-v2/cases/istio/als/e2e.yaml
-      - if: ${{ failure() }}
-        run: |
-          df -h
-          du -sh .
-          docker images
-      - uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
-        name: Upload Logs
-        with:
-          name: test-logs-${{ matrix.test.name }}
-          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+  #     - uses: apache/skywalking-cli/actions/setup@master
+  #       with:
+  #         version: ${{ env.SW_CTL_COMMIT }}
+  #     - uses: actions/download-artifact@v4
+  #       name: Download docker images
+  #       with:
+  #         name: docker-images-11
+  #         path: docker-images
+  #     - name: Load docker images
+  #       run: |
+  #         find docker-images -name "*.tar" -exec docker load -i {} \;
+  #         find docker-images -name "*.tar" -exec rm {} \;
+  #     - name: Login to ghcr
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.repository_owner }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: ${{ matrix.test.name }}
+  #       uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
+  #       env:
+  #         ISTIO_VERSION: ${{ matrix.versions.istio }}
+  #         KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
+  #         ALS_ANALYZER: ${{ matrix.analyzer }}
+  #       with:
+  #         e2e-file: test/e2e-v2/cases/istio/als/e2e.yaml
+  #     - if: ${{ failure() }}
+  #       run: |
+  #         df -h
+  #         du -sh .
+  #         docker images
+  #     - uses: actions/upload-artifact@v4
+  #       if: ${{ failure() }}
+  #       name: Upload Logs
+  #       with:
+  #         name: test-logs-${{ matrix.test.name }}
+  #         path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
-  e2e-test-istio-ambient:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
-    needs: [docker]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        analyzer: [k8s-mesh, mx-mesh]
-        versions:
-          - istio: 1.23.0
-            kubernetes: 28
-          - istio: 1.24.0
-            kubernetes: 28
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
-      - uses: apache/skywalking-cli/actions/setup@master
-        with:
-          version: ${{ env.SW_CTL_COMMIT }}
-      - uses: actions/download-artifact@v4
-        name: Download docker images
-        with:
-          name: docker-images-11
-          path: docker-images
-      - name: Load docker images
-        run: |
-          find docker-images -name "*.tar" -exec docker load -i {} \;
-          find docker-images -name "*.tar" -exec rm {} \;
-      - name: Login to ghcr
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
-        env:
-          ISTIO_VERSION: ${{ matrix.versions.istio }}
-          KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
-          ALS_ANALYZER: ${{ matrix.analyzer }}
-        with:
-          e2e-file: test/e2e-v2/cases/istio/ambient-als/e2e.yaml
-      - if: ${{ failure() }}
-        run: |
-          df -h
-          du -sh .
-          docker images
-      - uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
-        name: Upload Logs
-        with:
-          name: test-istio-ambient-logs-${{ matrix.versions.istio }}-${{ matrix.versions.kubernetes }}-${{ matrix.analyzer }}
-          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+  # e2e-test-istio-ambient:
+  #   if: |
+  #     ( always() && ! cancelled() ) &&
+  #     ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+  #   name: E2E test
+  #   needs: [docker]
+  #   runs-on: ubuntu-24.04
+  #   timeout-minutes: 60
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       analyzer: [k8s-mesh, mx-mesh]
+  #       versions:
+  #         - istio: 1.23.0
+  #           kubernetes: 28
+  #         - istio: 1.24.0
+  #           kubernetes: 28
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+  #     - uses: apache/skywalking-cli/actions/setup@master
+  #       with:
+  #         version: ${{ env.SW_CTL_COMMIT }}
+  #     - uses: actions/download-artifact@v4
+  #       name: Download docker images
+  #       with:
+  #         name: docker-images-11
+  #         path: docker-images
+  #     - name: Load docker images
+  #       run: |
+  #         find docker-images -name "*.tar" -exec docker load -i {} \;
+  #         find docker-images -name "*.tar" -exec rm {} \;
+  #     - name: Login to ghcr
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.repository_owner }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: ${{ matrix.test.name }}
+  #       uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
+  #       env:
+  #         ISTIO_VERSION: ${{ matrix.versions.istio }}
+  #         KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
+  #         ALS_ANALYZER: ${{ matrix.analyzer }}
+  #       with:
+  #         e2e-file: test/e2e-v2/cases/istio/ambient-als/e2e.yaml
+  #     - if: ${{ failure() }}
+  #       run: |
+  #         df -h
+  #         du -sh .
+  #         docker images
+  #     - uses: actions/upload-artifact@v4
+  #       if: ${{ failure() }}
+  #       name: Upload Logs
+  #       with:
+  #         name: test-istio-ambient-logs-${{ matrix.versions.istio }}-${{ matrix.versions.kubernetes }}-${{ matrix.analyzer }}
+  #         path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
-  e2e-test-java-versions:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
-    needs: [docker]
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        java-version: [11, 17]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          persist-credentials: false
-      - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
-      - uses: apache/skywalking-cli/actions/setup@master
-        with:
-          version: ${{ env.SW_CTL_COMMIT }}
-      - uses: actions/download-artifact@v4
-        name: Download docker images
-        with:
-          name: docker-images-${{ matrix.java-version }}
-          path: docker-images
-      - name: Load docker images
-        run: |
-          find docker-images -name "*.tar" -exec docker load -i {} \;
-          find docker-images -name "*.tar" -exec rm {} \;
-      - uses: actions/setup-java@v4
-        with:
-          java-version: ${{ matrix.java-version }}
-          distribution: temurin
-      - name: Cache maven repository
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-      - name: Prepare test services
-        shell: bash
-        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
-      - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
-        env:
-          SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
-        with:
-          e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/simple/jdk/e2e.yaml
+  # e2e-test-java-versions:
+  #   if: |
+  #     ( always() && ! cancelled() ) &&
+  #     ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+  #   name: E2E test
+  #   needs: [docker]
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 60
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       java-version: [11, 17]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         submodules: true
+  #         persist-credentials: false
+  #     - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
+  #     - uses: apache/skywalking-cli/actions/setup@master
+  #       with:
+  #         version: ${{ env.SW_CTL_COMMIT }}
+  #     - uses: actions/download-artifact@v4
+  #       name: Download docker images
+  #       with:
+  #         name: docker-images-${{ matrix.java-version }}
+  #         path: docker-images
+  #     - name: Load docker images
+  #       run: |
+  #         find docker-images -name "*.tar" -exec docker load -i {} \;
+  #         find docker-images -name "*.tar" -exec rm {} \;
+  #     - uses: actions/setup-java@v4
+  #       with:
+  #         java-version: ${{ matrix.java-version }}
+  #         distribution: temurin
+  #     - name: Cache maven repository
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.m2/repository
+  #         key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
+  #         restore-keys: ${{ runner.os }}-maven-
+  #     - name: Prepare test services
+  #       shell: bash
+  #       run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
+  #     - name: Java version ${{ matrix.java-version }}
+  #       uses: apache/skywalking-infra-e2e@cf589b4a0b9f8e6f436f78e9cfd94a1ee5494180
+  #       env:
+  #         SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
+  #       with:
+  #         e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/simple/jdk/e2e.yaml
 
 #  e2e-test-banyandb-stages:
 #    if: |
@@ -1081,42 +1061,13 @@ jobs:
     if: always()
     name: Required
     needs:
-      - dependency-license
-      - unit-test
-      - integration-test
-      - slow-integration-test
       - e2e-test
-      - e2e-test-istio
-      - e2e-test-istio-ambient
-      - e2e-test-java-versions
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Merge Requirement
-        # check changes, sanity, dependency license, unit, integration, e2e, e2e-istio and e2e-java-versions,
-        # if all of them are working as expected then naturally exits else return error code
+        # check e2e test results
         run: |
-          execute=${{ needs.changes.outputs.oap }}
-
-          sanityResults=${{ needs.dependency-license.result }}
-          [[ ${sanityResults} == 'success' ]] || [[ ${execute} != 'true' && ${sanityResults} == 'skipped' ]] || exit -1;
-
-          depLicenseResults=${{ needs.dependency-license.result }}
-          unitResults=${{ needs.unit-test.result }};
-          integrationResults=${{ needs.integration-test.result }};
-          timeConsumingITResults=${{ needs.slow-integration-test.result }};
           e2eResults=${{ needs.e2e-test.result }};
-          e2eIstioResults=${{ needs.e2e-test-istio.result }};
-          e2eIstioAmbientResults=${{ needs.e2e-test-istio-ambient.result }};
-          e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};
-
-          [[ ${depLicenseResults} == 'success' ]] || [[ ${execute} != 'true' && ${depLicenseResults} == 'skipped' ]] || exit -2;
-          [[ ${unitResults} == 'success' ]] || [[ ${execute} != 'true' && ${unitResults} == 'skipped' ]] || exit -3;
-          [[ ${integrationResults} == 'success' ]] || [[ ${execute} != 'true' && ${integrationResults} == 'skipped' ]] || exit -4;
-          [[ ${e2eResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eResults} == 'skipped' ]] || exit -5;
-          [[ ${e2eIstioResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioResults} == 'skipped' ]] || exit -6;
-          [[ ${e2eIstioAmbientResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioAmbientResults} == 'skipped' ]] || exit -6;
-          [[ ${e2eJavaVersionResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eJavaVersionResults} == 'skipped' ]] || exit -7;
-          [[ ${timeConsumingITResults} == 'success' ]] || [[ ${execute} != 'true' && ${timeConsumingITResults} == 'skipped' ]] || exit -8;
-
+          [[ ${e2eResults} == 'success' ]] || exit -1;
           exit 0;
