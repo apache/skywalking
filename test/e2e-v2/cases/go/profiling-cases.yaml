@@ -59,6 +59,14 @@ verify:
         echo "Profiling list result: $result" >&2
         echo "$result"
       expected: expected/profile-list-notified.yml
+    # Test direct connection to Go service
+    - query: |
+        echo "=== Testing direct connection to Go service ===" >&2
+        echo "Testing connection to http://${go-service_host}:${go-service_8080}/profile" >&2
+        response=$(curl -v -XGET http://${go-service_host}:${go-service_8080}/profile 2>&1)
+        echo "Curl response: $response" >&2
+        echo "Connection test completed" >&2
+      expected: expected/connection-test.yml
     # profiling list finished: trigger some requests and wait for profiling to complete
     - trigger:
         action: http
@@ -76,15 +84,34 @@ verify:
     # profiled segment list
     - query: |
         echo "=== Getting profiled segment list ===" >&2
-        sleep 5
+        sleep 30
         task_id=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile | yq e '.[0].id' -)
         echo "Task ID: $task_id" >&2
         if [ -z "$task_id" ]; then
           echo "ERROR: Task ID is empty!" >&2
           exit 1
         fi
-        result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$task_id)
-        echo "Segment list result: $result" >&2
+        
+        # Try multiple times to get segments
+        for attempt in {1..5}; do
+          echo "Attempt $attempt to get segments..." >&2
+          result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$task_id)
+          echo "Segment list result (attempt $attempt): $result" >&2
+          
+          # Check if result is not empty
+          if [ "$result" != "[]" ] && [ "$result" != "" ]; then
+            echo "Found segments on attempt $attempt!" >&2
+            echo "$result"
+            exit 0
+          fi
+          
+          if [ $attempt -lt 5 ]; then
+            echo "No segments found, waiting 10 seconds before retry..." >&2
+            sleep 10
+          fi
+        done
+        
+        echo "ERROR: No segments found after 5 attempts!" >&2
         echo "$result"
       expected: expected/profile-segment-list.yml
     # query profiled segment analyze

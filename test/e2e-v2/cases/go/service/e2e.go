@@ -64,7 +64,10 @@ func main() {
 	})
 
 	engine.Handle("GET", "/profile", func(context *gin.Context) {
+		log.Printf("=== /profile endpoint called ===")
+		log.Printf("Starting profiling work...")
 		doWork()
+		log.Printf("Profiling work completed")
 		context.String(200, "Profiling completed")
 	})
 
@@ -72,6 +75,7 @@ func main() {
 }
 
 func doWork() {
+	log.Printf("doWork() started")
 	start := time.Now()
 	for time.Since(start) < 10*time.Second {
 		_ = 1
@@ -79,4 +83,5 @@ func doWork() {
 			_ = i * i
 		}
 	}
+	log.Printf("doWork() completed after %v", time.Since(start))
 }
