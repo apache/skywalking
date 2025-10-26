@@ -25,7 +25,24 @@
       endpointname: GET:/profile
       endtime: {{ gt .endtime 0 }}
       iserror: false
+      layer: Http
+      logs: []
+      parentspanid: -1
+      peer: ""
+      profiled: true
+      refs: []
+      segmentid: {{ notEmpty .segmentid }}
+      servicecode: go-service
+      serviceinstancename: {{ notEmpty .serviceinstancename }}
+      spanid: 0
       starttime: {{ gt .starttime 0 }}
+      tags:
+        - key: http.method
+          value: GET
+        - key: url
+          value: localhost:8080/profile
+        - key: status_code
+          value: "200"
     {{- end }}
   start: {{ notEmpty .start }}
   traceid: {{ notEmpty .traceid }}
