@@ -21,11 +21,10 @@
   instancename: {{ notEmpty .instancename }}
   spans:
     {{- contains .spans }}
-    - component: {{ .component }}
+    - component: Gin
       endpointname: GET:/profile
       endtime: {{ gt .endtime 0 }}
       iserror: false
-      spanid: {{ .spanid }}
       starttime: {{ gt .starttime 0 }}
     {{- end }}
   start: {{ notEmpty .start }}
