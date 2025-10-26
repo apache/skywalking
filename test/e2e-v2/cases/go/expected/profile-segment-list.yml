@@ -14,27 +14,20 @@
 # limitations under the License.
 
 {{- contains . }}
-- segmentid: {{ notEmpty .segmentid }}
+- duration: {{ gt .duration 0 }}
+  endpointnames:
+    - GET:/profile
+  instanceid: {{ notEmpty .instanceid }}
+  instancename: {{ notEmpty .instancename }}
   spans:
-    - spanid: 0
-      parentspanid: -1
-      starttime: {{ notEmpty .starttime }}
-      endtime: {{ notEmpty .endtime }}
-      operationname: GET:/profile
-      spanlayer: Http
-      spantype: Entry
+    {{- contains .spans }}
+    - component: {{ .component }}
+      endpointname: GET:/profile
+      endtime: {{ gt .endtime 0 }}
       iserror: false
-      tags:
-        - key: http.method
-          value: GET
-        - key: http.url
-          value: /profile
-        - key: component
-          value: go-gin
-        - key: language
-          value: GO
-      logs: []
-      component: go-gin
-      peer: ""
-      skipanalysis: false
+      spanid: {{ .spanid }}
+      starttime: {{ gt .starttime 0 }}
+    {{- end }}
+  start: {{ notEmpty .start }}
+  traceid: {{ notEmpty .traceid }}
 {{- end }}
