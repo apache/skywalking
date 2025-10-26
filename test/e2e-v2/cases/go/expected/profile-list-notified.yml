@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
+{{- if . }}
 - id: {{ notEmpty .id }}
   serviceid: {{ b64enc "go-service" }}.1
   servicename: ""
