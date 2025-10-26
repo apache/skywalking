@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- if . }}
+{{- contains . }}
 - id: {{ notEmpty .id }}
   serviceid: {{ b64enc "go-service" }}.1
   servicename: ""
@@ -23,5 +23,12 @@
   mindurationthreshold: 1000
   dumpperiod: 500
   maxsamplingcount: 3
-  logs: {{ .logs }}
+  logs:
+    {{- contains .logs }}
+    - id: {{ notEmpty .id }}
+      instanceid: {{ b64enc "go-service" }}.1_{{ b64enc "go-service" }}
+      operationtype: NOTIFIED
+      instancename: ""
+      operationtime: {{ gt .operationtime 0 }}
+    {{- end }}
 {{- end }}
