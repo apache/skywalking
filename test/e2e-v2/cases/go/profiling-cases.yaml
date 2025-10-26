@@ -81,7 +81,8 @@ verify:
         fi
         
         echo "Connection test completed" >&2
-    # profiling list finished: send some requests and wait for profiling to complete
+      expected: expected/connection-test.yml
+      # profiling list finished: send some requests and wait for profiling to complete
     - query: |
         echo "=== Sending requests and checking profiling list (FINISHED) ===" >&2
         curl -s -XGET http://${go-service_host}:${go-service_8080}/profile

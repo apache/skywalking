@@ -1,1 +1,1 @@
-Connection test completed
+{{ contains . }}
