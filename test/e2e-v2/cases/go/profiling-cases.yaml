@@ -32,7 +32,7 @@ trigger:
   action: http
   interval: 3s
   times: 60
-  url: http://localhost:8080/profile
+  url: http://${go-service_host}:${go-service_8080}/profile
   method: GET
 
 verify:
@@ -64,11 +64,11 @@ verify:
         echo "=== Sending requests and checking profiling list (FINISHED) ===" >&2
         # Send multiple requests to generate profiling data
         for i in {1..5}; do
-          echo "Sending request $i to http://localhost:8080/profile" >&2
-          response=$(curl -s -XGET http://localhost:8080/profile)
+          echo "Sending request $i to http://${go-service_host}:${go-service_8080}/profile" >&2
+          response=$(curl -s -XGET http://${go-service_host}:${go-service_8080}/profile)
           echo "Request $i response: $response" >&2
         done
-        curl -s -XGET http://localhost:8080/profile
+        curl -s -XGET http://${go-service_host}:${go-service_8080}/profile
         sleep 120
         result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
         echo "Profiling list result: $result" >&2
