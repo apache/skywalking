@@ -69,8 +69,14 @@ verify:
         echo "go_service_host: '${go_service_host}'" >&2
         echo "go_service_8080: '${go_service_8080}'" >&2
         
-        echo "Testing connection to http://${go-service_host}:${go-service_8080}/profile" >&2
-        response=$(curl -v -XGET http://${go-service_host}:${go-service_8080}/profile 2>&1)
+        # Use eval to properly expand variables with hyphens
+        go_host=$(eval echo \$$(echo go-service_host))
+        go_port=$(eval echo \$$(echo go-service_8080))
+        echo "Resolved go_host: $go_host" >&2
+        echo "Resolved go_port: $go_port" >&2
+        
+        echo "Testing connection to http://$go_host:$go_port/profile" >&2
+        response=$(curl -v -XGET http://$go_host:$go_port/profile 2>&1)
         curl_exit_code=$?
         echo "Curl response: $response" >&2
         echo "Curl exit code: $curl_exit_code" >&2
@@ -85,7 +91,10 @@ verify:
       # profiling list finished: send some requests and wait for profiling to complete
     - query: |
         echo "=== Sending requests and checking profiling list (FINISHED) ===" >&2
-        curl -s -XGET http://${go-service_host}:${go-service_8080}/profile
+        # Use eval to properly expand variables with hyphens
+        go_host=$(eval echo \$$(echo go-service_host))
+        go_port=$(eval echo \$$(echo go-service_8080))
+        curl -s -XGET http://$go_host:$go_port/profile
         sleep 120
         result=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile)
         echo "Profiling list result: $result" >&2
