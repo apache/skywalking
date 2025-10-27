@@ -1,71 +1,104 @@
-Apache SkyWalking
-==========
+# Apache SkyWalking
 
-<img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
-
-**SkyWalking**: an APM (Application Performance Monitoring) system, especially designed for
-microservices, cloud native and container-based architectures.
+<img src="http://skywalking.apache.org/assets/logo.svg" alt="Apache SkyWalking logo" height="90px" align="right" />
 
 [![GitHub stars](https://img.shields.io/github/stars/apache/skywalking.svg?style=for-the-badge&label=Stars&logo=github)](https://github.com/apache/skywalking)
+[![Latest Release](https://img.shields.io/github/v/release/apache/skywalking?style=for-the-badge)](https://github.com/apache/skywalking/releases)
+[![License](https://img.shields.io/github/license/apache/skywalking?style=for-the-badge)](LICENSE)
 [![X Follow](https://img.shields.io/badge/2K%2B-follow?style=for-the-badge&logo=X&label=%40ASFSKYWALKING)](https://x.com/AsfSkyWalking)
 
-![GitHub Release](https://img.shields.io/github/v/release/apache/skywalking)
+---
 
-# Abstract
-**SkyWalking** is an open-source APM system that provides monitoring, tracing and diagnosing capabilities for distributed systems in Cloud Native architectures.
+## Overview
 
+**Apache SkyWalking** is an open-source Application Performance Monitoring (APM) and observability platform designed for cloud native, microservices, and container-based architectures. It provides distributed tracing, metrics, logging, and alerting for distributed systems.
 
-* Distributed Tracing
-  * End-to-end distributed tracing. Service topology analysis, service-centric observability and APIs dashboards.
-* Agents for your stack
-  * Java, .Net Core, PHP, NodeJS, Golang, LUA, Rust, C++, Client JavaScript and Python agents with active development and maintenance.
-* eBPF early adoption
-  * Rover agent works as a monitor and profiler powered by eBPF to monitor Kubernetes deployments and diagnose CPU and network performance.
-* Scaling
-  * 100+ billion telemetry data could be collected and analyzed from one SkyWalking cluster.
-* Mature Telemetry Ecosystems Supported
-  * Metrics, Traces, and Logs from mature ecosystems are supported, e.g. Zipkin, OpenTelemetry, Prometheus, Zabbix, Fluentd
-* Native APM Database
-  * BanyanDB, an observability database, created in 2022, aims to ingest, analyze and store telemetry/observability data.
-* Consistent Metrics Aggregation
-  * SkyWalking native meter format and widely known metrics format(OpenTelemetry, Telegraf, Zabbix, e.g.) are processed through the same script pipeline.
-* Log Management Pipeline
-  * Support log formatting, extract metrics, various sampling policies through script pipeline in high performance.
-* Alerting and Telemetry Pipelines
-  * Support service-centric, deployment-centric, API-centric alarm rule setting. Support forwarding alarms and all telemetry data to 3rd party.
-* AI Power Enabled
-  * Machine Learning (ML) and Artificial Intelligence (AI) analyze observability data to identify patterns and enhance capabilities, such as recognizing HTTP URI patterns and automatically calculating metric baselines for intelligent alerting, improving anomaly detection.
+---
 
-<img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220516"/>
+## Quick Start
 
-# Live Demo
-- Find the [SkyWalking live demo with native UI and Grafana](https://skywalking.apache.org/#demo), and [screenshots](https://skywalking.apache.org/#arch) on our website.
-- Follow the [showcase](https://skywalking.apache.org/docs/skywalking-showcase/next/readme/) to set up a preview deployment quickly.
+Get up and running in minutes:
 
-# Documentation
-- [Official documentation](https://skywalking.apache.org/docs/#SkyWalking)
+1. **Clone the repository**
+2. **Navigate to the project**
+3. **Build with Maven**
+4. **Start the Application**
+- Follow the [official documentation](https://skywalking.apache.org/docs/#SkyWalking) for agent and backend setup.
 
-# Downloads
-Please head to the [releases page](https://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.
+---
 
-# Compiling project
-Follow this [document](docs/en/guides/How-to-build.md).
+## Features
 
-# Code of conduct
-This project adheres to the Contributor Covenant [code of conduct](https://www.apache.org/foundation/policies/conduct). By participating, you are expected to uphold this code.
-Please follow the [REPORTING GUIDELINES](https://www.apache.org/foundation/policies/conduct#reporting-guidelines) to report unacceptable behavior.
+- **Distributed Tracing:** End-to-end tracing, service topology analysis, APIs, analytics, and dashboards.
+- **Multi-language Agents:** Java, .NET Core, PHP, NodeJS, Golang, Lua, Rust, C++, JavaScript, and Python.
+- **eBPF-powered Monitoring:** Rover agent leverages eBPF for Kubernetes and resource profiling.
+- **Extreme Scalability:** Handles 100+ billion telemetry data points per cluster.
+- **Rich Telemetry Integrations:** Works with Zipkin, OpenTelemetry, Prometheus, Zabbix, Fluentd, and more.
+- **Native DB:** BanyanDB for high-performance telemetry storage and analytics.
+- **Flexible Data Pipelines:** Scriptable metrics/logging/alerting pipelines for complex use cases.
+- **AI/ML Powered:** Machine Learning for anomaly detection, baselining, and intelligent alerts.
 
-# Contact Us
-* Mail list: **dev@skywalking.apache.org**. Mail to `dev-subscribe@skywalking.apache.org`, follow the reply to subscribe the mail list.
-* Send `Request to join SkyWalking slack` mail to the mail list(`dev@skywalking.apache.org`), we will invite you in.
-* For Chinese speaker, send `[CN] Request to join SkyWalking slack` mail to the mail list(`dev@skywalking.apache.org`), we will invite you in.
-* Twitter, [ASFSkyWalking](https://twitter.com/AsfSkyWalking)
-* [bilibili B站 视频](https://space.bilibili.com/390683219)
-* [掘金](https://juejin.cn/user/13673577331607/posts)
-  
-# Our Users
-Hundreds of companies and organizations use SkyWalking for research, production, and commercial purposes.
-Visit our [website](http://skywalking.apache.org/users/) to find the user page.
+---
 
-# License
-[Apache 2.0 License.](LICENSE)
+## Live Demo
+
+- Try the [SkyWalking live demo](https://skywalking.apache.org/#demo) and [screenshots](https://skywalking.apache.org/#arch).
+- See the [showcase deployment guide](https://skywalking.apache.org/docs/skywalking-showcase/next/readme/).
+
+---
+
+## Documentation
+
+- [Official documentation portal](https://skywalking.apache.org/docs/#SkyWalking)
+- [How to build SkyWalking](docs/en/guides/How-to-build.md)
+
+---
+
+## Downloads
+
+- Find all releases on the [downloads page](https://skywalking.apache.org/downloads/).
+
+---
+
+## Community & Contact
+
+- **Mailing List:** dev@skywalking.apache.org (subscribe via `dev-subscribe@skywalking.apache.org`)
+- **Slack:** Request join via the mailing list
+- **Twitter:** [@ASFSkyWalking](https://twitter.com/AsfSkyWalking)
+- **Bilibili:** [Video Channel](https://space.bilibili.com/390683219)
+- **Juejin:** [掘金用户](https://juejin.cn/user/13673577331607/posts)
+
+---
+
+## Code of Conduct
+
+This project follows the [Contributor Covenant](https://www.apache.org/foundation/policies/conduct).  
+Please use the [reporting guidelines](https://www.apache.org/foundation/policies/conduct#reporting-guidelines) for unacceptable behavior.
+
+---
+
+## Our Users
+
+Hundreds of companies and organizations use SkyWalking for research, production, and commercial purposes. See all on the [user page](http://skywalking.apache.org/users/).
+
+---
+
+## License
+
+[Apache 2.0 License](LICENSE)
+
+---
+
+## Contributing
+
+We welcome contributions!  
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for details on submitting patches, reporting issues, and developing features.
+- For non-code help, improve our docs, FAQs, or user experience.
+
+---
+
+## FAQ & Help
+
+- If you have questions, consult the [FAQ](https://skywalking.apache.org/docs/#FAQ) or open an issue.
+- Request support on our mailing list, Slack, or via GitHub Discussions.
+
