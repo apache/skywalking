@@ -24,9 +24,9 @@ setup:
     - name: set PATH
       command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
     - name: install yq
-      command: bash ../../script/prepare/setup-e2e-shell/install.sh yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
-      command: bash ../../script/prepare/setup-e2e-shell/install.sh swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
 verify:
   retry:
