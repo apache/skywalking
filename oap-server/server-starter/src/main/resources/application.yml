@@ -183,6 +183,7 @@ storage:
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
     asyncProfilerTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_ASYNC_PROFILER_TASK_SIZE:200}
+    pprofTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PPROF_TASK_SIZE:200}
     profileDataQueryBatchSize: ${SW_STORAGE_ES_QUERY_PROFILE_DATA_BATCH_SIZE:100}
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
@@ -295,6 +296,20 @@ receiver-async-profiler:
     # However, if the storage of the tmp directory in the container is insufficient, the oap server instance may crash.
     # It is recommended to use physical file mode when volume mounting is used or the tmp directory has sufficient storage.
     memoryParserEnabled: ${SW_RECEIVER_ASYNC_PROFILER_MEMORY_PARSER_ENABLED:true}
+
+receiver-pprof:
+  selector: ${SW_RECEIVER_PPROF:default}
+  default:
+    # Used to manage the maximum size of the pprof file that can be received, the unit is Byte, default is 30M
+    pprofMaxSize: ${SW_RECEIVER_PPROF_MAX_SIZE:31457280}
+    # Used to determine whether to receive pprof in memory file or physical file mode
+    #
+    # The memory file mode have fewer local file system limitations, so they are by default. But it costs more memory.
+    #
+    # The physical file mode will use less memory when parsing and is more friendly to parsing large files.
+    # However, if the storage of the tmp directory in the container is insufficient, the oap server instance may crash.
+    # It is recommended to use physical file mode when volume mounting is used or the tmp directory has sufficient storage.
+    memoryParserEnabled: ${SW_RECEIVER_PPROF_MEMORY_PARSER_ENABLED:true}
 
 receiver-zabbix:
   selector: ${SW_RECEIVER_ZABBIX:-}

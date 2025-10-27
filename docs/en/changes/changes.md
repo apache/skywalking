@@ -112,6 +112,8 @@
 * Make MAL percentile align with OAL percentile calculation.
 * Update Grafana dashboards for OAP observability.
 * BanyanDB: fix query `getInstance` by instance ID.
+* Support the go agent(0.7.0 release) bundled pprof profiling feature. 
+
 
 #### UI
 

@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerEventType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
+import org.apache.skywalking.oap.server.core.query.type.PprofTask;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.network.trace.component.command.AsyncProfilerTaskCommand;
@@ -40,6 +41,7 @@ import org.apache.skywalking.oap.server.network.trace.component.command.Continuo
 import org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicyCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProfilingTaskCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProfilingTaskExtensionConfig;
+import org.apache.skywalking.oap.server.network.trace.component.command.PprofTaskCommand;
 import org.apache.skywalking.oap.server.network.trace.component.command.ProfileTaskCommand;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -70,6 +72,19 @@ public class CommandService implements Service {
                 .collect(Collectors.toList());
         return new AsyncProfilerTaskCommand(serialNumber, task.getId(), task.getDuration(),
                 eventNames, task.getExecArgs(), task.getCreateTime());
+    }
+
+    /**
+     * Create a new pprof task command for Go agents
+     */
+    public PprofTaskCommand newPprofTaskCommand(PprofTask task) {
+        final String serialNumber = UUID.randomUUID().toString();
+        String events = "";
+        if (task.getEvents() != null) {
+            events = task.getEvents().getName();
+        }
+        return new PprofTaskCommand(serialNumber, task.getId(), events, 
+                task.getDuration(), task.getCreateTime(), task.getDumpPeriod());
     }
 
     /**
