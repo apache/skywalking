@@ -4,13 +4,12 @@
 
 ## Data flow
 1. [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/) collects metrics data internally and exposes a Prometheus http endpoint to retrieve the metrics.
-2. The Prometheus Server (or OpenTelemetry Collector, preferred in Kubernetes scenarios) fetches metrics from the Prometheus endpoint in step (1), and then forwards them to SkyWalking OAP for analysis and storage.
-3. OAP (or OpenTelemetry Collector) pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
-4. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
+2. OpenTelemetry Collector fetches metrics from BanyanDB and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
+3. The SkyWalking OAP Server parses the expression with [MAL](../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ## Set up
 1. Start [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/),supporting both [Standalone Mode](https://skywalking.apache.org/docs/skywalking-banyandb/next/installation/standalone/) and [Cluster Mode](https://skywalking.apache.org/docs/skywalking-banyandb/next/installation/cluster/).
-2. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/quick-start/#docker) .
+2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](../../../test/e2e-v2/cases/banyandb/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](https://skywalking.apache.org/docs/main/next/en/setup/backend/opentelemetry-receiver/).
 
 ## BanyanDB monitoring

@@ -64,3 +64,5 @@ for identification of the metric data.
 | Metrics of Flink                        | otel-rules/flink/flink-jobManager.yaml              | flink jobManager -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                                 |
 | Metrics of Flink                        | otel-rules/flink/flink-taskManager.yaml             | flink taskManager -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                                |
 | Metrics of Flink                        | otel-rules/flink/flink-job.yaml                     | flink jobManager &  flink taskManager-> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server             |
+| Metrics of BanyanDB                     | otel-rules/banyandb/banyandb-instance.yaml          | banyandb_exporter -> OpenTelemetry Collector – OTLP exporter –> SkyWalking OAP Server             |
+| Metrics of BanyanDB                     | otel-rules/banyandb/banyandb-service.yaml           | banyandb_exporter -> OpenTelemetry Collector – OTLP exporter –> SkyWalking OAP Server             |
