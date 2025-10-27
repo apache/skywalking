@@ -75,12 +75,44 @@ public class ProfileThreadSnapshotRecord extends Record {
     @BanyanDB.NoIndexing
     private int isGo; // store as 0/1 for storage compatibility
 
+    public enum Language {
+        JAVA(0),
+        GO(1);
+        
+        private final int value;
+        
+        Language(int value) {
+            this.value = value;
+        }
+        
+        public int getValue() {
+            return value;
+        }
+        
+        public static Language fromValue(int value) {
+            for (Language language : values()) {
+                if (language.value == value) {
+                    return language;
+                }
+            }
+            return JAVA; // default to Java
+        }
+    }
+
+    public Language getLanguage() {
+        return Language.fromValue(isGo);
+    }
+
+    public void setLanguage(final Language language) {
+        this.isGo = language.getValue();
+    }
+
     public boolean isGo() {
-        return isGo == 1;
+        return isGo == Language.GO.getValue();
     }
 
     public void setGo(final boolean go) {
-        this.isGo = go ? 1 : 0;
+        this.isGo = go ? Language.GO.getValue() : Language.JAVA.getValue();
     }
 
     @Override
@@ -102,7 +134,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
             snapshot.setStackBinary(converter.getBytes(STACK_BINARY));
             final Number isGoNum = (Number) converter.get(IS_GO);
-            snapshot.setGo(isGoNum != null && isGoNum.intValue() != 0);
+            snapshot.setLanguage(Language.fromValue(isGoNum != null ? isGoNum.intValue() : 0));
             return snapshot;
         }
 
@@ -114,7 +146,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             converter.accept(SEQUENCE, storageData.getSequence());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(STACK_BINARY, storageData.getStackBinary());
-            converter.accept(IS_GO, storageData.isGo() ? 1 : 0);
+            converter.accept(IS_GO, storageData.getLanguage().getValue());
         }
     }
 }
