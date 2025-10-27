@@ -66,6 +66,7 @@ verify:
 
     # profiled segment list
     - query: |
+        sleep 30;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile | yq e '.[0].id' - \
         )

@@ -13,38 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- duration: {{ gt .duration 0 }}
-  endpointnames:
-    - GET:/profile
-  instanceid: {{ notEmpty .instanceid }}
-  instancename: {{ notEmpty .instancename }}
-  spans:
+  {{- contains . }}
+- spans:
     {{- contains .spans }}
-    - component: Gin
-      endpointname: GET:/profile
-      endtime: {{ gt .endtime 0 }}
-      iserror: false
-      layer: Http
-      logs: []
+    - spanid: 0
       parentspanid: -1
+      starttime: {{ notEmpty .starttime }}
+      endtime: {{ notEmpty .endtime }}
+      endpointname: GET:/profile
+      spanlayer: Http
+      spantype: Entry
+      iserror: false
+      component: Gin
+      logs: []
       peer: ""
-      profiled: true
-      refs: []
-      segmentid: {{ notEmpty .segmentid }}
-      servicecode: go-service
-      serviceinstancename: {{ notEmpty .serviceinstancename }}
-      spanid: 0
-      starttime: {{ gt .starttime 0 }}
-      tags:
-        - key: http.method
-          value: GET
-        - key: url
-          value: localhost:8080/profile
-        - key: status_code
-          value: "200"
-      type: Entry
+      skipanalysis: false
     {{- end }}
-  start: {{ notEmpty .start }}
-  traceid: {{ notEmpty .traceid }}
-{{- end }}
+  {{- end }}
