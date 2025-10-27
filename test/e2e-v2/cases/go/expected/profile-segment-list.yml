@@ -45,6 +45,6 @@
           value: "200"
       type: Entry
     {{- end }}
-  start: {{ gt .start 0 }}
+  start: {{ notEmpty .start }}
   traceid: {{ notEmpty .traceid }}
 {{- end }}
