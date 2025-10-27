@@ -211,7 +211,7 @@ catalog:
           - name: "Data Lifecycle Stages(Hot/Warm/Cold)"
             path: "/en/banyandb/stages"
           - name: "BanyanDB self observability dashboard"
-            path: "/en/banyandb/stages"
+            path: "/en/banyandb/dashboards-banyandb"
       - name: "Tracing"
         catalog:
           - name: "Trace Sampling"
