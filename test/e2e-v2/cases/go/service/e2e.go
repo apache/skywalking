@@ -77,7 +77,7 @@ func main() {
 func doWork() {
 	log.Printf("doWork() started")
 	start := time.Now()
-	for time.Since(start) < 3*time.Second {
+	for time.Since(start) < 10*time.Second {
 		_ = 1
 		for i := 0; i < 1e6; i++ {
 			_ = i * i

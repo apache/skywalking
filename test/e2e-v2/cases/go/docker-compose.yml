@@ -53,6 +53,9 @@ services:
     environment:
       SW_AGENT_NAME: go-service
       SW_AGENT_REPORTER_GRPC_BACKEND_SERVICE: oap:11800
+      SW_AGENT_REPORTER_GRPC_PROFILE_FETCH_INTERVAL: 1
+      SW_AGENT_COLLECTOR_GET_PROFILE_TASK_INTERVAL: 1
+      SW_AGENT_COLLECTOR_GET_AGENT_DYNAMIC_CONFIG_INTERVAL: 1
       UPSTREAM_URL: http://provider:9090/correlation
     depends_on:
       oap:
