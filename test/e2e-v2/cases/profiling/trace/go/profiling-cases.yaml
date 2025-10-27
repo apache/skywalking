@@ -32,7 +32,7 @@ trigger:
   action: http
   interval: 3s
   times: 60
-  url: http://${go-service_host}:${go-service_8080}/profile
+  url: http://go-service:8080/profile
   method: GET
 
 verify:
@@ -58,9 +58,7 @@ verify:
     # profiling list finished
     - query: |
         sleep 3;
-        go_host=$(printenv go-service_host || printenv go_service_host)
-        go_port=$(printenv go-service_8080 || printenv go_service_8080)
-        curl -s -XGET http://$go_host:$go_port/profile > /dev/null;
+        curl -s -XGET http://go-service:8080/profile > /dev/null;
         sleep 30;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list -service-name=go-service --endpoint-name=GET:/profile
       expected: expected/profile-list-finished.yml
