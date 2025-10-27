@@ -272,6 +272,8 @@ catalog:
             path: "/en/setup/backend/backend-continuous-profiling"
           - name: "Java App Profiling"
             path: "/en/setup/backend/backend-java-app-profiling"
+          - name: "Go App Profiling"
+            path: "en/setup/backend/backend-go-app-profiling.md"
       - name: "Event"
         path: "/en/concepts-and-designs/event/"
       - name: "Extension"

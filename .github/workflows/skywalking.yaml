@@ -725,6 +725,13 @@ jobs:
             config: test/e2e-v2/cases/profiling/async-profiler/banyandb/e2e.yaml
           - name: Async Profiler MySQL
             config: test/e2e-v2/cases/profiling/async-profiler/mysql/e2e.yaml
+
+          - name: Pprof ES
+            config: test/e2e-v2/cases/profiling/pprof/es/e2e.yaml
+          - name: Pprof BanyanDB
+            config: test/e2e-v2/cases/profiling/pprof/banyandb/e2e.yaml
+          - name: Pprof MySQL
+            config: test/e2e-v2/cases/profiling/pprof/mysql/e2e.yaml
     steps:
       - uses: actions/checkout@v4
         with:
