@@ -37,12 +37,14 @@
       spanid: 0
       starttime: {{ gt .starttime 0 }}
       tags:
+        {{- contains .tags }}
         - key: http.method
           value: GET
         - key: url
           value: {{ notEmpty .value }}
         - key: status_code
           value: "200"
+        {{- end }}
       type: Entry
     {{- end }}
   start: {{ notEmpty .start }}
