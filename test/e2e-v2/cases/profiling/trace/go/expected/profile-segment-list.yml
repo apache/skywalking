@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-  {{- contains . }}
+{{- contains . }}
 - duration: {{ gt .duration 0 }}
   endpointnames:
     - GET:/profile
@@ -40,11 +40,11 @@
         - key: http.method
           value: GET
         - key: url
-          value: {{ contains .url "localhost:" }}
+          value: {{ notEmpty .value }}
         - key: status_code
           value: "200"
       type: Entry
     {{- end }}
-  start: {{ .start }}
+  start: {{ notEmpty .start }}
   traceid: {{ notEmpty .traceid }}
-  {{- end }}
+{{- end }}

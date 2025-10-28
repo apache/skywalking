@@ -15,7 +15,6 @@
 
 tip: null
 trees:
-  {{- if .trees }}
   {{- contains .trees }}
   - elements:
     {{- contains .elements }}
@@ -26,7 +25,4 @@ trees:
       durationchildexcluded: {{ gt .durationchildexcluded 0 }}
       count: {{ gt .count 0 }}
     {{- end }}
-  {{- end }}
-  {{- else }}
-  []
   {{- end }}

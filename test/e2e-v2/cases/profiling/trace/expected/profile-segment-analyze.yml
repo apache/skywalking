@@ -20,7 +20,7 @@ trees:
     {{- contains .elements }}
     - id: "{{ notEmpty .id }}"
       parentid: "{{ notEmpty .parentid }}"
-      codesignature: "{{ notEmpty .codesignature }}"
+      codesignature: "test.apache.skywalking.e2e.profile.ProfileController.createAuthor:-1"
       duration: {{ gt .duration 0 }}
       durationchildexcluded: 0
       count: {{ gt .count 0 }}
