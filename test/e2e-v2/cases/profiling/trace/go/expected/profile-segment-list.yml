@@ -40,11 +40,11 @@
         - key: http.method
           value: GET
         - key: url
-          value: localhost:8080/profile
+          value: {{ contains .url "localhost:" }}
         - key: status_code
           value: "200"
       type: Entry
     {{- end }}
-  start: {{ notEmpty .start }}
+  start: {{ .start }}
   traceid: {{ notEmpty .traceid }}
   {{- end }}

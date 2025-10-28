@@ -52,7 +52,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     public static final String DUMP_TIME = "dump_time";
     public static final String SEQUENCE = "sequence";
     public static final String STACK_BINARY = "stack_binary";
-    public static final String IS_GO = "is_go";
+    public static final String LANGUAGE_TYPE = "language_type";
 
     @Column(name = TASK_ID)
     @SQLDatabase.CompositeIndex(withColumns = {SEGMENT_ID})
@@ -71,9 +71,9 @@ public class ProfileThreadSnapshotRecord extends Record {
     @Column(name = STACK_BINARY)
     private byte[] stackBinary;
     @ElasticSearch.EnableDocValues
-    @Column(name = IS_GO)
+    @Column(name = LANGUAGE_TYPE)
     @BanyanDB.NoIndexing
-    private int isGo; // store as 0/1 for storage compatibility
+    private int languageType; // store as 0/1 for storage compatibility
 
     public enum Language {
         JAVA(0),
@@ -100,19 +100,19 @@ public class ProfileThreadSnapshotRecord extends Record {
     }
 
     public Language getLanguage() {
-        return Language.fromValue(isGo);
+        return Language.fromValue(languageType);
     }
 
     public void setLanguage(final Language language) {
-        this.isGo = language.getValue();
+        this.languageType = language.getValue();
     }
 
     public boolean isGo() {
-        return isGo == Language.GO.getValue();
+        return languageType == Language.GO.getValue();
     }
 
     public void setGo(final boolean go) {
-        this.isGo = go ? Language.GO.getValue() : Language.JAVA.getValue();
+        this.languageType = go ? Language.GO.getValue() : Language.JAVA.getValue();
     }
 
     @Override
@@ -133,8 +133,8 @@ public class ProfileThreadSnapshotRecord extends Record {
             snapshot.setSequence(((Number) converter.get(SEQUENCE)).intValue());
             snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
             snapshot.setStackBinary(converter.getBytes(STACK_BINARY));
-            final Number isGoNum = (Number) converter.get(IS_GO);
-            snapshot.setLanguage(Language.fromValue(isGoNum != null ? isGoNum.intValue() : 0));
+            final Number languageTypeNum = (Number) converter.get(LANGUAGE_TYPE);
+            snapshot.setLanguage(Language.fromValue(languageTypeNum != null ? languageTypeNum.intValue() : 0));
             return snapshot;
         }
 
@@ -146,7 +146,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             converter.accept(SEQUENCE, storageData.getSequence());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(STACK_BINARY, storageData.getStackBinary());
-            converter.accept(IS_GO, storageData.getLanguage().getValue());
+            converter.accept(LANGUAGE_TYPE, storageData.getLanguage().getValue());
         }
     }
 }
