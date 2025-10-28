@@ -23,6 +23,8 @@ services:
       - 12800
       - 10051
       - 5005
+    ports:
+      - 12800
     networks:
       - e2e
     volumes:
