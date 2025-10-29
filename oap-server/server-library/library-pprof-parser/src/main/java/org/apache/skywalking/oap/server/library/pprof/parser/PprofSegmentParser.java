@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Parse pprof profile data and extract segment information
@@ -213,45 +212,21 @@ public class PprofSegmentParser {
     /**
      * Extract call stack from a single sample
      */
-    private static List<String> extractStackFromSample(ProfileProto.Sample sample, ProfileProto.Profile profile) {
+    public static List<String> extractStackFromSample(ProfileProto.Sample sample, ProfileProto.Profile profile) {
         List<String> stack = new ArrayList<>();
 
         // Traverse location_id from leaf to root
         for (int i = sample.getLocationIdCount() - 1; i >= 0; i--) {
             long locationId = sample.getLocationId(i);
 
-            // Find corresponding Location
-            for (ProfileProto.Location location : profile.getLocationList()) {
-                if (location.getId() == locationId) {
-                    // Get function name
-                    String functionName = extractFunctionNameFromLocation(location, profile);
-                    if (functionName != null && !functionName.isEmpty()) {
-                        stack.add(functionName);
-                    }
-                    break;
-                }
+            // Delegate signature resolution to PprofParser to avoid duplication
+            String signature = PprofParser.resolveSignature(locationId, profile);
+            if (signature != null && !signature.isEmpty()) {
+                stack.add(signature);
             }
         }
 
         return stack;
-    }
-
-    /**
-     * Extract function name from Location
-     */
-    private static String extractFunctionNameFromLocation(ProfileProto.Location location, ProfileProto.Profile profile) {
-        if (location.getLineCount() > 0) {
-            ProfileProto.Line line = location.getLine(0);
-            long functionId = line.getFunctionId();
-
-            // Find corresponding Function
-            for (ProfileProto.Function function : profile.getFunctionList()) {
-                if (function.getId() == functionId) {
-                    return getStringFromTable(function.getName(), profile.getStringTableList());
-                }
-            }
-        }
-        return "unknown_function";
     }
 
     /**

@@ -18,10 +18,12 @@
 package org.apache.skywalking.oap.server.core.profiling.trace.analyze;
 
 import com.google.perftools.profiles.ProfileProto;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
@@ -39,20 +41,7 @@ public class GoProfileAnalyzer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoProfileAnalyzer.class);
 
     /**
-     * Aggregation node for building the stack tree.
-     */
-    private static final class NodeAgg {
-        int id;
-        int parentId;
-        String name;
-        long totalMs;
-        long count;
-        List<Integer> children = new ArrayList<>();
-    }
-
-    /**
      * Analyze a pprof profile for a specific segment and time window.
-     * periodMs: derived from pprof period/periodType; fallback to 10ms when absent.
      */
     public ProfileAnalyzation analyze(final String segmentId,
                                       final long startTimeInclusive,
@@ -60,121 +49,71 @@ public class GoProfileAnalyzer {
                                       final ProfileProto.Profile profile) {
         final long periodMs = PprofSegmentParser.resolvePeriodMillis(profile);
 
-        // Build indices for quick lookup
+        // Build ProfileStackElement directly (reuse FrameTreeBuilder's mergeSample logic)
+        Map<String, Integer> key2Id = new HashMap<>(); // "parentId|name" -> id
+        List<ProfileStackElement> elements = new ArrayList<>();
+
+        // Strict per-segment filtering
         final List<String> stringTable = profile.getStringTableList();
-        final Map<Long, ProfileProto.Location> id2Location = new HashMap<>();
-        for (final ProfileProto.Location loc : profile.getLocationList()) {
-            id2Location.put(loc.getId(), loc);
-        }
-        final Map<Long, String> funcId2Name = new HashMap<>();
-        for (final ProfileProto.Function fn : profile.getFunctionList()) {
-            funcId2Name.put(fn.getId(), PprofSegmentParser.getStringFromTable(fn.getName(), stringTable));
-        }
 
-        final Map<String, Integer> key2NodeId = new HashMap<>(); // key: parentId + "|" + name
-        final List<NodeAgg> nodes = new ArrayList<>();
-
-        // Ensure root
-        int rootId = ensureNode(key2NodeId, nodes, -1, "<root>");
-
-        // Iterate samples
-        for (final ProfileProto.Sample sample : profile.getSampleList()) {
-            // Filter by segmentId label
-            String seg = PprofSegmentParser.extractLabel(sample, stringTable, "traceSegmentID", "traceSegmentId", "segmentId", "segment_id", "trace_segment_id");
+        for (ProfileProto.Sample sample : profile.getSampleList()) {
+            final String seg = PprofSegmentParser.extractSegmentIdFromLabels(sample.getLabelList(), stringTable);
             if (seg == null || !seg.equals(segmentId)) {
                 continue;
             }
-
-            // Do not filter by time window; analyze all samples for this segment
-
             long sampleCount = sample.getValueCount() > 0 ? sample.getValue(0) : 1L;
             long weightMs = sampleCount * periodMs;
-
-            // Build function stack from root->leaf
-            final List<String> stack = new ArrayList<>();
-            for (int i = sample.getLocationIdCount() - 1; i >= 0; i--) {
-                final long locId = sample.getLocationId(i);
-                final ProfileProto.Location loc = id2Location.get(locId);
-                if (loc == null) { continue; }
-                String fnName = "unknown_function";
-                if (loc.getLineCount() > 0) {
-                    final ProfileProto.Line line = loc.getLine(0);
-                    final String name = funcId2Name.get(line.getFunctionId());
-                    if (name != null && !name.isEmpty()) {
-                        fnName = name;
-                    }
+            
+            // Build function stack then ensure root->leaf order for aggregation
+            List<String> stack = PprofSegmentParser.extractStackFromSample(sample, profile);
+            Collections.reverse(stack);
+            
+            // Aggregate along path (similar to FrameTreeBuilder.mergeSample)
+            int parentId = -1; // root
+            for (String fn : stack) {
+                String key = parentId + "|" + fn;
+                Integer nodeId = key2Id.get(key);
+                
+                if (nodeId == null) {
+                    ProfileStackElement element = new ProfileStackElement();
+                    element.setId(elements.size());
+                    element.setParentId(parentId);
+                    element.setCodeSignature(fn);
+                    element.setDuration(0);
+                    element.setDurationChildExcluded(0);
+                    element.setCount(0);
+                    elements.add(element);
+                    nodeId = element.getId();
+                    key2Id.put(key, nodeId);
                 }
-                stack.add(fnName);
-            }
-
-            // Aggregate along the path
-            int parent = rootId;
-            for (final String fn : stack) {
-                final int nodeId = ensureNode(key2NodeId, nodes, parent, fn);
-                final NodeAgg node = nodes.get(nodeId);
-                node.totalMs += weightMs;
-                node.count += sampleCount;
-                parent = nodeId;
+                
+                ProfileStackElement element = elements.get(nodeId);
+                element.setDuration(element.getDuration() + (int) weightMs);
+                element.setCount(element.getCount() + (int) sampleCount);
+                
+                parentId = nodeId;
             }
         }
-
-        // Compute self = total - sum(children.total)
-        final long[] totalMsArr = new long[nodes.size()];
-        for (int i = 0; i < nodes.size(); i++) {
-            totalMsArr[i] = nodes.get(i).totalMs;
-        }
-        final long[] selfMsArr = new long[nodes.size()];
-        for (int i = nodes.size() - 1; i >= 0; i--) { // children processed before parents if appended in order
-            long childrenSum = 0L;
-            for (final int cid : nodes.get(i).children) {
-                childrenSum += totalMsArr[cid];
+        
+        // Calculate self = total - sum(children) (reuse FrameTreeBuilder pattern)
+        for (int i = elements.size() - 1; i >= 0; i--) {
+            ProfileStackElement elem = elements.get(i);
+            long childrenSum = 0;
+            for (ProfileStackElement other : elements) {
+                if (other.getParentId() == elem.getId()) {
+                    childrenSum += other.getDuration();
+                }
             }
-            selfMsArr[i] = Math.max(0L, totalMsArr[i] - childrenSum);
+            elem.setDurationChildExcluded(Math.max(0, elem.getDuration() - (int) childrenSum));
         }
-
-        // Build output tree (skip pure root if no data)
-        final ProfileAnalyzation result = new ProfileAnalyzation();
-        final ProfileStackTree tree = new ProfileStackTree();
-        for (int i = 0; i < nodes.size(); i++) {
-            final NodeAgg n = nodes.get(i);
-            // Skip synthetic root if it has no children data
-            if (i == rootId && n.children.isEmpty()) {
-                continue;
-            }
-            final ProfileStackElement e = new ProfileStackElement();
-            e.setId(i);
-            e.setParentId(n.parentId);
-            e.setCodeSignature(n.name);
-            e.setDuration((int) Math.min(Integer.MAX_VALUE, totalMsArr[i]));
-            e.setDurationChildExcluded((int) Math.min(Integer.MAX_VALUE, selfMsArr[i]));
-            e.setCount((int) Math.min(Integer.MAX_VALUE, n.count));
-            tree.getElements().add(e);
-        }
+        
+        ProfileStackTree tree = new ProfileStackTree();
+        tree.setElements(elements);
+        
+        ProfileAnalyzation result = new ProfileAnalyzation();
         result.getTrees().add(tree);
         return result;
     }
-
-    private int ensureNode(final Map<String, Integer> key2NodeId,
-                           final List<NodeAgg> nodes,
-                           final int parentId,
-                           final String name) {
-        final String key = parentId + "|" + name;
-        Integer id = key2NodeId.get(key);
-        if (id != null) {
-            return id;
-        }
-        NodeAgg n = new NodeAgg();
-        n.id = nodes.size();
-        n.parentId = parentId;
-        n.name = name;
-        nodes.add(n);
-        key2NodeId.put(key, n.id);
-        if (parentId >= 0) {
-            nodes.get(parentId).children.add(n.id);
-        }
-        return n.id;
-    }
-
 
     /**
      * Analyze multiple Go profile records and return combined results
@@ -182,13 +121,14 @@ public class GoProfileAnalyzer {
     public ProfileAnalyzation analyzeRecords(List<ProfileThreadSnapshotRecord> records, List<SegmentProfileAnalyzeQuery> queries) {
         ProfileAnalyzation result = new ProfileAnalyzation();
         
+        // Build query map for O(1) lookup
+        Map<String, SegmentProfileAnalyzeQuery> queryMap = queries.stream()
+            .collect(Collectors.toMap(SegmentProfileAnalyzeQuery::getSegmentId, q -> q));
+        
         for (ProfileThreadSnapshotRecord record : records) {
             try {
                 // Find the corresponding query for this segment
-                SegmentProfileAnalyzeQuery query = queries.stream()
-                    .filter(q -> q.getSegmentId().equals(record.getSegmentId()))
-                    .findFirst()
-                    .orElse(null);
+                SegmentProfileAnalyzeQuery query = queryMap.get(record.getSegmentId());
                 
                 if (query == null) {
                     LOGGER.warn("No query found for Go profile segment: {}", record.getSegmentId());

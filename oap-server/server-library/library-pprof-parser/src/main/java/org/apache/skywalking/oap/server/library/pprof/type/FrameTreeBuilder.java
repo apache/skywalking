@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.server.library.pprof.parser.PprofParser;
 
 @Data
 @NoArgsConstructor
@@ -49,7 +50,7 @@ public class FrameTreeBuilder {
     }
 
     private FrameTree parseTree(RawFrameTree rawTree) {
-        FrameTree tree = new FrameTree(getSignature(rawTree.getLocationId()), rawTree.getTotal(), rawTree.getSelf());
+        FrameTree tree = new FrameTree(getSignature(rawFrameTreeGetLocationId(rawTree)), rawTree.getTotal(), rawTree.getSelf());
         for (RawFrameTree rawChild : rawTree.getChildren().values()) {
             FrameTree child = parseTree(rawChild);
             tree.getChildren().add(child);
@@ -57,16 +58,13 @@ public class FrameTreeBuilder {
         return tree;
     }
 
+    // Small indirection to keep minimal change footprint while delegating signature resolution
+    private long rawFrameTreeGetLocationId(RawFrameTree rawTree) {
+        return rawTree.getLocationId();
+    }
+
     private String getSignature(long locationId) {
-        if (locationId == 0) {
-            return "root";
-        }
-        ProfileProto.Location location = profile.getLocation((int) locationId - 1);
-        return location.getLineList().stream().map((line) -> {
-            ProfileProto.Function function = profile.getFunction((int) line.getFunctionId() - 1);
-            String functionName = profile.getStringTable((int) function.getName());
-            return functionName + ":" + line.getLine();
-        }).collect(Collectors.joining(";"));
+        return PprofParser.resolveSignature(locationId, profile);
     }
 
     public FrameTree build() {

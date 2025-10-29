@@ -54,4 +54,20 @@ public class PprofParser {
         FrameTree tree = new FrameTreeBuilder(profile).build();
         return tree;
     }
+
+    /**
+     * Resolve function signature for a given location id. The signature format matches FrameTreeBuilder
+     * (functionName:line;... when inlined, joined by ';').
+     */
+    public static String resolveSignature(long locationId, ProfileProto.Profile profile) {
+        if (locationId == 0) {
+            return "root";
+        }
+        ProfileProto.Location location = profile.getLocation((int) locationId - 1);
+        return location.getLineList().stream().map(line -> {
+            ProfileProto.Function function = profile.getFunction((int) line.getFunctionId() - 1);
+            String functionName = profile.getStringTable((int) function.getName());
+            return functionName + ":" + line.getLine();
+        }).collect(java.util.stream.Collectors.joining(";"));
+    }
 }
