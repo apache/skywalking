@@ -112,8 +112,8 @@
 * Update Grafana dashboards for OAP observability.
 * BanyanDB: fix query `getInstance` by instance ID.
 * Support the go agent(0.7.0 release) bundled pprof profiling feature. 
-* Profile-receiver-plugin: feat: add go profile data receive func; add google pprof proto to prase.
-* Storage: feat: add isGo column to ProfileThreadSnapshotRecord.
+* Library-pprof-parser: feat: add PprofSegmentParser.
+* Storage: feat: add languageType column to ProfileThreadSnapshotRecord.
 * Feat: add go profile analyzer
 
 #### UI

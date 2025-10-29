@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQu
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackElement;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
+import org.apache.skywalking.oap.server.library.pprof.parser.PprofSegmentParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class GoProfileAnalyzer {
                                       final long startTimeInclusive,
                                       final long endTimeInclusive,
                                       final ProfileProto.Profile profile) {
-        final long periodMs = resolvePeriodMillis(profile);
+        final long periodMs = PprofSegmentParser.resolvePeriodMillis(profile);
 
         // Build indices for quick lookup
         final List<String> stringTable = profile.getStringTableList();
@@ -67,7 +68,7 @@ public class GoProfileAnalyzer {
         }
         final Map<Long, String> funcId2Name = new HashMap<>();
         for (final ProfileProto.Function fn : profile.getFunctionList()) {
-            funcId2Name.put(fn.getId(), getStringFromTable(fn.getName(), stringTable));
+            funcId2Name.put(fn.getId(), PprofSegmentParser.getStringFromTable(fn.getName(), stringTable));
         }
 
         final Map<String, Integer> key2NodeId = new HashMap<>(); // key: parentId + "|" + name
@@ -79,7 +80,7 @@ public class GoProfileAnalyzer {
         // Iterate samples
         for (final ProfileProto.Sample sample : profile.getSampleList()) {
             // Filter by segmentId label
-            String seg = extractLabel(sample, stringTable, "traceSegmentID", "traceSegmentId", "segmentId", "segment_id", "trace_segment_id");
+            String seg = PprofSegmentParser.extractLabel(sample, stringTable, "traceSegmentID", "traceSegmentId", "segmentId", "segment_id", "trace_segment_id");
             if (seg == null || !seg.equals(segmentId)) {
                 continue;
             }
@@ -174,77 +175,6 @@ public class GoProfileAnalyzer {
         return n.id;
     }
 
-    private String getStringFromTable(long idx, List<String> table) {
-        if (idx >= 0 && idx < table.size()) {
-            return table.get((int) idx);
-        }
-        return null;
-    }
-
-    private String extractLabel(ProfileProto.Sample sample, List<String> stringTable, String... keys) {
-        for (final ProfileProto.Label l : sample.getLabelList()) {
-            final String k = getStringFromTable(l.getKey(), stringTable);
-            if (k == null) { continue; }
-            for (final String expect : keys) {
-                if (k.equals(expect)) {
-                    return getStringFromTable(l.getStr(), stringTable);
-                }
-            }
-        }
-        return null;
-    }
-
-    private long extractTimestamp(ProfileProto.Sample sample, List<String> stringTable, boolean isStart) {
-        final String target = isStart ? "startTime" : "endTime";
-        for (final ProfileProto.Label l : sample.getLabelList()) {
-            final String k = getStringFromTable(l.getKey(), stringTable);
-            if (k == null) { continue; }
-            if (!target.equalsIgnoreCase(k)) { continue; }
-            long v = l.getNum();
-            if (v <= 0) {
-                try {
-                    String sv = getStringFromTable(l.getStr(), stringTable);
-                    if (sv != null) { v = Long.parseLong(sv.trim()); }
-                } catch (Exception ignored) {
-                }
-            }
-            if (v > 0 && v < 1_000_000_000_000L) { // seconds -> millis
-                return v * 1000L;
-            }
-            return v;
-        }
-        return 0L;
-    }
-
-    private long resolvePeriodMillis(ProfileProto.Profile profile) {
-        try {
-            long period = profile.getPeriod();
-            String unit = null;
-            if (profile.hasPeriodType()) {
-                unit = getStringFromTable(profile.getPeriodType().getUnit(), profile.getStringTableList());
-            }
-            if (period > 0) {
-                if (unit == null || unit.isEmpty() || "nanoseconds".equals(unit) || "nanosecond".equals(unit) || "ns".equals(unit)) {
-                    return Math.max(1L, period / 1_000_000L);
-                }
-                if ("microseconds".equals(unit) || "us".equals(unit)) {
-                    return Math.max(1L, period / 1_000L);
-                }
-                if ("milliseconds".equals(unit) || "ms".equals(unit)) {
-                    return Math.max(1L, period);
-                }
-                if ("seconds".equals(unit) || "s".equals(unit)) {
-                    return Math.max(1L, period * 1000L);
-                }
-                if ("hz".equals(unit) || "HZ".equals(unit)) { // samples per second
-                    return period > 0 ? Math.max(1L, 1000L / Math.max(1L, period)) : 10L;
-                }
-            }
-        } catch (Throwable t) {
-            // keep silent in normal path; this is non-fatal and we fallback to default
-        }
-        return 10L; // default fallback
-    }
 
     /**
      * Analyze multiple Go profile records and return combined results

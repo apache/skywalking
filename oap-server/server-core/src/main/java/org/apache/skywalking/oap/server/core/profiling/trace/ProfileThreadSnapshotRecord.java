@@ -107,14 +107,6 @@ public class ProfileThreadSnapshotRecord extends Record {
         this.languageType = language.getValue();
     }
 
-    public boolean isGo() {
-        return languageType == Language.GO.getValue();
-    }
-
-    public void setGo(final boolean go) {
-        this.languageType = go ? Language.GO.getValue() : Language.JAVA.getValue();
-    }
-
     @Override
     public StorageID id() {
         return new StorageID()

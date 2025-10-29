@@ -95,13 +95,30 @@ public class ProfileAnalyzer {
                 totalRanges, records.size());
         }
 
-        // Separate Go and Java records
-        List<ProfileThreadSnapshotRecord> goRecords = records.stream()
-            .filter(ProfileThreadSnapshotRecord::isGo)
-            .collect(Collectors.toList());
+        // For Java 
         List<ProfileThreadSnapshotRecord> javaRecords = records.stream()
-            .filter(rec -> !rec.isGo())
+            .filter(rec -> rec.getLanguage() == ProfileThreadSnapshotRecord.Language.JAVA)
             .collect(Collectors.toList());
+
+        // For Go
+        List<ProfileThreadSnapshotRecord> goRecords = new ArrayList<>();
+        for (SegmentProfileAnalyzeQuery q : queries) {
+            final String segId = q.getSegmentId();
+            try {
+                int minSeq = getProfileThreadSnapshotQueryDAO().queryMinSequence(segId, 0L, Long.MAX_VALUE);
+                int maxSeqExclusive = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segId, 0L, Long.MAX_VALUE) + 1;
+                if (maxSeqExclusive > minSeq) {
+                    List<ProfileThreadSnapshotRecord> full = getProfileThreadSnapshotQueryDAO().queryRecords(segId, minSeq, maxSeqExclusive);
+                    for (ProfileThreadSnapshotRecord r : full) {
+                        if (r.getLanguage() == ProfileThreadSnapshotRecord.Language.GO) {
+                            goRecords.add(r);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Go full-range fetch failed for segmentId={}", segId, e);
+            }
+        }
 
         // Analyze Go profiles
         if (!goRecords.isEmpty()) {
@@ -167,32 +184,7 @@ public class ProfileAnalyzer {
         if (maxSequence <= 0) {
             LOGGER.info("Profile analyze not found any sequence in window: segmentId={}, start={}, end={}",
                 segmentId, start, end);
-
-            // Go-only fallback: if this segment has Go snapshots, ignore time window and fetch any sequences
-            int fbMin = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, 0L, Long.MAX_VALUE);
-            int fbMax = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, 0L, Long.MAX_VALUE) + 1;
-            if (fbMax > 0) {
-                List<ProfileThreadSnapshotRecord> probe;
-                try {
-                    probe = getProfileThreadSnapshotQueryDAO().queryRecords(segmentId, fbMin, Math.min(fbMin + 1, fbMax));
-                } catch (IOException e) {
-                    LOGGER.warn("Probe records failed for segmentId={}, fbMin={}, fbMax={}", segmentId, fbMin, fbMax, e);
-                    return null;
-                }
-                boolean isGoSegment = !probe.isEmpty() && probe.get(0).isGo();
-                if (isGoSegment) {
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("Profile analyze fallback without time window for Go segment: segmentId={}, minSeq={}, maxSeq(exclusive)={}",
-                            segmentId, fbMin, fbMax);
-                    }
-                    minSequence = fbMin;
-                    maxSequence = fbMax;
-                } else {
-                    return null;
-                }
-            } else {
-                return null;
-            }
+            return null;
         }
 
         SequenceSearch sequenceSearch = new SequenceSearch(maxSequence - minSequence);
