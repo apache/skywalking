@@ -259,7 +259,7 @@ menus:
         i18nKey: self_observability_satellite
       - title: BanyanDB Server
         layer: BANYANDB
-        description: BanyanDB is a time-series database designed for observability data storage and analysis.
+        description: Provide BanyanDB monitoring through OpenTelemetry's Prometheus Receiver.
         documentLink: https://skywalking.apache.org/docs/main/next/en/banyandb/dashboards-banyandb/
         i18nKey: self_observability_banyandb
       - title: SkyWalking Java Agent
