@@ -50,17 +50,12 @@ public class FrameTreeBuilder {
     }
 
     private FrameTree parseTree(RawFrameTree rawTree) {
-        FrameTree tree = new FrameTree(getSignature(rawFrameTreeGetLocationId(rawTree)), rawTree.getTotal(), rawTree.getSelf());
+        FrameTree tree = new FrameTree(getSignature(rawTree.getLocationId()), rawTree.getTotal(), rawTree.getSelf());
         for (RawFrameTree rawChild : rawTree.getChildren().values()) {
             FrameTree child = parseTree(rawChild);
             tree.getChildren().add(child);
         }
         return tree;
-    }
-
-    // Small indirection to keep minimal change footprint while delegating signature resolution
-    private long rawFrameTreeGetLocationId(RawFrameTree rawTree) {
-        return rawTree.getLocationId();
     }
 
     private String getSignature(long locationId) {

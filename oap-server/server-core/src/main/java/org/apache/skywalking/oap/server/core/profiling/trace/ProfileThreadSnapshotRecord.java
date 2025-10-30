@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.profiling.trace;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -74,17 +73,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     @ElasticSearch.EnableDocValues
     @Column(name = LANGUAGE_TYPE)
     @BanyanDB.NoIndexing
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
-    private int languageType; // store as 0/1 for storage compatibility
-
-    public ProfileLanguageType getLanguage() {
-        return ProfileLanguageType.fromValue(languageType);
-    }
-
-    public void setLanguage(final ProfileLanguageType language) {
-        this.languageType = language.getValue();
-    }
+    private ProfileLanguageType language = ProfileLanguageType.JAVA;
 
     @Override
     public StorageID id() {
@@ -117,7 +106,8 @@ public class ProfileThreadSnapshotRecord extends Record {
             converter.accept(SEQUENCE, storageData.getSequence());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(STACK_BINARY, storageData.getStackBinary());
-            converter.accept(LANGUAGE_TYPE, storageData.getLanguage().getValue());
+            ProfileLanguageType language = storageData.getLanguage();
+            converter.accept(LANGUAGE_TYPE, language != null ? language.getValue() : ProfileLanguageType.JAVA.getValue());
         }
     }
 }

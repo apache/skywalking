@@ -24,12 +24,13 @@ import java.lang.reflect.Type;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.storage.model.ElasticSearchExtension;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
 public class ColumnTypeEsMapping {
 
     public String transform(Class<?> type, Type genericType, int length, boolean storageOnly, final ElasticSearchExtension elasticSearchExtension) {
-        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
+        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type) || ProfileLanguageType.class.equals(type)) {
             return "integer";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return "long";
