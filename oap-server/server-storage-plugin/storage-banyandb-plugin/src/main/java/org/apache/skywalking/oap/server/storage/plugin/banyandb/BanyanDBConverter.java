@@ -283,6 +283,11 @@ public class BanyanDBConverter {
             return TagAndValue.stringTagValue(((StorageDataComplexObject<?>) value).toStorageData());
         } else if (Layer.class.equals(clazz)) {
             return TagAndValue.longTagValue(((Integer) value).longValue());
+        } else if (org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType.class.equals(clazz)) {
+            // store enum as int value for compatibility with JDBC/ES
+            return TagAndValue.longTagValue(
+                ((org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType) value).getValue()
+            );
         } else if (JsonObject.class.equals(clazz)) {
             return TagAndValue.stringTagValue((String) value);
         } else if (byte[].class.equals(clazz)) {
