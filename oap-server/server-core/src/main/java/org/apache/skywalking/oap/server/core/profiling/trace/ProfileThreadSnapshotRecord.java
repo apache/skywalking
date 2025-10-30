@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.profiling.trace;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -73,37 +74,15 @@ public class ProfileThreadSnapshotRecord extends Record {
     @ElasticSearch.EnableDocValues
     @Column(name = LANGUAGE_TYPE)
     @BanyanDB.NoIndexing
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private int languageType; // store as 0/1 for storage compatibility
 
-    public enum Language {
-        JAVA(0),
-        GO(1);
-        
-        private final int value;
-        
-        Language(int value) {
-            this.value = value;
-        }
-        
-        public int getValue() {
-            return value;
-        }
-        
-        public static Language fromValue(int value) {
-            for (Language language : values()) {
-                if (language.value == value) {
-                    return language;
-                }
-            }
-            return JAVA; // default to Java
-        }
+    public ProfileLanguageType getLanguage() {
+        return ProfileLanguageType.fromValue(languageType);
     }
 
-    public Language getLanguage() {
-        return Language.fromValue(languageType);
-    }
-
-    public void setLanguage(final Language language) {
+    public void setLanguage(final ProfileLanguageType language) {
         this.languageType = language.getValue();
     }
 
@@ -126,7 +105,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
             snapshot.setStackBinary(converter.getBytes(STACK_BINARY));
             final Number languageTypeNum = (Number) converter.get(LANGUAGE_TYPE);
-            snapshot.setLanguage(Language.fromValue(languageTypeNum != null ? languageTypeNum.intValue() : 0));
+            snapshot.setLanguage(ProfileLanguageType.fromValue(languageTypeNum != null ? languageTypeNum.intValue() : 0));
             return snapshot;
         }
 

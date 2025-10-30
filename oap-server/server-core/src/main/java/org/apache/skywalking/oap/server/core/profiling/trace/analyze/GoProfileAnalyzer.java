@@ -24,12 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.ArrayDeque;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackElement;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
 import org.apache.skywalking.oap.server.library.pprof.parser.PprofSegmentParser;
+import org.apache.skywalking.oap.server.library.pprof.parser.PprofParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,18 +97,101 @@ public class GoProfileAnalyzer {
             }
         }
         
-        // Calculate self = total - sum(children) (reuse FrameTreeBuilder pattern)
-        for (int i = elements.size() - 1; i >= 0; i--) {
-            ProfileStackElement elem = elements.get(i);
-            long childrenSum = 0;
-            for (ProfileStackElement other : elements) {
-                if (other.getParentId() == elem.getId()) {
-                    childrenSum += other.getDuration();
+        int rootCount = 0;
+        for (ProfileStackElement e : elements) {
+            if (e.getParentId() == -1) {
+                rootCount++;
+            }
+        }
+        if (rootCount > 1) {
+            int virtualRootId = elements.size();
+            ProfileStackElement virtualRoot = new ProfileStackElement();
+            virtualRoot.setId(virtualRootId);
+            virtualRoot.setParentId(-1);
+            virtualRoot.setCodeSignature("root");
+            virtualRoot.setDuration(0);
+            virtualRoot.setDurationChildExcluded(0);
+            virtualRoot.setCount(0);
+            elements.add(virtualRoot);
+
+            for (ProfileStackElement e : elements) {
+                if (e.getId() == virtualRootId) {
+                    continue;
+                }
+                if (e.getParentId() == -1) {
+                    e.setParentId(virtualRootId);
+                    virtualRoot.setDuration(virtualRoot.getDuration() + e.getDuration());
+                    virtualRoot.setCount(virtualRoot.getCount() + e.getCount());
                 }
             }
-            elem.setDurationChildExcluded(Math.max(0, elem.getDuration() - (int) childrenSum));
+        }
+
+        // Calculate self = total - sum(immediate children) in O(n)
+        Map<Integer, Integer> childDurSum = new HashMap<>();
+        for (ProfileStackElement child : elements) {
+            int pid = child.getParentId();
+            if (pid != -1) {
+                childDurSum.put(pid, childDurSum.getOrDefault(pid, 0) + child.getDuration());
+            }
+        }
+        for (ProfileStackElement elem : elements) {
+            int childrenSum = childDurSum.getOrDefault(elem.getId(), 0);
+            elem.setDurationChildExcluded(Math.max(0, elem.getDuration() - childrenSum));
         }
         
+        // Reorder and reindex elements: ensure root first (id=0), parent before child
+        Integer rootId = null;
+        for (ProfileStackElement e : elements) {
+            if (e.getParentId() == -1) {
+                rootId = e.getId();
+                break;
+            }
+        }
+        if (rootId != null) {
+            Map<Integer, List<ProfileStackElement>> childrenMap = new HashMap<>();
+            for (ProfileStackElement e : elements) {
+                childrenMap.computeIfAbsent(e.getParentId(), k -> new ArrayList<>()).add(e);
+            }
+
+            List<ProfileStackElement> ordered = new ArrayList<>();
+            ArrayDeque<ProfileStackElement> queue = new ArrayDeque<>();
+            // start from root
+            for (ProfileStackElement e : elements) {
+                if (e.getId() == rootId) {
+                    queue.add(e);
+                    break;
+                }
+            }
+            while (!queue.isEmpty()) {
+                ProfileStackElement cur = queue.removeFirst();
+                ordered.add(cur);
+                List<ProfileStackElement> children = childrenMap.get(cur.getId());
+                if (children != null) {
+                    // sort children by duration desc to make primary path first
+                    children.sort((a, b) -> Integer.compare(b.getDuration(), a.getDuration()));
+                    queue.addAll(children);
+                }
+            }
+
+            // reassign ids to ensure contiguous and root=0, fix parentId references
+            Map<Integer, Integer> idRemap = new HashMap<>();
+            for (int i = 0; i < ordered.size(); i++) {
+                idRemap.put(ordered.get(i).getId(), i);
+            }
+            for (ProfileStackElement e : ordered) {
+                int newId = idRemap.get(e.getId());
+                int oldId = e.getId();
+                int parentId = e.getParentId();
+                e.setId(newId);
+                if (parentId == -1) {
+                    e.setParentId(-1);
+                } else {
+                    e.setParentId(idRemap.getOrDefault(parentId, -1));
+                }
+            }
+            elements = ordered;
+        }
+
         ProfileStackTree tree = new ProfileStackTree();
         tree.setElements(elements);
         
@@ -136,7 +221,7 @@ public class GoProfileAnalyzer {
                 }
 
                 // Parse pprof data from stackBinary
-                ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(record.getStackBinary());
+                ProfileProto.Profile profile = PprofParser.parseProfile(record.getStackBinary());
                 
                 // Analyze this record
                 ProfileAnalyzation recordAnalyzation = analyze(

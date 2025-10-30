@@ -70,4 +70,15 @@ public class PprofParser {
             return functionName + ":" + line.getLine();
         }).collect(java.util.stream.Collectors.joining(";"));
     }
+
+    public static ProfileProto.Profile parseProfile(byte[] payload) throws IOException {
+        if (payload == null) {
+            throw new IOException("pprof payload is null");
+        }
+        java.io.InputStream input = new java.io.ByteArrayInputStream(payload);
+        if (payload.length >= 2 && (payload[0] == (byte) 0x1F) && (payload[1] == (byte) 0x8B)) {
+            input = new GZIPInputStream(input);
+        }
+        return ProfileProto.Profile.parseFrom(input);
+    }
 }

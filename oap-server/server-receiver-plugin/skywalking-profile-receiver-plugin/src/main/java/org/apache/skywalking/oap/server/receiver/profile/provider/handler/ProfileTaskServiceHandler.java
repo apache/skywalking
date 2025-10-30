@@ -22,10 +22,8 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPInputStream;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.profile.v3.GoProfileData;
 import org.apache.skywalking.apm.network.language.profile.v3.ProfileTaskCommandQuery;
@@ -40,14 +38,15 @@ import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcess
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
-// Analyzer preview imports removed after stabilizing storage path
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.pprof.parser.PprofSegmentParser;
+import org.apache.skywalking.oap.server.library.pprof.parser.PprofParser;
 import org.apache.skywalking.oap.server.library.pprof.parser.PprofSegmentParser.SegmentInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +113,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                 record.setSequence(snapshot.getSequence());
                 record.setStackBinary(snapshot.getStack().toByteArray());
                 record.setTimeBucket(TimeBucket.getRecordTimeBucket(snapshot.getTime()));
-                record.setLanguage(ProfileThreadSnapshotRecord.Language.JAVA); // default language for thread snapshots
+                record.setLanguage(ProfileLanguageType.JAVA); // default language for thread snapshots
 
                 // async storage
                 RecordStreamProcessor.getInstance().in(record);
@@ -178,9 +177,8 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                        // If this is the last data chunk, parse and store
                 if (profileData.getIsLast()) {
                     try {
-                        // Parse Go profile data and extract all segment information using library-pprof-parser
-                        byte[] rawPprofData = tryDecompressGzip(profileDataBuffer.toByteArray());
-                        ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(rawPprofData);
+                        // Parse Go profile data via library-pprof-parser (auto-detect gzip)
+                        ProfileProto.Profile profile = PprofParser.parseProfile(profileDataBuffer.toByteArray());
                         List<SegmentInfo> segments = PprofSegmentParser.parseSegments(profile);
 
                         // Log parsed segments briefly for troubleshooting
@@ -258,27 +256,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
     }
 
 
-    /**
-     * If payload is gzip-compressed, decompress it; otherwise return original bytes.
-     */
-    private byte[] tryDecompressGzip(byte[] bytes) {
-        // GZIP magic header 0x1F 0x8B
-        if (bytes != null && bytes.length >= 2 && (bytes[0] == (byte) 0x1F) && (bytes[1] == (byte) 0x8B)) {
-            try (InputStream gis = new GZIPInputStream(new java.io.ByteArrayInputStream(bytes));
-                 ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                byte[] buffer = new byte[8192];
-                int read;
-                while ((read = gis.read(buffer)) != -1) {
-                    bos.write(buffer, 0, read);
-                }
-                return bos.toByteArray();
-            } catch (IOException e) {
-                LOGGER.warn("Failed to gunzip Go profile payload, fallback to raw bytes: {}", e.getMessage());
-                return bytes;
-            }
-        }
-        return bytes;
-    }
+    
     
 
     /**
@@ -308,7 +286,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
             long dumpTimeMs = originalProfile.getTimeNanos() > 0 ? originalProfile.getTimeNanos() / 1_000_000L : System.currentTimeMillis();
             record.setDumpTime(dumpTimeMs);
             record.setSequence(0); // Each segment has only one record
-            record.setLanguage(ProfileThreadSnapshotRecord.Language.GO); // mark as Go profile data
+            record.setLanguage(ProfileLanguageType.GO); // mark as Go profile data
             
             // Store filtered pprof data containing only this segment's samples
             record.setStackBinary(filteredPprofData);

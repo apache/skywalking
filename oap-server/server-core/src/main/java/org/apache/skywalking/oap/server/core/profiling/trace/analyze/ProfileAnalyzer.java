@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType;
 import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
@@ -96,7 +97,7 @@ public class ProfileAnalyzer {
 
             // Filter Java records
             javaRecords = records.stream()
-                .filter(rec -> rec.getLanguage() == ProfileThreadSnapshotRecord.Language.JAVA)
+                .filter(rec -> rec.getLanguage() == ProfileLanguageType.JAVA)
                 .collect(Collectors.toList());
         } else {
             if (LOGGER.isInfoEnabled()) {
@@ -140,7 +141,7 @@ public class ProfileAnalyzer {
                 if (maxSeqExclusive > minSeq) {
                     List<ProfileThreadSnapshotRecord> full = getProfileThreadSnapshotQueryDAO().queryRecords(segId, minSeq, maxSeqExclusive);
                     for (ProfileThreadSnapshotRecord r : full) {
-                        if (r.getLanguage() == ProfileThreadSnapshotRecord.Language.GO) {
+                        if (r.getLanguage() == ProfileLanguageType.GO) {
                             goRecords.add(r);
                         }
                     }
