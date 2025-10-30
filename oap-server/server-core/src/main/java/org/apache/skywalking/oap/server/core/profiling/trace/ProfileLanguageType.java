@@ -43,5 +43,3 @@ public enum ProfileLanguageType {
         return JAVA; // default to Java
     }
 }
-
-

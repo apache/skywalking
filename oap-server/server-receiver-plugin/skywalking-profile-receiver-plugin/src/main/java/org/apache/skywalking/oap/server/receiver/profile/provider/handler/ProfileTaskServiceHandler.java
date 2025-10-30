@@ -159,14 +159,14 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                     return;
                 }
 
-                       // Reset state if this is a new task
+                // Reset state if this is a new task
                 if (currentTaskId == null || !currentTaskId.equals(profileData.getTaskId())) {
                     currentTaskId = profileData.getTaskId();
                     profileDataBuffer.reset();
                     LOGGER.debug("Starting new task: {}", currentTaskId);
                 }
 
-                       // Collect profile data
+                // Collect profile data
                 try {
                     profileDataBuffer.write(profileData.getPayload().toByteArray());
                 } catch (IOException e) {
@@ -174,7 +174,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                     return;
                 }
 
-                       // If this is the last data chunk, parse and store
+                // If this is the last data chunk, parse and store
                 if (profileData.getIsLast()) {
                     try {
                         // Parse Go profile data via library-pprof-parser (auto-detect gzip)
@@ -198,7 +198,7 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
                     } catch (Exception e) {
                         LOGGER.error("Failed to parse Go profile data for task: " + currentTaskId, e);
                     } finally {
-                               // Reset state
+                        // Reset state
                         profileDataBuffer.reset();
                         currentTaskId = null;
                     }

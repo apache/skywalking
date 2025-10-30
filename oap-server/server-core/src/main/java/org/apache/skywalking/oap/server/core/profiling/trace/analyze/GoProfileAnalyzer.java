@@ -46,8 +46,6 @@ public class GoProfileAnalyzer {
      * Analyze a pprof profile for a specific segment and time window.
      */
     public ProfileAnalyzation analyze(final String segmentId,
-                                      final long startTimeInclusive,
-                                      final long endTimeInclusive,
                                       final ProfileProto.Profile profile) {
         final long periodMs = PprofSegmentParser.resolvePeriodMillis(profile);
 
@@ -126,7 +124,6 @@ public class GoProfileAnalyzer {
             }
         }
 
-        // Calculate self = total - sum(immediate children) in O(n)
         Map<Integer, Integer> childDurSum = new HashMap<>();
         for (ProfileStackElement child : elements) {
             int pid = child.getParentId();
@@ -139,7 +136,6 @@ public class GoProfileAnalyzer {
             elem.setDurationChildExcluded(Math.max(0, elem.getDuration() - childrenSum));
         }
         
-        // Reorder and reindex elements: ensure root first (id=0), parent before child
         Integer rootId = null;
         for (ProfileStackElement e : elements) {
             if (e.getParentId() == -1) {
@@ -173,14 +169,12 @@ public class GoProfileAnalyzer {
                 }
             }
 
-            // reassign ids to ensure contiguous and root=0, fix parentId references
             Map<Integer, Integer> idRemap = new HashMap<>();
             for (int i = 0; i < ordered.size(); i++) {
                 idRemap.put(ordered.get(i).getId(), i);
             }
             for (ProfileStackElement e : ordered) {
                 int newId = idRemap.get(e.getId());
-                int oldId = e.getId();
                 int parentId = e.getParentId();
                 e.setId(newId);
                 if (parentId == -1) {
@@ -226,8 +220,6 @@ public class GoProfileAnalyzer {
                 // Analyze this record
                 ProfileAnalyzation recordAnalyzation = analyze(
                     record.getSegmentId(),
-                    query.getTimeRange().getStart(),
-                    query.getTimeRange().getEnd(),
                     profile
                 );
 

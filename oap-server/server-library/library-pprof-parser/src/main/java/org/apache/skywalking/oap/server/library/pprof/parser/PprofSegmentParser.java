@@ -315,7 +315,7 @@ public class PprofSegmentParser {
                 }
                 if ("hz".equals(unit) || "HZ".equals(unit)) {
                     // samples per second
-                    return period > 0 ? Math.max(1L, 1000L / Math.max(1L, period)) : 10L;
+                    return Math.max(1L, 1000L / Math.max(1L, period));
                 }
             }
         } catch (Throwable t) {
