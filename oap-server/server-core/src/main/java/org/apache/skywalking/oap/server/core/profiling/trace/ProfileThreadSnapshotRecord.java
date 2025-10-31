@@ -70,7 +70,6 @@ public class ProfileThreadSnapshotRecord extends Record {
     private int sequence;
     @Column(name = STACK_BINARY)
     private byte[] stackBinary;
-    @ElasticSearch.EnableDocValues
     @Column(name = LANGUAGE_TYPE)
     @BanyanDB.NoIndexing
     private ProfileLanguageType language = ProfileLanguageType.JAVA;

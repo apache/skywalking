@@ -88,9 +88,9 @@ public class ProfileAnalyzer {
             }).flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-            if (LOGGER.isInfoEnabled()) {
+            if (LOGGER.isDebugEnabled()) {
                 final int totalRanges = sequenceSearch.getRanges().size();
-                LOGGER.info("Profile analyze fetched records, segmentId(s)={}, ranges={}, recordsCount={}",
+                LOGGER.debug("Profile analyze fetched records, segmentId(s)={}, ranges={}, recordsCount={}",
                     sequenceSearch.getRanges().stream().map(SequenceRange::getSegmentId).distinct().collect(Collectors.toList()),
                     totalRanges, records.size());
             }
@@ -185,15 +185,17 @@ public class ProfileAnalyzer {
         int minSequence = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, start, end);
         int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end) + 1;
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Profile analyze sequence window: segmentId={}, start={}, end={}, minSeq={}, maxSeq(exclusive)={}",
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Profile analyze sequence window: segmentId={}, start={}, end={}, minSeq={}, maxSeq(exclusive)={}",
                 segmentId, start, end, minSequence, maxSequence);
         }
 
         // data not found
         if (maxSequence <= 0) {
-            LOGGER.info("Profile analyze not found any sequence in window: segmentId={}, start={}, end={}",
-                segmentId, start, end);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Profile analyze not found any sequence in window: segmentId={}, start={}, end={}",
+                    segmentId, start, end);
+            }
             return null;
         }
 
