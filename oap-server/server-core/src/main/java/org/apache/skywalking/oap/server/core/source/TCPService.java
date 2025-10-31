@@ -64,14 +64,15 @@ public class TCPService extends Source {
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
-
     @Getter
     @Setter
     private long receivedBytes;
-
     @Getter
     @Setter
     private long sentBytes;
+    @Getter
+    @Setter
+    private String tlsMode;
 
     public String getTag(String key) {
         return originalTags.get(key);
