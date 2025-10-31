@@ -33,5 +33,11 @@
             <artifactId>skywalking-sharing-server-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Use centralized pprof parser -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-pprof-parser</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

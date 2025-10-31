@@ -52,6 +52,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     public static final String DUMP_TIME = "dump_time";
     public static final String SEQUENCE = "sequence";
     public static final String STACK_BINARY = "stack_binary";
+    public static final String LANGUAGE_TYPE = "language_type";
 
     @Column(name = TASK_ID)
     @SQLDatabase.CompositeIndex(withColumns = {SEGMENT_ID})
@@ -69,6 +70,8 @@ public class ProfileThreadSnapshotRecord extends Record {
     private int sequence;
     @Column(name = STACK_BINARY)
     private byte[] stackBinary;
+    @Column(name = LANGUAGE_TYPE) // NoIndexing
+    private ProfileLanguageType language = ProfileLanguageType.JAVA;
 
     @Override
     public StorageID id() {
@@ -88,6 +91,8 @@ public class ProfileThreadSnapshotRecord extends Record {
             snapshot.setSequence(((Number) converter.get(SEQUENCE)).intValue());
             snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
             snapshot.setStackBinary(converter.getBytes(STACK_BINARY));
+            final Number languageTypeNum = (Number) converter.get(LANGUAGE_TYPE);
+            snapshot.setLanguage(ProfileLanguageType.fromValue(languageTypeNum != null ? languageTypeNum.intValue() : 0));
             return snapshot;
         }
 
@@ -99,6 +104,8 @@ public class ProfileThreadSnapshotRecord extends Record {
             converter.accept(SEQUENCE, storageData.getSequence());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(STACK_BINARY, storageData.getStackBinary());
+            ProfileLanguageType language = storageData.getLanguage();
+            converter.accept(LANGUAGE_TYPE, language != null ? language.getValue() : ProfileLanguageType.JAVA.getValue());
         }
     }
 }

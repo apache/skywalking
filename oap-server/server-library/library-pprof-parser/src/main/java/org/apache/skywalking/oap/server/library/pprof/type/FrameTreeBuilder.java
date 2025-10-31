@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.server.library.pprof.parser.PprofParser;
 
 @Data
 @NoArgsConstructor
@@ -58,15 +59,7 @@ public class FrameTreeBuilder {
     }
 
     private String getSignature(long locationId) {
-        if (locationId == 0) {
-            return "root";
-        }
-        ProfileProto.Location location = profile.getLocation((int) locationId - 1);
-        return location.getLineList().stream().map((line) -> {
-            ProfileProto.Function function = profile.getFunction((int) line.getFunctionId() - 1);
-            String functionName = profile.getStringTable((int) function.getName());
-            return functionName + ":" + line.getLine();
-        }).collect(Collectors.joining(";"));
+        return PprofParser.resolveSignature(locationId, profile);
     }
 
     public FrameTree build() {
