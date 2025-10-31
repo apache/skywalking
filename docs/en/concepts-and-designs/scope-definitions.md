@@ -20,7 +20,7 @@ This calculates the metrics data from each request of the service.
 | tags                       | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment.                                          |           | `List<String>`         |
 | tag                        | The key-value pair of span tags in the segment.                                                                                 |           | `Map<String, String>`  |
 | sideCar.internalErrorCode  | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                        |           | string                 |
-| tlsMode                    | The TLS mode of the service                                                                                                     |           | string                 |
+| tlsMode                    | The TLS mode of the service.                                                                                                    |           | string                 |
 
 ### SCOPE `TCPService`
 
@@ -36,7 +36,7 @@ This calculates the metrics data from each request of the TCP service.
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                        |           | string                |
 | receivedBytes             | The received bytes of the TCP traffic.                                                                                          |           | long                  |
 | sentBytes                 | The sent bytes of the TCP traffic.                                                                                              |           | long                  |
-| tlsMode                   | The TLS mode of the service                                                                                                     |           | string                |
+| tlsMode                   | The TLS mode of the service.                                                                                                    |           | string                |
 
 ### SCOPE `ServiceInstance`
 
