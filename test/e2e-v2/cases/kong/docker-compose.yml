@@ -22,6 +22,8 @@ services:
       service: oap
     ports:
       - "12800:12800"
+    environment:
+      - SW_METER_ANALYZER_ACTIVE_FILES=classpath:otel-rules/kong/kong-service.yaml,classpath:otel-rules/kong/kong-instance.yaml,classpath:otel-rules/kong/kong-endpoint.yaml  
     networks:
       - e2e
   banyandb:
