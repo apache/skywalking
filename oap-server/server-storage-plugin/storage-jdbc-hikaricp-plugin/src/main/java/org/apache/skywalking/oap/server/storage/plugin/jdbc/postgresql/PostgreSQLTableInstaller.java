@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType;
 
 public class PostgreSQLTableInstaller extends JDBCTableInstaller {
     public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager) {
@@ -48,7 +49,7 @@ public class PostgreSQLTableInstaller extends JDBCTableInstaller {
     @Override
     protected String getColumnDefinition(ModelColumn column, Class<?> type, Type genericType) {
         final String storageName = column.getColumnName().getStorageName();
-        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
+        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type) || ProfileLanguageType.class.equals(type)) {
             return storageName + " INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return storageName + " BIGINT";
