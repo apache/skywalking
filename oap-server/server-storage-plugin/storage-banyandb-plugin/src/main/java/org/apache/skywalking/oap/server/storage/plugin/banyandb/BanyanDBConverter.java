@@ -31,6 +31,7 @@ import org.apache.skywalking.banyandb.v1.client.TraceWrite;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -283,7 +284,7 @@ public class BanyanDBConverter {
             return TagAndValue.stringTagValue(((StorageDataComplexObject<?>) value).toStorageData());
         } else if (Layer.class.equals(clazz)) {
             return TagAndValue.longTagValue(((Integer) value).longValue());
-        } else if (org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType.class.equals(clazz)) {
+        } else if (ProfileLanguageType.class.equals(clazz)) {
             // Mirror Layer handling: value is provided as Integer (enum ordinal/value)
             return TagAndValue.longTagValue(((Integer) value).longValue());
         } else if (JsonObject.class.equals(clazz)) {
@@ -305,6 +306,11 @@ public class BanyanDBConverter {
             return TagAndValue.binaryFieldValue(ByteUtil.double2Bytes((double) value));
         } else if (StorageDataComplexObject.class.isAssignableFrom(clazz)) {
             return TagAndValue.stringFieldValue(((StorageDataComplexObject<?>) value).toStorageData());
+        } else if (Layer.class.equals(clazz)) {
+            return TagAndValue.longFieldValue(((Integer) value).longValue());
+        } else if (ProfileLanguageType.class.equals(clazz)) {
+            // Mirror Layer handling: value is provided as Integer (enum ordinal/value)
+            return TagAndValue.longFieldValue(((Integer) value).longValue());
         }
         throw new IllegalStateException(clazz.getSimpleName() + " is not supported");
     }
