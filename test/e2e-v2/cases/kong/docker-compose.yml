@@ -22,8 +22,6 @@ services:
       service: oap
     ports:
       - "12800:12800"
-    environment:
-      - SW_METER_ANALYZER_ACTIVE_FILES=classpath:otel-rules/kong/kong-service.yaml,classpath:otel-rules/kong/kong-instance.yaml,classpath:otel-rules/kong/kong-endpoint.yaml  
     networks:
       - e2e
   banyandb:
@@ -107,6 +105,14 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+  echo:
+    image: ealen/echo-server:latest
+    networks:
+      - e2e
+    environment:
+      - ENABLE__ENV=true
+    expose:
+      - 80
   kong-mock:
     image: curlimages/curl:8.10.1
     networks:

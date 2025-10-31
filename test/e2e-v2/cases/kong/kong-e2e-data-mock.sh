@@ -33,7 +33,7 @@ curl -i -X POST http://kong-1:8001/plugins \
 # Add a mock service and route
 curl -i -s -X POST http://kong-1:8001/services \
   --data name=sw_service \
-  --data url='http://httpbin.konghq.com'
+  --data url='http://echo:80'
 curl -i -X POST http://kong-1:8001/services/sw_service/routes \
   --data 'paths[]=/mock' \
   --data name=sw_route
@@ -41,5 +41,5 @@ curl -i -X POST http://kong-1:8001/services/sw_service/routes \
 while true
 do
   curl -s -i http://kong-1:8000/mock/anything > /dev/null
-  sleep 5
+  sleep 1
 done
