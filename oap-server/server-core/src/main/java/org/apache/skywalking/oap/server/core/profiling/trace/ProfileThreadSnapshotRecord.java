@@ -70,8 +70,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     private int sequence;
     @Column(name = STACK_BINARY)
     private byte[] stackBinary;
-    @Column(name = LANGUAGE_TYPE)
-    @BanyanDB.NoIndexing
+    @Column(name = LANGUAGE_TYPE) // NoIndexing
     private ProfileLanguageType language = ProfileLanguageType.JAVA;
 
     @Override
