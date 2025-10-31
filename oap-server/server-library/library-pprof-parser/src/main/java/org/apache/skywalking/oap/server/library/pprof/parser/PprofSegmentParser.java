@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.library.pprof.parser;
 
 import com.google.perftools.profiles.ProfileProto;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -96,8 +95,7 @@ public class PprofSegmentParser {
     /**
      * Parse pprof profile and extract all segment information
      */
-    public static List<SegmentInfo> parseSegments(ProfileProto.Profile profile) throws IOException {
-        List<SegmentInfo> segments = new ArrayList<>();
+    public static List<SegmentInfo> parseSegments(ProfileProto.Profile profile) {
         List<String> stringTable = profile.getStringTableList();
 
         // Group samples by segmentId
@@ -111,6 +109,7 @@ public class PprofSegmentParser {
         }
 
         // Create SegmentInfo for each segment
+        List<SegmentInfo> result = new ArrayList<>(segmentSamples.size());
         for (Map.Entry<String, List<ProfileProto.Sample>> entry : segmentSamples.entrySet()) {
             String segmentId = entry.getKey();
             List<ProfileProto.Sample> samples = entry.getValue();
@@ -134,10 +133,10 @@ public class PprofSegmentParser {
                 .sum();
             segmentInfo.setCount(totalCount);
 
-            segments.add(segmentInfo);
+            result.add(segmentInfo);
         }
 
-        return segments;
+        return result;
     }
 
     /**

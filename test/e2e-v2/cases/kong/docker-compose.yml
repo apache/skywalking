@@ -105,14 +105,6 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-  echo:
-    image: ealen/echo-server:latest
-    networks:
-      - e2e
-    environment:
-      - ENABLE__ENV=true
-    expose:
-      - 80
   kong-mock:
     image: curlimages/curl:8.10.1
     networks:
