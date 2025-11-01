@@ -31,7 +31,7 @@ setup:
 trigger:
   action: http
   interval: 3s
-  times: 20
+  times: -1
   url: http://${php_host}:${php_8080}/php/info
   method: POST
 

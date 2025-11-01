@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
@@ -43,7 +44,7 @@ public class SlackhookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
 
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+    public void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, SlackSettings> settingsMap = alarmRulesWatcher.getSlackSettings();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
@@ -55,7 +56,7 @@ public class SlackhookCallback extends HttpAlarmCallback {
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
             if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
-                messages)) {
+                    messages)) {
                 continue;
             }
 
@@ -64,9 +65,9 @@ public class SlackhookCallback extends HttpAlarmCallback {
                 final var jsonElements = new JsonArray();
                 for (AlarmMessage item : messages) {
                     jsonElements.add(GSON.fromJson(
-                        String.format(
-                            setting.getTextTemplate(), item.getAlarmMessage()
-                        ), JsonObject.class));
+                            String.format(
+                                    getTemplate(setting, isRecovery), item.getAlarmMessage()
+                            ), JsonObject.class));
                 }
                 jsonObject.add("blocks", jsonElements);
                 final var body = GSON.toJson(jsonObject);
@@ -77,5 +78,9 @@ public class SlackhookCallback extends HttpAlarmCallback {
                 }
             }
         }
+    }
+
+    private String getTemplate(SlackSettings setting, boolean isRecovery) {
+        return isRecovery ? setting.getRecoveryTextTemplate() : setting.getTextTemplate();
     }
 }

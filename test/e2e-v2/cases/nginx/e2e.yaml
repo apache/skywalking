@@ -31,7 +31,7 @@ setup:
 trigger:
   action: http
   interval: 3s
-  times: 10
+  times: -1
   url: http://${nginx_host}:${nginx_8080}/test
   method: POST
 

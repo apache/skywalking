@@ -62,6 +62,7 @@ public class AlarmRule {
     private String excludeNamesRegex;
     private int period;
     private int silencePeriod;
+    private int recoveryObservationPeriod;
     private String message;
     private Map<String, String> tags;
     private Set<String> hooks;

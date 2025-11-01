@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import com.google.common.collect.Lists;
+import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
@@ -43,6 +44,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.powermock.reflect.Whitebox;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -261,11 +264,22 @@ public class NotifyHandlerTest {
 
         notifyHandler = new NotifyHandler(new AlarmRulesWatcher(rules, null, moduleManager), moduleManager);
 
-        notifyHandler.init(alarmMessageList -> {
-            for (AlarmMessage message : alarmMessageList) {
-                assertNotNull(message);
+        notifyHandler.init(new AlarmCallback() {
+            @Override
+            public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+                    for (AlarmMessage message : alarmMessages) {
+                        assertNotNull(message);
+                    }
             }
-        });
+
+            @Override
+            public void doAlarmRecovery(List<AlarmMessage> alarmResolvedMessages) throws Exception {
+                for (AlarmMessage message : alarmResolvedMessages) {
+                    assertNotNull(message);
+                }
+            }
+        }
+    );
 
         AlarmCore core = mock(AlarmCore.class);
 

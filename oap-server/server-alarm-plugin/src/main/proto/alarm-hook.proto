@@ -24,6 +24,8 @@ option java_package = "org.apache.skywalking.oap.server.core.alarm.grpc";
 service AlarmService {
     rpc doAlarm (stream AlarmMessage) returns (Response) {
     }
+    rpc doAlarmRecovery (stream AlarmRecoveryMessage) returns (Response) {
+    }
 }
 
 message AlarmMessage {
@@ -36,7 +38,23 @@ message AlarmMessage {
     string alarmMessage = 7;
     int64 startTime = 8;
     AlarmTags tags = 9;
+    string uuid = 10;
 }
+
+message AlarmRecoveryMessage {
+    int64 scopeId = 1;
+    string scope = 2;
+    string name = 3;
+    string id0 = 4;
+    string id1 = 5;
+    string ruleName = 6;
+    string alarmMessage = 7;
+    int64 startTime = 8;
+    AlarmTags tags = 9;
+    string uuid = 10;
+    int64 recoveryTime = 11;
+}
+
 
 message AlarmTags {
     // String key, String value pair.
