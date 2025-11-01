@@ -226,6 +226,7 @@ public class TelemetryDataDispatcher {
         service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         service.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         service.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
+        service.setTlsMode(metrics.getTlsMode());
 
         SOURCE_RECEIVER.receive(service);
     }
@@ -241,6 +242,7 @@ public class TelemetryDataDispatcher {
         service.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
         service.setReceivedBytes(metrics.getReceivedBytes());
         service.setSentBytes(metrics.getSentBytes());
+        service.setTlsMode(metrics.getTlsMode());
 
         SOURCE_RECEIVER.receive(service);
     }

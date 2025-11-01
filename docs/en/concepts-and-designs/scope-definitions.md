@@ -6,20 +6,21 @@ Using the Aggregation Function, the requests will be grouped by time and **Group
 
 This calculates the metrics data from each request of the service.
 
-| Name                      | Remarks                                                                                                                         | Group Key | Type                   |
-|---------------------------|---------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------|
-| name                      | The name of the service.                                                                                                        |           | string                 |
-| layer                     | Layer represents an abstract framework in the computer science, such as operation system(OS_LINUX layer), Kubernetes(k8s layer) |           | enum                   |
-| serviceInstanceName       | The name of the service instance ID.                                                                                            |           | string                 |
-| endpointName              | The name of the endpoint, such as a full path of HTTP URI.                                                                      |           | string                 |
-| latency                   | The time taken by each request.                                                                                                 |           | int                    |
-| status                    | Indicates the success or failure of the request.                                                                                |           | bool(true for success) |
-| httpResponseStatusCode    | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                |           | int                    |
-| rpcStatusCode             | The string value of the rpc response code.                                                                                      |           | string                 |
-| type                      | The type of each request. Such as: Database, HTTP, RPC, gRPC.                                                                   |           | enum                   |
-| tags                      | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment.                                          |           | `List<String>`         |
-| tag                       | The key-value pair of span tags in the segment.                                                                                 |           | `Map<String, String>`  |
-| sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                        |           | string                 |
+| Name                       | Remarks                                                                                                                         | Group Key | Type                   |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------------|-----------|------------------------|
+| name                       | The name of the service.                                                                                                        |           | string                 |
+| layer                      | Layer represents an abstract framework in the computer science, such as operation system(OS_LINUX layer), Kubernetes(k8s layer) |           | enum                   |
+| serviceInstanceName        | The name of the service instance ID.                                                                                            |           | string                 |
+| endpointName               | The name of the endpoint, such as a full path of HTTP URI.                                                                      |           | string                 |
+| latency                    | The time taken by each request.                                                                                                 |           | int                    |
+| status                     | Indicates the success or failure of the request.                                                                                |           | bool(true for success) |
+| httpResponseStatusCode     | The response code of the HTTP response, and if this request is the HTTP call. E.g. 200, 404, 302                                |           | int                    |
+| rpcStatusCode              | The string value of the rpc response code.                                                                                      |           | string                 |
+| type                       | The type of each request. Such as: Database, HTTP, RPC, gRPC.                                                                   |           | enum                   |
+| tags                       | The labels of each request. Each value is made up by `TagKey:TagValue` in the segment.                                          |           | `List<String>`         |
+| tag                        | The key-value pair of span tags in the segment.                                                                                 |           | `Map<String, String>`  |
+| sideCar.internalErrorCode  | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                        |           | string                 |
+| tlsMode                    | The TLS mode of the service.                                                                                                    |           | string                 |
 
 ### SCOPE `TCPService`
 
@@ -35,6 +36,7 @@ This calculates the metrics data from each request of the TCP service.
 | sideCar.internalErrorCode | The sidecar/gateway proxy internal error code. The value is based on the implementation.                                        |           | string                |
 | receivedBytes             | The received bytes of the TCP traffic.                                                                                          |           | long                  |
 | sentBytes                 | The sent bytes of the TCP traffic.                                                                                              |           | long                  |
+| tlsMode                   | The TLS mode of the service.                                                                                                    |           | string                |
 
 ### SCOPE `ServiceInstance`
 
