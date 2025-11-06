@@ -59,12 +59,16 @@ public class TableHelper {
     private final ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
 
     private final LoadingCache<String, Boolean> tableExistence =
-        CacheBuilder.newBuilder()
+            CacheBuilder.newBuilder()
                     .expireAfterWrite(Duration.ofMinutes(10))
                     .build(new CacheLoader<>() {
                         @Override
                         public @NonNull Boolean load(@NonNull String tableName) throws Exception {
-                            return jdbcClient.tableExists(tableName);
+                            boolean tableExists = jdbcClient.tableExists(tableName);
+                            if (!tableExists) {
+                                log.warn("Table {} is not exists.", tableName);
+                            }
+                            return tableExists;
                         }
                     });
 
@@ -114,17 +118,22 @@ public class TableHelper {
         }
 
         final var ttlTables = getTablesWithinTTL(modelName);
-        return getTablesInTimeBucketRange(modelName, timeBucketStart, timeBucketEnd)
-            .stream()
-            .filter(ttlTables::contains)
-            .filter(table -> {
-                try {
-                    return tableExistence.get(table);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            })
-            .collect(toList());
+        List<String> tablesForRead = getTablesInTimeBucketRange(modelName, timeBucketStart, timeBucketEnd)
+                .stream()
+                .filter(ttlTables::contains)
+                .filter(table -> {
+                    try {
+                        return tableExistence.get(table);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(toList());
+        if (log.isDebugEnabled()) {
+            log.debug("TablesForRead for {}({}~{}) got {}", modelName, timeBucketStart, timeBucketEnd,
+                    tablesForRead);
+        }
+        return tablesForRead;
     }
 
     /**
@@ -145,11 +154,16 @@ public class TableHelper {
             timeBuckets.add(TimeBucket.getTimeBucket(timestamp, DownSampling.Day));
         }
 
-        return timeBuckets
-            .build()
-            .distinct()
-            .mapToObj(timeBucket -> getTable(rawTableName, timeBucket))
-            .collect(toList());
+        List<String> tablesInTimeBucketRange = timeBuckets
+                .build()
+                .distinct()
+                .mapToObj(timeBucket -> getTable(rawTableName, timeBucket))
+                .collect(toList());
+        if (log.isDebugEnabled()) {
+            log.debug("TablesInTimeBucketRange for {}({}~{}) got {}", modelName, timeBucketStart, timeBucketEnd,
+                    tablesInTimeBucketRange);
+        }
+        return tablesInTimeBucketRange;
     }
 
     public List<String> getTablesWithinTTL(String modelName) {
@@ -161,17 +175,21 @@ public class TableHelper {
         }
 
         final var ttlTimeBuckets = getTTLTimeBuckets(model);
-        return ttlTimeBuckets
-            .stream()
-            .map(it -> getTable(rawTableName, it))
-            .filter(table -> {
-                try {
-                    return tableExistence.get(table);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            })
-            .collect(toList());
+        List<String> tableNameList = ttlTimeBuckets
+                .stream()
+                .map(it -> getTable(rawTableName, it))
+                .filter(table -> {
+                    try {
+                        return tableExistence.get(table);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(toList());
+        if (log.isDebugEnabled()) {
+            log.debug("TablesWithinTTL for {} got {}.", modelName, tableNameList);
+        }
+        return tableNameList;
     }
 
     public static String generateId(Model model, String originalID) {
@@ -199,12 +217,12 @@ public class TableHelper {
 
     List<Long> getTTLTimeBuckets(Model model) {
         final var ttl = model.isRecord() ?
-            getConfigService().getRecordDataTTL() :
-            getConfigService().getMetricsDataTTL();
+                getConfigService().getRecordDataTTL() :
+                getConfigService().getMetricsDataTTL();
         return LongStream
-            .range(0, ttl)
-            .mapToObj(it -> TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(it), DownSampling.Day))
-            .distinct()
-            .collect(toList());
+                .range(0, ttl)
+                .mapToObj(it -> TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(it), DownSampling.Day))
+                .distinct()
+                .collect(toList());
     }
 }
