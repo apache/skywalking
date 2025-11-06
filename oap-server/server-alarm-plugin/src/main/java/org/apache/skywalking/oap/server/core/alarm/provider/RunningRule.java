@@ -223,7 +223,6 @@ public class RunningRule {
                     log.trace("RuleName:{} AlarmEntity {} {} {} expired", ruleName, alarmEntity.getName(),
                             alarmEntity.getId0(), alarmEntity.getId1());
                 }
-                //return;
             }
 
             Optional<AlarmMessage> alarmMessageOptional = window.checkAlarm();
@@ -573,7 +572,6 @@ public class RunningRule {
                         break;
                     case OBSERVING_RECOVERY:
                         this.recoveryObservationCountdown = this.recoveryObservationPeriod - 1;
-                        //this.silenceCountdown = -1;
                         break;
                     case RECOVERED:
                         this.recoveryObservationCountdown = this.recoveryObservationPeriod;
@@ -582,7 +580,6 @@ public class RunningRule {
             }
 
             private void resetCountdowns() {
-                //silenceCountdown = -1;
                 recoveryObservationCountdown = this.recoveryObservationPeriod;
             }
 
