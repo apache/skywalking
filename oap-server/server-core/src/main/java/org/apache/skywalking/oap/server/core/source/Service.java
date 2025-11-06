@@ -86,6 +86,9 @@ public class Service extends Source {
     private SideCar sideCar = new SideCar();
     @Getter
     @Setter
+    private String tlsMode;
+    @Getter
+    @Setter
     @ScopeDefaultColumn.DefinedByField(columnName = "attr0", isAttribute = true)
     private String attr0;
     @Getter

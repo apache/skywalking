@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -111,7 +112,7 @@ public class JDBCTableInstaller extends ModelInstaller {
 
     protected String getColumnDefinition(ModelColumn column, Class<?> type, Type genericType) {
         final String storageName = column.getColumnName().getStorageName();
-        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
+        if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type) || ProfileLanguageType.class.equals(type)) {
             return storageName + " INT";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return storageName + " BIGINT";

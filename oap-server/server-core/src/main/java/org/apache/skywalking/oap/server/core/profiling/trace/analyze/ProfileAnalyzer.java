@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType;
 import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
@@ -67,30 +68,99 @@ public class ProfileAnalyzer {
     public ProfileAnalyzation analyze(final List<SegmentProfileAnalyzeQuery> queries) throws IOException {
         ProfileAnalyzation analyzation = new ProfileAnalyzation();
 
-        // query sequence range list
+        // Step 1: Try Java profile analysis first (original logic with time window)
         SequenceSearch sequenceSearch = getAllSequenceRange(queries);
-        if (sequenceSearch == null) {
-            analyzation.setTip("Data not found");
-            return analyzation;
-        }
-        if (sequenceSearch.getTotalSequenceCount() > analyzeSnapshotMaxSize) {
-            analyzation.setTip("Out of snapshot analyze limit, " + sequenceSearch.getTotalSequenceCount() + " snapshots found, but analysis first " + analyzeSnapshotMaxSize + " snapshots only.");
-        }
-
-        // query snapshots
-        List<ProfileStack> stacks = sequenceSearch.getRanges().parallelStream().map(r -> {
-            try {
-                return getProfileThreadSnapshotQueryDAO().queryRecords(r.getSegmentId(), r.getMinSequence(), r.getMaxSequence());
-            } catch (IOException e) {
-                LOGGER.warn(e.getMessage(), e);
-                return Collections.<ProfileThreadSnapshotRecord>emptyList();
+        List<ProfileThreadSnapshotRecord> javaRecords = new ArrayList<>();
+        
+        if (sequenceSearch != null) {
+            if (sequenceSearch.getTotalSequenceCount() > analyzeSnapshotMaxSize) {
+                analyzation.setTip("Out of snapshot analyze limit, " + sequenceSearch.getTotalSequenceCount() + " snapshots found, but analysis first " + analyzeSnapshotMaxSize + " snapshots only.");
             }
-        }).flatMap(Collection::stream).map(ProfileStack::deserialize).distinct().collect(Collectors.toList());
 
-        // analyze
-        final List<ProfileStackTree> trees = analyzeByStack(stacks);
-        if (trees != null) {
-            analyzation.getTrees().addAll(trees);
+            // query snapshots within time window
+            List<ProfileThreadSnapshotRecord> records = sequenceSearch.getRanges().parallelStream().map(r -> {
+                try {
+                    return getProfileThreadSnapshotQueryDAO().queryRecords(r.getSegmentId(), r.getMinSequence(), r.getMaxSequence());
+                } catch (IOException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                    return Collections.<ProfileThreadSnapshotRecord>emptyList();
+                }
+            }).flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+            if (LOGGER.isDebugEnabled()) {
+                final int totalRanges = sequenceSearch.getRanges().size();
+                LOGGER.debug("Profile analyze fetched records, segmentId(s)={}, ranges={}, recordsCount={}",
+                    sequenceSearch.getRanges().stream().map(SequenceRange::getSegmentId).distinct().collect(Collectors.toList()),
+                    totalRanges, records.size());
+            }
+
+            // Filter Java records
+            javaRecords = records.stream()
+                .filter(rec -> rec.getLanguage() == ProfileLanguageType.JAVA)
+                .collect(Collectors.toList());
+        } else {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Profile analyze: no Java records found in time window, will try Go fallback");
+            }
+        }
+
+        // Analyze Java profiles if found
+        if (!javaRecords.isEmpty()) {
+            LOGGER.info("Analyzing {} Java profile records", javaRecords.size());
+            List<ProfileStack> stacks = javaRecords.stream()
+                .map(rec -> {
+                    try {
+                        return ProfileStack.deserialize(rec);
+                    } catch (Exception ex) {
+                        LOGGER.warn("Deserialize stack failed, segmentId={}, sequence={}, dumpTime={}",
+                            rec.getSegmentId(), rec.getSequence(), rec.getDumpTime(), ex);
+                        return null;
+                    }
+                })
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+            final List<ProfileStackTree> trees = analyzeByStack(stacks);
+            if (trees != null && !trees.isEmpty()) {
+                analyzation.getTrees().addAll(trees);
+                // Java analysis found data, return early
+                return analyzation;
+            }
+        }
+
+        // Step 2: Fallback to Go profile analysis if Java found no data
+        // For Go profiles, ignore time window and fetch all records per segment
+        List<ProfileThreadSnapshotRecord> goRecords = new ArrayList<>();
+        for (SegmentProfileAnalyzeQuery q : queries) {
+            final String segId = q.getSegmentId();
+            try {
+                int minSeq = getProfileThreadSnapshotQueryDAO().queryMinSequence(segId, 0L, Long.MAX_VALUE);
+                int maxSeqExclusive = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segId, 0L, Long.MAX_VALUE) + 1;
+                if (maxSeqExclusive > minSeq) {
+                    List<ProfileThreadSnapshotRecord> full = getProfileThreadSnapshotQueryDAO().queryRecords(segId, minSeq, maxSeqExclusive);
+                    for (ProfileThreadSnapshotRecord r : full) {
+                        if (r.getLanguage() == ProfileLanguageType.GO) {
+                            goRecords.add(r);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Go fallback: full-range fetch failed for segmentId={}", segId, e);
+            }
+        }
+
+        if (!goRecords.isEmpty()) {
+            LOGGER.info("Java analysis found no data, fallback to Go: analyzing {} Go profile records", goRecords.size());
+            GoProfileAnalyzer goAnalyzer = new GoProfileAnalyzer();
+            ProfileAnalyzation goAnalyzation = goAnalyzer.analyzeRecords(goRecords, queries);
+            if (goAnalyzation != null && !goAnalyzation.getTrees().isEmpty()) {
+                analyzation.getTrees().addAll(goAnalyzation.getTrees());
+            }
+        } else if (sequenceSearch == null && javaRecords.isEmpty()) {
+            // Both Java (time window) and Go (full range) found nothing
+            analyzation.setTip("Data not found");
         }
 
         return analyzation;
@@ -115,8 +185,17 @@ public class ProfileAnalyzer {
         int minSequence = getProfileThreadSnapshotQueryDAO().queryMinSequence(segmentId, start, end);
         int maxSequence = getProfileThreadSnapshotQueryDAO().queryMaxSequence(segmentId, start, end) + 1;
 
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Profile analyze sequence window: segmentId={}, start={}, end={}, minSeq={}, maxSeq(exclusive)={}",
+                segmentId, start, end, minSequence, maxSequence);
+        }
+
         // data not found
         if (maxSequence <= 0) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Profile analyze not found any sequence in window: segmentId={}, start={}, end={}",
+                    segmentId, start, end);
+            }
             return null;
         }
 
@@ -207,4 +286,5 @@ public class ProfileAnalyzer {
         }
 
     }
+
 }

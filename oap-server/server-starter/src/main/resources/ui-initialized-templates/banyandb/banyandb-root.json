@@ -29,10 +29,10 @@
           "graph": {
             "fontColor": "theme",
             "backgroundColor": "theme",
-            "content": "BanyanDB is a distributed time-series database with built-in self-monitoring for real-time tracking of system health, performance, and resource utilization.",
+            "content": "Provide BanyanDB monitoring through OpenTelemetry's Prometheus Receiver",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-banyandb/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/banyandb/dashboards-banyandb/"
           }
         }
       ],
