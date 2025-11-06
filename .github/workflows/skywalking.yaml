@@ -780,7 +780,7 @@ jobs:
         if: matrix.test.docker != null
         run: docker build -t ${{ matrix.test.docker.name }} -f ${{ matrix.test.docker.base }}/${{ matrix.test.docker.file }} ${{ matrix.test.docker.base }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@d0b77685ed8175ae2cf9cff1cef20e893ff05a87
+        uses: apache/skywalking-infra-e2e@01b80d98a38154f4f80d9cdb128b9d81727f2b80
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() }}
@@ -844,7 +844,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@d0b77685ed8175ae2cf9cff1cef20e893ff05a87
+        uses: apache/skywalking-infra-e2e@01b80d98a38154f4f80d9cdb128b9d81727f2b80
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -905,7 +905,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@d0b77685ed8175ae2cf9cff1cef20e893ff05a87
+        uses: apache/skywalking-infra-e2e@01b80d98a38154f4f80d9cdb128b9d81727f2b80
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -968,7 +968,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@d0b77685ed8175ae2cf9cff1cef20e893ff05a87
+        uses: apache/skywalking-infra-e2e@01b80d98a38154f4f80d9cdb128b9d81727f2b80
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
@@ -1064,7 +1064,7 @@ jobs:
 #          fi
 #          docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml down -v
 #      - name: ${{ matrix.test.name }}
-#        uses: apache/skywalking-infra-e2e@d0b77685ed8175ae2cf9cff1cef20e893ff05a87
+#        uses: apache/skywalking-infra-e2e@01b80d98a38154f4f80d9cdb128b9d81727f2b80
 #        with:
 #          e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
 #      - if: ${{ failure() }}
