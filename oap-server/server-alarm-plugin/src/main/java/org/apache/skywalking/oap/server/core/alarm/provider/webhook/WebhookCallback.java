@@ -52,11 +52,12 @@ public class WebhookCallback extends HttpAlarmCallback {
             var hookName = entry.getKey();
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
-            if (setting == null || CollectionUtils.isEmpty(setting.getUrls()) || CollectionUtils.isEmpty(
+            List<String> urls = getUrls(setting, isRecovery);
+            if (setting == null || CollectionUtils.isEmpty(urls) || CollectionUtils.isEmpty(
                     messages)) {
                 continue;
             }
-            for (final var url : setting.getUrls()) {
+            for (final var url : urls) {
                 try {
                     post(URI.create(url), gson.toJson(messages), setting.getHeaders());
                 } catch (Exception e) {
@@ -64,5 +65,9 @@ public class WebhookCallback extends HttpAlarmCallback {
                 }
             }
         }
+    }
+
+    private static List<String> getUrls(WebhookSettings setting, boolean isRecovery) {
+        return isRecovery ? setting.getRecoveryUrls() : setting.getUrls();
     }
 }

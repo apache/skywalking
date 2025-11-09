@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Use SkyWalking alarm Discord webhook API.
@@ -57,11 +58,11 @@ public class DiscordHookCallback extends HttpAlarmCallback {
             }
             for (final var webHookUrl : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
-                    final var content = String.format(
-                            getTemplate(setting, isRecovery),
-                            alarmMessage.getAlarmMessage()
-                    );
-                    sendAlarmMessage(webHookUrl, content);
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        final var content = String.format(template, alarmMessage.getAlarmMessage());
+                        sendAlarmMessage(webHookUrl, content);
+                    }
                 }
             }
         }

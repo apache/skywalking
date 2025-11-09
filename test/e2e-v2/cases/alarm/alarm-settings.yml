@@ -51,9 +51,15 @@ hooks:
       is-default: true
       urls:
         - http://provider:9090/alarm/receive
+      recovery-urls:
+        - http://provider:9090/alarm/receive
     custom:
       urls:
         - http://provider:9090/alarm/receive
+      recovery-urls:
+        - http://provider:9090/alarm/receive
     none:
       urls:
+        - http://none:9090/alarm/receive
+      recovery-urls:
         - http://none:9090/alarm/receive

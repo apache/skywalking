@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Use SkyWalking alarm WeLink webhook API.
@@ -71,10 +72,11 @@ public class WeLinkHookCallback extends HttpAlarmCallback {
             for (final var webHookUrl : setting.getWebhooks()) {
                 final var accessToken = getAccessToken(webHookUrl);
                 for (final var alarmMessage : messages) {
-                    final var content = String.format(
-                            getTemplate(setting, isRecovery), alarmMessage.getAlarmMessage()
-                    );
-                    sendAlarmMessage(webHookUrl, accessToken, content);
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        final var content = String.format(template, alarmMessage.getAlarmMessage());
+                        sendAlarmMessage(webHookUrl, accessToken, content);
+                    }
                 }
             }
         }

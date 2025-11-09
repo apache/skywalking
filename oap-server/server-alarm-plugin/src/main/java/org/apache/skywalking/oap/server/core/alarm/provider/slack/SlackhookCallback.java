@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Use SkyWalking alarm slack webhook API calls a remote endpoints.
@@ -64,10 +65,10 @@ public class SlackhookCallback extends HttpAlarmCallback {
                 final var jsonObject = new JsonObject();
                 final var jsonElements = new JsonArray();
                 for (AlarmMessage item : messages) {
-                    jsonElements.add(GSON.fromJson(
-                            String.format(
-                                    getTemplate(setting, isRecovery), item.getAlarmMessage()
-                            ), JsonObject.class));
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        jsonElements.add(GSON.fromJson(String.format(template, item.getAlarmMessage()), JsonObject.class));
+                    }
                 }
                 jsonObject.add("blocks", jsonElements);
                 final var body = GSON.toJson(jsonObject);

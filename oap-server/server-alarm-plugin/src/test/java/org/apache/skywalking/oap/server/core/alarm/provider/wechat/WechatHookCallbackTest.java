@@ -25,6 +25,7 @@ import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
@@ -39,28 +40,34 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WechatHookCallbackTest {
+    public static final String RECOVERED = "[Recovered]";
     private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean();
     private static final AtomicInteger COUNT = new AtomicInteger();
+    private static final AtomicInteger RECOVERY_COUNT = new AtomicInteger();
 
     @RegisterExtension
     public static final ServerExtension SERVER = new ServerExtension() {
         @Override
         protected void configure(ServerBuilder sb) {
             sb.service("/wechathook/receiveAlarm", (ctx, req) -> HttpResponse.from(
-                req.aggregate().thenApply(r -> {
-                    final String content = r.content().toStringUtf8();
-                    final JsonObject jsonObject = new Gson().fromJson(content, JsonObject.class);
-                    final String type = jsonObject.get("msgtype").getAsString();
-                    if (type.equalsIgnoreCase("text")) {
-                        COUNT.incrementAndGet();
-                        if (COUNT.get() == 2) {
-                            IS_SUCCESS.set(true);
+                    req.aggregate().thenApply(r -> {
+                        final String content = r.content().toStringUtf8();
+                        final JsonObject jsonObject = new Gson().fromJson(content, JsonObject.class);
+                        final String type = jsonObject.get("msgtype").getAsString();
+                        if (type.equalsIgnoreCase("text")) {
+                            COUNT.incrementAndGet();
+                            final String textContent = ((JsonObject) jsonObject.get("text")).get("content").getAsString();
+                            if (textContent.startsWith(RECOVERED)) {
+                                RECOVERY_COUNT.incrementAndGet();
+                            }
+                            if (COUNT.get() == 3 && RECOVERY_COUNT.get() == 1) {
+                                IS_SUCCESS.set(true);
+                            }
+                            return HttpResponse.of(HttpStatus.OK);
                         }
-                        return HttpResponse.of(HttpStatus.OK);
-                    }
 
-                    return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
-                })
+                        return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+                    })
             ));
         }
     };
@@ -71,17 +78,21 @@ public class WechatHookCallbackTest {
         remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/wechathook/receiveAlarm");
         Rules rules = new Rules();
         String template = "{\"msgtype\":\"text\",\"text\":{\"content\":\"Skywaling alarm: %s\"}}";
+        String recoveryTemplate = "{\"msgtype\":\"text\",\"text\":{\"content\":\"" + RECOVERED + "Skywaling alarm: %s\"}}";
         WechatSettings setting1 = new WechatSettings("setting1", AlarmHooksType.wechat, true);
         setting1.setWebhooks(remoteEndpoints);
         setting1.setTextTemplate(template);
+        setting1.setRecoveryTextTemplate(recoveryTemplate);
         WechatSettings setting2 = new WechatSettings("setting2", AlarmHooksType.wechat, false);
         setting2.setWebhooks(remoteEndpoints);
         setting2.setTextTemplate(template);
+        setting2.setRecoveryTextTemplate(recoveryTemplate);
         rules.getWechatSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWechatSettingsMap().put(setting2.getFormattedName(), setting2);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         WechatHookCallback wechatHookCallback = new WechatHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
+        List<AlarmRecoveryMessage> alarmRecoveryMessages = new ArrayList<>(1);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
@@ -95,6 +106,9 @@ public class WechatHookCallbackTest {
         anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         wechatHookCallback.doAlarm(alarmMessages);
+        AlarmRecoveryMessage alarmRecoveryMessage = new AlarmRecoveryMessage(anotherAlarmMessage);
+        alarmRecoveryMessages.add(alarmRecoveryMessage);
+        wechatHookCallback.doAlarmRecovery(alarmMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
     }
 }

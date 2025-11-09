@@ -64,11 +64,14 @@ public class FeishuHookCallback extends HttpAlarmCallback {
             }
             for (final var webHookUrl : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
-                    final var requestBody = getRequestBody(webHookUrl, alarmMessage, getTemplate(setting, isRecovery));
-                    try {
-                        post(URI.create(webHookUrl.getUrl()), requestBody, Map.of());
-                    } catch (Exception e) {
-                        log.error("Failed to send alarm message to Feishu: {}", webHookUrl.getUrl(), e);
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        final var requestBody = getRequestBody(webHookUrl, alarmMessage, template);
+                        try {
+                            post(URI.create(webHookUrl.getUrl()), requestBody, Map.of());
+                        } catch (Exception e) {
+                            log.error("Failed to send alarm message to Feishu: {}", webHookUrl.getUrl(), e);
+                        }
                     }
                 }
             }

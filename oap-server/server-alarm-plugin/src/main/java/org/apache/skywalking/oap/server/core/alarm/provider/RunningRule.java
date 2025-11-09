@@ -268,7 +268,7 @@ public class RunningRule {
                       int additionalPeriod) {
             this.entity = entity;
             this.additionalPeriod = additionalPeriod;
-            this.size = period + additionalPeriod + Math.max(silencePeriod, recoveryObservationPeriod);
+            this.size = period + additionalPeriod /*+ Math.max(silencePeriod, recoveryObservationPeriod)*/;
             this.period = period;
             this.stateMachine = new AlarmStateMachine(silencePeriod, recoveryObservationPeriod);
             this.init();
@@ -396,9 +396,7 @@ public class RunningRule {
             int isMatch = 0;
             try {
                 TRACE_CONTEXT.set(new DebuggingTraceContext(expression, false, false));
-                int metricsSize = period + additionalPeriod;
-                LinkedList<Map<String, Metrics>> metricsValues = new LinkedList<>(this.values.subList(size - metricsSize, size));
-                AlarmMQEVisitor visitor = new AlarmMQEVisitor(moduleManager, this.entity, metricsValues, this.endTime, this.additionalPeriod);
+                AlarmMQEVisitor visitor = new AlarmMQEVisitor(moduleManager, this.entity, this.values, this.endTime, this.additionalPeriod);
                 ExpressionResult parseResult = visitor.visit(exprTree);
                 if (StringUtil.isNotBlank(parseResult.getError())) {
                     log.error("expression:" + expression + " error: " + parseResult.getError());

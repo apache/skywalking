@@ -39,6 +39,9 @@ The metrics names in the expression could be found in the [list of all potential
   If the hook name is not specified, the global hook will be used.
 - **Silence period**. After the alarm is triggered at Time-N (TN), there will be silence during the **TN -> TN + period**.
 By default, it works in the same manner as **period**. The same Alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
+- **Recovery observation period**. Defines the number of consecutive periods that the alarm condition must remain false before the alarm is considered recovered. When the alarm condition becomes false, the system enters an observation period. If the condition remains false for the specified number of periods, a recovery notification is sent. If the condition becomes true again during the observation period, the alarm returns to the FIRING state. 
+The default value is 0, which means immediate recovery notification when the condition becomes false.
+
 
 Such as for a metric, there is a shifting window as following at T7.
 
@@ -52,6 +55,7 @@ Such as for a metric, there is a shifting window as following at T7.
 For example, expression `avg(service_resp_time) > 1000`, if the value are `1001, 1001, 1001, 1001, 1001, 1001, 1001`, 
 the calculation is `((1001 + 10001 + ... + 1001) / 7) > 1000` and the result would be `1`(true). Then the alarm would be triggered.
 * In every minute, the window would shift automatically. At T8, Value8 would be cached, and T1/Value1 would be removed from the window.
+* If Value8 is 890, the expression will be calculated based on the metric values from T2 to T8, which are `1001, 1001, 1001, 1001, 1001, 1001, 990`. The calculation becomes `((1001 + 1001 + ... + 890) / 7) < 1000`, and the result would be `0`(false). Consequently, the alarm enters an observation period for recovery. If the `Recovery observation period`is not set or is set to `0`, the alarm is considered recovered immediately, and a recovery notification is sent. Otherwise, the system will wait and observe the condition over the specified number of subsequent periods before declaring recovery.
 
 **NOTE**: 
 * If the expression include labeled metrics and result has multiple labeled value(e.g. `sum(service_percentile{p='50,75'} > 1000) >= 3`), the alarm will be triggered if any of the labeled value result matches 3 times of the condition(P50 > 1000 or P75 > 1000).
@@ -69,6 +73,8 @@ rules:
     period: 10
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
+    # Number of periods to wait before considering the alarm recovered,default as 0.
+    recovery-observation-period: 2
     message: Successful rate of endpoint {name} is lower than 75%
     tags:
       level: WARNING
@@ -163,6 +169,14 @@ hooks:
             "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
           }
         }
+      recovery-text-template: |-
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":green_heart: *Apache SkyWalking Alarm Recovered*  \n **%s**."
+          }
+        }  
       webhooks:
         - https://hooks.slack.com/services/x/y/zssss
     custom1:
@@ -192,11 +206,15 @@ webhook:
     custom1:
       urls:
         - http://127.0.0.1/custom1
+      recovery-urls:
+        - http://127.0.0.1/custom1
       # headers config is provided to add custom configurations or authentications that are required from the server side.
       headers:
         Authorization: Bearer bearer_token
     custom2:
       urls:
+        - http://127.0.0.1/custom2
+      recovery-urls:
         - http://127.0.0.1/custom2
       # headers config is provided to add custom configurations or authentications that are required from the server 
       headers:
@@ -213,11 +231,13 @@ webhook:
 The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage>` with the following key information:
 - **scopeId**, **scope**. All scopes are defined in `org.apache.skywalking.oap.server.core.source.DefaultScopeDefine`.
 - **name**. Target scope entity name. Please follow the [entity name definitions](#entity-name).
+- **uuid** : The unique identifier (UUID) of the alarm, which is consistent between the trigger and recovery messages.
 - **id0**. The ID of the scope entity that matches with the name. When using the relation scope, it is the source entity ID.
 - **id1**. When using the relation scope, it is the destination entity ID. Otherwise, it is empty.
 - **ruleName**. The rule name configured in `alarm-settings.yml`.
 - **alarmMessage**. The alarm text message.
-- **startTime**. The alarm time measured in milliseconds, which occurs between the current time and the midnight of January 1, 1970 UTC.
+- **startTime**. The time, in milliseconds since the Unix epoch (January 1, 1970 UTC), when the alarm was triggered.
+- **recoveryTime**. The time, in milliseconds since the Unix epoch (January 1, 1970 UTC), when the alarm was recovered. This value is `null` if the alarm has not been recovered.
 - **tags**. The tags configured in `alarm-settings.yml`.
 
 See the following example:
@@ -226,11 +246,13 @@ See the following example:
   "scopeId": 1, 
   "scope": "SERVICE",
   "name": "serviceA", 
+  "uuid": "uuid1",
   "id0": "12",  
   "id1": "",  
-    "ruleName": "service_resp_time_rule",
+  "ruleName": "service_resp_time_rule",
   "alarmMessage": "alarmMessage xxxx",
   "startTime": 1560524171000,
+  "recoveryTime": 15596606810000, 
     "tags": [{
         "key": "level",
         "value": "WARNING"
@@ -239,9 +261,10 @@ See the following example:
   "scopeId": 1,
   "scope": "SERVICE",
   "name": "serviceB",
+  "uuid": "uuid2", 
   "id0": "23",
   "id1": "",
-    "ruleName": "service_resp_time_rule",
+  "ruleName": "service_resp_time_rule",
   "alarmMessage": "alarmMessage yyy",
   "startTime": 1560524171000,
     "tags": [{
@@ -275,6 +298,21 @@ message AlarmMessage {
     string alarmMessage = 7;
     int64 startTime = 8;
     AlarmTags tags = 9;
+    string uuid = 10;
+}
+
+message AlarmRecoveryMessage {
+    int64 scopeId = 1;
+    string scope = 2;
+    string name = 3;
+    string id0 = 4;
+    string id1 = 5;
+    string ruleName = 6;
+    string alarmMessage = 7;
+    int64 startTime = 8;
+    AlarmTags tags = 9;
+    string uuid = 10;
+    int64 recoveryTime = 11;
 }
 
 message AlarmTags {
@@ -304,6 +342,14 @@ slack:
           "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
         }
       }
+     recovery-text-template: |-
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": ":green_heart: *Apache SkyWalking Alarm Recovered* \n **%s**."
+        }
+      } 
     webhooks:
     - https://hooks.slack.com/services/x/y/z
 ```
@@ -320,6 +366,13 @@ wechat:
         "msgtype": "text",
         "text": {
           "content": "Apache SkyWalking Alarm: \n %s."
+        }
+      }
+    recovery-text-template: |-
+      {
+        "msgtype": "text",
+        "text": {
+          "content": "Apache SkyWalking Alarm Recovered: \n %s."
         }
       }
     webhooks:
@@ -339,6 +392,13 @@ dingtalk:
         "msgtype": "text",
         "text": {
           "content": "Apache SkyWalking Alarm: \n %s."
+        }
+      }
+    recovery-text-template: |-
+      {
+        "msgtype": "text",
+        "text": {
+          "content": "Apache SkyWalking Alarm Recovered: \n %s."
         }
       }
     webhooks:
@@ -363,6 +423,14 @@ feishu:
         },
         "ats":"feishu_user_id_1,feishu_user_id_2"
       }
+    recovery-text-template: |-
+      {
+        "msg_type": "text",
+        "content": {
+          "text": "Apache SkyWalking Alarm Recovered: \n %s."
+        },
+         "ats":"feishu_user_id_1,feishu_user_id_2"
+      }
     webhooks:
     - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
       secret: dummysecret
@@ -376,6 +444,7 @@ welink:
   default:
     is-default: true
     text-template: "Apache SkyWalking Alarm: \n %s."
+    recovery-text-template: "Apache SkyWalking Alarm Recovered: \n %s."
     webhooks:
     # you may find your own client_id and client_secret in your app, below are dummy, need to change.
     - client-id: "dummy_client_id"
@@ -400,6 +469,7 @@ pagerduty:
   default:
     is-default: true
     text-template: "Apache SkyWalking Alarm: \n %s."
+    recovery-text-template: "Apache SkyWalking Alarm Recovered: \n %s."
     integration-keys:
     - 5c6d805c9dcf4e03d09dfa81e8789ba1
 ```
@@ -415,6 +485,7 @@ discord:
   default:
     is-default: true
     text-template: "Apache SkyWalking Alarm: \n %s."
+    recovery-text-template: "Apache SkyWalking Alarm Recovered: \n %s."
     webhooks:
     - url: https://discordapp.com/api/webhooks/1008166889777414645/8e0Am4Zb-YGbBqqbiiq0jSHPTEEaHa4j1vIC-zSSm231T8ewGxgY0_XUYpY-k1nN4HBl
       username: robot
@@ -430,15 +501,37 @@ the sliding window will be destroyed and re-created, causing the Alarm of this s
 
 ### Keys with data types of alerting rule configuration file
 
-| Alerting element     | Configuration property key | Type           | Description        |
-|----------------------|----------------------------|----------------|--------------------|
-| Expression           | expression                 | string         | MQE expression     |
-| Include names        | include-names              | string array   |                    | 
-| Exclude names        | exclude-names              | string array   |                    | 
-| Include names regex  | include-names-regex        | string         | Java regex Pattern |
-| Exclude names regex  | exclude-names-regex        | string         | Java regex Pattern |
-| Tags                 | tags                       | key-value pair |                    |
-| Period               | Period                     | int            |                    |
-| Silence period       | silence-period             | int            |                    |
-| Message              | message                    | string         |                    |
-| Hooks                | hooks                      | string array   |                    |
+| Alerting element            | Configuration property key  | Type           | Description        |
+| --------------------------- | --------------------------- | -------------- | ------------------ |
+| Expression                  | expression                  | string         | MQE expression     |
+| Include names               | include-names               | string array   |                    |
+| Exclude names               | exclude-names               | string array   |                    |
+| Include names regex         | include-names-regex         | string         | Java regex Pattern |
+| Exclude names regex         | exclude-names-regex         | string         | Java regex Pattern |
+| Tags                        | tags                        | key-value pair |                    |
+| Period                      | period                      | int            |                    |
+| Silence period              | silence-period              | int            |                    |
+| Recovery observation period | recovery-observation-period | int            |                    |
+| Message                     | message                     | string         |                    |
+| Hooks                       | hooks                       | string array   |                    |
+
+## Alarm state transition
+The overall alarm state transition after the introduction of alarm restoration detection and notification since version 10.3.0 is as follows:
+```mermaid
+stateDiagram-v2
+    [*] --> NORMAL
+    NORMAL --> FIRING: Expression match<br/>SilencePeriod reached
+    
+    FIRING --> SILENCED: Expression match<br/>SilencePeriod reached
+    FIRING --> OBSERVING_RECOVERY: Expression mismatch<br/>RecoveryObservationPeriod unreached
+    FIRING --> RECOVERED: Expression mismatch<br/>RecoveryObservationPeriod reached
+    
+    SILENCED --> OBSERVING_RECOVERY: Expression mismatch<br/>RecoveryObservationPeriod unreached
+    SILENCED --> RECOVERED: Expression mismatch<br/>RecoveryObservationPeriod reached
+    
+    OBSERVING_RECOVERY --> FIRING: Expression match<br/>SilencePeriod reached
+    OBSERVING_RECOVERY --> RECOVERED: Expression mismatch<br/>RecoveryObservationPeriod reached
+    
+    RECOVERED --> FIRING: Expression match<br/>SilencePeriod reached
+    RECOVERED --> NORMAL: Expression mismatch
+```

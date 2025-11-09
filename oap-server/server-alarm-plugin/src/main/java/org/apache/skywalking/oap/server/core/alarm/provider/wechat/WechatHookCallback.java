@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Use SkyWalking alarm wechat webhook API.
@@ -50,19 +51,19 @@ public class WechatHookCallback extends HttpAlarmCallback {
             var hookName = entry.getKey();
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
-            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
-                    messages)) {
+            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(messages)) {
                 continue;
             }
             for (final var url : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
-                    final var requestBody = String.format(
-                            getTemplate(setting, isRecovery), alarmMessage.getAlarmMessage()
-                    );
-                    try {
-                        post(URI.create(url), requestBody, Map.of());
-                    } catch (Exception e) {
-                        log.error("Failed to send alarm message to Wechat webhook: {}", url, e);
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        final var requestBody = String.format(template, alarmMessage.getAlarmMessage());
+                        try {
+                            post(URI.create(url), requestBody, Map.of());
+                        } catch (Exception e) {
+                            log.error("Failed to send alarm message to Wechat webhook: {}", url, e);
+                        }
                     }
                 }
             }

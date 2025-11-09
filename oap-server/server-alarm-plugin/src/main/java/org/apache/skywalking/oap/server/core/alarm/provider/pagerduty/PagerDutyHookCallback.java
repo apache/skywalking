@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -61,10 +62,13 @@ public class PagerDutyHookCallback extends HttpAlarmCallback {
             for (final var integrationKey : setting.getIntegrationKeys()) {
                 for (final var alarmMessage : messages) {
                     try {
-                        post(
-                                URI.create(PAGER_DUTY_EVENTS_API_V2_URL),
-                                getMessageBody(alarmMessage, integrationKey, getTemplate(isRecovery, setting)), Map.of()
-                        );
+                        String template = getTemplate(isRecovery, setting);
+                        if (StringUtil.isNotBlank(template)) {
+                            post(
+                                    URI.create(PAGER_DUTY_EVENTS_API_V2_URL),
+                                    getMessageBody(alarmMessage, integrationKey, template), Map.of()
+                            );
+                        }
                     } catch (Exception e) {
                         log.error("Failed to send alarm message to PagerDuty: {}", integrationKey, e);
                     }

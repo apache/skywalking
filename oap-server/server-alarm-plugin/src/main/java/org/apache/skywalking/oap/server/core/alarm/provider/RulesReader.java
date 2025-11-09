@@ -51,7 +51,6 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  * Rule Reader parses the given `alarm-settings.yml` config file, to the target {@link Rules}.
  */
 public class RulesReader {
-    public static final String RECOVERED = "[Recovered]";
     private Map yamlData;
     private final Set<String> defaultHooks = new HashSet<>();
     private final Set<String> allHooks = new HashSet<>();
@@ -165,6 +164,10 @@ public class RulesReader {
             if (urls != null) {
                 settings.getUrls().addAll(urls);
             }
+            List<String> recoveryUrls = (List<String>) config.get("recovery-urls");
+            if (recoveryUrls != null) {
+                settings.getRecoveryUrls().addAll(recoveryUrls);
+            }
             Map<String, String> headers = (Map<String, String>) config.getOrDefault("headers", new HashMap<>());
             settings.setHeaders(headers);
             rules.getWebhookSettingsMap().put(settings.getFormattedName(), settings);
@@ -224,7 +227,7 @@ public class RulesReader {
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
-            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
             settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<String> webhooks = (List<String>) config.get("webhooks");
@@ -256,7 +259,7 @@ public class RulesReader {
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
 
-            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
             settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<String> webhooks = (List<String>) config.get("webhooks");
@@ -288,7 +291,7 @@ public class RulesReader {
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
 
-            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
             settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<Map<String, Object>> webhooks = (List<Map<String, Object>>) config.get("webhooks");
@@ -324,7 +327,7 @@ public class RulesReader {
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
 
-            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
             settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<Map<String, Object>> webhooks = (List<Map<String, Object>>) config.get("webhooks");
@@ -355,7 +358,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             String textTemplate = (String) config.get("text-template");
-            String recoveryTextTemplate = (String) config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
+            String recoveryTextTemplate = (String) config.getOrDefault("recovery-text-template", "");
             List<Map<String, String>> webhooks = (List<Map<String, String>>) config.get("webhooks");
             if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(webhooks)) {
                 return;
@@ -393,7 +396,7 @@ public class RulesReader {
                     k.toString(), AlarmHooksType.pagerduty, (Boolean) config.getOrDefault("is-default", false));
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
-            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
             settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<String> integrationKeys = (List<String>) config.get("integration-keys");
@@ -421,7 +424,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             String textTemplate = (String) config.get("text-template");
-            String recoveryTextTemplate = (String) config.getOrDefault("recovery-text-template", RECOVERED + textTemplate);
+            String recoveryTextTemplate = (String) config.getOrDefault("recovery-text-template", "");
             List<Map<String, String>> webhooks = (List<Map<String, String>>) config.get("webhooks");
             if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(webhooks)) {
                 return;

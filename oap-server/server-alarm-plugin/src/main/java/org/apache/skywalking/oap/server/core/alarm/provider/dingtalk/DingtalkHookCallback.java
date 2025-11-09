@@ -63,9 +63,11 @@ public class DingtalkHookCallback extends HttpAlarmCallback {
             for (final var webHookUrl : setting.getWebhooks()) {
                 final var url = getUrl(webHookUrl);
                 for (final var alarmMessage : messages) {
-                    final var requestBody = String.format(getTemplate(setting, isRecovery),
-                            alarmMessage.getAlarmMessage());
-                    post(URI.create(url), requestBody, Map.of());
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        final var requestBody = String.format(template, alarmMessage.getAlarmMessage());
+                        post(URI.create(url), requestBody, Map.of());
+                    }
                 }
             }
         }
