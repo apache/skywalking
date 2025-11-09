@@ -268,7 +268,7 @@ public class RunningRule {
                       int additionalPeriod) {
             this.entity = entity;
             this.additionalPeriod = additionalPeriod;
-            this.size = period + additionalPeriod /*+ Math.max(silencePeriod, recoveryObservationPeriod)*/;
+            this.size = period + additionalPeriod;
             this.period = period;
             this.stateMachine = new AlarmStateMachine(silencePeriod, recoveryObservationPeriod);
             this.init();
