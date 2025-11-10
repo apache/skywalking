@@ -24,6 +24,8 @@ option java_package = "org.apache.skywalking.oap.server.core.remote.grpc.proto";
 service RemoteService {
     rpc call (stream RemoteMessage) returns (Empty) {
     }
+    rpc syncStatus (StatusRequest) returns (StatusResponse) {
+    }
 }
 
 message RemoteMessage {
@@ -40,4 +42,28 @@ message RemoteData {
 }
 
 message Empty {
+}
+
+message StatusRequest {
+  oneof request {
+    AlarmRequest alarmRequest = 1;
+  }
+}
+
+message StatusResponse {
+  oneof response {
+    string alarmStatus = 1;
+  }
+}
+
+message AlarmRequest {
+  RequestType requestType = 1;
+  string ruleId = 2;
+  string entityName = 3;
+
+  enum RequestType {
+    GET_ALARM_RULES = 0;
+    GET_ALARM_RULE_BY_ID = 1;
+    GET_ALARM_RULE_CONTEXT = 2;
+  }
 }

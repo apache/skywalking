@@ -110,7 +110,8 @@ public class GRPCRemoteClient implements RemoteClient {
      *
      * @return a channel when the state to be ready
      */
-    ManagedChannel getChannel() {
+    @Override
+    public ManagedChannel getChannel() {
         return getClient().getChannel();
     }
 

@@ -16,18 +16,35 @@
  *
  */
 
-package org.apache.skywalking.oap.query.debug;
+package org.apache.skywalking.oap.server.core.alarm.provider.status;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Data;
 
-public class StatusQueryModule extends ModuleDefine {
-    public static final String NAME = "status-query";
+@Data
+public class AlarmRunningContext {
+    private String ruleId;
+    private String expression;
+    private String endTime;
+    private int additionalPeriod;
+    private int size;
+    private int silenceCountdown;
+    private String entityName;
+    private List<WindowValue> windowValues = new ArrayList<>();
+    private JsonObject mqeMetricsSnapshot;
 
-    public StatusQueryModule() {
-        super(NAME);
+    @Data
+    public static class Metric {
+        private String name;
+        private long timeBucket;
+        private String value;
     }
 
-    public Class[] services() {
-        return new Class[] {AlarmStatusQueryService.class};
+    @Data
+    public static class WindowValue {
+        private int index;
+        private List<Metric> metrics = new ArrayList<>();
     }
 }

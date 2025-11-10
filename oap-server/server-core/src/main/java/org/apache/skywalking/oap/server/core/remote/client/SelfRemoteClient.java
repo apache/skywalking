@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
+import io.grpc.ManagedChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -82,6 +83,11 @@ public class SelfRemoteClient implements RemoteClient {
             remoteOutErrorCounter.inc();
             log.error(t.getMessage(), t);
         }
+    }
+
+    @Override
+    public ManagedChannel getChannel() {
+        return null;
     }
 
     @Override
