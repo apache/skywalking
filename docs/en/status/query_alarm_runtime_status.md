@@ -106,7 +106,7 @@ Return the detailed information of the alarm running rule.
           {
             "scope": "SERVICE",
             "name": "mock_a_service",
-            "formattedMessage": "Response time of mock_a_serviceis more than upper baseline in 1 minutes of last 10 minutes."
+            "formattedMessage": "Response time of mock_a_service is more than upper baseline in 1 minutes of last 10 minutes."
           },
           {
             "scope": "SERVICE",
