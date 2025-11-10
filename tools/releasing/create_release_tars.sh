@@ -80,7 +80,7 @@ tar czf "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz \
 log_file=$(mktemp)
 echo "Building the release binary artifacts, log file: ${log_file}"
 ${MVN} install package -DskipTests > ${log_file} 2>&1
-mv dist/${PRODUCT_NAME}-bin.tar.gz "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
+mv "${SCRIPT_DIR}"/skywalking/dist/${PRODUCT_NAME}-bin.tar.gz ./${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
 
 cd "${SCRIPT_DIR}"
 gpg --armor --detach-sig ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz

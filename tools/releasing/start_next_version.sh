@@ -56,7 +56,7 @@ git add pom.xml
 git commit -m "Update the next release version to ${NEXT_RELEASE_VERSION}-SNAPSHOT"
 
 echo "Moving the changelog file..."
-mv docs/en/changes/changes.md docs/en/changes-$RELEASE_VERSION.md
+mv docs/en/changes/changes.md docs/en/changes/changes-$RELEASE_VERSION.md
 
 echo "Updating the changelog file..."
 cat docs/en/changes/changes.tpl | sed "s/NEXT_RELEASE_VERSION/${NEXT_RELEASE_VERSION}/g" > docs/en/changes/changes.md
