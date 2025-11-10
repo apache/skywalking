@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRulesWatcherService;
 import org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence;
+import org.apache.skywalking.oap.server.core.alarm.AlarmStatusWatcherService;
 import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -61,6 +62,7 @@ public class AlarmModuleProvider extends ModuleProvider {
         notifyHandler = new NotifyHandler(alarmRulesWatcher, getManager());
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
         this.registerServiceImplementation(AlarmRulesWatcherService.class, alarmRulesWatcher);
+        this.registerServiceImplementation(AlarmStatusWatcherService.class, new AlarmStatusWatcher(getManager()));
     }
 
     @Override

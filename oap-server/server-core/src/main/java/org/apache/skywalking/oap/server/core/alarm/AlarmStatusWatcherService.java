@@ -18,22 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-/**
- * Alarm module define the main bridge entrance of the alarm implementor.
- * <p>
- * SkyWalking supports alarm implementation pluggable.
- */
-public class AlarmModule extends ModuleDefine {
-    public static final String NAME = "alarm";
+public interface AlarmStatusWatcherService extends Service {
+    /**
+     * Get all alarm rules in JSON format
+     * @return JSON String of all alarm rules
+     */
+    String getAlarmRules();
 
-    public AlarmModule() {
-        super(NAME);
-    }
+    /**
+     * Get a specific alarm rule details by its id in JSON format
+     * @param ruleId id of the alarm rule
+     * @return JSON String of the specified alarm rule
+     */
+    String getAlarmRuleById(String ruleId);
 
-    @Override
-    public Class[] services() {
-        return new Class[] {MetricsNotify.class, AlarmRulesWatcherService.class, AlarmStatusWatcherService.class};
-    }
+    /**
+     * Get the context information of a specific alarm rule for a given entity
+     * @param ruleId id of the alarm rule
+     * @param entityName Name of the entity
+     * @return Context information in JSON String format
+     */
+    String getAlarmRuleContext(String ruleId, String entityName);
 }
