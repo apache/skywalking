@@ -16,18 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.query.debug;
+package org.apache.skywalking.oap.server.core.alarm.provider.status;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Data;
 
-public class StatusQueryModule extends ModuleDefine {
-    public static final String NAME = "status-query";
-
-    public StatusQueryModule() {
-        super(NAME);
-    }
-
-    public Class[] services() {
-        return new Class[] {AlarmStatusQueryService.class};
-    }
+@Data
+public class ClusterAlarmStatus<T> {
+    private List<T> oapInstances = new ArrayList<>();
 }

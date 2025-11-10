@@ -16,7 +16,7 @@
 
 # Sample alarm rules.
 rules:
-  # Rule unique name, must be ended with `_rule`.
+  # Rule unique id, must be ended with `_rule`.
   service_resp_time_rule:
     # A MQE expression, the result type must be `SINGLE_VALUE` and the root operation of the expression must be a Compare Operation
     # which provides `1`(true) or `0`(false) result. When the result is `1`(true), the alarm will be triggered.

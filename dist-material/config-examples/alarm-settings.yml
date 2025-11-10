@@ -16,7 +16,7 @@
 
 # Sample alarm rules.
 rules:
-  # Rule unique name, must be ended with `_rule`.
+  # Rule unique id, must be ended with `_rule`.
   endpoint_percent_rule:
     expression: sum((endpoint_sla / 100) < 75) >= 3
     # The length of time to evaluate the metrics

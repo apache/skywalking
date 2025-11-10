@@ -18,7 +18,7 @@ Defines the relation between scope and entity name.
 
 ## Rules
 An alerting rule is made up of the following elements:
-- **Rule name**. A unique name shown in the alarm message. It must end with `_rule`.
+- **Rule id**. A unique name shown in the alarm message. It must end with `_rule`.
 - **Expression**. A [MQE](../../api/metrics-query-expression.md) expression that defines the conditions of the rule.
 The result type must be `SINGLE_VALUE` and the root operation of the expression must be a 
 [Compare Operation](../../api/metrics-query-expression.md#compare-operation) or [Bool Operation](../../api/metrics-query-expression.md#bool-operation) which provides `1`(true) or `0`(false) result.
@@ -34,9 +34,9 @@ The metrics names in the expression could be found in the [list of all potential
 - **Exclude names regex**. A regex that excludes entity names. Both rules will take effect if both include-label list and include-label regex are set.
 - **Tags**. Tags are key/value pairs that are attached to alarms. Tags are used to specify distinguishing attributes of alarms that are meaningful and relevant to users. If you want to make these tags searchable on the SkyWalking UI, you may set the tag keys in `core/default/searchableAlarmTags` or through the system environment variable `SW_SEARCHABLE_ALARM_TAG_KEYS`. The key `level` is supported by default.
 - **Period**. The size of metrics cache in minutes for checking the alarm conditions. This is a time window that corresponds to the backend deployment env time.
-- **Hooks**. Binding the specific names of the hooks when the alarm is triggered.
-  The name format is `{hookType}.{hookName}` (slack.custom1 e.g.) and must be defined in the `hooks` section of the `alarm-settings.yml` file.
-  If the hook name is not specified, the global hook will be used.
+- **Hooks**. Binding the specific ids of the hooks when the alarm is triggered.
+  The id format is `{hookType}.{hookName}` (slack.custom1 e.g.) and must be defined in the `hooks` section of the `alarm-settings.yml` file.
+  If the hook id is not specified, the global hook will be used.
 - **Silence period**. After the alarm is triggered at Time-N (TN), there will be silence during the **TN -> TN + period**.
 By default, it works in the same manner as **period**. The same Alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
 
@@ -61,7 +61,7 @@ the calculation is `((1001 + 10001 + ... + 1001) / 7) > 1000` and the result wou
 
 ```yaml
 rules:
-  # Rule unique name, must be ended with `_rule`.
+  # Rule unique id, must be ended with `_rule`.
   endpoint_percent_rule:
     # A MQE expression and the root operation of the expression must be a Compare Operation.
     expression: sum((endpoint_sla / 100) < 75) >= 3
@@ -145,8 +145,8 @@ is through [AI powered baseline calculation](../ai-pipeline/metrics-baseline-int
 
 ## Hooks
 Hooks are a way to send alarm messages to the outside world. SkyWalking supports multiple hooks of the same type, each hook can support different configurations. 
-For example, you can configure two Slack hooks, one named `default` and set `is-default: true` means this hook will apply on all `Alarm Rules` **without config** `hooks`.
-Another named `custom1` will only apply on the `Alarm Rules` which **with config** `hooks` and include the name `slack.custom1`.
+For example, you can configure two Slack hooks, one id is `default` and set `is-default: true` means this hook will apply on all `Alarm Rules` **without config** `hooks`.
+Another id is `custom1` will only apply on the `Alarm Rules` which **with config** `hooks` and include the id `slack.custom1`.
 
 ```yaml
 hooks:

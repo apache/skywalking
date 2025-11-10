@@ -117,6 +117,7 @@
 * Library-pprof-parser: feat: add PprofSegmentParser.
 * Storage: feat: add languageType column to ProfileThreadSnapshotRecord.
 * Feat: add go profile analyzer
+* Get Alarm Runtime Status: support query the running status for the whole cluster.
 
 #### UI
 

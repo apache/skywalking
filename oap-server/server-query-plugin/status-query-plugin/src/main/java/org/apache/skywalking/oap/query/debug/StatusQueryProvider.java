@@ -56,7 +56,7 @@ public class StatusQueryProvider extends ModuleProvider {
     }
 
     public void prepare() throws ServiceNotProvidedException {
-
+        this.registerServiceImplementation(AlarmStatusQueryService.class, new AlarmStatusQueryService(getManager()));
     }
 
     public void start() throws ServiceNotProvidedException {

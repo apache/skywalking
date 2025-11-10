@@ -22,11 +22,15 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.alarm.AlarmStatusWatcherService;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteMessage;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.StatusRequest;
+import org.apache.skywalking.oap.server.core.remote.grpc.proto.StatusResponse;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.RemoteHandleWorker;
@@ -55,6 +59,7 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
     private CounterMetrics remoteInErrorCounter;
     private CounterMetrics remoteInTargetNotFoundCounter;
     private HistogramMetrics remoteInHistogram;
+    private AlarmStatusWatcherService alarmStatusWatcher;
 
     public RemoteServiceHandler(ModuleDefineHolder moduleDefineHolder) {
         this.moduleDefineHolder = moduleDefineHolder;
@@ -167,5 +172,47 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
                 responseObserver.onCompleted();
             }
         };
+    }
+
+    @Override
+    public void syncStatus(StatusRequest statusRequest, StreamObserver<StatusResponse> responseObserver) {
+        if (statusRequest.getRequestCase().equals(StatusRequest.RequestCase.ALARMREQUEST)) {
+            switch (statusRequest.getAlarmRequest().getRequestType()) {
+                case GET_ALARM_RULES:
+                    responseObserver.onNext(
+                        StatusResponse.newBuilder().setAlarmStatus(getAlarmStatusWatcher().getAlarmRules()).build());
+                    responseObserver.onCompleted();
+                    break;
+                case GET_ALARM_RULE_BY_ID:
+                    responseObserver.onNext(
+                        StatusResponse.newBuilder()
+                                      .setAlarmStatus(getAlarmStatusWatcher().getAlarmRuleById(
+                                          statusRequest.getAlarmRequest().getRuleId()))
+                                      .build());
+                    responseObserver.onCompleted();
+                    break;
+                case GET_ALARM_RULE_CONTEXT:
+                    responseObserver.onNext(
+                        StatusResponse.newBuilder()
+                                      .setAlarmStatus(getAlarmStatusWatcher().getAlarmRuleContext(
+                                          statusRequest.getAlarmRequest().getRuleId(),
+                                          statusRequest.getAlarmRequest().getEntityName()
+                                      ))
+                                      .build());
+                    responseObserver.onCompleted();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown request type: " + statusRequest.getRequestCase());
+
+            }
+        }
+    }
+
+    private AlarmStatusWatcherService getAlarmStatusWatcher() {
+        if (alarmStatusWatcher == null) {
+            alarmStatusWatcher = moduleDefineHolder.find(AlarmModule.NAME)
+                                                   .provider().getService(AlarmStatusWatcherService.class);
+        }
+        return alarmStatusWatcher;
     }
 }
