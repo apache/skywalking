@@ -23,7 +23,7 @@
 * Limit max attempts of DNS resolution of Istio ServiceEntry to 3, and do not wait for first resolution result in case the DNS is not resolvable at all.
 * Support analysis waypoint metrics in Envoy ALS receiver.
 * Add Ztunnel component in the topology.
-* [Break Change] Change `compomentId` to `componentIds` in the K8SServiceRelation Scope. 
+* [Break Change] Change `componentId` to `componentIds` in the K8SServiceRelation Scope.
 * Adapt the mesh metrics if detect the ambient mesh in the eBPF access log receiver.
 * Add JSON format support for the `/debugging/config/dump` status API.
 * Enhance status APIs to support multiple `accept` header values, e.g. `Accept: application/json; charset=utf-8`.
@@ -52,9 +52,9 @@
 * GraphQL API: metadata, topology, log and trace support query by name.
 * [Break Change] MQE function `sort_values` sorts according to the aggregation result and labels rather than the simple time series values.
 * Self Observability: add `metrics_aggregation_queue_used_percentage` and `metrics_persistent_collection_cached_size` metrics for the OAP server.
-* Optimize metrics aggregate/persistent worker: separate `OAL` and `MAL` workers and consume pools. The dataflow signal drives the new MAL consumer, 
-  the following table shows the pool size，driven mode and queue size for each worker.
-  
+* Optimize metrics aggregate/persistent worker: separate `OAL` and `MAL` workers and consume pools. The dataflow signal drives the new MAL consumer,
+  the following table shows the pool size, driven mode and queue size for each worker.
+
 | Worker                        | poolSize                                 | isSignalDrivenMode | queueChannelSize | queueBufferSize |
 |-------------------------------|------------------------------------------|--------------------|------------------|-----------------|
 | MetricsAggregateOALWorker     | Math.ceil(availableProcessors * 2 * 1.5) | false              | 2                | 10000           |
@@ -93,7 +93,7 @@
 * BanyanDB: fix the `BanyanDBMetricsDAO.multiGet` not work properly in `IndexMode`.
 * BanyanDB: remove `@StoreIDAsTag`, and automatically create a virtual String tag `id` for the SeriesID in `IndexMode`.
 * Remove method `appendMutant` from StorageID.
-* Fix otlp log handler reponse error and otlp span convert error.
+* Fix otlp log handler response error and otlp span convert error.
 * Fix service_relation source layer in mq entry span analyse.
 * Fix metrics comparison in promql with bool modifier.
 * Add rate limiter for Zipkin trace receiver to limit maximum spans per second.
@@ -143,7 +143,7 @@
 * fix: optimize appearing the wrong prompt by pop-up for the HTTP environments in copy function.
 * refactor the configuration view and implement the optional config for displaying timestamp in Log widget.
 * test: implement unit tests for hooks and refactor some types.
-* fix: share OAP proxy servies for different endpoins and use health checked endpoints group.
+* fix: share OAP proxy services for different endpoints and use health checked endpoints group.
 * Optimize buttons in time picker component.
 * Optimize the router system and implement unit tests for router.
 * Bump element-plus from 2.9.4 to 2.11.0.
