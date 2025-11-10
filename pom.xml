@@ -146,7 +146,7 @@
     </profiles>
 
     <properties>
-        <revision>10.3.0-SNAPSHOT</revision>
+        <revision>10.3.0</revision>
 
         <!-- Built in properties -->
         <maven.compiler.source>11</maven.compiler.source>
