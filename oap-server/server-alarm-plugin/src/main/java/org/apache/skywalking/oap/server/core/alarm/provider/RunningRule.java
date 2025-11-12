@@ -223,6 +223,7 @@ public class RunningRule {
                     log.trace("RuleName:{} AlarmEntity {} {} {} expired", ruleName, alarmEntity.getName(),
                             alarmEntity.getId0(), alarmEntity.getId1());
                 }
+                return;
             }
 
             Optional<AlarmMessage> alarmMessageOptional = window.checkAlarm();
@@ -496,10 +497,8 @@ public class RunningRule {
 
             public void onMatch() {
                 if (log.isTraceEnabled()) {
-                    if (log.isTraceEnabled()) {
-                        log.trace("RuleName:{} AlarmEntity {} {} {} onMatch silenceCountdown:{} currentState:{}",
-                                ruleName, entity.getName(), entity.getId0(), entity.getId1(), silenceCountdown, currentState);
-                    }
+                    log.trace("RuleName:{} AlarmEntity {} {} {} onMatch silenceCountdown:{} currentState:{}",
+                            ruleName, entity.getName(), entity.getId0(), entity.getId1(), silenceCountdown, currentState);
                 }
                 silenceCountdown--;
                 switch (currentState) {

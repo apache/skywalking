@@ -56,6 +56,7 @@ public class GRPCCallback implements AlarmCallback {
         this.alarmRulesWatcher = alarmRulesWatcher;
         this.alarmServiceStubMap = new HashMap<>();
         this.grpcClientMap = new HashMap<>();
+        this.alarmSettingMap = new HashMap<>();
         Map<String, GRPCAlarmSetting> alarmSettingMap = alarmRulesWatcher.getGrpchookSetting();
         if (CollectionUtils.isNotEmpty(alarmSettingMap)) {
             alarmSettingMap.forEach((name, alarmSetting) -> {

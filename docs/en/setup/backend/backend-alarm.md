@@ -252,8 +252,8 @@ See the following example:
   "ruleName": "service_resp_time_rule",
   "alarmMessage": "alarmMessage xxxx",
   "startTime": 1560524171000,
-  "recoveryTime": 15596606810000, 
-    "tags": [{
+  "recoveryTime": 1560524351000,
+  "tags": [{
         "key": "level",
         "value": "WARNING"
      }]

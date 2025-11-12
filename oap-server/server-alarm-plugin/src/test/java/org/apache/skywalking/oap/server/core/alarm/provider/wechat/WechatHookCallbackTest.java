@@ -92,7 +92,7 @@ public class WechatHookCallbackTest {
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         WechatHookCallback wechatHookCallback = new WechatHookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
-        List<AlarmRecoveryMessage> alarmRecoveryMessages = new ArrayList<>(1);
+        List<AlarmMessage> alarmRecoveryMessages = new ArrayList<>(1);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
@@ -108,7 +108,7 @@ public class WechatHookCallbackTest {
         wechatHookCallback.doAlarm(alarmMessages);
         AlarmRecoveryMessage alarmRecoveryMessage = new AlarmRecoveryMessage(anotherAlarmMessage);
         alarmRecoveryMessages.add(alarmRecoveryMessage);
-        wechatHookCallback.doAlarmRecovery(alarmMessages);
+        wechatHookCallback.doAlarmRecovery(alarmRecoveryMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
     }
 }
