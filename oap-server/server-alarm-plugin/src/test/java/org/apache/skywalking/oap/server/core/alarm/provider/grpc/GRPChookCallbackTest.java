@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
@@ -38,6 +39,7 @@ public class GRPChookCallbackTest {
     private AlarmRulesWatcher alarmRulesWatcher;
 
     private List<AlarmMessage> alarmMessageList;
+    private List<AlarmMessage> alarmRecoveryMessageList;
 
     @BeforeEach
     public void init() throws Exception {
@@ -54,11 +56,13 @@ public class GRPChookCallbackTest {
         alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         grpcCallback = new GRPCCallback(alarmRulesWatcher);
         mockAlarmMessage(setting1.getFormattedName(), setting2.getFormattedName());
+        mockAlarmRecoveryMessage(setting1.getFormattedName(), setting2.getFormattedName());
     }
 
     @Test
     public void doAlarm() {
         grpcCallback.doAlarm(alarmMessageList);
+        grpcCallback.doAlarmRecovery(alarmRecoveryMessageList);
     }
 
     @Test
@@ -71,6 +75,7 @@ public class GRPChookCallbackTest {
         alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         grpcCallback = new GRPCCallback(alarmRulesWatcher);
         grpcCallback.doAlarm(alarmMessageList);
+        grpcCallback.doAlarmRecovery(alarmRecoveryMessageList);
     }
 
     private void mockAlarmMessage(String hook1, String hook2) {
@@ -95,5 +100,12 @@ public class GRPChookCallbackTest {
         alarmMessage2.setTags(Arrays.asList(new Tag("key2", "value2")));
         alarmMessage2.getHooks().add(hook1);
         alarmMessageList = Lists.newArrayList(alarmMessage, alarmMessage2);
+    }
+
+    private void mockAlarmRecoveryMessage(String hook1, String hook2) {
+        AlarmRecoveryMessage alarmRecoveryMessage0 = new AlarmRecoveryMessage(alarmMessageList.get(0));
+        AlarmRecoveryMessage alarmRecoveryMessage1 = new AlarmRecoveryMessage(alarmMessageList.get(1));
+
+        alarmRecoveryMessageList = Lists.newArrayList(alarmRecoveryMessage0, alarmRecoveryMessage1);
     }
 }

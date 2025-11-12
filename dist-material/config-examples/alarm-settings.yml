@@ -23,6 +23,8 @@ rules:
     period: 10
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
+    # Number of periods to wait before considering the alarm recovered,default as 0.
+    recovery-observation-period: 3
     message: Successful rate of endpoint {name} is lower than 75%
     tags:
       level: WARNING
@@ -43,7 +45,35 @@ rules:
     silence-period: 5
     message: Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes
 
-#webhooks:
-#  - http://127.0.0.1/notify/
-#  - http://127.0.0.1/go-wechat/
-
+#hooks:
+#  webhook:
+#    default:
+#      is-default: true
+#      urls:
+#        - http://127.0.0.1/default/alarm
+#       recovery-urls:
+#        - http://127.0.0.1/default/alarm-recovery
+#      custom1:
+#        urls:
+#          - http://127.0.0.1/custom1/alarm
+#        recovery-urls:
+#          - http://127.0.0.1/custom1/alarm-recovery
+#  wechat:
+#    default:
+#      is-default: true
+#      text-template: |-
+#        {
+#          "msgtype": "text",
+#          "text": {
+#            "content": "Apache SkyWalking Alarm: \n %s."
+#          }
+#        }
+#      recovery-text-template: |-
+#        {
+#          "msgtype": "text",
+#          "text": {
+#            "content": "Apache SkyWalking Alarm Recovered: \n %s."
+#          }
+#        }
+#      webhooks:
+#        - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key

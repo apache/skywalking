@@ -3,7 +3,7 @@
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
+ * (the "License");you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -667,5 +667,295 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod3, value3));
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(alarmMsgSize, alarmMessages.size());
+    }
+
+    @Test
+    public void testAlarmStateMachine_NoSilenceNoRecoveryObservation() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule(null);
+        alarmRule.setAlarmRuleName("test_no_silence_no_recovery");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 2");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(3);
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+        RunningRule runningRule = new RunningRule(alarmRule, null);
+
+        DateTime startTime = DateTime.now();
+        long timeBucket1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
+        long timeBucket2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(1).getMillis());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeBucket1, 70));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeBucket2, 71));
+
+        runningRule.moveTo(startTime.toLocalDateTime());
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size(), "Should trigger alarm");
+
+        RunningRule.Window window = getWindow(runningRule, 123);
+        RunningRule.Window.AlarmStateMachine stateMachine = window.getStateMachine();
+        Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+
+        long timeBucket3 = TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(1).getMillis());
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeBucket3, 80));
+        runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
+
+        List<AlarmMessage> recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(1, recoveryMessages.size(), "Should recover immediately");
+        Assertions.assertEquals(RunningRule.State.RECOVERED, stateMachine.getCurrentState());
+
+        long timeBucket4 = TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(2).getMillis());
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeBucket4, 80));
+        runningRule.moveTo(startTime.plusMinutes(2).toLocalDateTime());
+        List<AlarmMessage> messages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(0, messages.size(), "Should be empty");
+        Assertions.assertEquals(RunningRule.State.NORMAL, stateMachine.getCurrentState());
+    }
+
+    @Test
+    public void testAlarmStateMachine_OnlySilencePeriod() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule(null);
+        alarmRule.setAlarmRuleName("test_only_silence");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 1");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(3);
+        alarmRule.setSilencePeriod(2);
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+
+        RunningRule runningRule = new RunningRule(alarmRule, null);
+
+        DateTime startTime = DateTime.now();
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis()), 70));
+
+        runningRule.moveTo(startTime.toLocalDateTime());
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size(), "Should trigger alarm");
+        RunningRule.Window window = getWindow(runningRule, 123);
+        RunningRule.Window.AlarmStateMachine stateMachine = window.getStateMachine();
+        Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+
+        runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(1).getMillis()), 72));
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
+        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(2).getMillis()), 72));
+        runningRule.moveTo(startTime.plusMinutes(2).toLocalDateTime());
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
+        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(3).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(3).toLocalDateTime());
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size(), "Should trigger alarm after silence");
+        Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(4).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(4).toLocalDateTime());
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
+        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(5).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(5).toLocalDateTime());
+        alarmMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size(), "Should recover immediately");
+        Assertions.assertEquals(RunningRule.State.RECOVERED, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(6).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(6).toLocalDateTime());
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(0, alarmMessages.size(), "Should be normal");
+        Assertions.assertEquals(RunningRule.State.NORMAL, stateMachine.getCurrentState());
+    }
+
+    @Test
+    public void testAlarmStateMachine_OnlyRecoveryObservationPeriod() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule(null);
+        alarmRule.setAlarmRuleName("test_only_recovery_observation");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 1");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(3);
+        alarmRule.setRecoveryObservationPeriod(1);
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+
+        RunningRule runningRule = new RunningRule(alarmRule, null);
+
+        DateTime startTime = DateTime.now();
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis()), 70));
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(1).getMillis()), 72));
+
+        runningRule.moveTo(startTime.toLocalDateTime());
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size(), "Should trigger alarm");
+        RunningRule.Window window = getWindow(runningRule, 123);
+        RunningRule.Window.AlarmStateMachine stateMachine = window.getStateMachine();
+        Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+
+        runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size(), "Should trigger alarm");
+        Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(2).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(2).toLocalDateTime());
+        List<AlarmMessage> recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(0, recoveryMessages.size(), "Should not recover yet");
+        Assertions.assertEquals(RunningRule.State.OBSERVING_RECOVERY, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(2).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(2).toLocalDateTime());
+        recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(1, recoveryMessages.size(), "Should recover after observation");
+        Assertions.assertEquals(RunningRule.State.RECOVERED, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(3).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(3).toLocalDateTime());
+        recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(0, recoveryMessages.size(), "Should be normal");
+        Assertions.assertEquals(RunningRule.State.NORMAL, stateMachine.getCurrentState());
+    }
+
+    @Test
+    public void testAlarmStateMachine_SilenceGreaterThanRecovery() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule(null);
+        alarmRule.setAlarmRuleName("test_silence_gt_recovery");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 1");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(5);
+        alarmRule.setSilencePeriod(3);
+        alarmRule.setRecoveryObservationPeriod(2);
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+
+        RunningRule runningRule = new RunningRule(alarmRule, null);
+
+        DateTime startTime = DateTime.now();
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(
+                TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis()), 70));
+        RunningRule.Window window = getWindow(runningRule, 123);
+        RunningRule.Window.AlarmStateMachine stateMachine = window.getStateMachine();
+
+        runningRule.moveTo(startTime.toLocalDateTime());
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size());
+        Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+
+        for (int i = 0; i <= 3; i++) {
+            runningRule.moveTo(startTime.plusMinutes(i).toLocalDateTime());
+            runningRule.in(getMetaInAlarm(123), getMetrics(
+                    TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(i).getMillis()), 72));
+
+            alarmMessages = getAlarmFiringMessageList(runningRule.check());
+            if (i < 3) {
+                Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced at minute " + i);
+                Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+            } else {
+                Assertions.assertEquals(1, alarmMessages.size(), "Should fire after silence period");
+                Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+            }
+        }
+        for (int i = 0; i <= 2; i++) {
+            runningRule.moveTo(startTime.plusMinutes(8 + i).toLocalDateTime());
+            runningRule.in(getMetaInAlarm(123), getMetrics(
+                    TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(8 + i).getMillis()), 80));
+            if (i < 2) {
+                List<AlarmMessage> recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+                Assertions.assertEquals(0, recoveryMessages.size(), "Should not recover immediately");
+                Assertions.assertEquals(RunningRule.State.OBSERVING_RECOVERY, stateMachine.getCurrentState());
+            } else {
+                List<AlarmMessage> recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+                Assertions.assertEquals(1, recoveryMessages.size(), "Should recover after observation period");
+                Assertions.assertEquals(RunningRule.State.RECOVERED, stateMachine.getCurrentState());
+            }
+        }
+        runningRule.moveTo(startTime.plusMinutes(11).toLocalDateTime());
+        List<AlarmMessage> recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(0, recoveryMessages.size(), "Should recover after observation period");
+        Assertions.assertEquals(RunningRule.State.NORMAL, stateMachine.getCurrentState());
+    }
+
+    @Test
+    public void testAlarmStateMachine_RecoveryGreaterThanSilence() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule(null);
+        alarmRule.setAlarmRuleName("test_recovery_gt_silence");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 1");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(3);
+        alarmRule.setSilencePeriod(2);
+        alarmRule.setRecoveryObservationPeriod(3);
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+
+        RunningRule runningRule = new RunningRule(alarmRule, null);
+
+        DateTime startTime = DateTime.now();
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis()), 70));
+
+        runningRule.moveTo(startTime.toLocalDateTime());
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size());
+        RunningRule.Window window = getWindow(runningRule, 123);
+        RunningRule.Window.AlarmStateMachine stateMachine = window.getStateMachine();
+        Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(1).getMillis()), 72));
+        runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
+        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+
+        runningRule.moveTo(startTime.plusMinutes(2).toLocalDateTime());
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
+        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+
+        runningRule.moveTo(startTime.plusMinutes(3).toLocalDateTime());
+        alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size(), "Should fire after silence period");
+        Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
+
+        runningRule.moveTo(startTime.plusMinutes(4).toLocalDateTime());
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(4).getMillis()), 80));
+        List<AlarmMessage> recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(0, recoveryMessages.size(), "Should not recover immediately");
+        Assertions.assertEquals(RunningRule.State.OBSERVING_RECOVERY, stateMachine.getCurrentState());
+
+        runningRule.moveTo(startTime.plusMinutes(5).toLocalDateTime());
+        recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(0, recoveryMessages.size(), "Should still in observation");
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(6).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(6).toLocalDateTime());
+        recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(0, recoveryMessages.size(), "Should still in observation");
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(7).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(7).toLocalDateTime());
+        recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(1, recoveryMessages.size(), "Should recover after full observation period");
+        Assertions.assertEquals(RunningRule.State.RECOVERED, stateMachine.getCurrentState());
+
+        runningRule.moveTo(startTime.plusMinutes(8).toLocalDateTime());
+        recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(0, recoveryMessages.size(), "Should be normal");
+        Assertions.assertEquals(RunningRule.State.NORMAL, stateMachine.getCurrentState());
+    }
+
+    private RunningRule.Window getWindow(RunningRule runningRule, int entityId) {
+        Map<AlarmEntity, RunningRule.Window> windows = runningRule.getWindows();
+        AlarmEntity entity = getAlarmEntity(entityId);
+        return windows.get(entity);
     }
 }

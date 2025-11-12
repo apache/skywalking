@@ -63,6 +63,7 @@ Return the detailed information of the alarm running rule.
         "expression": "sum(service_resp_time > 1000) >= 1",
         "period": 10,
         "silencePeriod": 10,
+        "recoveryObservationPeriod": 2,
         "additionalPeriod": 0,
         "includeEntityNames": [],
         "excludeEntityNames": [],
@@ -97,6 +98,7 @@ Return the detailed information of the alarm running rule.
         "expression": "sum(service_resp_time > 1000) >= 1",
         "period": 10,
         "silencePeriod": 10,
+        "recoveryObservationPeriod": 2,
         "additionalPeriod": 0,
         "includeEntityNames": [],
         "excludeEntityNames": [],
@@ -157,6 +159,7 @@ Return the running context of the alarm rule.
         "additionalPeriod": 0,
         "size": 10,
         "silenceCountdown": 10,
+        "recoveryObservationCountdown": 2,
         "entityName": "v2|mock_b_service|default|test-cluster|-",
         "windowValues": [
           {
@@ -220,6 +223,7 @@ Return the running context of the alarm rule.
         "additionalPeriod": 0,
         "size": 0,
         "silenceCountdown": 0,
+        "recoveryObservationCountdown": 0,
         "windowValues": []
       }
     }
@@ -228,6 +232,7 @@ Return the running context of the alarm rule.
 ```
 `size` is the window size. Equal to the `period + additionalPeriod`.
 `silenceCountdown` is the countdown of the silence period. -1 means silence countdown is not running.
+`recoveryObservationCountdown` is the countdown of the recovery observation period.
 `windowValues` is the original metrics data. The `index` is the index of the window, starting from 0.
 `mqeMetricsSnapshot` is the metrics data in the MQE format. When checking conditions, these data will be calculated according to the expression.
 

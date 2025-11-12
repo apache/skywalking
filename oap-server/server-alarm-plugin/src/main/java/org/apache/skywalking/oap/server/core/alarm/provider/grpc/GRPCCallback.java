@@ -54,7 +54,6 @@ public class GRPCCallback implements AlarmCallback {
 
     public GRPCCallback(AlarmRulesWatcher alarmRulesWatcher) {
         this.alarmRulesWatcher = alarmRulesWatcher;
-        this.alarmSettingMap = new HashMap<>();
         this.alarmServiceStubMap = new HashMap<>();
         this.grpcClientMap = new HashMap<>();
         Map<String, GRPCAlarmSetting> alarmSettingMap = alarmRulesWatcher.getGrpchookSetting();
@@ -67,6 +66,7 @@ public class GRPCCallback implements AlarmCallback {
                     alarmServiceStubMap.put(name, AlarmServiceGrpc.newStub(grpcClient.getChannel()));
                 }
             });
+            this.alarmSettingMap = alarmSettingMap;
         }
     }
 
@@ -117,9 +117,7 @@ public class GRPCCallback implements AlarmCallback {
                     @Override
                     public void onError(Throwable throwable) {
                         status.done();
-                        if (log.isDebugEnabled()) {
-                            log.debug("Send alarm message failed: {}", throwable.getMessage());
-                        }
+                        log.warn("Send alarm message failed: {}", throwable.getMessage());
                     }
 
                     @Override
@@ -193,16 +191,14 @@ public class GRPCCallback implements AlarmCallback {
                     @Override
                     public void onError(Throwable throwable) {
                         status.done();
-                        if (log.isDebugEnabled()) {
-                            log.debug("Send alarm message failed: {}", throwable.getMessage());
-                        }
+                        log.warn("Send alarm recovery message failed: {}", throwable.getMessage());
                     }
 
                     @Override
                     public void onCompleted() {
                         status.done();
                         if (log.isDebugEnabled()) {
-                            log.debug("Send alarm message successful.");
+                            log.debug("Send alarm recovery message successful.");
                         }
                     }
                 });
@@ -219,8 +215,8 @@ public class GRPCCallback implements AlarmCallback {
             builder.setRuleName(recoveryMessage.getRuleName());
             builder.setAlarmMessage(recoveryMessage.getAlarmMessage());
             builder.setStartTime(recoveryMessage.getStartTime());
-            builder.setRecoveryTime(recoveryMessage.getRecoveryTime());
             builder.setUuid(recoveryMessage.getUuid());
+            builder.setRecoveryTime(recoveryMessage.getRecoveryTime());
             AlarmTags.Builder alarmTagsBuilder = AlarmTags.newBuilder();
             message.getTags().forEach(m -> alarmTagsBuilder.addData(KeyStringValuePair.newBuilder().setKey(m.getKey()).setValue(m.getValue()).build()));
             builder.setTags(alarmTagsBuilder.build());
@@ -287,5 +283,6 @@ public class GRPCCallback implements AlarmCallback {
                 alarmServiceStubMap.put(name, AlarmServiceGrpc.newStub(grpcClient.getChannel()));
             }
         });
+        alarmSettingMap = newAlarmSettingMap;
     }
 }

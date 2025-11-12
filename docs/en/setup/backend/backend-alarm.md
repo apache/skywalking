@@ -516,7 +516,7 @@ the sliding window will be destroyed and re-created, causing the Alarm of this s
 | Hooks                       | hooks                       | string array   |                    |
 
 ## Alarm state transition
-The overall alarm state transition after the introduction of alarm restoration detection and notification since version 10.3.0 is as follows:
+The overall alarm state transition after the introduction of alarm restoration detection and notification since version 10.4.0 is as follows:
 ```mermaid
 stateDiagram-v2
     [*] --> NORMAL

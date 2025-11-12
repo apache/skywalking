@@ -26,6 +26,7 @@ import com.linecorp.armeria.common.RequestHeaders;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
@@ -73,6 +74,25 @@ public class WebhookCallbackTest {
                 IS_SUCCESS.set(false);
                 return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
             })));
+
+            sb.service("/webhook/receiveAlarmRecovery", (ctx, req) -> HttpResponse.from(req.aggregate().thenApply(r -> {
+                final String content = r.content().toStringUtf8();
+                List<AlarmRecoveryMessage> alarmMessages = new Gson().fromJson(content, new TypeToken<ArrayList<AlarmRecoveryMessage>>() {
+                }.getType());
+                if (alarmMessages.size() != 1) {
+                    IS_SUCCESS.set(false);
+                    return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+                if (Objects.equals(alarmMessages.get(0).getId0(), "1")) {
+                    if (alarmMessages.get(0).getRecoveryTime() > 0) {
+                        IS_SUCCESS.set(true);
+                        COUNTER.incrementAndGet();
+                        return HttpResponse.of(HttpStatus.OK);
+                    }
+                }
+                IS_SUCCESS.set(false);
+                return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+            })));
         }
     };
 
@@ -80,9 +100,12 @@ public class WebhookCallbackTest {
     public void testWebhook() throws Exception {
         List<String> remoteEndpoints = new ArrayList<>();
         remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/webhook/receiveAlarm");
+        List<String> remoteEndpointsForRecovery = new ArrayList<>();
+        remoteEndpointsForRecovery.add("http://127.0.0.1:" + SERVER.httpPort() + "/webhook/receiveAlarmRecovery");
         Rules rules = new Rules();
         WebhookSettings setting1 = new WebhookSettings("setting1", AlarmHooksType.webhook, true);
         setting1.setUrls(remoteEndpoints);
+        setting1.setRecoveryUrls(remoteEndpointsForRecovery);
         WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.webhook, false);
         setting2.setUrls(remoteEndpoints);
         rules.getWebhookSettingsMap().put(setting1.getFormattedName(), setting1);
@@ -106,8 +129,10 @@ public class WebhookCallbackTest {
         anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
         webhookCallback.doAlarm(alarmMessages);
-
+        List<AlarmMessage> alarmRecoveryMessages = new ArrayList<>(1);
+        alarmRecoveryMessages.add(new AlarmRecoveryMessage(alarmMessage));
+        webhookCallback.doAlarmRecovery(alarmRecoveryMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
-        Assertions.assertEquals(2, COUNTER.get());
+        Assertions.assertEquals(3, COUNTER.get());
     }
 }

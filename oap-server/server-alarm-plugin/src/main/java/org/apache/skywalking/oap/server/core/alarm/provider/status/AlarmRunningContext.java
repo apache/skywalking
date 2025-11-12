@@ -31,6 +31,7 @@ public class AlarmRunningContext {
     private int additionalPeriod;
     private int size;
     private int silenceCountdown;
+    private int recoveryObservationCountdown;
     private String entityName;
     private List<WindowValue> windowValues = new ArrayList<>();
     private JsonObject mqeMetricsSnapshot;

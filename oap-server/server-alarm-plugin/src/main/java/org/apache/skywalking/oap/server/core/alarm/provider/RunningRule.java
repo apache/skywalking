@@ -360,12 +360,12 @@ public class RunningRule {
             } else {
                 stateMachine.onMismatch();
             }
-            if (stateMachine.currentState == State.FIRING) {
+            if (stateMachine.getCurrentState() == State.FIRING) {
                 AlarmMessage alarmMessage = buildAlarmMessage();
                 lastAlarmMessage = alarmMessage;
                 return Optional.of(alarmMessage);
             }
-            if (stateMachine.currentState == State.RECOVERED) {
+            if (stateMachine.getCurrentState() == State.RECOVERED) {
                 AlarmRecoveryMessage alarmRecoveryMessage = new AlarmRecoveryMessage(lastAlarmMessage);
                 lastAlarmMessage = null;
                 return Optional.of(alarmRecoveryMessage);
@@ -483,6 +483,7 @@ public class RunningRule {
             private int recoveryObservationCountdown;
             private final int silencePeriod;
             private final int recoveryObservationPeriod;
+            @Getter
             private State currentState;
 
             public AlarmStateMachine(int silencePeriod, int recoveryObservationPeriod) {
@@ -581,9 +582,6 @@ public class RunningRule {
                 recoveryObservationCountdown = this.recoveryObservationPeriod;
             }
 
-            public State getCurrentState() {
-                return currentState;
-            }
         }
 
     }
