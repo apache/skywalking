@@ -51,7 +51,7 @@ public class KubernetesLabelSelectorEndpointGroup extends DynamicEndpointGroup {
     private final SharedIndexInformer<Pod> podInformer;
     private final String selfUid;
     @Getter
-    private Endpoint selfEndpoint;
+    private volatile Endpoint selfEndpoint;
 
     private KubernetesLabelSelectorEndpointGroup(Builder builder) {
         super(builder.selectionStrategy);
