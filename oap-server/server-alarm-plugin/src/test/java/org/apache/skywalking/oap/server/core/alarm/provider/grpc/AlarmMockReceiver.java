@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmRecoveryMessage;
 import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmServiceGrpc;
 import org.apache.skywalking.oap.server.core.alarm.grpc.Response;
 import org.apache.skywalking.oap.server.library.server.ServerException;
@@ -63,6 +64,32 @@ public class AlarmMockReceiver {
                     responseObserver.onCompleted();
                     if (log.isDebugEnabled()) {
                         log.debug("received alarm message completed.");
+                    }
+                }
+            };
+        }
+
+        @Override public StreamObserver<AlarmRecoveryMessage> doAlarmRecovery(StreamObserver<Response> responseObserver) {
+            return new StreamObserver<AlarmRecoveryMessage>() {
+                @Override
+                public void onNext(AlarmRecoveryMessage value) {
+                    log.info("received alarm recovery message: {}", value.toString());
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    responseObserver.onError(throwable);
+                    if (log.isDebugEnabled()) {
+                        log.debug("received alarm recovery message error.");
+                    }
+                }
+
+                @Override
+                public void onCompleted() {
+                    responseObserver.onNext(Response.newBuilder().build());
+                    responseObserver.onCompleted();
+                    if (log.isDebugEnabled()) {
+                        log.debug("received alarm recovery message completed.");
                     }
                 }
             };

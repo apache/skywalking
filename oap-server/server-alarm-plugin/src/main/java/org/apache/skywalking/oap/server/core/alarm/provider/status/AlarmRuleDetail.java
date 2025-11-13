@@ -31,6 +31,7 @@ public class AlarmRuleDetail {
     private String expression;
     private int period;
     private int silencePeriod;
+    private int recoveryObservationPeriod;
     private int additionalPeriod;
     private List<String> includeEntityNames = new ArrayList<>();
     private List<String> excludeEntityNames = new ArrayList<>();

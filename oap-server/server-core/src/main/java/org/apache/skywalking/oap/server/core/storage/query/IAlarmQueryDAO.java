@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import com.google.gson.JsonObject;
+
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
@@ -71,6 +72,7 @@ public interface IAlarmQueryDAO extends DAO {
         AlarmMessage message = new AlarmMessage();
         message.setId(String.valueOf(alarmRecord.getId0()));
         message.setId1(String.valueOf(alarmRecord.getId1()));
+        message.setUuid(alarmRecord.getUuid());
         message.setName(alarmRecord.getName());
         message.setMessage(alarmRecord.getAlarmMessage());
         message.setStartTime(alarmRecord.getStartTime());
@@ -89,8 +91,8 @@ public interface IAlarmQueryDAO extends DAO {
                     MQEMetric metrics = new MQEMetric();
                     metrics.setName(name);
                     List<MQEValues> values = GSON.fromJson(
-                        obj.getValue().getAsString(), new TypeToken<List<MQEValues>>() {
-                        }.getType());
+                            obj.getValue().getAsString(), new TypeToken<List<MQEValues>>() {
+                            }.getType());
                     metrics.setResults(values);
                     alarmSnapshot.getMetrics().add(metrics);
                 }

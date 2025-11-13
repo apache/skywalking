@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
@@ -111,6 +112,8 @@ public class RulesReader {
                 alarmRule.setPeriod((Integer) settings.getOrDefault("period", 1));
                 // How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
                 alarmRule.setSilencePeriod((Integer) settings.getOrDefault("silence-period", alarmRule.getPeriod()));
+                alarmRule.setRecoveryObservationPeriod((Integer) settings.getOrDefault("recovery-observation-period",
+                        0));
                 alarmRule.setMessage(
                         (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
                                 .getAlarmRuleName()));
@@ -156,10 +159,14 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             WebhookSettings settings = new WebhookSettings(
-                k.toString(), AlarmHooksType.webhook, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.webhook, (Boolean) config.getOrDefault("is-default", false));
             List<String> urls = (List<String>) config.get("urls");
             if (urls != null) {
                 settings.getUrls().addAll(urls);
+            }
+            List<String> recoveryUrls = (List<String>) config.get("recovery-urls");
+            if (recoveryUrls != null) {
+                settings.getRecoveryUrls().addAll(recoveryUrls);
             }
             Map<String, String> headers = (Map<String, String>) config.getOrDefault("headers", new HashMap<>());
             settings.setHeaders(headers);
@@ -183,7 +190,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map config = (Map) v;
             GRPCAlarmSetting setting = new GRPCAlarmSetting(
-                k.toString(), AlarmHooksType.gRPC, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.gRPC, (Boolean) config.getOrDefault("is-default", false));
 
             Object targetHost = config.get("target-host");
             if (targetHost != null) {
@@ -216,10 +223,12 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             SlackSettings settings = new SlackSettings(
-                k.toString(), AlarmHooksType.slack, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.slack, (Boolean) config.getOrDefault("is-default", false));
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
+            settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<String> webhooks = (List<String>) config.get("webhooks");
             if (webhooks != null) {
@@ -245,10 +254,13 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             WechatSettings settings = new WechatSettings(
-                k.toString(), AlarmHooksType.wechat, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.wechat, (Boolean) config.getOrDefault("is-default", false));
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
+
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
+            settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<String> webhooks = (List<String>) config.get("webhooks");
             if (webhooks != null) {
@@ -274,10 +286,13 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             DingtalkSettings settings = new DingtalkSettings(
-                k.toString(), AlarmHooksType.dingtalk, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.dingtalk, (Boolean) config.getOrDefault("is-default", false));
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
+
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
+            settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<Map<String, Object>> webhooks = (List<Map<String, Object>>) config.get("webhooks");
             if (webhooks != null) {
@@ -307,10 +322,13 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             FeishuSettings settings = new FeishuSettings(
-                k.toString(), AlarmHooksType.feishu, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.feishu, (Boolean) config.getOrDefault("is-default", false));
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
+
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
+            settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<Map<String, Object>> webhooks = (List<Map<String, Object>>) config.get("webhooks");
             if (webhooks != null) {
@@ -340,17 +358,19 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             String textTemplate = (String) config.get("text-template");
+            String recoveryTextTemplate = (String) config.getOrDefault("recovery-text-template", "");
             List<Map<String, String>> webhooks = (List<Map<String, String>>) config.get("webhooks");
             if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(webhooks)) {
                 return;
             }
             List<WeLinkSettings.WebHookUrl> webHookUrls = webhooks.stream().map(
-                WeLinkSettings.WebHookUrl::generateFromMap
+                    WeLinkSettings.WebHookUrl::generateFromMap
             ).collect(Collectors.toList());
 
             WeLinkSettings settings = new WeLinkSettings(
-                k.toString(), AlarmHooksType.welink, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.welink, (Boolean) config.getOrDefault("is-default", false));
             settings.setTextTemplate(textTemplate);
+            settings.setRecoveryTextTemplate(recoveryTextTemplate);
             settings.setWebhooks(webHookUrls);
 
             rules.getWeLinkSettingsMap().put(settings.getFormattedName(), settings);
@@ -373,9 +393,11 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             PagerDutySettings settings = new PagerDutySettings(
-                k.toString(), AlarmHooksType.pagerduty, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.pagerduty, (Boolean) config.getOrDefault("is-default", false));
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
+            Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
+            settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
 
             List<String> integrationKeys = (List<String>) config.get("integration-keys");
             if (integrationKeys != null) {
@@ -402,17 +424,19 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             String textTemplate = (String) config.get("text-template");
+            String recoveryTextTemplate = (String) config.getOrDefault("recovery-text-template", "");
             List<Map<String, String>> webhooks = (List<Map<String, String>>) config.get("webhooks");
             if (StringUtil.isBlank(textTemplate) || CollectionUtils.isEmpty(webhooks)) {
                 return;
             }
             List<DiscordSettings.WebHookUrl> webHookUrls = webhooks.stream().map(
-                DiscordSettings.WebHookUrl::generateFromMap
+                    DiscordSettings.WebHookUrl::generateFromMap
             ).collect(Collectors.toList());
 
             DiscordSettings settings = new DiscordSettings(
-                k.toString(), AlarmHooksType.discord, (Boolean) config.getOrDefault("is-default", false));
+                    k.toString(), AlarmHooksType.discord, (Boolean) config.getOrDefault("is-default", false));
             settings.setTextTemplate(textTemplate);
+            settings.setRecoveryTextTemplate(recoveryTextTemplate);
             settings.setWebhooks(webHookUrls);
 
             rules.getDiscordSettingsMap().put(settings.getFormattedName(), settings);
@@ -426,7 +450,7 @@ public class RulesReader {
     private void checkSpecificHooks(String ruleName, Set<String> hooks) {
         if (!this.allHooks.containsAll(hooks)) {
             throw new IllegalArgumentException("rule: [" + ruleName + "] contains invalid hooks." +
-                                                   " Please check the hook is exist and name format is {hookType}.{hookName}");
+                    " Please check the hook is exist and name format is {hookType}.{hookName}");
         }
     }
 }

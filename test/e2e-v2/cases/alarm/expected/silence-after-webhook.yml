@@ -23,6 +23,21 @@ messages:
     ruleName: service_resp_time_rule
     alarmMessage: Response time of service e2e-service-provider is increase/decrease in 1 minutes of last 10 minutes.
     startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
+    tags:
+      - key: level
+        value: WARNING
+      - key: receivers
+        value: lisi
+  - scopeId: 1
+    scope: SERVICE
+    name: e2e-service-provider
+    id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    id1: ""
+    ruleName: service_percentile_rule
+    alarmMessage: Percentile response time of service e2e-service-provider alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 100, p75 > 100, p90 > 100, p95 > 100, p99 > 100.
+    startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
     tags:
       - key: level
         value: WARNING
@@ -34,8 +49,9 @@ messages:
     id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
     id1: ""
     ruleName: comp_rule
-    alarmMessage: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
+    alarmMessage: Service e2e-service-provider response time is more than 100ms and sla is more than 1%.
     startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
     tags:
       - key: level
         value: CRITICAL
@@ -49,6 +65,21 @@ messages:
     ruleName: service_resp_time_rule
     alarmMessage: Response time of service e2e-service-provider is increase/decrease in 1 minutes of last 10 minutes.
     startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
+    tags:
+      - key: level
+        value: WARNING
+      - key: receivers
+        value: lisi
+  - scopeId: 1
+    scope: SERVICE
+    name: e2e-service-provider
+    id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    id1: ""
+    ruleName: service_percentile_rule
+    alarmMessage: Percentile response time of service e2e-service-provider alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 100, p75 > 100, p90 > 100, p95 > 100, p99 > 100.
+    startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
     tags:
       - key: level
         value: WARNING
@@ -60,8 +91,79 @@ messages:
     id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
     id1: ""
     ruleName: comp_rule
-    alarmMessage: Service e2e-service-provider response time is more than 10ms and sla is more than 1%.
+    alarmMessage: Service e2e-service-provider response time is more than 100ms and sla is more than 1%.
     startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
+    tags:
+      - key: level
+        value: CRITICAL
+      - key: receivers
+        value: zhangsan
+  - scopeId: 1
+    scope: SERVICE
+    name: e2e-service-provider
+    id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    id1: ""
+    ruleName: comp_rule
+    alarmMessage: Service e2e-service-provider response time is more than 100ms and sla is more than 1%.
+    startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
+    tags:
+      - key: level
+        value: CRITICAL
+      - key: receivers
+        value: zhangsan
+  - scopeId: 1
+    scope: SERVICE
+    name: e2e-service-provider
+    id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    id1: ""
+    ruleName: comp_rule
+    alarmMessage: Service e2e-service-provider response time is more than 100ms and sla is more than 1%.
+    startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
+    tags:
+      - key: level
+        value: CRITICAL
+      - key: receivers
+        value: zhangsan
+  - scopeId: 1
+    scope: SERVICE
+    name: e2e-service-provider
+    id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    id1: ""
+    ruleName: comp_rule
+    alarmMessage: Service e2e-service-provider response time is more than 100ms and sla is more than 1%.
+    startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
+    tags:
+      - key: level
+        value: CRITICAL
+      - key: receivers
+        value: zhangsan
+  - scopeId: 1
+    scope: SERVICE
+    name: e2e-service-provider
+    id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    id1: ""
+    ruleName: comp_rule
+    alarmMessage: Service e2e-service-provider response time is more than 100ms and sla is more than 1%.
+    startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
+    tags:
+      - key: level
+        value: CRITICAL
+      - key: receivers
+        value: zhangsan
+  - scopeId: 1
+    scope: SERVICE
+    name: e2e-service-provider
+    id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    id1: ""
+    ruleName: comp_rule
+    alarmMessage: Service e2e-service-provider response time is more than 100ms and sla is more than 1%.
+    startTime: {{ gt .startTime 0 }}
+    recoveryTime: {{ le .recoveryTime 0 }}
     tags:
       - key: level
         value: CRITICAL

@@ -18,44 +18,32 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import com.google.gson.JsonObject;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
-
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Alarm message represents the details of each alarm.
  */
 @Setter
 @Getter
-public class AlarmMessage {
-    private int scopeId;
-    private String scope;
-    private String name;
-    private String id0;
-    private String id1;
-    private String ruleName;
-    private String alarmMessage;
-    private List<Tag> tags;
-    private long startTime;
-    private transient int period;
-    private Set<String> hooks = new HashSet<>();
-    private String expression;
-    private JsonObject mqeMetricsSnapshot;
-    private String uuid;
+public class AlarmRecoveryMessage extends AlarmMessage {
+    private long recoveryTime;
 
-    public AlarmMessage(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public AlarmMessage() {
-        this.uuid = UUID.randomUUID().toString();
+    public AlarmRecoveryMessage(AlarmMessage alarmMessage) {
+        this.setScopeId(alarmMessage.getScopeId());
+        this.setScope(alarmMessage.getScope());
+        this.setName(alarmMessage.getName());
+        this.setId0(alarmMessage.getId0());
+        this.setId1(alarmMessage.getId1());
+        this.setRuleName(alarmMessage.getRuleName());
+        this.setAlarmMessage(alarmMessage.getAlarmMessage());
+        this.setTags(alarmMessage.getTags());
+        this.setStartTime(alarmMessage.getStartTime());
+        this.setPeriod(alarmMessage.getPeriod());
+        this.setHooks(alarmMessage.getHooks());
+        this.setExpression(alarmMessage.getExpression());
+        this.setMqeMetricsSnapshot(alarmMessage.getMqeMetricsSnapshot());
+        this.setUuid(alarmMessage.getUuid());
+        this.setRecoveryTime(System.currentTimeMillis());
     }
 }

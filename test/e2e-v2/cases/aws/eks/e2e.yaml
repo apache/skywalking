@@ -31,7 +31,7 @@ setup:
 trigger:
   action: http
   interval: 3s
-  times: 10
+  times: -1
   url: http://localhost:9093/otel-metrics/send
   method: GET
 

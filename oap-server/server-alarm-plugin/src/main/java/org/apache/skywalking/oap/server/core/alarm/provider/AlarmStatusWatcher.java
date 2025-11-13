@@ -92,6 +92,7 @@ public class AlarmStatusWatcher implements AlarmStatusWatcherService {
         ruleDetail.setExpression(rule.getExpression());
         ruleDetail.setPeriod(rule.getPeriod());
         ruleDetail.setSilencePeriod(rule.getSilencePeriod());
+        ruleDetail.setRecoveryObservationPeriod(rule.getRecoveryObservationPeriod());
         ruleDetail.setAdditionalPeriod(rule.getAdditionalPeriod());
         ruleDetail.setIncludeEntityNames(rule.getIncludeNames());
         ruleDetail.setExcludeEntityNames(rule.getExcludeNames());
@@ -135,7 +136,8 @@ public class AlarmStatusWatcher implements AlarmStatusWatcherService {
         runningContext.setEndTime(window.getEndTime().toString());
         runningContext.setAdditionalPeriod(window.getAdditionalPeriod());
         runningContext.setSize(window.getSize());
-        runningContext.setSilenceCountdown(window.getSilenceCountdown());
+        runningContext.setSilenceCountdown(window.getStateMachine().getSilenceCountdown());
+        runningContext.setRecoveryObservationCountdown(window.getStateMachine().getRecoveryObservationCountdown());
         window.scanWindowValues(values -> {
             for (int i = 0; i < values.size(); i++) {
                 AlarmRunningContext.WindowValue windowValue = new AlarmRunningContext.WindowValue();

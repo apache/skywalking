@@ -34,19 +34,21 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
 import java.util.List;
+
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM_RECOVERY;
 import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
-import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 
 @Getter
 @Setter
-@ScopeDeclaration(id = ALARM, name = "Alarm")
-@Stream(name = AlarmRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM, builder = AlarmRecord.Builder.class, processor = RecordStreamProcessor.class)
-@SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
-@BanyanDB.TimestampColumn(AlarmRecord.START_TIME)
+@ScopeDeclaration(id = ALARM_RECOVERY, name = "AlarmRecovery")
+@Stream(name = AlarmRecoveryRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM_RECOVERY, builder = AlarmRecoveryRecord.Builder.class, processor = RecordStreamProcessor.class)
+@SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecoveryRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
+@BanyanDB.TimestampColumn(AlarmRecoveryRecord.START_TIME)
 @BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
-public class AlarmRecord extends Record {
-    public static final String INDEX_NAME = "alarm_record";
+public class AlarmRecoveryRecord extends Record {
+    public static final String INDEX_NAME = "alarm_recovery_record";
     public static final String ADDITIONAL_TAG_TABLE = "alarm_record_tag";
     public static final String UUID = "uuid";
     public static final String SCOPE = "scope";
@@ -54,6 +56,7 @@ public class AlarmRecord extends Record {
     public static final String ID0 = "id0";
     public static final String ID1 = "id1";
     public static final String START_TIME = "start_time";
+    public static final String RECOVERY_TIME = "recovery_time";
     public static final String ALARM_MESSAGE = "alarm_message";
     public static final String RULE_NAME = "rule_name";
     public static final String TAGS = "tags";
@@ -81,12 +84,17 @@ public class AlarmRecord extends Record {
     @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
     private long startTime;
+    @ElasticSearch.EnableDocValues
+    @Column(name = RECOVERY_TIME)
+    private long recoveryTime;
     @Column(name = ALARM_MESSAGE, length = 512)
     @ElasticSearch.MatchQuery
     @BanyanDB.MatchQuery(analyzer = BanyanDB.MatchQuery.AnalyzerType.SIMPLE)
     private String alarmMessage;
     @Column(name = RULE_NAME)
     private String ruleName;
+    @Column(name = UUID)
+    private String uuid;
     @Column(name = TAGS, indexOnly = true)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
@@ -94,13 +102,11 @@ public class AlarmRecord extends Record {
     private byte[] tagsRawData;
     @Column(name = SNAPSHOT, storageOnly = true, length = 50000)
     private String snapshot;
-    @Column(name = UUID)
-    private String uuid;
 
-    public static class Builder implements StorageBuilder<AlarmRecord> {
+    public static class Builder implements StorageBuilder<AlarmRecoveryRecord> {
         @Override
-        public AlarmRecord storage2Entity(final Convert2Entity converter) {
-            AlarmRecord record = new AlarmRecord();
+        public AlarmRecoveryRecord storage2Entity(final Convert2Entity converter) {
+            AlarmRecoveryRecord record = new AlarmRecoveryRecord();
             record.setScope(((Number) converter.get(SCOPE)).intValue());
             record.setName((String) converter.get(NAME));
             record.setUuid((String) converter.get(UUID));
@@ -108,6 +114,7 @@ public class AlarmRecord extends Record {
             record.setId1((String) converter.get(ID1));
             record.setAlarmMessage((String) converter.get(ALARM_MESSAGE));
             record.setStartTime(((Number) converter.get(START_TIME)).longValue());
+            record.setRecoveryTime(((Number) converter.get(RECOVERY_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setRuleName((String) converter.get(RULE_NAME));
             record.setTagsRawData(converter.getBytes(TAGS_RAW_DATA));
@@ -117,7 +124,7 @@ public class AlarmRecord extends Record {
         }
 
         @Override
-        public void entity2Storage(final AlarmRecord storageData, final Convert2Storage converter) {
+        public void entity2Storage(final AlarmRecoveryRecord storageData, final Convert2Storage converter) {
             converter.accept(SCOPE, storageData.getScope());
             converter.accept(NAME, storageData.getName());
             converter.accept(UUID, storageData.getUuid());
@@ -125,6 +132,7 @@ public class AlarmRecord extends Record {
             converter.accept(ID1, storageData.getId1());
             converter.accept(ALARM_MESSAGE, storageData.getAlarmMessage());
             converter.accept(START_TIME, storageData.getStartTime());
+            converter.accept(RECOVERY_TIME, storageData.getRecoveryTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(RULE_NAME, storageData.getRuleName());
             converter.accept(TAGS_RAW_DATA, storageData.getTagsRawData());

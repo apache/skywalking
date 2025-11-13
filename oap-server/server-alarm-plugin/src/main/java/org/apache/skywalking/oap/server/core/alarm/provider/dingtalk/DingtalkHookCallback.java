@@ -46,11 +46,7 @@ import java.util.Map;
 public class DingtalkHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
 
-    /**
-     * Send alarm message if the settings not empty
-     */
-    @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+    protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, DingtalkSettings> settingsMap = alarmRulesWatcher.getDingtalkSettings();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
@@ -61,19 +57,24 @@ public class DingtalkHookCallback extends HttpAlarmCallback {
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
             if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
-                messages)) {
+                    messages)) {
                 continue;
             }
             for (final var webHookUrl : setting.getWebhooks()) {
                 final var url = getUrl(webHookUrl);
                 for (final var alarmMessage : messages) {
-                    final var requestBody = String.format(
-                        setting.getTextTemplate(), alarmMessage.getAlarmMessage()
-                    );
-                    post(URI.create(url), requestBody, Map.of());
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        final var requestBody = String.format(template, alarmMessage.getAlarmMessage());
+                        post(URI.create(url), requestBody, Map.of());
+                    }
                 }
             }
         }
+    }
+
+    private String getTemplate(DingtalkSettings setting, boolean isRecovery) {
+        return isRecovery ? setting.getRecoveryTextTemplate() : setting.getTextTemplate();
     }
 
     /**

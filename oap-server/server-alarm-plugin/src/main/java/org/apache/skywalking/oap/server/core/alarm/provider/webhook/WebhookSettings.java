@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 @ToString
 public class WebhookSettings extends AlarmHookSettings {
     private List<String> urls = new ArrayList<>();
+    private List<String> recoveryUrls = new ArrayList<>();
     private Map<String, String> headers = new HashMap<>();
 
     public WebhookSettings(final String name,
