@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
+import com.linecorp.armeria.client.Endpoint;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -152,7 +153,16 @@ public class KubernetesCoordinator extends ClusterCoordinator {
                     .collect(Collectors.toList());
 
             // The endpoint group will never include itself, add it.
-            final var selfInstance = new RemoteInstance(new Address("127.0.0.1", port, true));
+            Endpoint selfEndpoint = null;
+            if (endpointGroup instanceof KubernetesLabelSelectorEndpointGroup) {
+                selfEndpoint = ((KubernetesLabelSelectorEndpointGroup) endpointGroup).getSelfEndpoint();
+            }
+            final RemoteInstance selfInstance;
+            if (selfEndpoint == null) {
+                selfInstance = new RemoteInstance(new Address("127.0.0.1", port, true));
+            } else {
+                selfInstance = new RemoteInstance(new Address(selfEndpoint.host(), selfEndpoint.port(), true));
+            }
             instances.add(selfInstance);
 
             if (log.isDebugEnabled()) {
