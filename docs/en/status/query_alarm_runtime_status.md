@@ -157,7 +157,7 @@ Return the running context of the alarm rule.
         "additionalPeriod": 0,
         "size": 10,
         "silenceCountdown": 10,
-        "entityName": "v2|mock_b_service|default|test-cluster|-",
+        "entityName": "mock_b_service",
         "windowValues": [
           {
             "index": 0,
