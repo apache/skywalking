@@ -28,7 +28,10 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
 import io.fabric8.kubernetes.client.informers.cache.Lister;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
+import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -36,7 +39,6 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class KubernetesLabelSelectorEndpointGroup extends DynamicEndpointGroup {
@@ -48,6 +50,8 @@ public class KubernetesLabelSelectorEndpointGroup extends DynamicEndpointGroup {
     private final String portName;
     private final SharedIndexInformer<Pod> podInformer;
     private final String selfUid;
+    @Getter
+    private Endpoint selfEndpoint;
 
     private KubernetesLabelSelectorEndpointGroup(Builder builder) {
         super(builder.selectionStrategy);
@@ -92,14 +96,26 @@ public class KubernetesLabelSelectorEndpointGroup extends DynamicEndpointGroup {
             }
             final var podLister = new Lister<>(podInformer.getIndexer());
             final var pods = podLister.namespace(namespace).list();
-
-            final var newEndpoints = pods.stream()
-                    .filter(this::isPodReady)
-                    .filter(pod -> StringUtil.isNotBlank(pod.getStatus().getPodIP()))
-                    .filter(pod -> !pod.getMetadata().getUid().equals(selfUid))
-                    .map(this::createEndpoint)
-                    .filter(endpoint -> endpoint != null)
-                    .collect(Collectors.toList());
+            final List<Endpoint> newEndpoints = new ArrayList<>();
+            for (Pod pod : pods) {
+                if (!isPodReady(pod)) {
+                    continue;
+                }
+                if (StringUtil.isBlank(pod.getStatus().getPodIP())) {
+                    continue;
+                }
+                if (pod.getMetadata().getUid().equals(selfUid)) {
+                    Endpoint endpoint = createEndpoint(pod);
+                    if (endpoint != null) {
+                        selfEndpoint = endpoint;
+                    }
+                    continue;
+                }
+                Endpoint endpoint = createEndpoint(pod);
+                if (endpoint != null) {
+                    newEndpoints.add(endpoint);
+                }
+            }
 
             log.debug("Updating endpoints to: {}", newEndpoints);
             setEndpoints(newEndpoints);
