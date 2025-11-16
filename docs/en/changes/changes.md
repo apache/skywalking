@@ -4,6 +4,7 @@
 
 #### OAP Server
 
+* KubernetesCoordinator: make self instance return real pod IP address instead of `127.0.0.1`.
 * Enhance the alarm kernel with recovered status notification capability
 
 #### UI
