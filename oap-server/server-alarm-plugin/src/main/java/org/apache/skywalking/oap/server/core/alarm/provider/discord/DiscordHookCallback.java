@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Use SkyWalking alarm Discord webhook API.
@@ -39,11 +41,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 public class DiscordHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
 
-    /**
-     * Send alarm message if the settings not empty
-     */
-    @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+    public void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, DiscordSettings> settingsMap = alarmRulesWatcher.getDiscordSettings();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
@@ -55,19 +53,23 @@ public class DiscordHookCallback extends HttpAlarmCallback {
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
             if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
-                messages)) {
+                    messages)) {
                 continue;
             }
             for (final var webHookUrl : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
-                    final var content = String.format(
-                        setting.getTextTemplate(),
-                        alarmMessage.getAlarmMessage()
-                    );
-                    sendAlarmMessage(webHookUrl, content);
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        final var content = String.format(template, alarmMessage.getAlarmMessage());
+                        sendAlarmMessage(webHookUrl, content);
+                    }
                 }
             }
         }
+    }
+
+    private String getTemplate(DiscordSettings setting, boolean isRecovery) {
+        return isRecovery ? setting.getRecoveryTextTemplate() : setting.getTextTemplate();
     }
 
     /**

@@ -155,6 +155,7 @@ public class DefaultScopeDefine {
     public static final int PPROF_TASK = 92;
     public static final int PPROF_PROFILING_DATA = 93;
     public static final int PPROF_TASK_LOG = 94;
+    public static final int ALARM_RECOVERY = 95;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 public class PagerDutySettings extends AlarmHookSettings {
 
     private String textTemplate;
+    private String recoveryTextTemplate;
 
     private List<String> integrationKeys = new ArrayList<>();
 

@@ -41,4 +41,6 @@ public interface AlarmCallback {
     }
 
     void doAlarm(List<AlarmMessage> alarmMessages) throws Exception;
+
+    void doAlarmRecovery(List<AlarmMessage> alarmRecoveryMessages) throws Exception;
 }

@@ -83,7 +83,7 @@ setup:
 trigger:
   action: http
   interval: 3s
-  times: 10
+  times: -1
   url: http://${service_service_host}:${service_service_80}/consumer
   method: GET
 

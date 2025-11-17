@@ -48,11 +48,7 @@ import java.util.stream.Collectors;
 public class FeishuHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
 
-    /**
-     * Send alarm message if the settings not empty
-     */
-    @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+    protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, FeishuSettings> settingsMap = alarmRulesWatcher.getFeishuSettings();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
@@ -63,20 +59,27 @@ public class FeishuHookCallback extends HttpAlarmCallback {
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
             if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
-                messages)) {
+                    messages)) {
                 continue;
             }
             for (final var webHookUrl : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
-                    final var requestBody = getRequestBody(webHookUrl, alarmMessage, setting.getTextTemplate());
-                    try {
-                        post(URI.create(webHookUrl.getUrl()), requestBody, Map.of());
-                    } catch (Exception e) {
-                        log.error("Failed to send alarm message to Feishu: {}", webHookUrl.getUrl(), e);
+                    String template = getTemplate(setting, isRecovery);
+                    if (StringUtil.isNotBlank(template)) {
+                        final var requestBody = getRequestBody(webHookUrl, alarmMessage, template);
+                        try {
+                            post(URI.create(webHookUrl.getUrl()), requestBody, Map.of());
+                        } catch (Exception e) {
+                            log.error("Failed to send alarm message to Feishu: {}", webHookUrl.getUrl(), e);
+                        }
                     }
                 }
             }
         }
+    }
+
+    private String getTemplate(FeishuSettings setting, boolean isRecovery) {
+        return isRecovery ? setting.getRecoveryTextTemplate() : setting.getTextTemplate();
     }
 
     /**

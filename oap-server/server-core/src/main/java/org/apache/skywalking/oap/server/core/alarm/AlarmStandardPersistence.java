@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -58,12 +59,43 @@ public class AlarmStandardPersistence implements AlarmCallback {
             }
 
             AlarmRecord record = new AlarmRecord();
+            record.setUuid(message.getUuid());
             record.setScope(message.getScopeId());
             record.setId0(message.getId0());
             record.setId1(message.getId1());
             record.setName(message.getName());
             record.setAlarmMessage(message.getAlarmMessage());
             record.setStartTime(message.getStartTime());
+            record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
+            record.setRuleName(message.getRuleName());
+            Collection<Tag> tags = appendSearchableTags(message.getTags());
+            addAutocompleteTags(tags, TimeBucket.getMinuteTimeBucket(message.getStartTime()));
+            record.setTagsRawData(gson.toJson(message.getTags()).getBytes(Charsets.UTF_8));
+            record.setTagsInString(Tag.Util.toStringList(new ArrayList<>(tags)));
+            AlarmSnapshotRecord snapshot = new AlarmSnapshotRecord();
+            snapshot.setExpression(message.getExpression());
+            snapshot.setMetrics(message.getMqeMetricsSnapshot());
+            record.setSnapshot(gson.toJson(snapshot));
+            RecordStreamProcessor.getInstance().in(record);
+        });
+    }
+
+    @Override
+    public void doAlarmRecovery(List<AlarmMessage> alarmMessage) {
+        alarmMessage.forEach(message -> {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Alarm recovery message: {}", message.getAlarmMessage());
+            }
+            AlarmRecoveryMessage alarmRecoveryMessage = (AlarmRecoveryMessage) message;
+            AlarmRecoveryRecord record = new AlarmRecoveryRecord();
+            record.setUuid(message.getUuid());
+            record.setScope(message.getScopeId());
+            record.setId0(message.getId0());
+            record.setId1(message.getId1());
+            record.setName(message.getName());
+            record.setAlarmMessage(message.getAlarmMessage());
+            record.setStartTime(message.getStartTime());
+            record.setRecoveryTime(alarmRecoveryMessage.getRecoveryTime());
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
             record.setRuleName(message.getRuleName());
             Collection<Tag> tags = appendSearchableTags(message.getTags());
@@ -94,7 +126,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             if (configService.getSearchableAlarmTags().contains(tag.getKey())) {
                 final Tag alarmTag = new Tag(tag.getKey(), tag.getValue());
 
-                if (tag.getValue().length()  > Tag.TAG_LENGTH || alarmTag.toString().length() > Tag.TAG_LENGTH) {
+                if (tag.getValue().length() > Tag.TAG_LENGTH || alarmTag.toString().length() > Tag.TAG_LENGTH) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Alarm tag : {} length > : {}, dropped", alarmTag, Tag.TAG_LENGTH);
                     }

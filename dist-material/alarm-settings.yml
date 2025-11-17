@@ -23,6 +23,8 @@ rules:
     expression: sum(service_resp_time > 1000) >= 3
     period: 10
     silence-period: 5
+    # Number of periods to wait before considering the alarm recovered,default as 0.
+    recovery-observation-period: 3
     message: Response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes.
 #  service_resp_time_rule:
 #    expression: avg(service_resp_time) > 1000
@@ -35,16 +37,20 @@ rules:
     period: 10
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 3
+    # Number of periods to wait before considering the alarm recovered,default as 0.
+    recovery-observation-period: 2
     message: Successful rate of service {name} is lower than 80% in 2 minutes of last 10 minutes
   service_resp_time_percentile_rule:
     expression: sum(service_percentile{p='50,75,90,95,99'} > 1000) >= 3
     period: 10
     silence-period: 5
+    recovery-observation-period: 3
     message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
   service_instance_resp_time_rule:
     expression: sum(service_instance_resp_time > 1000) >= 2
     period: 10
     silence-period: 5
+    recovery-observation-period: 2
     message: Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes
   database_access_resp_time_rule:
     expression: sum(database_access_resp_time > 1000) >= 2
@@ -63,11 +69,36 @@ rules:
 #    silence-period: 5
 #    message: Response time of endpoint {name} is more than 1000ms in 2 minutes of last 10 minutes
 
+
 #hooks:
 #  webhook:
 #    default:
 #      is-default: true
 #      urls:
-#        - http://127.0.0.1/notify/
-#        - http://127.0.0.1/go-wechat/
-
+#        - http://127.0.0.1/default/alarm
+#       recovery-urls:
+#        - http://127.0.0.1/default/alarm-recovery
+#      custom1:
+#        urls:
+#          - http://127.0.0.1/custom1/alarm
+#        recovery-urls:
+#          - http://127.0.0.1/custom1/alarm-recovery
+#  wechat:
+#    default:
+#      is-default: true
+#      text-template: |-
+#        {
+#          "msgtype": "text",
+#          "text": {
+#            "content": "Apache SkyWalking Alarm: \n %s."
+#          }
+#        }
+#      recovery-text-template: |-
+#        {
+#          "msgtype": "text",
+#          "text": {
+#            "content": "Apache SkyWalking Alarm Recovered: \n %s."
+#          }
+#        }
+#      webhooks:
+#        - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key

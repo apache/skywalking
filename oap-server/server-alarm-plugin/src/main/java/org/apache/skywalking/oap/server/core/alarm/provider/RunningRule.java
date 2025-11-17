@@ -19,6 +19,39 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import com.google.gson.JsonObject;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.skywalking.mqe.rt.exception.ParseErrorListener;
+import org.apache.skywalking.mqe.rt.grammar.MQELexer;
+import org.apache.skywalking.mqe.rt.grammar.MQEParser;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryMessage;
+import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVisitor;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
+import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Minutes;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -32,37 +65,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.apache.skywalking.mqe.rt.exception.ParseErrorListener;
-import org.apache.skywalking.mqe.rt.grammar.MQELexer;
-import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
-import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResultType;
-import org.apache.skywalking.oap.server.core.query.mqe.MQEValues;
-import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVisitor;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
-import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
-import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Minutes;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
@@ -78,6 +80,7 @@ public class RunningRule {
     private final int period;
     private final String expression;
     private final int silencePeriod;
+    private final int recoveryObservationPeriod;
     private final Map<AlarmEntity, Window> windows;
     private final List<String> includeNames;
     private final List<String> excludeNames;
@@ -100,18 +103,19 @@ public class RunningRule {
         windows = new ConcurrentHashMap<>();
         period = alarmRule.getPeriod();
         this.silencePeriod = alarmRule.getSilencePeriod();
+        this.recoveryObservationPeriod = alarmRule.getRecoveryObservationPeriod();
         this.includeNames = alarmRule.getIncludeNames();
         this.excludeNames = alarmRule.getExcludeNames();
         this.includeNamesRegex = StringUtil.isNotEmpty(alarmRule.getIncludeNamesRegex()) ?
-            Pattern.compile(alarmRule.getIncludeNamesRegex()) : null;
+                Pattern.compile(alarmRule.getIncludeNamesRegex()) : null;
         this.excludeNamesRegex = StringUtil.isNotEmpty(alarmRule.getExcludeNamesRegex()) ?
-            Pattern.compile(alarmRule.getExcludeNamesRegex()) : null;
+                Pattern.compile(alarmRule.getExcludeNamesRegex()) : null;
         this.formatter = new AlarmMessageFormatter(alarmRule.getMessage());
         this.tags = alarmRule.getTags()
-                             .entrySet()
-                             .stream()
-                             .map(e -> new Tag(e.getKey(), e.getValue()))
-                             .collect(Collectors.toList());
+                .entrySet()
+                .stream()
+                .map(e -> new Tag(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
         this.hooks = alarmRule.getHooks();
         MQELexer lexer = new MQELexer(CharStreams.fromString(alarmRule.getExpression()));
         MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
@@ -143,9 +147,10 @@ public class RunningRule {
         }
 
         AlarmEntity entity = new AlarmEntity(
-            meta.getScope(), meta.getScopeId(), meta.getName(), meta.getId0(), meta.getId1());
+                meta.getScope(), meta.getScopeId(), meta.getName(), meta.getId0(), meta.getId1());
 
-        Window window = windows.computeIfAbsent(entity, ignored -> new Window(entity, this.period, this.additionalPeriod));
+        Window window = windows.computeIfAbsent(entity, ignored -> new Window(entity, this.period,
+                this.silencePeriod, this.recoveryObservationPeriod, this.additionalPeriod));
         window.add(meta.getMetricsName(), metrics);
     }
 
@@ -214,31 +219,27 @@ public class RunningRule {
         windows.forEach((alarmEntity, window) -> {
             if (window.isExpired()) {
                 expiredEntityList.add(alarmEntity);
+                if (log.isTraceEnabled()) {
+                    log.trace("RuleName:{} AlarmEntity {} {} {} expired", ruleName, alarmEntity.getName(),
+                            alarmEntity.getId0(), alarmEntity.getId1());
+                }
                 return;
             }
 
             Optional<AlarmMessage> alarmMessageOptional = window.checkAlarm();
-            if (alarmMessageOptional.isPresent()) {
-                AlarmMessage alarmMessage = alarmMessageOptional.get();
-                alarmMessage.setScopeId(alarmEntity.getScopeId());
-                alarmMessage.setScope(alarmEntity.getScope());
-                alarmMessage.setName(alarmEntity.getName());
-                alarmMessage.setId0(alarmEntity.getId0());
-                alarmMessage.setId1(alarmEntity.getId1());
-                alarmMessage.setRuleName(this.ruleName);
-                alarmMessage.setAlarmMessage(formatter.format(alarmEntity));
-                alarmMessage.setStartTime(System.currentTimeMillis());
-                alarmMessage.setPeriod(this.period);
-                alarmMessage.setTags(this.tags);
-                alarmMessage.setHooks(this.hooks);
-                alarmMessage.setExpression(expression);
-                alarmMessage.setMqeMetricsSnapshot(window.mqeMetricsSnapshot);
-                alarmMessageList.add(alarmMessage);
-            }
+            alarmMessageOptional.ifPresent(alarmMessageList::add);
         });
 
         expiredEntityList.forEach(windows::remove);
         return alarmMessageList;
+    }
+
+    public enum State {
+        NORMAL,
+        FIRING,
+        SILENCED,
+        OBSERVING_RECOVERY,
+        RECOVERED
     }
 
     /**
@@ -246,6 +247,7 @@ public class RunningRule {
      * buckets.
      */
     public class Window {
+
         @Getter
         private LocalDateTime endTime;
         @Getter
@@ -253,20 +255,24 @@ public class RunningRule {
         @Getter
         private final int size;
         @Getter
-        private int silenceCountdown;
+        private final int period;
+        @Getter
+        private final AlarmStateMachine stateMachine;
         private LinkedList<Map<String, Metrics>> values;
         private ReentrantLock lock = new ReentrantLock();
+        private AlarmMessage lastAlarmMessage;
         @Getter
         private JsonObject mqeMetricsSnapshot;
         private AlarmEntity entity;
 
-        public Window(AlarmEntity entity, int period, int additionalPeriod) {
+        public Window(AlarmEntity entity, int period, int silencePeriod, int recoveryObservationPeriod,
+                      int additionalPeriod) {
             this.entity = entity;
             this.additionalPeriod = additionalPeriod;
             this.size = period + additionalPeriod;
-            // -1 means silence countdown is not running.
-            silenceCountdown = -1;
-            init();
+            this.period = period;
+            this.stateMachine = new AlarmStateMachine(silencePeriod, recoveryObservationPeriod);
+            this.init();
         }
 
         public void moveTo(LocalDateTime current) {
@@ -321,8 +327,8 @@ public class RunningRule {
                     // also should happen, but maybe if agent/probe mechanism time is not right.
                     if (log.isTraceEnabled()) {
                         log.trace(
-                            "Timebucket is {}, endTime is {} and value size is {}", timeBucket, this.endTime,
-                            values.size()
+                                "Timebucket is {}, endTime is {} and value size is {}", timeBucket, this.endTime,
+                                values.size()
                         );
                     }
                     return;
@@ -345,22 +351,45 @@ public class RunningRule {
         }
 
         public Optional<AlarmMessage> checkAlarm() {
-            if (isMatch()) {
-                /*
-                 * When
-                 * 1. Alarm trigger conditions are satisfied.
-                 * 2. Isn't in silence stage, judged by SilenceCountdown(!=0).
-                 */
-                if (silenceCountdown < 1) {
-                    silenceCountdown = silencePeriod;
-                    return Optional.of(new AlarmMessage());
-                } else {
-                    silenceCountdown--;
-                }
+            boolean match = isMatch();
+            if (log.isTraceEnabled()) {
+                log.trace("RuleName {} AlarmEntity {} {} {} isMatch:{}", ruleName, entity.getName(), entity.getId0(),
+                        entity.getId1(), match);
+            }
+            if (match) {
+                stateMachine.onMatch();
             } else {
-                silenceCountdown--;
+                stateMachine.onMismatch();
+            }
+            if (stateMachine.getCurrentState() == State.FIRING) {
+                AlarmMessage alarmMessage = buildAlarmMessage();
+                lastAlarmMessage = alarmMessage;
+                return Optional.of(alarmMessage);
+            }
+            if (stateMachine.getCurrentState() == State.RECOVERED) {
+                AlarmRecoveryMessage alarmRecoveryMessage = new AlarmRecoveryMessage(lastAlarmMessage);
+                lastAlarmMessage = null;
+                return Optional.of(alarmRecoveryMessage);
             }
             return Optional.empty();
+        }
+
+        private AlarmMessage buildAlarmMessage() {
+            AlarmMessage alarmMessage = new AlarmMessage();
+            alarmMessage.setScopeId(entity.getScopeId());
+            alarmMessage.setScope(entity.getScope());
+            alarmMessage.setName(entity.getName());
+            alarmMessage.setId0(entity.getId0());
+            alarmMessage.setId1(entity.getId1());
+            alarmMessage.setRuleName(ruleName);
+            alarmMessage.setAlarmMessage(formatter.format(entity));
+            alarmMessage.setStartTime(System.currentTimeMillis());
+            alarmMessage.setPeriod(period);
+            alarmMessage.setTags(tags);
+            alarmMessage.setHooks(hooks);
+            alarmMessage.setExpression(expression);
+            alarmMessage.setMqeMetricsSnapshot(mqeMetricsSnapshot);
+            return alarmMessage;
         }
 
         private boolean isMatch() {
@@ -375,15 +404,15 @@ public class RunningRule {
                     return false;
                 }
                 if (!parseResult.isBoolResult() ||
-                    ExpressionResultType.SINGLE_VALUE != parseResult.getType() ||
-                    CollectionUtils.isEmpty(parseResult.getResults())) {
+                        ExpressionResultType.SINGLE_VALUE != parseResult.getType() ||
+                        CollectionUtils.isEmpty(parseResult.getResults())) {
                     return false;
                 }
                 if (!parseResult.isLabeledResult()) {
                     MQEValues mqeValues = parseResult.getResults().get(0);
                     if (mqeValues != null &&
-                        CollectionUtils.isNotEmpty(mqeValues.getValues()) &&
-                        mqeValues.getValues().get(0) != null) {
+                            CollectionUtils.isNotEmpty(mqeValues.getValues()) &&
+                            mqeValues.getValues().get(0) != null) {
                         isMatch = (int) mqeValues.getValues().get(0).getDoubleValue();
                     }
                 } else {
@@ -401,8 +430,8 @@ public class RunningRule {
                     // then the isMatch is 1
                     for (MQEValues mqeValues : parseResult.getResults()) {
                         if (mqeValues != null &&
-                            CollectionUtils.isNotEmpty(mqeValues.getValues()) &&
-                            mqeValues.getValues().get(0) != null) {
+                                CollectionUtils.isNotEmpty(mqeValues.getValues()) &&
+                                mqeValues.getValues().get(0) != null) {
                             isMatch = (int) mqeValues.getValues().get(0).getDoubleValue();
                             if (isMatch == 1) {
                                 break;
@@ -447,6 +476,113 @@ public class RunningRule {
                 values.add(null);
             }
         }
+
+        public class AlarmStateMachine {
+            @Getter
+            private int silenceCountdown;
+            @Getter
+            private int recoveryObservationCountdown;
+            private final int silencePeriod;
+            private final int recoveryObservationPeriod;
+            @Getter
+            private State currentState;
+
+            public AlarmStateMachine(int silencePeriod, int recoveryObservationPeriod) {
+                this.currentState = State.NORMAL;
+                this.silencePeriod = silencePeriod;
+                this.recoveryObservationPeriod = recoveryObservationPeriod;
+                this.silenceCountdown = -1;
+                this.recoveryObservationCountdown = recoveryObservationPeriod;
+            }
+
+            public void onMatch() {
+                if (log.isTraceEnabled()) {
+                    log.trace("RuleName:{} AlarmEntity {} {} {} onMatch silenceCountdown:{} currentState:{}",
+                            ruleName, entity.getName(), entity.getId0(), entity.getId1(), silenceCountdown, currentState);
+                }
+                silenceCountdown--;
+                switch (currentState) {
+                    case NORMAL:
+                    case SILENCED:
+                    case OBSERVING_RECOVERY:
+                    case RECOVERED:
+                        if (silenceCountdown < 0) {
+                            transitionTo(State.FIRING);
+                        }
+                        break;
+                    case FIRING:
+                        if (silenceCountdown >= 0) {
+                            transitionTo(State.SILENCED);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            public void onMismatch() {
+                if (log.isTraceEnabled()) {
+                    log.trace("RuleName:{} AlarmEntity {} {} {} onMismatch silenceCountdown:{} " +
+                                    "recoveryObservationCountdown:{} currentState:{}",
+                            ruleName, entity.getName(), entity.getId0(), entity.getId1(), silenceCountdown,
+                            recoveryObservationCountdown, currentState);
+                }
+                recoveryObservationCountdown--;
+                silenceCountdown--;
+                switch (currentState) {
+                    case FIRING:
+                    case SILENCED:
+                        if (this.recoveryObservationCountdown < 0) {
+                            transitionTo(State.RECOVERED);
+                        } else {
+                            transitionTo(State.OBSERVING_RECOVERY);
+                        }
+                        break;
+                    case OBSERVING_RECOVERY:
+                        if (recoveryObservationCountdown < 0) {
+                            transitionTo(State.RECOVERED);
+                        }
+                        break;
+                    case RECOVERED:
+                        transitionTo(State.NORMAL);
+                        break;
+                    case NORMAL:
+                    default:
+                        break;
+                }
+            }
+
+            private void transitionTo(State newState) {
+                if (log.isTraceEnabled()) {
+                    log.trace("RuleName:{} AlarmEntity {} {} {} transitionTo  newState:{}",
+                            ruleName, entity.getName(), entity.getId0(), entity.getId1(), newState);
+                }
+                this.currentState = newState;
+                switch (newState) {
+                    case NORMAL:
+                        resetCountdowns();
+                        break;
+                    case FIRING:
+                        this.silenceCountdown = this.silencePeriod;
+                        this.recoveryObservationCountdown = recoveryObservationPeriod;
+                        break;
+                    case SILENCED:
+                        break;
+                    case OBSERVING_RECOVERY:
+                        this.recoveryObservationCountdown = this.recoveryObservationPeriod - 1;
+                        break;
+                    case RECOVERED:
+                        this.recoveryObservationCountdown = this.recoveryObservationPeriod;
+                        break;
+                }
+            }
+
+            private void resetCountdowns() {
+                recoveryObservationCountdown = this.recoveryObservationPeriod;
+            }
+
+        }
+
     }
 
     private LinkedList<Map<String, TraceLogMetric>> transformValues(LinkedList<Map<String, Metrics>> values) {
@@ -460,16 +596,16 @@ public class RunningRule {
                 Map<String, TraceLogMetric> r = new HashMap<>();
                 result.add(r);
                 if (m instanceof LongValueHolder) {
-                    r.put(name, new TraceLogMetric(m.getTimeBucket(), new Number[] {((LongValueHolder) m).getValue()}));
+                    r.put(name, new TraceLogMetric(m.getTimeBucket(), new Number[]{((LongValueHolder) m).getValue()}));
                 } else if (m instanceof IntValueHolder) {
-                    r.put(name, new TraceLogMetric(m.getTimeBucket(), new Number[] {((IntValueHolder) m).getValue()}));
+                    r.put(name, new TraceLogMetric(m.getTimeBucket(), new Number[]{((IntValueHolder) m).getValue()}));
                 } else if (m instanceof DoubleValueHolder) {
-                    r.put(name, new TraceLogMetric(m.getTimeBucket(), new Number[] {((DoubleValueHolder) m).getValue()}));
+                    r.put(name, new TraceLogMetric(m.getTimeBucket(), new Number[]{((DoubleValueHolder) m).getValue()}));
                 } else if (m instanceof LabeledValueHolder) {
                     DataTable dt = ((LabeledValueHolder) m).getValue();
                     TraceLogMetric l = new TraceLogMetric(
-                        m.getTimeBucket(), dt.sortedValues(Comparator.naturalOrder())
-                                             .toArray(new Number[0]));
+                            m.getTimeBucket(), dt.sortedValues(Comparator.naturalOrder())
+                            .toArray(new Number[0]));
                     l.labels = dt.sortedKeys(Comparator.naturalOrder()).toArray(new String[0]);
                     r.put(name, l);
                 } else {

@@ -26,6 +26,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 public abstract class HttpAlarmCallback implements AlarmCallback {
@@ -58,4 +59,21 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
         }
         return response.body();
     }
+
+    /**
+     * Send alarm message if the settings not empty
+     */
+    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+        doAlarmCallback(alarmMessages, false);
+    }
+
+    /**
+     * Send alarm  recovery message if the settings not empty
+     */
+    public void doAlarmRecovery(List<AlarmMessage> alarmRecoveryMessages) throws Exception {
+        doAlarmCallback(alarmRecoveryMessages, true);
+    }
+
+    protected abstract void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception ;
+
 }
