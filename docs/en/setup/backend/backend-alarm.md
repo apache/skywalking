@@ -517,21 +517,22 @@ the sliding window will be destroyed and re-created, causing the Alarm of this s
 
 ## Alarm state transition
 The overall alarm state transition after the introduction of alarm restoration detection and notification since version 10.4.0 is as follows:
+
 ```mermaid
 stateDiagram-v2
     [*] --> NORMAL
-    NORMAL --> FIRING: Expression match<br/>SilencePeriod reached
+    NORMAL --> FIRING: Expression true<br/>not in silence period
     
-    FIRING --> SILENCED: Expression match<br/>SilencePeriod reached
-    FIRING --> OBSERVING_RECOVERY: Expression mismatch<br/>RecoveryObservationPeriod unreached
-    FIRING --> RECOVERED: Expression mismatch<br/>RecoveryObservationPeriod reached
-    
-    SILENCED --> OBSERVING_RECOVERY: Expression mismatch<br/>RecoveryObservationPeriod unreached
-    SILENCED --> RECOVERED: Expression mismatch<br/>RecoveryObservationPeriod reached
-    
-    OBSERVING_RECOVERY --> FIRING: Expression match<br/>SilencePeriod reached
-    OBSERVING_RECOVERY --> RECOVERED: Expression mismatch<br/>RecoveryObservationPeriod reached
-    
-    RECOVERED --> FIRING: Expression match<br/>SilencePeriod reached
-    RECOVERED --> NORMAL: Expression mismatch
+    FIRING --> SILENCED: Expression true<br/>in silence period
+    FIRING --> OBSERVING_RECOVERY: Expression false<br/>in recovery window
+    FIRING --> RECOVERED: Expression false<br/>not in recovery window
+  
+    OBSERVING_RECOVERY --> FIRING: Expression true<br/>not in silence period
+    OBSERVING_RECOVERY --> RECOVERED: Expression false<br/>not in recovery window
+
+    SILENCED --> RECOVERED: Expression false<br/>not in recovery window
+    SILENCED --> OBSERVING_RECOVERY: Expression false<br/>in recovery window
+
+    RECOVERED --> FIRING: Expression true<br/>not in silence period
+    RECOVERED --> NORMAL: Expression false
 ```

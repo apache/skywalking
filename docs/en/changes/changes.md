@@ -8,6 +8,8 @@
 * Enhance the alarm kernel with recovered status notification capability
 
 #### UI
+* Fix the missing icon in new native trace view.
+* Enhance the alert page to show the recovery time of resolved alerts.
 
 #### Documentation
 
