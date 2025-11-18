@@ -40,7 +40,8 @@ The metrics names in the expression could be found in the [list of all potential
 - **Silence period**. After the alarm is triggered at Time-N (TN), there will be silence during the **TN -> TN + period**.
 By default, it works in the same manner as **period**. The same Alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
 - **Recovery observation period**. Defines the number of consecutive periods that the alarm condition must remain false before the alarm is considered recovered. When the alarm condition becomes false, the system enters an observation period. If the condition remains false for the specified number of periods, a recovery notification is sent. If the condition becomes true again during the observation period, the alarm returns to the FIRING state. 
-The default value is 0, which means immediate recovery notification when the condition becomes false.
+The default value is 0, which means immediate recovery notification when the condition becomes false. 
+**Notice:** because the alarm will not be triggered again during the silence period, recovery won't be triggered during the silence period after an alarm is fired. It will be in the OBSERVING_RECOVERY state, the recovery will be triggered only after the silence period is over and the condition remains false for the specified observation periods.
 
 
 Such as for a metric, there is a shifting window as following at T7.
@@ -523,15 +524,16 @@ stateDiagram-v2
     [*] --> NORMAL
     NORMAL --> FIRING: Expression true<br/>not in silence period
     
-    FIRING --> SILENCED: Expression true<br/>in silence period
-    FIRING --> OBSERVING_RECOVERY: Expression false<br/>in recovery window
-    FIRING --> RECOVERED: Expression false<br/>not in recovery window
+    FIRING --> SILENCED_FIRING: Expression true<br/>in silence period
+    FIRING --> OBSERVING_RECOVERY: Expression false<br/>in recovery window or in silence period
+    FIRING --> RECOVERED: Expression false<br/>not in recovery window and not in silence period
   
     OBSERVING_RECOVERY --> FIRING: Expression true<br/>not in silence period
-    OBSERVING_RECOVERY --> RECOVERED: Expression false<br/>not in recovery window
+    OBSERVING_RECOVERY --> SILENCED_FIRING: Expression true<br/>in silence period or in silence period
+    OBSERVING_RECOVERY --> RECOVERED: Expression false<br/>not in recovery window and not in silence period
 
-    SILENCED --> RECOVERED: Expression false<br/>not in recovery window
-    SILENCED --> OBSERVING_RECOVERY: Expression false<br/>in recovery window
+    SILENCED_FIRING --> RECOVERED: Expression false<br/>not in recovery window and not in silence period
+    SILENCED_FIRING --> OBSERVING_RECOVERY: Expression false<br/>in recovery window or in silence period
 
     RECOVERED --> FIRING: Expression true<br/>not in silence period
     RECOVERED --> NORMAL: Expression false

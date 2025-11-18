@@ -237,7 +237,7 @@ public class RunningRule {
     public enum State {
         NORMAL,
         FIRING,
-        SILENCED,
+        SILENCED_FIRING,
         OBSERVING_RECOVERY,
         RECOVERED
     }
@@ -477,14 +477,12 @@ public class RunningRule {
             }
         }
 
+        @Getter
         public class AlarmStateMachine {
-            @Getter
             private int silenceCountdown;
-            @Getter
             private int recoveryObservationCountdown;
             private final int silencePeriod;
             private final int recoveryObservationPeriod;
-            @Getter
             private State currentState;
 
             public AlarmStateMachine(int silencePeriod, int recoveryObservationPeriod) {
@@ -503,16 +501,20 @@ public class RunningRule {
                 silenceCountdown--;
                 switch (currentState) {
                     case NORMAL:
-                    case SILENCED:
+                        transitionTo(State.FIRING);
+                        break;
+                    case SILENCED_FIRING:
                     case OBSERVING_RECOVERY:
                     case RECOVERED:
                         if (silenceCountdown < 0) {
                             transitionTo(State.FIRING);
+                        } else {
+                            transitionTo(State.SILENCED_FIRING);
                         }
                         break;
                     case FIRING:
                         if (silenceCountdown >= 0) {
-                            transitionTo(State.SILENCED);
+                            transitionTo(State.SILENCED_FIRING);
                         }
                         break;
                     default:
@@ -531,15 +533,15 @@ public class RunningRule {
                 silenceCountdown--;
                 switch (currentState) {
                     case FIRING:
-                    case SILENCED:
-                        if (this.recoveryObservationCountdown < 0) {
+                    case SILENCED_FIRING:
+                        if (this.recoveryObservationCountdown < 0 && silenceCountdown < 0) {
                             transitionTo(State.RECOVERED);
                         } else {
                             transitionTo(State.OBSERVING_RECOVERY);
                         }
                         break;
                     case OBSERVING_RECOVERY:
-                        if (recoveryObservationCountdown < 0) {
+                        if (recoveryObservationCountdown < 0 && silenceCountdown < 0) {
                             transitionTo(State.RECOVERED);
                         }
                         break;
@@ -564,9 +566,9 @@ public class RunningRule {
                         break;
                     case FIRING:
                         this.silenceCountdown = this.silencePeriod;
-                        this.recoveryObservationCountdown = recoveryObservationPeriod;
+                        this.recoveryObservationCountdown = this.recoveryObservationPeriod;
                         break;
-                    case SILENCED:
+                    case SILENCED_FIRING:
                         break;
                     case OBSERVING_RECOVERY:
                         this.recoveryObservationCountdown = this.recoveryObservationPeriod - 1;
@@ -578,7 +580,7 @@ public class RunningRule {
             }
 
             private void resetCountdowns() {
-                recoveryObservationCountdown = this.recoveryObservationPeriod;
+                this.recoveryObservationCountdown = this.recoveryObservationPeriod;
             }
 
         }

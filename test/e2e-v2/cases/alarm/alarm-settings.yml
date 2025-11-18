@@ -38,7 +38,7 @@ rules:
       - webhook.custom
   comp_rule:
     expression: sum((service_resp_time > 100) && (service_sla > 1)) >= 1
-    period: 10
+    period: 5
     recovery-observation-period: 3
     message: Service {name} response time is more than 100ms and sla is more than 1%.
     tags:

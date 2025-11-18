@@ -158,8 +158,11 @@ Return the running context of the alarm rule.
         "endTime": "2025-11-10T09:39:00.000",
         "additionalPeriod": 0,
         "size": 10,
+        "silencePeriod": 3,
+        "recoveryObservationPeriod": 2,
         "silenceCountdown": 10,
         "recoveryObservationCountdown": 2,
+        "currentState": "FIRING",
         "entityName": "mock_b_service",
         "windowValues": [
           {
@@ -233,8 +236,9 @@ Return the running context of the alarm rule.
 `size` is the window size. Equal to the `period + additionalPeriod`.
 `silenceCountdown` is the countdown of the silence period. -1 means silence countdown is not running.
 `recoveryObservationCountdown` is the countdown of the recovery observation period.
-`windowValues` is the original metrics data. The `index` is the index of the window, starting from 0.
-`mqeMetricsSnapshot` is the metrics data in the MQE format. When checking conditions, these data will be calculated according to the expression.
+`windowValues` is the original metrics data when the metrics come in. The `index` is the index of the window, starting from 0.
+`mqeMetricsSnapshot` is the metrics data in the MQE format which is generated when executing the checking. 
+These data will be calculated according to the expression.
 
 ## Get Errors When Querying Status from OAP Instances
 

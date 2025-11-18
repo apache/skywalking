@@ -136,8 +136,11 @@ public class AlarmStatusWatcher implements AlarmStatusWatcherService {
         runningContext.setEndTime(window.getEndTime().toString());
         runningContext.setAdditionalPeriod(window.getAdditionalPeriod());
         runningContext.setSize(window.getSize());
+        runningContext.setSilencePeriod(window.getStateMachine().getSilencePeriod());
+        runningContext.setRecoveryObservationPeriod(window.getStateMachine().getRecoveryObservationPeriod());
         runningContext.setSilenceCountdown(window.getStateMachine().getSilenceCountdown());
         runningContext.setRecoveryObservationCountdown(window.getStateMachine().getRecoveryObservationCountdown());
+        runningContext.setCurrentState(window.getStateMachine().getCurrentState().name());
         window.scanWindowValues(values -> {
             for (int i = 0; i < values.size(); i++) {
                 AlarmRunningContext.WindowValue windowValue = new AlarmRunningContext.WindowValue();
