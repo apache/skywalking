@@ -533,7 +533,7 @@ stateDiagram-v2
     OBSERVING_RECOVERY --> RECOVERED: Expression false<br/>not in recovery window and not in silence period
 
     SILENCED_FIRING --> RECOVERED: Expression false<br/>not in recovery window and not in silence period
-    SILENCED_FIRING --> OBSERVING_RECOVERY: Expression false<br/>in recovery window
+    SILENCED_FIRING --> OBSERVING_RECOVERY: Expression false<br/>in recovery window or in silence period
 
     RECOVERED --> FIRING: Expression true<br/>not in silence period
     RECOVERED --> NORMAL: Expression false
