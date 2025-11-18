@@ -237,7 +237,7 @@ Return the running context of the alarm rule.
 `silenceCountdown` is the countdown of the silence period. -1 means silence countdown is not running.
 `recoveryObservationCountdown` is the countdown of the recovery observation period.
 `windowValues` is the original metrics data when the metrics come in. The `index` is the index of the window, starting from 0.
-`mqeMetricsSnapshot` is the metrics data in the MQE format which generated when executing the checking. 
+`mqeMetricsSnapshot` is the metrics data in the MQE format which is generated when executing the checking. 
 These data will be calculated according to the expression.
 
 ## Get Errors When Querying Status from OAP Instances
