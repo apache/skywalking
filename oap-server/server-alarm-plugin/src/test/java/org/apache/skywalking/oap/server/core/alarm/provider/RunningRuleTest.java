@@ -740,13 +740,13 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(1).getMillis()), 72));
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
-        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+        Assertions.assertEquals(RunningRule.State.SILENCED_FIRING, stateMachine.getCurrentState());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(2).getMillis()), 72));
         runningRule.moveTo(startTime.plusMinutes(2).toLocalDateTime());
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
-        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+        Assertions.assertEquals(RunningRule.State.SILENCED_FIRING, stateMachine.getCurrentState());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(3).getMillis()), 80));
         runningRule.moveTo(startTime.plusMinutes(3).toLocalDateTime());
@@ -758,16 +758,22 @@ public class RunningRuleTest {
         runningRule.moveTo(startTime.plusMinutes(4).toLocalDateTime());
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
-        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+        Assertions.assertEquals(RunningRule.State.SILENCED_FIRING, stateMachine.getCurrentState());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(5).getMillis()), 80));
         runningRule.moveTo(startTime.plusMinutes(5).toLocalDateTime());
         alarmMessages = getAlarmRecoveryMessageList(runningRule.check());
-        Assertions.assertEquals(1, alarmMessages.size(), "Should recover immediately");
-        Assertions.assertEquals(RunningRule.State.RECOVERED, stateMachine.getCurrentState());
+        Assertions.assertEquals(0, alarmMessages.size(), "Should not recover immediately");
+        Assertions.assertEquals(RunningRule.State.OBSERVING_RECOVERY, stateMachine.getCurrentState());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(6).getMillis()), 80));
         runningRule.moveTo(startTime.plusMinutes(6).toLocalDateTime());
+        alarmMessages = getAlarmRecoveryMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size(), "Should recover after silence period");
+        Assertions.assertEquals(RunningRule.State.RECOVERED, stateMachine.getCurrentState());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(7).getMillis()), 80));
+        runningRule.moveTo(startTime.plusMinutes(7).toLocalDateTime());
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size(), "Should be normal");
         Assertions.assertEquals(RunningRule.State.NORMAL, stateMachine.getCurrentState());
@@ -858,23 +864,23 @@ public class RunningRuleTest {
             alarmMessages = getAlarmFiringMessageList(runningRule.check());
             if (i < 3) {
                 Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced at minute " + i);
-                Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+                Assertions.assertEquals(RunningRule.State.SILENCED_FIRING, stateMachine.getCurrentState());
             } else {
                 Assertions.assertEquals(1, alarmMessages.size(), "Should fire after silence period");
                 Assertions.assertEquals(RunningRule.State.FIRING, stateMachine.getCurrentState());
             }
         }
-        for (int i = 0; i <= 2; i++) {
+        for (int i = 0; i <= 3; i++) {
             runningRule.moveTo(startTime.plusMinutes(8 + i).toLocalDateTime());
             runningRule.in(getMetaInAlarm(123), getMetrics(
                     TimeBucket.getMinuteTimeBucket(startTime.plusMinutes(8 + i).getMillis()), 80));
-            if (i < 2) {
+            if (i < 3) {
                 List<AlarmMessage> recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
                 Assertions.assertEquals(0, recoveryMessages.size(), "Should not recover immediately");
                 Assertions.assertEquals(RunningRule.State.OBSERVING_RECOVERY, stateMachine.getCurrentState());
             } else {
                 List<AlarmMessage> recoveryMessages = getAlarmRecoveryMessageList(runningRule.check());
-                Assertions.assertEquals(1, recoveryMessages.size(), "Should recover after observation period");
+                Assertions.assertEquals(1, recoveryMessages.size(), "Should recover after silence period");
                 Assertions.assertEquals(RunningRule.State.RECOVERED, stateMachine.getCurrentState());
             }
         }
@@ -914,12 +920,12 @@ public class RunningRuleTest {
         runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
-        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+        Assertions.assertEquals(RunningRule.State.SILENCED_FIRING, stateMachine.getCurrentState());
 
         runningRule.moveTo(startTime.plusMinutes(2).toLocalDateTime());
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(0, alarmMessages.size(), "Should be silenced");
-        Assertions.assertEquals(RunningRule.State.SILENCED, stateMachine.getCurrentState());
+        Assertions.assertEquals(RunningRule.State.SILENCED_FIRING, stateMachine.getCurrentState());
 
         runningRule.moveTo(startTime.plusMinutes(3).toLocalDateTime());
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
