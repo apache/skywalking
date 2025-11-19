@@ -60,15 +60,15 @@ public class SlackhookCallback extends HttpAlarmCallback {
                     messages)) {
                 continue;
             }
-
+            String template = getTemplate(setting, isRecovery);
+            if (StringUtil.isBlank(template)) {
+                continue;
+            }
             for (final var url : setting.getWebhooks()) {
                 final var jsonObject = new JsonObject();
                 final var jsonElements = new JsonArray();
                 for (AlarmMessage item : messages) {
-                    String template = getTemplate(setting, isRecovery);
-                    if (StringUtil.isNotBlank(template)) {
-                        jsonElements.add(GSON.fromJson(String.format(template, item.getAlarmMessage()), JsonObject.class));
-                    }
+                    jsonElements.add(GSON.fromJson(String.format(template, item.getAlarmMessage()), JsonObject.class));
                 }
                 jsonObject.add("blocks", jsonElements);
                 final var body = GSON.toJson(jsonObject);

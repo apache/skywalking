@@ -56,13 +56,14 @@ public class DiscordHookCallback extends HttpAlarmCallback {
                     messages)) {
                 continue;
             }
+            String template = getTemplate(setting, isRecovery);
+            if (StringUtil.isBlank(template)) {
+                continue;
+            }
             for (final var webHookUrl : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
-                    String template = getTemplate(setting, isRecovery);
-                    if (StringUtil.isNotBlank(template)) {
-                        final var content = String.format(template, alarmMessage.getAlarmMessage());
-                        sendAlarmMessage(webHookUrl, content);
-                    }
+                    final var content = String.format(template, alarmMessage.getAlarmMessage());
+                    sendAlarmMessage(webHookUrl, content);
                 }
             }
         }

@@ -69,14 +69,15 @@ public class WeLinkHookCallback extends HttpAlarmCallback {
                     messages)) {
                 continue;
             }
+            String template = getTemplate(setting, isRecovery);
+            if (StringUtil.isBlank(template)) {
+                continue;
+            }
             for (final var webHookUrl : setting.getWebhooks()) {
                 final var accessToken = getAccessToken(webHookUrl);
                 for (final var alarmMessage : messages) {
-                    String template = getTemplate(setting, isRecovery);
-                    if (StringUtil.isNotBlank(template)) {
-                        final var content = String.format(template, alarmMessage.getAlarmMessage());
-                        sendAlarmMessage(webHookUrl, accessToken, content);
-                    }
+                    final var content = String.format(template, alarmMessage.getAlarmMessage());
+                    sendAlarmMessage(webHookUrl, accessToken, content);
                 }
             }
         }
