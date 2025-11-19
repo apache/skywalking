@@ -73,7 +73,7 @@ Return the detailed information of the alarm running rule.
           {
             "scope": "SERVICE",
             "name": "mock_b_service",
-            "formattedMessage": "Response time of mock_b_service is more than upper baseline in 1 minutes of last 10 minutes."
+            "formattedMessage": "Service mock_b_service response time is more than 1000ms of last 10 minutes"
           }
         ],
         "tags": [
@@ -108,12 +108,12 @@ Return the detailed information of the alarm running rule.
           {
             "scope": "SERVICE",
             "name": "mock_a_service",
-            "formattedMessage": "Response time of mock_a_service is more than upper baseline in 1 minutes of last 10 minutes."
+            "formattedMessage": "Service mock_a_service response time is more than 1000ms of last 10 minutes."
           },
           {
             "scope": "SERVICE",
             "name": "mock_c_service",
-            "formattedMessage": "Response time of service mock_c_service is more than upper baseline in 1 minutes of last 10 minutes."
+            "formattedMessage": "Service mock_c_service response time is more than 1000ms of last 10 minutes."
           }
         ],
         "tags": [
@@ -155,13 +155,13 @@ Return the running context of the alarm rule.
       "status": {
         "ruleId": "service_resp_time_rule",
         "expression": "sum(service_resp_time > 1000) >= 1",
-        "endTime": "2025-11-10T09:39:00.000",
+        "endTime": "2025-11-19T15:20:00.000",
         "additionalPeriod": 0,
         "size": 10,
-        "silencePeriod": 3,
-        "recoveryObservationPeriod": 2,
+        "silencePeriod": 10,
+        "recoveryObservationPeriod": 0,
         "silenceCountdown": 10,
-        "recoveryObservationCountdown": 2,
+        "recoveryObservationCountdown": 0,
         "currentState": "FIRING",
         "entityName": "mock_b_service",
         "windowValues": [
@@ -195,17 +195,17 @@ Return the running context of the alarm rule.
           },
           {
             "index": 7,
-            "metrics": [
-              {
-                "name": "service_resp_time",
-                "timeBucket": 202502121437,
-                "value": "6000"
-              }
-            ]
+            "metrics": []
           },
           {
             "index": 8,
-            "metrics": []
+            "metrics": [
+              {
+                "name": "service_resp_time",
+                "timeBucket": 202511191519,
+                "value": "6000"
+              }
+            ]
           },
           {
             "index": 9,
@@ -213,8 +213,12 @@ Return the running context of the alarm rule.
           }
         ],
         "mqeMetricsSnapshot": {
-          "service_resp_time": "[{\"metric\":{\"labels\":[]},\"values\":[{\"id\":\"202502121430\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121431\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121432\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121433\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121434\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121435\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121436\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121437\",\"doubleValue\":6000.0,\"isEmptyValue\":false},{\"id\":\"202502121438\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202502121439\",\"doubleValue\":0.0,\"isEmptyValue\":true}]}]",
-          "baseline(service_resp_time,upper)": "[{\"metric\":{\"labels\":[]},\"values\":[{\"id\":\"202502121430\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121431\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121432\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121433\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121434\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121435\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121436\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121437\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121438\",\"doubleValue\":10.0,\"isEmptyValue\":false},{\"id\":\"202502121439\",\"doubleValue\":10.0,\"isEmptyValue\":false}]}]"
+          "service_resp_time": "[{\"metric\":{\"labels\":[]},\"values\":[{\"id\":\"202511191511\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191512\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191513\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191514\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191515\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191516\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191517\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191518\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191519\",\"doubleValue\":6000.0,\"isEmptyValue\":false},{\"id\":\"202511191520\",\"doubleValue\":0.0,\"isEmptyValue\":true}]}]"
+        },
+        "lastAlarmTime": "1763536823628",
+        "lastAlarmMessage": "Service mock_b_service response time is more than 1000ms of last 10 minutes.",
+        "lastAlarmMqeMetricsSnapshot": {
+          "service_resp_time": "[{\"metric\":{\"labels\":[]},\"values\":[{\"id\":\"202511191511\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191512\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191513\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191514\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191515\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191516\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191517\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191518\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191519\",\"doubleValue\":6000.0,\"isEmptyValue\":false},{\"id\":\"202511191520\",\"doubleValue\":0.0,\"isEmptyValue\":true}]}]"
         }
       }
     },
@@ -227,7 +231,8 @@ Return the running context of the alarm rule.
         "size": 0,
         "silenceCountdown": 0,
         "recoveryObservationCountdown": 0,
-        "windowValues": []
+        "windowValues": [],
+        "lastAlarmTime": 0
       }
     }
   ]
@@ -237,8 +242,11 @@ Return the running context of the alarm rule.
 `silenceCountdown` is the countdown of the silence period. -1 means silence countdown is not running.
 `recoveryObservationCountdown` is the countdown of the recovery observation period.
 `windowValues` is the original metrics data when the metrics come in. The `index` is the index of the window, starting from 0.
-`mqeMetricsSnapshot` is the metrics data in the MQE format which is generated when executing the checking. 
+`mqeMetricsSnapshot` is the current metrics data in the MQE format which is generated when executing the checking. 
 These data will be calculated according to the expression.
+`lastAlarmTime` is the last time when the alarm is triggered. It will be reset to 0 when the alarm recovers.
+`lastAlarmMessage` is the last alarm message when the alarm is triggered.
+`lastAlarmMqeMetricsSnapshot` is the metrics data snapshot in the MQE format when the last alarm is triggered.
 
 ## Get Errors When Querying Status from OAP Instances
 

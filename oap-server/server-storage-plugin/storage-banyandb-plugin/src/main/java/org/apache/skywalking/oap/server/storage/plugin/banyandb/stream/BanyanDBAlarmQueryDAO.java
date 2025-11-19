@@ -52,10 +52,8 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
     private static final Set<String> TAGS = ImmutableSet.of(AlarmRecord.SCOPE,
             AlarmRecord.NAME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.UUID, AlarmRecord.ALARM_MESSAGE,
             AlarmRecord.START_TIME, AlarmRecord.RULE_NAME, AlarmRecord.TAGS, AlarmRecord.TAGS_RAW_DATA, AlarmRecord.SNAPSHOT);
-    private static final Set<String> RECOVERY_TAGS = ImmutableSet.of(AlarmRecoveryRecord.SCOPE,
-            AlarmRecoveryRecord.NAME, AlarmRecord.ID0, AlarmRecoveryRecord.ID1, AlarmRecoveryRecord.UUID,
-            AlarmRecoveryRecord.ALARM_MESSAGE, AlarmRecoveryRecord.START_TIME, AlarmRecoveryRecord.RECOVERY_TIME,
-            AlarmRecoveryRecord.RULE_NAME, AlarmRecoveryRecord.TAGS, AlarmRecoveryRecord.TAGS_RAW_DATA, AlarmRecoveryRecord.SNAPSHOT);
+    private static final Set<String> RECOVERY_TAGS = ImmutableSet.of(
+        AlarmRecoveryRecord.UUID, AlarmRecoveryRecord.RECOVERY_TIME);
 
     public BanyanDBAlarmQueryDAO(BanyanDBStorageClient client) {
         super(client);

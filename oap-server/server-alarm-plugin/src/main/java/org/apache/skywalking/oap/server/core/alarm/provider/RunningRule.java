@@ -260,6 +260,7 @@ public class RunningRule {
         private final AlarmStateMachine stateMachine;
         private LinkedList<Map<String, Metrics>> values;
         private ReentrantLock lock = new ReentrantLock();
+        @Getter
         private AlarmMessage lastAlarmMessage;
         @Getter
         private JsonObject mqeMetricsSnapshot;

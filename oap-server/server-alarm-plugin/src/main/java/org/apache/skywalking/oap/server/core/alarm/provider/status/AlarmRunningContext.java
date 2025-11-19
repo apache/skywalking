@@ -38,6 +38,9 @@ public class AlarmRunningContext {
     private String entityName;
     private List<WindowValue> windowValues = new ArrayList<>();
     private JsonObject mqeMetricsSnapshot;
+    private long lastAlarmTime;
+    private String lastAlarmMessage;
+    private JsonObject lastAlarmMqeMetricsSnapshot;
 
     @Data
     public static class Metric {
