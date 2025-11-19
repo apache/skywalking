@@ -89,23 +89,8 @@ public class AlarmStandardPersistence implements AlarmCallback {
             AlarmRecoveryMessage alarmRecoveryMessage = (AlarmRecoveryMessage) message;
             AlarmRecoveryRecord record = new AlarmRecoveryRecord();
             record.setUuid(message.getUuid());
-            record.setScope(message.getScopeId());
-            record.setId0(message.getId0());
-            record.setId1(message.getId1());
-            record.setName(message.getName());
-            record.setAlarmMessage(message.getAlarmMessage());
-            record.setStartTime(message.getStartTime());
             record.setRecoveryTime(alarmRecoveryMessage.getRecoveryTime());
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
-            record.setRuleName(message.getRuleName());
-            Collection<Tag> tags = appendSearchableTags(message.getTags());
-            addAutocompleteTags(tags, TimeBucket.getMinuteTimeBucket(message.getStartTime()));
-            record.setTagsRawData(gson.toJson(message.getTags()).getBytes(Charsets.UTF_8));
-            record.setTagsInString(Tag.Util.toStringList(new ArrayList<>(tags)));
-            AlarmSnapshotRecord snapshot = new AlarmSnapshotRecord();
-            snapshot.setExpression(message.getExpression());
-            snapshot.setMetrics(message.getMqeMetricsSnapshot());
-            record.setSnapshot(gson.toJson(snapshot));
             RecordStreamProcessor.getInstance().in(record);
         });
     }

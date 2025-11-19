@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRulesWatcherService;
 import org.apache.skywalking.oap.server.core.alarm.AlarmStatusWatcherService;
@@ -169,6 +170,12 @@ public class AlarmStatusWatcher implements AlarmStatusWatcherService {
             }
         });
         runningContext.setMqeMetricsSnapshot(window.getMqeMetricsSnapshot());
+        AlarmMessage lastAlarmMessage = window.getLastAlarmMessage();
+        if (lastAlarmMessage != null) {
+            runningContext.setLastAlarmTime(window.getLastAlarmMessage().getStartTime());
+            runningContext.setLastAlarmMessage(window.getLastAlarmMessage().getAlarmMessage());
+            runningContext.setLastAlarmMqeMetricsSnapshot(window.getLastAlarmMessage().getMqeMetricsSnapshot());
+        }
         return GSON.toJson(runningContext);
     }
 }
