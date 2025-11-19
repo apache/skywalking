@@ -54,6 +54,7 @@ public class AlarmRecoveryRecord extends Record {
     @ElasticSearch.EnableDocValues
     @Column(name = RECOVERY_TIME)
     private long recoveryTime;
+    @BanyanDB.SeriesID(index = 0)
     @Column(name = UUID)
     private String uuid;
 
