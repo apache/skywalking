@@ -59,16 +59,17 @@ public class PagerDutyHookCallback extends HttpAlarmCallback {
                     messages)) {
                 continue;
             }
+            String template = getTemplate(isRecovery, setting);
+            if (StringUtil.isBlank(template)) {
+                continue;
+            }
             for (final var integrationKey : setting.getIntegrationKeys()) {
                 for (final var alarmMessage : messages) {
                     try {
-                        String template = getTemplate(isRecovery, setting);
-                        if (StringUtil.isNotBlank(template)) {
-                            post(
-                                    URI.create(PAGER_DUTY_EVENTS_API_V2_URL),
-                                    getMessageBody(alarmMessage, integrationKey, template), Map.of()
-                            );
-                        }
+                        post(
+                            URI.create(PAGER_DUTY_EVENTS_API_V2_URL),
+                            getMessageBody(alarmMessage, integrationKey, template), Map.of()
+                        );
                     } catch (Exception e) {
                         log.error("Failed to send alarm message to PagerDuty: {}", integrationKey, e);
                     }

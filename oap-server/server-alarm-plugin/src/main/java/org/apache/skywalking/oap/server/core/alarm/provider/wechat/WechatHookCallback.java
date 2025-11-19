@@ -54,16 +54,17 @@ public class WechatHookCallback extends HttpAlarmCallback {
             if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(messages)) {
                 continue;
             }
+            String template = getTemplate(setting, isRecovery);
+            if (StringUtil.isBlank(template)) {
+                continue;
+            }
             for (final var url : setting.getWebhooks()) {
                 for (final var alarmMessage : messages) {
-                    String template = getTemplate(setting, isRecovery);
-                    if (StringUtil.isNotBlank(template)) {
-                        final var requestBody = String.format(template, alarmMessage.getAlarmMessage());
-                        try {
-                            post(URI.create(url), requestBody, Map.of());
-                        } catch (Exception e) {
-                            log.error("Failed to send alarm message to Wechat webhook: {}", url, e);
-                        }
+                    final var requestBody = String.format(template, alarmMessage.getAlarmMessage());
+                    try {
+                        post(URI.create(url), requestBody, Map.of());
+                    } catch (Exception e) {
+                        log.error("Failed to send alarm message to Wechat webhook: {}", url, e);
                     }
                 }
             }
