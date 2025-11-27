@@ -13,6 +13,8 @@
 
 #### Documentation
 
+* Add benchmark selection into banyanDB storage documentation.
+
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.4.0)
 
