@@ -14,6 +14,9 @@ BanyanDB is a native-built SkyWalking database, which can completely focus on Sk
 It has demonstrated significant potential for performance improvement and reduced resource usage requirements. It indicates 5x less memory usage, 
 1/5 disk IOPS, 1/4 disk throughput, and 30% less disk space, albeit with a slightly higher CPU trade-off, compared to Elasticsearch.
 
+In benchmark testing, a BanyanDB cluster with 2 liaison nodes and 2 data nodes (each with 2 cores and 4GB memory) successfully handled sustained high-throughput workloads: 
+ingesting over 571,000 metric data points, 151,000 stream records, and 6,600 traces (133,200 spans) per minute. Query performance remained responsive with median latencies of 26ms for metrics (p99: 288ms), 7ms for streams (p99: 72ms), and 436ms for traces (p99: ~1.1s) under concurrent read/write operations.
+
 ## SQL database
 - [MySQL and its compatible databases](storages/mysql.md)
 - [PostgreSQL and its compatible databases](storages/postgresql.md)
