@@ -65,7 +65,7 @@ browser_app_resource_protocol_count = from(BrowserAppResourcePerf.*).labelCount(
 browser_app_resource_type_count = from(BrowserAppResourcePerf.*).labelCount(type);
 
 browser_app_web_vitals_fmp_avg = from(BrowserAppWebVitalsPerf.fmpTime).filter(fmpTime >= 0).longAvg();
-browser_app_web_vitals_cls_avg = from(BrowserAppWebVitalsPerf.clsTime).filter(clsTime >= 0).longAvg();
+browser_app_web_vitals_cls_avg = from(BrowserAppWebVitalsPerf.cls).filter(cls >= 0).longAvg();
 browser_app_web_vitals_lcp_avg = from(BrowserAppWebVitalsPerf.lcpTime).filter(lcpTime >= 0).longAvg();
 
 browser_app_web_interaction_inp_percentile = from(BrowserAppWebInteractionPerf.inpTime).filter(inpTime >= 0).percentile2(10);
