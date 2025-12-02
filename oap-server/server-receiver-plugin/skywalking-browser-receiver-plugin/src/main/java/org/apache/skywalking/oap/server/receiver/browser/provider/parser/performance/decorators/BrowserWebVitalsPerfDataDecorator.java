@@ -69,7 +69,7 @@ public class BrowserWebVitalsPerfDataDecorator implements BrowserPerfDecorator {
         return builder.getLcpTime();
     }
 
-    public int getClsTime() {
-        return builder.getClsTime();
+    public double getCls() {
+        return builder.getCls();
     }
 }

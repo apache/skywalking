@@ -50,7 +50,7 @@ public class BrowserAppWebVitalsPerf extends Source {
     private String serviceName;
     private String path;
     private int fmpTime;
-    private int clsTime;
+    private int cls;
     private int lcpTime;
 
     @Override

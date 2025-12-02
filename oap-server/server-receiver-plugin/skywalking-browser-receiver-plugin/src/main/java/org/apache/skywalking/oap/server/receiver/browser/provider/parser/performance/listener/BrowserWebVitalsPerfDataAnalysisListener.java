@@ -49,7 +49,9 @@ public class BrowserWebVitalsPerfDataAnalysisListener implements PerfDataAnalysi
         browserAppWebVitalsPerf.setServiceName(namingControl.formatServiceName(decorator.getService()));
         browserAppWebVitalsPerf.setPath(namingControl.formatEndpointName(browserAppWebVitalsPerf.getServiceName(), decorator.getPagePath()));
         browserAppWebVitalsPerf.setFmpTime(decorator.getFmpTime());
-        browserAppWebVitalsPerf.setClsTime(decorator.getClsTime());
+        // Make CLS multiply 1000 to convert to int from double
+        // MQE should divide it by 1000 while querying
+        browserAppWebVitalsPerf.setCls((int) Math.round(decorator.getCls() * 1000));
         browserAppWebVitalsPerf.setLcpTime(decorator.getLcpTime());
     }
 
