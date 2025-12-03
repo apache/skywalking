@@ -22,22 +22,22 @@ nodes:
   isreal: true
   layers:
     - GENERAL
-- id: {{ b64enc "test-ui<browser>"}}.1
-  name: test-ui<browser>
+- id: {{ b64enc "test-ui"}}.1
+  name: test-ui
   type: null
   isreal: true
   layers:
-    - UNDEFINED
+    - BROWSER
 {{- end }}
 calls:
 {{- contains .calls }}
-- source: {{ b64enc "test-ui<browser>"}}.1
+- source: {{ b64enc "test-ui"}}.1
   sourcecomponents:
     - ajax
   target: {{ b64enc "provider-py"}}.1
   targetcomponents:
     - Python
-  id: {{ b64enc "test-ui<browser>"}}.1-{{ b64enc "provider-py"}}.1
+  id: {{ b64enc "test-ui"}}.1-{{ b64enc "provider-py"}}.1
   detectpoints:
     - CLIENT
     - SERVER

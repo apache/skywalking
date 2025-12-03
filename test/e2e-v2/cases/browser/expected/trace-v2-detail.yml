@@ -28,7 +28,7 @@ traces:
       spanid: 0
       parentspanid: -1
       refs: []
-      servicecode: test-ui<browser>
+      servicecode: test-ui
       serviceinstancename: "v1.0.0"
       starttime: {{ gt .starttime 0 }}
       endtime: {{ gt .endtime 0 }}
