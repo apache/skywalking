@@ -23,6 +23,7 @@ ARG CLIENT_JS_CODE_URL=https://github.com/apache/skywalking-client-js/archive/${
 WORKDIR /skywalking-client-js
 ADD ${CLIENT_JS_CODE_URL} .
 RUN tar -xf ${CLIENT_JS_CODE} --strip 1 && rm ${CLIENT_JS_CODE}
+ENV NPM_TOKEN=""
 RUN npm run rebuild \
     && npm link
 

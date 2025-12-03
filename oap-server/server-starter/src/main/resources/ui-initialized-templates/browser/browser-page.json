@@ -741,7 +741,7 @@
                   "i": "12",
                   "type": "Widget",
                   "expressions": [
-                    "browser_app_web_vitals_cls_avg"
+                    "browser_app_web_vitals_cls_avg / 1000"
                   ],
                   "graph": {
                     "type": "Line",
@@ -752,7 +752,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Web Vitals Cumulative Layout Shift Latency(ms)"
+                    "title": "Web Vitals Cumulative Layout Shift Score"
                   },
                   "associate": [
                     {

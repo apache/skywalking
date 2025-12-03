@@ -55,7 +55,7 @@ Input:
   "pagePath": "/index.html",
   "fmpTime": 10, // Deprecated since skywalking-client-js 1.0. This is no longer recommended. Please use the `useWebVitals` instead.
   /* NOTE, Safari does not support all core web vitals, and Firefox does not support `CLS`. */
-  "clsTime": 10,
+  "cls": 0.1,
   "lcpTime": 10,
 }
 ```

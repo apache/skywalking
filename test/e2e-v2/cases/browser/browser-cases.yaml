@@ -73,6 +73,10 @@ cases:
   - expected: expected/metrics-has-value.yml
     query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+        --expression=browser_app_web_vitals_cls_avg --service-id dGVzdC11aQ==.1 --endpoint-name index.html
+  - expected: expected/metrics-has-value.yml
+    query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
         --expression=browser_app_page_ttl_avg --service-id dGVzdC11aQ==.1 --endpoint-name index.html
   - expected: expected/metrics-has-value-percentile.yml
     query: |
@@ -84,4 +88,4 @@ cases:
         --expression=browser_app_page_load_page_percentile --service-id dGVzdC11aQ==.1 --endpoint-name index.html
   # dependency service
   - expected: expected/dependency.yml
-    query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-id dGVzdC11aTxicm93c2VyPg==.1
+    query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name test-ui

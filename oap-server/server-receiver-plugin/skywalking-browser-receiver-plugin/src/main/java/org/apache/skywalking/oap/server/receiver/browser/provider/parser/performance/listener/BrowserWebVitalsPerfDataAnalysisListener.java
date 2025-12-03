@@ -49,7 +49,9 @@ public class BrowserWebVitalsPerfDataAnalysisListener implements PerfDataAnalysi
         browserAppWebVitalsPerf.setServiceName(namingControl.formatServiceName(decorator.getService()));
         browserAppWebVitalsPerf.setPath(namingControl.formatEndpointName(browserAppWebVitalsPerf.getServiceName(), decorator.getPagePath()));
         browserAppWebVitalsPerf.setFmpTime(decorator.getFmpTime());
-        browserAppWebVitalsPerf.setClsTime(decorator.getClsTime());
+        // CLS values are typically between 0 and 1. Multiplying by 1000 allows storage as an integer
+        // while preserving 3 decimal places of precision. When querying, divide by 1000 to restore the original value.
+        browserAppWebVitalsPerf.setCls((int) Math.round(decorator.getCls() * 1000));
         browserAppWebVitalsPerf.setLcpTime(decorator.getLcpTime());
     }
 
