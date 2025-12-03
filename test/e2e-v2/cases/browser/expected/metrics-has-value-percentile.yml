@@ -17,65 +17,22 @@ debuggingtrace: null
 type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
-- metric:
-    labels:
-      - key: p
-        value: "50"
-  values:
-    {{- contains .values }}
-    - id: {{ notEmpty .id }}
-      value: {{ .value }}
-      owner: null
-      traceid: null
-    - id: {{ notEmpty .id }}
-      owner: null
-      value: null
-      traceid: null
-    {{- end}}
-- metric:
-    labels:
-      - key: p
-        value: "75"
-  values:
-    {{- contains .values }}
-    - id: {{ notEmpty .id }}
-      value: {{ .value }}
-      owner: null
-      traceid: null
-    - id: {{ notEmpty .id }}
-    owner: null
-      value: null
-      traceid: null
-    {{- end}}
-- metric:
-    labels:
-      - key: p
-        value: "90"
-  values:
-    {{- contains .values }}
-    - id: {{ notEmpty .id }}
-      value: {{ .value }}
-      owner: null
-      traceid: null
-    - id: {{ notEmpty .id }}
-      owner: null
-      value: null
-      traceid: null
-    {{- end}}
-- metric:
-    labels:
-      - key: p
-        value: "99"
-  values:
-    {{- contains .values }}
-    - id: {{ notEmpty .id }}
-      value: {{ .value }}
-      owner: null
-      traceid: null
-    - id: {{ notEmpty .id }}
-      value: null
-      owner: null
-      traceid: null
-    {{- end}}
+  - metric:
+      labels:
+        {{- contains .metric.labels }}
+        - key: p
+          value: {{ .value }}
+        {{- end}}
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        owner: null
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        owner: null
+        traceid: null
+      {{- end}}
   {{- end}}
 error: null
