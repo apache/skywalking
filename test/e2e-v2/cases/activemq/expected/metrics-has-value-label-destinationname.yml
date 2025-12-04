@@ -21,12 +21,12 @@ results:
       labels:
         {{- contains .metric.labels }}
         - key: destinationName
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         {{- end}}
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
-        value: {{ .value }}
+        value: {{ notEmpty .value }}
         owner: null
         traceid: null
       - id: {{ notEmpty .id }}

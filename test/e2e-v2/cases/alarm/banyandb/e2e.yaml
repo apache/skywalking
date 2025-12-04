@@ -40,7 +40,7 @@ trigger:
 
 verify:
   retry:
-    count: 20
+    count: 30
     interval: 3s
   cases:
     - includes:

@@ -105,7 +105,7 @@ cases:
     expected: expected/metrics-has-value-label-destinationtype.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_activemq_destination_consumer_count --service-name=activemq::activemq-cluster --endpoint-name=testQueue
     expected: expected/metrics-has-value-label-destinationtype.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_activemq_destination_topic_consumer_count --service-name=activemq::activemq-cluster --endpoint-name=testQueue
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_activemq_destination_topic_consumer_count --service-name=activemq::activemq-cluster --endpoint-name=testTopic
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_activemq_destination_queue_size --service-name=activemq::activemq-cluster --endpoint-name=testQueue
     expected: expected/metrics-has-value-label-destinationtype.yml

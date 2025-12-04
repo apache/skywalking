@@ -22,14 +22,14 @@ receivers:
           static_configs:
             - targets: ["banyandb:2121"]
               labels:
-                host_name: root[root]
+                host_name: server
 
 processors:
   batch:
 
 exporters:
   otlp:
-    endpoint: "oap:11800"
+    endpoint: oap:11800
     tls:
       insecure: true
   debug:  

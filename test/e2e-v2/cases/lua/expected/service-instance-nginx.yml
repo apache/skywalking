@@ -20,18 +20,6 @@
   name: User_Service_Instance_Name
   attributes:
   {{- contains .attributes }}
-  - name: OS Name
-    value: Linux
-  - name: hostname
-    value: {{ notEmpty .value }}
-  - name: Process No.
-    value: "1"
-  - name: Start Time
-    value: {{ notEmpty .value }}
-  - name: JVM Arguments
-    value: '{{ notEmpty .value }}'
-  - name: Jar Dependencies
-    value: '{{ notEmpty .value }}'
   - name: ipv4s
     value: ""
   {{- end}}

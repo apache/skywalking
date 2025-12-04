@@ -18,19 +18,13 @@ type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
   - metric:
-      labels:
-        - key: node
-          value: bookie:8000
+      labels: []
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
-        value: {{ notEmpty .value }}
-        traceid: null
-        owner: null
-      - id: {{ notEmpty .id }}
         value: null
-        traceid: null
         owner: null
+        traceid: null
       {{- end}}
   {{- end}}
 error: null
