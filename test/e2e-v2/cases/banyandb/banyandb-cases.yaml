@@ -17,26 +17,26 @@
 # oap-server/server-starter/src/main/resources/otel-rules/banyandb.yaml
 
 cases:
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_total_memory
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_total_memory --service-name=banyandb::server
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_write_rate
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_write_rate --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_total_memory
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_total_memory --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_total_cpu
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_total_cpu --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_etcd_operation_rate
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_etcd_operation_rate --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_active_instance
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_active_instance --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_cpu_usage
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_cpu_usage --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_rss_memory_usage
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_rss_memory_usage --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_disk_usage_all
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_disk_usage_all --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_network_usage_recv
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_network_usage_recv --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_network_usage_sent
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_network_usage_sent --service-name=banyandb::server --instance-name=banyandb:2121
     expected: expected/metrics-has-value.yml
 

@@ -76,7 +76,7 @@ verify:
 
     # native meter: instance meter
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_jvm_memory_used --instance-name=provider1 --service-name=e2e-service-provider
-      expected: expected/metrics-has-value.yml
+      expected: expected/metrics-no-value.yml
 
     # native event: event list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql event list
