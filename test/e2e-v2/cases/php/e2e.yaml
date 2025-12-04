@@ -85,11 +85,11 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_sla --instance-name=provider1 --service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
     # service endpoint metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=/php/info --service-name=php
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=POST:/php/info --service-name=php
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=/php/info --service-name=php
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=POST:/php/info --service-name=php
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_sla --endpoint-name=/php/info --service-name=php
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_sla --endpoint-name=POST:/php/info --service-name=php
       expected: expected/metrics-has-value.yml
     # service relation metrics
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_client_cpm  --service-name=php --dest-service-name=e2e-service-provider
