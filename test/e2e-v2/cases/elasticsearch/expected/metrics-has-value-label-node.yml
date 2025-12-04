@@ -21,18 +21,18 @@ results:
       labels:
         {{- contains .metric.labels }}
         - key: es_master_node
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         - key: es_ingest_node
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         - key: es_client_node
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         - key: es_data_node
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         {{- end}}
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
-        value: {{ .value }}
+        value: {{ notEmpty .value }}
         traceid: null
         owner: null
       - id: {{ notEmpty .id }}

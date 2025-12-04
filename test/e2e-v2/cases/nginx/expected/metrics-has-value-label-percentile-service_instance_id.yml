@@ -23,7 +23,7 @@ results:
         - key: p
           value: {{ notEmpty .value }}
         - key: service_instance_id
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         {{- end}}
     values:
       {{- contains .values }}

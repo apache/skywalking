@@ -93,9 +93,9 @@ cases:
     expected: expected/isPresent-OP-false.yml
 
   # trend-OP
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="increase(service_resp_time,2)" --service-name=e2e-service-provider
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="increase(service_resp_time,1)" --service-name=e2e-service-provider
     expected: expected/trend-OP.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="rate(service_resp_time,2)" --service-name=e2e-service-provider
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="rate(service_resp_time,1)" --service-name=e2e-service-provider
     expected: expected/trend-OP.yml
 
   # sort-OP e2e used for test MQE expression, more tests can refer to the UT

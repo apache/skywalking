@@ -18,21 +18,13 @@ type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
   - metric:
-      labels:
-        {{- contains .metric.labels }}
-        - key: _
-          value: {{ notEmpty .value }}
-        {{- end}}
+      labels: []
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
-        value: {{ notEmpty .value }}
-        traceid: null
+        value: {{ .value }}
         owner: null
-      - id: {{ notEmpty .id }}
-        value: null
         traceid: null
-        owner: null
       {{- end}}
   {{- end}}
 error: null

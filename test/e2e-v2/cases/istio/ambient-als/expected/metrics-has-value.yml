@@ -21,11 +21,11 @@ results:
       labels: []
     values:
       {{- contains .values }}
-      - id: "{{ notEmpty .id }}"
-        value: {{ .value }}
+      - id: {{ notEmpty .id }}
+        value: {{ notEmpty .value }}
         owner: null
         traceid: null
-      - id: "{{ notEmpty .id }}"
+      - id: {{ notEmpty .id }}
         value: null
         owner: null
         traceid: null
