@@ -1,6 +1,7 @@
 ## 10.4.0
 
 #### Project
+* Fix E2E test metrics verify: make it failure if the metric values all null.
 
 #### OAP Server
 

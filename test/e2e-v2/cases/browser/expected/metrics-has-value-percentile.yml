@@ -21,7 +21,7 @@ results:
       labels:
         {{- contains .metric.labels }}
         - key: p
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         {{- end}}
     values:
       {{- contains .values }}

@@ -21,14 +21,14 @@ results:
       labels:
         {{- contains .metric.labels }}
         - key: direction
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         - key: route
-          value: {{ .value }}
+          value: {{ notEmpty .value }}
         {{- end}}
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
-        value: {{ .value }}
+        value: {{ notEmpty .value }}
         traceid: null
         owner: null
       - id: {{ notEmpty .id }}
