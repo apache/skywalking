@@ -38,7 +38,9 @@ import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.sampledtrace.SampledTraceSpec;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.slowsql.SlowSqlSpec;
+import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
@@ -49,7 +51,6 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -82,13 +83,10 @@ public class ExtractorSpec extends AbstractSpec {
                          final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
         super(moduleManager, moduleConfig);
 
-        final MeterSystem meterSystem =
-            moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
+        LogAnalyzerModuleProvider provider = (LogAnalyzerModuleProvider) moduleManager
+            .find(LogAnalyzerModule.NAME).provider();
 
-        metricConverts = moduleConfig.malConfigs()
-                                     .stream()
-                                     .map(it -> new MetricConvert(it, meterSystem))
-                                     .collect(Collectors.toList());
+        metricConverts = provider.getMetricConverts();
 
         slowSql = new SlowSqlSpec(moduleManager(), moduleConfig());
         sampledTrace = new SampledTraceSpec(moduleManager(), moduleConfig());
