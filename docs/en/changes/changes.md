@@ -8,6 +8,7 @@
 * KubernetesCoordinator: make self instance return real pod IP address instead of `127.0.0.1`.
 * Enhance the alarm kernel with recovered status notification capability
 * Fix BrowserWebVitalsPerfData `clsTime` to `cls` and make it double type.
+* Fail fast if SampleFamily is empty after MAL filter expression.
 
 #### UI
 * Fix the missing icon in new native trace view.
