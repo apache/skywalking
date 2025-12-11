@@ -133,6 +133,28 @@ public class MultipleChannelsConsumer extends Thread {
         running = false;
     }
 
+    void close(Channels channels) {
+        Group group = null;
+        for (Group consumeTarget : consumeTargets) {
+            if (consumeTarget.channels == channels) {
+                group = consumeTarget;
+                break;
+            }
+        }
+        if (group == null) {
+            return;
+        }
+
+        ArrayList<Group> newList = new ArrayList<>();
+        for (Group consumeTarget : consumeTargets) {
+            if (consumeTarget.channels != channels) {
+                newList.add(consumeTarget);
+            }
+        }
+        consumeTargets = newList;
+        group.consumer.onExit();
+    }
+
     private static class Group {
         private Channels channels;
         private IConsumer consumer;

@@ -78,7 +78,7 @@ public class BulkConsumePool implements ConsumerPool {
     @Override
     public void close(Channels channels) {
         for (MultipleChannelsConsumer consumer : allConsumers) {
-            consumer.shutdown();
+            consumer.close(channels);
         }
     }
 
