@@ -19,7 +19,9 @@
 package org.apache.skywalking.oap.log.analyzer.dsl;
 
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -197,6 +199,11 @@ public class DSLTest {
     public void setup() {
         Whitebox.setInternalState(manager, "isInPrepareStage", false);
         when(manager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
+        ModuleProviderHolder logAnalyzerHolder = mock(ModuleProviderHolder.class);
+        LogAnalyzerModuleProvider logAnalyzerProvider = mock(LogAnalyzerModuleProvider.class);
+        when(logAnalyzerProvider.getMetricConverts()).thenReturn(Collections.emptyList());
+        when(logAnalyzerHolder.provider()).thenReturn(logAnalyzerProvider);
+        when(manager.find(LogAnalyzerModule.NAME)).thenReturn(logAnalyzerHolder);
         when(manager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
         when(manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class))
                 .thenReturn(mock(SourceReceiver.class));

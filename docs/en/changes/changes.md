@@ -8,6 +8,7 @@
 * KubernetesCoordinator: make self instance return real pod IP address instead of `127.0.0.1`.
 * Enhance the alarm kernel with recovered status notification capability
 * Fix BrowserWebVitalsPerfData `clsTime` to `cls` and make it double type.
+* Init `log-mal-rules` at module provider start stage to avoid re-init for every LAL.
 
 #### UI
 * Fix the missing icon in new native trace view.
