@@ -17,13 +17,17 @@
 
 package org.apache.skywalking.oap.log.analyzer.provider;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.log.analyzer.provider.log.LogAnalyzerServiceImpl;
 import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogFilterListener;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -32,6 +36,9 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 public class LogAnalyzerModuleProvider extends ModuleProvider {
     @Getter
     private LogAnalyzerModuleConfig moduleConfig;
+
+    @Getter
+    private List<MetricConvert> metricConverts;
 
     private LogAnalyzerServiceImpl logAnalyzerService;
 
@@ -68,6 +75,11 @@ public class LogAnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        MeterSystem meterSystem = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
+        metricConverts = moduleConfig.malConfigs()
+                                     .stream()
+                                     .map(it -> new MetricConvert(it, meterSystem))
+                                     .collect(Collectors.toList());
         try {
             logAnalyzerService.addListenerFactory(new LogFilterListener.Factory(getManager(), moduleConfig));
         } catch (final Exception e) {
