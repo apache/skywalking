@@ -129,8 +129,7 @@ public class Analyzer {
         }
         if (filterExpression != null) {
             input = filterExpression.filter(input);
-            boolean empty = input.values().stream().allMatch(s -> s == SampleFamily.EMPTY);
-            if (empty) {
+            if (input.isEmpty()) {
                 if (log.isDebugEnabled()) {
                     log.debug("{} is ignored due to mismatch of filter {}", expression, filterExpression);
                 }

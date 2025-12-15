@@ -20,11 +20,11 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import groovy.lang.Closure;
 import groovy.lang.GroovyShell;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-
-import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @ToString(of = {"literal"})
@@ -42,10 +42,14 @@ public class FilterExpression {
 
     public Map<String, SampleFamily> filter(final Map<String, SampleFamily> sampleFamilies) {
         try {
-            return sampleFamilies.entrySet().stream().collect(toMap(
-                Map.Entry::getKey,
-                it -> it.getValue().filter(filterClosure)
-            ));
+            Map<String, SampleFamily> result = new HashMap<>();
+            for (Map.Entry<String, SampleFamily> entry : sampleFamilies.entrySet()) {
+                SampleFamily afterFilter = entry.getValue().filter(filterClosure);
+                if (!Objects.equals(afterFilter, SampleFamily.EMPTY)) {
+                    result.put(entry.getKey(), afterFilter);
+                }
+            }
+            return result;
         } catch (Throwable t) {
             log.error("failed to run \"{}\"", literal, t);
         }
