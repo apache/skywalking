@@ -462,12 +462,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         } else if (left.getResultType() == ParseResultType.METRICS_RANGE && right.getResultType() == ParseResultType.SCALAR) {
             return matrixScalarBinaryOp(
                 (MetricsRangeResult) left,
-                (rangeValue) -> scalarBinaryOp(rangeValue, ((ScalarResult) right).getValue(), opType)
+                rangeValue -> scalarBinaryOp(rangeValue, ((ScalarResult) right).getValue(), opType)
             );
         } else if (left.getResultType() == ParseResultType.SCALAR && right.getResultType() == ParseResultType.METRICS_RANGE) {
             return matrixScalarBinaryOp(
                 (MetricsRangeResult) right,
-                (rangeValue) -> scalarBinaryOp(((ScalarResult) left).getValue(), rangeValue, opType)
+                rangeValue -> scalarBinaryOp(((ScalarResult) left).getValue(), rangeValue, opType)
             );
         } else if (left.getResultType() == ParseResultType.METRICS_RANGE && right.getResultType() == ParseResultType.METRICS_RANGE) {
             try {
