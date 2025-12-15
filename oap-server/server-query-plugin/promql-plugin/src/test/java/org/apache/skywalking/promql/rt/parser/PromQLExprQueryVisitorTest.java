@@ -112,6 +112,14 @@ public class PromQLExprQueryVisitorTest {
                         new TimeValuePair(TIME_2023022012, "102"))
             },
             {
+                "ScalarMetricsBinaryOp",
+                PromQLApiHandler.QueryType.RANGE,
+                "100 - service_cpm{service='serviceA', layer='GENERAL'}",
+                ParseResultType.METRICS_RANGE,
+                List.of(new TimeValuePair(TIME_2023022010, "100"), new TimeValuePair(TIME_2023022011, "99"),
+                        new TimeValuePair(TIME_2023022012, "98"))
+            },
+            {
                 "MetricsBinaryOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'} + service_cpm{service='serviceA', layer='GENERAL'}",
@@ -359,7 +367,7 @@ public class PromQLExprQueryVisitorTest {
                 break;
             case METRICS_RANGE:
                 MetricsRangeResult metricsRangeResult = (MetricsRangeResult) parseResult;
-                Assertions.assertEquals(metricsRangeResult.getMetricDataList().get(0).getValues(), wantResultValues);
+                Assertions.assertEquals(wantResultValues, metricsRangeResult.getMetricDataList().get(0).getValues());
                 break;
             default:
                 Assertions.fail();
@@ -383,10 +391,10 @@ public class PromQLExprQueryVisitorTest {
         Assertions.assertEquals(ParseResultType.METRICS_RANGE, parseResult.getResultType());
 
         MetricsRangeResult result = (MetricsRangeResult) parseResult;
-        Assertions.assertEquals(result.getMetricDataList().size(), wantResultValues.size());
+        Assertions.assertEquals(wantResultValues.size(), result.getMetricDataList().size());
         for (int i = 0; i < result.getMetricDataList().size(); i++) {
-            Assertions.assertEquals(result.getMetricDataList().get(i).getValues(), wantResultValues.get(i));
-            Assertions.assertEquals(result.getMetricDataList().get(i).getMetric().getLabels(), wantResultLabels.get(i));
+            Assertions.assertEquals(wantResultValues.get(i), result.getMetricDataList().get(i).getValues());
+            Assertions.assertEquals(wantResultLabels.get(i), result.getMetricDataList().get(i).getMetric().getLabels());
         }
     }
 }
