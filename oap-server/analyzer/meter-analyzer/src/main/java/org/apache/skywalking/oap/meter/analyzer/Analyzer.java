@@ -129,6 +129,12 @@ public class Analyzer {
         }
         if (filterExpression != null) {
             input = filterExpression.filter(input);
+            if (input.isEmpty()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("{} is ignored due to mismatch of filter {}", expression, filterExpression);
+                }
+                return;
+            }
         }
         Result r = expression.run(input);
         if (!r.isSuccess()) {

@@ -9,6 +9,7 @@
 * Enhance the alarm kernel with recovered status notification capability
 * Fix BrowserWebVitalsPerfData `clsTime` to `cls` and make it double type.
 * Init `log-mal-rules` at module provider start stage to avoid re-init for every LAL.
+* Fail fast if SampleFamily is empty after MAL filter expression.
 
 #### UI
 * Fix the missing icon in new native trace view.
