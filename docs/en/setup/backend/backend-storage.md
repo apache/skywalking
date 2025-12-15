@@ -10,12 +10,14 @@ storage:
 ## BanyanDB - Native APM Database
 - [BanyanDB](storages/banyandb.md)
 
-BanyanDB is a native-built SkyWalking database, which can completely focus on SkyWalking use cases.
-It has demonstrated significant potential for performance improvement and reduced resource usage requirements. It indicates 5x less memory usage, 
-1/5 disk IOPS, 1/4 disk throughput, and 30% less disk space, albeit with a slightly higher CPU trade-off, compared to Elasticsearch.
+BanyanDB is a native-built SkyWalking database that focuses entirely on SkyWalking use cases.
+BanyanDB demonstrates significant potential in improving performance and optimizing resource utilization. 
+In typical deployment scenarios involving around 200 services and 200+ calls per second, a cluster configured with 2 liaison nodes and 2 data nodes—each equipped with 4 vCPUs and 8 GB memory—delivers stable and efficient performance.
+BanyanDB also supports full tracing sampling, providing trace collection capabilities up to 100%, ensuring comprehensive observability without compromising system stability.
 
-In benchmark testing, a BanyanDB cluster with 2 liaison nodes and 2 data nodes (each with 2 cores and 4GB memory) successfully handled sustained high-throughput workloads: 
-ingesting over 571,000 metric data points, 151,000 stream records, and 6,600 traces (133,200 spans) per minute. Query performance remained responsive with median latencies of 26ms for metrics (p99: 288ms), 7ms for streams (p99: 72ms), and 436ms for traces (p99: ~1.1s) under concurrent read/write operations.
+For the latest performance benchmarks of **BanyanDB**, please refer to the following sections:
+- [**Single‑Model Benchmark (Trace / Log / Measure / Property)**](https://skywalking.apache.org/docs/skywalking-banyandb/next/operation/benchmark/benchmark-single-model/) — evaluates individual data models in isolation.
+- [**Hybrid Scenario Benchmark — Realistic workloads for typical SkyWalking use cases**](https://skywalking.apache.org/docs/skywalking-banyandb/next/operation/benchmark/benchmark-hybrid/) — simulates mixed observability data ingestion and query scenarios.
 
 ## SQL database
 - [MySQL and its compatible databases](storages/mysql.md)
