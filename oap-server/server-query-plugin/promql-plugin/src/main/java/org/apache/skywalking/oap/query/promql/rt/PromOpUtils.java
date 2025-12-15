@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.skywalking.mqe.rt.operation.aggregatelabels.AggregateLabelsFunc;
 import org.apache.skywalking.mqe.rt.operation.aggregatelabels.AggregateLabelsFuncFactory;
@@ -53,7 +54,7 @@ import static java.util.stream.Collectors.toList;
 
 public class PromOpUtils {
 
-    static MetricsRangeResult matrixScalarBinaryOp(MetricsRangeResult matrix, ScalarResult scalar, int opType) {
+    static MetricsRangeResult matrixScalarBinaryOp(MetricsRangeResult matrix, Function<Double, Double> rangeValueOp) {
         MetricsRangeResult result = new MetricsRangeResult();
         result.setResultType(ParseResultType.METRICS_RANGE);
         result.setRangeExpression(matrix.isRangeExpression());
@@ -64,8 +65,7 @@ public class PromOpUtils {
             List<TimeValuePair> newValues = metricData.getValues().stream().map(value -> {
                 double v = Double.parseDouble(value.getValue());
                 return new TimeValuePair(
-                    value.getTime(),
-                    formatDoubleValue(scalarBinaryOp(v, scalar.getValue(), opType))
+                    value.getTime(), formatDoubleValue(rangeValueOp.apply(v))
                 );
 
             }).collect(Collectors.toList());
