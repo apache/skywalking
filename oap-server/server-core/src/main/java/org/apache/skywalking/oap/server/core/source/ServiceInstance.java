@@ -85,7 +85,7 @@ public class ServiceInstance extends Source {
     private Map<String, String> originalTags;
     @Getter
     @Setter
-    private SideCar sideCar = new SideCar();
+    private SideCar sideCar;
 
     @Override
     public void prepare() {

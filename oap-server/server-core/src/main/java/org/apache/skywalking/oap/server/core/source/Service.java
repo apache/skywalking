@@ -83,7 +83,7 @@ public class Service extends Source {
     private Map<String, String> originalTags;
     @Getter
     @Setter
-    private SideCar sideCar = new SideCar();
+    private SideCar sideCar;
     @Getter
     @Setter
     private String tlsMode;

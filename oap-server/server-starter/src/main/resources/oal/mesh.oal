@@ -16,21 +16,21 @@
  *
  */
 
-service_sidecar_internal_req_latency_nanos = from(Service.sideCar.internalRequestLatencyNanos).longAvg();
-service_sidecar_internal_resp_latency_nanos = from(Service.sideCar.internalResponseLatencyNanos).longAvg();
+service_sidecar_internal_req_latency_nanos = from(Service.sideCar.internalRequestLatencyNanos).filter(sideCar != null).longAvg();
+service_sidecar_internal_resp_latency_nanos = from(Service.sideCar.internalResponseLatencyNanos).filter(sideCar != null).longAvg();
 
-service_instance_sidecar_internal_req_latency_nanos = from(ServiceInstance.sideCar.internalRequestLatencyNanos).longAvg();
-service_instance_sidecar_internal_resp_latency_nanos = from(ServiceInstance.sideCar.internalResponseLatencyNanos).longAvg();
+service_instance_sidecar_internal_req_latency_nanos = from(ServiceInstance.sideCar.internalRequestLatencyNanos).filter(sideCar != null).longAvg();
+service_instance_sidecar_internal_resp_latency_nanos = from(ServiceInstance.sideCar.internalResponseLatencyNanos).filter(sideCar != null).longAvg();
 
-endpoint_sidecar_internal_req_latency_nanos = from(Endpoint.sideCar.internalRequestLatencyNanos).longAvg();
-endpoint_sidecar_internal_resp_latency_nanos = from(Endpoint.sideCar.internalResponseLatencyNanos).longAvg();
+endpoint_sidecar_internal_req_latency_nanos = from(Endpoint.sideCar.internalRequestLatencyNanos).filter(sideCar != null).longAvg();
+endpoint_sidecar_internal_resp_latency_nanos = from(Endpoint.sideCar.internalResponseLatencyNanos).filter(sideCar != null).longAvg();
 
-service_client_sidecar_internal_req_latency_nanos = from(ServiceRelation.sideCar.internalRequestLatencyNanos).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_server_sidecar_internal_req_latency_nanos = from(ServiceRelation.sideCar.internalRequestLatencyNanos).filter(detectPoint == DetectPoint.SERVER).longAvg();
-service_client_sidecar_internal_resp_latency_nanos = from(ServiceRelation.sideCar.internalResponseLatencyNanos).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-service_server_sidecar_internal_resp_latency_nanos = from(ServiceRelation.sideCar.internalResponseLatencyNanos).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_client_sidecar_internal_req_latency_nanos = from(ServiceRelation.sideCar.internalRequestLatencyNanos).filter(sideCar != null).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_server_sidecar_internal_req_latency_nanos = from(ServiceRelation.sideCar.internalRequestLatencyNanos).filter(sideCar != null).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_client_sidecar_internal_resp_latency_nanos = from(ServiceRelation.sideCar.internalResponseLatencyNanos).filter(sideCar != null).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_server_sidecar_internal_resp_latency_nanos = from(ServiceRelation.sideCar.internalResponseLatencyNanos).filter(sideCar != null).filter(detectPoint == DetectPoint.SERVER).longAvg();
 
-instance_client_sidecar_internal_req_latency_nanos = from(ServiceInstanceRelation.sideCar.internalRequestLatencyNanos).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-instance_server_sidecar_internal_req_latency_nanos = from(ServiceInstanceRelation.sideCar.internalRequestLatencyNanos).filter(detectPoint == DetectPoint.SERVER).longAvg();
-instance_client_sidecar_internal_resp_latency_nanos = from(ServiceInstanceRelation.sideCar.internalResponseLatencyNanos).filter(detectPoint == DetectPoint.CLIENT).longAvg();
-instance_server_sidecar_internal_resp_latency_nanos = from(ServiceInstanceRelation.sideCar.internalResponseLatencyNanos).filter(detectPoint == DetectPoint.SERVER).longAvg();
+instance_client_sidecar_internal_req_latency_nanos = from(ServiceInstanceRelation.sideCar.internalRequestLatencyNanos).filter(sideCar != null).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+instance_server_sidecar_internal_req_latency_nanos = from(ServiceInstanceRelation.sideCar.internalRequestLatencyNanos).filter(sideCar != null).filter(detectPoint == DetectPoint.SERVER).longAvg();
+instance_client_sidecar_internal_resp_latency_nanos = from(ServiceInstanceRelation.sideCar.internalResponseLatencyNanos).filter(sideCar != null).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+instance_server_sidecar_internal_resp_latency_nanos = from(ServiceInstanceRelation.sideCar.internalResponseLatencyNanos).filter(sideCar != null).filter(detectPoint == DetectPoint.SERVER).longAvg();

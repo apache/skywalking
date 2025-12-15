@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceUpdate;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
+import org.apache.skywalking.oap.server.core.source.SideCar;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.TCPService;
 import org.apache.skywalking.oap.server.core.source.TCPServiceInstance;
@@ -223,6 +224,7 @@ public class TelemetryDataDispatcher {
         service.setStatus(metrics.getStatus());
         service.setHttpResponseStatusCode(metrics.getResponseCode());
         service.setType(protocol2Type(metrics.getProtocol()));
+        service.setSideCar(new SideCar());
         service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         service.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         service.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
@@ -264,6 +266,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
+        serviceRelation.setSideCar(new SideCar());
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         serviceRelation.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         serviceRelation.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
@@ -303,6 +306,7 @@ public class TelemetryDataDispatcher {
         serviceInstance.setStatus(metrics.getStatus());
         serviceInstance.setHttpResponseStatusCode(metrics.getResponseCode());
         serviceInstance.setType(protocol2Type(metrics.getProtocol()));
+        serviceInstance.setSideCar(new SideCar());
         serviceInstance.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         serviceInstance.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         serviceInstance.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
@@ -375,6 +379,7 @@ public class TelemetryDataDispatcher {
         serviceRelation.setDetectPoint(detectPointMapping(metrics.getDetectPoint()));
         serviceRelation.setComponentId(protocol2Component(metrics.getProtocol()));
         serviceRelation.setTlsMode(metrics.getTlsMode());
+        serviceRelation.setSideCar(new SideCar());
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         serviceRelation.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         serviceRelation.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
@@ -417,6 +422,7 @@ public class TelemetryDataDispatcher {
         endpoint.setStatus(metrics.getStatus());
         endpoint.setHttpResponseStatusCode(metrics.getResponseCode());
         endpoint.setType(protocol2Type(metrics.getProtocol()));
+        endpoint.setSideCar(new SideCar());
         endpoint.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         endpoint.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         endpoint.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());

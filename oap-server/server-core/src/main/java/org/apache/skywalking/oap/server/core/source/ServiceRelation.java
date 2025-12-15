@@ -103,7 +103,7 @@ public class ServiceRelation extends Source {
     private String tlsMode;
     @Getter
     @Setter
-    private SideCar sideCar = new SideCar();
+    private SideCar sideCar;
 
     @Override
     public void prepare() {
