@@ -151,6 +151,12 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         span.getTagsList().forEach(tag -> {
             if (searchableTagKeys.getSearchableTags().contains(tag.getKey())) {
                 final Tag spanTag = new Tag(tag.getKey(), tag.getValue());
+                if (StringUtil.isEmpty(spanTag.getValue())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Segment tag : {} value is empty, dropped", spanTag);
+                    }
+                    return;
+                }
                 if (tag.getValue().length()  > Tag.TAG_LENGTH || spanTag.toString().length() > Tag.TAG_LENGTH) {
                     if (log.isDebugEnabled()) {
                         log.debug("Segment tag : {} length > : {}, dropped", spanTag, Tag.TAG_LENGTH);
