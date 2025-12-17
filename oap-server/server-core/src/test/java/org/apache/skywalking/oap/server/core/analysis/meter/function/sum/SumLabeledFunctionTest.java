@@ -37,6 +37,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.sum.SumLabeledFunction.VALUE;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class SumLabeledFunctionTest {
@@ -79,60 +80,60 @@ public class SumLabeledFunctionTest {
 
     @Test
     public void testToHour() {
-        function.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            HTTP_CODE_COUNT_1
-        );
-        function.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            HTTP_CODE_COUNT_2
-        );
+        MeterEntity meterEntity1 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity1.setAttr0("testAttr");
+        function.accept(meterEntity1, HTTP_CODE_COUNT_1);
+        MeterEntity meterEntity2 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity2.setAttr0("testAttr");
+        function.accept(meterEntity2, HTTP_CODE_COUNT_2);
         function.calculate();
 
         final SumLabeledFunction hourFunction = (SumLabeledFunction) function.toHour();
         hourFunction.calculate();
 
         Assertions.assertEquals(hourFunction.getValue(), new DataTable("200,3|301,2|404,7|502,9|505,1"));
+        assertThat(hourFunction.getAttr0()).isEqualTo("testAttr");
     }
 
     @Test
     public void testToDay() {
-        function.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            HTTP_CODE_COUNT_1
-        );
-        function.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            HTTP_CODE_COUNT_2
-        );
+        MeterEntity meterEntity1 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity1.setAttr0("testAttr");
+        function.accept(meterEntity1, HTTP_CODE_COUNT_1);
+        MeterEntity meterEntity2 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity2.setAttr0("testAttr");
+        function.accept(meterEntity2, HTTP_CODE_COUNT_2);
         function.calculate();
 
         final SumLabeledFunction dayFunction = (SumLabeledFunction) function.toDay();
         dayFunction.calculate();
 
         Assertions.assertEquals(dayFunction.getValue(), new DataTable("200,3|301,2|404,7|502,9|505,1"));
+        assertThat(dayFunction.getAttr0()).isEqualTo("testAttr");
     }
 
     @Test
     public void testSerialization() {
-        function.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            HTTP_CODE_COUNT_1
-        );
+        MeterEntity meterEntity1 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity1.setAttr0("testAttr");
+        function.accept(meterEntity1, HTTP_CODE_COUNT_1);
+        MeterEntity meterEntity2 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity2.setAttr0("testAttr");
+        function.accept(meterEntity2, HTTP_CODE_COUNT_2);
 
         SumLabeledFunction function2 = new SumLabeledFunctionInst();
         function2.deserialize(function.serialize().build());
 
         Assertions.assertEquals(function, function2);
         Assertions.assertEquals(function.getValue(), function2.getValue());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     @Test
     public void testBuilder() throws IllegalAccessException, InstantiationException {
-        function.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            HTTP_CODE_COUNT_1
-        );
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, HTTP_CODE_COUNT_1);
         function.calculate();
 
         StorageBuilder<SumLabeledFunction> storageBuilder = function.builder().newInstance();
@@ -146,6 +147,7 @@ public class SumLabeledFunctionTest {
 
         Assertions.assertEquals(function, function2);
         Assertions.assertEquals(function2.getValue(), function2.getValue());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     private static class SumLabeledFunctionInst extends SumLabeledFunction {

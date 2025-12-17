@@ -86,37 +86,43 @@ public class MaxLabeledFunctionTest {
 
     @Test
     public void testToHour() {
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), HTTP_CODE_COUNT_1);
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), HTTP_CODE_COUNT_2);
+        MeterEntity meterEntity1 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity1.setAttr0("testAttr");
+        function.accept(meterEntity1, HTTP_CODE_COUNT_1);
+        MeterEntity meterEntity2 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity2.setAttr0("testAttr");
+        function.accept(meterEntity2, HTTP_CODE_COUNT_2);
         function.calculate();
 
         final MaxLabeledFunction hourFunction = (MaxLabeledFunction) function.toHour();
         hourFunction.calculate();
 
         assertThat(hourFunction.getValue()).isEqualTo(HTTP_CODE_COUNT_3);
+        assertThat(hourFunction.getAttr0()).isEqualTo("testAttr");
     }
 
     @Test
     public void testToDay() {
-        function.accept(
-                MeterEntity.newService("service-test", Layer.GENERAL),
-                HTTP_CODE_COUNT_1
-        );
-        function.accept(
-                MeterEntity.newService("service-test", Layer.GENERAL),
-                HTTP_CODE_COUNT_2
-        );
+        MeterEntity meterEntity1 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity1.setAttr0("testAttr");
+        function.accept(meterEntity1, HTTP_CODE_COUNT_1);
+        MeterEntity meterEntity2 = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity2.setAttr0("testAttr");
+        function.accept(meterEntity2, HTTP_CODE_COUNT_2);
         function.calculate();
 
         final MaxLabeledFunction dayFunction = (MaxLabeledFunction) function.toDay();
         dayFunction.calculate();
 
         assertThat(dayFunction.getValue()).isEqualTo(HTTP_CODE_COUNT_3);
+        assertThat(dayFunction.getAttr0()).isEqualTo("testAttr");
     }
 
     @Test
     public void testSerialize() {
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), HTTP_CODE_COUNT_1);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, HTTP_CODE_COUNT_1);
 
         MaxLabeledFunction function2 = new MaxLabeledFunctionInst();
         function2.deserialize(function.serialize().build());
@@ -125,11 +131,14 @@ public class MaxLabeledFunctionTest {
         assertThat(function2.getTimeBucket()).isEqualTo(function.getTimeBucket());
         assertThat(function2.getServiceId()).isEqualTo(function.getServiceId());
         assertThat(function2.getValue()).isEqualTo(function.getValue());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     @Test
     public void testBuilder() throws IllegalAccessException, InstantiationException {
-        function.accept(MeterEntity.newService("service-test", Layer.GENERAL), HTTP_CODE_COUNT_1);
+        MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, HTTP_CODE_COUNT_1);
         function.calculate();
 
         StorageBuilder<MaxLabeledFunction> storageBuilder = function.builder().newInstance();
@@ -142,6 +151,7 @@ public class MaxLabeledFunctionTest {
         MaxLabeledFunction function2 = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map));
 
         assertThat(function2.getValue()).isEqualTo(function.getValue());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
     }
 
     private static class MaxLabeledFunctionInst extends MaxLabeledFunction {

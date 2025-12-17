@@ -20,7 +20,9 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
 import io.vavr.collection.Stream;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
@@ -28,6 +30,7 @@ import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -53,6 +56,12 @@ public class AvgLabeledFunctionTest {
     public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+    }
+
+    @BeforeEach
+    public void before() {
+        function = new AvgLabeledFunctionInst();
+        function.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
     }
 
     @AfterAll
@@ -84,18 +93,22 @@ public class AvgLabeledFunctionTest {
 
     @Test
     public void testSerialize() {
-        function.accept(
-            MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
+        MeterEntity meterEntity = MeterEntity.newService("request_count", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, build(asList("200", "404"), asList(10L, 2L)));
         AvgLabeledFunction function2 = Mockito.spy(AvgLabeledFunction.class);
         function2.deserialize(function.serialize().build());
         assertThat(function2.getEntityId()).isEqualTo(function.getEntityId());
         assertThat(function2.getTimeBucket()).isEqualTo(function.getTimeBucket());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
+
     }
 
     @Test
     public void testBuilder() throws IllegalAccessException, InstantiationException {
-        function.accept(
-            MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
+        MeterEntity meterEntity = MeterEntity.newService("request_count", Layer.GENERAL);
+        meterEntity.setAttr0("testAttr");
+        function.accept(meterEntity, build(asList("200", "404"), asList(10L, 2L)));
         function.calculate();
         StorageBuilder<AvgLabeledFunction> storageBuilder = function.builder().newInstance();
 
@@ -108,6 +121,43 @@ public class AvgLabeledFunctionTest {
 
         AvgLabeledFunction function2 = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map));
         assertThat(function2.getValue()).isEqualTo(function.getValue());
+        assertThat(function2.getAttr0()).isEqualTo(function.getAttr0());
+    }
+
+    @Test
+    public void testToHour() {
+        MeterEntity meterEntity1 = MeterEntity.newService("request_count", Layer.GENERAL);
+        meterEntity1.setAttr0("testAttr");
+        function.accept(meterEntity1, build(asList("200", "404"), asList(10L, 2L)));
+        MeterEntity meterEntity2 = MeterEntity.newService("request_count", Layer.GENERAL);
+        meterEntity2.setAttr0("testAttr");
+        function.accept(meterEntity2, build(asList("200", "500"), asList(2L, 3L)));
+        function.calculate();
+
+        final AvgLabeledFunction hourFunction = (AvgLabeledFunction) function.toHour();
+        hourFunction.calculate();
+
+        assertThat(function.getValue().sortedKeys(Comparator.naturalOrder())).isEqualTo(asList("200", "404", "500"));
+        assertThat(function.getValue().sortedValues(Comparator.naturalOrder())).isEqualTo(asList(6L, 2L, 3L));
+        assertThat(hourFunction.getAttr0()).isEqualTo("testAttr");
+    }
+
+    @Test
+    public void testToDay() {
+        MeterEntity meterEntity1 = MeterEntity.newService("request_count", Layer.GENERAL);
+        meterEntity1.setAttr0("testAttr");
+        function.accept(meterEntity1, build(asList("200", "404"), asList(10L, 2L)));
+        MeterEntity meterEntity2 = MeterEntity.newService("request_count", Layer.GENERAL);
+        meterEntity2.setAttr0("testAttr");
+        function.accept(meterEntity2, build(asList("200", "500"), asList(2L, 3L)));
+        function.calculate();
+
+        final AvgLabeledFunction dayFunction = (AvgLabeledFunction) function.toDay();
+        dayFunction.calculate();
+
+        assertThat(function.getValue().sortedKeys(Comparator.naturalOrder())).isEqualTo(asList("200", "404", "500"));
+        assertThat(function.getValue().sortedValues(Comparator.naturalOrder())).isEqualTo(asList(6L, 2L, 3L));
+        assertThat(dayFunction.getAttr0()).isEqualTo("testAttr");
     }
 
     private DataTable build(List<String> keys, List<Long> values) {
@@ -133,5 +183,12 @@ public class AvgLabeledFunctionTest {
         assertThat(keys).isEqualTo(expectedKeys);
         List<Long> values = function.getSummation().sortedValues(Comparator.comparingLong(Long::parseLong));
         assertThat(values).isEqualTo(expectedValues);
+    }
+
+    private static class AvgLabeledFunctionInst extends AvgLabeledFunction {
+        @Override
+        public AcceptableValue<DataTable> createNew() {
+            return new AvgLabeledFunctionTest.AvgLabeledFunctionInst();
+        }
     }
 }

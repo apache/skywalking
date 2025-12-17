@@ -52,7 +52,6 @@ kubernetes_service_apdex = from(K8SService.protocol.http.latency).filter(detectP
 In the MAL script, you can use the [decorate](mal.md#decorate-function) function to decorate the source, and must follow the following rules:
 - The decorate function must after service() function.
 - Not supported for histogram metrics.
-- Not supported for labeled metrics.
 
 SkyWalking does not provide a default script for MAL, you can refer to the following example to set the `attr0` to the service `Layer`:
 ```text
