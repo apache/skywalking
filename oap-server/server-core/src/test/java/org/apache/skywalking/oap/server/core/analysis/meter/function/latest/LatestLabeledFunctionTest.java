@@ -51,7 +51,7 @@ public class LatestLabeledFunctionTest {
     @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
-                new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+            new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
     @BeforeEach
@@ -100,12 +100,12 @@ public class LatestLabeledFunctionTest {
     @Test
     public void testToDay() {
         function.accept(
-                MeterEntity.newService("service-test", Layer.GENERAL),
-                HTTP_CODE_COUNT_1
+            MeterEntity.newService("service-test", Layer.GENERAL),
+            HTTP_CODE_COUNT_1
         );
         function.accept(
-                MeterEntity.newService("service-test", Layer.GENERAL),
-                HTTP_CODE_COUNT_2
+            MeterEntity.newService("service-test", Layer.GENERAL),
+            HTTP_CODE_COUNT_2
         );
         function.calculate();
 

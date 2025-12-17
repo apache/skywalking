@@ -109,8 +109,8 @@ public abstract class LatestLabeledFunction extends Meter implements AcceptableV
     @Override
     protected StorageID id0() {
         return new StorageID()
-                .append(TIME_BUCKET, getTimeBucket())
-                .append(ENTITY_ID, getEntityId());
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override
@@ -140,11 +140,11 @@ public abstract class LatestLabeledFunction extends Meter implements AcceptableV
     }
 
     @Override
-    public Class<? extends MaxLabeledStorageBuilder> builder() {
-        return MaxLabeledStorageBuilder.class;
+    public Class<? extends LatestLabeledStorageBuilder> builder() {
+        return LatestLabeledStorageBuilder.class;
     }
 
-    public static class MaxLabeledStorageBuilder implements StorageBuilder<LatestLabeledFunction> {
+    public static class LatestLabeledStorageBuilder implements StorageBuilder<LatestLabeledFunction> {
         @Override
         public LatestLabeledFunction storage2Entity(final Convert2Entity converter) {
             LatestLabeledFunction metrics = new LatestLabeledFunction() {
@@ -179,7 +179,7 @@ public abstract class LatestLabeledFunction extends Meter implements AcceptableV
         }
         LatestLabeledFunction function = (LatestLabeledFunction) o;
         return Objects.equals(entityId, function.entityId) &&
-                getTimeBucket() == function.getTimeBucket();
+            getTimeBucket() == function.getTimeBucket();
     }
 
     @Override
