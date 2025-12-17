@@ -92,9 +92,13 @@ public class SumPerMinLabeledFunctionTest {
 
     @Test
     public void testHour() {
+        MeterEntity meterEntity1 = MeterEntity.newService("sum_sync_time", Layer.GENERAL);
+        meterEntity1.setAttr0("testAttr");
         function.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        function.accept(MeterEntity.newService("sum_sync_time", Layer.GENERAL), table1);
-        function.accept(MeterEntity.newService("sum_sync_time", Layer.GENERAL), table2);
+        function.accept(meterEntity1, table1);
+        MeterEntity meterEntity2 = MeterEntity.newService("sum_sync_time", Layer.GENERAL);
+        meterEntity2.setAttr0("testAttr");
+        function.accept(meterEntity2, table2);
         function.calculate();
         final SumPerMinLabeledFunction hourFunction = (SumPerMinLabeledFunction) function.toHour();
         hourFunction.calculate();
@@ -105,6 +109,7 @@ public class SumPerMinLabeledFunctionTest {
             result.put(key, result.get(key) / 60);
         }
         assertThat(hourFunction.getValue()).isEqualTo(result);
+        assertThat(hourFunction.getAttr0()).isEqualTo("testAttr");
     }
 
     @Test

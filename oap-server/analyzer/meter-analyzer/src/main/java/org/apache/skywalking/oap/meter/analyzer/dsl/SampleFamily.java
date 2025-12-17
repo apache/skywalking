@@ -704,9 +704,6 @@ public class SampleFamily {
             if (ctx.isHistogram()) {
                 throw new IllegalStateException("decorate() not supported for histogram metrics");
             }
-            if (!ctx.getLabels().isEmpty()) {
-                throw new IllegalStateException("decorate() not supported for labeled metrics");
-            }
         });
         if (this == EMPTY) {
             return EMPTY;

@@ -12,6 +12,7 @@
 * Fail fast if SampleFamily is empty after MAL filter expression.
 * Fix range matrix and scalar binary operation in PromQL.
 * Add `LatestLabeledFunction` for meter.
+* MAL Labeled metrics support additional attributes.
 
 #### UI
 * Fix the missing icon in new native trace view.
