@@ -162,7 +162,6 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
         this.entityId = remoteData.getDataStrings(0);
         this.serviceId = remoteData.getDataStrings(1);
 
-
         if (StringUtil.isNotEmpty(remoteData.getDataStrings(2))) {
             setAttr0(remoteData.getDataStrings(2));
         }
