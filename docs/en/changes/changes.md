@@ -11,6 +11,7 @@
 * Init `log-mal-rules` at module provider start stage to avoid re-init for every LAL.
 * Fail fast if SampleFamily is empty after MAL filter expression.
 * Fix range matrix and scalar binary operation in PromQL.
+* Add `LatestLabeledFunction` for meter.
 
 #### UI
 * Fix the missing icon in new native trace view.
