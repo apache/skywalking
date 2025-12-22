@@ -13,6 +13,7 @@
 * Fix range matrix and scalar binary operation in PromQL.
 * Add `LatestLabeledFunction` for meter.
 * MAL Labeled metrics support additional attributes.
+* Bump up netty to 4.2.9.Final.
 
 #### UI
 * Fix the missing icon in new native trace view.
