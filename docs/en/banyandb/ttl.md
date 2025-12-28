@@ -6,47 +6,43 @@ BanyanDB employs a Time-To-Live (TTL) mechanism to automatically delete data old
 
 For detailed information, please refer to the [Storage BanyanDB](../setup/backend/storages/banyandb.md) documentation.
 
-## Segment Interval and TTL
+## How TTL works in BanyanDB
 
-BanyanDB's data rotation mechanism manages data storage based on **Segment Interval** and **TTL** settings:
+BanyanDB uses time-based rotation with two key settings per group (and per stage, if enabled):
 
-- **Segment Interval (`SIDays`)**: Specifies the time interval in days for creating a new data segment. Segments are time-based, facilitating efficient data retention and querying.
-- **TTL (`TTLDays`)**: Defines the time-to-live for data within a group, in days. Data that exceeds the TTL will be automatically deleted.
+- segmentInterval (days): How often a new segment is created.
+- ttl (days): How long data is retained before automatic deletion.
 
-### Best Practices for Setting `SIDays` and `TTLDays`
+Some groups support progressive stages:
+- hot (default stage, always present)
+- warm (optional, used in the default query if present)
+- cold (optional)
 
-- **Data Retention Requirements**: Set the TTL based on how long you need to retain your data. For instance, to retain data for 30 days, set the TTL to 30 days.
-- **Segment Management**: Avoid generating too many segments, as this increases the overhead for data management and querying.
-- **Query Requirements**: Align segment intervals with your query patterns. For example:
-    - If you frequently query data for the last 30 minutes, set `SIDays` to 1 day.
-    - For querying data from the last 7 days, set `SIDays` to 7 days.
+When warm/cold stages are enabled, data flows hot → warm → cold as it ages, each stage having its own ttl, segmentInterval, and placement (nodeSelector).
 
-## Configuration Guidelines
+## Default TTLs by kind (from bydb.yml)
 
-### Record Data
+Warm and Cold are disabled by default. The values listed for warm/cold apply if you enable those stages.
 
-For both standard and super datasets:
+- ttl: retention (days) in the hot stage
+- warm ttl / cold ttl: retention (days) in warm/cold stages
 
-- **Recommended `SIDays`**: `1`
-    - Most queries are performed within a day.
-- **`TTLDays`**: Set according to your data retention needs.
+| Kind (group)           | ttl | warm ttl | cold ttl |
+|------------------------|-----|----------|----------|
+| records                | 3   | 7        | 30       |
+| trace                  | 3   | 7        | 30       |
+| zipkinTrace            | 3   | 7        | 30       |
+| recordsLog             | 3   | 7        | 30       |
+| recordsBrowserErrorLog | 3   | 7        | 30       |
+| metricsMinute          | 7   | 15       | 60       |
+| metricsHour            | 15  | 30       | 120      |
+| metricsDay             | 15  | 30       | 120      |
+| metadata (index-mode)  | 15  | —        | —        |
+| property               | —   | —        | —        |
 
-### Metrics Data
-
-Configure `SIDays` and `TTLDays` based on data retention and query requirements. Recommended settings include:
-
-| Group                  | `SIDays` | `TTLDays` |
-|------------------------|----------|-----------|
-| Minute (`metricsMin`)  | 1        | 7         |
-| Hour (`metricsHour`)   | 5        | 15        |
-| Day (`metricsDay`)     | 15       | 15        |
-| Index (`metadata`)     | 15       | 15        |
-
-**Group Descriptions:**
-
-- **Minute (`metricsMin`)**: Stores metrics with a 1-minute granularity. Suitable for recent data queries requiring minute-level detail. Consequently, it has shorter `SIDays` and `TTLDays` compared to other groups.
-- **Hour (`metricsHour`)**: Stores metrics with a 1-hour granularity. Designed for queries that need hour-level detail over a longer period than minute-level data.
-- **Day (`metricsDay`)**: Stores metrics with a 1-day granularity. This group handles the longest segment intervals and TTLs among all granularity groups.
-- **Index (`metadata`)**: Stores metrics used solely for indexing without value columns. Since queries often scan all segments in the `index` group, it shares the same `SIDays` and `TTLDays` as the `day` group to optimize performance. This group's `TTL` must be set to the **max** value of all groups.
+Notes:
+- “—” = not specified in the default bydb.yml. Metadata don't support warm/cold stages.
+- Property kind does not have TTL because it uses a different KV-engine mechanism.
+- The metadata group should have ttl greater than or equal to the maximum ttl of your metrics groups to ensure index coverage for retained data.
 
 For more details on configuring `segmentIntervalDays` and `ttlDays`, refer to the [BanyanDB Rotation](https://skywalking.apache.org/docs/skywalking-banyandb/latest/concept/rotation/) documentation.

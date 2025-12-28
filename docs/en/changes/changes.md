@@ -22,6 +22,7 @@
 #### Documentation
 
 * Add benchmark selection into banyanDB storage documentation.
+* Fix progressive TTL doc for banyanDB.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.4.0)
