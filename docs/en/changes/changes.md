@@ -163,6 +163,7 @@
 * Enhance the TTL Tab on Setting page.
 * Fix the snapshot charts in alarm page.
 * Fix `Fluent Bit` dead links.
+* Fix progressive TTL doc for banyanDB.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/230?closed=1)
 
