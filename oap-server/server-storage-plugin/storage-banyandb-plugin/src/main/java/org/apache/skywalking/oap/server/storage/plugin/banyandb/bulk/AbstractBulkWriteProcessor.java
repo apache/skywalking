@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.banyandb.v1.client.AbstractWrite;
+import org.apache.skywalking.library.banyandb.v1.client.AbstractWrite;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 
 @Slf4j

@@ -29,10 +29,10 @@ import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
 import org.apache.skywalking.banyandb.stream.v1.StreamServiceGrpc;
-import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
-import org.apache.skywalking.banyandb.v1.client.Options;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.banyandb.v1.client.util.StatusUtil;
+import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.library.banyandb.v1.client.Options;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
+import org.apache.skywalking.library.banyandb.v1.client.util.StatusUtil;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 
 /**

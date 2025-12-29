@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.banyandb.v1.client.Element;
-import org.apache.skywalking.banyandb.v1.client.StreamQuery;
-import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.Element;
+import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.AsyncProfilerTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;

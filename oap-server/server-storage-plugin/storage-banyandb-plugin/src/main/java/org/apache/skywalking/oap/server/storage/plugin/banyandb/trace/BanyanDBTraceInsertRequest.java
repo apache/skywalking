@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.trace;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.v1.client.TraceWrite;
+import org.apache.skywalking.library.banyandb.v1.client.TraceWrite;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 
 @RequiredArgsConstructor

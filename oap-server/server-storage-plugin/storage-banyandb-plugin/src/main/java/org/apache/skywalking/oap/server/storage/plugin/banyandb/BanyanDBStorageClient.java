@@ -38,24 +38,24 @@ import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.ApplyRequest.
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.DeleteResponse;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
-import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
-import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
-import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
-import org.apache.skywalking.banyandb.v1.client.Options;
-import org.apache.skywalking.banyandb.v1.client.PropertyStore;
-import org.apache.skywalking.banyandb.v1.client.StreamQuery;
-import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.banyandb.v1.client.TopNQuery;
-import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TraceQuery;
-import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TraceWrite;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.InternalException;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.InvalidArgumentException;
-import org.apache.skywalking.banyandb.v1.client.util.StatusUtil;
+import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.library.banyandb.v1.client.Options;
+import org.apache.skywalking.library.banyandb.v1.client.PropertyStore;
+import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.library.banyandb.v1.client.TopNQuery;
+import org.apache.skywalking.library.banyandb.v1.client.TopNQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.TraceQuery;
+import org.apache.skywalking.library.banyandb.v1.client.TraceQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.TraceWrite;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.InternalException;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.InvalidArgumentException;
+import org.apache.skywalking.library.banyandb.v1.client.util.StatusUtil;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
@@ -79,6 +79,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 @Slf4j
 public class BanyanDBStorageClient implements Client, HealthCheckable {
+    //todo: make to env
     private static final String[] COMPATIBLE_SERVER_API_VERSIONS = {"0.9"};
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();

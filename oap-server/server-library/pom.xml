@@ -38,5 +38,6 @@
         <module>library-async-profiler-jfr-parser</module>
         <module>library-pprof-parser</module>
         <module>library-integration-test</module>
+        <module>library-banyandb-client</module>
     </modules>
 </project>

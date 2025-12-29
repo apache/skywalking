@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
-import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
-import org.apache.skywalking.banyandb.v1.client.Element;
-import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
-import org.apache.skywalking.banyandb.v1.client.StreamQuery;
-import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.AbstractCriteria;
+import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
+import org.apache.skywalking.library.banyandb.v1.client.Element;
+import org.apache.skywalking.library.banyandb.v1.client.PairQueryCondition;
+import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
