@@ -76,6 +76,11 @@ public class ElasticSearchClient implements Client, HealthCheckable {
     @Setter
     private volatile String trustStorePass;
 
+    private final String keyStorePath;
+
+    @Setter
+    private volatile String keyStorePass;
+
     @Setter
     private volatile String user;
 
@@ -107,6 +112,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
                                String protocol,
                                String trustStorePath,
                                String trustStorePass,
+                               String keyStorePath,
+                               String keyStorePass,
                                String user,
                                String password,
                                Function<String, String> indexNameConverter,
@@ -119,6 +126,8 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         this.protocol = protocol;
         this.trustStorePath = trustStorePath;
         this.trustStorePass = trustStorePass;
+        this.keyStorePath = keyStorePath;
+        this.keyStorePass = keyStorePass;
         this.user = user;
         this.password = password;
         this.indexNameConverter = indexNameConverter;
@@ -152,9 +161,17 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
         if (!Strings.isNullOrEmpty(trustStorePath)) {
             cb.trustStorePath(trustStorePath);
+            // Always set trustStorePass if trustStorePath is set (even if empty string)
+            if (trustStorePass != null) {
+                cb.trustStorePass(trustStorePass);
+            }
         }
-        if (!Strings.isNullOrEmpty(trustStorePass)) {
-            cb.trustStorePass(trustStorePass);
+        if (!Strings.isNullOrEmpty(keyStorePath)) {
+            cb.keyStorePath(keyStorePath);
+            // Always set keyStorePass if keyStorePath is set (even if empty string)
+            if (keyStorePass != null) {
+                cb.keyStorePass(keyStorePass);
+            }
         }
         if (!Strings.isNullOrEmpty(user)) {
             cb.username(user);

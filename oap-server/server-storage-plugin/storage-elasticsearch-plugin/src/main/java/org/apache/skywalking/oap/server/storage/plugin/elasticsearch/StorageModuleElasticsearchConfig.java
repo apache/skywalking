@@ -113,6 +113,19 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
      */
     private String trustStorePass;
+    /**
+     * Path to the keystore file for client certificate authentication (OpenSearch/Elasticsearch mTLS).
+     * This enables mutual TLS where the client presents a certificate to the server.
+     * Supports PKCS12 (.p12, .pfx) and JKS (.jks) formats.
+     * When set, {@link #keyStorePass} must also be provided.
+     */
+    private String keyStorePath;
+    /**
+     * Password for the keystore file specified in {@link #keyStorePath}.
+     * Required when {@link #keyStorePath} is set.
+     * This could be managed inside {@link #secretsManagementFile}
+     */
+    private String keyStorePass;
     private int resultWindowMaxSize = 10000;
     private int metadataQueryMaxSize = 5000;
     /**

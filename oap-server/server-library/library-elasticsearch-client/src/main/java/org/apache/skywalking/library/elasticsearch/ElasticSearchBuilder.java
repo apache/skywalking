@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,10 @@ public final class ElasticSearchBuilder {
     private String trustStorePath;
 
     private String trustStorePass;
+
+    private String keyStorePath;
+
+    private String keyStorePass;
 
     private Duration responseTimeout = Duration.ofSeconds(15);
 
@@ -116,6 +121,18 @@ public final class ElasticSearchBuilder {
         return this;
     }
 
+    public ElasticSearchBuilder keyStorePath(String keyStorePath) {
+        requireNonNull(keyStorePath, "keyStorePath");
+        this.keyStorePath = keyStorePath;
+        return this;
+    }
+
+    public ElasticSearchBuilder keyStorePass(String keyStorePass) {
+        requireNonNull(keyStorePass, "keyStorePass");
+        this.keyStorePass = keyStorePass;
+        return this;
+    }
+
     public ElasticSearchBuilder connectTimeout(int connectTimeout) {
         checkArgument(connectTimeout > 0, "connectTimeout must be positive");
         this.connectTimeout = Duration.ofMillis(connectTimeout);
@@ -159,17 +176,46 @@ public final class ElasticSearchBuilder {
                          .useHttp2Preface(false)
                          .workerGroup(numHttpClientThread > 0 ? numHttpClientThread : NUM_PROC);
 
-        if (StringUtil.isNotBlank(trustStorePath)) {
-            final TrustManagerFactory trustManagerFactory =
-                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            final KeyStore truststore = KeyStore.getInstance("jks");
-            try (final InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
-                truststore.load(is, trustStorePass.toCharArray());
-            }
-            trustManagerFactory.init(truststore);
+        // Configure SSL/TLS with optional mutual TLS (client certificate authentication)
+        final boolean hasTrustStore = StringUtil.isNotBlank(trustStorePath);
+        final boolean hasKeyStore = StringUtil.isNotBlank(keyStorePath);
 
-            factoryBuilder.tlsCustomizer(
-                sslContextBuilder -> sslContextBuilder.trustManager(trustManagerFactory));
+        if (hasTrustStore || hasKeyStore) {
+            factoryBuilder.tlsCustomizer(sslContextBuilder -> {
+                try {
+                    // Configure trust store for server certificate validation
+                    if (hasTrustStore) {
+                        final var trustManagerFactory =
+                            TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                        final var truststore = KeyStore.getInstance("jks");
+                        try (final InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
+                            truststore.load(is, trustStorePass.toCharArray());
+                        }
+                        trustManagerFactory.init(truststore);
+                        sslContextBuilder.trustManager(trustManagerFactory);
+                    }
+
+                    // Configure key store for client certificate authentication (mutual TLS)
+                    if (hasKeyStore) {
+                        final var keyManagerFactory =
+                            KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+
+                        // Detect keystore type from file extension or try both PKCS12 and JKS
+                        final var keystoreType = detectKeystoreType(keyStorePath);
+                        final var keystore = KeyStore.getInstance(keystoreType);
+
+                        try (final var is = Files.newInputStream(Paths.get(keyStorePath))) {
+                            keystore.load(is, keyStorePass.toCharArray());
+                        }
+                        keyManagerFactory.init(keystore, keyStorePass.toCharArray());
+                        sslContextBuilder.keyManager(keyManagerFactory);
+
+                        log.info("Client certificate authentication enabled with keystore: {}", keyStorePath);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to configure SSL/TLS context", e);
+                }
+            });
         }
 
         final ClientFactory clientFactory = factoryBuilder.build();
@@ -189,10 +235,20 @@ public final class ElasticSearchBuilder {
                                               ctx.logBuilder().name("health-check");
                                               return delegate.execute(ctx, req);
                                           });
+                                          // When using client certificates, TLS handshake may take longer
+                                          // Increase response timeout to account for mutual TLS authentication
+                                          if (hasKeyStore) {
+                                              options.responseTimeout(Duration.ofSeconds(30));
+                                          }
                                           return options;
                                       });
         if (StringUtil.isNotBlank(username) && StringUtil.isNotBlank(password)) {
             endpointGroupBuilder.auth(AuthToken.ofBasic(username, password));
+        }
+        // When using client certificates, increase selection timeout to allow for TLS handshake
+        // This is especially important on Linux systems using epoll
+        if (hasKeyStore) {
+            endpointGroupBuilder.selectionTimeout(Duration.ofSeconds(15));
         }
         final HealthCheckedEndpointGroup endpointGroup = endpointGroupBuilder.build();
 
@@ -205,5 +261,26 @@ public final class ElasticSearchBuilder {
             healthyListener,
             responseTimeout
         );
+    }
+
+    /**
+     * Detects keystore type from file extension.
+     * Defaults to PKCS12 as it's the modern standard and recommended format.
+     */
+    private static String detectKeystoreType(String keyStorePath) {
+        if (keyStorePath == null) {
+            return "PKCS12";
+        }
+
+        String lowerPath = keyStorePath.toLowerCase();
+        if (lowerPath.endsWith(".jks")) {
+            return "JKS";
+        } else if (lowerPath.endsWith(".p12") || lowerPath.endsWith(".pfx")) {
+            return "PKCS12";
+        }
+
+        // Default to PKCS12 for unknown extensions
+        log.info("Unknown keystore extension for {}, defaulting to PKCS12 format", keyStorePath);
+        return "PKCS12";
     }
 }

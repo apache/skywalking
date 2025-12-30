@@ -13,8 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
+version: "2.1"
 services:
   opensearch:
     image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
@@ -25,15 +24,81 @@ services:
     environment:
       - discovery.type=single-node
       - cluster.routing.allocation.disk.threshold_enabled=false
-      - plugins.security.ssl.http.enabled=false
+      # Security plugin settings
       - DISABLE_INSTALL_DEMO_CONFIG=true
-      - DISABLE_SECURITY_PLUGIN=true
+      - DISABLE_SECURITY_PLUGIN=false
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=SecurePass@2024!
+      - NO_PROXY=opensearch,localhost,127.0.0.1
+    volumes:
+      - ./opensearch.yml:/usr/share/opensearch/config/opensearch.yml:ro
+      - ./certs:/usr/share/opensearch/config/certs:ro
+      - ./clientcert_config.yml:/tmp/clientcert_config.yml:ro
+      - ./internal_users.yml:/tmp/internal_users.yml:ro
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
+      test:
+        - CMD
+        - bash
+        - -c
+        - |
+          curl --silent --fail \
+            --resolve opensearch:9200:127.0.0.1 \
+            --cacert /usr/share/opensearch/config/certs/root-ca.pem \
+            --cert /usr/share/opensearch/config/certs/admin.pem \
+            --key /usr/share/opensearch/config/certs/admin-key.pem \
+            https://opensearch:9200/_cluster/health || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
+  opensearch-init:
+    image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    networks:
+      - e2e
+    command: |
+      bash -c '
+      set -e
+      echo "Configuring client certificate authentication..."
+      /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh \
+        -h opensearch \
+        -f /tmp/clientcert_config.yml \
+        -t config \
+        -icl \
+        -nhnv \
+        -cacert /usr/share/opensearch/config/certs/root-ca.pem \
+        -cert /usr/share/opensearch/config/certs/admin.pem \
+        -key /usr/share/opensearch/config/certs/admin-key.pem
 
+      echo "Configuring internal users..."
+      /usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh \
+        -h opensearch \
+        -f /tmp/internal_users.yml \
+        -t internalusers \
+        -icl \
+        -nhnv \
+        -cacert /usr/share/opensearch/config/certs/root-ca.pem \
+        -cert /usr/share/opensearch/config/certs/admin.pem \
+        -key /usr/share/opensearch/config/certs/admin-key.pem
+
+      sleep 2
+      echo "Adding certificate user to all_access role..."
+      export no_proxy=opensearch,localhost
+      curl --cacert /usr/share/opensearch/config/certs/root-ca.pem \
+        --cert /usr/share/opensearch/config/certs/admin.pem \
+        --key /usr/share/opensearch/config/certs/admin-key.pem \
+        -X PUT "https://opensearch:9200/_plugins/_security/api/rolesmapping/all_access" \
+        -H "Content-Type: application/json" \
+        -d "{\"users\":[\"node-0.example.com\"],\"backend_roles\":[\"admin\"],\"description\":\"Maps admin to all_access\"}"
+
+      echo "✓ Client certificate authentication configured!"
+      '
+    volumes:
+      - ./clientcert_config.yml:/tmp/clientcert_config.yml:ro
+      - ./internal_users.yml:/tmp/internal_users.yml:ro
+      - ./certs:/usr/share/opensearch/config/certs:ro
+    restart: "no"
   oap:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
@@ -42,15 +107,23 @@ services:
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: opensearch:9200
       SW_ES_USER: admin
-      SW_ES_PASSWORD: admin
+      SW_ES_PASSWORD: SecurePass@2024!
+      SW_STORAGE_ES_HTTP_PROTOCOL: https
+      SW_STORAGE_ES_SSL_JKS_PATH: /etc/skywalking/certs/truststore.jks
+      SW_STORAGE_ES_SSL_JKS_PASS: changeit
+      SW_STORAGE_ES_SSL_KEY_STORE_PATH: /etc/skywalking/certs/client.p12
+      SW_STORAGE_ES_SSL_KEY_STORE_PASS: changeit
     ports:
       - 12800
+    volumes:
+      - ./certs:/etc/skywalking/certs:ro
     depends_on:
       opensearch:
         condition: service_healthy
+      opensearch-init:
+        condition: service_completed_successfully
     networks:
       - e2e
-
   provider:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
@@ -62,7 +135,6 @@ services:
         condition: service_healthy
     networks:
       - e2e
-
   consumer:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
@@ -74,6 +146,5 @@ services:
         condition: service_healthy
       provider:
         condition: service_healthy
-
 networks:
   e2e:
