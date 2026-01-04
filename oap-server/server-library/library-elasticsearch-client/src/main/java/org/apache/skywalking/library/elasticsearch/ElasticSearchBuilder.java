@@ -179,7 +179,7 @@ public final class ElasticSearchBuilder {
                          .connectTimeout(connectTimeout)
                          .idleTimeout(socketTimeout)
                          .useHttp2Preface(false)
-                         .workerGroup(new NioEventLoopGroup(numHttpClientThread > 0 ? numHttpClientThread : NUM_PROC), true);
+                         .workerGroup(numHttpClientThread > 0 ? numHttpClientThread : NUM_PROC);
 
         // Configure SSL/TLS with optional mutual TLS (client certificate authentication)
         final boolean hasTrustStore = StringUtil.isNotBlank(trustStorePath);
