@@ -34,8 +34,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -188,35 +190,49 @@ public final class ElasticSearchBuilder {
                 try {
                     // Configure trust store for server certificate validation
                     if (hasTrustStore) {
+                        log.info("Loading truststore from: {}", trustStorePath);
                         final var trustManagerFactory =
                             TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                        final var truststore = KeyStore.getInstance("jks");
+                        final var truststoreType = detectKeystoreType(trustStorePath);
+                        log.info("Detected truststore type: {} for file: {}", truststoreType, trustStorePath);
+                        final var truststore = KeyStore.getInstance(truststoreType);
                         try (final InputStream is = Files.newInputStream(Paths.get(trustStorePath))) {
-                            truststore.load(is, trustStorePass.toCharArray());
+                            truststore.load(is, trustStorePass != null ? trustStorePass.toCharArray() : null);
+                            log.info("Successfully loaded truststore from: {}", trustStorePath);
                         }
                         trustManagerFactory.init(truststore);
                         sslContextBuilder.trustManager(trustManagerFactory);
+                        log.info("Truststore configured successfully");
                     }
 
                     // Configure key store for client certificate authentication (mutual TLS)
                     if (hasKeyStore) {
+                        log.info("Loading keystore from: {}", keyStorePath);
                         final var keyManagerFactory =
                             KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
                         // Detect keystore type from file extension or try both PKCS12 and JKS
                         final var keystoreType = detectKeystoreType(keyStorePath);
+                        log.info("Detected keystore type: {} for file: {}", keystoreType, keyStorePath);
                         final var keystore = KeyStore.getInstance(keystoreType);
 
                         try (final var is = Files.newInputStream(Paths.get(keyStorePath))) {
-                            keystore.load(is, keyStorePass.toCharArray());
+                            keystore.load(is, keyStorePass != null ? keyStorePass.toCharArray() : null);
+                            log.info("Successfully loaded keystore from: {}", keyStorePath);
                         }
-                        keyManagerFactory.init(keystore, keyStorePass.toCharArray());
+
+                        // Log certificate details for troubleshooting
+                        logCertificateDetails(keystore, keyStorePath);
+
+                        keyManagerFactory.init(keystore, keyStorePass != null ? keyStorePass.toCharArray() : null);
                         sslContextBuilder.keyManager(keyManagerFactory);
 
-                        log.info("Client certificate authentication enabled with keystore: {}", keyStorePath);
+                        log.info("Client certificate authentication enabled with keystore: {} (type: {})", 
+                                 keyStorePath, keystoreType);
                     }
                 } catch (Exception e) {
-                    throw new RuntimeException("Failed to configure SSL/TLS context", e);
+                    log.error("Failed to configure SSL/TLS context", e);
+                    throw new RuntimeException("Failed to configure SSL/TLS context: " + e.getMessage(), e);
                 }
             });
         }
@@ -285,5 +301,49 @@ public final class ElasticSearchBuilder {
         // Default to PKCS12 for unknown extensions
         log.info("Unknown keystore extension for {}, defaulting to PKCS12 format", keyStorePath);
         return "PKCS12";
+    }
+
+    /**
+     * Logs certificate details from the keystore for troubleshooting purposes.
+     */
+    @SneakyThrows
+    private static void logCertificateDetails(KeyStore keystore, String keyStorePath) {
+        try {
+            final Enumeration<String> aliases = keystore.aliases();
+            int certCount = 0;
+            while (aliases.hasMoreElements()) {
+                final String alias = aliases.nextElement();
+                certCount++;
+                log.info("Keystore entry [{}]: alias='{}', isKeyEntry={}, isCertificateEntry={}", 
+                         certCount, alias, keystore.isKeyEntry(alias), keystore.isCertificateEntry(alias));
+
+                if (keystore.isKeyEntry(alias)) {
+                    final java.security.cert.Certificate cert = keystore.getCertificate(alias);
+                    if (cert instanceof X509Certificate) {
+                        final X509Certificate x509Cert = (X509Certificate) cert;
+                        log.info("  Certificate subject: {}", x509Cert.getSubjectDN());
+                        log.info("  Certificate issuer: {}", x509Cert.getIssuerDN());
+                        log.info("  Certificate serial number: {}", x509Cert.getSerialNumber());
+                        log.info("  Certificate valid from: {} to {}", 
+                                 x509Cert.getNotBefore(), x509Cert.getNotAfter());
+                        log.info("  Certificate algorithm: {}", x509Cert.getSigAlgName());
+                    }
+                } else if (keystore.isCertificateEntry(alias)) {
+                    final java.security.cert.Certificate cert = keystore.getCertificate(alias);
+                    if (cert instanceof X509Certificate) {
+                        final X509Certificate x509Cert = (X509Certificate) cert;
+                        log.info("  Certificate subject: {}", x509Cert.getSubjectDN());
+                        log.info("  Certificate issuer: {}", x509Cert.getIssuerDN());
+                    }
+                }
+            }
+            if (certCount == 0) {
+                log.warn("No certificates found in keystore: {}", keyStorePath);
+            } else {
+                log.info("Total entries in keystore: {}", certCount);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to log certificate details from keystore: {}", keyStorePath, e);
+        }
     }
 }
