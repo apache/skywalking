@@ -113,7 +113,6 @@ services:
       SW_STORAGE_ES_SSL_JKS_PASS: changeit
       SW_STORAGE_ES_SSL_KEY_STORE_PATH: /etc/skywalking/certs/client.p12
       SW_STORAGE_ES_SSL_KEY_STORE_PASS: changeit
-      JAVA_OPTS: -Dcom.linecorp.armeria.useEpoll=false # TODO: fix this
     ports:
       - 12800
     volumes:
