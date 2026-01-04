@@ -254,20 +254,10 @@ public final class ElasticSearchBuilder {
                                               ctx.logBuilder().name("health-check");
                                               return delegate.execute(ctx, req);
                                           });
-                                          // When using client certificates, TLS handshake may take longer
-                                          // Increase response timeout to account for mutual TLS authentication
-                                          if (hasKeyStore) {
-                                              options.responseTimeout(Duration.ofSeconds(30));
-                                          }
                                           return options;
                                       });
         if (StringUtil.isNotBlank(username) && StringUtil.isNotBlank(password)) {
             endpointGroupBuilder.auth(AuthToken.ofBasic(username, password));
-        }
-        // When using client certificates, increase selection timeout to allow for TLS handshake
-        // This is especially important on Linux systems using epoll
-        if (hasKeyStore) {
-            endpointGroupBuilder.selectionTimeout(Duration.ofSeconds(15));
         }
         final HealthCheckedEndpointGroup endpointGroup = endpointGroupBuilder.build();
 
