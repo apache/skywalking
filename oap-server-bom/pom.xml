@@ -67,7 +67,7 @@
         <postgresql.version>42.4.4</postgresql.version>
         <jetcd.version>0.6.1</jetcd.version>
         <testcontainers.version>1.17.6</testcontainers.version>
-        <armeria.version>1.32.0</armeria.version>
+        <armeria.version>1.34.2</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.16</httpcore.version>
         <httpasyncclient.version>4.1.5</httpasyncclient.version>
@@ -257,6 +257,11 @@
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-services</artifactId>
                 <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-tcnative-boringssl-static</artifactId>
+                <version>${netty-tcnative-boringssl-static.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.grpc</groupId>
