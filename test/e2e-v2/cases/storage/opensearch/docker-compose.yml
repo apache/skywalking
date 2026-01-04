@@ -19,8 +19,6 @@ services:
     image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
     expose:
       - 9200
-    ports:
-      - 9200:9200
     networks:
       - e2e
     environment:
