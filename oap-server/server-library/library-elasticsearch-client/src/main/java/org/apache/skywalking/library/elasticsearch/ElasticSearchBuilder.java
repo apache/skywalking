@@ -27,6 +27,9 @@ import com.linecorp.armeria.client.endpoint.healthcheck.HealthCheckedEndpointGro
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.common.SessionProtocol;
 import com.linecorp.armeria.common.auth.AuthToken;
+
+import io.netty.channel.nio.NioEventLoopGroup;
+
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -174,7 +177,7 @@ public final class ElasticSearchBuilder {
                          .connectTimeout(connectTimeout)
                          .idleTimeout(socketTimeout)
                          .useHttp2Preface(false)
-                         .workerGroup(numHttpClientThread > 0 ? numHttpClientThread : NUM_PROC);
+                         .workerGroup(new NioEventLoopGroup(numHttpClientThread > 0 ? numHttpClientThread : NUM_PROC), true);
 
         // Configure SSL/TLS with optional mutual TLS (client certificate authentication)
         final boolean hasTrustStore = StringUtil.isNotBlank(trustStorePath);
