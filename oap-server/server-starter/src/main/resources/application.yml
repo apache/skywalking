@@ -158,10 +158,10 @@ storage:
     numHttpClientThread: ${SW_STORAGE_ES_NUM_HTTP_CLIENT_THREAD:0}
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
-    trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
-    trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
-    keyStorePath: ${SW_STORAGE_ES_SSL_KEY_STORE_PATH:""} # Path to client certificate keystore for mutual TLS (OpenSearch/Elasticsearch client cert auth). Supports PKCS12 (.p12, .pfx) and JKS (.jks) formats.
-    keyStorePass: ${SW_STORAGE_ES_SSL_KEY_STORE_PASS:""} # Password for the client certificate keystore. Can be managed via secretsManagementFile.
+    trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""} # Path to the truststore that contains CA certificates used to verify the OpenSearch/Elasticsearch server certificate.
+    trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""} # Password for the truststore defined in trustStorePath.
+    keyStorePath: ${SW_STORAGE_ES_SSL_KEY_STORE_PATH:""} # Path to the client certificate keystore for mutual TLS (OpenSearch/Elasticsearch client certificate authentication). 
+    keyStorePass: ${SW_STORAGE_ES_SSL_KEY_STORE_PASS:""} # Password for the client certificate keystore defined in keyStorePath. This can be externalized via secretsManagementFile.
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
     dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
