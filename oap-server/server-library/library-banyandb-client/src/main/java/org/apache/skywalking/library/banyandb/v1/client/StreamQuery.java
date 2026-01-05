@@ -19,11 +19,11 @@
 package org.apache.skywalking.library.banyandb.v1.client;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.Setter;
 import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 
 /**
  * StreamQuery is the high-level query API for the stream model.
@@ -48,13 +48,18 @@ public class StreamQuery extends AbstractQuery<BanyandbStream.QueryRequest> {
      */
     private Set<String> stages;
 
-    public StreamQuery(final List<String> groups, final String name, final TimestampRange timestampRange, final Set<String> projections) {
+    public StreamQuery(final List<String> groups,
+                       final String name,
+                       final TimestampRange timestampRange,
+                       final Map<String/*tagName*/, String/*tagFamilyName*/> projections) {
         super(groups, name, timestampRange, projections);
         this.offset = 0;
         this.limit = 20;
     }
 
-    public StreamQuery(final List<String> groups, final String name, final Set<String> projections) {
+    public StreamQuery(final List<String> groups,
+                       final String name,
+                       final Map<String/*tagName*/, String/*tagFamilyName*/> projections) {
         this(groups, name, null, projections);
     }
 
@@ -74,17 +79,14 @@ public class StreamQuery extends AbstractQuery<BanyandbStream.QueryRequest> {
     }
 
     @Override
-    BanyandbStream.QueryRequest build(MetadataCache.EntityMetadata entityMetadata) throws BanyanDBException {
-        if (entityMetadata == null) {
-            throw new IllegalArgumentException("entity metadata is null");
-        }
+    BanyandbStream.QueryRequest build() throws BanyanDBException {
         final BanyandbStream.QueryRequest.Builder builder = BanyandbStream.QueryRequest.newBuilder();
         builder.setName(this.name);
         builder.addAllGroups(this.groups);
         if (timestampRange != null) {
             builder.setTimeRange(timestampRange.build());
         }
-        builder.setProjection(buildTagProjections(entityMetadata));
+        builder.setProjection(buildTagProjections());
         buildCriteria().ifPresent(builder::setCriteria);
         builder.setOffset(offset);
         builder.setLimit(limit);

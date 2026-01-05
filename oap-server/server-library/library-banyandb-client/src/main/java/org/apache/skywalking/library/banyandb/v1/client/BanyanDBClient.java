@@ -67,7 +67,6 @@ import org.apache.skywalking.library.banyandb.v1.client.metadata.GroupMetadataRe
 import org.apache.skywalking.library.banyandb.v1.client.metadata.IndexRuleBindingMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.IndexRuleMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.MeasureMetadataRegistry;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.PropertyMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.StreamMetadataRegistry;
@@ -143,11 +142,6 @@ public class BanyanDBClient implements Closeable {
     private final ReentrantLock connectionEstablishLock;
 
     /**
-     * Client local metadata cache.
-     */
-    private final MetadataCache metadataCache;
-
-    /**
      * Create a BanyanDB client instance with a default options.
      *
      * @param targets server targets
@@ -170,7 +164,6 @@ public class BanyanDBClient implements Closeable {
         this.targets = tt;
         this.options = options;
         this.connectionEstablishLock = new ReentrantLock();
-        this.metadataCache = new MetadataCache(this);
     }
 
     /**
@@ -241,8 +234,7 @@ public class BanyanDBClient implements Closeable {
     public MeasureWrite createMeasureWrite(String group, String name, long timestamp) throws BanyanDBException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
-
-        return new MeasureWrite(this.metadataCache.findMeasureMetadata(group, name), timestamp);
+        return new MeasureWrite(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build(), timestamp);
     }
 
     /**
@@ -256,7 +248,7 @@ public class BanyanDBClient implements Closeable {
     public StreamWrite createStreamWrite(String group, String name, final String elementId) throws BanyanDBException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
-        return new StreamWrite(this.metadataCache.findStreamMetadata(group, name), elementId);
+        return new StreamWrite(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build(), elementId);
     }
 
     /**
@@ -269,7 +261,7 @@ public class BanyanDBClient implements Closeable {
     public TraceWrite createTraceWrite(String group, String name) throws BanyanDBException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
-        return new TraceWrite(this.metadataCache.findTraceMetadata(group, name));
+        return new TraceWrite(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build());
     }
 
     /**
@@ -282,15 +274,15 @@ public class BanyanDBClient implements Closeable {
         checkState(this.streamServiceStub != null, "stream service is null");
 
         for (String group : streamQuery.groups) {
-            MetadataCache.EntityMetadata em = this.metadataCache.findStreamMetadata(group, streamQuery.name);
-            if (em != null) {
-                final BanyandbStream.QueryResponse response = HandleExceptionsWith.callAndTranslateApiException(() ->
-                        this.streamServiceBlockingStub
-                                .withDeadlineAfter(this.getOptions().getDeadline(), TimeUnit.SECONDS)
-                                .query(streamQuery.build(em)));
-                return new StreamQueryResponse(response);
-            }
-
+            final BanyandbStream.QueryResponse response =
+                HandleExceptionsWith.callAndTranslateApiException(() ->
+                                                                      this.streamServiceBlockingStub
+                                                                          .withDeadlineAfter(
+                                                                              this.getOptions().getDeadline(),
+                                                                              TimeUnit.SECONDS
+                                                                          )
+                                                                          .query(streamQuery.build()));
+            return new StreamQueryResponse(response);
         }
         throw new RuntimeException("No metadata found for the query");
     }
@@ -320,14 +312,17 @@ public class BanyanDBClient implements Closeable {
     public MeasureQueryResponse query(MeasureQuery measureQuery) throws BanyanDBException {
         checkState(this.streamServiceStub != null, "measure service is null");
         for (String group : measureQuery.groups) {
-            MetadataCache.EntityMetadata em = this.metadataCache.findMeasureMetadata(group, measureQuery.name);
-                    if (em != null) {
-                        final BanyandbMeasure.QueryResponse response = HandleExceptionsWith.callAndTranslateApiException(() ->
-                                this.measureServiceBlockingStub
-                                        .withDeadlineAfter(this.getOptions().getDeadline(), TimeUnit.SECONDS)
-                                        .query(measureQuery.build(em)));
-                        return new MeasureQueryResponse(response);
-                    }
+            final BanyandbMeasure.QueryResponse response =
+                HandleExceptionsWith.callAndTranslateApiException(() ->
+                                                                      this.measureServiceBlockingStub
+                                                                          .withDeadlineAfter(
+                                                                              this.getOptions()
+                                                                                  .getDeadline(),
+                                                                              TimeUnit.SECONDS
+                                                                          )
+                                                                          .query(
+                                                                              measureQuery.build()));
+            return new MeasureQueryResponse(response);
         }
             throw new RuntimeException("No metadata found for the query");
    }
@@ -342,14 +337,15 @@ public class BanyanDBClient implements Closeable {
         checkState(this.traceServiceStub != null, "trace service is null");
 
         for (String group : traceQuery.groups) {
-            MetadataCache.EntityMetadata em = this.metadataCache.findTraceMetadata(group, traceQuery.name);
-            if (em != null) {
-                final BanyandbTrace.QueryResponse response = HandleExceptionsWith.callAndTranslateApiException(() ->
-                        this.traceServiceBlockingStub
-                                .withDeadlineAfter(this.getOptions().getDeadline(), TimeUnit.SECONDS)
-                                .query(traceQuery.build(em)));
-                return new TraceQueryResponse(response);
-            }
+            final BanyandbTrace.QueryResponse response =
+                HandleExceptionsWith.callAndTranslateApiException(() ->
+                                                                      this.traceServiceBlockingStub
+                                                                          .withDeadlineAfter(
+                                                                              this.getOptions().getDeadline(),
+                                                                              TimeUnit.SECONDS
+                                                                          )
+                                                                          .query(traceQuery.build()));
+            return new TraceQueryResponse(response);
 
         }
         throw new RuntimeException("No metadata found for the query");
@@ -376,7 +372,6 @@ public class BanyanDBClient implements Closeable {
         StreamMetadataRegistry streamRegistry = new StreamMetadataRegistry(checkNotNull(this.channel));
         long modRevision = streamRegistry.create(stream);
         stream = stream.toBuilder().setMetadata(stream.getMetadata().toBuilder().setModRevision(modRevision)).build();
-        this.metadataCache.register(stream);
     }
 
     /**
@@ -398,7 +393,6 @@ public class BanyanDBClient implements Closeable {
         MeasureMetadataRegistry measureRegistry = new MeasureMetadataRegistry(checkNotNull(this.channel));
         long modRevision = measureRegistry.create(measure);
         measure = measure.toBuilder().setMetadata(measure.getMetadata().toBuilder().setModRevision(modRevision)).build();
-        this.metadataCache.register(measure);
     }
 
     /**
@@ -559,7 +553,6 @@ public class BanyanDBClient implements Closeable {
     public void update(Stream stream) throws BanyanDBException {
         StreamMetadataRegistry streamRegistry = new StreamMetadataRegistry(checkNotNull(this.channel));
         streamRegistry.update(stream);
-        this.metadataCache.register(stream);
     }
 
     /**
@@ -570,7 +563,6 @@ public class BanyanDBClient implements Closeable {
     public void update(Measure measure) throws BanyanDBException {
         MeasureMetadataRegistry measureRegistry = new MeasureMetadataRegistry(checkNotNull(this.channel));
         measureRegistry.update(measure);
-        this.metadataCache.register(measure);
     }
 
     /**
@@ -620,11 +612,7 @@ public class BanyanDBClient implements Closeable {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
         StreamMetadataRegistry streamRegistry = new StreamMetadataRegistry(checkNotNull(this.channel));
-        if (streamRegistry.delete(group, name)) {
-            this.metadataCache.unregister(group, name);
-            return true;
-        }
-        return false;
+        return streamRegistry.delete(group, name);
     }
 
     /**
@@ -637,11 +625,7 @@ public class BanyanDBClient implements Closeable {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
         MeasureMetadataRegistry measureRegistry = new MeasureMetadataRegistry(checkNotNull(this.channel));
-        if (measureRegistry.delete(group, name)) {
-            this.metadataCache.unregister(group, name);
-            return true;
-        }
-        return false;
+        return measureRegistry.delete(group, name);
     }
 
     /**
@@ -1089,42 +1073,6 @@ public class BanyanDBClient implements Closeable {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
 
         return new TraceMetadataRegistry(checkNotNull(this.channel)).exist(group, name);
-    }
-
-    /**
-     * Update the stream metadata cache from the server
-     * @param group the group of the stream
-     * @param name the name of the stream
-     * @return the updated stream metadata, or null if the stream does not exist
-     */
-    public MetadataCache.EntityMetadata updateStreamMetadataCacheFromSever(String group, String name) throws BanyanDBException {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
-        return this.metadataCache.updateStreamFromSever(group, name);
-    }
-
-    /**
-     * Update the measure metadata cache from the server
-     * @param group the group of the measure
-     * @param name the name of the measure
-     * @return the updated measure metadata, or null if the measure does not exist
-     */
-    public MetadataCache.EntityMetadata updateMeasureMetadataCacheFromSever(String group, String name) throws BanyanDBException {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
-        return this.metadataCache.updateMeasureFromSever(group, name);
-    }
-
-    /**
-     * Update the trace metadata cache from the server
-     * @param group the group of the trace
-     * @param name the name of the trace
-     * @return the updated trace metadata, or null if the trace does not exist
-     */
-    public MetadataCache.EntityMetadata updateTraceMetadataCacheFromServer(String group, String name) throws BanyanDBException {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
-        return this.metadataCache.updateTraceFromServer(group, name);
     }
 
     /**

@@ -375,20 +375,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
                                         break;
                                     case STATUS_EXPIRED_SCHEMA:
                                         BanyandbCommon.Metadata metadata = writeResponse.getMetadata();
-                                        log.warn(
-                                            "The schema {}.{} is expired, trying update the schema...",
+                                        log.error(
+                                            "The schema {}.{} is expired",
                                             metadata.getGroup(), metadata.getName()
                                         );
-                                        try {
-                                            client.updateStreamMetadataCacheFromSever(
-                                                metadata.getGroup(), metadata.getName());
-                                        } catch (BanyanDBException e) {
-                                            String warnMessage = String.format(
-                                                "Failed to refresh the stream schema %s.%s",
-                                                metadata.getGroup(), metadata.getName()
-                                            );
-                                            log.warn(warnMessage, e);
-                                        }
                                         responseException = new InvalidArgumentException(
                                             "Expired revision: " + metadata.getModRevision(), null,
                                             Status.Code.INVALID_ARGUMENT, true

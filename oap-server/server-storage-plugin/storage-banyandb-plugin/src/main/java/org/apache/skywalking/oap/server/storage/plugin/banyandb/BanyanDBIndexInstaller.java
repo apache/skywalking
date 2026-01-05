@@ -41,7 +41,6 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRuleBind
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
 import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
@@ -133,11 +132,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                             );
                             checkTopNAggregation(model, c);
                         }
-                    }
-                    // pre-load remote schema for java client
-                    MetadataCache.EntityMetadata remoteMeta = updateSchemaFromServer(metadata, c);
-                    if (remoteMeta == null) {
-                        throw new IllegalStateException("inconsistent state: metadata:" + metadata + ", remoteMeta: null");
                     }
                 } else {
                     PropertyModel propertyModel = MetadataRegistry.INSTANCE.registerPropertyModel(model, config);
@@ -420,22 +414,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             }
         }
         return resourceExist;
-    }
-
-    /**
-     * Update the schema from the banyanDB server side for the java client cache
-     */
-    private MetadataCache.EntityMetadata updateSchemaFromServer(MetadataRegistry.SchemaMetadata metadata, BanyanDBClient client) throws BanyanDBException {
-        switch (metadata.getKind()) {
-            case STREAM:
-                return client.updateStreamMetadataCacheFromSever(metadata.getGroup(), metadata.name());
-            case MEASURE:
-                return client.updateMeasureMetadataCacheFromSever(metadata.getGroup(), metadata.name());
-            case TRACE:
-                return client.updateTraceMetadataCacheFromServer(metadata.getGroup(), metadata.name());
-            default:
-                throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());
-        }
     }
 
     private void defineTopNAggregation(MetadataRegistry.Schema schema, BanyanDBClient client) throws BanyanDBException {

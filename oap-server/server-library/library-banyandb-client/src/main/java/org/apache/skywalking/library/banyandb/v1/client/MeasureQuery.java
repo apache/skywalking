@@ -21,14 +21,13 @@ package org.apache.skywalking.library.banyandb.v1.client;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.measure.v1.BanyandbMeasure;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 
 /**
  * MeasureQuery is the high-level query API for the measure model.
@@ -52,11 +51,18 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
 
     private Set<String> stages;
 
-    public MeasureQuery(final List<String> groups, final String name, final Set<String> tagProjections, final Set<String> fieldProjections) {
+    public MeasureQuery(final List<String> groups,
+                        final String name,
+                        final Map<String/*tagName*/, String/*tagFamilyName*/> tagProjections,
+                        final Set<String/*tagName*/> fieldProjections) {
         this(groups, name, null, tagProjections, fieldProjections);
     }
 
-    public MeasureQuery(final  List<String> groups, final String name, final TimestampRange timestampRange, final Set<String> tagProjections, final Set<String> fieldProjections) {
+    public MeasureQuery(final List<String> groups,
+                        final String name,
+                        final TimestampRange timestampRange,
+                        final Map<String/*tagName*/, String/*tagFamilyName*/> tagProjections,
+                        final Set<String/*tagName*/> fieldProjections) {
         super(groups, name, timestampRange, tagProjections);
         this.fieldProjections = fieldProjections;
     }
@@ -72,21 +78,21 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
     }
 
     public MeasureQuery groupBy(Set<String> groupByKeys) {
-        Preconditions.checkArgument(this.tagProjections.containsAll(groupByKeys), "groupBy tags should be selected first");
+        Preconditions.checkArgument(tagProjections.keySet().containsAll(groupByKeys), "groupBy tags should be selected first");
         this.aggregation = new Aggregation(null, Aggregation.Type.UNSPECIFIED, groupByKeys);
         return this;
     }
 
     public MeasureQuery maxBy(String field, Set<String> groupByKeys) {
         Preconditions.checkArgument(fieldProjections.contains(field), "field should be selected first");
-        Preconditions.checkArgument(this.tagProjections.containsAll(groupByKeys), "groupBy tags should be selected first");
+        Preconditions.checkArgument(tagProjections.keySet().containsAll(groupByKeys), "groupBy tags should be selected first");
         this.aggregation = new Aggregation(field, Aggregation.Type.MAX, groupByKeys);
         return this;
     }
 
     public MeasureQuery minBy(String field, Set<String> groupByKeys) {
         Preconditions.checkArgument(fieldProjections.contains(field), "field should be selected first");
-        Preconditions.checkArgument(this.tagProjections.containsAll(groupByKeys), "groupBy tags should be selected first");
+        Preconditions.checkArgument(tagProjections.keySet().containsAll(groupByKeys), "groupBy tags should be selected first");
         Preconditions.checkState(this.aggregation == null, "aggregation should only be set once");
         this.aggregation = new Aggregation(field, Aggregation.Type.MIN, groupByKeys);
         return this;
@@ -94,7 +100,7 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
 
     public MeasureQuery meanBy(String field, Set<String> groupByKeys) {
         Preconditions.checkArgument(fieldProjections.contains(field), "field should be selected first");
-        Preconditions.checkArgument(this.tagProjections.containsAll(groupByKeys), "groupBy tags should be selected first");
+        Preconditions.checkArgument(tagProjections.keySet().containsAll(groupByKeys), "groupBy tags should be selected first");
         Preconditions.checkState(this.aggregation == null, "aggregation should only be set once");
         this.aggregation = new Aggregation(field, Aggregation.Type.MEAN, groupByKeys);
         return this;
@@ -102,7 +108,7 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
 
     public MeasureQuery countBy(String field, Set<String> groupByKeys) {
         Preconditions.checkArgument(fieldProjections.contains(field), "field should be selected first");
-        Preconditions.checkArgument(this.tagProjections.containsAll(groupByKeys), "groupBy tags should be selected first");
+        Preconditions.checkArgument(tagProjections.keySet().containsAll(groupByKeys), "groupBy tags should be selected first");
         Preconditions.checkState(this.aggregation == null, "aggregation should only be set once");
         this.aggregation = new Aggregation(field, Aggregation.Type.COUNT, groupByKeys);
         return this;
@@ -110,7 +116,7 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
 
     public MeasureQuery sumBy(String field, Set<String> groupByKeys) {
         Preconditions.checkArgument(fieldProjections.contains(field), "field should be selected first");
-        Preconditions.checkArgument(this.tagProjections.containsAll(groupByKeys), "groupBy tags should be selected first");
+        Preconditions.checkArgument(tagProjections.keySet().containsAll(groupByKeys), "groupBy tags should be selected first");
         Preconditions.checkState(this.aggregation == null, "aggregation should only be set once");
         this.aggregation = new Aggregation(field, Aggregation.Type.SUM, groupByKeys);
         return this;
@@ -147,10 +153,7 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
      * @return QueryRequest for gRPC level query.
      */
     @Override
-    BanyandbMeasure.QueryRequest build(MetadataCache.EntityMetadata entityMetadata) throws BanyanDBException {
-        if (entityMetadata == null) {
-            throw new IllegalArgumentException("entity metadata is null");
-        }
+    BanyandbMeasure.QueryRequest build() throws BanyanDBException {
         final BanyandbMeasure.QueryRequest.Builder builder = BanyandbMeasure.QueryRequest.newBuilder();
         builder.setName(this.name);
         builder.addAllGroups(this.groups);
@@ -159,9 +162,9 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
         } else {
             builder.setTimeRange(TimestampRange.MAX_RANGE);
         }
-        BanyandbModel.TagProjection tagProjections = buildTagProjections(entityMetadata);
+        BanyandbModel.TagProjection tagProjections = buildTagProjections();
         if (tagProjections.getTagFamiliesCount() > 0) {
-            builder.setTagProjection(buildTagProjections(entityMetadata));
+            builder.setTagProjection(buildTagProjections());
         }
         if (!fieldProjections.isEmpty()) {
             builder.setFieldProjection(BanyandbMeasure.QueryRequest.FieldProjection.newBuilder()
@@ -173,7 +176,7 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
         }
         if (this.aggregation != null) {
             BanyandbMeasure.QueryRequest.GroupBy.Builder groupByBuilder = BanyandbMeasure.QueryRequest.GroupBy.newBuilder()
-                    .setTagProjection(buildTagProjections(entityMetadata, this.aggregation.groupByTagsProjection));
+                    .setTagProjection(buildTagProjections(this.aggregation.groupByTagsProjection));
             if (Strings.isNullOrEmpty(this.aggregation.fieldName)) {
                 if (this.aggregation.aggregationType != Aggregation.Type.UNSPECIFIED) {
                     throw new IllegalArgumentException("field name cannot be null or empty if aggregation is specified");

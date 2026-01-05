@@ -25,11 +25,7 @@
         <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>library-banyandb-client</artifactId>
-    <description>
-    </description>
-
     <dependencies>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -39,10 +35,10 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>io.netty</groupId>-->
-<!--            <artifactId>netty-tcnative-boringssl-static</artifactId>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http2</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
@@ -65,6 +61,21 @@
             <groupId>build.buf.protoc-gen-validate</groupId>
             <artifactId>pgv-java-stub</artifactId>
             <version>${bufbuild.protoc-gen-validate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-testing</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-integration-test</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

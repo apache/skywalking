@@ -19,15 +19,14 @@
 package org.apache.skywalking.library.banyandb.v1.client;
 
 import com.google.protobuf.Timestamp;
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import lombok.Getter;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 
 /**
@@ -41,17 +40,21 @@ public class StreamWrite extends AbstractWrite<BanyandbStream.WriteRequest> {
     @Getter
     private final String elementId;
 
+    // Use TreeMap to have a consistent order for tags
+    private final Map<String/*tagFamily*/, Map<String/*tagName*/, Serializable<BanyandbModel.TagValue>/*tagValue*/>> tags;
+
     /**
      * Create a StreamWrite without initial timestamp.
      */
-    StreamWrite(MetadataCache.EntityMetadata entityMetadata, final String elementId) {
+    StreamWrite(BanyandbCommon.Metadata entityMetadata, final String elementId) {
         super(entityMetadata);
         this.elementId = elementId;
+        this.tags = new TreeMap<>();
     }
 
-    @Override
-    public StreamWrite tag(String tagName, Serializable<BanyandbModel.TagValue> tagValue) throws BanyanDBException {
-        return (StreamWrite) super.tag(tagName, tagValue);
+    public StreamWrite tag(String tagFamilyName, String tagName, Serializable<BanyandbModel.TagValue> tagValue) throws BanyanDBException {
+        this.tags.computeIfAbsent(tagFamilyName, k -> new TreeMap<>()).put(tagName, tagValue);
+        return this;
     }
 
     public void setTimestamp(long timestamp) {
@@ -78,27 +81,70 @@ public class StreamWrite extends AbstractWrite<BanyandbStream.WriteRequest> {
         final BanyandbStream.ElementValue.Builder elemValBuilder = BanyandbStream.ElementValue.newBuilder();
         elemValBuilder.setElementId(elementId);
         elemValBuilder.setTimestamp(ts);
-        // memorize the last offset for the last tag family
-        int lastFamilyOffset = 0;
-        for (final int tagsPerFamily : this.entityMetadata.getTagFamilyCapacity()) {
-            boolean firstNonNullTagFound = false;
-            Deque<BanyandbModel.TagValue> tags = new LinkedList<>();
-            for (int j = tagsPerFamily - 1; j >= 0; j--) {
-                Object obj = this.tags[lastFamilyOffset + j];
-                if (obj == null) {
-                    if (firstNonNullTagFound) {
-                        tags.addFirst(TagAndValue.nullTagValue().serialize());
-                    }
-                    continue;
-                }
-                firstNonNullTagFound = true;
-                tags.addFirst(((Serializable<BanyandbModel.TagValue>) obj).serialize());
+        for (Map.Entry<String, Map<String, Serializable<BanyandbModel.TagValue>>> tagFamilyEntry : this.tags.entrySet()) {
+            BanyandbStream.TagFamilySpec.Builder tagFamilySpecBuilder = BanyandbStream.TagFamilySpec.newBuilder();
+            BanyandbModel.TagFamilyForWrite.Builder tagFamilyForWriteBuilder = BanyandbModel.TagFamilyForWrite.newBuilder();
+            tagFamilySpecBuilder.setName(tagFamilyEntry.getKey());
+            for (Map.Entry<String, Serializable<BanyandbModel.TagValue>> tagEntry : tagFamilyEntry.getValue().entrySet()) {
+                tagFamilySpecBuilder.addTagNames(tagEntry.getKey());
+                tagFamilyForWriteBuilder.addTags(tagEntry.getValue().serialize());
             }
-            lastFamilyOffset += tagsPerFamily;
-            elemValBuilder.addTagFamilies(BanyandbModel.TagFamilyForWrite.newBuilder().addAllTags(tags).build());
+            builder.addTagFamilySpec(tagFamilySpecBuilder);
+            elemValBuilder.addTagFamilies(tagFamilyForWriteBuilder);
         }
+
         builder.setElement(elemValBuilder);
         builder.setMessageId(System.nanoTime());
         return builder.build();
+    }
+
+    /**
+     * Build a write request without metadata and tag specs.
+     *
+     * @return {@link BanyandbStream.WriteRequest} for the bulk process.
+     */
+    @Override
+    protected BanyandbStream.WriteRequest buildValues() {
+        if (!timestamp.isPresent() || timestamp.get() <= 0) {
+            throw new IllegalArgumentException("Timestamp is required and must be greater than 0 for stream writes.");
+        }
+
+        Timestamp ts = Timestamp.newBuilder()
+                                .setSeconds(timestamp.get() / 1000)
+                                .setNanos((int) (timestamp.get() % 1000 * 1_000_000)).build();
+
+        final BanyandbStream.WriteRequest.Builder builder = BanyandbStream.WriteRequest.newBuilder();
+        final BanyandbStream.ElementValue.Builder elemValBuilder = BanyandbStream.ElementValue.newBuilder();
+        elemValBuilder.setElementId(elementId);
+        elemValBuilder.setTimestamp(ts);
+        for (Map.Entry<String, Map<String, Serializable<BanyandbModel.TagValue>>> tagFamilyEntry : this.tags.entrySet()) {
+            BanyandbModel.TagFamilyForWrite.Builder tagFamilyForWriteBuilder = BanyandbModel.TagFamilyForWrite.newBuilder();
+            for (Map.Entry<String, Serializable<BanyandbModel.TagValue>> tagEntry : tagFamilyEntry.getValue().entrySet()) {
+                tagFamilyForWriteBuilder.addTags(tagEntry.getValue().serialize());
+            }
+            elemValBuilder.addTagFamilies(tagFamilyForWriteBuilder);
+        }
+
+        builder.setElement(elemValBuilder);
+        builder.setMessageId(System.nanoTime());
+        return builder.build();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("group=").append(entityMetadata.getGroup()).append(", ").append("name=")
+                     .append(entityMetadata.getName()).append(", ").append("timestamp=").append(timestamp).append(", ");
+        for (Map.Entry<String, Map<String, Serializable<BanyandbModel.TagValue>>> entry : tags.entrySet()) {
+            String tagFamilyName = entry.getKey();
+            Map<String, Serializable<BanyandbModel.TagValue>> tagMap = entry.getValue();
+            for (Map.Entry<String, Serializable<BanyandbModel.TagValue>> tagEntry : tagMap.entrySet()) {
+                String tagName = tagEntry.getKey();
+                Serializable<BanyandbModel.TagValue> tagValue = tagEntry.getValue();
+                stringBuilder.append(tagFamilyName).append(".").append(tagName).append("=")
+                             .append(tagValue.serialize()).append(", ");
+            }
+        }
+        return stringBuilder.toString();
     }
 }

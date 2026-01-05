@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk;
 
 import io.grpc.stub.StreamObserver;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +29,6 @@ import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
 import org.apache.skywalking.banyandb.stream.v1.StreamServiceGrpc;
 import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.library.banyandb.v1.client.Options;
-import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.library.banyandb.v1.client.util.StatusUtil;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 
@@ -74,8 +71,6 @@ public class StreamBulkWriteProcessor extends AbstractBulkWriteProcessor<Banyand
     protected StreamObserver<BanyandbStream.WriteRequest> buildStreamObserver(StreamServiceGrpc.StreamServiceStub stub, CompletableFuture<Void> batch) {
         return stub.write(
                 new StreamObserver<BanyandbStream.WriteResponse>() {
-                    private final Set<String> schemaExpired = new HashSet<>();
-
                     @Override
                     public void onNext(BanyandbStream.WriteResponse writeResponse) {
                         BanyandbModel.Status status = StatusUtil.convertStringToStatus(writeResponse.getStatus());
@@ -85,15 +80,7 @@ public class StreamBulkWriteProcessor extends AbstractBulkWriteProcessor<Banyand
                             case STATUS_EXPIRED_SCHEMA:
                                 BanyandbCommon.Metadata metadata = writeResponse.getMetadata();
                                 String schemaKey = metadata.getGroup() + "." + metadata.getName();
-                                if (!schemaExpired.contains(schemaKey)) {
-                                    log.warn("The schema {} is expired, trying update the schema...", schemaKey);
-                                    try {
-                                        client.updateStreamMetadataCacheFromSever(metadata.getGroup(), metadata.getName());
-                                        schemaExpired.add(schemaKey);
-                                    } catch (BanyanDBException e) {
-                                        log.error(e.getMessage(), e);
-                                    }
-                                }
+                                log.error("The schema {} is expired", schemaKey);
                                 break;
                             default:
                                 log.warn("Write stream failed with status: {}", status);

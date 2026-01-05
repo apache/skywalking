@@ -99,7 +99,8 @@ public class BanyanDBConverter {
                         "it should be an internal error, please submit an issue to the SkyWalking community");
             }
             try {
-                this.streamWrite.tag(fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
+                String tagFamily = this.schema.getTags().get(fieldName);
+                this.streamWrite.tag(tagFamily, fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
             } catch (BanyanDBException ex) {
                 log.error("fail to add tag", ex);
             }
@@ -108,7 +109,8 @@ public class BanyanDBConverter {
         @Override
         public void accept(String fieldName, byte[] fieldValue) {
             try {
-                this.streamWrite.tag(fieldName, TagAndValue.binaryTagValue(fieldValue));
+                String tagFamily = this.schema.getTags().get(fieldName);
+                this.streamWrite.tag(tagFamily, fieldName, TagAndValue.binaryTagValue(fieldValue));
             } catch (BanyanDBException ex) {
                 log.error("fail to add tag", ex);
             }
@@ -117,7 +119,8 @@ public class BanyanDBConverter {
         @Override
         public void accept(String fieldName, List<String> fieldValue) {
             try {
-                this.streamWrite.tag(fieldName, TagAndValue.stringArrayTagValue(fieldValue));
+                String tagFamily = this.schema.getTags().get(fieldName);
+                this.streamWrite.tag(tagFamily, fieldName, TagAndValue.stringArrayTagValue(fieldValue));
             } catch (BanyanDBException ex) {
                 log.error("fail to accept string array tag", ex);
             }
@@ -151,7 +154,8 @@ public class BanyanDBConverter {
             }
             try {
                 if (columnSpec.getColumnType() == MetadataRegistry.ColumnType.TAG) {
-                    this.measureWrite.tag(fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
+                    String tagFamily = this.schema.getTags().get(fieldName);
+                    this.measureWrite.tag(tagFamily, fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
                 } else {
                     this.measureWrite.field(fieldName, buildField(fieldValue, columnSpec.getColumnClass()));
                 }
@@ -162,7 +166,8 @@ public class BanyanDBConverter {
 
         public void acceptID(String id) {
             try {
-                this.measureWrite.tag(ID, TagAndValue.stringTagValue(id));
+                String tagFamily = this.schema.getTags().get(ID);
+                this.measureWrite.tag(tagFamily, ID, TagAndValue.stringTagValue(id));
             } catch (BanyanDBException ex) {
                 log.error("fail to add ID tag", ex);
             }
@@ -173,7 +178,8 @@ public class BanyanDBConverter {
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
             try {
                 if (columnSpec.getColumnType() == MetadataRegistry.ColumnType.TAG) {
-                    this.measureWrite.tag(fieldName, TagAndValue.binaryTagValue(fieldValue));
+                    String tagFamily = this.schema.getTags().get(fieldName);
+                    this.measureWrite.tag(tagFamily, fieldName, TagAndValue.binaryTagValue(fieldValue));
                 } else {
                     this.measureWrite.field(fieldName, TagAndValue.binaryFieldValue(fieldValue));
                 }
@@ -185,7 +191,8 @@ public class BanyanDBConverter {
         @Override
         public void accept(String fieldName, List<String> fieldValue) {
             try {
-                this.measureWrite.tag(fieldName, TagAndValue.stringArrayTagValue(fieldValue));
+                String tagFamily = this.schema.getTags().get(fieldName);
+                this.measureWrite.tag(tagFamily, fieldName, TagAndValue.stringArrayTagValue(fieldValue));
             } catch (BanyanDBException ex) {
                 log.error("fail to accept string array tag", ex);
             }
@@ -254,6 +261,7 @@ public class BanyanDBConverter {
                 return;
             }
             try {
+                String tagFamily = this.schema.getTags().get(fieldName);
                 this.traceWrite.tag(fieldName, TagAndValue.stringArrayTagValue(fieldValue));
             } catch (BanyanDBException ex) {
                 log.error("fail to accept string array tag", ex);

@@ -23,7 +23,6 @@ import java.util.Set;
 import lombok.Setter;
 import org.apache.skywalking.banyandb.trace.v1.BanyandbTrace;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 
 /**
  * TraceQuery is the high-level query API for the trace model.
@@ -74,17 +73,14 @@ public class TraceQuery extends AbstractQuery<BanyandbTrace.QueryRequest> {
     }
 
     @Override
-    BanyandbTrace.QueryRequest build(MetadataCache.EntityMetadata entityMetadata) throws BanyanDBException {
-        if (entityMetadata == null) {
-            throw new IllegalArgumentException("entity metadata is null");
-        }
+    BanyandbTrace.QueryRequest build() throws BanyanDBException {
         final BanyandbTrace.QueryRequest.Builder builder = BanyandbTrace.QueryRequest.newBuilder();
         builder.setName(this.name);
         builder.addAllGroups(this.groups);
         if (timestampRange != null) {
             builder.setTimeRange(timestampRange.build());
         }
-        builder.addAllTagProjection(this.tagProjections);
+        builder.addAllTagProjection(tagProjections.keySet());
         buildCriteria().ifPresent(builder::setCriteria);
         builder.setOffset(offset);
         builder.setLimit(limit);

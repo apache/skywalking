@@ -114,7 +114,7 @@ public enum MetadataRegistry {
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
             for (final TagSpec tagSpec : tagFamilySpec.getTagsList()) {
-                schemaBuilder.tag(tagSpec.getName());
+                schemaBuilder.tag(tagSpec.getName(), tagFamilySpec.getName());
             }
         }
         String timestampColumn4Stream = model.getBanyanDBModelExtension().getTimestampColumn();
@@ -164,12 +164,11 @@ public enum MetadataRegistry {
         );
         List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags);
         // iterate over tagFamilySpecs to save tag names
-        Set<String> tags = tagFamilySpecs.stream()
-                .flatMap(tagFamilySpec -> tagFamilySpec.getTagsList().stream())
-
-                .map(TagSpec::getName)
-                .collect(Collectors.toSet());
-        schemaBuilder.tags(tags);
+        for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
+            for (final TagSpec tagSpec : tagFamilySpec.getTagsList()) {
+                schemaBuilder.tag(tagSpec.getName(), tagFamilySpec.getName());
+            }
+        }
         List<IndexRule> indexRules = tagsAndFields.tags.stream()
                 .map(TagMetadata::getIndexRule)
                 .filter(Objects::nonNull)
@@ -199,7 +198,7 @@ public enum MetadataRegistry {
         schemaBuilder.topNSpecs(parseTopNSpecs(
             model, schemaMetadata.group, schemaMetadata.name(),
             config.getTopNConfigs().get(model.getName()),
-            tags
+            new HashSet<>(schemaBuilder.tags$key)
         ));
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return new MeasureModel(builder.build(), indexRules);
@@ -249,7 +248,8 @@ public enum MetadataRegistry {
             }
             builder.addTags(traceTagSpec.build());
             schemaBuilder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
-            schemaBuilder.tag(tagSpec.getName());
+            // trace tag does not have tag family
+            schemaBuilder.tag(tagSpec.getName(), null);
         }
 
         List<TraceIndexRule> traceIndexRules = model.getBanyanDBModelExtension().getTraceIndexRules();
@@ -853,7 +853,6 @@ public enum MetadataRegistry {
         public String indexFamily() {
             switch (kind) {
                 case MEASURE:
-                    return "default";
                 case STREAM:
                     return "searchable";
                 default:
@@ -896,9 +895,13 @@ public enum MetadataRegistry {
         @Singular
         private final Map<String, ColumnSpec> specs;
 
+        /**
+         * tagName -> tagFamilyName
+         * Notice: for trace, tagFamilyName is always null; for property, does not have tags.
+         */
         @Getter
         @Singular
-        private final Set<String> tags;
+        private final Map<String/*tagName*/, String/*tagFamilyName*/> tags;
 
         @Getter
         @Singular

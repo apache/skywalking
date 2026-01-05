@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.gson.Gson;
 import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.library.banyandb.v1.client.AbstractCriteria;
@@ -85,10 +87,14 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             throw new IllegalArgumentException("schema is not registered");
         }
         final StreamQuery query;
+        Map<String, String> tagProjections = tags.stream().collect(Collectors.toMap(
+            tagName -> tagName,
+            tagName -> schema.getTags().get(tagName)
+        ));
         if (timestampRange == null) {
-            query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags);
+            query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tagProjections);
         } else {
-            query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tags);
+            query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tagProjections);
         }
         if (isColdStage) {
             query.setStages(Set.of(BanyanDBStorageConfig.StageName.cold.name()));
@@ -280,10 +286,14 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             throw new IllegalArgumentException("measure is not registered");
         }
         final MeasureQuery query;
+        Map<String, String> tagProjections = tags.stream().collect(Collectors.toMap(
+            tagName -> tagName,
+            tagName -> schema.getTags().get(tagName)
+        ));
         if (timestampRange == null) {
-            query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags, fields);
+            query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tagProjections, fields);
         } else {
-            query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tags, fields);
+            query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tagProjections, fields);
         }
         if (isColdStage) {
             query.setStages(Set.of(BanyanDBStorageConfig.StageName.cold.name()));

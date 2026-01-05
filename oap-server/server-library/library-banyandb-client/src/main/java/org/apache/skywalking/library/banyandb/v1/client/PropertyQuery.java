@@ -24,7 +24,6 @@ import java.util.Set;
 import lombok.Setter;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 
 /**
  * PropertyQuery is the high-level query API for the property model.
@@ -84,16 +83,11 @@ public class PropertyQuery extends AbstractQuery<BanyandbProperty.QueryRequest> 
         return (PropertyQuery) super.or(condition);
     }
 
-    @Override
-    BanyandbProperty.QueryRequest build(MetadataCache.EntityMetadata ignored) throws BanyanDBException {
-        return build();
-    }
-
     public BanyandbProperty.QueryRequest build() throws BanyanDBException {
         final BanyandbProperty.QueryRequest.Builder builder = BanyandbProperty.QueryRequest.newBuilder();
         builder.setName(this.name);
         builder.addAllGroups(this.groups);
-        builder.addAllTagProjection(this.tagProjections);
+        builder.addAllTagProjection(this.tagProjections.keySet());
         buildCriteria().ifPresent(builder::setCriteria);
         builder.setLimit(this.limit);
         builder.setTrace(this.trace);

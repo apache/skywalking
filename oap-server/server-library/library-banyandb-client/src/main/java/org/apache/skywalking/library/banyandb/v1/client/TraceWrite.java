@@ -21,12 +21,13 @@ package org.apache.skywalking.library.banyandb.v1.client;
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import lombok.Getter;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.trace.v1.BanyandbTrace;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 
 /**
@@ -46,18 +47,21 @@ public class TraceWrite extends AbstractWrite<BanyandbTrace.WriteRequest> {
     @Getter
     private long version;
 
+    private final Map<String/*tagName*/, Serializable<BanyandbModel.TagValue>/*tagValue*/> tags;
+
     /**
      * Create a TraceWrite without initial timestamp.
      */
-    TraceWrite(MetadataCache.EntityMetadata entityMetadata) {
+    TraceWrite(BanyandbCommon.Metadata  entityMetadata) {
         super(entityMetadata);
         this.span = ByteString.EMPTY;
         this.version = 1L;
+        this.tags = new TreeMap<>();
     }
 
-    @Override
     public TraceWrite tag(String tagName, Serializable<BanyandbModel.TagValue> tagValue) throws BanyanDBException {
-        return (TraceWrite) super.tag(tagName, tagValue);
+        this.tags.put(tagName, tagValue);
+        return this;
     }
 
     /**
@@ -99,18 +103,52 @@ public class TraceWrite extends AbstractWrite<BanyandbTrace.WriteRequest> {
     protected BanyandbTrace.WriteRequest build(BanyandbCommon.Metadata metadata) {
         final BanyandbTrace.WriteRequest.Builder builder = BanyandbTrace.WriteRequest.newBuilder();
         builder.setMetadata(metadata);
-        
+        BanyandbTrace.TagSpec.Builder tagSpecBuilder = BanyandbTrace.TagSpec.newBuilder();
+
         List<BanyandbModel.TagValue> tagValues = new ArrayList<>();
-        for (int i = 0; i < this.tags.length; i++) {
-            Object obj = this.tags[i];
-            if (obj != null) {
-                tagValues.add(((Serializable<BanyandbModel.TagValue>) obj).serialize());
-            }
+        for (Map.Entry<String, Serializable<BanyandbModel.TagValue>> tagEntry : this.tags.entrySet()) {
+            tagSpecBuilder.addTagNames(tagEntry.getKey());
+            tagValues.add(tagEntry.getValue().serialize());
         }
-        
+
+        builder.setTagSpec(tagSpecBuilder);
         builder.addAllTags(tagValues);
         builder.setSpan(this.span);
         builder.setVersion(this.version);
         return builder.build();
+    }
+
+    /**
+     * Build a write request without metadata and tag specs.
+     *
+     * @return {@link BanyandbTrace.WriteRequest} for the bulk process.
+     */
+    @Override
+    protected BanyandbTrace.WriteRequest buildValues() {
+        final BanyandbTrace.WriteRequest.Builder builder = BanyandbTrace.WriteRequest.newBuilder();
+
+        List<BanyandbModel.TagValue> tagValues = new ArrayList<>();
+        for (Map.Entry<String, Serializable<BanyandbModel.TagValue>> tagEntry : this.tags.entrySet()) {
+            tagValues.add(tagEntry.getValue().serialize());
+        }
+
+        builder.addAllTags(tagValues);
+        builder.setSpan(this.span);
+        builder.setVersion(this.version);
+        return builder.build();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("group=").append(entityMetadata.getGroup()).append(", ").append("name=")
+                     .append(entityMetadata.getName()).append(", ").append("timestamp=").append(timestamp).append(", ");
+        for (Map.Entry<String, Serializable<BanyandbModel.TagValue>> tagEntry : tags.entrySet()) {
+            String tagName = tagEntry.getKey();
+            Serializable<BanyandbModel.TagValue> tagValue = tagEntry.getValue();
+            stringBuilder.append(tagName).append("=")
+                         .append(tagValue.serialize()).append(", ");
+        }
+        return stringBuilder.toString();
     }
 }

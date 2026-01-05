@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.library.banyandb.v1.client;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -31,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.InvalidReferenceException;
-import org.apache.skywalking.library.banyandb.v1.client.metadata.MetadataCache;
 
 public abstract class AbstractQuery<T> {
     /**
@@ -50,11 +52,12 @@ public abstract class AbstractQuery<T> {
      * Query conditions.
      */
     protected final List<LogicalExpression> conditions;
+
     /**
      * The projections of query result.
      * These should have defined in the schema.
      */
-    protected final Set<String> tagProjections;
+    protected final Map<String/*tagName*/, String/*tagFamilyName*/> tagProjections;
 
     /**
      * Query criteria.
@@ -66,12 +69,31 @@ public abstract class AbstractQuery<T> {
      */
     protected boolean trace;
 
-    public AbstractQuery(List<String> groups, String name, TimestampRange timestampRange, Set<String> tagProjections) {
+    public AbstractQuery(List<String> groups,
+                         String name,
+                         TimestampRange timestampRange,
+                         Map<String/*tagName*/, String/*tagFamilyName*/> tagProjections) {
         this.groups = groups;
         this.name = name;
         this.timestampRange = timestampRange;
         this.conditions = new ArrayList<>(10);
         this.tagProjections = tagProjections;
+    }
+
+    /**
+     * Constructor with tag projections as a set of tag names which have no specified tag family.
+     * Such as Property/Trace query
+     */
+    public AbstractQuery(List<String> groups,
+                         String name,
+                         TimestampRange timestampRange,
+                         Set<String> tagProjections) {
+        this.groups = groups;
+        this.name = name;
+        this.timestampRange = timestampRange;
+        this.conditions = new ArrayList<>(10);
+        this.tagProjections = new HashMap<>();
+        tagProjections.forEach(tagName -> this.tagProjections.put(tagName, null));
     }
 
     /**
@@ -116,7 +138,7 @@ public abstract class AbstractQuery<T> {
      * @return QueryRequest for gRPC level query.
      * @throws BanyanDBException thrown from entity build, e.g. invalid reference to non-exist fields or tags.
      */
-    abstract T build(MetadataCache.EntityMetadata entityMetadata) throws BanyanDBException;
+    abstract T build() throws BanyanDBException;
 
     protected Optional<BanyandbModel.Criteria> buildCriteria() {
         if (criteria != null) {
@@ -140,18 +162,18 @@ public abstract class AbstractQuery<T> {
                 }, (first, second) -> second));
     }
 
-    protected BanyandbModel.TagProjection buildTagProjections(MetadataCache.EntityMetadata entityMetadata) throws BanyanDBException {
-        return this.buildTagProjections(entityMetadata, this.tagProjections);
+    protected BanyandbModel.TagProjection buildTagProjections() throws BanyanDBException {
+        return this.buildTagProjections(this.tagProjections.keySet());
     }
 
-    protected BanyandbModel.TagProjection buildTagProjections(MetadataCache.EntityMetadata entityMetadata, Iterable<String> tagProjections) throws BanyanDBException {
+    protected BanyandbModel.TagProjection buildTagProjections(Iterable<String> tagProjections) throws BanyanDBException {
         final ListMultimap<String, String> projectionMap = ArrayListMultimap.create();
         for (final String tagName : tagProjections) {
-            final Optional<MetadataCache.TagInfo> tagInfo = entityMetadata.findTagInfo(tagName);
-            if (!tagInfo.isPresent()) {
+            final String tagFamily = this.tagProjections.get(tagName);
+            if (Strings.isNullOrEmpty(tagFamily)) {
                 throw InvalidReferenceException.fromInvalidTag(tagName);
             }
-            projectionMap.put(tagInfo.get().getTagFamilyName(), tagName);
+            projectionMap.put(tagFamily, tagName);
         }
 
         final BanyandbModel.TagProjection.Builder b = BanyandbModel.TagProjection.newBuilder();
