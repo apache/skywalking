@@ -422,4 +422,25 @@ public class ElasticSearchIT {
         assertFalse(client.documents().exists(index, type, idWithSpace));
         server.close();
     }
+
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testClientBuilder(final String ignored,
+                                   final ElasticsearchContainer server) {
+        server.start();
+
+        // Test basic builder functionality
+        final ElasticSearch client =
+            ElasticSearch.builder()
+                         .endpoints(server.getHttpHostAddress())
+                         .build();
+        client.connect();
+
+        final String index = "test-builder-index";
+        assertTrue(client.index().create(index, null, null));
+        assertTrue(client.index().exists(index));
+        assertTrue(client.index().delete(index));
+
+        server.close();
+    }
 }

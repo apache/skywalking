@@ -53,11 +53,11 @@
         <guava.version>30.1.1-jre</guava.version>
         <h2.version>2.1.210</h2.version>
         <mysql.version>8.0.13</mysql.version>
-        <lombok.version>1.18.22</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
     </properties>
 
