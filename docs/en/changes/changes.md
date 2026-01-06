@@ -20,6 +20,7 @@
 #### UI
 * Fix the missing icon in new native trace view.
 * Enhance the alert page to show the recovery time of resolved alerts.
+* Implement a common pagination component.
 
 #### Documentation
 
