@@ -210,8 +210,8 @@ The following components are provided under the Apache-2.0 License. See project 
 The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/pgv-java-stub/1.2.1 Apache-2.0
     https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/protoc-gen-validate/1.2.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j/1.18.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/service/1.18.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j/1.20.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/service/1.20.0 Apache-2.0
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-auth-plugin/2.3.2 Apache-2.0
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-client/2.3.2 Apache-2.0
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-encryption-plugin/2.3.2 Apache-2.0
@@ -222,8 +222,8 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.16.0 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.15.2 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.12.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.18.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.18.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.20.1 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.20.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.4 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml/classmate/1.5.1 Apache-2.0
     https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos/2.48.0 Apache-2.0
@@ -238,12 +238,12 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.google.inject/guice/4.1.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.j2objc/j2objc-annotations/2.8 Apache-2.0
     https://mvnrepository.com/artifact/com.graphql-java/java-dataloader/3.2.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria/1.32.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql/1.32.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql-protocol/1.32.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-grpc/1.32.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-grpc-protocol/1.32.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-protobuf/1.32.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria/1.34.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql/1.34.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql-protocol/1.34.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-grpc/1.34.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-grpc-protocol/1.34.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-protobuf/1.34.2 Apache-2.0
     https://mvnrepository.com/artifact/com.orbitz.consul/consul-client/1.5.3 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp/3.14.9 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okio/okio/1.17.2 Apache-2.0
@@ -300,6 +300,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.grpc/grpc-services/1.70.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-stub/1.70.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-util/1.70.0 Apache-2.0
+    https://mvnrepository.com/artifact/io.micrometer/context-propagation/1.2.0 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.14.4 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.14.4 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.14.4 Apache-2.0
@@ -369,6 +370,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-jdk8/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-reactive/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains/annotations/13.0 Apache-2.0
+    https://mvnrepository.com/artifact/org.jspecify/jspecify/1.0.0 Apache-2.0
     https://mvnrepository.com/artifact/org.lz4/lz4-java/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j/1.7.30 Apache-2.0
@@ -543,7 +545,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/nanoid/v/3.3.8 3.3.8 MIT
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.33.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.24 MIT
-    https://mvnrepository.com/artifact/org.curioswitch.curiostack/protobuf-jackson/2.7.0 MIT
+    https://mvnrepository.com/artifact/org.curioswitch.curiostack/protobuf-jackson/2.8.1 MIT
     https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT

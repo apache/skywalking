@@ -179,6 +179,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                 config.setUser(secrets.getProperty("user", null));
                 config.setPassword(secrets.getProperty("password", null));
                 config.setTrustStorePass(secrets.getProperty("trustStorePass", null));
+                config.setKeyStorePass(secrets.getProperty("keyStorePass", null));
 
                 if (elasticSearchClient == null) {
                     // In the startup process, we just need to change the username/password
@@ -187,20 +188,27 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                     elasticSearchClient.setUser(config.getUser());
                     elasticSearchClient.setPassword(config.getPassword());
                     elasticSearchClient.setTrustStorePass(config.getTrustStorePass());
+                    elasticSearchClient.setKeyStorePass(config.getKeyStorePass());
                     elasticSearchClient.connect();
                 }
-            }, config.getSecretsManagementFile(), config.getTrustStorePath());
+            }, config.getSecretsManagementFile(), config.getTrustStorePath(), config.getKeyStorePath());
             /*
              * By leveraging the sync update check feature when startup.
              */
             monitor.start();
         }
 
+        // Validate keystore configuration
+        validateKeystoreConfiguration(config);
+
         elasticSearchClient = new ElasticSearchClient(
             getManager(),
-            config.getClusterNodes(), config.getProtocol(), config.getTrustStorePath(), config
-            .getTrustStorePass(), config.getUser(), config.getPassword(),
-            indexNameConverter(config.getNamespace()), config.getConnectTimeout(),
+            config.getClusterNodes(), config.getProtocol(), 
+            config.getTrustStorePath(), config.getTrustStorePass(),
+            config.getKeyStorePath(), config.getKeyStorePass(),
+            config.getUser(), config.getPassword(),
+            indexNameConverter(config.getNamespace()), 
+            config.getConnectTimeout(),
             config.getSocketTimeout(), config.getResponseTimeout(),
             config.getNumHttpClientThread()
         );
@@ -345,5 +353,30 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             }
             return indexName;
         };
+    }
+
+    /**
+     * Validates keystore configuration to ensure mutual TLS setup is complete.
+     * If keyStorePath is provided, keyStorePass must also be provided (can be empty string for no password).
+     */
+    private void validateKeystoreConfiguration(StorageModuleElasticsearchConfig config) {
+        final boolean hasKeyStorePath = !StringUtil.isEmpty(config.getKeyStorePath());
+        final boolean hasKeyStorePass = config.getKeyStorePass() != null;
+
+        if (hasKeyStorePath && !hasKeyStorePass) {
+            throw new IllegalArgumentException(
+                "keyStorePass must be provided when keyStorePath is configured for client certificate authentication. " +
+                "Use empty string (\"\") for keystores without password."
+            );
+        }
+
+        if (!hasKeyStorePath && hasKeyStorePass) {
+            log.warn("keyStorePass is configured but keyStorePath is not set. The keyStorePass will be ignored.");
+        }
+
+        if (hasKeyStorePath) {
+            log.info("Client certificate authentication (mutual TLS) is enabled with keystore: {}", 
+                config.getKeyStorePath());
+        }
     }
 }

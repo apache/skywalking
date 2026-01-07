@@ -11,7 +11,7 @@ In order to activate OpenSearch as storage, set the storage provider to **elasti
 
 We support and tested the following versions of OpenSearch:
 
-- 1.1.0, 1.3.10
+- 1.3.10
 - 2.4.0, 2.8.0, 3.0.0
 
 ## Elasticsearch
@@ -51,6 +51,8 @@ storage:
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
     trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
     trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
+    keyStorePath: ${SW_STORAGE_ES_SSL_KEY_STORE_PATH:""} # Path to client certificate keystore for mutual TLS (OpenSearch/Elasticsearch client cert auth). Supports PKCS12 (.p12, .pfx) and JKS (.jks) formats.
+    keyStorePass: ${SW_STORAGE_ES_SSL_KEY_STORE_PASS:""} # Password for the client certificate keystore. Can be managed via secretsManagementFile.
     user: ${SW_ES_USER:""}
     password: ${SW_ES_PASSWORD:""}
     secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
@@ -83,7 +85,9 @@ storage:
     enableCustomRouting: ${SW_STORAGE_ES_ENABLE_CUSTOM_ROUTING:false}
 ```
 
-### ElasticSearch With Https SSL Encrypting communications.
+### ElasticSearch/OpenSearch With HTTPS SSL Encrypting Communications
+
+#### Basic HTTPS with Server Certificate Verification
 
 Example:
 
@@ -103,6 +107,32 @@ storage:
 - File at `trustStorePath` is being monitored. Once it is changed, the ElasticSearch client will reconnect.
 - `trustStorePass` could be changed in the runtime through [**Secrets Management File Of ElasticSearch Authentication**](#secrets-management-file-of-elasticsearch-authentication).
 
+#### Mutual TLS (mTLS) with Client Certificate Authentication
+
+For enhanced security, you can configure mutual TLS where the client presents a certificate to the server. This is commonly used with OpenSearch security plugin's client certificate authentication.
+
+Example:
+
+```yaml
+storage:
+  selector: ${SW_STORAGE:elasticsearch}
+  elasticsearch:
+    namespace: ${SW_NAMESPACE:""}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"https"}
+    trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:"../truststore.jks"}
+    trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:"changeit"}
+    keyStorePath: ${SW_STORAGE_ES_SSL_KEY_STORE_PATH:"../client.p12"}
+    keyStorePass: ${SW_STORAGE_ES_SSL_KEY_STORE_PASS:"changeit"}
+    ...
+```
+
+- `keyStorePath` points to the client certificate keystore file. Supports both PKCS12 (`.p12`, `.pfx`) and JKS (`.jks`) formats.
+- `keyStorePass` is the password for the client keystore. Use empty string `""` for keystores without password.
+- Both `trustStorePath` and `keyStorePath` files are being monitored. Once they are changed, the ElasticSearch client will reconnect.
+- `trustStorePass` and `keyStorePass` could be changed in the runtime through [**Secrets Management File Of ElasticSearch Authentication**](#secrets-management-file-of-elasticsearch-authentication).
+- When `keyStorePath` is configured, `keyStorePass` must also be provided (can be empty string for no password).
+
 ### Daily Index Step
 Daily index step(`storage/elasticsearch/dayStep`, default 1) represents the index creation period. In this period, metrics for several days (dayStep value) are saved.
 
@@ -121,17 +151,18 @@ NOTE: TTL deletion would be affected by these steps. You should set an extra day
 
 ### Secrets Management File Of ElasticSearch Authentication
 The value of `secretsManagementFile` should point to the secrets management file absolute path.
-The file includes the username, password, and JKS password of the ElasticSearch server in the properties format.
+The file includes the username, password, JKS password, and keystore password of the ElasticSearch server in the properties format.
 ```properties
 user=xxx
 password=yyy
 trustStorePass=zzz
+keyStorePass=aaa
 ```
 
-The major difference between using `user, password, trustStorePass` configs in the `application.yaml` file is that the **Secrets Management File** is being watched by the OAP server.
+The major difference between using `user, password, trustStorePass, keyStorePass` configs in the `application.yaml` file is that the **Secrets Management File** is being watched by the OAP server.
 Once it is changed manually or through a 3rd party tool, such as [Vault](https://github.com/hashicorp/vault),
-the storage provider will use the new username, password, and JKS password to establish the connection and close the old one. If the information exists in the file,
-the `user/password` will be overridden.
+the storage provider will use the new username, password, JKS password, and keystore password to establish the connection and close the old one. If the information exists in the file,
+the `user/password/trustStorePass/keyStorePass` will be overridden.
 
 
 ### Index Settings

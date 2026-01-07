@@ -14,10 +14,13 @@
 * Add `LatestLabeledFunction` for meter.
 * MAL Labeled metrics support additional attributes.
 * Bump up netty to 4.2.9.Final.
+* Add support for OpenSearch/ElasticSearch client certificate authentication.
+* Fix BanyanDB logs paging query.
 
 #### UI
 * Fix the missing icon in new native trace view.
 * Enhance the alert page to show the recovery time of resolved alerts.
+* Implement a common pagination component.
 
 #### Documentation
 

@@ -118,6 +118,8 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                     query.setOrderBy(
                         new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
                 }
+                query.setLimit(limit);
+                query.setOffset(from);
             }
         };
 
