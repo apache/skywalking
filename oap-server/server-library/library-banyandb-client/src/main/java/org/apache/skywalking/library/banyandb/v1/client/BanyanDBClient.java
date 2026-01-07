@@ -73,6 +73,7 @@ import org.apache.skywalking.library.banyandb.v1.client.metadata.StreamMetadataR
 import org.apache.skywalking.library.banyandb.v1.client.metadata.TopNAggregationMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.TraceMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.util.TimeUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -185,7 +186,7 @@ public class BanyanDBClient implements Closeable {
                 // register auth interceptor
                 String username = options.getUsername();
                 String password = options.getPassword();
-                if (!"".equals(username) && !"".equals(password)) {
+                if (StringUtil.isNotBlank(username) && StringUtil.isNotBlank(password)) {
                     interceptedChannel = ClientInterceptors.intercept(rawChannel,
                             new AuthInterceptor(username, password));
                 }
