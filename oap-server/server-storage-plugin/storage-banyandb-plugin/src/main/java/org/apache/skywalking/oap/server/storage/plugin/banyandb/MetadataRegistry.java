@@ -896,7 +896,7 @@ public enum MetadataRegistry {
         private final Map<String, ColumnSpec> specs;
 
         /**
-         * tagName -> tagFamilyName
+         * key:tagName, value:tagFamilyName
          * Notice: for trace, tagFamilyName is always null; for property, does not have tags.
          */
         @Getter
