@@ -176,4 +176,4 @@ OutPut:
 
 HTTP Status: 204
 
-Note, `BrowserErrorLog#uniqueId` should be unique in the whole distributed environments.
+Note, `BrowserErrorLog#uniqueId` is combined with the timestamp to generate an internal unique storage ID. The uniqueId itself doesn't need to be globally unique, but should be reasonably unique to identify the error within a short time window.

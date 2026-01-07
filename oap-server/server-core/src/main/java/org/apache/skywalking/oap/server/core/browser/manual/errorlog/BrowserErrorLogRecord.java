@@ -48,7 +48,13 @@ public class BrowserErrorLogRecord extends Record {
 
     @Override
     public StorageID id() {
-        return new StorageID().append(UNIQUE_ID, uniqueId);
+        // Generate internal ID to avoid duplicates from browser UUID collisions.
+        // BanyanDB Measure module doesn't support updates, so we must ensure unique
+        // IDs.
+        // Format: {uniqueId}_{timestamp}
+        return new StorageID()
+                .append(UNIQUE_ID, uniqueId)
+                .append(TIMESTAMP, timestamp);
     }
 
     @Setter
