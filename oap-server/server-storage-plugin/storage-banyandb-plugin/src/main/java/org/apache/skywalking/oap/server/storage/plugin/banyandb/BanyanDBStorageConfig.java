@@ -53,11 +53,6 @@ public class BanyanDBStorageConfig extends ModuleConfig {
 
     private Map<String/*metric name*/, Map<String, TopN>/*ruleName, topN*/> topNConfigs = new HashMap<>();
 
-    public String[] getTargetArray() {
-        return Iterables.toArray(
-            Splitter.on(",").omitEmptyStrings().trimResults().split(this.global.targets), String.class);
-    }
-
     @Getter
     @Setter
     public static class Global {
@@ -112,6 +107,17 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int profileDataQueryBatchSize = 100;
         private boolean cleanupUnusedTopNRules = true;
         private String namespace = "sw";
+        private String compatibleServerApiVersions;
+
+        public String[] getTargets() {
+            return Iterables.toArray(
+                Splitter.on(",").omitEmptyStrings().trimResults().split(this.targets), String.class);
+        }
+
+        public String[] getCompatibleServerApiVersions() {
+            return Iterables.toArray(
+                Splitter.on(",").omitEmptyStrings().trimResults().split(this.compatibleServerApiVersions), String.class);
+        }
     }
 
     // The configuration of the groups.

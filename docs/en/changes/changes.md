@@ -16,6 +16,7 @@
 * Bump up netty to 4.2.9.Final.
 * Add support for OpenSearch/ElasticSearch client certificate authentication.
 * Fix BanyanDB logs paging query.
+* Replace BanyanDB Java client with native implementation.
 
 #### UI
 * Fix the missing icon in new native trace view.

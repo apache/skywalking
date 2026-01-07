@@ -68,6 +68,11 @@ global:
   sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
   # Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.
   cleanupUnusedTopNRules: ${SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES:true}
+  # The namespace in BanyanDB to store the data of OAP, if not set, the default is "sw".
+  # OAP will create BanyanDB Groups using the format of "{namespace}_{group name}", such as "sw_records".
+  namespace: ${SW_NAMESPACE:"sw"}
+  # The compatible server API versions of BanyanDB.
+  compatibleServerApiVersions: ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS:"0.9"}
 
 groups:
   # The group settings of record.
@@ -393,4 +398,4 @@ docker run -d \
 - **Cluster Mode**: Suitable for large-scale deployments.
     - **Configuration**: `targets` is the IP address/hostname and port of the `liaison` nodes, separated by commas. `Liaison` nodes are the entry points of the BanyanDB cluster.
 
-For more details, refer to the documentation of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/) and the [BanyanDB Java Client](https://github.com/apache/skywalking-banyandb-java-client) subprojects.
+For more details, refer to the documentation of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/).

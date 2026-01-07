@@ -352,23 +352,24 @@ The following table lists the configuration items:
 ### Global Configuration
 The global settings for the whole BanyanDB:  
 
-| Settings                        | Value(s) and Explanation                                                                              | System Environment Variable¹                            | Default         |
-|---------------------------------|-------------------------------------------------------------------------------------------------------|---------------------------------------------------------|-----------------|
-| targets                         | Hosts with ports of the BanyanDB.                                                                     | SW_STORAGE_BANYANDB_TARGETS                             | 127.0.0.1:17912 |
-| maxBulkSize                     | The maximum size of write entities in a single batch write call.                                      | SW_STORAGE_BANYANDB_MAX_BULK_SIZE                       | 10000           |
-| flushInterval                   | Period of flush interval. In the timeunit of seconds.                                                 | SW_STORAGE_BANYANDB_FLUSH_INTERVAL                      | 15              |
-| flushTimeout                    | The timeout seconds of a bulk flush.                                                                  | SW_STORAGE_BANYANDB_FLUSH_TIMEOUT                       | 10              |
-| concurrentWriteThreads          | Concurrent consumer threads for batch writing.                                                        | SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS            | 15              |
-| profileTaskQueryMaxSize         | Max size of ProfileTask to be fetched.                                                                | SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE         | 200             |
-| resultWindowMaxSize             | The maximum size of dataset when the OAP loads cache, such as network aliases.                        | SW_STORAGE_BANYAND_QUERY_MAX_WINDOW_SIZE                | 10000           |
-| metadataQueryMaxSize            | The maximum size of metadata per query.                                                               | SW_STORAGE_BANYAND_QUERY_MAX_SIZE                       | 10000           |
-| segmentQueryMaxSize             | The maximum size of trace segments per query.                                                         | SW_STORAGE_BANYAND_QUERY_SEGMENT_SIZE                   | 200             |
-| asyncProfilerTaskQueryMaxSize   | Max size of AsyncProfilerTask to be fetched.                                                          | SW_STORAGE_BANYANDB_ASYNC_PROFILER_TASK_QUERY_MAX_SIZE  | 200             |
-| profileDataQueryScrollBatchSize | The batch size of query profiling data.                                                               | SW_STORAGE_BANYAND_QUERY_PROFILE_DATA_BATCH_SIZE        | 100             |
-| user                            | The username for BanyanDB authentication.                                                             | SW_STORAGE_BANYANDB_USER                                | -               |
-| password                        | The password for BanyanDB authentication.                                                             | SW_STORAGE_BANYANDB_PASSWORD                            | -               |
-| sslTrustCAPath                  | If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection. | SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH                   | -               |
-| cleanupUnusedTopNRules          | Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.            | SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES           | true            |
+| Settings                        | Value(s) and Explanation                                                                              | System Environment Variable¹                           | Default           |
+|---------------------------------|-------------------------------------------------------------------------------------------------------|--------------------------------------------------------|-------------------|
+| targets                         | Hosts with ports of the BanyanDB.                                                                     | SW_STORAGE_BANYANDB_TARGETS                            | 127.0.0.1:17912   |
+| maxBulkSize                     | The maximum size of write entities in a single batch write call.                                      | SW_STORAGE_BANYANDB_MAX_BULK_SIZE                      | 10000             |
+| flushInterval                   | Period of flush interval. In the timeunit of seconds.                                                 | SW_STORAGE_BANYANDB_FLUSH_INTERVAL                     | 15                |
+| flushTimeout                    | The timeout seconds of a bulk flush.                                                                  | SW_STORAGE_BANYANDB_FLUSH_TIMEOUT                      | 10                |
+| concurrentWriteThreads          | Concurrent consumer threads for batch writing.                                                        | SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS           | 15                |
+| profileTaskQueryMaxSize         | Max size of ProfileTask to be fetched.                                                                | SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE        | 200               |
+| resultWindowMaxSize             | The maximum size of dataset when the OAP loads cache, such as network aliases.                        | SW_STORAGE_BANYAND_QUERY_MAX_WINDOW_SIZE               | 10000             |
+| metadataQueryMaxSize            | The maximum size of metadata per query.                                                               | SW_STORAGE_BANYAND_QUERY_MAX_SIZE                      | 10000             |
+| segmentQueryMaxSize             | The maximum size of trace segments per query.                                                         | SW_STORAGE_BANYAND_QUERY_SEGMENT_SIZE                  | 200               |
+| asyncProfilerTaskQueryMaxSize   | Max size of AsyncProfilerTask to be fetched.                                                          | SW_STORAGE_BANYANDB_ASYNC_PROFILER_TASK_QUERY_MAX_SIZE | 200               |
+| profileDataQueryScrollBatchSize | The batch size of query profiling data.                                                               | SW_STORAGE_BANYAND_QUERY_PROFILE_DATA_BATCH_SIZE       | 100               |
+| user                            | The username for BanyanDB authentication.                                                             | SW_STORAGE_BANYANDB_USER                               | -                 |
+| password                        | The password for BanyanDB authentication.                                                             | SW_STORAGE_BANYANDB_PASSWORD                           | -                 |
+| sslTrustCAPath                  | If the BanyanDB server is configured with TLS, config the TLS cert file path and open tls connection. | SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH                  | -                 |
+| cleanupUnusedTopNRules          | Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.            | SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES          | true              |
+| namespace                       | The namespace in BanyanDB to store the data of OAP.                                                   | SW_NAMESPACE                                           | default           |
 
 ### Group Configuration
 The settings for each group:

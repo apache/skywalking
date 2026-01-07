@@ -79,8 +79,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 @Slf4j
 public class BanyanDBStorageClient implements Client, HealthCheckable {
-    //todo: make to env
-    private static final String[] COMPATIBLE_SERVER_API_VERSIONS = {"0.9"};
+    private final String[] compatibleServerApiVersions;
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
@@ -108,10 +107,11 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         } else if (StringUtil.isNotBlank(password)) {
             throw new IllegalArgumentException("Password is set, but user is not set.");
         }
-        this.client = new BanyanDBClient(config.getTargetArray(), options);
+        this.client = new BanyanDBClient(config.getGlobal().getTargets(), options);
         this.flushTimeout = config.getGlobal().getFlushTimeout();
         this.options = options;
         this.moduleManager = moduleManager;
+        this.compatibleServerApiVersions = config.getGlobal().getCompatibleServerApiVersions();
     }
 
     @Override
@@ -129,9 +129,9 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
             properties.load(resourceAsStream);
         }
         final String expectedApiVersion = properties.getProperty("bydb.api.version");
-        if (!Arrays.stream(COMPATIBLE_SERVER_API_VERSIONS).anyMatch(v -> v.equals(expectedApiVersion))) {
+        if (!Arrays.stream(compatibleServerApiVersions).anyMatch(v -> v.equals(expectedApiVersion))) {
             throw new IllegalStateException("Inconsistent versions between bydb.dependencies.properties and codes(" +
-                                                String.join(", ", COMPATIBLE_SERVER_API_VERSIONS) + ").");
+                                                String.join(", ", compatibleServerApiVersions) + ").");
         }
 
         BanyandbCommon.APIVersion apiVersion;
@@ -147,14 +147,14 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
             }
             throw e;
         }
-        final boolean isCompatible = Arrays.stream(COMPATIBLE_SERVER_API_VERSIONS)
+        final boolean isCompatible = Arrays.stream(compatibleServerApiVersions)
                                            .anyMatch(v -> v.equals(apiVersion.getVersion()));
         final String revision = apiVersion.getRevision();
         log.info("BanyanDB server API version: {}, revision: {}", apiVersion.getVersion(), revision);
         if (!isCompatible) {
             throw new IllegalStateException(
                 "Incompatible BanyanDB server API version: " + apiVersion.getVersion() + ". But accepted versions: "
-                    + String.join(", ", COMPATIBLE_SERVER_API_VERSIONS));
+                    + String.join(", ", compatibleServerApiVersions));
         }
 
     }
