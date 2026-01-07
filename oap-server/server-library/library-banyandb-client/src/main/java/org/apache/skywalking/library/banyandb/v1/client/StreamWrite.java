@@ -30,8 +30,7 @@ import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBE
 import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 
 /**
- * StreamWrite represents a write operation, including necessary fields, for {@link
- * BanyanDBClient#buildStreamWriteProcessor}.
+ * StreamWrite represents a write operation, including necessary fields.
  */
 public class StreamWrite extends AbstractWrite<BanyandbStream.WriteRequest> {
     /**

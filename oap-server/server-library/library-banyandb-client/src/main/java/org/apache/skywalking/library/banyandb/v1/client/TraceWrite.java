@@ -31,8 +31,7 @@ import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBE
 import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 
 /**
- * TraceWrite represents a write operation, including necessary fields, for {@link
- * BanyanDBClient#buildTraceWriteProcessor(int, int, int, int)}.
+ * TraceWrite represents a write operation, including necessary fields.
  */
 public class TraceWrite extends AbstractWrite<BanyandbTrace.WriteRequest> {
     /**
