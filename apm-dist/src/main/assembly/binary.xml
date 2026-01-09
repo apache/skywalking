@@ -60,7 +60,6 @@
                 <include>metadata-service-mapping.yaml</include>
                 <include>trace-sampling-policy-settings.yml</include>
                 <include>hierarchy-definition.yml</include>
-                <include>bydb.dependencies.properties</include>
                 <include>bydb.yml</include>
                 <include>bydb-topn.yml</include>
                 <include>oal/*.oal</include>

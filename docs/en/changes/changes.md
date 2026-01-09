@@ -17,6 +17,7 @@
 * Add support for OpenSearch/ElasticSearch client certificate authentication.
 * Fix BanyanDB logs paging query.
 * Replace BanyanDB Java client with native implementation.
+* Remove `bydb.dependencies.properties` and set the compatible BanyanDB API version number in `${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS}`
 
 #### UI
 * Fix the missing icon in new native trace view.

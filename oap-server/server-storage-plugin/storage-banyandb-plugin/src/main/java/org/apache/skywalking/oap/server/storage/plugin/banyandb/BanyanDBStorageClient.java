@@ -22,11 +22,9 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -118,22 +116,6 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public void connect() throws Exception {
         initTelemetry();
         this.client.connect();
-        final Properties properties = new Properties();
-        try (final InputStream resourceAsStream
-                 = BanyanDBStorageClient.class.getClassLoader()
-                                              .getResourceAsStream(
-                                                  "bydb.dependencies.properties")) {
-            if (resourceAsStream == null) {
-                throw new IllegalStateException("bydb.dependencies.properties not found");
-            }
-            properties.load(resourceAsStream);
-        }
-        final String expectedApiVersion = properties.getProperty("bydb.api.version");
-        if (!Arrays.stream(compatibleServerApiVersions).anyMatch(v -> v.equals(expectedApiVersion))) {
-            throw new IllegalStateException("Inconsistent versions between bydb.dependencies.properties and codes(" +
-                                                String.join(", ", compatibleServerApiVersions) + ").");
-        }
-
         BanyandbCommon.APIVersion apiVersion;
         try {
             apiVersion = this.client.getAPIVersion();
