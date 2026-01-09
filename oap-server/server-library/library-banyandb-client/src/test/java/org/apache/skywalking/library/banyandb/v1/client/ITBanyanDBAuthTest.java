@@ -20,6 +20,7 @@ package org.apache.skywalking.library.banyandb.v1.client;
 
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.UnauthenticatedException;
+import org.apache.skywalking.oap.server.library.it.ITVersions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -38,10 +39,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
-public class ITBanyanDBAuthTest {
+public class ITBanyanDBAuthTest extends BanyanDBClientTestCI {
     private static final String REGISTRY = "ghcr.io";
     private static final String IMAGE_NAME = "apache/skywalking-banyandb";
-    private static final String TAG = "65504b5d925a15cc0ab1004f6e7cbceb65b20f83";
+    private static final String TAG = ITVersions.get("SW_BANYANDB_COMMIT");
 
     private static final String IMAGE = REGISTRY + "/" + IMAGE_NAME + ":" + TAG;
 

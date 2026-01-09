@@ -182,7 +182,6 @@ public class MeasureQuery extends AbstractQuery<BanyandbMeasure.QueryRequest> {
                     throw new IllegalArgumentException("field name cannot be null or empty if aggregation is specified");
                 }
             } else {
-                builder.setGroupBy(groupByBuilder.build());
                 groupByBuilder.setFieldName(this.aggregation.fieldName);
                 BanyandbMeasure.QueryRequest.Aggregation aggr = BanyandbMeasure.QueryRequest.Aggregation.newBuilder()
                         .setFunction(this.aggregation.aggregationType.function)

@@ -20,7 +20,6 @@ package org.apache.skywalking.library.banyandb.v1.client;
 
 import java.io.IOException;
 import java.util.List;
-
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Metadata;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Property;

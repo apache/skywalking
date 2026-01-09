@@ -19,7 +19,6 @@
 package org.apache.skywalking.library.banyandb.v1.client.grpc.channel;
 
 import io.grpc.MethodDescriptor;
-
 import java.io.InputStream;
 
 public class FakeMethodDescriptor {

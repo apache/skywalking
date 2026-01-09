@@ -406,6 +406,10 @@
                     <configuration>
                         <skip>${skipUTs}</skip>
                         <argLine>${argLine}</argLine>
+                        <excludes>
+                            <exclude>**/IT*.java</exclude>
+                            <exclude>**/*IT.java</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
 

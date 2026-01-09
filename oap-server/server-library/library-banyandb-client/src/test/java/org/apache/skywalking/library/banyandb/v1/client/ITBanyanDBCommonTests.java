@@ -21,7 +21,6 @@ package org.apache.skywalking.library.banyandb.v1.client;
 import com.google.common.base.Strings;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
-
 import java.io.IOException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

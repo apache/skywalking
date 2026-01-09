@@ -25,7 +25,6 @@ import org.apache.skywalking.banyandb.database.v1.IndexRuleRegistryServiceGrpc;
 import org.apache.skywalking.library.banyandb.v1.client.AbstractBanyanDBClientTest;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.IndexRuleMetadataRegistry;
-
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

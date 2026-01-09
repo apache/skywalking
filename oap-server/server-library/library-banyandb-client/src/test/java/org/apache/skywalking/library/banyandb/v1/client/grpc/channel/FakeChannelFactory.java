@@ -20,7 +20,6 @@ package org.apache.skywalking.library.banyandb.v1.client.grpc.channel;
 
 import com.google.common.collect.ImmutableList;
 import io.grpc.ManagedChannel;
-
 import java.util.List;
 
 public class FakeChannelFactory implements ChannelFactory {
