@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 

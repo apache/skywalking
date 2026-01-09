@@ -13,12 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# BanyanDB version is the version number of BanyanDB Server release.
-# This is the bundled and tested BanyanDB release version
-bydb.version=0.9
-# BanyanDB API version is the version number of the BanyanDB query APIs
-# OAP server has bundled implementation of BanyanDB Java client.
-# Please check BanyanDB documentation for the API version compatibility.
-# https://skywalking.apache.org/docs/skywalking-banyandb/next/installation/versions
-# Each `bydb.api.version` could have multiple compatible release version(`bydb.version`).
-bydb.api.version=0.9
+users:
+  - username: admin
+    password: 123456
+  - username: test
+    password: 123456

@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.banyandb.v1.client.TagAndValue;
-import org.apache.skywalking.banyandb.v1.client.TraceWrite;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
+import org.apache.skywalking.library.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.library.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.library.banyandb.v1.client.TraceWrite;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
@@ -65,7 +66,8 @@ public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO
                         mergeTable.getMergeTableName()
                     );
                     try {
-                        for (String tag : mergeTableSchema.getTags()) {
+                        for (Map.Entry<String, String> entry : mergeTableSchema.getTags().entrySet()) {
+                            String tag = entry.getKey();
                             if (tag.equals(mergeTable.getMergeTraceIdColumnName())) {
                                 traceWrite.tag(
                                     tag,

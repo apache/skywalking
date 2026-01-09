@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.banyandb.v1.client.AbstractWrite;
+import org.apache.skywalking.library.banyandb.v1.client.AbstractWrite;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 
 @Slf4j
@@ -154,19 +154,32 @@ public abstract class AbstractBulkWriteProcessor<REQ extends com.google.protobuf
             = this.buildStreamObserver(stub.withDeadlineAfter(timeout, TimeUnit.SECONDS), batch);
 
         try {
-            data.forEach(h -> {
+            AbstractWrite<REQ> entityWithMetadata = null;
+            for (Holder h : data) {
                 AbstractWrite<REQ> entity = (AbstractWrite<REQ>) h.getWriteEntity();
                 REQ request;
                 try {
-                    request = entity.build();
+                    if (entityWithMetadata == null
+                        || !(entityWithMetadata.getEntityMetadata()
+                                               .getGroup()
+                                               .equals(entity.getEntityMetadata().getGroup())
+                        && entityWithMetadata.getEntityMetadata()
+                                             .getName()
+                                             .equals(entity.getEntityMetadata().getName()))) {
+                        entityWithMetadata = entity;
+                        request = entity.build();
+                    } else {
+                        // Avoid build/write metadata/tags spec again and again for the same entity type in a bulk.
+                        request = entity.buildOnlyValues();
+                    }
                 } catch (Throwable bt) {
                     log.error("building the entity fails: {}", entity.toString(), bt);
                     h.getFuture().completeExceptionally(bt);
-                    return;
+                    break;
                 }
                 writeRequestStreamObserver.onNext(request);
                 h.getFuture().complete(null);
-            });
+            }
         } finally {
             writeRequestStreamObserver.onCompleted();
         }

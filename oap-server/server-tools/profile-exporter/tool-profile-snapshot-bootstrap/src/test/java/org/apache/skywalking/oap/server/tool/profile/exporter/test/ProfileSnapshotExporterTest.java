@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.query.TraceQueryService;
 import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
@@ -87,6 +88,7 @@ public class ProfileSnapshotExporterTest {
                .thenReturn(new ProfileExportSnapshotDAO(exportedData));
         Mockito.when(moduleProvider.getService(ITraceQueryDAO.class)).thenReturn(new ProfileTraceDAO(exportedData));
         Mockito.when(moduleProvider.getService(ISpanAttachedEventQueryDAO.class)).thenReturn(new SpanAttachedEventQueryDAO());
+        Mockito.when(moduleProvider.getService(IProfileTaskQueryDAO.class)).thenReturn(new ProfileTaskQueryDAO());
     }
 
     @Test

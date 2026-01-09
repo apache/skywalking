@@ -22,11 +22,9 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -38,24 +36,24 @@ import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.ApplyRequest.
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.DeleteResponse;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
-import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
-import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
-import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
-import org.apache.skywalking.banyandb.v1.client.Options;
-import org.apache.skywalking.banyandb.v1.client.PropertyStore;
-import org.apache.skywalking.banyandb.v1.client.StreamQuery;
-import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.banyandb.v1.client.TopNQuery;
-import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TraceQuery;
-import org.apache.skywalking.banyandb.v1.client.TraceQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.TraceWrite;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.InternalException;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.InvalidArgumentException;
-import org.apache.skywalking.banyandb.v1.client.util.StatusUtil;
+import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.library.banyandb.v1.client.Options;
+import org.apache.skywalking.library.banyandb.v1.client.PropertyStore;
+import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.StreamWrite;
+import org.apache.skywalking.library.banyandb.v1.client.TopNQuery;
+import org.apache.skywalking.library.banyandb.v1.client.TopNQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.TraceQuery;
+import org.apache.skywalking.library.banyandb.v1.client.TraceQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.TraceWrite;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.InternalException;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.InvalidArgumentException;
+import org.apache.skywalking.library.banyandb.v1.client.util.StatusUtil;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
@@ -79,7 +77,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 @Slf4j
 public class BanyanDBStorageClient implements Client, HealthCheckable {
-    private static final String[] COMPATIBLE_SERVER_API_VERSIONS = {"0.9"};
+    private final String[] compatibleServerApiVersions;
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
@@ -107,32 +105,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         } else if (StringUtil.isNotBlank(password)) {
             throw new IllegalArgumentException("Password is set, but user is not set.");
         }
-        this.client = new BanyanDBClient(config.getTargetArray(), options);
+        this.client = new BanyanDBClient(config.getGlobal().getTargets(), options);
         this.flushTimeout = config.getGlobal().getFlushTimeout();
         this.options = options;
         this.moduleManager = moduleManager;
+        this.compatibleServerApiVersions = config.getGlobal().getCompatibleServerApiVersions();
     }
 
     @Override
     public void connect() throws Exception {
         initTelemetry();
         this.client.connect();
-        final Properties properties = new Properties();
-        try (final InputStream resourceAsStream
-                 = BanyanDBStorageClient.class.getClassLoader()
-                                              .getResourceAsStream(
-                                                  "bydb.dependencies.properties")) {
-            if (resourceAsStream == null) {
-                throw new IllegalStateException("bydb.dependencies.properties not found");
-            }
-            properties.load(resourceAsStream);
-        }
-        final String expectedApiVersion = properties.getProperty("bydb.api.version");
-        if (!Arrays.stream(COMPATIBLE_SERVER_API_VERSIONS).anyMatch(v -> v.equals(expectedApiVersion))) {
-            throw new IllegalStateException("Inconsistent versions between bydb.dependencies.properties and codes(" +
-                                                String.join(", ", COMPATIBLE_SERVER_API_VERSIONS) + ").");
-        }
-
         BanyandbCommon.APIVersion apiVersion;
         try {
             apiVersion = this.client.getAPIVersion();
@@ -146,14 +129,14 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
             }
             throw e;
         }
-        final boolean isCompatible = Arrays.stream(COMPATIBLE_SERVER_API_VERSIONS)
+        final boolean isCompatible = Arrays.stream(compatibleServerApiVersions)
                                            .anyMatch(v -> v.equals(apiVersion.getVersion()));
         final String revision = apiVersion.getRevision();
         log.info("BanyanDB server API version: {}, revision: {}", apiVersion.getVersion(), revision);
         if (!isCompatible) {
             throw new IllegalStateException(
                 "Incompatible BanyanDB server API version: " + apiVersion.getVersion() + ". But accepted versions: "
-                    + String.join(", ", COMPATIBLE_SERVER_API_VERSIONS));
+                    + String.join(", ", compatibleServerApiVersions));
         }
 
     }
@@ -374,20 +357,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
                                         break;
                                     case STATUS_EXPIRED_SCHEMA:
                                         BanyandbCommon.Metadata metadata = writeResponse.getMetadata();
-                                        log.warn(
-                                            "The schema {}.{} is expired, trying update the schema...",
+                                        log.error(
+                                            "The schema {}.{} is expired",
                                             metadata.getGroup(), metadata.getName()
                                         );
-                                        try {
-                                            client.updateStreamMetadataCacheFromSever(
-                                                metadata.getGroup(), metadata.getName());
-                                        } catch (BanyanDBException e) {
-                                            String warnMessage = String.format(
-                                                "Failed to refresh the stream schema %s.%s",
-                                                metadata.getGroup(), metadata.getName()
-                                            );
-                                            log.warn(warnMessage, e);
-                                        }
                                         responseException = new InvalidArgumentException(
                                             "Expired revision: " + metadata.getModRevision(), null,
                                             Status.Code.INVALID_ARGUMENT, true

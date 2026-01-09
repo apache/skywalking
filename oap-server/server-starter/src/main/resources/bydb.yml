@@ -53,6 +53,8 @@ global:
   # The namespace in BanyanDB to store the data of OAP, if not set, the default is "sw".
   # OAP will create BanyanDB Groups using the format of "{namespace}_{group name}", such as "sw_records".
   namespace: ${SW_NAMESPACE:"sw"}
+  # The compatible server API versions of BanyanDB.
+  compatibleServerApiVersions: ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS:"0.9"}
 
 groups:
   # The group settings of record.

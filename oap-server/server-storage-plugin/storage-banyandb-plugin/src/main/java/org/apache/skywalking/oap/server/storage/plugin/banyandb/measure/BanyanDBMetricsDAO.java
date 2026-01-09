@@ -21,11 +21,11 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.skywalking.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
-import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
@@ -122,7 +122,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         }
 
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
-        MeasureQueryResponse resp = query(false, schema, schema.getTags(), schema.getFields(), timestampRange, new QueryBuilder<MeasureQuery>() {
+        MeasureQueryResponse resp = query(false, schema, schema.getTags().keySet(), schema.getFields(), timestampRange, new QueryBuilder<MeasureQuery>() {
                 @Override
             protected void apply(MeasureQuery query) {
                 seriesIDColumns.entrySet().forEach(entry -> {

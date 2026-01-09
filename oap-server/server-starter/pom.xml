@@ -320,7 +320,6 @@
                         <exclude>metadata-service-mapping.yaml</exclude>
                         <exclude>trace-sampling-policy-settings.yml</exclude>
                         <exclude>hierarchy-definition.yml</exclude>
-                        <exclude>bydb.dependencies.properties</exclude>
                         <exclude>bydb.yml</exclude>
                         <exclude>bydb-topn.yml</exclude>
                         <exclude>oal/</exclude>

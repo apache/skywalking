@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import java.time.Instant;
@@ -29,11 +30,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
-import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
-import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
-import org.apache.skywalking.banyandb.v1.client.TagAndValue;
-import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.library.banyandb.v1.client.TagAndValue;
+import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -165,11 +166,11 @@ public class BanyanDBIT {
         installer.createTable(model);
         //test Measure install
         BanyandbDatabase.Measure measure = client.client.findMeasure(groupName, "testMetric_minute");
-        assertEquals("default", measure.getTagFamilies(0).getName());
-        assertEquals("tag", measure.getTagFamilies(0).getTags(0).getName());
+        assertEquals("storage-only", measure.getTagFamilies(0).getName());
+        assertEquals("service_id", measure.getTagFamilies(0).getTags(0).getName());
         assertEquals(BanyandbDatabase.TagType.TAG_TYPE_STRING, measure.getTagFamilies(0).getTags(0).getType());
-        assertEquals("storage-only", measure.getTagFamilies(1).getName());
-        assertEquals("service_id", measure.getTagFamilies(1).getTags(0).getName());
+        assertEquals("searchable", measure.getTagFamilies(1).getName());
+        assertEquals("tag", measure.getTagFamilies(1).getTags(0).getName());
         assertEquals(BanyandbDatabase.TagType.TAG_TYPE_STRING, measure.getTagFamilies(1).getTags(0).getType());
         assertEquals("service_id", measure.getEntity().getTagNames(0));
         assertEquals("value", measure.getFields(0).getName());
@@ -195,8 +196,8 @@ public class BanyanDBIT {
         Instant now = Instant.now();
         Instant begin = now.minus(15, ChronoUnit.MINUTES);
         MeasureWrite measureWrite = client.createMeasureWrite(groupName, "testMetric_minute", now.toEpochMilli());
-        measureWrite.tag("service_id", TagAndValue.stringTagValue("service1"))
-                    .tag("tag", TagAndValue.stringTagValue("tag1"))
+        measureWrite.tag("storage-only", "service_id", TagAndValue.stringTagValue("service1"))
+                    .tag("searchable", "tag", TagAndValue.stringTagValue("tag1"))
                     .field("value", TagAndValue.longFieldValue(100));
         CompletableFuture<Void> f = processor.add(measureWrite);
         f.exceptionally(exp -> {
@@ -209,7 +210,7 @@ public class BanyanDBIT {
                                               new TimestampRange(
                                                   begin.toEpochMilli(),
                                                   now.plus(1, ChronoUnit.MINUTES).toEpochMilli()
-                                              ), ImmutableSet.of("service_id", "tag"),
+                                              ), ImmutableMap.of("service_id", "storage-only", "tag", "searchable"),
                                               ImmutableSet.of("value")
         );
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
@@ -236,14 +237,14 @@ public class BanyanDBIT {
         assertEquals(updatedGroup.getResourceOpts().getTtl().getNum(), 10);
         //test Measure update
         BanyandbDatabase.Measure updatedMeasure = client.client.findMeasure(groupName, "testMetric_minute");
-        assertEquals("default", updatedMeasure.getTagFamilies(0).getName());
-        assertEquals("tag", updatedMeasure.getTagFamilies(0).getTags(0).getName());
-        assertEquals("new_tag", updatedMeasure.getTagFamilies(0).getTags(1).getName());
+        assertEquals("storage-only", updatedMeasure.getTagFamilies(0).getName());
+        assertEquals("service_id", updatedMeasure.getTagFamilies(0).getTags(0).getName());
         assertEquals(BanyandbDatabase.TagType.TAG_TYPE_STRING, updatedMeasure.getTagFamilies(0).getTags(0).getType());
-        assertEquals(BanyandbDatabase.TagType.TAG_TYPE_STRING, updatedMeasure.getTagFamilies(0).getTags(1).getType());
-        assertEquals("storage-only", updatedMeasure.getTagFamilies(1).getName());
-        assertEquals("service_id", updatedMeasure.getTagFamilies(1).getTags(0).getName());
+        assertEquals("searchable", updatedMeasure.getTagFamilies(1).getName());
+        assertEquals("tag", updatedMeasure.getTagFamilies(1).getTags(0).getName());
+        assertEquals("new_tag", updatedMeasure.getTagFamilies(1).getTags(1).getName());
         assertEquals(BanyandbDatabase.TagType.TAG_TYPE_STRING, updatedMeasure.getTagFamilies(1).getTags(0).getType());
+        assertEquals(BanyandbDatabase.TagType.TAG_TYPE_STRING, updatedMeasure.getTagFamilies(1).getTags(1).getType());
         assertEquals("service_id", updatedMeasure.getEntity().getTagNames(0));
         assertEquals("value", updatedMeasure.getFields(0).getName());
         assertEquals(BanyandbDatabase.FieldType.FIELD_TYPE_INT, updatedMeasure.getFields(0).getFieldType());
@@ -262,11 +263,10 @@ public class BanyanDBIT {
         assertEquals("new_tag", updatedIndexRuleBinding.getRules(1));
         assertEquals("testMetric_minute", updatedIndexRuleBinding.getSubject().getName());
         //test data
-        client.client.updateMeasureMetadataCacheFromSever(groupName, "testMetric_minute");
         MeasureWrite updatedMeasureWrite = client.createMeasureWrite(groupName, "testMetric_minute", now.plus(10, ChronoUnit.MINUTES).toEpochMilli());
-        updatedMeasureWrite.tag("service_id", TagAndValue.stringTagValue("service2"))
-                           .tag("tag", TagAndValue.stringTagValue("tag1"))
-                           .tag("new_tag", TagAndValue.stringTagValue("new_tag1"))
+        updatedMeasureWrite.tag("storage-only", "service_id", TagAndValue.stringTagValue("service2"))
+                           .tag("searchable", "tag", TagAndValue.stringTagValue("tag1"))
+                           .tag("searchable", "new_tag", TagAndValue.stringTagValue("new_tag1"))
                            .field("value", TagAndValue.longFieldValue(101))
                            .field("new_value", TagAndValue.longFieldValue(1000));
         CompletableFuture<Void> cf = processor.add(updatedMeasureWrite);
@@ -275,12 +275,11 @@ public class BanyanDBIT {
             return null;
         });
         cf.get(10, TimeUnit.SECONDS);
-        MeasureQuery updatedQuery = new MeasureQuery(Lists.newArrayList(groupName), "testMetric_minute",
-                                              new TimestampRange(
-                                                  begin.toEpochMilli(),
-                                                  now.plus(15, ChronoUnit.MINUTES).toEpochMilli()
-                                              ), ImmutableSet.of("service_id", "tag", "new_tag"),
-                                              ImmutableSet.of("value", "new_value")
+        MeasureQuery updatedQuery = new MeasureQuery(
+            Lists.newArrayList(groupName), "testMetric_minute",
+            new TimestampRange(begin.toEpochMilli(), now.plus(15, ChronoUnit.MINUTES).toEpochMilli()),
+            ImmutableMap.of("service_id", "storage-only", "tag", "searchable", "new_tag", "searchable"),
+                                                     ImmutableSet.of("value", "new_value")
         );
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
             MeasureQueryResponse updatedResp = client.query(updatedQuery);

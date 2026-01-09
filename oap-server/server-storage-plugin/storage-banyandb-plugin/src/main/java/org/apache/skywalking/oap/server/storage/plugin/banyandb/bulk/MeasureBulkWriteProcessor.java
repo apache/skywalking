@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk;
 
 import io.grpc.stub.StreamObserver;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.concurrent.ThreadSafe;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +27,9 @@ import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.measure.v1.BanyandbMeasure;
 import org.apache.skywalking.banyandb.measure.v1.MeasureServiceGrpc;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
-import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
-import org.apache.skywalking.banyandb.v1.client.Options;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
-import org.apache.skywalking.banyandb.v1.client.util.StatusUtil;
+import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
+import org.apache.skywalking.library.banyandb.v1.client.Options;
+import org.apache.skywalking.library.banyandb.v1.client.util.StatusUtil;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 
 /**
@@ -72,8 +69,6 @@ public class MeasureBulkWriteProcessor extends AbstractBulkWriteProcessor<Banyan
     protected StreamObserver<BanyandbMeasure.WriteRequest> buildStreamObserver(MeasureServiceGrpc.MeasureServiceStub stub,
                                                                                CompletableFuture<Void> batch) {
         return stub.write(new StreamObserver<BanyandbMeasure.WriteResponse>() {
-            private final Set<String> schemaExpired = new HashSet<>();
-
             @Override
             public void onNext(BanyandbMeasure.WriteResponse writeResponse) {
                 BanyandbModel.Status status = StatusUtil.convertStringToStatus(writeResponse.getStatus());
@@ -83,15 +78,7 @@ public class MeasureBulkWriteProcessor extends AbstractBulkWriteProcessor<Banyan
                     case STATUS_EXPIRED_SCHEMA:
                         BanyandbCommon.Metadata metadata = writeResponse.getMetadata();
                         String schemaKey = metadata.getGroup() + "." + metadata.getName();
-                        if (!schemaExpired.contains(schemaKey)) {
-                            log.warn("The schema {} is expired, trying update the schema...", schemaKey);
-                            try {
-                                client.updateMeasureMetadataCacheFromSever(metadata.getGroup(), metadata.getName());
-                                schemaExpired.add(schemaKey);
-                            } catch (BanyanDBException e) {
-                                log.error(e.getMessage(), e);
-                            }
-                        }
+                        log.error("The schema {} is expired", schemaKey);
                         break;
                     default:
                         log.warn("Write measure failed with status: {}", status);

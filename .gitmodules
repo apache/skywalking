@@ -10,3 +10,6 @@
 [submodule "skywalking-ui"]
 	path = skywalking-ui
 	url = https://github.com/apache/skywalking-booster-ui.git
+[submodule "oap-server/server-library/library-banyandb-client/src/main/proto"]
+	path = oap-server/server-library/library-banyandb-client/src/main/proto
+	url = https://github.com/apache/skywalking-banyandb-client-proto
