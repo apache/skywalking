@@ -191,17 +191,12 @@ public class ProfileTaskQueryService implements Service {
     public List<SegmentRecord> getTaskSegments(String taskId) throws IOException {
         List<ProfileThreadSnapshotRecord> records = getProfileThreadSnapshotQueryDAO().queryRecords(taskId);
         List<String> profiledSegmentIdList = records.stream().map(ProfileThreadSnapshotRecord::getSegmentId).collect(Collectors.toList());
-        long endTimestamp = 0;
-        for (ProfileThreadSnapshotRecord record : records) {
-            if (record.getDumpTime() > endTimestamp) {
-                endTimestamp = record.getDumpTime();
-            }
-        }
-        long startTimestamp = endTimestamp - 5 * 60 * 1000; // 5 minutes
+        ProfileTask profileTask = getProfileTaskDAO().getById(taskId);
+        long endTimestamp = profileTask.getStartTime() + (long) profileTask.getDuration() * 60 * 1000; // duration minute to ms
         Duration duration = new Duration();
         duration.setStep(Step.SECOND);
-        DateTime endTime = new DateTime(endTimestamp);
-        DateTime startTime = new DateTime(startTimestamp);
+        DateTime endTime = new DateTime(endTimestamp + 15 * 60 * 1000); // 15 minutes later to cover delay
+        DateTime startTime = new DateTime(endTimestamp - 10 * 60 * 1000); // 10 minutes before end time
         duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
         duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
         return getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList, duration);

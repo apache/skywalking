@@ -18,6 +18,7 @@
 * Fix BanyanDB logs paging query.
 * Replace BanyanDB Java client with native implementation.
 * Remove `bydb.dependencies.properties` and set the compatible BanyanDB API version number in `${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS}`
+* Fix trace profiling query time range condition.
 
 #### UI
 * Fix the missing icon in new native trace view.
