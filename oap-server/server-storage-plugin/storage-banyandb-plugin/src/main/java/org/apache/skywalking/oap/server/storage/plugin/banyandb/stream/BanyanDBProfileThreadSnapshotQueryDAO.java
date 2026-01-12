@@ -77,7 +77,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     }
 
     @Override
-    public List<ProfileThreadSnapshotRecord> queryRecords(String taskId)  throws IOException {
+    public List<ProfileThreadSnapshotRecord> queryRecords(String taskId) throws IOException {
         StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
                 TAGS_BASIC,
                 new QueryBuilder<StreamQuery>() {
@@ -97,7 +97,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>();
         for (final RowEntity rowEntity : resp.getElements()) {
             ProfileThreadSnapshotRecord record = this.builder.storage2Entity(
-                new BanyanDBConverter.StorageToStream(ProfileThreadSnapshotRecord.INDEX_NAME, rowEntity));
+                    new BanyanDBConverter.StorageToStream(ProfileThreadSnapshotRecord.INDEX_NAME, rowEntity));
             result.add(record);
         }
         return result;
@@ -136,8 +136,11 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     }
 
     private int querySequenceWithAgg(AggType aggType, String segmentId, long start, long end) throws IOException {
+        // Clamp the time range to safe bounds for BanyanDB
+        long safeStart = Math.max(start, LOWER_BOUND_TIME);
+        long safeEnd = Math.min(end, UPPER_BOUND_TIME);
         StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
-                TAGS_ALL, new TimestampRange(start, end),
+                TAGS_ALL, new TimestampRange(safeStart, safeEnd),
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
