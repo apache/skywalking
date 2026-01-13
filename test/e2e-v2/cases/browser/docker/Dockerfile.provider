@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.7
+FROM python:3.10
 ARG SW_AGENT_PYTHON_COMMIT
 
 WORKDIR /app
@@ -22,4 +22,9 @@ RUN git clone https://github.com/apache/skywalking-python.git $(pwd)
 
 RUN git reset --hard ${SW_AGENT_PYTHON_COMMIT} && git submodule update --init
 
-RUN make setup install
+RUN <<EOT
+  pip install --upgrade pip 
+  pip install poetry
+
+  make install
+EOT
