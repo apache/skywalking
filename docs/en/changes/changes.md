@@ -19,7 +19,8 @@
 * Replace BanyanDB Java client with native implementation.
 * Remove `bydb.dependencies.properties` and set the compatible BanyanDB API version number in `${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS}`.
 * Fix trace profiling query time range condition.
-* `BrowserErrorLog`, OAP Server generated UUID to replace the original client side ID, because Browser scripts can't guarantee generated IDs are globally unique.
+* Fix BanyanDB time range overflow in profile thread snapshot query.
+* `BrowserErrorLog`, OAP Server generated UUID to replace the original client side ID, because Browser scripts can't guarantee generated IDs are globally unique.>>>>>>> master
 
 #### UI
 * Fix the missing icon in new native trace view.
