@@ -21,6 +21,7 @@
 * Fix trace profiling query time range condition.
 * Fix BanyanDB time range overflow in profile thread snapshot query.
 * `BrowserErrorLog`, OAP Server generated UUID to replace the original client side ID, because Browser scripts can't guarantee generated IDs are globally unique.>>>>>>> master
+* MQE: fix multiple labeled metric query and ensure no results are returned if no label value combinations match.
 
 #### UI
 * Fix the missing icon in new native trace view.
