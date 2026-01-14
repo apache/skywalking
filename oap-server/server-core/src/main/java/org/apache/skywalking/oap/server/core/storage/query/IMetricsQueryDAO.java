@@ -191,7 +191,7 @@ public interface IMetricsQueryDAO extends DAO {
                     });
                     if (!keySet.isEmpty()) {
                         keySets.add(keySet);
-                    } else { // only all query labels match, can get result
+                    } else { // If any query label has no matches, clear all keySets so that no results are returned
                         keySets.clear();
                     }
                 }
