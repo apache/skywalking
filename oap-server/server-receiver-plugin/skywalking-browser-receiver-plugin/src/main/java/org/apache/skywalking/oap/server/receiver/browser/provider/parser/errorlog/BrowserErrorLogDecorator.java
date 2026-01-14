@@ -17,18 +17,28 @@
 
 package org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog;
 
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog;
 import org.apache.skywalking.apm.network.language.agent.v3.ErrorCategory;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @RequiredArgsConstructor
 public class BrowserErrorLogDecorator {
     private boolean isOrigin = true;
     private final BrowserErrorLog errorLog;
     private BrowserErrorLog.Builder builder;
+    private String id;
 
+    /**
+     * Browser scripts can't guarantee generated IDs are globally unique
+     * OAP Server generated UUID to replace the original client side ID.
+     */
     public String getUniqueId() {
-        return isOrigin ? errorLog.getUniqueId() : builder.getUniqueId();
+        if (StringUtil.isBlank(id)) {
+            id = UUID.randomUUID().toString();
+        }
+        return id;
     }
 
     public String getService() {

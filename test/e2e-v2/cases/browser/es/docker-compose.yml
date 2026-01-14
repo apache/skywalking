@@ -58,6 +58,7 @@ services:
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
       SW_AGENT_LOGGING_LEVEL: DEBUG
+      SW_AGENT_NAME: provider-py
     volumes:
       - ./../docker/provider.py:/entrypoint.py
     depends_on:
