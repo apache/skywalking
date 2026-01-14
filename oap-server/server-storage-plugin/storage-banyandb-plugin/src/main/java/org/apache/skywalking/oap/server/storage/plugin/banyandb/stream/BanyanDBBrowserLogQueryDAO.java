@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
@@ -70,7 +71,8 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
                         if (Objects.nonNull(category)) {
                             query.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
                         }
-
+                        query.setOrderBy(
+                            new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
                         query.setOffset(from);
                         query.setLimit(limit);
                     }
