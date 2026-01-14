@@ -107,7 +107,7 @@ services:
       - 9091
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
-      SW_AGENT_INSTANCE: provider-py-instance
+      SW_AGENT_INSTANCE_NAME: provider-py-instance
       SW_AGENT_NAME: provider-py
     depends_on:
       oap:
@@ -143,7 +143,7 @@ services:
       - 9089
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
-      SW_AGENT_INSTANCE: provider-py-kafka-instance
+      SW_AGENT_INSTANCE_NAME: provider-py-kafka-instance
       SW_KAFKA_REPORTER_BOOTSTRAP_SERVERS: broker-a:9092,broker-b:9092
       SW_AGENT_NAME: provider-py-kafka
     depends_on:
@@ -170,7 +170,7 @@ services:
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
       PROVIDER_URL: http://medium-java:9092/users
-      SW_AGENT_INSTANCE: consumer-py-instance
+      SW_AGENT_INSTANCE_NAME: consumer-py-instance
       SW_AGENT_NAME: consumer-py
     depends_on:
       oap:

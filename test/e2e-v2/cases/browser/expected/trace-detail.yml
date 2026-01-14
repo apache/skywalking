@@ -64,7 +64,7 @@ spans:
       value: POST
     - key: http.url
       value: http://provider:9091/info
-    - key: http.status.code
+    - key: http.status_code
       value: "200"
   logs: []
   attachedevents: []

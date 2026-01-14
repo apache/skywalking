@@ -66,7 +66,7 @@ traces:
           value: POST
         - key: http.url
           value: http://medium-java:9092/users
-        - key: http.status.code
+        - key: http.status_code
           value: "200"
         {{- end }}
       logs: []
@@ -174,7 +174,7 @@ traces:
           value: POST
         - key: http.url
           value: http://provider-py-kafka:9089/users
-        - key: http.status.code
+        - key: http.status_code
           value: "200"
         {{- end }}
       logs: []

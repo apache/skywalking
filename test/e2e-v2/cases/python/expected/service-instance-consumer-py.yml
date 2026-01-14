@@ -20,8 +20,18 @@
   name: consumer-py-instance
   attributes:
   {{- contains .attributes }}
+  - name: OS Name
+    value: {{ notEmpty .value }}
+  - name: Process No.
+    value: {{ notEmpty .value }}
+  - name: hostname
+    value: {{ notEmpty .value }}
+  - name: python_implementation
+    value: {{ notEmpty .value }}
+  - name: python_version
+    value: {{ notEmpty .value }}
   - name: ipv4s
-    value: ""
+    value: {{ notEmpty .value }}
   {{- end}}
   language: PYTHON
   instanceuuid: {{ b64enc "consumer-py" }}.1_{{ b64enc "consumer-py-instance" }}
