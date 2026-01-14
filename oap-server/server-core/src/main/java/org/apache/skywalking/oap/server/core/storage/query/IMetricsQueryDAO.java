@@ -191,6 +191,8 @@ public interface IMetricsQueryDAO extends DAO {
                     });
                     if (!keySet.isEmpty()) {
                         keySets.add(keySet);
+                    } else { // only all query labels match, can get result
+                        keySets.clear();
                     }
                 }
                 //intersection labels
