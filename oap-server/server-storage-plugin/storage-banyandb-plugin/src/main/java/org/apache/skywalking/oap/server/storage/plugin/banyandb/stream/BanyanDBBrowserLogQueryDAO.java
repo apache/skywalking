@@ -72,7 +72,7 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
                             query.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
                         }
                         query.setOrderBy(
-                            new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
+                            new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
                         query.setOffset(from);
                         query.setLimit(limit);
                     }
