@@ -2,6 +2,7 @@
 
 #### Project
 * Fix E2E test metrics verify: make it failure if the metric values all null.
+* Add `CLAUDE.md` as AI assistant guide for the project.
 
 #### OAP Server
 
