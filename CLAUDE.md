@@ -14,7 +14,7 @@ skywalking/
 │   ├── server-core/               # Core module with fundamental services
 │   ├── server-library/            # Shared libraries (module system, util, etc.)
 │   ├── server-receiver-plugin/    # Data receivers (gRPC, HTTP, Kafka, etc.)
-│   ├── server-storage-plugin/     # Storage implementations (BanyanDB, ES, etc.)
+│   ├── server-storage-plugin/     # Storage implementations (BanyanDB, Elasticsearch, etc.)
 │   ├── server-cluster-plugin/     # Cluster coordination (Zookeeper, K8s, etc.)
 │   ├── server-query-plugin/       # Query interfaces (GraphQL)
 │   ├── server-alarm-plugin/       # Alerting system
@@ -245,7 +245,7 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 ### Adding a New Storage Plugin
 1. Create module in `server-storage-plugin/`
 2. Implement storage DAOs for each data type
-3. Follow existing plugin patterns (e.g., BanyanDB, Elasticsearch)
+3. Follow existing plugin patterns (e.g., BanyanDB, elasticsearch)
 
 ### Modifying OAL Metrics
 1. Edit `.oal` files in `oap-server/server-starter/src/main/resources/oal/`
