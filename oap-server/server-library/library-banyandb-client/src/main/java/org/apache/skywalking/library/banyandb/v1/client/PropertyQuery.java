@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.Setter;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 
@@ -39,6 +40,8 @@ public class PropertyQuery extends AbstractQuery<BanyandbProperty.QueryRequest> 
      * Specific property IDs to query
      */
     private List<String> ids;
+
+    private OrderBy orderBy;
     
     /**
      * Construct a property query with required fields
@@ -95,7 +98,32 @@ public class PropertyQuery extends AbstractQuery<BanyandbProperty.QueryRequest> 
         if (!this.ids.isEmpty()) {
             builder.addAllIds(this.ids);
         }
-        
+        if (this.orderBy != null) {
+            builder.setOrderBy(orderBy.build());
+        }
         return builder.build();
+    }
+
+    public static class OrderBy {
+        private final String tagName;
+        private final Sort type;
+
+        /**
+         * Create an orderBy condition with given tag name and sort type
+         */
+        public OrderBy(final String tagName, final Sort type) {
+            this.tagName = tagName;
+            this.type = type;
+        }
+
+        BanyandbProperty.QueryOrder build() {
+            final BanyandbProperty.QueryOrder.Builder builder = BanyandbProperty.QueryOrder.newBuilder();
+            if (tagName != null) {
+                builder.setTagName(tagName);
+            }
+            builder.setSort(
+                Sort.DESC.equals(type) ? BanyandbModel.Sort.SORT_DESC : BanyandbModel.Sort.SORT_ASC);
+            return builder.build();
+        }
     }
 }
