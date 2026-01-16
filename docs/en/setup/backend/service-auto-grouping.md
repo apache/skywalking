@@ -4,7 +4,7 @@ Each template provides an appropriate layout for services in a particular field.
 For example, the metrics for services with language agents installed 
 may be different from that of services detected by the service mesh observability solution as well as SkyWalking's self-observability metrics dashboard.
 
-Therefore, since version 8.3.0, the SkyWalking OAP has generated the groups based on this simple naming format:
+The SkyWalking OAP generates the groups based on this simple naming format:
 
 ### ${service name} = [${group name}::]${logic name}
 

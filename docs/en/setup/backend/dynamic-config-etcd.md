@@ -14,7 +14,7 @@ configuration:
     password: ${SW_CONFIG_ETCD_password:}
 ```
 
-**NOTE**: Since 8.7.0, only the v3 protocol is supported.
+**NOTE**: Only the v3 protocol is supported.
 
 ## Config Storage
 ### Single Config

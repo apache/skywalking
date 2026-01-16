@@ -35,6 +35,13 @@
 
 * Add benchmark selection into banyanDB storage documentation.
 * Fix progressive TTL doc for banyanDB.
+* Restructure `docs/README.md` for better navigation with high-level documentation overview.
+* Move Marketplace as a top-level menu section with Overview introduction in `menu.yml`.
+* Polish `marketplace.md` as the overview page for all out-of-box monitoring features.
+* Add "What's Next" section to Quick Start docs guiding users to Marketplace.
+* Restructure agent compatibility page with OAP 10.x focus and clearer format for legacy versions.
+* Remove outdated FAQ docs (v3, v6 upgrade guides and 7.x metrics issue).
+* Remove "since 7/8/9.x" version statements from documentation as features are standard in 10.x.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.4.0)

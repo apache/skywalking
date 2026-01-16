@@ -159,8 +159,7 @@ The following settings are provided to set the host and port manually, based on 
 
 ## Etcd
 
-Set the **cluster/selector** to **etcd** in the yml to enable it. The Etcd client has upgraded to v3 protocol and
-changed to the CoreOS official library. **Since 8.7.0, only the v3 protocol is supported for Etcd.**
+Set the **cluster/selector** to **etcd** in the yml to enable it. The Etcd client uses v3 protocol with the CoreOS official library. **Only the v3 protocol is supported for Etcd.**
 
 ```yaml
 cluster:

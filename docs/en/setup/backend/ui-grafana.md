@@ -1,5 +1,5 @@
 # Use Grafana As The UI
-SkyWalking provide [PromQL Service](../../api/promql-service.md) since 9.4.0 and [LogQL Service](../../api/logql-service.md) since 9.6.0. You can choose [Grafana](https://grafana.com/) 
+SkyWalking provides [PromQL Service](../../api/promql-service.md) and [LogQL Service](../../api/logql-service.md). You can choose [Grafana](https://grafana.com/) 
 as the SkyWalking UI. About the installation and how to use please refer to the [official document](https://grafana.com/docs/grafana/v9.3/).
 
 Notice <1>, Gafana is [AGPL-3.0 license](https://github.com/grafana/grafana/blob/main/LICENSE), which is very different from Apache 2.0.
