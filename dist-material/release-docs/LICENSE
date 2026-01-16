@@ -546,6 +546,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.33.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.24 MIT
     https://mvnrepository.com/artifact/org.curioswitch.curiostack/protobuf-jackson/2.8.1 MIT
+    https://mvnrepository.com/artifact/org.projectlombok/lombok/1.18.40 MIT
     https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
