@@ -180,3 +180,6 @@ For example, metrics time will be formatted like yyyyMMddHHmm in minute dimensio
 By default, SkyWalking's OAP backend chooses the **OS default timezone**.
 Please follow the Java and OS documents if you want to override the timezone.
 
+## What's Next
+After setting up the backend, explore the [Marketplace](marketplace.md) to discover all available monitoring features, including language agents, service mesh observability, infrastructure monitoring, and more.
+

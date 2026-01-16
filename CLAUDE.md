@@ -260,13 +260,55 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 - `lal/` - Log processing rules
 - `log-mal-rules/` - Metrics extracted from logs
 
-## Important Links
+## Documentation (in `docs/en/`, structure defined in `docs/menu.yml`)
 
-- Documentation: `docs/en/` folder (source for all published docs, structure defined in `docs/menu.yml`)
-- Change Logs: `docs/en/changes/changes.md` (update this file when making changes)
+- `concepts-and-designs/` - Architecture and core concepts (OAL, MAL, LAL, profiling)
+- `setup/` - Installation and configuration guides
+- `api/` - Telemetry and query protocol documentation
+- `guides/` - Contributing guides, build instructions, testing
+- `changes/changes.md` - Changelog (update when making changes)
+- `swip/` - SkyWalking Improvement Proposals
+
+## Community
+
 - GitHub Issues: https://github.com/apache/skywalking/issues
 - Mailing List: dev@skywalking.apache.org
 - Slack: #skywalking channel at Apache Slack
+
+## Submitting Pull Requests
+
+### Branch Strategy
+- **Never work directly on master branch**
+- Create a new branch for your changes: `git checkout -b feature/your-feature-name` or `git checkout -b fix/your-fix-name`
+- Keep branch names descriptive and concise
+
+### PR Title
+Summarize the changes in the PR title. Examples:
+- `Fix BanyanDB query timeout issue`
+- `Add support for OpenTelemetry metrics`
+- `Improve documentation structure`
+
+### PR Description
+Follow the PR template in `.github/PULL_REQUEST_TEMPLATE`. Key requirements:
+
+**For Bug Fixes:**
+- Add unit test to verify the fix
+- Explain briefly why the bug exists and how to fix it
+
+**For New Features:**
+- Link to design doc if non-trivial
+- Update documentation
+- Add tests (UT, IT, E2E)
+- Attach screenshots if UI related
+
+**For Performance Improvements:**
+- Add benchmark for the improvement
+- Include benchmark results
+- Link to theory proof or discussion articles
+
+**Always:**
+- Reference related issue: `Closes #<issue number>`
+- Update [`CHANGES` log](https://github.com/apache/skywalking/blob/master/docs/en/changes/changes.md)
 
 ## Tips for AI Assistants
 
