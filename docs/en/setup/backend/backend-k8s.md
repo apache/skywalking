@@ -7,3 +7,6 @@ Follow instructions in the [deploying SkyWalking backend to Kubernetes cluster](
  to deploy OAP and UI to a Kubernetes cluster.
 
 Please refer to the Readme file.
+
+## What's Next
+After deploying SkyWalking to Kubernetes, explore the [Marketplace](marketplace.md) to discover all available monitoring features, including language agents, service mesh observability, infrastructure monitoring, and more.

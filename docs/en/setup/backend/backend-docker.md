@@ -48,3 +48,6 @@ The files with the same name will be overridden; otherwise, they will be added t
 
 If you want to add more libs/jars into the classpath of OAP, for example, new metrics for OAL. These jars can be mounted into `/skywalking/ext-libs`, then
 `entrypoint` bash will append them into the classpath. Notice, you can't override an existing jar in classpath.
+
+# What's Next
+After setting up SkyWalking with Docker, explore the [Marketplace](marketplace.md) to discover all available monitoring features, including language agents, service mesh observability, infrastructure monitoring, and more.

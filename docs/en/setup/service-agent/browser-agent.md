@@ -8,7 +8,7 @@ It has these features:
 
 See Client JS [official doc](https://github.com/apache/skywalking-client-js#quick-start) for more information.
 
-Note: Make sure receiver-browser is enabled. It is **ON** by default since version 8.2.0.
+Note: Make sure receiver-browser is enabled. It is **ON** by default.
 
 ```yaml
 receiver-browser:

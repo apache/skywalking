@@ -193,6 +193,7 @@ public interface IMetricsQueryDAO extends DAO {
                         keySets.add(keySet);
                     } else { // If any query label has no matches, clear all keySets so that no results are returned
                         keySets.clear();
+                        break;
                     }
                 }
                 //intersection labels
