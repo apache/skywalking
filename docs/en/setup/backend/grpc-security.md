@@ -1,6 +1,6 @@
 # gRPC SSL transportation support for OAP server
 
-For OAP communication, we are currently using gRPC, a multi-platform RPC framework that uses protocol buffers for message serialization. The nice part about gRPC is that it promotes the use of SSL/TLS to authenticate and encrypt exchanges. Now OAP supports enabling SSL transportation for gRPC receivers. Since 8.8.0, OAP supports enabling mutual TLS authentication between probes and OAP servers.
+For OAP communication, we are currently using gRPC, a multi-platform RPC framework that uses protocol buffers for message serialization. The nice part about gRPC is that it promotes the use of SSL/TLS to authenticate and encrypt exchanges. OAP supports enabling SSL transportation for gRPC receivers and mutual TLS authentication between probes and OAP servers.
 
 To enable this feature, follow the steps below.
 
@@ -68,7 +68,7 @@ Since `receiver-sharing-server` only receives data from an external source, it d
 
 ### Enable mTLS mode on gRPC receiver
 
-Since 8.8.0, SkyWalking has supported mutual TLS authentication for transporting between clients and OAP servers. Enable `mTLS` mode for the gRPC channel requires [Sharing gRPC Server](backend-expose.md) enabled, as the following configuration.
+SkyWalking supports mutual TLS authentication for transporting between clients and OAP servers. Enabling `mTLS` mode for the gRPC channel requires [Sharing gRPC Server](backend-expose.md) enabled, as the following configuration.
 
 ```yaml
 receiver-sharing-server:
