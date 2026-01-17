@@ -159,10 +159,10 @@
         <powermock.version>2.0.9</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>5.9.2</junit.version>
-        <mockito-core.version>4.11.0</mockito-core.version>
+        <mockito-core.version>5.11.0</mockito-core.version>
         <system-stubs.version>2.1.4</system-stubs.version>
         <lombok.version>1.18.40</lombok.version>
-        <byte-buddy.version>1.14.9</byte-buddy.version>
+        <byte-buddy.version>1.17.0</byte-buddy.version>
 
         <!-- core lib dependency -->
         <grpc.version>1.70.0</grpc.version>
@@ -223,11 +223,6 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
@@ -276,12 +271,6 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${mockito-core.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-inline</artifactId>
                 <version>${mockito-core.version}</version>
                 <scope>test</scope>
             </dependency>

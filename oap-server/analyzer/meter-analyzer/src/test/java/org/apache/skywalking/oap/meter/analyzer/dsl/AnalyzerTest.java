@@ -66,7 +66,7 @@ public class AnalyzerTest {
     @BeforeEach
     public void setup() throws StorageException {
         meterSystem = spy(new MeterSystem(moduleManager));
-// Fix for JDK 25 / Mockito 5: Prevent double-spying on the singleton
+        // Fix for JDK 25 / Mockito 5: Prevent double-spying on the singleton
         MetricsStreamProcessor instance = MetricsStreamProcessor.getInstance();
         if (!Mockito.mockingDetails(instance).isMock()) {
             Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR", Mockito.spy(instance));
