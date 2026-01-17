@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -87,27 +87,33 @@ public class TelegrafMetricsTest {
         moduleManager = new MockModuleManager() {
             @Override
             protected void init() {
-            register(CoreModule.NAME, () -> new MockModuleProvider() {
-                @Override
-                protected void register() {
-                    registerServiceImplementation(NamingControl.class, new NamingControl(
-                            512, 512, 512, new EndpointNameGrouping()));
-                }
-            });
-            register(TelemetryModule.NAME, () -> new MockModuleProvider() {
-                @Override
-                protected void register() {
-                    registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
-                }
-            });
+                register(CoreModule.NAME, () -> new MockModuleProvider() {
+                    @Override
+                    protected void register() {
+                        registerServiceImplementation(NamingControl.class, new NamingControl(
+                                512, 512, 512, new EndpointNameGrouping()));
+                    }
+                });
+                register(TelemetryModule.NAME, () -> new MockModuleProvider() {
+                    @Override
+                    protected void register() {
+                        registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
+                    }
+                });
             }
         };
 
         // prepare the context
         meterSystem = Mockito.mock(MeterSystem.class);
+
+        // FIX 1: Removed spy() wrapper.
+        // We use the instance directly. If it is a Mock (from other tests), using it directly is fine.
         Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
-                Mockito.spy(MetricsStreamProcessor.getInstance()));
-        CoreModule coreModule = Mockito.spy(CoreModule.class);
+                MetricsStreamProcessor.getInstance());
+
+        // FIX 2: Changed spy(CoreModule.class) to mock(CoreModule.class)
+        // Spying on a Class literal is invalid in modern Mockito.
+        CoreModule coreModule = Mockito.mock(CoreModule.class);
 
         Whitebox.setInternalState(coreModule, "loadedProvider", moduleProvider);
 

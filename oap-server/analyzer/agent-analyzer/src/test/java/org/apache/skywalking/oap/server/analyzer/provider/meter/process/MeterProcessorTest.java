@@ -44,7 +44,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 
@@ -83,10 +82,13 @@ public class MeterProcessorTest {
         when(moduleManager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
         when(moduleManager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
         when(moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class)).thenReturn(meterSystem);
-        Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
-                Mockito.spy(MetricsStreamProcessor.getInstance())
+        MetricsStreamProcessor mockProcessor = mock(MetricsStreamProcessor.class);
+        Whitebox.setInternalState(
+                MetricsStreamProcessor.class,
+                "PROCESSOR",
+                mockProcessor
         );
-        doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
+        doNothing().when(mockProcessor).create(any(), (StreamDefinition) any(), any());
         final MeterProcessService processService = new MeterProcessService(moduleManager);
         List<MeterConfig> config = MeterConfigs.loadConfig("meter-analyzer-config", Arrays.asList("config"));
         processService.start(config);
