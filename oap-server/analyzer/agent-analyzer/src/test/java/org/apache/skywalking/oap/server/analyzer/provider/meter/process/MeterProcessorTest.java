@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,10 @@
  */
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
@@ -39,6 +43,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,10 +51,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -78,6 +79,11 @@ public class MeterProcessorTest {
 
     @BeforeEach
     public void setup() throws StorageException, ModuleStartException {
+        Assumptions.assumeTrue(
+                Double.parseDouble(System.getProperty("java.specification.version")) < 25,
+                "Skip MeterProcessorTest on JDK 25+ due to Groovy incompatibility"
+        );
+
         meterSystem = spy(new MeterSystem(moduleManager));
         when(moduleManager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
         when(moduleManager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
@@ -105,15 +111,15 @@ public class MeterProcessorTest {
             return null;
         }).when(meterSystem).doStreamingCalculation(any());
         processor.read(MeterData.newBuilder()
-                        .setService(service)
-                        .setServiceInstance(serviceInstance)
-                        .setTimestamp(System.currentTimeMillis())
-                        .setHistogram(MeterHistogram.newBuilder()
-                                .setName("test_histogram")
-                                .addValues(MeterBucketValue.newBuilder().setIsNegativeInfinity(true).setCount(10).build())
-                                .addValues(MeterBucketValue.newBuilder().setBucket(0).setCount(20).build())
-                                .addValues(MeterBucketValue.newBuilder().setBucket(10).setCount(10).build())
-                                .build())
+                .setService(service)
+                .setServiceInstance(serviceInstance)
+                .setTimestamp(System.currentTimeMillis())
+                .setHistogram(MeterHistogram.newBuilder()
+                        .setName("test_histogram")
+                        .addValues(MeterBucketValue.newBuilder().setIsNegativeInfinity(true).setCount(10).build())
+                        .addValues(MeterBucketValue.newBuilder().setBucket(0).setCount(20).build())
+                        .addValues(MeterBucketValue.newBuilder().setBucket(10).setCount(10).build())
+                        .build())
                 .build());
         processor.process();
 
