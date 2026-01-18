@@ -14,7 +14,7 @@ Installation and configuration guides for different deployment scenarios.
 
 - **Quick Start** - Get SkyWalking running with [Docker](en/setup/backend/backend-docker.md) or [Kubernetes](en/setup/backend/backend-k8s.md)
 - **Marketplace** - Explore all [out-of-box monitoring features](en/setup/backend/marketplace.md) for services, service mesh, Kubernetes, databases, message queues, and more
-- **Agent Compatibility** - Check [supported libraries and frameworks](en/setup/service-agent/agent-compatibility.md) for SkyWalking language agents
+- **Agent Compatibility** - Check [agent compatibility](en/setup/service-agent/agent-compatibility.md) for SkyWalking language agents
 - **Advanced Setup** - Storage options, cluster management, security, and dynamic configuration
 
 ### APIs
@@ -27,7 +27,7 @@ Extend SkyWalking with custom analysis pipelines using [Observability Analysis L
 [Suggestions](en/security/README.md) for keeping your SkyWalking deployment secure. For reporting security vulnerabilities, please follow the [ASF Security Policy](https://www.apache.org/security/).
 
 ### Academy
-In-depth [articles and papers](en/academy/scaling-with-apache-skywalking.md) about SkyWalking architecture and best practices.
+In-depth articles and papers about SkyWalking architecture and best practices.
 
 ### FAQs
 [Solutions](en/FAQ/README.md) to common issues with setup and development.

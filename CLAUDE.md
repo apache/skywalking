@@ -309,6 +309,7 @@ Follow the PR template in `.github/PULL_REQUEST_TEMPLATE`. Key requirements:
 **Always:**
 - Reference related issue: `Closes #<issue number>`
 - Update [`CHANGES` log](https://github.com/apache/skywalking/blob/master/docs/en/changes/changes.md)
+- Do NOT add AI assistant as co-author. Code responsibility is on the committer's hands.
 
 ## Tips for AI Assistants
 
