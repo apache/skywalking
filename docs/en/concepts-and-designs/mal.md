@@ -39,19 +39,20 @@ MAL supports four type operations to filter samples in a sample family by tag:
  - tagEqual: Filter tags exactly equal to the string provided.
  - tagNotEqual: Filter tags not equal to the string provided.
  - tagMatch: Filter tags that regex-match the string provided.
- - tagNotMatch: Filter labels that do not regex-match the string provided.
+ - tagNotMatch: Filter tags that do not regex-match the string provided.
 
 For example, this filters all instance_trace_count samples for us-west and asia-north region and az-1 az:
 
 ```
 instance_trace_count.tagMatch("region", "us-west|asia-north").tagEqual("az", "az-1")
 ```
+
 ### Value filter
 
 MAL supports six type operations to filter samples in a sample family by value:
 
 - valueEqual: Filter values exactly equal to the value provided.
-- valueNotEqual: Filter values equal to the value provided.
+- valueNotEqual: Filter values not equal to the value provided.
 - valueGreater: Filter values greater than the value provided.
 - valueGreaterEqual: Filter values greater than or equal to the value provided.
 - valueLess: Filter values less than the value provided.
@@ -62,6 +63,7 @@ For example, this filters all instance_trace_count samples for values >= 33:
 ```
 instance_trace_count.valueGreaterEqual(33)
 ```
+
 ### Tag manipulator
 MAL allows tag manipulators to change (i.e. add/delete/update) tags and their values.
 
@@ -142,7 +144,7 @@ Example expression:
 instance_trace_analysis_error_count / instance_trace_count
 ```
 
-This returns a resulting sample family containing the error rate of trace analysis. Samples with region us-west and az az-3
+This returns a resulting sample family containing the error rate of trace analysis. Samples with region us-east and az az-3
 have no match and will not show up in the result:
 
 ```
@@ -264,7 +266,7 @@ They extract level relevant labels from metric labels, then informs the meter-sy
  - `service([svc_label1, svc_label2...], Layer)` extracts service level labels from the array argument, extracts layer from `Layer` argument.
  - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...], Layer, Closure<Map<String, String>> propertiesExtractor)` extracts service level labels from the first array argument,
                                                                         extracts instance level labels from the second array argument, extracts layer from `Layer` argument, `propertiesExtractor` is an optional closure that extracts instance properties from `tags`, e.g. `{ tags -> ['pod': tags.pod, 'namespace': tags.namespace] }`.
- - `endpoint([svc_label1, svc_label2...], [ep_label1, ep_label2...])` extracts service level labels from the first array argument,
+ - `endpoint([svc_label1, svc_label2...], [ep_label1, ep_label2...], Layer)` extracts service level labels from the first array argument,
                                                                       extracts endpoint level labels from the second array argument, extracts layer from `Layer` argument.
  - `process([svc_label1, svc_label2...], [ins_label1, ins_label2...], [ps_label1, ps_label2...], layer_lable)` extracts service level labels from the first array argument,
                                                                       extracts instance level labels from the second array argument, extracts process level labels from the third array argument, extracts layer label from fourse argument.
@@ -310,7 +312,7 @@ metricsRules:
 ### <metric_rules>
 
 ```yaml
-# The name of rule, which combinates with a prefix 'meter_' as the index/table name in storage.
+# The name of rule, which combines with a prefix 'meter_' as the index/table name in storage.
 name: <string>
 # MAL expression.
 exp: <string>

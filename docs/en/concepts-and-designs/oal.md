@@ -23,7 +23,7 @@ However, the OAL script is a compiled language, and the OAL Runtime generates ja
 the changes of those scripts in the runtime.
 If your OAP servers are running in a cluster mode, these script defined metrics should be aligned.
 
-You can open set `SW_OAL_ENGINE_DEBUG=Y` at system env to see which classes are generated.
+You can set `SW_OAL_ENGINE_DEBUG=Y` at system env to see which classes are generated.
 
 ## Grammar
 Scripts should be named `*.oal`
@@ -47,10 +47,16 @@ See [Scope Definitions](scope-definitions.md), where you can find all existing S
 
 
 ## Filter
-Use filter to build conditions for the value of fields by using field name and expression. 
+Use filter to build conditions for the value of fields by using field name and expression.
 
-The filter expressions run as a chain, generally connected with `logic AND`. 
-The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `in [...]` ,`like %...`, `like ...%` , `like %...%` , `contain` and `not contain`, with type detection based on field type. In the event of incompatibility, compile or code generation errors may be triggered. 
+The filter expressions run as a chain, generally connected with `logic AND`.
+Type detection is based on field type. In the event of incompatibility, compile or code generation errors may be triggered.
+
+Supported operators:
+- Comparison: `==`, `!=`, `>`, `<`, `>=`, `<=`
+- Collection: `in [...]` (e.g., `name in ("Endpoint1", "Endpoint2")`)
+- String matching: `like %...`, `like ...%`, `like %...%` (e.g., `name like "serv%"`)
+- Tag matching: `contain`, `not contain` (e.g., `tags contain "http.method:GET"`) 
 
 ## Aggregation Function
 The default functions are provided by the SkyWalking OAP core, and it is possible to implement additional functions. 
@@ -77,7 +83,12 @@ Parameter (2) is the `denominator` condition.
 - `count`. The sum of calls per scope entity.
 > service_calls_sum = from(Service.*).count();
 
-In this case, the number of calls of each service. 
+In this case, the number of calls of each service.
+
+- `cpm`. Calls Per Minute. The total number of calls divided by the duration in minutes.
+> service_cpm = from(Service.*).cpm();
+
+In this case, the CPM of each service.
 
 - `histogram`. See [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map).
 > service_heatmap = from(Service.latency).histogram(100, 20);
@@ -116,9 +127,11 @@ In this case, the avg of the duration of each browser resource file, max support
 The metrics name for storage implementor, alarm and query modules. The type inference is supported by core.
 
 ## Group
-All metrics data will be grouped by Scope.ID and min-level TimeBucket. 
+All metrics data will be grouped by Scope.ID and min-level TimeBucket.
 
 - In the `Endpoint` scope, the Scope.ID is same as the Endpoint ID (i.e. the unique ID based on service and its endpoint).
+
+The `Minute` level aggregation is enforced by default. Additional time bucket aggregations (`Hour`, `Day`) are also enabled by default and can be configured via `core/downsampling` in `application.yml`.
 
 ## Cast
 Fields of source are static type. In some cases, the type required by the filter expression and aggregation function doesn't 
@@ -154,11 +167,11 @@ By default, none of them are disabled.
 
 ## Examples
 ```
-// Calculate p99 of both Endpoint1 and Endpoint2
-endpoint_p99 = from(Endpoint.latency).filter(name in ("Endpoint1", "Endpoint2")).summary(0.99)
+// Calculate percentile(s) of both Endpoint1 and Endpoint2
+endpoint_p99 = from(Endpoint.latency).filter(name in ("Endpoint1", "Endpoint2")).percentile2(10)
 
-// Calculate p99 of Endpoint name started with `serv`
-serv_Endpoint_p99 = from(Endpoint.latency).filter(name like "serv%").summary(0.99)
+// Calculate percentile(s) of Endpoint name started with `serv`
+serv_Endpoint_p99 = from(Endpoint.latency).filter(name like "serv%").percentile2(10)
 
 // Calculate the avg response time of each Endpoint
 endpoint_resp_time = from(Endpoint.latency).avg()
