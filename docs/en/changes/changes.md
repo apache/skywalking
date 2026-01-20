@@ -25,6 +25,7 @@
 * MQE: fix multiple labeled metric query and ensure no results are returned if no label value combinations match.
 * Fix `BrowserErrorLog` BanyanDB storage query order.
 * `BanyanDB Client`: Property query support `Order By`.
+* MQE: trim the label values condition for the labeled metrics query to enhance the readability.
 
 #### UI
 * Fix the missing icon in new native trace view.
