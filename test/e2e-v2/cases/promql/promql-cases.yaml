@@ -23,7 +23,7 @@ cases:
     expected: expected/service-traffic-limit.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_traffic{layer="GENERAL",service=~".*-provider"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-traffic-limit.yml
-    #RFC3399
+    #RFC3339
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_traffic{layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date -u +%Y-%m-%dT%H:%M:%S.111Z)
     expected: expected/service-traffic.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=instance_traffic{layer="GENERAL", service="e2e-service-provider"}&limit=1&start='$(($(date +%s)-1800))'&end='$(date +%s)
@@ -88,8 +88,8 @@ cases:
     expected: expected/service-metric-vector.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}[30m]'
     expected: expected/service-metric-matrix.yml
-    #RFC3399
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}[30m]&time='$(date -u +%Y-%m-%dT%H:%M:%S.111Z)
+    #RFC3339
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}[30m]&time='$(date -u +%Y-%m-%dT%H:%M:%SZ)
     expected: expected/service-metric-matrix.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90"}'
     expected: expected/service-metric-labeled-vector.yml
@@ -113,8 +113,8 @@ cases:
   ## query_range
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-metric-matrix.yml
-    #RFC3399
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date -u +%Y-%m-%dT%H:%M:%S.111Z)
+    #RFC3339
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date -u +%Y-%m-%dT%H:%M:%S.0Z)
     expected: expected/service-metric-matrix.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-metric-labeled-matrix.yml
