@@ -29,6 +29,10 @@ import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Param;
 import com.linecorp.armeria.server.annotation.Path;
 import com.linecorp.armeria.server.annotation.Post;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -102,7 +106,6 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.promql.rt.grammar.PromQLLexer;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.formatDoubleValue;
 
@@ -115,6 +118,19 @@ public class PromQLApiHandler {
     private AggregationQueryService aggregationQueryService;
     private RecordQueryService recordQueryService;
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    public static final DateTimeFormatter RFC3339_FORMATTER = new DateTimeFormatterBuilder()
+        .parseCaseInsensitive()
+        .append(DateTimeFormatter.ISO_LOCAL_DATE)
+        .appendLiteral('T')
+        .append(DateTimeFormatter.ISO_LOCAL_TIME)
+        .optionalStart()
+        .appendOffset("+HH:MM", "Z")  // Time zone offset, support Z
+        .optionalEnd()
+        .optionalStart()
+        .appendOffset("+HHMM", "Z")   // support +0800 format
+        .optionalEnd()
+        .parseDefaulting(ChronoField.OFFSET_SECONDS, 0)  // default UTC
+        .toFormatter();
 
     public PromQLApiHandler(ModuleManager moduleManager, PromQLConfig config) {
         this.metadataQuery = new MetadataQueryV2(moduleManager);
@@ -597,7 +613,8 @@ public class PromQLApiHandler {
             time = Double.valueOf(timestamp).longValue() * 1000;
         } catch (NumberFormatException e) {
             // if RFC3399 format, such as 2024-09-19T20:11:00.781Z
-            time = ISODateTimeFormat.dateTime().parseMillis(timestamp);
+            OffsetDateTime odt = OffsetDateTime.parse(timestamp, RFC3339_FORMATTER);
+            time = odt.toEpochSecond() * 1000;
         }
         return time;
     }
