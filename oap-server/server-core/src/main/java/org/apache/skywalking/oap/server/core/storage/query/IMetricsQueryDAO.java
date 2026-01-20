@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -271,7 +273,8 @@ public interface IMetricsQueryDAO extends DAO {
                 String labelName = keyValue.getKey();
                 String labelValue = keyValue.getValue();
                 if (StringUtil.isNotBlank(labelValue)) {
-                    String[] subValues = labelValue.split(separator);
+                    String[] subValues = Iterables.toArray(
+                        Splitter.on(separator).omitEmptyStrings().trimResults().split(labelValue), String.class);
                     for (String subValue : subValues) {
                         labelIndex.computeIfAbsent(labelName, key -> new ArrayList<>()).add(subValue);
                     }
