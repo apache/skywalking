@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class PromQLApiHandlerTest {
 
     @Test
-    public void testRFC3399Parse() {
+    public void testRFC3339Parse() {
         String[] testCases = {
             "2026-01-20T03:27:18Z",
             "2026-01-20T03:27:18.0Z",

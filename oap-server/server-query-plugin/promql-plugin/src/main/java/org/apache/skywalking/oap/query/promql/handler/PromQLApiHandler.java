@@ -612,7 +612,7 @@ public class PromQLApiHandler {
             // if Unix timestamp in seconds, such as 1627756800
             time = Double.valueOf(timestamp).longValue() * 1000;
         } catch (NumberFormatException e) {
-            // if RFC3399 format, such as 2024-09-19T20:11:00.781Z
+            // if RFC3339 format, such as 2024-09-19T20:11:00.781Z
             OffsetDateTime odt = OffsetDateTime.parse(timestamp, RFC3339_FORMATTER);
             time = odt.toEpochSecond() * 1000;
         }
