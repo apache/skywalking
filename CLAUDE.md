@@ -561,3 +561,4 @@ Follow the PR template in `.github/PULL_REQUEST_TEMPLATE`. Key requirements:
 8. **Test both unit and integration**: Different test patterns for different scopes
 9. **Documentation is rendered via markdown**: When reviewing docs, consider how they will be rendered by a markdown engine
 10. **Relative paths in docs are valid**: Relative file paths (e.g., `../../../oap-server/...`) in documentation work both in the repo and on the documentation website, supported by website build tooling
+11. **Read PR template before creating PR**: Always read `.github/PULL_REQUEST_TEMPLATE` and use its exact format with checkboxes, not a custom summary
