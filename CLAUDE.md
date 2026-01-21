@@ -452,6 +452,51 @@ e2e trigger -c test/e2e-v2/cases/simple/jdk/e2e.yaml
 e2e verify -c test/e2e-v2/cases/simple/jdk/e2e.yaml
 ```
 
+## License Checks (skywalking-eyes)
+
+SkyWalking uses [Apache SkyWalking Eyes](https://github.com/apache/skywalking-eyes) for license header and dependency license checks. **License checks must pass before submitting a PR.**
+
+### Installation
+
+```bash
+# Install the same version used in CI
+go install github.com/apache/skywalking-eyes/cmd/license-eye@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
+
+# Or via Homebrew (macOS)
+brew install license-eye
+```
+
+### Commands
+
+```bash
+# Check license headers in source files (fast, run before PR)
+license-eye header check
+
+# Fix missing license headers automatically
+license-eye header fix
+
+# Generate LICENSE file from dependencies
+license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl
+
+# Check if LICENSE file needs update
+git diff -U0 ./dist-material/release-docs/LICENSE
+```
+
+### Configuration
+
+Configuration is in `.licenserc.yaml`:
+- Defines Apache-2.0 license header
+- Lists paths to ignore (e.g., `**/*.md`, `**/*.json`, generated files)
+- Configures dependency license mappings
+
+### CI Behavior
+
+The CI runs on **Linux (ubuntu-latest)** with two checks:
+1. **license-header**: Verifies all source files have proper Apache-2.0 headers
+2. **dependency-license**: Regenerates LICENSE file and fails if it differs from committed version
+
+**Important:** Some dependencies have platform-specific variants (Windows/macOS suffixes). The LICENSE file should reflect Linux dependencies since CI runs on Linux. If `dependency-license` fails and you're on macOS/Windows, ask maintainers to verify before committing LICENSE changes.
+
 ## Git Submodules
 
 The project uses submodules for protocol definitions and UI:
