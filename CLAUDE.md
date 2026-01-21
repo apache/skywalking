@@ -206,6 +206,244 @@ JSON and Markdown files are excluded (JSON doesn't support comments, see `.licen
 ./mvnw package -Dmaven.test.skip
 ```
 
+## E2E Testing
+
+SkyWalking uses [Apache SkyWalking Infra E2E](https://github.com/apache/skywalking-infra-e2e) for end-to-end testing. E2E tests validate the entire system including OAP server, storage backends, agents, and integrations.
+
+### E2E Tool Installation
+
+```bash
+# Install the same version used in CI (recommended)
+go install github.com/apache/skywalking-infra-e2e/cmd/e2e@e7138da4f9b7a25a169c9f8d995795d4d2e34bde
+
+# Verify installation
+e2e --help
+```
+
+### E2E Test Structure
+
+```
+test/e2e-v2/
+├── cases/                    # 50+ test case directories
+│   ├── simple/jdk/           # Basic Java agent test
+│   ├── storage/              # Storage backend tests (BanyanDB, ES, MySQL, PostgreSQL)
+│   ├── alarm/                # Alerting tests
+│   ├── profiling/            # Profiling tests (trace, eBPF, async)
+│   ├── kafka/                # Kafka integration
+│   ├── istio/                # Service mesh tests
+│   └── ...
+├── script/
+│   ├── env                   # Environment variables (agent commits, versions)
+│   ├── docker-compose/
+│   │   └── base-compose.yml  # Base service definitions (oap, banyandb, provider, consumer)
+│   └── prepare/
+│       └── setup-e2e-shell/  # Tool installers (swctl, yq, kubectl, helm)
+└── java-test-service/        # Test service implementations
+    ├── e2e-service-provider/
+    ├── e2e-service-consumer/
+    └── ...
+```
+
+### E2E Configuration (e2e.yaml)
+
+Each test case has an `e2e.yaml` with four sections:
+
+```yaml
+setup:
+  env: compose                              # Environment: compose or kind (Kubernetes)
+  file: docker-compose.yml                  # Docker compose file
+  timeout: 20m                              # Setup timeout
+  init-system-environment: ../../../script/env  # Shared env variables
+  steps:                                    # Initialization steps
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+
+trigger:
+  action: http                              # Generate test traffic
+  interval: 3s
+  times: -1                                 # -1 = run until verify succeeds
+  url: http://${consumer_host}:${consumer_9092}/users
+  method: POST
+  body: '{"id":"123","name":"skywalking"}'
+
+verify:
+  retry:
+    count: 20
+    interval: 10s
+  cases:
+    - includes:
+        - ../simple-cases.yaml              # Reusable verification cases
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec ...
+      expected: expected/metrics.yml
+
+cleanup:
+  on: always                                # always|success|failure|never
+```
+
+### Running E2E Tests Locally
+
+**Prerequisites:**
+- Docker and Docker Compose
+- Go (for e2e tool installation)
+
+**Quick Start (run simple/jdk test):**
+```bash
+# 1. Build distribution and Docker image
+./mvnw clean package -Pall -Dmaven.test.skip
+make docker
+
+# 2. Build test services
+./mvnw -f test/e2e-v2/java-test-service/pom.xml clean package
+
+# 3. Run e2e test (SW_AGENT_JDK_VERSION is required)
+SW_AGENT_JDK_VERSION=8 e2e run -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+```
+
+**Step-by-step debugging:**
+```bash
+# Set required environment variable
+export SW_AGENT_JDK_VERSION=8
+
+# Run individual steps instead of full test
+e2e setup -c test/e2e-v2/cases/simple/jdk/e2e.yaml    # Start containers
+e2e trigger -c test/e2e-v2/cases/simple/jdk/e2e.yaml  # Generate traffic
+e2e verify -c test/e2e-v2/cases/simple/jdk/e2e.yaml   # Validate results
+e2e cleanup -c test/e2e-v2/cases/simple/jdk/e2e.yaml  # Stop containers
+```
+
+### E2E CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `e2e run -c <path>` | Run complete test (setup → trigger → verify → cleanup) |
+| `e2e setup -c <path>` | Start containers and initialize environment |
+| `e2e trigger -c <path>` | Generate test traffic |
+| `e2e verify -c <path>` | Validate results against expected output |
+| `e2e cleanup -c <path>` | Stop and remove containers |
+
+### Common Test Cases
+
+| Category | Path | Description |
+|----------|------|-------------|
+| `simple/jdk` | `test/e2e-v2/cases/simple/jdk/` | Basic Java agent with BanyanDB |
+| `storage/banyandb` | `test/e2e-v2/cases/storage/banyandb/` | BanyanDB storage backend |
+| `storage/elasticsearch` | `test/e2e-v2/cases/storage/elasticsearch/` | Elasticsearch storage |
+| `alarm/` | `test/e2e-v2/cases/alarm/` | Alerting functionality |
+| `profiling/trace` | `test/e2e-v2/cases/profiling/trace/` | Trace profiling |
+| `log/` | `test/e2e-v2/cases/log/` | Log analysis (LAL) |
+
+### Writing E2E Tests
+
+1. **Create test directory** under `test/e2e-v2/cases/<category>/<name>/`
+
+2. **Create docker-compose.yml** extending base services:
+   ```yaml
+   version: '2.1'
+   services:
+     oap:
+       extends:
+         file: ../../../script/docker-compose/base-compose.yml
+         service: oap
+     banyandb:
+       extends:
+         file: ../../../script/docker-compose/base-compose.yml
+         service: banyandb
+   ```
+
+3. **Create e2e.yaml** with setup, trigger, verify sections
+
+4. **Create expected/ directory** with expected YAML outputs for verification
+
+5. **Create verification cases** (e.g., `simple-cases.yaml`) with swctl queries
+
+### Verification with swctl
+
+The `swctl` CLI queries OAP's GraphQL API:
+
+```bash
+# Query service metrics
+swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
+  metrics exec --expression=service_resp_time --service-name=e2e-service-provider
+
+# List services
+swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
+  service ls
+
+# Query traces
+swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
+  trace ls --service-name=e2e-service-provider
+```
+
+### Environment Variables
+
+Key version commits in `test/e2e-v2/script/env`:
+- `SW_AGENT_JAVA_COMMIT` - Java agent version
+- `SW_BANYANDB_COMMIT` - BanyanDB version
+- `SW_CTL_COMMIT` - swctl CLI version
+- `SW_AGENT_*_COMMIT` - Other agent versions (Go, Python, NodeJS, PHP)
+
+### Debugging E2E Tests
+
+**If a test fails, do NOT run cleanup immediately.** Keep containers running to debug:
+
+```bash
+# 1. Setup containers (only once)
+e2e setup -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+
+# 2. Generate traffic
+e2e trigger -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+
+# 3. Verify (can re-run multiple times after fixing issues)
+e2e verify -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+
+# Check container logs to debug failures
+docker compose -f test/e2e-v2/cases/simple/jdk/docker-compose.yml logs oap
+docker compose -f test/e2e-v2/cases/simple/jdk/docker-compose.yml logs provider
+
+# Only cleanup when done debugging
+e2e cleanup -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+```
+
+**Determining if rebuild is needed:**
+
+Compare file timestamps against last package build. If any files changed after package, rebuild is needed:
+```bash
+# Find runtime-related files modified after package was built
+find oap-server apm-protocol -type f \( \
+  -name "*.java" -o -name "*.yaml" -o -name "*.yml" -o \
+  -name "*.json" -o -name "*.xml" -o -name "*.properties" -o \
+  -name "*.proto" \
+\) -newer dist/apache-skywalking-apm-bin.tar.gz 2>/dev/null
+
+# Find test case files modified after package was built
+find test/e2e-v2 -type f \( \
+  -name "*.yaml" -o -name "*.yml" -o -name "*.java" -o -name "*.json" \
+\) -newer dist/apache-skywalking-apm-bin.tar.gz 2>/dev/null
+```
+
+Also compare git commit ID in binary vs current HEAD:
+```bash
+# Commit ID in packaged binary
+unzip -p dist/apache-skywalking-apm-bin/oap-libs/server-starter-*.jar version.properties | grep git.commit.id
+
+# Current HEAD
+git rev-parse HEAD
+```
+
+**If rebuild is needed, stop e2e first:**
+```bash
+# 1. Cleanup running containers
+e2e cleanup -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+
+# 2. Rebuild
+./mvnw clean package -Pall -Dmaven.test.skip && make docker
+
+# 3. Restart e2e
+e2e setup -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+e2e trigger -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+e2e verify -c test/e2e-v2/cases/simple/jdk/e2e.yaml
+```
+
 ## Git Submodules
 
 The project uses submodules for protocol definitions and UI:
