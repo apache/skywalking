@@ -408,16 +408,21 @@ e2e cleanup -c test/e2e-v2/cases/simple/jdk/e2e.yaml
 
 Compare file timestamps against last package build. If any files changed after package, rebuild is needed:
 ```bash
-# Find runtime-related files modified after package was built
+# Find OAP runtime files modified after package was built
 find oap-server apm-protocol -type f \( \
   -name "*.java" -o -name "*.yaml" -o -name "*.yml" -o \
   -name "*.json" -o -name "*.xml" -o -name "*.properties" -o \
   -name "*.proto" \
 \) -newer dist/apache-skywalking-apm-bin.tar.gz 2>/dev/null
 
-# Find test case files modified after package was built
-find test/e2e-v2 -type f \( \
-  -name "*.yaml" -o -name "*.yml" -o -name "*.java" -o -name "*.json" \
+# Find test service files modified after last build (needs service rebuild)
+find test/e2e-v2/java-test-service -type f \( \
+  -name "*.java" -o -name "*.xml" -o -name "*.yaml" -o -name "*.yml" \
+\) -newer test/e2e-v2/java-test-service/e2e-service-provider/target/*.jar 2>/dev/null
+
+# Find test case config files modified after package was built
+find test/e2e-v2/cases -type f \( \
+  -name "*.yaml" -o -name "*.yml" -o -name "*.json" \
 \) -newer dist/apache-skywalking-apm-bin.tar.gz 2>/dev/null
 ```
 
@@ -435,10 +440,13 @@ git rev-parse HEAD
 # 1. Cleanup running containers
 e2e cleanup -c test/e2e-v2/cases/simple/jdk/e2e.yaml
 
-# 2. Rebuild
+# 2. Rebuild OAP (if oap-server/apm-protocol files changed)
 ./mvnw clean package -Pall -Dmaven.test.skip && make docker
 
-# 3. Restart e2e
+# 3. Rebuild test services (if java-test-service files changed)
+./mvnw -f test/e2e-v2/java-test-service/pom.xml clean package
+
+# 4. Restart e2e
 e2e setup -c test/e2e-v2/cases/simple/jdk/e2e.yaml
 e2e trigger -c test/e2e-v2/cases/simple/jdk/e2e.yaml
 e2e verify -c test/e2e-v2/cases/simple/jdk/e2e.yaml
