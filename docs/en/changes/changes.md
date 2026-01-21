@@ -26,6 +26,7 @@
 * Fix `BrowserErrorLog` BanyanDB storage query order.
 * `BanyanDB Client`: Property query support `Order By`.
 * MQE: trim the label values condition for the labeled metrics query to enhance the readability.
+* PromQL service: fix time parse issue when using RFC3339 time format for querying.
 * Upgrade Groovy to 5.0.3 in OAP backend.
 
 #### UI
