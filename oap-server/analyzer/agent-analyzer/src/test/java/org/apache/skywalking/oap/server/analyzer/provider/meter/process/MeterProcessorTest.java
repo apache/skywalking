@@ -43,7 +43,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,11 +78,6 @@ public class MeterProcessorTest {
 
     @BeforeEach
     public void setup() throws StorageException, ModuleStartException {
-        Assumptions.assumeTrue(
-                Double.parseDouble(System.getProperty("java.specification.version")) < 25,
-                "Skip MeterProcessorTest on JDK 25+ due to Groovy incompatibility"
-        );
-
         meterSystem = spy(new MeterSystem(moduleManager));
         when(moduleManager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
         when(moduleManager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
