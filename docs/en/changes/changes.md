@@ -4,6 +4,7 @@
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.
+* Upgrade Groovy to 5.0.3 in OAP backend.
 
 #### OAP Server
 
@@ -26,6 +27,8 @@
 * MQE: fix multiple labeled metric query and ensure no results are returned if no label value combinations match.
 * Fix `BrowserErrorLog` BanyanDB storage query order.
 * `BanyanDB Client`: Property query support `Order By`.
+* MQE: trim the label values condition for the labeled metrics query to enhance the readability.
+* PromQL service: fix time parse issue when using RFC3339 time format for querying.
 
 #### UI
 * Fix the missing icon in new native trace view.

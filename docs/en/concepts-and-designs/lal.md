@@ -140,11 +140,6 @@ filter {
 }
 ```
 
-- `grok` (TODO)
-
-We're aware of certain performance issues in the grok Java library, and so we're currently conducting investigations and benchmarking. Contributions are
-welcome.
-
 ### Extractor
 
 Extractors aim to extract metadata from the logs. The metadata can be a service name, a service instance name, an
@@ -162,7 +157,7 @@ persisted (if not dropped) and is used to associate with traces / metrics.
 
 - `endpoint`
 
-`endpoint` extracts the service instance name from the `parsed` result, and set it into the `LogData`, which will be
+`endpoint` extracts the endpoint name from the `parsed` result, and set it into the `LogData`, which will be
 persisted (if not dropped) and is used to associate with traces / metrics.
 
 - `traceId`
@@ -341,7 +336,7 @@ persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
 `id` extracts the id from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be persisted (if not
 dropped) and is used to associate with TopNDatabaseStatement.
 
-A Example of LAL to distinguish slow logs:
+An example of LAL to distinguish slow logs:
 
 ```groovy
 filter {
@@ -460,11 +455,11 @@ filter {
         sampler {
             if (parsed.service == "ImportantApp") {
                 rateLimit("ImportantAppSampler") {
-                    rpm 1800  // samples 1800 pieces of logs every minute for service "ImportantApp"
+                    rpm 1800  // samples at most 1800 logs per minute for service "ImportantApp"
                 }
             } else {
                 rateLimit("OtherSampler") {
-                    rpm 180   // samples 180 pieces of logs every minute for other services than "ImportantApp"
+                    rpm 180   // samples at most 180 logs per minute for other services than "ImportantApp"
                 }
             }
         }
@@ -526,8 +521,8 @@ filter { // filter A: this is for persistence
     }
 }
 filter { // filter B:
-    // ... extractors to generate many metrics
-    extractors {
+    // ... extractor to generate many metrics
+    extractor {
         metrics {
             // ... metrics
         }

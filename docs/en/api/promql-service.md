@@ -148,7 +148,7 @@ GET|POST /api/v1/query
 | Parameter | Definition                                                                                                                                                                            | Support | Optional   |
 |-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|------------|
 | query     | prometheus expression                                                                                                                                                                 | yes     | no         |
-| time      | **The latest metrics value from current time to this time is returned. If time is empty, the default look-back time is 2 minutes.** time format: RFC3399 or unix_timestamp in seconds | yes     | yes        |
+| time      | **The latest metrics value from current time to this time is returned. If time is empty, the default look-back time is 2 minutes.** time format: RFC3339 or unix_timestamp in seconds | yes     | yes        |
 | timeout   | evaluation timeout                                                                                                                                                                    | **no**  | **ignore** |
 
 For example:
@@ -198,8 +198,8 @@ GET|POST /api/v1/query_range
 | Parameter | Definition                                                                           | Support | Optional   |
 |-----------|--------------------------------------------------------------------------------------|---------|------------|
 | query     | prometheus expression                                                                | yes     | no         |
-| start     | start timestamp, format: RFC3399 or unix_timestamp in seconds                        | yes     | no         |
-| end       | end timestamp, format: RFC3399 or unix_timestamp in seconds                          | yes     | no         |
+| start     | start timestamp, format: RFC3339 or unix_timestamp in seconds                        | yes     | no         |
+| end       | end timestamp, format: RFC3339 or unix_timestamp in seconds                          | yes     | no         |
 | step      | **SkyWalking will automatically fit Step(DAY, HOUR, MINUTE) through start and end.** | **no**  | **ignore** |
 | timeout   | evaluation timeout                                                                   | **no**  | **ignore** |
 
@@ -266,8 +266,8 @@ GET|POST /api/v1/series
 | Parameter | Definition                                          | Support | Optional |
 |-----------|-----------------------------------------------------|---------|----------|
 | match[]   | series selector                                     | yes     | no       |
-| start     | start, format: RFC3399 or unix_timestamp in seconds | yes     | no       |
-| end       | end, format: RFC3399 or unix_timestamp in seconds   | yes     | no       |
+| start     | start, format: RFC3339 or unix_timestamp in seconds | yes     | no       |
+| end       | end, format: RFC3339 or unix_timestamp in seconds   | yes     | no       |
 | limit     | integer, maximum number of returned series          | yes     | yes      |
 
 **For metadata metrics**:
@@ -362,7 +362,7 @@ GET|POST /api/v1/labels
 | Parameter | Definition                                                                      | Support | Optional |
 |-----------|---------------------------------------------------------------------------------|---------|----------|
 | match[]   | series selector                                                                 | yes     | yes      |
-| start     | start, format: RFC3399 or unix_timestamp in seconds                             | **no**  | yes      |
+| start     | start, format: RFC3339 or unix_timestamp in seconds                             | **no**  | yes      |
 | end       | end timestamp, if end time is not present, use current time as default end time | yes     | yes      |
 | limit     | integer, maximum number of returned labels, default 100                         | yes     | yes      |
 
@@ -396,8 +396,8 @@ GET /api/v1/label/<label_name>/values
 | Parameter | Definition                                                                                                          | Support | Optional |
 |-----------|---------------------------------------------------------------------------------------------------------------------|---------|----------|
 | match[]   | series selector                                                                                                     | yes     | yes      |
-| start     | start, format: RFC3399 or unix_timestamp in seconds                                                                 | **no**  | yes      |
-| end       | end, format: RFC3399 or unix_timestamp in seconds, if end time is not present, use current time as default end time | yes     | yes      |
+| start     | start, format: RFC3339 or unix_timestamp in seconds                                                                 | **no**  | yes      |
+| end       | end, format: RFC3339 or unix_timestamp in seconds, if end time is not present, use current time as default end time | yes     | yes      |
 | limit     | integer, maximum number of returned label values, default 100                                                       | yes     | yes      |
 
 For example:
