@@ -14,6 +14,7 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
+  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -52,7 +53,7 @@
         <guava.version>30.1.1-jre</guava.version>
         <h2.version>2.1.210</h2.version>
         <mysql.version>8.0.13</mysql.version>
-        <e2e.lombok.version>1.18.36</e2e.lombok.version>
+        <lombok.version>1.18.36</lombok.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
@@ -112,7 +113,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${e2e.lombok.version}</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
