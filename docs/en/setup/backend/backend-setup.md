@@ -24,7 +24,7 @@ The compatible BanyanDB API version number could be found in `/config/bydb.yml`
 ```
 ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS}
 ```
-The compatible BanyanDB Server version number can get through the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
+The compatible BanyanDB Server version number can be found via the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
 
 ```shell
 export BYDB_VERSION=xxx

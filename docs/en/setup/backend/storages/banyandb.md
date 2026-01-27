@@ -7,7 +7,7 @@ The compatible BanyanDB API version number could be found in `/config/bydb.yml`
 ```
 ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS}
 ```
-The compatible BanyanDB Server version number can get through the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
+The compatible BanyanDB Server version number can be found via the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
 
 If the BanyanDB server API version is not compatible with the OAP server, the OAP server will not start, and the following error message will be displayed:
 ```shell
@@ -66,7 +66,7 @@ global:
   # OAP will create BanyanDB Groups using the format of "{namespace}_{group name}", such as "sw_records".
   namespace: ${SW_NAMESPACE:"sw"}
   # The compatible server API versions of BanyanDB.
-  # The compatible BanyanDB Server version number can get through the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
+  # The compatible BanyanDB Server version number can be found via the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
   compatibleServerApiVersions: ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS:"0.10"}
 
 groups:
