@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ListenerMetricsAdapter;
 import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ProtoMetricFamily2MetricsAdapter;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -112,7 +113,7 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                         counter.inc();
                         try (final HistogramMetrics.Timer ignored = histogram.createTimer()) {
                             final ProtoMetricFamily2MetricsAdapter adapter = new ProtoMetricFamily2MetricsAdapter(
-                                metricFamily, config.getClusterManagerMetricsAdapter());
+                                metricFamily, config.getClusterManagerMetricsAdapter(), new ListenerMetricsAdapter());
                             adapter.adapt().forEach(it -> {
                                 it.getLabels().putIfAbsent("app", service.getServiceName());
                                 it.getLabels().putIfAbsent("instance", service.getServiceInstanceName());
