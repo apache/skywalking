@@ -20,13 +20,10 @@ package org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters;
 
 import io.prometheus.client.Metrics;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class ListenerMetricsAdapter {
 
     public String adaptMetricsName(final Metrics.MetricFamily metricFamily) {
-
         return "envoy_listener_metrics";
     }
 
