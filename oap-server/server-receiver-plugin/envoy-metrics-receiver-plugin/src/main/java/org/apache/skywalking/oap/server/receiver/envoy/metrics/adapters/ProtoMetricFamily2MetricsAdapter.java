@@ -35,6 +35,7 @@ import static java.util.stream.Collectors.toMap;
 public class ProtoMetricFamily2MetricsAdapter {
     protected final Metrics.MetricFamily metricFamily;
     private final ClusterManagerMetricsAdapter clusterManagerMetricsAdapter;
+    private final ListenerMetricsAdapter listenerMetricsAdapter;
 
     public Stream<Metric> adapt() {
         switch (metricFamily.getType()) {
@@ -75,6 +76,8 @@ public class ProtoMetricFamily2MetricsAdapter {
     public String adaptMetricsName(final Metrics.Metric metric) {
         if (metricFamily.getName().startsWith("cluster.")) {
             return clusterManagerMetricsAdapter.adaptMetricsName(metricFamily);
+        } else if (metricFamily.getName().startsWith("listener.")) {
+            return listenerMetricsAdapter.adaptMetricsName(metricFamily);
         }
 
         return metricFamily.getName();
@@ -90,6 +93,8 @@ public class ProtoMetricFamily2MetricsAdapter {
                                            .collect(toMap(Metrics.LabelPair::getName, Metrics.LabelPair::getValue));
         if (metricFamily.getName().startsWith("cluster.")) {
             return clusterManagerMetricsAdapter.adaptLabels(metricFamily, labels);
+        } else if (metricFamily.getName().startsWith("listener.")) {
+            return listenerMetricsAdapter.adaptLabels(metricFamily, labels);
         }
 
         return labels;

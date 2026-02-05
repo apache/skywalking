@@ -112,7 +112,7 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
                         counter.inc();
                         try (final HistogramMetrics.Timer ignored = histogram.createTimer()) {
                             final ProtoMetricFamily2MetricsAdapter adapter = new ProtoMetricFamily2MetricsAdapter(
-                                metricFamily, config.getClusterManagerMetricsAdapter());
+                                metricFamily, config.getClusterManagerMetricsAdapter(), config.getListenerMetricsAdapter());
                             adapter.adapt().forEach(it -> {
                                 it.getLabels().putIfAbsent("app", service.getServiceName());
                                 it.getLabels().putIfAbsent("instance", service.getServiceInstanceName());

@@ -37,6 +37,7 @@ public class ClusterManagerMetricsAdapterTest {
     private Metrics.MetricFamily cbNameOutboundFQDN = Metrics.MetricFamily.newBuilder().setName("cluster.outbound|9080||reviews.default.svc.cluster.local.circuit_breakers.default.cx_pool_open").build();
     private Metrics.MetricFamily cbNameOutboundFQDNSubset = Metrics.MetricFamily.newBuilder().setName("cluster.outbound|9080|v1|reviews.default.svc.cluster.local.circuit_breakers.default.cx_pool_open").build();
     private Metrics.MetricFamily cbNameInboundFQDN = Metrics.MetricFamily.newBuilder().setName("cluster.inbound|9080||.upstream_cx_total").build();
+    private Metrics.MetricFamily ca = Metrics.MetricFamily.newBuilder().setName("cluster.outbound|9080|v2-mysql|ratings.default.svc.cluster.local;.ssl.certificate.ROOTCA.expiration_unix_time_seconds").build();
 
     @SneakyThrows
     @BeforeEach
@@ -68,6 +69,8 @@ public class ClusterManagerMetricsAdapterTest {
         assertThat(
                 clusterManagerMetricsAdapter.adaptLabels(cbNameInboundFQDN, new HashMap<>()).toString()
         ).isEqualTo("{cluster_name=-.inbound:9080.-, metrics_name=" + cbNameInboundFQDN.getName() + "}");
-
+        assertThat(
+                clusterManagerMetricsAdapter.adaptLabels(ca, new HashMap<>()).toString()
+        ).isEqualTo("{cluster_name=v2-mysql.ratings.default, metrics_name=" + ca.getName() + "}");
     }
 }

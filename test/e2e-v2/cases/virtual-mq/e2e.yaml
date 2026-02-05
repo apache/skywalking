@@ -38,7 +38,7 @@ trigger:
 verify:
   retry:
     count: 20
-    interval: 3s
+    interval: 10s
   cases:
     - includes:
         - mq-cases.yaml
