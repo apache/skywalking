@@ -71,7 +71,6 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     @Getter
     private final ListenerMetricsAdapter listenerMetricsAdapter = new ListenerMetricsAdapter();
 
-
     public List<String> getAlsHTTPAnalysis() {
         if (Strings.isNullOrEmpty(alsHTTPAnalysis)) {
             return Collections.emptyList();
