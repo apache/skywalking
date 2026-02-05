@@ -21,9 +21,6 @@ package org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters;
 import io.prometheus.client.Metrics;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @RequiredArgsConstructor
 public class ListenerMetricsAdapter {
 
