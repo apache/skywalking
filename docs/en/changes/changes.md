@@ -5,6 +5,7 @@
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.
 * Upgrade Groovy to 5.0.3 in OAP backend.
+* Bump up nodejs to v24.13.0 for the latest UI(booster-ui) compiling.
 
 #### OAP Server
 
