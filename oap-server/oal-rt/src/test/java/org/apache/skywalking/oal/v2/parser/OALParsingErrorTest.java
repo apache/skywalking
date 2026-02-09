@@ -88,12 +88,9 @@ public class OALParsingErrorTest {
         }, "Parser should require equals sign in metric definition");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal"), "Error should reference file name");
-        assertTrue(message.contains("1:"), "Error should reference line 1");
-        assertTrue(message.toLowerCase().contains("missing") ||
-                   message.toLowerCase().contains("expecting") ||
-                   message.toLowerCase().contains("mismatched"),
-                   "Error should describe the missing equals sign");
+        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line 1");
+        assertTrue(message.contains("missing '='") || message.contains("mismatched input 'from'"),
+                   "Error should indicate missing equals sign");
     }
 
     /**
@@ -108,7 +105,9 @@ public class OALParsingErrorTest {
         }, "Parser should require from() clause");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
+        assertTrue(message.contains("test.oal:1:20"), "Error should reference file:line:column");
+        assertTrue(message.contains("expecting 'from'") || message.contains("mismatched input '.'"),
+                  "Error should indicate expecting from");
     }
 
     /**
@@ -123,8 +122,9 @@ public class OALParsingErrorTest {
         }, "Parser should require source name in from() clause");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
+        assertTrue(message.contains("test.oal:1:25"), "Error should reference file:line:column");
         assertTrue(message.contains("OAL parsing failed"), "Error should have clear header");
+        assertTrue(message.contains("expecting {"), "Error should indicate expecting source name");
     }
 
     /**
@@ -139,11 +139,9 @@ public class OALParsingErrorTest {
         }, "Parser should detect incomplete filter expression");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
-        assertTrue(message.toLowerCase().contains("missing") ||
-                   message.toLowerCase().contains("expecting") ||
-                   message.toLowerCase().contains("extraneous"),
-                   "Error should describe the problem in filter");
+        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line 1");
+        assertTrue(message.contains("mismatched input ')'") || message.contains("expecting"),
+                   "Error should indicate unexpected ')'");
     }
 
     /**
@@ -158,11 +156,8 @@ public class OALParsingErrorTest {
         }, "Parser should detect unclosed parenthesis");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
-        assertTrue(message.toLowerCase().contains("missing") ||
-                   message.toLowerCase().contains("')") ||
-                   message.toLowerCase().contains("expecting"),
-                   "Error should mention missing/expected parenthesis");
+        assertTrue(message.contains("test.oal:1:51"), "Error should reference file:line:column");
+        assertTrue(message.contains("missing ')'"), "Error should indicate missing ')'");
     }
 
     /**
@@ -177,12 +172,9 @@ public class OALParsingErrorTest {
         }, "Parser should reject invalid operators");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
-        // Verify it's a syntax error (exact tokens in message may vary)
-        assertTrue(message.toLowerCase().contains("error") ||
-                   message.toLowerCase().contains("expecting") ||
-                   message.toLowerCase().contains("mismatched"),
-                   "Error should indicate syntax problem");
+        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line 1");
+        assertTrue(message.contains("mismatched") || message.contains("extraneous"),
+                   "Error should indicate syntax error with operator");
     }
 
     /**
@@ -197,11 +189,9 @@ public class OALParsingErrorTest {
         }, "Parser should require aggregation function");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
-        assertTrue(message.toLowerCase().contains("missing") ||
-                   message.toLowerCase().contains("expecting") ||
-                   message.toLowerCase().contains("extraneous"),
-                   "Error should indicate missing function call");
+        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line 1");
+        assertTrue(message.contains("mismatched") || message.contains("extraneous") || message.contains("expecting '.'"),
+                   "Error should indicate syntax error (missing dot before function)");
     }
 
     /**
@@ -216,11 +206,8 @@ public class OALParsingErrorTest {
         }, "Parser should reject empty function arguments");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
-        assertTrue(message.contains(",") ||
-                   message.toLowerCase().contains("extraneous") ||
-                   message.toLowerCase().contains("expecting"),
-                   "Error should reference the problematic comma");
+        assertTrue(message.contains("test.oal:1:47"), "Error should reference file:line:column");
+        assertTrue(message.contains("extraneous input ','"), "Error should indicate unexpected comma");
     }
 
     /**
@@ -235,11 +222,9 @@ public class OALParsingErrorTest {
         }, "Parser should reject multiple equals signs");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
-        assertTrue(message.contains("=") ||
-                   message.toLowerCase().contains("extraneous") ||
-                   message.toLowerCase().contains("mismatched"),
-                   "Error should reference the equals sign problem");
+        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line 1");
+        assertTrue(message.contains("extraneous") || message.contains("mismatched") || message.contains("expecting"),
+                   "Error should indicate syntax problem with equals");
     }
 
     /**
@@ -274,13 +259,10 @@ public class OALParsingErrorTest {
         }, "Parser should detect unclosed string literals");
 
         String message = exception.getMessage();
-        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line");
-        // Unclosed strings typically cause token recognition errors or EOF issues
-        assertTrue(message.toLowerCase().contains("token") ||
-                   message.toLowerCase().contains("eof") ||
-                   message.toLowerCase().contains("string") ||
-                   message.contains("\""),
-                   "Error should indicate string/token problem");
+        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line 1");
+        // Unclosed strings cause token recognition errors
+        assertTrue(message.contains("token recognition error") || message.contains("mismatched"),
+                   "Error should indicate token recognition error or mismatched input");
     }
 
     /**
@@ -340,9 +322,13 @@ public class OALParsingErrorTest {
     public void testSyntaxError_MultipleFiltersInvalid() {
         String script = "service_sla = from(Service.*).filter(status == true) filter(latency > 100).percent();";
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should reject multiple filters without proper chaining");
+
+        String message = exception.getMessage();
+        assertTrue(message.contains("test.oal:1:53"), "Error should reference file:line:column");
+        assertTrue(message.contains("extraneous input 'filter'"), "Error should indicate unexpected 'filter'");
     }
 
     /**
@@ -352,9 +338,14 @@ public class OALParsingErrorTest {
     public void testSyntaxError_NestedFunctions() {
         String script = "service_resp_time = from(Service.latency).longAvg(sum());";
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should reject nested function calls");
+
+        String message = exception.getMessage();
+        assertTrue(message.contains("test.oal:1:"), "Error should reference file and line 1");
+        assertTrue(message.contains("mismatched") || message.contains("expecting"),
+                   "Error should indicate syntax error with nested function");
     }
 
     /**
@@ -392,6 +383,7 @@ public class OALParsingErrorTest {
         String message = exception.getMessage();
         assertTrue(message.contains("mixed.oal"), "Error should reference file name");
         assertTrue(message.contains("2:"), "Error should reference line 2 where error occurs");
+        assertTrue(message.contains("expecting"), "Error should indicate expecting source name");
     }
 
     /**
@@ -409,8 +401,10 @@ public class OALParsingErrorTest {
 
         String message = exception.getMessage();
         assertTrue(message.contains("error.oal"), "Error message should include file name");
-        assertTrue(message.contains("2:"), "Error message should include line number");
+        assertTrue(message.contains("2:"), "Error message should include line 2");
         assertTrue(message.contains("OAL parsing failed"), "Error message should have clear header");
+        assertTrue(message.contains("mismatched") || message.contains("expecting"),
+                   "Error should describe the syntax problem");
     }
 
     /**
