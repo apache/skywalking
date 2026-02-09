@@ -76,7 +76,7 @@ public class OALEngineLoaderService implements Service {
      * it.
      */
     private static OALEngine loadOALEngine(OALDefine define) throws ReflectiveOperationException {
-        Class<?> engineRTClass = Class.forName("org.apache.skywalking.oal.rt.OALRuntime");
+        Class<?> engineRTClass = Class.forName("org.apache.skywalking.oal.v2.OALEngineV2");
         Constructor<?> engineRTConstructor = engineRTClass.getConstructor(OALDefine.class);
         return (OALEngine) engineRTConstructor.newInstance(define);
     }
