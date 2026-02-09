@@ -1,0 +1,424 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.oal.v2.generator;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oal.rt.parser.FilterMatchers;
+import org.apache.skywalking.oal.rt.parser.MetricsHolder;
+import org.apache.skywalking.oal.rt.parser.SourceColumn;
+import org.apache.skywalking.oal.rt.parser.SourceColumnsFactory;
+import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
+import org.apache.skywalking.oal.rt.util.TypeCastUtil;
+import org.apache.skywalking.oal.v2.model.FilterExpression;
+import org.apache.skywalking.oal.v2.model.FilterOperator;
+import org.apache.skywalking.oal.v2.model.FilterValue;
+import org.apache.skywalking.oal.v2.model.FunctionArgument;
+import org.apache.skywalking.oal.v2.model.MetricDefinition;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.DefaultValue;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
+
+/**
+ * Enriches V2 MetricDefinition with metadata needed for code generation.
+ *
+ * This is V2's equivalent of V1's DeepAnalysis. It:
+ * 1. Looks up metrics function class
+ * 2. Extracts source columns/fields
+ * 3. Finds entrance method
+ * 4. Builds entrance method arguments
+ * 5. Collects persistent fields from @Column annotations
+ * 6. Generates serialization fields
+ *
+ * Unlike V1, this works entirely with V2 models and has no V1 dependencies.
+ */
+@Slf4j
+public class MetricDefinitionEnricher {
+
+    private final String sourcePackage;
+    private final String metricsClassPackage;
+
+    public MetricDefinitionEnricher(String sourcePackage, String metricsClassPackage) {
+        this.sourcePackage = sourcePackage;
+        this.metricsClassPackage = metricsClassPackage;
+    }
+
+    /**
+     * Enrich a MetricDefinition with metadata for code generation.
+     *
+     * @param metric V2 metric definition
+     * @return enriched code generation model
+     */
+    public CodeGenModel enrich(MetricDefinition metric) {
+        // 1. Look up metrics function class
+        Class<? extends Metrics> metricsClass = MetricsHolder.find(metric.getAggregationFunction().getName());
+        String metricsClassName = metricsClass.getSimpleName();
+
+        // 2. Get source columns
+        List<SourceColumn> sourceColumns = SourceColumnsFactory.getColumns(metric.getSource().getName());
+        List<CodeGenModel.SourceFieldV2> fieldsFromSource = convertSourceColumns(sourceColumns);
+
+        // 3. Get source scope ID
+        int sourceScopeId = DefaultScopeDefine.valueOf(metric.getSource().getName());
+
+        // 4. Find and process entrance method
+        Method entranceMethod = findEntranceMethod(metricsClass);
+        CodeGenModel.EntranceMethodV2 entranceMethodV2 = buildEntranceMethod(entranceMethod, metric);
+
+        // 5. Collect persistent fields from metrics class
+        List<CodeGenModel.DataFieldV2> persistentFields = collectPersistentFields(metricsClass);
+
+        // 6. Generate serialization fields
+        CodeGenModel.SerializeFieldsV2 serializeFields = generateSerializeFields(fieldsFromSource, persistentFields);
+
+        // 7. Build CodeGenModel
+        return CodeGenModel.builder()
+            .metricDefinition(metric)
+            .varName(metric.getName())
+            .metricsName(metricsNameFormat(metric.getName()))
+            .metricsClassPackage(metricsClassPackage)
+            .sourcePackage(sourcePackage)
+            .tableName(metric.getTableName())
+            .sourceName(metric.getSource().getName())
+            .sourceScopeId(sourceScopeId)
+            .from(CodeGenModel.FromStmtV2.builder().sourceScopeId(sourceScopeId).build())
+            .functionName(metric.getAggregationFunction().getName())
+            .metricsClassName(metricsClassName)
+            .filters(metric.getFilters())
+            .fieldsFromSource(fieldsFromSource)
+            .persistentFields(persistentFields)
+            .serializeFields(serializeFields)
+            .entranceMethod(entranceMethodV2)
+            .sourceDecorator(metric.getDecorator().orElse(null))
+            .build();
+    }
+
+    /**
+     * Convert V1 SourceColumn to V2 SourceFieldV2.
+     */
+    private List<CodeGenModel.SourceFieldV2> convertSourceColumns(List<SourceColumn> sourceColumns) {
+        List<CodeGenModel.SourceFieldV2> fields = new ArrayList<>();
+        for (SourceColumn column : sourceColumns) {
+            fields.add(CodeGenModel.SourceFieldV2.builder()
+                .fieldName(column.getFieldName())
+                .columnName(column.getColumnName())
+                .typeName(column.getType().getName())
+                .type(column.getType())
+                .isID(column.isID())
+                .isShardingKey(column.isShardingKey())
+                .shardingKeyIdx(column.getShardingKeyIdx())
+                .length(column.getLength())
+                .attribute(column.isAttribute())
+                .build());
+        }
+        return fields;
+    }
+
+    /**
+     * Find entrance method annotated with @Entrance.
+     */
+    private Method findEntranceMethod(Class<? extends Metrics> metricsClass) {
+        Class<?> c = metricsClass;
+        while (!c.equals(Object.class)) {
+            for (Method method : c.getMethods()) {
+                if (method.isAnnotationPresent(Entrance.class)) {
+                    return method;
+                }
+            }
+            c = c.getSuperclass();
+        }
+        throw new IllegalArgumentException("Can't find Entrance method in class: " + metricsClass.getName());
+    }
+
+    /**
+     * Build entrance method information for dispatcher.
+     */
+    private CodeGenModel.EntranceMethodV2 buildEntranceMethod(Method entranceMethod, MetricDefinition metric) {
+        CodeGenModel.EntranceMethodV2.EntranceMethodV2Builder builder = CodeGenModel.EntranceMethodV2.builder()
+            .methodName(entranceMethod.getName());
+
+        List<String> argsExpressions = new ArrayList<>();
+        List<Integer> argTypes = new ArrayList<>();
+        int funcArgIndex = 0;
+
+        for (Parameter parameter : entranceMethod.getParameters()) {
+            Class<?> parameterType = parameter.getType();
+            Annotation[] parameterAnnotations = parameter.getAnnotations();
+
+            if (parameterAnnotations == null || parameterAnnotations.length == 0) {
+                throw new IllegalArgumentException(
+                    "Entrance method:" + entranceMethod + " doesn't include the annotation.");
+            }
+
+            Annotation annotation = parameterAnnotations[0];
+
+            if (annotation instanceof SourceFrom) {
+                // Source attribute from OAL script
+                String sourceAttribute = metric.getSource().getAttributes().isEmpty()
+                    ? ""
+                    : metric.getSource().getAttributes().get(0);
+                String castType = metric.getSource().getCastType().orElse(null);
+                String expression = TypeCastUtil.withCast(castType, "source." + ClassMethodUtil.toGetMethod(sourceAttribute));
+                argsExpressions.add(expression);
+                argTypes.add(2); // ATTRIBUTE_EXP_TYPE
+            } else if (annotation instanceof ConstOne) {
+                argsExpressions.add("1");
+                argTypes.add(1); // LITERAL_TYPE
+            } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
+                // Expression argument - convert V2 filter to expression
+                if (funcArgIndex < metric.getAggregationFunction().getArguments().size()) {
+                    FunctionArgument funcArg = metric.getAggregationFunction().getArguments().get(funcArgIndex++);
+                    if (funcArg.isExpression()) {
+                        FilterExpression filterExpr = funcArg.asExpression();
+                        String matcherClass = getMatcherClassName(filterExpr);
+                        String left = buildFilterLeft(filterExpr);
+                        String right = buildFilterRight(filterExpr);
+                        argsExpressions.add("new " + matcherClass + "().match(" + left + ", " + right + ")");
+                        argTypes.add(3); // EXPRESSION_TYPE
+                    } else {
+                        throw new IllegalArgumentException("Expected expression argument but got: " + funcArg);
+                    }
+                }
+            } else if (annotation instanceof Arg) {
+                // Literal/attribute argument
+                if (funcArgIndex < metric.getAggregationFunction().getArguments().size()) {
+                    FunctionArgument funcArg = metric.getAggregationFunction().getArguments().get(funcArgIndex++);
+                    if (funcArg.isLiteral()) {
+                        argsExpressions.add(String.valueOf(funcArg.asLiteral()));
+                        argTypes.add(1); // LITERAL_TYPE
+                    } else if (funcArg.isAttribute()) {
+                        argsExpressions.add("source." + ClassMethodUtil.toGetMethod(funcArg.asAttribute()));
+                        argTypes.add(2); // ATTRIBUTE_EXP_TYPE
+                    }
+                }
+            } else if (annotation instanceof DefaultValue) {
+                // Use default or provided value
+                if (funcArgIndex < metric.getAggregationFunction().getArguments().size()) {
+                    FunctionArgument funcArg = metric.getAggregationFunction().getArguments().get(funcArgIndex++);
+                    if (funcArg.isLiteral()) {
+                        argsExpressions.add(String.valueOf(funcArg.asLiteral()));
+                    } else {
+                        argsExpressions.add(((DefaultValue) annotation).value());
+                    }
+                } else {
+                    argsExpressions.add(((DefaultValue) annotation).value());
+                }
+                argTypes.add(1); // LITERAL_TYPE
+            } else {
+                throw new IllegalArgumentException(
+                    "Entrance method:" + entranceMethod + " doesn't have expected annotation.");
+            }
+        }
+
+        return builder
+            .argsExpressions(argsExpressions)
+            .argTypes(argTypes)
+            .build();
+    }
+
+    /**
+     * Get matcher class name from filter expression.
+     */
+    private String getMatcherClassName(FilterExpression filterExpr) {
+        String expressionType = mapV2OperatorToV1ExpressionType(filterExpr);
+        FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expressionType);
+        return matcherInfo.getMatcher().getName();
+    }
+
+    /**
+     * Build left side of filter expression.
+     */
+    private String buildFilterLeft(FilterExpression filterExpr) {
+        FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
+            mapV2OperatorToV1ExpressionType(filterExpr));
+        String getter = matcherInfo.isBooleanType()
+            ? ClassMethodUtil.toIsMethod(filterExpr.getFieldName())
+            : ClassMethodUtil.toGetMethod(filterExpr.getFieldName());
+        return "source." + getter;
+    }
+
+    /**
+     * Build right side of filter expression.
+     */
+    private String buildFilterRight(FilterExpression filterExpr) {
+        FilterValue value = filterExpr.getValue();
+        if (value.isNumber()) {
+            return String.valueOf(value.asNumber());
+        } else if (value.isString()) {
+            return "\"" + value.asString() + "\"";
+        } else if (value.isBoolean()) {
+            return String.valueOf(value.asBoolean());
+        } else if (value.isNull()) {
+            return "null";
+        } else if (value.isArray()) {
+            StringBuilder sb = new StringBuilder();
+            for (Object item : value.asArray()) {
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
+                if (item instanceof String) {
+                    sb.append("\"").append(item).append("\"");
+                } else {
+                    sb.append(item);
+                }
+            }
+            return sb.toString();
+        }
+        throw new IllegalArgumentException("Unknown filter value type: " + value);
+    }
+
+    /**
+     * Map V2 operator + value type to V1 expression type string.
+     */
+    private String mapV2OperatorToV1ExpressionType(FilterExpression filterExpr) {
+        FilterOperator op = filterExpr.getOperator();
+        FilterValue value = filterExpr.getValue();
+
+        if (value.isBoolean()) {
+            return op == FilterOperator.EQUAL ? "booleanMatch" : "booleanNotEqualMatch";
+        } else if (value.isNumber()) {
+            switch (op) {
+                case EQUAL: return "numberMatch";
+                case NOT_EQUAL: return "notEqualMatch";
+                case GREATER: return "greaterMatch";
+                case LESS: return "lessMatch";
+                case GREATER_EQUAL: return "greaterEqualMatch";
+                case LESS_EQUAL: return "lessEqualMatch";
+                default: throw new IllegalArgumentException("Unsupported number operator: " + op);
+            }
+        } else if (value.isString()) {
+            switch (op) {
+                case EQUAL: return "stringMatch";
+                case NOT_EQUAL: return "notEqualMatch";
+                case LIKE: return "likeMatch";
+                case CONTAIN: return "containMatch";
+                case NOT_CONTAIN: return "notContainMatch";
+                default: throw new IllegalArgumentException("Unsupported string operator: " + op);
+            }
+        } else if (value.isArray()) {
+            return "inMatch";
+        } else if (value.isNull()) {
+            return op == FilterOperator.EQUAL ? "stringMatch" : "notEqualMatch";
+        }
+
+        throw new IllegalArgumentException("Unsupported filter: " + filterExpr);
+    }
+
+    /**
+     * Collect persistent fields from metrics class @Column annotations.
+     */
+    private List<CodeGenModel.DataFieldV2> collectPersistentFields(Class<? extends Metrics> metricsClass) {
+        List<CodeGenModel.DataFieldV2> persistentFields = new ArrayList<>();
+        Class<?> c = metricsClass;
+        while (!c.equals(Object.class)) {
+            for (Field field : c.getDeclaredFields()) {
+                Column column = field.getAnnotation(Column.class);
+                if (column != null) {
+                    persistentFields.add(CodeGenModel.DataFieldV2.builder()
+                        .fieldName(field.getName())
+                        .columnName(column.name())
+                        .type(field.getType())
+                        .typeName(field.getType().getName())
+                        .build());
+                }
+            }
+            c = c.getSuperclass();
+        }
+        return persistentFields;
+    }
+
+    /**
+     * Generate serialization fields from source fields and persistent fields.
+     */
+    private CodeGenModel.SerializeFieldsV2 generateSerializeFields(
+        List<CodeGenModel.SourceFieldV2> fieldsFromSource,
+        List<CodeGenModel.DataFieldV2> persistentFields) {
+
+        CodeGenModel.SerializeFieldsV2.SerializeFieldsV2Builder builder = CodeGenModel.SerializeFieldsV2.builder();
+        CodeGenModel.SerializeFieldsV2 serializeFields = builder.build();
+
+        // Add source fields
+        for (CodeGenModel.SourceFieldV2 sourceField : fieldsFromSource) {
+            String typeName = sourceField.getType().getSimpleName();
+            switch (typeName) {
+                case "int":
+                    serializeFields.addIntField(sourceField.getFieldName());
+                    break;
+                case "double":
+                    serializeFields.addDoubleField(sourceField.getFieldName());
+                    break;
+                case "String":
+                    serializeFields.addStringField(sourceField.getFieldName());
+                    break;
+                case "long":
+                    serializeFields.addLongField(sourceField.getFieldName());
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected source field type: " + typeName);
+            }
+        }
+
+        // Add persistent fields
+        for (CodeGenModel.DataFieldV2 dataField : persistentFields) {
+            Class<?> type = dataField.getType();
+            if (type.equals(int.class)) {
+                serializeFields.addIntField(dataField.getFieldName());
+            } else if (type.equals(double.class)) {
+                serializeFields.addDoubleField(dataField.getFieldName());
+            } else if (type.equals(String.class)) {
+                serializeFields.addStringField(dataField.getFieldName());
+            } else if (type.equals(long.class)) {
+                serializeFields.addLongField(dataField.getFieldName());
+            } else if (StorageDataComplexObject.class.isAssignableFrom(type)) {
+                serializeFields.addObjectField(dataField.getFieldName(), type.getName());
+            } else {
+                throw new IllegalStateException("Unexpected persistent field type: " + type);
+            }
+        }
+
+        return serializeFields;
+    }
+
+    /**
+     * Format metrics name (convert snake_case to PascalCase).
+     */
+    private String metricsNameFormat(String source) {
+        source = firstLetterUpper(source);
+        int idx;
+        while ((idx = source.indexOf("_")) > -1) {
+            source = source.substring(0, idx) + firstLetterUpper(source.substring(idx + 1));
+        }
+        return source;
+    }
+
+    private String firstLetterUpper(String source) {
+        return source.substring(0, 1).toUpperCase() + source.substring(1);
+    }
+}
