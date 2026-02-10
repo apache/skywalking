@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.util;
+package org.apache.skywalking.oal.v2.util;
 
 public class TypeCastUtil {
     /**

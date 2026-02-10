@@ -4,8 +4,8 @@ ${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}
     metrics.${sourceField.fieldSetter}(this.${sourceField.fieldGetter}());
 </#list>
 <#list persistentFields as field>
-    metrics.${field.fieldName} = this.${field.fieldName};
+    metrics.${field.fieldSetter}(this.${field.fieldGetter}());
 </#list>
-metrics.setTimeBucket(org.apache.skywalking.oap.server.core.analysis.TimeBucket.getHourTimeBucket(this.getTimeBucket()));
+metrics.setTimeBucket(this.toTimeBucketInHour());
 return metrics;
 }

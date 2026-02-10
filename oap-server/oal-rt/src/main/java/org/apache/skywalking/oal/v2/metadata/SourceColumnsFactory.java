@@ -16,19 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.parser;
+package org.apache.skywalking.oal.v2.metadata;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 
-@Getter
-public class OALScripts {
-    private List<AnalysisResult> metricsStmts;
-    private DisableCollection disableCollection;
+public class SourceColumnsFactory {
+    public static List<SourceColumn> getColumns(String source) {
+        List<SourceColumn> sourceColumns = new ArrayList<>();
 
-    public OALScripts() {
-        metricsStmts = new ArrayList<>();
-        disableCollection = new DisableCollection();
+        List<ScopeDefaultColumn> columns = DefaultScopeDefine.getDefaultColumns(source);
+        for (ScopeDefaultColumn defaultColumn : columns) {
+            sourceColumns.add(
+                new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn
+                    .getType(), defaultColumn.isID(), defaultColumn.getLength(), defaultColumn.getShardingKeyIdx(), defaultColumn.isAttribute()));
+        }
+        return sourceColumns;
     }
 }

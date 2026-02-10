@@ -274,6 +274,7 @@ public class CodeGenModel {
     @Getter
     @Builder
     public static class FromStmtV2 {
+        private String sourceName;
         private int sourceScopeId;
     }
 }

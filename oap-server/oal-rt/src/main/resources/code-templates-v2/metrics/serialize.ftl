@@ -1,28 +1,28 @@
 public org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builder serialize() {
 org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builder remoteBuilder = org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.newBuilder();
-<#if serializeFields.getStringFields()?? && serializeFields.getStringFields()?size gt 0>
-    <#list serializeFields.getStringFields() as field>
-        remoteBuilder.addDataStrings(${field});
+<#if serializeFields.stringFields?? && serializeFields.stringFields?size gt 0>
+    <#list serializeFields.stringFields as field>
+        remoteBuilder.addDataStrings(${field.getter}() != null ? ${field.getter}() : "");
     </#list>
 </#if>
-<#if serializeFields.getLongFields()?? && serializeFields.getLongFields()?size gt 0>
-    <#list serializeFields.getLongFields() as field>
-        remoteBuilder.addDataLongs(${field});
+<#if serializeFields.longFields?? && serializeFields.longFields?size gt 0>
+    <#list serializeFields.longFields as field>
+        remoteBuilder.addDataLongs(${field.getter}());
     </#list>
 </#if>
-<#if serializeFields.getDoubleFields()?? && serializeFields.getDoubleFields()?size gt 0>
-    <#list serializeFields.getDoubleFields() as field>
-        remoteBuilder.addDataDoubles(${field});
+<#if serializeFields.doubleFields?? && serializeFields.doubleFields?size gt 0>
+    <#list serializeFields.doubleFields as field>
+        remoteBuilder.addDataDoubles(${field.getter}());
     </#list>
 </#if>
-<#if serializeFields.getIntFields()?? && serializeFields.getIntFields()?size gt 0>
-    <#list serializeFields.getIntFields() as field>
-        remoteBuilder.addDataIntegers(${field});
+<#if serializeFields.intFields?? && serializeFields.intFields?size gt 0>
+    <#list serializeFields.intFields as field>
+        remoteBuilder.addDataIntegers(${field.getter}());
     </#list>
 </#if>
-<#if serializeFields.getObjectFields()?? && serializeFields.getObjectFields()?size gt 0>
-    <#list serializeFields.getObjectFields() as field>
-        remoteBuilder.addDataObjectStrings(${field.fieldName}.toStorageData());
+<#if serializeFields.objectFields?? && serializeFields.objectFields?size gt 0>
+    <#list serializeFields.objectFields as field>
+        remoteBuilder.addDataObjectStrings(${field.getter}().toStorageData());
     </#list>
 </#if>
 remoteBuilder.setDataLongs(0, getTimeBucket());

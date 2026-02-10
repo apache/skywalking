@@ -1,7 +1,7 @@
 
 # OAL V2 Architecture
 
-This package contains the refactored OAL engine with improved architecture, testability, and maintainability.
+This package contains the OAL (Observability Analysis Language) engine implementation. V2 is the only implementation after V1 has been completely removed.
 
 ## Package Structure
 
@@ -19,10 +19,22 @@ org.apache.skywalking.oal.v2/
 ├── registry/               # Service registries
 │   ├── MetricsFunctionRegistry.java
 │   └── MetricsFunctionDescriptor.java
-├── parser/                 # (TODO) Parsing logic
-├── semantic/               # (TODO) Semantic analysis
-├── codegen/                # (TODO) Code generation
-└── bridge/                 # (TODO) Bridge to V1 for compatibility
+├── parser/                 # OAL script parsing
+│   ├── OALListenerV2.java        # ANTLR parse tree listener
+│   └── OALScriptParserV2.java    # Parser facade
+├── generator/              # Code generation
+│   ├── CodeGenModel.java         # Code generation data model
+│   ├── MetricDefinitionEnricher.java  # Metadata enrichment
+│   └── OALClassGeneratorV2.java  # Javassist code generator
+├── metadata/               # Metadata utilities
+│   ├── SourceColumnsFactory.java # Source field lookup
+│   ├── SourceColumn.java         # Source field representation
+│   ├── FilterMatchers.java       # Filter expression matchers
+│   └── MetricsHolder.java        # Metrics function registry
+├── util/                   # Code generation utilities
+│   ├── ClassMethodUtil.java      # Method name utilities
+│   └── TypeCastUtil.java         # Type casting helpers
+└── OALEngineV2.java        # Main V2 engine
 ```
 
 ## Design Principles
@@ -275,7 +287,7 @@ assert args.get(1).asAttribute().equals("status");
 These immutable, type-safe objects can be passed through the pipeline:
 **Parse → Semantic Analysis → Validation → Code Generation**
 
-## Benefits Over V1
+## Key Features
 
 1. **Type Safety**: Strongly typed arguments and values
    - `FunctionArgument` distinguishes LITERAL vs ATTRIBUTE vs EXPRESSION
@@ -307,50 +319,41 @@ These immutable, type-safe objects can be passed through the pipeline:
    - Clear error messages
    - Fail fast, not at code generation
 
-## Usage in V1 Bridge
+## Usage
 
-The V1 OALRuntime will internally convert to V2 models:
+V2 is now the only OAL implementation. The engine processes OAL scripts through the following pipeline:
 
-```java
-// V1: AnalysisResult (mutable, mixed data/logic)
-public class AnalysisResult {
-    private String varName;
-    private FromStmt from;
-    // ... many mutable fields
-}
+1. **Parse**: OALScriptParserV2 parses .oal files into immutable MetricDefinition objects
+2. **Enrich**: MetricDefinitionEnricher adds metadata (source columns, persistent fields, etc.)
+3. **Generate**: OALClassGeneratorV2 generates Java classes using Javassist and FreeMarker templates
 
-// V2 Bridge: Convert to immutable MetricDefinition
-MetricDefinition v2Metric = AnalysisResultConverter.toV2(v1Result);
+## Implementation Status
 
-// Now use V2 pipeline for analysis and code generation
-```
+✅ **All phases completed**:
 
-## Next Steps
+1. ✅ **Immutable Model Classes**
+   - Type-safe data models with builder patterns
+   - Source location tracking for error reporting
 
-1. ✅ **Phase 1: Model Classes** (COMPLETED)
-   - Immutable data models
-   - Builder patterns
-   - Type-safe enums
+2. ✅ **Parser Implementation**
+   - Full OAL grammar support via OALListenerV2
+   - Converts parse tree to immutable V2 models
+   - Validates all production OAL scripts
 
-2. 🔄 **Phase 2: Registry Implementation** (IN PROGRESS)
-   - Implement DefaultMetricsFunctionRegistry
-   - Create classpath scanner
-   - Add registration methods
+3. ✅ **Metadata Enrichment**
+   - MetricDefinitionEnricher extracts source metadata
+   - Reflects on metrics function classes
+   - Builds code generation models
 
-3. 📋 **Phase 3: Parser Bridge** (TODO)
-   - Convert ANTLR parse tree to V2 models
-   - Preserve source locations
-   - Handle all OAL syntax
+4. ✅ **Code Generation**
+   - OALClassGeneratorV2 with V2-specific FreeMarker templates
+   - Generates metrics, builder, and dispatcher classes
+   - Uses Javassist for bytecode generation
 
-4. 📋 **Phase 4: Semantic Analyzer** (TODO)
-   - Type checking
-   - Symbol resolution
-   - Error collection
-
-5. 📋 **Phase 5: Code Generator** (TODO)
-   - Replace Freemarker with JavaPoet or code builders
-   - Generate same bytecode as V1
-   - Improve debug output
+5. ✅ **V1 Removal**
+   - All V1 implementation code removed
+   - V2 is the only OAL engine implementation
+   - Utilities reorganized under v2 package structure
 
 ## Testing
 
@@ -381,15 +384,14 @@ public void testFilterExpression() {
 }
 ```
 
-## Migration Path
+## Architecture
 
-V1 and V2 will coexist:
+The OAL engine follows a clean pipeline architecture:
 
-1. V1 OALRuntime remains as entrance point (for backward compatibility)
-2. V1 parser produces AnalysisResult
-3. **Bridge** converts AnalysisResult → MetricDefinition
-4. V2 pipeline processes MetricDefinition
-5. V2 generates same classes as V1
-6. Eventually, V1 can be deprecated
+1. **OALEngineV2** - Main engine orchestrator (implements OALEngine interface)
+2. **OALScriptParserV2** - Parses .oal scripts into immutable MetricDefinition objects
+3. **MetricDefinitionEnricher** - Enriches definitions with metadata via reflection
+4. **OALClassGeneratorV2** - Generates Java classes using Javassist and FreeMarker
+5. **Runtime Integration** - Generated classes integrate with SkyWalking's stream processing
 
-This allows incremental refactoring without breaking existing code.
+The engine is loaded via reflection in OALEngineLoaderService because server-core compiles before oal-rt in the Maven reactor.

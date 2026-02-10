@@ -25,12 +25,12 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oal.rt.parser.FilterMatchers;
-import org.apache.skywalking.oal.rt.parser.MetricsHolder;
-import org.apache.skywalking.oal.rt.parser.SourceColumn;
-import org.apache.skywalking.oal.rt.parser.SourceColumnsFactory;
-import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
-import org.apache.skywalking.oal.rt.util.TypeCastUtil;
+import org.apache.skywalking.oal.v2.metadata.FilterMatchers;
+import org.apache.skywalking.oal.v2.metadata.MetricsHolder;
+import org.apache.skywalking.oal.v2.metadata.SourceColumn;
+import org.apache.skywalking.oal.v2.metadata.SourceColumnsFactory;
+import org.apache.skywalking.oal.v2.util.ClassMethodUtil;
+import org.apache.skywalking.oal.v2.util.TypeCastUtil;
 import org.apache.skywalking.oal.v2.model.FilterExpression;
 import org.apache.skywalking.oal.v2.model.FilterOperator;
 import org.apache.skywalking.oal.v2.model.FilterValue;
@@ -108,7 +108,10 @@ public class MetricDefinitionEnricher {
             .tableName(metric.getTableName())
             .sourceName(metric.getSource().getName())
             .sourceScopeId(sourceScopeId)
-            .from(CodeGenModel.FromStmtV2.builder().sourceScopeId(sourceScopeId).build())
+            .from(CodeGenModel.FromStmtV2.builder()
+                .sourceName(metric.getSource().getName())
+                .sourceScopeId(sourceScopeId)
+                .build())
             .functionName(metric.getAggregationFunction().getName())
             .metricsClassName(metricsClassName)
             .filters(metric.getFilters())
@@ -185,11 +188,24 @@ public class MetricDefinitionEnricher {
                     ? ""
                     : metric.getSource().getAttributes().get(0);
                 String castType = metric.getSource().getCastType().orElse(null);
-                String expression = TypeCastUtil.withCast(castType, "source." + ClassMethodUtil.toGetMethod(sourceAttribute));
+                String expression = "source." + ClassMethodUtil.toGetMethod(sourceAttribute) + "()";
+                // Cast to match parameter type if needed
+                if (castType == null && parameterType.equals(long.class)) {
+                    expression = "(long)(" + expression + ")";
+                } else if (castType == null && parameterType.equals(double.class)) {
+                    expression = "(double)(" + expression + ")";
+                } else {
+                    expression = TypeCastUtil.withCast(castType, expression);
+                }
                 argsExpressions.add(expression);
                 argTypes.add(2); // ATTRIBUTE_EXP_TYPE
             } else if (annotation instanceof ConstOne) {
-                argsExpressions.add("1");
+                // Use appropriate literal type based on parameter type
+                if (parameterType.equals(long.class)) {
+                    argsExpressions.add("1L");
+                } else {
+                    argsExpressions.add("1");
+                }
                 argTypes.add(1); // LITERAL_TYPE
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
                 // Expression argument - convert V2 filter to expression
@@ -214,7 +230,7 @@ public class MetricDefinitionEnricher {
                         argsExpressions.add(String.valueOf(funcArg.asLiteral()));
                         argTypes.add(1); // LITERAL_TYPE
                     } else if (funcArg.isAttribute()) {
-                        argsExpressions.add("source." + ClassMethodUtil.toGetMethod(funcArg.asAttribute()));
+                        argsExpressions.add("source." + ClassMethodUtil.toGetMethod(funcArg.asAttribute()) + "()");
                         argTypes.add(2); // ATTRIBUTE_EXP_TYPE
                     }
                 }
@@ -261,7 +277,7 @@ public class MetricDefinitionEnricher {
         String getter = matcherInfo.isBooleanType()
             ? ClassMethodUtil.toIsMethod(filterExpr.getFieldName())
             : ClassMethodUtil.toGetMethod(filterExpr.getFieldName());
-        return "source." + getter;
+        return "source." + getter + "()";
     }
 
     /**

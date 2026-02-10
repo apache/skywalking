@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.parser;
+package org.apache.skywalking.oal.v2.metadata;
 
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
+import org.apache.skywalking.oal.v2.util.ClassMethodUtil;
 
 @Getter
 @Setter

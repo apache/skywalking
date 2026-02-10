@@ -1,31 +1,31 @@
 public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData remoteData) {
-<#if serializeFields.getStringFields()?? && serializeFields.getStringFields()?size gt 0>
-    <#list serializeFields.getStringFields() as field>
-        ${field} = remoteData.getDataStrings(${field_index});
+<#if serializeFields.stringFields?? && serializeFields.stringFields?size gt 0>
+    <#list serializeFields.stringFields as field>
+        ${field.setter}(remoteData.getDataStrings(${field_index}));
     </#list>
 </#if>
-<#if serializeFields.getLongFields()?? && serializeFields.getLongFields()?size gt 0>
-    <#list serializeFields.getLongFields() as field>
+<#if serializeFields.longFields?? && serializeFields.longFields?size gt 0>
+    <#list serializeFields.longFields as field>
         <#if field_index == 0>
             setTimeBucket(remoteData.getDataLongs(${field_index}));
         <#else>
-            ${field} = remoteData.getDataLongs(${field_index});
+            ${field.setter}(remoteData.getDataLongs(${field_index}));
         </#if>
     </#list>
 </#if>
-<#if serializeFields.getDoubleFields()?? && serializeFields.getDoubleFields()?size gt 0>
-    <#list serializeFields.getDoubleFields() as field>
-        ${field} = remoteData.getDataDoubles(${field_index});
+<#if serializeFields.doubleFields?? && serializeFields.doubleFields?size gt 0>
+    <#list serializeFields.doubleFields as field>
+        ${field.setter}(remoteData.getDataDoubles(${field_index}));
     </#list>
 </#if>
-<#if serializeFields.getIntFields()?? && serializeFields.getIntFields()?size gt 0>
-    <#list serializeFields.getIntFields() as field>
-        ${field} = remoteData.getDataIntegers(${field_index});
+<#if serializeFields.intFields?? && serializeFields.intFields?size gt 0>
+    <#list serializeFields.intFields as field>
+        ${field.setter}(remoteData.getDataIntegers(${field_index}));
     </#list>
 </#if>
-<#if serializeFields.getObjectFields()?? && serializeFields.getObjectFields()?size gt 0>
-    <#list serializeFields.getObjectFields() as field>
-        ${field.fieldName} = new ${field.className}(remoteData.getDataObjectStrings(${field_index}));
+<#if serializeFields.objectFields?? && serializeFields.objectFields?size gt 0>
+    <#list serializeFields.objectFields as field>
+        ${field.setter}(new ${field.fieldType}(remoteData.getDataObjectStrings(${field_index})));
     </#list>
 </#if>
 }

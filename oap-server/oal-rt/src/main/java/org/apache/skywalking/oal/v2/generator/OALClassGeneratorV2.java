@@ -49,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.skywalking.oal.rt.OALRuntime;
 import org.apache.skywalking.oap.server.core.WorkPath;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
@@ -69,7 +68,6 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * V2 OAL class generator.
  *
  * Generates metrics, builder, and dispatcher classes using V2 models and templates.
- * This is completely independent from V1's OALClassGenerator.
  */
 @Slf4j
 public class OALClassGeneratorV2 {
@@ -105,14 +103,21 @@ public class OALClassGeneratorV2 {
     private static String GENERATED_FILE_PATH;
 
     public OALClassGeneratorV2(OALDefine define) {
+        this(define, ClassPool.getDefault());
+    }
+
+    /**
+     * Constructor with custom ClassPool for test isolation.
+     */
+    public OALClassGeneratorV2(OALDefine define, ClassPool classPool) {
         openEngineDebug = StringUtil.isNotEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"));
-        classPool = ClassPool.getDefault();
+        this.classPool = classPool;
         oalDefine = define;
 
         configuration = new Configuration(new Version("2.3.28"));
         configuration.setEncoding(Locale.ENGLISH, CLASS_FILE_CHARSET);
-        // Use same templates as V1 to ensure identical output
-        configuration.setClassLoaderForTemplateLoading(OALRuntime.class.getClassLoader(), "/code-templates");
+        // Use V2-specific FreeMarker templates
+        configuration.setClassLoaderForTemplateLoading(OALClassGeneratorV2.class.getClassLoader(), "/code-templates-v2");
     }
 
     /**

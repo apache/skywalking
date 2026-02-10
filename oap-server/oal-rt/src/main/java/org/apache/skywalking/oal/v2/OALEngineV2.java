@@ -24,19 +24,23 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oal.rt.OALKernel;
 import org.apache.skywalking.oal.v2.generator.CodeGenModel;
 import org.apache.skywalking.oal.v2.generator.MetricDefinitionEnricher;
 import org.apache.skywalking.oal.v2.generator.OALClassGeneratorV2;
 import org.apache.skywalking.oal.v2.model.MetricDefinition;
 import org.apache.skywalking.oal.v2.parser.OALScriptParserV2;
+import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
+import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 /**
- * V2 OAL Engine - completely independent from V1.
+ * V2 OAL Engine - completely independent implementation.
  *
  * This engine:
  * 1. Parses OAL scripts using V2 parser (immutable models)
@@ -47,23 +51,44 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
  * - Clean immutable data models
  * - Type-safe filter values and function arguments
  * - Better error messages with source location tracking
- * - Completely independent from V1 (no shared code)
+ * - Completely independent (no V1 code dependencies)
  */
 @Slf4j
-public class OALEngineV2 extends OALKernel {
+public class OALEngineV2 implements OALEngine {
 
     private final OALClassGeneratorV2 classGeneratorV2;
     private final OALDefine oalDefine;
 
+    private StreamAnnotationListener streamAnnotationListener;
+    private DispatcherDetectorListener dispatcherDetectorListener;
+    private final List<Class> metricsClasses;
+    private final List<Class> dispatcherClasses;
+
     public OALEngineV2(OALDefine define) {
-        super(define);
         this.oalDefine = define;
         this.classGeneratorV2 = new OALClassGeneratorV2(define);
+        this.metricsClasses = new ArrayList<>();
+        this.dispatcherClasses = new ArrayList<>();
+    }
+
+    @Override
+    public void setStreamListener(StreamAnnotationListener listener) {
+        this.streamAnnotationListener = listener;
+    }
+
+    @Override
+    public void setDispatcherListener(DispatcherDetectorListener listener) {
+        this.dispatcherDetectorListener = listener;
+    }
+
+    @Override
+    public void setStorageBuilderFactory(StorageBuilderFactory factory) {
+        classGeneratorV2.setStorageBuilderFactory(factory);
     }
 
     @Override
     public void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException {
-        log.info("Starting OAL Engine V2 (independent from V1)...");
+        log.info("Starting OAL Engine V2...");
 
         // Prepare temp folder for generated classes
         classGeneratorV2.prepareRTTempFolder();
@@ -94,14 +119,32 @@ public class OALEngineV2 extends OALKernel {
         classGeneratorV2.generateClassAtRuntime(
             codeGenModels,
             v2Parser.getDisabledSources(),
-            getMetricsClasses(),
-            getDispatcherClasses()
+            metricsClasses,
+            dispatcherClasses
         );
 
         log.info("OAL Engine V2 started successfully. Generated {} metrics classes, {} dispatcher classes",
-            getMetricsClasses().size(),
-            getDispatcherClasses().size()
+            metricsClasses.size(),
+            dispatcherClasses.size()
         );
+    }
+
+    @Override
+    public void notifyAllListeners() throws ModuleStartException {
+        for (Class metricsClass : metricsClasses) {
+            try {
+                streamAnnotationListener.notify(metricsClass);
+            } catch (StorageException e) {
+                throw new ModuleStartException(e.getMessage(), e);
+            }
+        }
+        for (Class dispatcherClass : dispatcherClasses) {
+            try {
+                dispatcherDetectorListener.addIfAsSourceDispatcher(dispatcherClass);
+            } catch (Exception e) {
+                throw new ModuleStartException(e.getMessage(), e);
+            }
+        }
     }
 
     /**

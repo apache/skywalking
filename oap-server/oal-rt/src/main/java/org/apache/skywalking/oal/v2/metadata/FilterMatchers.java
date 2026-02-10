@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oal.rt.parser;
+package org.apache.skywalking.oal.v2.metadata;
 
 import com.google.common.reflect.ClassPath;
 import java.io.IOException;
