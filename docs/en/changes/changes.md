@@ -37,6 +37,8 @@
 * Enhance the alert page to show the recovery time of resolved alerts.
 * Implement a common pagination component.
 * Fix validation guard for router.
+* Add the `coldStage` to the `Duration` for queries.
+* Optimize the pages theme.
 
 #### Documentation
 
