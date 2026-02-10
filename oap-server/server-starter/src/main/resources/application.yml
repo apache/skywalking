@@ -328,6 +328,7 @@ envoy-metric:
   selector: ${SW_ENVOY_METRIC:default}
   default:
     acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
+    enabledEnvoyMetricsRules: ${SW_ENVOY_METRIC_ENABLED_RULES:"envoy,envoy-svc-relation"}
     alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
     alsTCPAnalysis: ${SW_ENVOY_METRIC_ALS_TCP_ANALYSIS:""}
     # `k8sServiceNameRule` allows you to customize the service name in ALS via Kubernetes metadata,

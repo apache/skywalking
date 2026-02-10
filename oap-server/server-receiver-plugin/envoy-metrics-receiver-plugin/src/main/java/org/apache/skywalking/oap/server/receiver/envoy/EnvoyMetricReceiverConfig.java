@@ -64,6 +64,8 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     private String gRPCSslCertChainPath;
     @Getter
     private String gRPCSslTrustedCAsPath;
+    @Getter
+    private String enabledEnvoyMetricsRules;
 
     private final ServiceMetaInfoFactory serviceMetaInfoFactory = new ServiceMetaInfoFactoryImpl();
     @Getter
@@ -87,7 +89,12 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
 
     public List<Rule> rules() throws ModuleStartException {
         try {
-            return Rules.loadRules("envoy-metrics-rules", Arrays.asList("envoy", "envoy-svc-relation"));
+            final List<String> enabledRules =
+                Splitter.on(",")
+                        .omitEmptyStrings()
+                        .trimResults()
+                        .splitToList(enabledEnvoyMetricsRules);
+            return Rules.loadRules("envoy-metrics-rules", enabledRules);
         } catch (IOException e) {
             throw new ModuleStartException("Failed to load envoy-metrics-rules", e);
         }
