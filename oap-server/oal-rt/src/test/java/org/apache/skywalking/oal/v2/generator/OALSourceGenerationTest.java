@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>Output directory structure follows Java package conventions for IDE navigation:
  * <pre>
- * target/generated-test-sources/oal/
+ * target/generated-test-sources/
  * └── org/apache/skywalking/oap/server/core/source/oal/rt/
  *     ├── metrics/          - Generated metrics classes (*.java)
  *     │   └── builder/      - Generated builder classes (*.java)
@@ -81,7 +81,7 @@ public class OALSourceGenerationTest {
         "oal/cilium.oal"
     };
 
-    private static final String OUTPUT_PATH = "target/generated-test-sources/oal";
+    private static final String OUTPUT_PATH = "target/generated-test-sources";
 
     @BeforeAll
     public static void setup() throws IOException {
