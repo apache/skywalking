@@ -174,7 +174,7 @@ endpoint_p99 = from(Endpoint.latency).filter(name in ("Endpoint1", "Endpoint2"))
 serv_Endpoint_p99 = from(Endpoint.latency).filter(name like "serv%").percentile2(10)
 
 // Calculate the avg response time of each Endpoint
-endpoint_resp_time = from(Endpoint.latency).avg()
+endpoint_resp_time = from(Endpoint.latency).longAvg()
 
 // Calculate the p50, p75, p90, p95 and p99 of each Endpoint by 50 ms steps.
 endpoint_percentile = from(Endpoint.latency).percentile2(10)
