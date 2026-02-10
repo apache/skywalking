@@ -184,18 +184,21 @@ public class MetricDefinitionEnricher {
 
             if (annotation instanceof SourceFrom) {
                 // Source attribute from OAL script
-                String sourceAttribute = metric.getSource().getAttributes().isEmpty()
-                    ? ""
-                    : metric.getSource().getAttributes().get(0);
+                // Handle nested attributes and map expressions
+                List<String> attributes = metric.getSource().getAttributes();
+                String expression = attributes.isEmpty()
+                    ? "source"
+                    : "source." + ClassMethodUtil.toGetMethod(attributes);
                 String castType = metric.getSource().getCastType().orElse(null);
-                String expression = "source." + ClassMethodUtil.toGetMethod(sourceAttribute) + "()";
                 // Cast to match parameter type if needed
-                if (castType == null && parameterType.equals(long.class)) {
-                    expression = "(long)(" + expression + ")";
-                } else if (castType == null && parameterType.equals(double.class)) {
-                    expression = "(double)(" + expression + ")";
-                } else {
+                if (castType != null) {
                     expression = TypeCastUtil.withCast(castType, expression);
+                } else if (parameterType.equals(int.class)) {
+                    expression = "(int)(" + expression + ")";
+                } else if (parameterType.equals(long.class)) {
+                    expression = "(long)(" + expression + ")";
+                } else if (parameterType.equals(double.class)) {
+                    expression = "(double)(" + expression + ")";
                 }
                 argsExpressions.add(expression);
                 argTypes.add(2); // ATTRIBUTE_EXP_TYPE
