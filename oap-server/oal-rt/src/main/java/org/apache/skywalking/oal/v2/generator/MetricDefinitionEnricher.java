@@ -98,7 +98,10 @@ public class MetricDefinitionEnricher {
         // 6. Generate serialization fields
         CodeGenModel.SerializeFieldsV2 serializeFields = generateSerializeFields(fieldsFromSource, persistentFields);
 
-        // 7. Build CodeGenModel
+        // 7. Convert filter expressions to template format
+        List<CodeGenModel.FilterExpressionV2> filterExpressions = convertFilters(metric.getFilters());
+
+        // 8. Build CodeGenModel
         return CodeGenModel.builder()
             .metricDefinition(metric)
             .varName(metric.getName())
@@ -115,6 +118,7 @@ public class MetricDefinitionEnricher {
             .functionName(metric.getAggregationFunction().getName())
             .metricsClassName(metricsClassName)
             .filters(metric.getFilters())
+            .filterExpressions(filterExpressions)
             .fieldsFromSource(fieldsFromSource)
             .persistentFields(persistentFields)
             .serializeFields(serializeFields)
@@ -423,6 +427,24 @@ public class MetricDefinitionEnricher {
         }
 
         return serializeFields;
+    }
+
+    /**
+     * Convert filter expressions to template-ready format.
+     */
+    private List<CodeGenModel.FilterExpressionV2> convertFilters(List<FilterExpression> filters) {
+        List<CodeGenModel.FilterExpressionV2> result = new ArrayList<>();
+        for (FilterExpression filter : filters) {
+            String matcherClass = getMatcherClassName(filter);
+            String left = buildFilterLeft(filter);
+            String right = buildFilterRight(filter);
+            result.add(CodeGenModel.FilterExpressionV2.builder()
+                .expressionObject(matcherClass)
+                .left(left)
+                .right(right)
+                .build());
+        }
+        return result;
     }
 
     /**

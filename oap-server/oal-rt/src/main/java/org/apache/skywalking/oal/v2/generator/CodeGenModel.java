@@ -103,10 +103,17 @@ public class CodeGenModel {
     private String metricsClassName;
 
     /**
-     * Filter expressions from OAL script.
+     * Filter expressions from OAL script (raw V2 model).
      */
     @Builder.Default
     private List<FilterExpression> filters = new ArrayList<>();
+
+    /**
+     * Filter expressions converted for template use.
+     * Each contains expressionObject, left, right for filter checks.
+     */
+    @Builder.Default
+    private List<FilterExpressionV2> filterExpressions = new ArrayList<>();
 
     /**
      * Fields extracted from source (for ID, persistence).

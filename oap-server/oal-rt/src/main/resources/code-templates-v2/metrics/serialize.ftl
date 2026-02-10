@@ -25,6 +25,5 @@ org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData.Builder remot
         remoteBuilder.addDataObjectStrings(${field.getter}().toStorageData());
     </#list>
 </#if>
-remoteBuilder.setDataLongs(0, getTimeBucket());
 return remoteBuilder;
 }

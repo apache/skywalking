@@ -1,16 +1,14 @@
 public void deserialize(org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData remoteData) {
 <#if serializeFields.stringFields?? && serializeFields.stringFields?size gt 0>
     <#list serializeFields.stringFields as field>
-        ${field.setter}(remoteData.getDataStrings(${field_index}));
+        if (remoteData.getDataStrings(${field_index}) != "") {
+            ${field.setter}(remoteData.getDataStrings(${field_index}));
+        }
     </#list>
 </#if>
 <#if serializeFields.longFields?? && serializeFields.longFields?size gt 0>
     <#list serializeFields.longFields as field>
-        <#if field_index == 0>
-            setTimeBucket(remoteData.getDataLongs(${field_index}));
-        <#else>
-            ${field.setter}(remoteData.getDataLongs(${field_index}));
-        </#if>
+        ${field.setter}(remoteData.getDataLongs(${field_index}));
     </#list>
 </#if>
 <#if serializeFields.doubleFields?? && serializeFields.doubleFields?size gt 0>

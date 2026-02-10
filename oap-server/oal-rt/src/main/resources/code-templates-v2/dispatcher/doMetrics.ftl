@@ -1,5 +1,13 @@
 private void do${metricsName}(${sourcePackage}${sourceName} source) {
 
+<#if filterExpressions?? && filterExpressions?size gt 0>
+    <#list filterExpressions as filterExpression>
+        if (!new ${filterExpression.expressionObject}().match(${filterExpression.left}, ${filterExpression.right})) {
+        return;
+        }
+    </#list>
+</#if>
+
 ${metricsClassPackage}${metricsName}Metrics metrics = new ${metricsClassPackage}${metricsName}Metrics();
 <#if sourceDecorator??>
     source.decorate("${sourceDecorator}");
