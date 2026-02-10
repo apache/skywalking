@@ -31,6 +31,7 @@
 * MQE: trim the label values condition for the labeled metrics query to enhance the readability.
 * PromQL service: fix time parse issue when using RFC3339 time format for querying.
 * Envoy metrics service receiver: support adapter listener metrics.
+* Envoy metrics service receiver: support config MAL rules files.
 
 #### UI
 * Fix the missing icon in new native trace view.
