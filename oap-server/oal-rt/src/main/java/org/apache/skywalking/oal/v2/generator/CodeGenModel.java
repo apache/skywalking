@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
-import org.apache.skywalking.oal.v2.model.FilterExpression;
 import org.apache.skywalking.oal.v2.model.MetricDefinition;
 
 /**
@@ -103,10 +102,10 @@ public class CodeGenModel {
     private String metricsClassName;
 
     /**
-     * Filter expressions from OAL script (raw V2 model).
+     * V1-compatible wrapper for filter expressions.
+     * Templates use ${filters.filterExpressions}.
      */
-    @Builder.Default
-    private List<FilterExpression> filters = new ArrayList<>();
+    private FiltersV2 filters;
 
     /**
      * Filter expressions converted for template use.
@@ -134,6 +133,7 @@ public class CodeGenModel {
 
     /**
      * Entrance method information.
+     * Also exposed as 'entryMethod' for V1 template compatibility.
      */
     private EntranceMethodV2 entranceMethod;
 
@@ -141,6 +141,13 @@ public class CodeGenModel {
      * Optional source decorator.
      */
     private String sourceDecorator;
+
+    /**
+     * V1-compatible getter for entryMethod (alias for entranceMethod).
+     */
+    public EntranceMethodV2 getEntryMethod() {
+        return entranceMethod;
+    }
 
     /**
      * Source field for code generation templates.
@@ -200,7 +207,7 @@ public class CodeGenModel {
     public static class EntranceMethodV2 {
         private String methodName;
         @Builder.Default
-        private List<String> argsExpressions = new ArrayList<>();
+        private List<Object> argsExpressions = new ArrayList<>();
         @Builder.Default
         private List<Integer> argTypes = new ArrayList<>();
     }
@@ -283,5 +290,16 @@ public class CodeGenModel {
     public static class FromStmtV2 {
         private String sourceName;
         private int sourceScopeId;
+    }
+
+    /**
+     * V1-compatible "filters" wrapper for templates.
+     * Templates access ${filters.filterExpressions}.
+     */
+    @Getter
+    @Builder
+    public static class FiltersV2 {
+        @Builder.Default
+        private List<FilterExpressionV2> filterExpressions = new ArrayList<>();
     }
 }

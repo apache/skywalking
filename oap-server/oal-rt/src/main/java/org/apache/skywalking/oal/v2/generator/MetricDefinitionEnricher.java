@@ -117,7 +117,9 @@ public class MetricDefinitionEnricher {
                 .build())
             .functionName(metric.getAggregationFunction().getName())
             .metricsClassName(metricsClassName)
-            .filters(metric.getFilters())
+            .filters(CodeGenModel.FiltersV2.builder()
+                .filterExpressions(filterExpressions)
+                .build())
             .filterExpressions(filterExpressions)
             .fieldsFromSource(fieldsFromSource)
             .persistentFields(persistentFields)
@@ -171,7 +173,7 @@ public class MetricDefinitionEnricher {
         CodeGenModel.EntranceMethodV2.EntranceMethodV2Builder builder = CodeGenModel.EntranceMethodV2.builder()
             .methodName(entranceMethod.getName());
 
-        List<String> argsExpressions = new ArrayList<>();
+        List<Object> argsExpressions = new ArrayList<>();
         List<Integer> argTypes = new ArrayList<>();
         int funcArgIndex = 0;
 
@@ -207,15 +209,22 @@ public class MetricDefinitionEnricher {
                 argsExpressions.add(expression);
                 argTypes.add(2); // ATTRIBUTE_EXP_TYPE
             } else if (annotation instanceof ConstOne) {
-                // Use appropriate literal type based on parameter type
+                // Match V1 behavior: always wrap in type cast for consistency
                 if (parameterType.equals(long.class)) {
-                    argsExpressions.add("1L");
+                    argsExpressions.add("(long)(1)");
+                } else if (parameterType.equals(int.class)) {
+                    argsExpressions.add("(int)(1)");
+                } else if (parameterType.equals(double.class)) {
+                    argsExpressions.add("(double)(1)");
+                } else if (parameterType.equals(float.class)) {
+                    argsExpressions.add("(float)(1)");
                 } else {
                     argsExpressions.add("1");
                 }
                 argTypes.add(1); // LITERAL_TYPE
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
-                // Expression argument - convert V2 filter to expression
+                // Expression argument - convert V2 filter to expression object
+                // Template expects arg.expressionObject, arg.left, arg.right when argType >= 3
                 if (funcArgIndex < metric.getAggregationFunction().getArguments().size()) {
                     FunctionArgument funcArg = metric.getAggregationFunction().getArguments().get(funcArgIndex++);
                     if (funcArg.isExpression()) {
@@ -223,7 +232,12 @@ public class MetricDefinitionEnricher {
                         String matcherClass = getMatcherClassName(filterExpr);
                         String left = buildFilterLeft(filterExpr);
                         String right = buildFilterRight(filterExpr);
-                        argsExpressions.add("new " + matcherClass + "().match(" + left + ", " + right + ")");
+                        // Add as FilterExpressionV2 object for template access
+                        argsExpressions.add(CodeGenModel.FilterExpressionV2.builder()
+                            .expressionObject(matcherClass)
+                            .left(left)
+                            .right(right)
+                            .build());
                         argTypes.add(3); // EXPRESSION_TYPE
                     } else {
                         throw new IllegalArgumentException("Expected expression argument but got: " + funcArg);

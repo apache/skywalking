@@ -69,10 +69,14 @@ public class OALClassGeneratorV2Test {
 
     @BeforeAll
     public static void initializeScopes() {
-        DefaultScopeDefine.Listener listener = new DefaultScopeDefine.Listener();
-        listener.notify(Service.class);
-        listener.notify(Endpoint.class);
-        listener.notify(ServiceRelation.class);
+        try {
+            DefaultScopeDefine.Listener listener = new DefaultScopeDefine.Listener();
+            listener.notify(Service.class);
+            listener.notify(Endpoint.class);
+            listener.notify(ServiceRelation.class);
+        } catch (RuntimeException e) {
+            // Scopes may already be registered by other tests
+        }
     }
 
     /**
