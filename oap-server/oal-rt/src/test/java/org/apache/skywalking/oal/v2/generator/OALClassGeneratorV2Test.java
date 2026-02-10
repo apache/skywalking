@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.Service;
+import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.junit.jupiter.api.BeforeAll;
@@ -71,6 +72,7 @@ public class OALClassGeneratorV2Test {
         DefaultScopeDefine.Listener listener = new DefaultScopeDefine.Listener();
         listener.notify(Service.class);
         listener.notify(Endpoint.class);
+        listener.notify(ServiceRelation.class);
     }
 
     /**
@@ -268,6 +270,122 @@ public class OALClassGeneratorV2Test {
 
         assertNotNull(findMethodByName(dispatcherClass, "doEndpointRespTime"));
         assertNotNull(findMethodByName(dispatcherClass, "doEndpointCalls"));
+    }
+
+    /**
+     * Test that filter expressions are correctly processed by the enricher.
+     * This is a unit test for filter processing - doesn't generate bytecode.
+     */
+    @Test
+    public void testFilterExpressionProcessing() throws Exception {
+        // OAL with filter expression
+        String oal = "test_sla = from(Endpoint.*).filter(status == true).percent(status == true);";
+
+        MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
+
+        // Parse and enrich
+        OALScriptParserV2 parser = OALScriptParserV2.parse(oal);
+        MetricDefinition metric = parser.getMetrics().get(0);
+        CodeGenModel model = enricher.enrich(metric);
+
+        // Verify filter expressions are converted to template-ready format
+        assertFalse(model.getFilterExpressions().isEmpty(),
+            "Filter expressions should be populated");
+        assertEquals(1, model.getFilterExpressions().size());
+
+        CodeGenModel.FilterExpressionV2 filterExpr = model.getFilterExpressions().get(0);
+        assertNotNull(filterExpr.getExpressionObject(), "Expression object should not be null");
+        assertTrue(filterExpr.getExpressionObject().contains("Match"),
+            "Expression object should be a matcher class (e.g., EqualMatch, NotEqualMatch)");
+        assertNotNull(filterExpr.getLeft(), "Left side should not be null");
+        assertTrue(filterExpr.getLeft().contains("source."),
+            "Left side should reference source");
+        assertNotNull(filterExpr.getRight(), "Right side should not be null");
+    }
+
+    /**
+     * Test full code generation for metrics with filter expressions.
+     * Uses ServiceRelation source to avoid frozen class conflicts with other tests.
+     *
+     * This test validates:
+     * - Filter expressions are correctly passed to templates
+     * - Generated dispatcher contains filter logic
+     * - Multiple filters in chain are handled correctly
+     */
+    @Test
+    public void testMetricsWithFilterGeneration() throws Exception {
+        // OAL with various filter types from core.oal
+        String oal = "service_relation_client_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).cpm();\n" +
+            "service_relation_server_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();\n" +
+            "service_relation_client_call_sla = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(status == true).percent(status == true);\n" +
+            "service_relation_client_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).longAvg();";
+
+        OALClassGeneratorV2 generator = createGenerator();
+        MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
+
+        List<Class> metricsClasses = new ArrayList<>();
+        List<Class> dispatcherClasses = new ArrayList<>();
+
+        generateClasses(oal, generator, enricher, metricsClasses, dispatcherClasses);
+
+        // Verify 4 metrics classes generated
+        assertEquals(4, metricsClasses.size());
+
+        // Verify 1 dispatcher class for ServiceRelation source
+        assertEquals(1, dispatcherClasses.size());
+
+        Class<?> dispatcherClass = dispatcherClasses.get(0);
+        assertEquals("ServiceRelationDispatcher", dispatcherClass.getSimpleName());
+        assertTrue(SourceDispatcher.class.isAssignableFrom(dispatcherClass));
+
+        // Verify all doMetrics methods exist
+        Method doClientCpm = findMethodByName(dispatcherClass, "doServiceRelationClientCpm");
+        Method doServerCpm = findMethodByName(dispatcherClass, "doServiceRelationServerCpm");
+        Method doClientCallSla = findMethodByName(dispatcherClass, "doServiceRelationClientCallSla");
+        Method doClientRespTime = findMethodByName(dispatcherClass, "doServiceRelationClientRespTime");
+
+        assertNotNull(doClientCpm, "doServiceRelationClientCpm should be generated");
+        assertNotNull(doServerCpm, "doServiceRelationServerCpm should be generated");
+        assertNotNull(doClientCallSla, "doServiceRelationClientCallSla should be generated");
+        assertNotNull(doClientRespTime, "doServiceRelationClientRespTime should be generated");
+
+        // Verify filter expressions were correctly enriched
+        OALScriptParserV2 parser = OALScriptParserV2.parse(oal);
+
+        // Check single filter metric
+        MetricDefinition clientCpmMetric = parser.getMetrics().get(0);
+        CodeGenModel clientCpmModel = enricher.enrich(clientCpmMetric);
+        assertEquals(1, clientCpmModel.getFilterExpressions().size());
+        assertTrue(clientCpmModel.getFilterExpressions().get(0).getExpressionObject().contains("Match"));
+        assertTrue(clientCpmModel.getFilterExpressions().get(0).getLeft().contains("getDetectPoint"));
+        assertTrue(clientCpmModel.getFilterExpressions().get(0).getRight().contains("DetectPoint.CLIENT"));
+
+        // Check multi-filter metric (filter chain)
+        MetricDefinition clientCallSlaMetric = parser.getMetrics().get(2);
+        CodeGenModel clientCallSlaModel = enricher.enrich(clientCallSlaMetric);
+        assertEquals(2, clientCallSlaModel.getFilterExpressions().size(),
+            "Multi-filter metric should have 2 filter expressions");
+
+        // First filter: detectPoint == DetectPoint.CLIENT
+        CodeGenModel.FilterExpressionV2 filter1 = clientCallSlaModel.getFilterExpressions().get(0);
+        assertTrue(filter1.getLeft().contains("getDetectPoint"));
+
+        // Second filter: status == true (boolean)
+        CodeGenModel.FilterExpressionV2 filter2 = clientCallSlaModel.getFilterExpressions().get(1);
+        assertTrue(filter2.getLeft().contains("isStatus") || filter2.getLeft().contains("getStatus"));
+        assertEquals("true", filter2.getRight());
+
+        // Verify metrics classes are properly generated
+        Class<?> clientCpmClass = findClassBySimpleName(metricsClasses, "ServiceRelationClientCpmMetrics");
+        Class<?> slaClass = findClassBySimpleName(metricsClasses, "ServiceRelationClientCallSlaMetrics");
+
+        assertNotNull(clientCpmClass);
+        assertNotNull(slaClass);
+
+        // Test instantiation
+        Object clientCpmInstance = clientCpmClass.getDeclaredConstructor().newInstance();
+        assertNotNull(clientCpmInstance);
+        assertTrue(clientCpmInstance instanceof Metrics);
     }
 
     /**
