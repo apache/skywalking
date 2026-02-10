@@ -47,17 +47,34 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 
 /**
- * Enriches V2 MetricDefinition with metadata needed for code generation.
+ * Enriches MetricDefinition with metadata needed for code generation.
  *
- * This is V2's equivalent of V1's DeepAnalysis. It:
- * 1. Looks up metrics function class
- * 2. Extracts source columns/fields
- * 3. Finds entrance method
- * 4. Builds entrance method arguments
- * 5. Collects persistent fields from @Column annotations
- * 6. Generates serialization fields
+ * <p>This enricher transforms a parsed {@link MetricDefinition} into a complete
+ * {@link CodeGenModel} by:
+ * <ol>
+ *   <li>Looking up the metrics function class (e.g., LongAvgMetrics)</li>
+ *   <li>Extracting source columns/fields from the source class</li>
+ *   <li>Finding the entrance method annotated with {@code @Entrance}</li>
+ *   <li>Building entrance method arguments with type casts and expressions</li>
+ *   <li>Collecting persistent fields from {@code @Column} annotations</li>
+ *   <li>Generating serialization field lists grouped by type</li>
+ * </ol>
  *
- * Unlike V1, this works entirely with V2 models and has no V1 dependencies.
+ * <p>Example input (MetricDefinition from OAL):
+ * <pre>
+ * service_resp_time = from(Service.latency).longAvg();
+ * </pre>
+ *
+ * <p>Example output (CodeGenModel):
+ * <ul>
+ *   <li>metricsClassName = "LongAvgMetrics"</li>
+ *   <li>entranceMethod.methodName = "combine"</li>
+ *   <li>fieldsFromSource = [entityId, name, ...]</li>
+ *   <li>persistentFields = [summation, count, value]</li>
+ * </ul>
+ *
+ * @see CodeGenModel
+ * @see OALClassGeneratorV2
  */
 @Slf4j
 public class MetricDefinitionEnricher {
@@ -73,8 +90,8 @@ public class MetricDefinitionEnricher {
     /**
      * Enrich a MetricDefinition with metadata for code generation.
      *
-     * @param metric V2 metric definition
-     * @return enriched code generation model
+     * @param metric parsed metric definition from OAL script
+     * @return enriched code generation model ready for template processing
      */
     public CodeGenModel enrich(MetricDefinition metric) {
         // 1. Look up metrics function class
@@ -130,7 +147,10 @@ public class MetricDefinitionEnricher {
     }
 
     /**
-     * Convert V1 SourceColumn to V2 SourceFieldV2.
+     * Convert SourceColumn metadata to SourceFieldV2 for code generation.
+     *
+     * @param sourceColumns source columns extracted from the source class
+     * @return list of source fields ready for template processing
      */
     private List<CodeGenModel.SourceFieldV2> convertSourceColumns(List<SourceColumn> sourceColumns) {
         List<CodeGenModel.SourceFieldV2> fields = new ArrayList<>();
@@ -284,7 +304,7 @@ public class MetricDefinitionEnricher {
      * Get matcher class name from filter expression.
      */
     private String getMatcherClassName(FilterExpression filterExpr) {
-        String expressionType = mapV2OperatorToV1ExpressionType(filterExpr);
+        String expressionType = mapOperatorToExpressionType(filterExpr);
         FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expressionType);
         return matcherInfo.getMatcher().getName();
     }
@@ -294,7 +314,7 @@ public class MetricDefinitionEnricher {
      */
     private String buildFilterLeft(FilterExpression filterExpr) {
         FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
-            mapV2OperatorToV1ExpressionType(filterExpr));
+            mapOperatorToExpressionType(filterExpr));
         String getter = matcherInfo.isBooleanType()
             ? ClassMethodUtil.toIsMethod(filterExpr.getFieldName())
             : ClassMethodUtil.toGetMethod(filterExpr.getFieldName());
@@ -332,9 +352,15 @@ public class MetricDefinitionEnricher {
     }
 
     /**
-     * Map V2 operator + value type to V1 expression type string.
+     * Map filter operator and value type to matcher expression type.
+     *
+     * <p>The expression type string is used to look up the appropriate matcher class
+     * from {@link FilterMatchers}.
+     *
+     * @param filterExpr filter expression containing operator and value
+     * @return matcher type string (e.g., "stringMatch", "greaterMatch")
      */
-    private String mapV2OperatorToV1ExpressionType(FilterExpression filterExpr) {
+    private String mapOperatorToExpressionType(FilterExpression filterExpr) {
         FilterOperator op = filterExpr.getOperator();
         FilterValue value = filterExpr.getValue();
 

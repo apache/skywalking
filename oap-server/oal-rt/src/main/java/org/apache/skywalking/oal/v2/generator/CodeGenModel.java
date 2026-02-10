@@ -25,20 +25,39 @@ import lombok.Getter;
 import org.apache.skywalking.oal.v2.model.MetricDefinition;
 
 /**
- * V2 code generation model.
+ * Code generation model for OAL metrics.
  *
- * This model contains all information needed by Freemarker templates to generate
- * metrics classes, builders, and dispatchers.
+ * <p>This model contains all information needed by FreeMarker templates to generate
+ * metrics classes, builders, and dispatchers at runtime.
  *
- * Unlike V1's AnalysisResult, this model is built directly from V2's MetricDefinition
- * without any V1 dependency.
+ * <p>Built from {@link MetricDefinition} via {@link MetricDefinitionEnricher}, this model
+ * provides template-ready data structures with precomputed method names, type information,
+ * and serialization metadata.
+ *
+ * <p>Example OAL input:
+ * <pre>
+ * service_resp_time = from(Service.latency).longAvg();
+ * </pre>
+ *
+ * <p>Produces a CodeGenModel with:
+ * <ul>
+ *   <li>varName = "service_resp_time"</li>
+ *   <li>metricsName = "ServiceRespTime"</li>
+ *   <li>tableName = "service_resp_time"</li>
+ *   <li>sourceName = "Service"</li>
+ *   <li>functionName = "longAvg"</li>
+ *   <li>metricsClassName = "LongAvgMetrics"</li>
+ * </ul>
+ *
+ * @see MetricDefinitionEnricher
+ * @see OALClassGeneratorV2
  */
 @Getter
 @Builder
 public class CodeGenModel {
 
     /**
-     * Original V2 metric definition.
+     * Original parsed metric definition from OAL script.
      */
     private MetricDefinition metricDefinition;
 
@@ -84,8 +103,8 @@ public class CodeGenModel {
     private int sourceScopeId;
 
     /**
-     * V1-compatible "from" structure for templates.
-     * Templates reference ${from.sourceScopeId}.
+     * Source statement for templates.
+     * Templates reference {@code ${from.sourceScopeId}}.
      */
     private FromStmtV2 from;
 
@@ -102,8 +121,8 @@ public class CodeGenModel {
     private String metricsClassName;
 
     /**
-     * V1-compatible wrapper for filter expressions.
-     * Templates use ${filters.filterExpressions}.
+     * Filter expressions wrapper for templates.
+     * Templates access via {@code ${filters.filterExpressions}}.
      */
     private FiltersV2 filters;
 
@@ -132,8 +151,8 @@ public class CodeGenModel {
     private SerializeFieldsV2 serializeFields;
 
     /**
-     * Entrance method information.
-     * Also exposed as 'entryMethod' for V1 template compatibility.
+     * Entrance method information for dispatcher code generation.
+     * Contains method name, argument expressions, and argument types.
      */
     private EntranceMethodV2 entranceMethod;
 
@@ -143,14 +162,23 @@ public class CodeGenModel {
     private String sourceDecorator;
 
     /**
-     * V1-compatible getter for entryMethod (alias for entranceMethod).
+     * Alias getter for entranceMethod.
+     * Templates may reference {@code ${entryMethod.methodName}}.
+     *
+     * @return the entrance method information
      */
     public EntranceMethodV2 getEntryMethod() {
         return entranceMethod;
     }
 
     /**
-     * Source field for code generation templates.
+     * Source field extracted from a source class (e.g., Service, Endpoint).
+     *
+     * <p>These fields become columns in the generated metrics class and are used
+     * for entity identification (ID fields) and storage partitioning (sharding keys).
+     *
+     * <p>Example: For source "Service", fields include "entityId" (ID field)
+     * and "name" (regular field).
      */
     @Getter
     @Builder
@@ -165,18 +193,34 @@ public class CodeGenModel {
         private int length;
         private boolean attribute;
 
+        /**
+         * Returns getter method name for this field.
+         * Example: fieldName="entityId" returns "getEntityId"
+         *
+         * @return getter method name
+         */
         public String getFieldGetter() {
             return "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
         }
 
+        /**
+         * Returns setter method name for this field.
+         * Example: fieldName="entityId" returns "setEntityId"
+         *
+         * @return setter method name
+         */
         public String getFieldSetter() {
             return "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
         }
     }
 
     /**
-     * Data field (persistent column from metrics function).
-     * Compatible with V1's DataColumn structure.
+     * Data field representing a persistent column from the metrics function class.
+     *
+     * <p>These fields come from {@code @Column} annotations on the parent metrics class
+     * (e.g., LongAvgMetrics has "summation", "count", "value" fields).
+     *
+     * <p>Used for serialization/deserialization and storage operations.
      */
     @Getter
     @Builder
@@ -184,23 +228,50 @@ public class CodeGenModel {
         private String fieldName;
         private String columnName;
         private Class<?> type;
-        private String typeName;  // V1 compatibility: string representation of type
+        private String typeName;
 
+        /**
+         * Returns getter method name for this field.
+         * Example: fieldName="summation" returns "getSummation"
+         *
+         * @return getter method name
+         */
         public String getFieldGetter() {
             return "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
         }
 
+        /**
+         * Returns setter method name for this field.
+         * Example: fieldName="summation" returns "setSummation"
+         *
+         * @return setter method name
+         */
         public String getFieldSetter() {
             return "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
         }
 
+        /**
+         * Returns fully qualified type name for this field.
+         *
+         * @return type name (e.g., "long", "java.lang.String")
+         */
         public String getFieldType() {
             return typeName != null ? typeName : (type != null ? type.getName() : "");
         }
     }
 
     /**
-     * Entrance method information for dispatcher.
+     * Entrance method information for dispatcher code generation.
+     *
+     * <p>The entrance method is the method annotated with {@code @Entrance} on the
+     * metrics function class. The dispatcher calls this method to process source data.
+     *
+     * <p>Argument types:
+     * <ul>
+     *   <li>1 = LITERAL_TYPE - literal value (e.g., "1", "100")</li>
+     *   <li>2 = ATTRIBUTE_EXP_TYPE - source attribute expression (e.g., "source.getLatency()")</li>
+     *   <li>3 = EXPRESSION_TYPE - filter expression object with matcher</li>
+     * </ul>
      */
     @Getter
     @Builder
@@ -213,8 +284,11 @@ public class CodeGenModel {
     }
 
     /**
-     * Serialization fields model for templates.
-     * Compatible with V1's PersistenceColumns structure.
+     * Serialization fields grouped by type for template-based code generation.
+     *
+     * <p>Used by serialize/deserialize templates to generate type-specific
+     * serialization code. Fields are grouped by primitive type to enable
+     * efficient batch processing in generated code.
      */
     @Getter
     @Builder
@@ -252,8 +326,10 @@ public class CodeGenModel {
     }
 
     /**
-     * Persistence field compatible with V1's PersistenceField.
-     * Provides getter/setter method names for templates.
+     * Persistence field with precomputed getter/setter method names.
+     *
+     * <p>Provides the field name, type, and accessor method names needed
+     * by serialization templates to generate accessor code.
      */
     @Getter
     public static class PersistenceFieldV2 {
@@ -272,29 +348,49 @@ public class CodeGenModel {
 
 
     /**
-     * Filter expression model for templates.
+     * Filter expression for dispatcher code generation.
+     *
+     * <p>Represents a filter condition from OAL like {@code filter(status == 200)}.
+     * Contains the matcher class and operand expressions.
+     *
+     * <p>Example for {@code filter(status == 200)}:
+     * <ul>
+     *   <li>expressionObject = "org.apache.skywalking.oap...EqualMatch"</li>
+     *   <li>left = "source.getStatus()"</li>
+     *   <li>right = "200"</li>
+     * </ul>
      */
     @Getter
     @Builder
     public static class FilterExpressionV2 {
+        /** Fully qualified matcher class name. */
         private String expressionObject;
+        /** Left operand expression (usually source getter). */
         private String left;
+        /** Right operand expression (literal or source getter). */
         private String right;
     }
 
     /**
-     * V1-compatible "from" statement for templates.
+     * Source (from) statement information.
+     *
+     * <p>Contains the source class name and scope ID from the OAL "from" clause.
+     * Templates access via {@code ${from.sourceName}} and {@code ${from.sourceScopeId}}.
      */
     @Getter
     @Builder
     public static class FromStmtV2 {
+        /** Source class name (e.g., "Service", "Endpoint"). */
         private String sourceName;
+        /** Scope ID for this source type. */
         private int sourceScopeId;
     }
 
     /**
-     * V1-compatible "filters" wrapper for templates.
-     * Templates access ${filters.filterExpressions}.
+     * Filter expressions wrapper for template access.
+     *
+     * <p>Wraps the list of filter expressions for template iteration.
+     * Templates access via {@code ${filters.filterExpressions}}.
      */
     @Getter
     @Builder
