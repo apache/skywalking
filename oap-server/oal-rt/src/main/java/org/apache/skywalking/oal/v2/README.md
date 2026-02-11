@@ -89,10 +89,10 @@ model.getMetricsClassName();     // e.g., "LongAvgMetrics"
 
 ## Generated Source Files
 
-During tests, source files are generated to `target/generated-test-sources/` for inspection:
+During tests, source files are generated to `target/test-classes/` for inspection:
 
 ```
-target/generated-test-sources/
+target/test-classes/
 └── org/apache/skywalking/oap/server/core/source/oal/rt/
     ├── metrics/           - Generated metrics classes
     │   └── builder/       - Generated builder classes

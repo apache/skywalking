@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oal.v2.generator;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.FileReader;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oal.v2.model.MetricDefinition;
 import org.apache.skywalking.oal.v2.parser.OALScriptParserV2;
 import org.junit.jupiter.api.Test;
@@ -37,13 +36,20 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Tests that verify all production OAL scripts can be parsed by the V2 parser.
  *
- * These OAL files are copied from server-starter/src/main/resources/oal/ to avoid
- * circular dependency issues.
+ * This test reads OAL files directly from server-starter/src/main/resources/oal/
+ * using relative paths.
  *
  * This test focuses on parsing validation. Full code generation integration testing
  * is handled by OALClassGeneratorV2Test and the E2E tests at runtime.
  */
+@Slf4j
 public class ProductionOALScriptsTest {
+
+    private static final String[] POSSIBLE_PATHS = {
+        "oap-server/server-starter/src/main/resources/oal",
+        "../server-starter/src/main/resources/oal",
+        "../../server-starter/src/main/resources/oal"
+    };
 
     /**
      * Test that each production OAL file can be parsed correctly.
@@ -60,13 +66,13 @@ public class ProductionOALScriptsTest {
         "cilium.oal"
     })
     public void testProductionOALScriptParsing(String oalFileName) throws Exception {
-        String oalContent = readOALFile(oalFileName);
-        assertNotNull(oalContent, "OAL file should be readable: " + oalFileName);
-        assertFalse(oalContent.isEmpty(), "OAL file should not be empty: " + oalFileName);
+        File oalFile = findOALFile(oalFileName);
+        assertNotNull(oalFile, "OAL file not found: " + oalFileName + ". Tried paths: " +
+            String.join(", ", POSSIBLE_PATHS));
 
-        try {
+        try (FileReader reader = new FileReader(oalFile)) {
             // Parse the OAL script
-            OALScriptParserV2 parser = OALScriptParserV2.parse(oalContent);
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, oalFileName);
             List<MetricDefinition> metrics = parser.getMetrics();
 
             assertFalse(metrics.isEmpty(), "OAL file should define at least one metric: " + oalFileName);
@@ -88,14 +94,17 @@ public class ProductionOALScriptsTest {
      */
     @Test
     public void testDisableOAL() throws Exception {
-        String oalContent = readOALFile("disable.oal");
-        assertNotNull(oalContent, "disable.oal should be readable");
+        File oalFile = findOALFile("disable.oal");
+        assertNotNull(oalFile, "disable.oal not found. Tried paths: " +
+            String.join(", ", POSSIBLE_PATHS));
 
-        // Should parse without errors even with all statements commented out
-        OALScriptParserV2 parser = OALScriptParserV2.parse(oalContent);
-        // Currently all disable statements are commented out in disable.oal
-        // so we just verify parsing succeeds
-        assertNotNull(parser.getDisabledSources());
+        try (FileReader reader = new FileReader(oalFile)) {
+            // Should parse without errors even with all statements commented out
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, "disable.oal");
+            // Currently all disable statements are commented out in disable.oal
+            // so we just verify parsing succeeds
+            assertNotNull(parser.getDisabledSources());
+        }
     }
 
     /**
@@ -108,13 +117,14 @@ public class ProductionOALScriptsTest {
 
         int totalMetrics = 0;
         for (String oalFileName : allFiles) {
-            String oalContent = readOALFile(oalFileName);
-            if (oalContent == null || oalContent.isEmpty()) {
-                continue;
-            }
+            File oalFile = findOALFile(oalFileName);
+            assertNotNull(oalFile, "OAL file not found: " + oalFileName + ". Tried paths: " +
+                String.join(", ", POSSIBLE_PATHS));
 
-            OALScriptParserV2 parser = OALScriptParserV2.parse(oalContent);
-            totalMetrics += parser.getMetrics().size();
+            try (FileReader reader = new FileReader(oalFile)) {
+                OALScriptParserV2 parser = OALScriptParserV2.parse(reader, oalFileName);
+                totalMetrics += parser.getMetrics().size();
+            }
         }
 
         assertTrue(totalMetrics > 100,
@@ -127,9 +137,11 @@ public class ProductionOALScriptsTest {
     @Test
     public void testOALSyntaxFeatures() throws Exception {
         // Test nested property access (sideCar.internalRequestLatencyNanos)
-        String meshContent = readOALFile("mesh.oal");
-        if (meshContent != null) {
-            OALScriptParserV2 parser = OALScriptParserV2.parse(meshContent);
+        File meshFile = findOALFile("mesh.oal");
+        assertNotNull(meshFile, "mesh.oal not found. Tried paths: " +
+            String.join(", ", POSSIBLE_PATHS));
+        try (FileReader reader = new FileReader(meshFile)) {
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, "mesh.oal");
             List<MetricDefinition> metrics = parser.getMetrics();
 
             boolean foundNestedAccess = metrics.stream()
@@ -140,9 +152,11 @@ public class ProductionOALScriptsTest {
         }
 
         // Test map access (tag["key"])
-        String coreContent = readOALFile("core.oal");
-        if (coreContent != null) {
-            OALScriptParserV2 parser = OALScriptParserV2.parse(coreContent);
+        File coreFile = findOALFile("core.oal");
+        assertNotNull(coreFile, "core.oal not found. Tried paths: " +
+            String.join(", ", POSSIBLE_PATHS));
+        try (FileReader reader = new FileReader(coreFile)) {
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, "core.oal");
             List<MetricDefinition> metrics = parser.getMetrics();
 
             boolean foundMapAccess = metrics.stream()
@@ -152,8 +166,8 @@ public class ProductionOALScriptsTest {
         }
 
         // Test cast type (str->long)
-        if (coreContent != null) {
-            OALScriptParserV2 parser = OALScriptParserV2.parse(coreContent);
+        try (FileReader reader = new FileReader(coreFile)) {
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, "core.oal");
             List<MetricDefinition> metrics = parser.getMetrics();
 
             boolean foundCastType = metrics.stream()
@@ -162,12 +176,17 @@ public class ProductionOALScriptsTest {
         }
     }
 
-    private String readOALFile(String fileName) throws IOException {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("oal/" + fileName)) {
-            if (is == null) {
-                return null;
+    /**
+     * Find OAL file from server-starter using relative paths.
+     */
+    private File findOALFile(String fileName) {
+        for (String path : POSSIBLE_PATHS) {
+            File file = new File(path, fileName);
+            if (file.exists() && file.isFile()) {
+                log.debug("Found OAL file at: {}", file.getAbsolutePath());
+                return file;
             }
-            return IOUtils.toString(is, StandardCharsets.UTF_8);
         }
+        return null;
     }
 }

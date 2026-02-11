@@ -72,10 +72,7 @@ public class RealOALScriptsTest {
     public void testParseCoreOAL() throws IOException {
         File oalDir = findOALScriptsDir();
         File oalFile = new File(oalDir, "core.oal");
-        if (!oalFile.exists()) {
-            log.warn("Skipping test - core.oal not found at: {}", oalFile.getAbsolutePath());
-            return;
-        }
+        assertTrue(oalFile.exists(), "core.oal not found at: " + oalFile.getAbsolutePath());
 
         OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), "core.oal");
 
@@ -131,11 +128,7 @@ public class RealOALScriptsTest {
 
         for (String fileName : oalFiles) {
             File oalFile = new File(oalDir, fileName);
-
-            if (!oalFile.exists()) {
-                log.warn("Skipping {} - file not found", fileName);
-                continue;
-            }
+            assertTrue(oalFile.exists(), fileName + " not found at: " + oalFile.getAbsolutePath());
 
             try {
                 OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), fileName);

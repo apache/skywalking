@@ -72,9 +72,6 @@ public class OALClassGeneratorV2Test {
 
     @BeforeAll
     public static void initializeScopes() {
-        // Set generated file path to target/test-classes
-        OALClassGeneratorV2.setGeneratedFilePath("target/test-classes");
-
         try {
             DefaultScopeDefine.Listener listener = new DefaultScopeDefine.Listener();
             listener.notify(Service.class);
@@ -100,10 +97,11 @@ public class OALClassGeneratorV2Test {
      */
     @Test
     public void testServiceMetricsGeneration() throws Exception {
-        String oal = "service_resp_time = from(Service.latency).longAvg();\n" +
-            "service_calls = from(Service.*).count();\n" +
-            "service_latency_sum = from(Service.latency).sum();\n" +
-            "service_latency_max = from(Service.latency).max();";
+        // Use test_ prefix to avoid conflicts with RuntimeOALGenerationTest
+        String oal = "test_service_resp_time = from(Service.latency).longAvg();\n" +
+            "test_service_calls = from(Service.*).count();\n" +
+            "test_service_latency_sum = from(Service.latency).sum();\n" +
+            "test_service_latency_max = from(Service.latency).max();";
 
         OALClassGeneratorV2 generator = createGenerator();
         MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
@@ -120,15 +118,15 @@ public class OALClassGeneratorV2Test {
         assertEquals(1, dispatcherClasses.size());
 
         // Find specific metrics classes
-        Class<?> respTimeClass = findClassBySimpleName(metricsClasses, "ServiceRespTimeMetrics");
-        Class<?> callsClass = findClassBySimpleName(metricsClasses, "ServiceCallsMetrics");
-        Class<?> sumClass = findClassBySimpleName(metricsClasses, "ServiceLatencySumMetrics");
-        Class<?> maxClass = findClassBySimpleName(metricsClasses, "ServiceLatencyMaxMetrics");
+        Class<?> respTimeClass = findClassBySimpleName(metricsClasses, "TestServiceRespTimeMetrics");
+        Class<?> callsClass = findClassBySimpleName(metricsClasses, "TestServiceCallsMetrics");
+        Class<?> sumClass = findClassBySimpleName(metricsClasses, "TestServiceLatencySumMetrics");
+        Class<?> maxClass = findClassBySimpleName(metricsClasses, "TestServiceLatencyMaxMetrics");
 
-        assertNotNull(respTimeClass, "ServiceRespTimeMetrics should be generated");
-        assertNotNull(callsClass, "ServiceCallsMetrics should be generated");
-        assertNotNull(sumClass, "ServiceLatencySumMetrics should be generated");
-        assertNotNull(maxClass, "ServiceLatencyMaxMetrics should be generated");
+        assertNotNull(respTimeClass, "TestServiceRespTimeMetrics should be generated");
+        assertNotNull(callsClass, "TestServiceCallsMetrics should be generated");
+        assertNotNull(sumClass, "TestServiceLatencySumMetrics should be generated");
+        assertNotNull(maxClass, "TestServiceLatencyMaxMetrics should be generated");
 
         // Verify inheritance
         assertTrue(LongAvgMetrics.class.isAssignableFrom(respTimeClass));
@@ -143,7 +141,7 @@ public class OALClassGeneratorV2Test {
         // Verify @Stream annotation
         Stream streamAnnotation = respTimeClass.getAnnotation(Stream.class);
         assertNotNull(streamAnnotation);
-        assertEquals("service_resp_time", streamAnnotation.name());
+        assertEquals("test_service_resp_time", streamAnnotation.name());
 
         // Test instantiation of all metrics classes
         for (Class<?> metricsClass : metricsClasses) {
@@ -205,11 +203,11 @@ public class OALClassGeneratorV2Test {
         setEntityId.invoke(instance4, "test-service");
         WithMetadata withMetadata = (WithMetadata) instance4;
         assertNotNull(withMetadata.getMeta());
-        assertEquals("service_resp_time", withMetadata.getMeta().getMetricsName());
+        assertEquals("test_service_resp_time", withMetadata.getMeta().getMetricsName());
 
-        // Verify dispatcher class
+        // Verify dispatcher class (uses "Test" catalog prefix)
         Class<?> dispatcherClass = dispatcherClasses.get(0);
-        assertEquals("ServiceDispatcher", dispatcherClass.getSimpleName());
+        assertEquals("TestServiceDispatcher", dispatcherClass.getSimpleName());
         assertTrue(SourceDispatcher.class.isAssignableFrom(dispatcherClass));
 
         Method dispatchMethod = dispatcherClass.getMethod("dispatch",
@@ -217,17 +215,17 @@ public class OALClassGeneratorV2Test {
         assertNotNull(dispatchMethod);
 
         // Verify all doMetrics methods exist
-        assertNotNull(findMethodByName(dispatcherClass, "doServiceRespTime"));
-        assertNotNull(findMethodByName(dispatcherClass, "doServiceCalls"));
-        assertNotNull(findMethodByName(dispatcherClass, "doServiceLatencySum"));
-        assertNotNull(findMethodByName(dispatcherClass, "doServiceLatencyMax"));
+        assertNotNull(findMethodByName(dispatcherClass, "doTestServiceRespTime"));
+        assertNotNull(findMethodByName(dispatcherClass, "doTestServiceCalls"));
+        assertNotNull(findMethodByName(dispatcherClass, "doTestServiceLatencySum"));
+        assertNotNull(findMethodByName(dispatcherClass, "doTestServiceLatencyMax"));
 
         // Verify doMetrics methods are private
-        Method doRespTime = findMethodByName(dispatcherClass, "doServiceRespTime");
+        Method doRespTime = findMethodByName(dispatcherClass, "doTestServiceRespTime");
         assertTrue(Modifier.isPrivate(doRespTime.getModifiers()));
 
         // Test builder class generation
-        String builderClassName = METRICS_BUILDER_PACKAGE + "ServiceRespTimeMetricsBuilder";
+        String builderClassName = METRICS_BUILDER_PACKAGE + "TestServiceRespTimeMetricsBuilder";
         Class<?> builderClass = Class.forName(builderClassName);
         assertNotNull(builderClass);
         assertTrue(StorageBuilder.class.isAssignableFrom(builderClass));
@@ -248,8 +246,9 @@ public class OALClassGeneratorV2Test {
      */
     @Test
     public void testEndpointMetricsGeneration() throws Exception {
-        String oal = "endpoint_resp_time = from(Endpoint.latency).longAvg();\n" +
-            "endpoint_calls = from(Endpoint.*).count();";
+        // Use test_ prefix to avoid conflicts with RuntimeOALGenerationTest
+        String oal = "test_endpoint_resp_time = from(Endpoint.latency).longAvg();\n" +
+            "test_endpoint_calls = from(Endpoint.*).count();";
 
         OALClassGeneratorV2 generator = createGenerator();
         MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
@@ -263,11 +262,11 @@ public class OALClassGeneratorV2Test {
         assertEquals(2, metricsClasses.size());
         assertEquals(1, dispatcherClasses.size());
 
-        Class<?> respTimeClass = findClassBySimpleName(metricsClasses, "EndpointRespTimeMetrics");
-        Class<?> callsClass = findClassBySimpleName(metricsClasses, "EndpointCallsMetrics");
+        Class<?> respTimeClass = findClassBySimpleName(metricsClasses, "TestEndpointRespTimeMetrics");
+        Class<?> callsClass = findClassBySimpleName(metricsClasses, "TestEndpointCallsMetrics");
 
-        assertNotNull(respTimeClass, "EndpointRespTimeMetrics should be generated");
-        assertNotNull(callsClass, "EndpointCallsMetrics should be generated");
+        assertNotNull(respTimeClass, "TestEndpointRespTimeMetrics should be generated");
+        assertNotNull(callsClass, "TestEndpointCallsMetrics should be generated");
 
         assertTrue(LongAvgMetrics.class.isAssignableFrom(respTimeClass));
         assertTrue(CountMetrics.class.isAssignableFrom(callsClass));
@@ -276,13 +275,13 @@ public class OALClassGeneratorV2Test {
         assertNotNull(respTimeClass.getDeclaredConstructor().newInstance());
         assertNotNull(callsClass.getDeclaredConstructor().newInstance());
 
-        // Verify dispatcher class
+        // Verify dispatcher class (uses "Test" catalog prefix)
         Class<?> dispatcherClass = dispatcherClasses.get(0);
-        assertEquals("EndpointDispatcher", dispatcherClass.getSimpleName());
+        assertEquals("TestEndpointDispatcher", dispatcherClass.getSimpleName());
         assertTrue(SourceDispatcher.class.isAssignableFrom(dispatcherClass));
 
-        assertNotNull(findMethodByName(dispatcherClass, "doEndpointRespTime"));
-        assertNotNull(findMethodByName(dispatcherClass, "doEndpointCalls"));
+        assertNotNull(findMethodByName(dispatcherClass, "doTestEndpointRespTime"));
+        assertNotNull(findMethodByName(dispatcherClass, "doTestEndpointCalls"));
     }
 
     /**
@@ -296,11 +295,11 @@ public class OALClassGeneratorV2Test {
      */
     @Test
     public void testMetricsWithFilterGeneration() throws Exception {
-        // OAL with various filter types from core.oal
-        String oal = "service_relation_client_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).cpm();\n" +
-            "service_relation_server_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();\n" +
-            "service_relation_client_call_sla = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(status == true).percent(status == true);\n" +
-            "service_relation_client_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).longAvg();";
+        // Use test_ prefix to avoid conflicts with RuntimeOALGenerationTest
+        String oal = "test_service_relation_client_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).cpm();\n" +
+            "test_service_relation_server_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();\n" +
+            "test_service_relation_client_call_sla = from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(status == true).percent(status == true);\n" +
+            "test_service_relation_client_resp_time = from(ServiceRelation.latency).filter(detectPoint == DetectPoint.CLIENT).longAvg();";
 
         OALClassGeneratorV2 generator = createGenerator();
         MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
@@ -317,19 +316,19 @@ public class OALClassGeneratorV2Test {
         assertEquals(1, dispatcherClasses.size());
 
         Class<?> dispatcherClass = dispatcherClasses.get(0);
-        assertEquals("ServiceRelationDispatcher", dispatcherClass.getSimpleName());
+        assertEquals("TestServiceRelationDispatcher", dispatcherClass.getSimpleName());
         assertTrue(SourceDispatcher.class.isAssignableFrom(dispatcherClass));
 
         // Verify all doMetrics methods exist
-        Method doClientCpm = findMethodByName(dispatcherClass, "doServiceRelationClientCpm");
-        Method doServerCpm = findMethodByName(dispatcherClass, "doServiceRelationServerCpm");
-        Method doClientCallSla = findMethodByName(dispatcherClass, "doServiceRelationClientCallSla");
-        Method doClientRespTime = findMethodByName(dispatcherClass, "doServiceRelationClientRespTime");
+        Method doClientCpm = findMethodByName(dispatcherClass, "doTestServiceRelationClientCpm");
+        Method doServerCpm = findMethodByName(dispatcherClass, "doTestServiceRelationServerCpm");
+        Method doClientCallSla = findMethodByName(dispatcherClass, "doTestServiceRelationClientCallSla");
+        Method doClientRespTime = findMethodByName(dispatcherClass, "doTestServiceRelationClientRespTime");
 
-        assertNotNull(doClientCpm, "doServiceRelationClientCpm should be generated");
-        assertNotNull(doServerCpm, "doServiceRelationServerCpm should be generated");
-        assertNotNull(doClientCallSla, "doServiceRelationClientCallSla should be generated");
-        assertNotNull(doClientRespTime, "doServiceRelationClientRespTime should be generated");
+        assertNotNull(doClientCpm, "doTestServiceRelationClientCpm should be generated");
+        assertNotNull(doServerCpm, "doTestServiceRelationServerCpm should be generated");
+        assertNotNull(doClientCallSla, "doTestServiceRelationClientCallSla should be generated");
+        assertNotNull(doClientRespTime, "doTestServiceRelationClientRespTime should be generated");
 
         // Verify filter expressions were correctly enriched
         OALScriptParserV2 parser = OALScriptParserV2.parse(oal);
@@ -358,8 +357,8 @@ public class OALClassGeneratorV2Test {
         assertEquals("true", filter2.getRight());
 
         // Verify metrics classes are properly generated
-        Class<?> clientCpmClass = findClassBySimpleName(metricsClasses, "ServiceRelationClientCpmMetrics");
-        Class<?> slaClass = findClassBySimpleName(metricsClasses, "ServiceRelationClientCallSlaMetrics");
+        Class<?> clientCpmClass = findClassBySimpleName(metricsClasses, "TestServiceRelationClientCpmMetrics");
+        Class<?> slaClass = findClassBySimpleName(metricsClasses, "TestServiceRelationClientCallSlaMetrics");
 
         assertNotNull(clientCpmClass);
         assertNotNull(slaClass);
@@ -381,8 +380,8 @@ public class OALClassGeneratorV2Test {
      */
     @Test
     public void testInFilterOperatorGeneration() throws Exception {
-        // Test `in` with string array using TCPService to avoid dispatcher conflicts
-        String oal = "tcp_service_tls_mode_filtered = from(TCPService.*)" +
+        // Use test_ prefix to avoid conflicts with RuntimeOALGenerationTest
+        String oal = "test_tcp_service_tls_mode_filtered = from(TCPService.*)" +
             ".filter(tlsMode in [\"STRICT\", \"PERMISSIVE\", \"DISABLED\"]).count();";
 
         OALClassGeneratorV2 generator = createGenerator();
@@ -396,18 +395,18 @@ public class OALClassGeneratorV2Test {
         // Verify metrics class generated
         assertEquals(1, metricsClasses.size());
         Class<?> metricsClass = metricsClasses.get(0);
-        assertEquals("TcpServiceTlsModeFilteredMetrics", metricsClass.getSimpleName());
+        assertEquals("TestTcpServiceTlsModeFilteredMetrics", metricsClass.getSimpleName());
         assertTrue(CountMetrics.class.isAssignableFrom(metricsClass));
 
-        // Verify dispatcher generated with filter logic
+        // Verify dispatcher generated with filter logic (uses "Test" catalog prefix)
         assertEquals(1, dispatcherClasses.size());
         Class<?> dispatcherClass = dispatcherClasses.get(0);
-        assertEquals("TCPServiceDispatcher", dispatcherClass.getSimpleName());
+        assertEquals("TestTCPServiceDispatcher", dispatcherClass.getSimpleName());
         assertTrue(SourceDispatcher.class.isAssignableFrom(dispatcherClass));
 
         // Verify the doMetrics method exists (contains the InMatch filter logic)
-        Method doMethod = findMethodByName(dispatcherClass, "doTcpServiceTlsModeFiltered");
-        assertNotNull(doMethod, "doTcpServiceTlsModeFiltered should be generated");
+        Method doMethod = findMethodByName(dispatcherClass, "doTestTcpServiceTlsModeFiltered");
+        assertNotNull(doMethod, "doTestTcpServiceTlsModeFiltered should be generated");
 
         // Verify class can be instantiated
         Object metricsInstance = metricsClass.getDeclaredConstructor().newInstance();
@@ -423,8 +422,6 @@ public class OALClassGeneratorV2Test {
         OALClassGeneratorV2 generator = new OALClassGeneratorV2(oalDefine);
         generator.setCurrentClassLoader(OALClassGeneratorV2Test.class.getClassLoader());
         generator.setStorageBuilderFactory(new StorageBuilderFactory.Default());
-        // Enable debug mode to write generated classes to disk for inspection
-        generator.setOpenEngineDebug(true);
         generator.prepareRTTempFolder();
         return generator;
     }
@@ -466,11 +463,12 @@ public class OALClassGeneratorV2Test {
      */
     @Test
     public void testNestedBooleanAttributeInFunctionArgument() throws Exception {
+        // Use test_ prefix to avoid conflicts with RuntimeOALGenerationTest
         // This OAL pattern uses apdex(serviceName, protocol.success) where:
         // - protocol is a nested object (Protocol class)
         // - success is a boolean field on Protocol
         // The generated code must be: source.getProtocol().isSuccess()
-        String oal = "kubernetes_service_instance_apdex = from(K8SServiceInstance.protocol.http.latency)" +
+        String oal = "test_kubernetes_service_instance_apdex = from(K8SServiceInstance.protocol.http.latency)" +
             ".filter(detectPoint == DetectPoint.SERVER)" +
             ".filter(type == \"protocol\")" +
             ".filter(protocol.type == \"http\")" +
@@ -490,17 +488,17 @@ public class OALClassGeneratorV2Test {
         assertEquals(1, metricsClasses.size());
         assertEquals(1, dispatcherClasses.size());
 
-        Class<?> apdexClass = findClassBySimpleName(metricsClasses, "KubernetesServiceInstanceApdexMetrics");
-        assertNotNull(apdexClass, "KubernetesServiceInstanceApdexMetrics should be generated");
+        Class<?> apdexClass = findClassBySimpleName(metricsClasses, "TestKubernetesServiceInstanceApdexMetrics");
+        assertNotNull(apdexClass, "TestKubernetesServiceInstanceApdexMetrics should be generated");
 
-        // Verify dispatcher class
+        // Verify dispatcher class (uses "Test" catalog prefix)
         Class<?> dispatcherClass = dispatcherClasses.get(0);
-        assertEquals("K8SServiceInstanceDispatcher", dispatcherClass.getSimpleName());
+        assertEquals("TestK8SServiceInstanceDispatcher", dispatcherClass.getSimpleName());
         assertTrue(SourceDispatcher.class.isAssignableFrom(dispatcherClass));
 
         // Verify doMetrics method exists
-        Method doApdex = findMethodByName(dispatcherClass, "doKubernetesServiceInstanceApdex");
-        assertNotNull(doApdex, "doKubernetesServiceInstanceApdex method should be generated");
+        Method doApdex = findMethodByName(dispatcherClass, "doTestKubernetesServiceInstanceApdex");
+        assertNotNull(doApdex, "doTestKubernetesServiceInstanceApdex method should be generated");
         assertTrue(Modifier.isPrivate(doApdex.getModifiers()));
     }
 
@@ -545,10 +543,12 @@ public class OALClassGeneratorV2Test {
 
     /**
      * Test OAL define for unit tests.
+     * Uses "Test" catalog to create unique dispatcher class names
+     * (e.g., TestServiceDispatcher instead of ServiceDispatcher).
      */
     private static class TestOALDefine extends OALDefine {
         protected TestOALDefine() {
-            super("test.oal", "org.apache.skywalking.oap.server.core.source");
+            super("test.oal", "org.apache.skywalking.oap.server.core.source", "Test");
         }
     }
 }

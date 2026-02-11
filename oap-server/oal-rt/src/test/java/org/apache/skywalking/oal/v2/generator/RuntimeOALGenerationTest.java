@@ -24,15 +24,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javassist.ClassPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oal.v2.model.MetricDefinition;
 import org.apache.skywalking.oal.v2.parser.OALScriptParserV2;
 import org.apache.skywalking.oap.server.core.analysis.SourceDecoratorManager;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -58,6 +61,12 @@ public class RuntimeOALGenerationTest {
     private static final String SOURCE_PACKAGE = "org.apache.skywalking.oap.server.core.source.";
     private static final String BROWSER_SOURCE_PACKAGE = "org.apache.skywalking.oap.server.core.browser.source.";
     private static final String METRICS_PACKAGE = "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.";
+
+    private static final String[] POSSIBLE_PATHS = {
+        "oap-server/server-starter/src/main/resources/",
+        "../server-starter/src/main/resources/",
+        "../../server-starter/src/main/resources/"
+    };
 
     /**
      * All known OALDefine implementations mapped to their OAL script paths.
@@ -89,8 +98,8 @@ public class RuntimeOALGenerationTest {
         // DisableOALDefine - no catalog
         registerOALDefine("disable", createOALDefine("oal/disable.oal", SOURCE_PACKAGE, ""));
 
-        // Set generated file path for runtime-like generation
-        OALClassGeneratorV2.setGeneratedFilePath("target/generated-test-sources");
+        // Set generated file path for IDE inspection
+        OALClassGeneratorV2.setGeneratedFilePath("target/test-classes");
     }
 
     private static void registerOALDefine(String name, OALDefine define) {
@@ -215,132 +224,103 @@ public class RuntimeOALGenerationTest {
      */
     @Test
     public void testGenerateAllRuntimeOALScripts() throws Exception {
-        // Phase 1: Load and parse ALL OAL scripts
-        Map<String, List<CodeGenModel>> allModelsByOAL = new HashMap<>();
-        Map<String, Map<String, OALClassGeneratorV2.DispatcherContextV2>> dispatchersByOAL = new HashMap<>();
+        // Single ClassPool for all generated classes
+        // No conflicts because catalog prefix creates unique dispatcher class names
+        // (e.g., ServiceDispatcher vs ServiceMeshServiceDispatcher)
+        ClassPool classPool = new ClassPool(true);
+
         int totalMetrics = 0;
+        int totalDispatchers = 0;
+        int totalGeneratedClasses = 0;
         List<String> errors = new ArrayList<>();
-        List<String> skipped = new ArrayList<>();
 
         for (Map.Entry<String, OALDefine> entry : OAL_DEFINES.entrySet()) {
             String oalName = entry.getKey();
             OALDefine define = entry.getValue();
 
             File oalFile = findOALFile(define.getConfigFile());
-            if (oalFile == null) {
-                skipped.add(oalName + " (" + define.getConfigFile() + ")");
-                log.warn("Skipping {} - file not found: {}", oalName, define.getConfigFile());
-                continue;
-            }
+            assertNotNull(oalFile, "OAL file not found: " + define.getConfigFile() +
+                ". Tried paths: " + String.join(", ", POSSIBLE_PATHS));
 
             try {
+                // Parse OAL script
                 OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), define.getConfigFile());
                 List<MetricDefinition> metrics = parser.getMetrics();
+                List<String> disabledSources = parser.getDisabledSources();
                 totalMetrics += metrics.size();
 
+                // Handle OAL files with only disable statements (no metrics)
+                if (metrics.isEmpty()) {
+                    log.info("{}: 0 metrics, {} disabled sources",
+                        oalName, disabledSources.size());
+                    // Still need to process disabled sources
+                    if (!disabledSources.isEmpty()) {
+                        OALClassGeneratorV2 generator = new OALClassGeneratorV2(define, classPool);
+                        generator.generateClassAtRuntime(
+                            new ArrayList<>(), disabledSources, new ArrayList<>(), new ArrayList<>());
+                    }
+                    continue;
+                }
+
+                // Enrich metrics to build code generation models
                 MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(
                     define.getSourcePackage(),
                     METRICS_PACKAGE
                 );
 
                 List<CodeGenModel> models = new ArrayList<>();
-                Map<String, OALClassGeneratorV2.DispatcherContextV2> dispatchers = new HashMap<>();
-
                 for (MetricDefinition metric : metrics) {
                     CodeGenModel model = enricher.enrich(metric);
                     models.add(model);
-
-                    // Group metrics by source for dispatcher generation
-                    String sourceName = model.getSourceName();
-                    OALClassGeneratorV2.DispatcherContextV2 ctx = dispatchers.computeIfAbsent(sourceName, name -> {
-                        OALClassGeneratorV2.DispatcherContextV2 newCtx = new OALClassGeneratorV2.DispatcherContextV2();
-                        newCtx.setSourcePackage(define.getSourcePackage());
-                        newCtx.setSourceName(name);
-                        newCtx.setPackageName(name.toLowerCase());
-                        newCtx.setSourceDecorator(model.getSourceDecorator());
-                        return newCtx;
-                    });
-                    ctx.getMetrics().add(model);
                 }
 
-                allModelsByOAL.put(oalName, models);
-                dispatchersByOAL.put(oalName, dispatchers);
+                // Create generator with OALDefine (catalog determines dispatcher class name prefix)
+                OALClassGeneratorV2 generator = new OALClassGeneratorV2(define, classPool);
+                generator.setOpenEngineDebug(true);
+                generator.setStorageBuilderFactory(new StorageBuilderFactory.Default());
+                generator.setCurrentClassLoader(this.getClass().getClassLoader());
 
-                log.info("{}: {} metrics, {} dispatchers", oalName, metrics.size(), dispatchers.size());
+                // Generate classes
+                List<Class> metricsClasses = new ArrayList<>();
+                List<Class> dispatcherClasses = new ArrayList<>();
+
+                generator.generateClassAtRuntime(models, disabledSources, metricsClasses, dispatcherClasses);
+
+                totalDispatchers += dispatcherClasses.size();
+                totalGeneratedClasses += metricsClasses.size() + dispatcherClasses.size();
+
+                // Extract catalog name for logging
+                String catalogInfo = define.getDynamicDispatcherClassPackage()
+                    .replace("org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher.", "");
+                if (catalogInfo.isEmpty()) {
+                    catalogInfo = "(none)";
+                }
+
+                log.info("{}: {} metrics -> {} metrics classes, {} dispatchers (catalog: {})",
+                    oalName, metrics.size(), metricsClasses.size(), dispatcherClasses.size(), catalogInfo);
+
             } catch (Exception e) {
                 errors.add(oalName + ": " + e.getMessage());
-                log.error("Failed to parse {}: {}", oalName, e.getMessage(), e);
+                log.error("Failed to generate classes for {}: {}", oalName, e.getMessage(), e);
             }
         }
 
-        // Phase 2: Detect and report shared sources (this is expected and normal)
-        Map<String, List<String>> sharedSources = detectDispatcherConflicts(dispatchersByOAL);
-        if (!sharedSources.isEmpty()) {
-            log.info("=== Shared Sources Across OAL Files ===");
-            for (Map.Entry<String, List<String>> shared : sharedSources.entrySet()) {
-                String dispatcher = shared.getKey();
-                List<String> oalFiles = shared.getValue();
-                log.info("Source '{}' used by {} OAL files: {}", dispatcher, oalFiles.size(), oalFiles);
-            }
-            log.info("Note: This is normal. Runtime merges all OAL files before generation.");
-        }
-
-        // Phase 3: Skip actual class generation to avoid conflicts
-        // In production, all OAL files are loaded together and merged before code generation.
-        // This test validates parsing and model building only.
-        log.info("Skipping code generation phase. This test validates OAL parsing and model enrichment only.");
-        log.info("For code generation tests, see OALClassGeneratorV2Test.");
-
-        // Phase 4: Report summary
-        log.info("=== Runtime OAL Parsing Summary ===");
-        log.info("Total OAL scripts: {}", OAL_DEFINES.size());
-        log.info("Successfully parsed: {}", allModelsByOAL.size());
-        log.info("Skipped: {}", skipped.size());
-        if (!skipped.isEmpty()) {
-            skipped.forEach(s -> log.info("  - {}", s));
-        }
+        // Report summary
+        log.info("=== Runtime OAL Generation Summary ===");
+        log.info("Total OAL scripts processed: {}", OAL_DEFINES.size());
         log.info("Total metrics parsed: {}", totalMetrics);
-        log.info("Total unique sources: {}", dispatchersByOAL.values().stream()
-            .flatMap(m -> m.keySet().stream()).distinct().count());
+        log.info("Total dispatchers generated: {}", totalDispatchers);
+        log.info("Total classes generated: {}", totalGeneratedClasses);
+        log.info("Generated files written to: target/test-classes/");
 
         if (!errors.isEmpty()) {
             log.error("Errors encountered:");
             errors.forEach(e -> log.error("  - {}", e));
-            fail("Errors occurred during OAL processing: " + errors);
+            fail("Errors occurred during OAL class generation: " + errors);
         }
 
-        assertTrue(totalMetrics > 0, "Should parse at least some metrics");
-        assertTrue(allModelsByOAL.size() >= 5, "Should successfully parse at least 5 OAL files");
-    }
-
-    /**
-     * Detect conflicts where same dispatcher (source) is defined in multiple OAL files.
-     *
-     * @return Map of dispatcher name to list of OAL files that define it
-     */
-    private Map<String, List<String>> detectDispatcherConflicts(
-        Map<String, Map<String, OALClassGeneratorV2.DispatcherContextV2>> dispatchersByOAL) {
-
-        Map<String, List<String>> dispatcherToOALFiles = new HashMap<>();
-
-        for (Map.Entry<String, Map<String, OALClassGeneratorV2.DispatcherContextV2>> entry : dispatchersByOAL.entrySet()) {
-            String oalName = entry.getKey();
-            Map<String, OALClassGeneratorV2.DispatcherContextV2> dispatchers = entry.getValue();
-
-            for (String dispatcherName : dispatchers.keySet()) {
-                dispatcherToOALFiles.computeIfAbsent(dispatcherName, k -> new ArrayList<>()).add(oalName);
-            }
-        }
-
-        // Filter to only conflicts (appears in > 1 file)
-        Map<String, List<String>> conflicts = new HashMap<>();
-        for (Map.Entry<String, List<String>> entry : dispatcherToOALFiles.entrySet()) {
-            if (entry.getValue().size() > 1) {
-                conflicts.put(entry.getKey(), entry.getValue());
-            }
-        }
-
-        return conflicts;
+        assertTrue(totalMetrics > 100, "Should have at least 100 metrics across all OAL files, got: " + totalMetrics);
+        assertTrue(totalGeneratedClasses > 100, "Should generate at least 100 classes, got: " + totalGeneratedClasses);
     }
 
     /**
@@ -350,20 +330,13 @@ public class RuntimeOALGenerationTest {
      * @return File if found, null otherwise
      */
     private File findOALFile(String scriptPath) {
-        String[] possiblePaths = {
-            "oap-server/server-starter/src/main/resources/" + scriptPath,
-            "../server-starter/src/main/resources/" + scriptPath,
-            "../../server-starter/src/main/resources/" + scriptPath
-        };
-
-        for (String path : possiblePaths) {
-            File file = new File(path);
+        for (String basePath : POSSIBLE_PATHS) {
+            File file = new File(basePath + scriptPath);
             if (file.exists() && file.isFile()) {
                 log.debug("Found OAL file at: {}", file.getAbsolutePath());
                 return file;
             }
         }
-
         return null;
     }
 }
