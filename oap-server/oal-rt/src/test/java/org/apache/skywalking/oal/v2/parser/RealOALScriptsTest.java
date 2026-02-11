@@ -74,35 +74,37 @@ public class RealOALScriptsTest {
         File oalFile = new File(oalDir, "core.oal");
         assertTrue(oalFile.exists(), "core.oal not found at: " + oalFile.getAbsolutePath());
 
-        OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), "core.oal");
+        try (FileReader reader = new FileReader(oalFile)) {
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, "core.oal");
 
-        assertNotNull(parser);
-        assertTrue(parser.hasMetrics(), "core.oal should have metrics");
+            assertNotNull(parser);
+            assertTrue(parser.hasMetrics(), "core.oal should have metrics");
 
-        log.info("✅ Parsed core.oal: {} metrics", parser.getMetricsCount());
+            log.info("Parsed core.oal: {} metrics", parser.getMetricsCount());
 
-        // Verify some expected metrics exist
-        boolean foundServiceRespTime = false;
-        boolean foundServiceSla = false;
-        boolean foundServiceCpm = false;
+            // Verify some expected metrics exist
+            boolean foundServiceRespTime = false;
+            boolean foundServiceSla = false;
+            boolean foundServiceCpm = false;
 
-        for (MetricDefinition metric : parser.getMetrics()) {
-            String name = metric.getName();
-            if (name.equals("service_resp_time")) {
-                foundServiceRespTime = true;
-                log.info("  - Found: service_resp_time (source: {}, function: {})",
-                    metric.getSource().getName(),
-                    metric.getAggregationFunction().getName());
-            } else if (name.equals("service_sla")) {
-                foundServiceSla = true;
-            } else if (name.equals("service_cpm")) {
-                foundServiceCpm = true;
+            for (MetricDefinition metric : parser.getMetrics()) {
+                String name = metric.getName();
+                if (name.equals("service_resp_time")) {
+                    foundServiceRespTime = true;
+                    log.info("  - Found: service_resp_time (source: {}, function: {})",
+                        metric.getSource().getName(),
+                        metric.getAggregationFunction().getName());
+                } else if (name.equals("service_sla")) {
+                    foundServiceSla = true;
+                } else if (name.equals("service_cpm")) {
+                    foundServiceCpm = true;
+                }
             }
-        }
 
-        assertTrue(foundServiceRespTime, "Should find service_resp_time");
-        assertTrue(foundServiceSla, "Should find service_sla");
-        assertTrue(foundServiceCpm, "Should find service_cpm");
+            assertTrue(foundServiceRespTime, "Should find service_resp_time");
+            assertTrue(foundServiceSla, "Should find service_sla");
+            assertTrue(foundServiceCpm, "Should find service_cpm");
+        }
     }
 
     /**
@@ -130,24 +132,24 @@ public class RealOALScriptsTest {
             File oalFile = new File(oalDir, fileName);
             assertTrue(oalFile.exists(), fileName + " not found at: " + oalFile.getAbsolutePath());
 
-            try {
-                OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), fileName);
+            try (FileReader reader = new FileReader(oalFile)) {
+                OALScriptParserV2 parser = OALScriptParserV2.parse(reader, fileName);
                 int metricsCount = parser.getMetricsCount();
                 totalMetrics += metricsCount;
                 successCount++;
 
-                log.info("✅ Parsed {}: {} metrics, {} disabled sources",
+                log.info("Parsed {}: {} metrics, {} disabled sources",
                     fileName,
                     metricsCount,
                     parser.getDisabledSources().size());
 
             } catch (Exception e) {
-                log.error("❌ Failed to parse {}: {}", fileName, e.getMessage(), e);
+                log.error("Failed to parse {}: {}", fileName, e.getMessage(), e);
                 throw e;
             }
         }
 
-        log.info("✅ Successfully parsed {}/{} OAL files, total {} metrics",
+        log.info("Successfully parsed {}/{} OAL files, total {} metrics",
             successCount, oalFiles.length, totalMetrics);
 
         assertTrue(successCount >= 5, "Should successfully parse at least 5 OAL files");
@@ -167,12 +169,14 @@ public class RealOALScriptsTest {
         }
 
         // core.oal has line comments like: // Multiple values including p50, p75, p90, p95, p99
-        OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), "core.oal");
+        try (FileReader reader = new FileReader(oalFile)) {
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, "core.oal");
 
-        assertNotNull(parser);
-        assertTrue(parser.hasMetrics());
+            assertNotNull(parser);
+            assertTrue(parser.hasMetrics());
 
-        log.info("✅ V2 parser correctly handles comments in OAL scripts");
+            log.info("V2 parser correctly handles comments in OAL scripts");
+        }
     }
 
     /**
@@ -187,22 +191,24 @@ public class RealOALScriptsTest {
             return;
         }
 
-        OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), "core.oal");
+        try (FileReader reader = new FileReader(oalFile)) {
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, "core.oal");
 
-        // core.oal has: service_resp_time = from(Service.latency).longAvg().decorator("ServiceDecorator");
-        boolean foundDecorator = false;
-        for (MetricDefinition metric : parser.getMetrics()) {
-            if (metric.getDecorator().isPresent()) {
-                foundDecorator = true;
-                log.info("  - Found decorator: {} in metric: {}",
-                    metric.getDecorator().get(),
-                    metric.getName());
-                break;
+            // core.oal has: service_resp_time = from(Service.latency).longAvg().decorator("ServiceDecorator");
+            boolean foundDecorator = false;
+            for (MetricDefinition metric : parser.getMetrics()) {
+                if (metric.getDecorator().isPresent()) {
+                    foundDecorator = true;
+                    log.info("  - Found decorator: {} in metric: {}",
+                        metric.getDecorator().get(),
+                        metric.getName());
+                    break;
+                }
             }
-        }
 
-        assertTrue(foundDecorator, "Should find at least one metric with decorator");
-        log.info("✅ V2 parser correctly handles decorators");
+            assertTrue(foundDecorator, "Should find at least one metric with decorator");
+            log.info("V2 parser correctly handles decorators");
+        }
     }
 
     /**
@@ -217,21 +223,23 @@ public class RealOALScriptsTest {
             return;
         }
 
-        OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), "core.oal");
+        try (FileReader reader = new FileReader(oalFile)) {
+            OALScriptParserV2 parser = OALScriptParserV2.parse(reader, "core.oal");
 
-        // core.oal has: from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT)
-        boolean foundComplexFilter = false;
-        for (MetricDefinition metric : parser.getMetrics()) {
-            if (!metric.getFilters().isEmpty()) {
-                foundComplexFilter = true;
-                log.info("  - Found filter in metric: {} ({} filters)",
-                    metric.getName(),
-                    metric.getFilters().size());
-                break;
+            // core.oal has: from(ServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT)
+            boolean foundComplexFilter = false;
+            for (MetricDefinition metric : parser.getMetrics()) {
+                if (!metric.getFilters().isEmpty()) {
+                    foundComplexFilter = true;
+                    log.info("  - Found filter in metric: {} ({} filters)",
+                        metric.getName(),
+                        metric.getFilters().size());
+                    break;
+                }
             }
-        }
 
-        assertTrue(foundComplexFilter, "Should find metrics with filters");
-        log.info("✅ V2 parser correctly handles complex filters");
+            assertTrue(foundComplexFilter, "Should find metrics with filters");
+            log.info("V2 parser correctly handles complex filters");
+        }
     }
 }

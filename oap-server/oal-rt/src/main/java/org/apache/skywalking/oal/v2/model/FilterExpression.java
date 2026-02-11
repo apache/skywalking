@@ -132,6 +132,10 @@ public final class FilterExpression {
 
         /**
          * Set value with auto-type detection.
+         *
+         * Note: This method is intentionally overloaded with value(FilterValue).
+         * Java dispatches based on compile-time type, but both methods handle
+         * FilterValue correctly (this method checks instanceof FilterValue).
          */
         public Builder value(Object value) {
             this.value = convertToFilterValue(value);

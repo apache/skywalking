@@ -85,7 +85,7 @@ All model classes are immutable, type-safe, and use builder pattern:
 ### 5. V2 Engine ✅
 **Location**: `org.apache.skywalking.oal.v2`
 
-- **OALEngineV2**: Main V2 engine (extends OALKernel)
+- **OALEngineV2**: Main V2 engine (implements OALEngine)
   - Uses V2 parser for parsing
   - Uses V2 enricher for metadata extraction
   - Uses V2 generator with V2 templates
@@ -151,8 +151,6 @@ After V1 removal, all code is organized under `org.apache.skywalking.oal.v2`:
 ## Key Benefits
 
 ### 1. Type Safety
-
-### 2. Type Safety
 - FilterValue knows its type (NUMBER/STRING/BOOLEAN)
 - FunctionArgument distinguishes LITERAL/ATTRIBUTE/EXPRESSION
 - Compile-time type checking

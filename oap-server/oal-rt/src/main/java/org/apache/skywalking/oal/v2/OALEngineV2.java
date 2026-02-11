@@ -94,39 +94,38 @@ public class OALEngineV2 implements OALEngine {
         classGeneratorV2.prepareRTTempFolder();
         classGeneratorV2.setCurrentClassLoader(currentClassLoader);
 
-        // Load OAL script
-        Reader reader;
-        try {
-            reader = ResourceUtils.read(oalDefine.getConfigFile());
+        // Load OAL script, parse, and generate classes with proper resource management
+        try (Reader reader = ResourceUtils.read(oalDefine.getConfigFile())) {
+            // Parse using V2 parser
+            OALScriptParserV2 v2Parser;
+            try {
+                v2Parser = OALScriptParserV2.parse(reader, oalDefine.getConfigFile());
+                log.info("V2 Parser: Successfully parsed {} metrics", v2Parser.getMetricsCount());
+            } catch (IOException e) {
+                throw new ModuleStartException("OAL V2 script parse failure", e);
+            }
+
+            // Enrich V2 models with metadata for code generation
+            List<CodeGenModel> codeGenModels = enrichMetrics(v2Parser.getMetrics());
+            log.info("V2 Enricher: Enriched {} metrics with metadata", codeGenModels.size());
+
+            // Generate classes using V2 generator
+            classGeneratorV2.generateClassAtRuntime(
+                codeGenModels,
+                v2Parser.getDisabledSources(),
+                metricsClasses,
+                dispatcherClasses
+            );
+
+            log.info("OAL Engine V2 started successfully. Generated {} metrics classes, {} dispatcher classes",
+                metricsClasses.size(),
+                dispatcherClasses.size()
+            );
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Can't locate " + oalDefine.getConfigFile(), e);
-        }
-
-        // Parse using V2 parser
-        OALScriptParserV2 v2Parser;
-        try {
-            v2Parser = OALScriptParserV2.parse(reader, oalDefine.getConfigFile());
-            log.info("V2 Parser: Successfully parsed {} metrics", v2Parser.getMetricsCount());
         } catch (IOException e) {
-            throw new ModuleStartException("OAL V2 script parse failure", e);
+            throw new ModuleStartException("OAL V2 script I/O failure", e);
         }
-
-        // Enrich V2 models with metadata for code generation
-        List<CodeGenModel> codeGenModels = enrichMetrics(v2Parser.getMetrics());
-        log.info("V2 Enricher: Enriched {} metrics with metadata", codeGenModels.size());
-
-        // Generate classes using V2 generator
-        classGeneratorV2.generateClassAtRuntime(
-            codeGenModels,
-            v2Parser.getDisabledSources(),
-            metricsClasses,
-            dispatcherClasses
-        );
-
-        log.info("OAL Engine V2 started successfully. Generated {} metrics classes, {} dispatcher classes",
-            metricsClasses.size(),
-            dispatcherClasses.size()
-        );
     }
 
     @Override

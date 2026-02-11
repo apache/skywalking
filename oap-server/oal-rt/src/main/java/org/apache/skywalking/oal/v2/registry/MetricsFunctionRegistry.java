@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * Example usage:
  * <pre>
- * MetricsFunctionRegistry registry = MetricsFunctionRegistryFactory.createDefault();
+ * MetricsFunctionRegistry registry = DefaultMetricsFunctionRegistry.create();
  *
  * Optional&lt;MetricsFunctionDescriptor&gt; longAvg = registry.findFunction("longAvg");
  * if (longAvg.isPresent()) {

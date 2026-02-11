@@ -242,9 +242,9 @@ public class RuntimeOALGenerationTest {
             assertNotNull(oalFile, "OAL file not found: " + define.getConfigFile() +
                 ". Tried paths: " + String.join(", ", POSSIBLE_PATHS));
 
-            try {
+            try (FileReader reader = new FileReader(oalFile)) {
                 // Parse OAL script
-                OALScriptParserV2 parser = OALScriptParserV2.parse(new FileReader(oalFile), define.getConfigFile());
+                OALScriptParserV2 parser = OALScriptParserV2.parse(reader, define.getConfigFile());
                 List<MetricDefinition> metrics = parser.getMetrics();
                 List<String> disabledSources = parser.getDisabledSources();
                 totalMetrics += metrics.size();
