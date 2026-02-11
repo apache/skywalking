@@ -168,6 +168,11 @@ public final class FilterExpression {
             return this;
         }
 
+        public Builder enumValue(String value) {
+            this.value = FilterValue.ofEnum(value);
+            return this;
+        }
+
         public Builder location(SourceLocation location) {
             this.location = location;
             return this;

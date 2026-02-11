@@ -278,7 +278,7 @@ public class OALListenerV2 extends OALParserBaseListener {
             String value = ctx.enumConditionValue().getText();
             currentFilter.fieldName(field);
             currentFilter.operator(FilterOperator.EQUAL);
-            currentFilter.stringValue(value);
+            currentFilter.enumValue(value);
         } else if (ctx.nullConditionValue() != null) {
             currentFilter.fieldName(field);
             currentFilter.operator(FilterOperator.EQUAL);
@@ -421,7 +421,7 @@ public class OALListenerV2 extends OALParserBaseListener {
             currentFilter.stringValue(value);
         } else if (ctx.enumConditionValue() != null) {
             String value = ctx.enumConditionValue().getText();
-            currentFilter.stringValue(value);
+            currentFilter.enumValue(value);
         } else if (ctx.nullConditionValue() != null) {
             currentFilter.nullValue();
         }

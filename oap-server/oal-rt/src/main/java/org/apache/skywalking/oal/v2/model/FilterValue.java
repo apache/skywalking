@@ -33,12 +33,14 @@ import lombok.Getter;
  * - BOOLEAN: true or false
  * - NULL: null value
  * - ARRAY: Collection of values (for 'in' operator)
+ * - ENUM: Enum reference (e.g., RequestType.MQ)
  *
  * Examples:
  * <pre>
  * latency > 100              → NUMBER: 100L
  * status == true             → BOOLEAN: true
  * name like "serv%"          → STRING: "serv%"
+ * type == RequestType.MQ     → ENUM: RequestType.MQ
  * code in [404, 500, 503]    → ARRAY: [404L, 500L, 503L]
  * tag["key"] != null         → NULL
  * </pre>
@@ -79,6 +81,10 @@ public final class FilterValue {
         return new FilterValue(ValueType.ARRAY, Collections.unmodifiableList(new ArrayList<>(values)));
     }
 
+    public static FilterValue ofEnum(String value) {
+        return new FilterValue(ValueType.ENUM, Objects.requireNonNull(value));
+    }
+
     // Type checking methods
 
     public boolean isNumber() {
@@ -99,6 +105,10 @@ public final class FilterValue {
 
     public boolean isArray() {
         return type == ValueType.ARRAY;
+    }
+
+    public boolean isEnum() {
+        return type == ValueType.ENUM;
     }
 
     // Accessor methods with type checking
@@ -148,6 +158,13 @@ public final class FilterValue {
         return (List<?>) value;
     }
 
+    public String asEnum() {
+        if (type != ValueType.ENUM) {
+            throw new IllegalStateException("Value is not an enum: " + type);
+        }
+        return (String) value;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -174,6 +191,8 @@ public final class FilterValue {
                 return "null";
             case ARRAY:
                 return value.toString();
+            case ENUM:
+                return (String) value;  // No quotes for enum
             default:
                 throw new IllegalStateException("Unknown type: " + type);
         }
@@ -206,6 +225,11 @@ public final class FilterValue {
         /**
          * Array of values (for 'in' operator).
          */
-        ARRAY
+        ARRAY,
+
+        /**
+         * Enum reference (e.g., RequestType.MQ, DetectPoint.CLIENT).
+         */
+        ENUM
     }
 }

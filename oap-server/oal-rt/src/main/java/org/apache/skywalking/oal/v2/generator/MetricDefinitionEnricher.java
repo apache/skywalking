@@ -271,7 +271,21 @@ public class MetricDefinitionEnricher {
                         argsExpressions.add(String.valueOf(funcArg.asLiteral()));
                         argTypes.add(1); // LITERAL_TYPE
                     } else if (funcArg.isAttribute()) {
-                        argsExpressions.add("source." + ClassMethodUtil.toGetMethod(funcArg.asAttribute()) + "()");
+                        // Use isXxx() for boolean parameters, getXxx() otherwise
+                        String attr = funcArg.asAttribute();
+                        String accessor = parameterType.equals(boolean.class)
+                            ? ClassMethodUtil.toIsMethod(attr)
+                            : ClassMethodUtil.toGetMethod(attr);
+                        String expression = "source." + accessor + "()";
+                        // Cast numeric types to match parameter type
+                        if (parameterType.equals(long.class)) {
+                            expression = "(long)(" + expression + ")";
+                        } else if (parameterType.equals(int.class)) {
+                            expression = "(int)(" + expression + ")";
+                        } else if (parameterType.equals(double.class)) {
+                            expression = "(double)(" + expression + ")";
+                        }
+                        argsExpressions.add(expression);
                         argTypes.add(2); // ATTRIBUTE_EXP_TYPE
                     }
                 }
@@ -315,10 +329,43 @@ public class MetricDefinitionEnricher {
     private String buildFilterLeft(FilterExpression filterExpr) {
         FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
             mapOperatorToExpressionType(filterExpr));
+        String fieldName = filterExpr.getFieldName();
+
+        // Handle map expressions like tag["key"]
+        if (isMapExpression(fieldName)) {
+            return "source." + mapExpression(fieldName);
+        }
+
+        // Handle nested attributes by splitting on dot
+        if (fieldName.contains(".")) {
+            List<String> attributes = java.util.Arrays.asList(fieldName.split("\\."));
+            String getter = matcherInfo.isBooleanType()
+                ? ClassMethodUtil.toIsMethod(attributes)
+                : ClassMethodUtil.toGetMethod(attributes);
+            return "source." + getter;
+        }
+
         String getter = matcherInfo.isBooleanType()
-            ? ClassMethodUtil.toIsMethod(filterExpr.getFieldName())
-            : ClassMethodUtil.toGetMethod(filterExpr.getFieldName());
+            ? ClassMethodUtil.toIsMethod(fieldName)
+            : ClassMethodUtil.toGetMethod(fieldName);
         return "source." + getter + "()";
+    }
+
+    /**
+     * Check if the attribute is a map expression like tag["key"].
+     */
+    private boolean isMapExpression(String attribute) {
+        return attribute.indexOf("[") > 0 && attribute.endsWith("]");
+    }
+
+    /**
+     * Convert map expression to method call.
+     * Example: tag["transmission.latency"] -> getTag("transmission.latency")
+     */
+    private String mapExpression(String attribute) {
+        int indexOf = attribute.indexOf("[");
+        return ClassMethodUtil.toGetMethod(attribute.substring(0, indexOf))
+            + "(" + attribute.substring(indexOf + 1, attribute.length() - 1) + ")";
     }
 
     /**
@@ -334,18 +381,41 @@ public class MetricDefinitionEnricher {
             return String.valueOf(value.asBoolean());
         } else if (value.isNull()) {
             return "null";
+        } else if (value.isEnum()) {
+            // Enum values need fully qualified names (e.g., DetectPoint.CLIENT -> org...DetectPoint.CLIENT)
+            // Enums used in OAL are in the source package
+            String enumValue = value.asEnum();
+            int dotIndex = enumValue.indexOf('.');
+            String enumClass = enumValue.substring(0, dotIndex);
+            String enumConstant = enumValue.substring(dotIndex + 1);
+            // sourcePackage already has trailing dot, don't add another
+            return sourcePackage + enumClass + "." + enumConstant;
         } else if (value.isArray()) {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder("new Object[]{");
+            boolean first = true;
             for (Object item : value.asArray()) {
-                if (sb.length() > 0) {
+                if (!first) {
                     sb.append(", ");
                 }
+                first = false;
                 if (item instanceof String) {
-                    sb.append("\"").append(item).append("\"");
+                    // Check if item looks like an enum (contains dot)
+                    String str = (String) item;
+                    if (str.contains(".")) {
+                        // Enum value - needs fully qualified name
+                        int dotIndex = str.indexOf('.');
+                        String enumClass = str.substring(0, dotIndex);
+                        String enumConstant = str.substring(dotIndex + 1);
+                        // sourcePackage already has trailing dot, don't add another
+                        sb.append(sourcePackage).append(enumClass).append(".").append(enumConstant);
+                    } else {
+                        sb.append("\"").append(str).append("\"");
+                    }
                 } else {
                     sb.append(item);
                 }
             }
+            sb.append("}");
             return sb.toString();
         }
         throw new IllegalArgumentException("Unknown filter value type: " + value);
@@ -389,6 +459,13 @@ public class MetricDefinitionEnricher {
             return "inMatch";
         } else if (value.isNull()) {
             return op == FilterOperator.EQUAL ? "stringMatch" : "notEqualMatch";
+        } else if (value.isEnum()) {
+            // Enum comparisons use string matching (e.g., type == RequestType.MQ)
+            switch (op) {
+                case EQUAL: return "stringMatch";
+                case NOT_EQUAL: return "notEqualMatch";
+                default: throw new IllegalArgumentException("Unsupported enum operator: " + op);
+            }
         }
 
         throw new IllegalArgumentException("Unsupported filter: " + filterExpr);

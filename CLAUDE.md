@@ -119,6 +119,319 @@ public class XxxModuleProvider extends ModuleProvider {
 4. Storage plugins persist aggregated data
 5. Query plugins serve data to UI/API
 
+## OAL (Observability Analysis Language) V2 Engine
+
+OAL V2 is a complete rewrite of the OAL engine with improved architecture, better error messages, and enhanced maintainability.
+
+### Overview
+
+The OAL V2 engine transforms OAL scripts (DSL) into Java classes at runtime using ANTLR parsing, AST analysis, and FreeMarker code generation.
+
+**Key Components:**
+- `oal-grammar/` - ANTLR4 grammar definitions (shared between V1 and V2)
+- `oal-rt/` - Runtime code generation, parsing, and model classes
+
+**V2-specific packages:**
+- `org.apache.skywalking.oal.v2.parser` - ANTLR-based parser
+- `org.apache.skywalking.oal.v2.model` - AST and data models
+- `org.apache.skywalking.oal.v2.generator` - Code generation engine
+- `code-templates-v2/` - FreeMarker templates (in oal-rt/src/main/resources/)
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ OAL Script Files (*.oal)                                        │
+│ - core.oal, java-agent.oal, browser.oal, mesh.oal, tcp.oal... │
+└─────────────────────────────────────────────┬───────────────────┘
+                                              │
+                                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ OALScriptParserV2 (ANTLR-based)                                 │
+│ - Tokenize and parse OAL scripts                                │
+│ - Build AST (Abstract Syntax Tree)                              │
+│ - Validate syntax and semantics                                 │
+└─────────────────────────────────────────────┬───────────────────┘
+                                              │
+                                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ MetricDefinition (AST Model)                                    │
+│ - Metric name, source, field, aggregation function             │
+│ - Filter expressions, decorator                                 │
+└─────────────────────────────────────────────┬───────────────────┘
+                                              │
+                                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ MetricDefinitionEnricher                                         │
+│ - Resolve source fields and metadata                            │
+│ - Generate filter bytecode expressions                          │
+│ - Build CodeGenModel for templates                              │
+└─────────────────────────────────────────────┬───────────────────┘
+                                              │
+                                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ OALClassGeneratorV2 (Javassist + FreeMarker)                    │
+│ - Generate Metrics classes (extends base metrics functions)     │
+│ - Generate Builder classes (implements StorageBuilder)          │
+│ - Generate Dispatcher classes (implements SourceDispatcher)     │
+└─────────────────────────────────────────────┬───────────────────┘
+                                              │
+                                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│ Runtime Classes (loaded into JVM)                               │
+│ - org.apache.skywalking.oap.server.core.source.oal.rt.metrics.* │
+│ - org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher.* │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### OAL Grammar
+
+The grammar is defined in ANTLR4 format in `oal-grammar/src/main/antlr4/org/apache/skywalking/oal/rt/grammar/`:
+
+**Key grammar files:**
+- `OALLexer.g4` - Tokenization rules (keywords, operators, identifiers)
+- `OALParser.g4` - Syntax rules (metric definitions, filters, functions)
+
+**OAL Syntax:**
+```
+metric_name = from(Source.field)
+    .filter(condition)        // Optional, can chain multiple
+    .aggregationFunction()
+    .decorator("DecoratorName"); // Optional
+
+// Example from core.oal:
+service_resp_time = from(Service.latency).longAvg();
+service_sla = from(Service.*).filter(status == true).percent();
+service_relation_client_cpm = from(ServiceRelation.*)
+    .filter(detectPoint == DetectPoint.CLIENT).cpm();
+```
+
+**Supported features:**
+- **Sources**: Service, ServiceInstance, Endpoint, ServiceRelation, etc.
+- **Fields**: Specific field (`.latency`) or all fields (`.*`)
+- **Filters**: Comparison operators (`==`, `!=`, `>`, `<`, `>=`, `<=`), `in [...]`, `like`
+- **Functions**: `longAvg()`, `sum()`, `count()`, `percent()`, `cpm()`, `max()`, `min()`, `p99()`, etc.
+- **Decorators**: Post-processing transformations (e.g., ServiceDecorator, EndpointDecorator)
+
+### Code Generation
+
+OAL V2 uses FreeMarker templates in `oal-rt/src/main/resources/code-templates-v2/`:
+
+**Template structure:**
+```
+code-templates-v2/
+├── metrics/                 # Metrics class templates
+│   ├── id.ftl              # id() method - generates unique metric ID
+│   ├── hashCode.ftl        # hashCode() and remoteHashCode()
+│   ├── equals.ftl          # equals() method
+│   ├── serialize.ftl       # serialize() for remote transport
+│   ├── deserialize.ftl     # deserialize() from remote data
+│   ├── getMeta.ftl         # getMeta() for WithMetadata
+│   ├── toHour.ftl          # toHour() aggregation
+│   └── toDay.ftl           # toDay() aggregation
+├── metrics/builder/        # Builder class templates
+│   ├── entity2Storage.ftl  # Convert entity to storage format
+│   └── storage2Entity.ftl  # Convert storage format to entity
+└── dispatcher/             # Dispatcher class templates
+    ├── doMetrics.ftl       # doMetrics() - process single metric
+    └── dispatch.ftl        # dispatch() - route to correct doMetrics()
+```
+
+**Generated class structure:**
+
+Each OAL metric definition generates 3 classes:
+
+1. **Metrics class** - Extends base metrics function (e.g., `LongAvgMetrics`)
+   ```java
+   @Stream(name = "service_resp_time", scopeId = 1, builder = ..., processor = ...)
+   public class ServiceRespTimeMetrics extends LongAvgMetrics implements WithMetadata {
+       @Column(name = "entity_id") @BanyanDB.SeriesID(index = 0)
+       private String entityId;
+
+       public String id() { /* generated from id.ftl */ }
+       public int hashCode() { /* generated from hashCode.ftl */ }
+       // ... other methods
+   }
+   ```
+
+2. **Builder class** - Implements StorageBuilder
+   ```java
+   public class ServiceRespTimeMetricsBuilder implements StorageBuilder<ServiceRespTimeMetrics> {
+       public void entity2Storage(ServiceRespTimeMetrics entity, Convert2Storage converter) { ... }
+       public ServiceRespTimeMetrics storage2Entity(Convert2Entity converter) { ... }
+   }
+   ```
+
+3. **Dispatcher class** - Implements SourceDispatcher (one per source, contains all metrics)
+   ```java
+   public class ServiceDispatcher implements SourceDispatcher<Service> {
+       public void dispatch(Service source) {
+           doServiceRespTime(source);
+           doServiceSla(source);
+           doServiceCpm(source);
+           // ... other metrics for Service source
+       }
+
+       private void doServiceRespTime(Service source) {
+           // Filter logic (if any)
+           // Create metrics instance
+           // Set fields from source
+           // Send to MetricsStreamProcessor
+       }
+   }
+   ```
+
+### OALDefine Structure
+
+Each OAL script file is associated with an `OALDefine` implementation that specifies:
+- OAL script file path
+- Source package (where source classes are located)
+- Catalog (optional prefix for dispatcher class names to avoid conflicts)
+
+**OALDefine implementations:**
+
+| OALDefine Class | OAL Script | Source Package | Catalog |
+|----------------|------------|----------------|---------|
+| `CoreOALDefine` | `oal/core.oal` | `org.apache.skywalking.oap.server.core.source` | (none) |
+| `JVMOALDefine` | `oal/java-agent.oal` | `org.apache.skywalking.oap.server.core.source` | (none) |
+| `CLROALDefine` | `oal/dotnet-agent.oal` | `org.apache.skywalking.oap.server.core.source` | (none) |
+| `BrowserOALDefine` | `oal/browser.oal` | `org.apache.skywalking.oap.server.core.browser.source` | (none) |
+| `MeshOALDefine` | `oal/mesh.oal` | `org.apache.skywalking.oap.server.core.source` | `ServiceMesh` |
+| `TCPOALDefine` | `oal/tcp.oal` | `org.apache.skywalking.oap.server.core.source` | `EnvoyTCP` |
+| `EBPFOALDefine` | `oal/ebpf.oal` | `org.apache.skywalking.oap.server.core.source` | (none) |
+| `CiliumOALDefine` | `oal/cilium.oal` | `org.apache.skywalking.oap.server.core.source` | (none) |
+| `DisableOALDefine` | `oal/disable.oal` | `org.apache.skywalking.oap.server.core.source` | (none) |
+
+**Catalog usage:**
+- Catalogs prevent dispatcher class name conflicts when multiple OAL files use the same source
+- Example: `mesh.oal` uses `ServiceMesh` catalog → generates `ServiceMeshServiceDispatcher` instead of `ServiceDispatcher`
+- Without catalog: Multiple files using `Service` source would try to generate `ServiceDispatcher` → conflict
+
+### OAL Script Files
+
+OAL scripts are located in `oap-server/server-starter/src/main/resources/oal/`:
+
+| File | Purpose | Key Metrics |
+|------|---------|-------------|
+| `core.oal` | Core service/endpoint metrics | service_resp_time, service_cpm, service_sla, endpoint_resp_time |
+| `java-agent.oal` | JVM metrics | instance_jvm_cpu, instance_jvm_memory_heap, instance_jvm_gc_time |
+| `dotnet-agent.oal` | CLR metrics | instance_clr_cpu, instance_clr_gc_time |
+| `browser.oal` | Browser performance | browser_app_pv, browser_app_error_rate, browser_app_page_fcp |
+| `mesh.oal` | Service mesh metrics | service_mesh_http_request_cpm, service_mesh_grpc_request_cpm |
+| `tcp.oal` | TCP metrics | tcp_service_traffic_received, tcp_service_traffic_sent |
+| `ebpf.oal` | eBPF profiling | ebpf_profiling_schedule |
+| `cilium.oal` | Cilium metrics | cilium_service_resp_time, cilium_service_sla |
+| `disable.oal` | Disable sources | (contains `disable(SourceName);` statements) |
+
+**Common patterns in OAL scripts:**
+
+```oal
+// Basic aggregation
+service_resp_time = from(Service.latency).longAvg();
+service_calls = from(Service.*).count();
+
+// With filter
+service_relation_client_cpm = from(ServiceRelation.*)
+    .filter(detectPoint == DetectPoint.CLIENT).cpm();
+
+// Multiple filters (chained with dots)
+service_relation_client_call_sla = from(ServiceRelation.*)
+    .filter(detectPoint == DetectPoint.CLIENT)
+    .filter(status == true)
+    .percent(status == true);
+
+// With decorator
+service_resp_time = from(Service.latency)
+    .longAvg()
+    .decorator("ServiceDecorator");
+
+// Array filter (in operator)
+tcp_tls_filtered = from(TCPService.*)
+    .filter(tlsMode in ["STRICT", "PERMISSIVE"])
+    .count();
+
+// Disable a source
+disable(SourceName);
+```
+
+### Testing OAL V2
+
+OAL V2 has comprehensive test coverage in `oap-server/oal-rt/src/test/java/org/apache/skywalking/oal/v2/`:
+
+**Test categories:**
+
+1. **Parser Tests** (`parser/`)
+   - `OALScriptParserV2Test` - Basic parsing functionality
+   - `RealOALScriptsTest` - Parse all production OAL scripts
+   - `OALParsingErrorTest` - Error messages and syntax validation
+   - Coverage: All OAL syntax features (filters, functions, decorators, comments)
+
+2. **Model Tests** (`model/`)
+   - `MetricDefinitionTest` - AST model validation
+   - `FilterExpressionTest` - Filter expression parsing
+
+3. **Generator Tests** (`generator/`)
+   - `OALClassGeneratorV2Test` - Runtime class generation
+     - Generates classes to `target/test-classes` for inspection
+     - Tests all metrics types (longAvg, count, sum, percent, etc.)
+     - Tests filter expressions (comparison, in, enum values)
+     - Tests dispatcher generation
+     - Validates @Stream annotations, @Column annotations
+   - `MetricDefinitionEnricherTest` - Field resolution and enrichment
+   - `RuntimeOALGenerationTest` - Load all OAL scripts via OALDefine
+     - Tests all production OAL files
+     - Detects dispatcher conflicts across OAL files
+     - Generates classes matching runtime structure
+
+**Running OAL V2 tests:**
+```bash
+# Run all OAL V2 tests
+./mvnw test -pl oap-server/oal-rt -Dtest="*V2*"
+
+# Run specific test class
+./mvnw test -pl oap-server/oal-rt -Dtest=OALClassGeneratorV2Test
+
+# Run with debug output (generated classes written to disk)
+SW_OAL_ENGINE_DEBUG=true ./mvnw test -pl oap-server/oal-rt -Dtest=OALClassGeneratorV2Test
+```
+
+**Test coverage checklist:**
+
+All OAL features must have test coverage:
+
+- [ ] Basic syntax: `metric = from(Source.field).function();`
+- [ ] Wildcard field: `from(Source.*)`
+- [ ] Single filter: `.filter(field == value)`
+- [ ] Multiple filters: `.filter(a == 1).filter(b == 2)`
+- [ ] Filter operators: `==`, `!=`, `>`, `<`, `>=`, `<=`
+- [ ] Array filter: `.filter(field in [val1, val2])`
+- [ ] String filter: `.filter(name == "value")`
+- [ ] Boolean filter: `.filter(status == true)`
+- [ ] Enum filter: `.filter(type == RequestType.RPC)`
+- [ ] Decorator: `.decorator("DecoratorName")`
+- [ ] Comments: `// line comment`, `/* block comment */`
+- [ ] All aggregation functions: longAvg, sum, count, max, min, percent, cpm, p99, etc.
+- [ ] Error messages: Clear location (file:line:column) and description
+- [ ] Multi-line scripts
+- [ ] Empty scripts
+- [ ] disable() statements
+
+**Adding new OAL features:**
+
+When adding new OAL features, follow this checklist:
+
+1. Update ANTLR grammar in `oal-grammar/src/main/antlr4/`
+2. Update parser in `oal-rt/.../oal/v2/parser/`
+3. Update models in `oal-rt/.../oal/v2/model/`
+4. Update enricher in `oal-rt/.../oal/v2/generator/MetricDefinitionEnricher.java`
+5. Add/update FreeMarker templates in `oal-rt/src/main/resources/code-templates-v2/`
+6. Add comprehensive tests in `oal-rt/src/test/java/.../oal/v2/`
+   - Parser test for syntax
+   - Error test for invalid syntax
+   - Generator test for code generation
+   - Add example to RealOALScriptsTest if production script uses it
+7. Update this documentation (CLAUDE.md)
+
 ## Code Style & Conventions
 
 ### Checkstyle Rules (enforced via `apm-checkstyle/checkStyle.xml`)

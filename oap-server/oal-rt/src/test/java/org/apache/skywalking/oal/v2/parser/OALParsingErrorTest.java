@@ -62,6 +62,8 @@ public class OALParsingErrorTest {
     public void testSyntaxError_InvalidVariableName() throws Exception {
         String script = "1service_resp_time = from(Service.latency).longAvg();";
 
+        // Expected error: Variable names cannot start with a digit (IDENTIFIER must start with a letter)
+        // Example error message: "OAL parsing failed at test.oal:1:0: mismatched input '1' expecting..."
         // The parser may not throw (treats this as empty script or lexer error)
         // Instead verify it doesn't produce valid metrics
         try {
@@ -83,6 +85,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_MissingEquals() {
         String script = "service_resp_time from(Service.latency).longAvg();";
 
+        // Expected error: Missing '=' assignment operator between variable name and from() clause
+        // Example error message: "OAL parsing failed at test.oal:1:18: missing '=' at 'from'"
+        // or "OAL parsing failed at test.oal:1:18: mismatched input 'from' expecting '='"
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should require equals sign in metric definition");
@@ -100,6 +105,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_MissingFrom() {
         String script = "service_resp_time = .longAvg();";
 
+        // Expected error: Missing 'from' keyword before the aggregation function chain
+        // Example error message: "OAL parsing failed at test.oal:1:20: mismatched input '.' expecting 'from'"
+        // or "OAL parsing failed at test.oal:1:20: expecting 'from' at '.'"
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should require from() clause");
@@ -117,6 +125,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_MissingSourceName() {
         String script = "service_resp_time = from().longAvg();";
 
+        // Expected error: Missing source name inside from() parentheses
+        // Example error message: "OAL parsing failed at test.oal:1:25: expecting {IDENTIFIER, 'All'} at ')'"
+        // The parser expects either a source name (IDENTIFIER) or the keyword 'All'
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should require source name in from() clause");
@@ -134,6 +145,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_MalformedFilter() {
         String script = "service_sla = from(Service.*).filter(status ==).percent();";
 
+        // Expected error: Missing right-hand side value in filter expression after '==' operator
+        // Example error message: "OAL parsing failed at test.oal:1:48: mismatched input ')' expecting {IDENTIFIER, STRING, NUMBER, 'true', 'false', ...}"
+        // The parser expects a value (identifier, literal, boolean, etc.) after the comparison operator
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should detect incomplete filter expression");
@@ -151,6 +165,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_UnclosedParenthesis() {
         String script = "service_sla = from(Service.*).filter(status == true.percent();";
 
+        // Expected error: Missing closing ')' for the filter() function before '.' token
+        // Example error message: "OAL parsing failed at test.oal:1:51: missing ')' at '.'"
+        // The parser encounters '.' before finding the closing parenthesis for filter()
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should detect unclosed parenthesis");
@@ -167,6 +184,10 @@ public class OALParsingErrorTest {
     public void testSyntaxError_InvalidOperator() {
         String script = "service_sla = from(Service.*).filter(latency <=> 100).count();";
 
+        // Expected error: Invalid operator '<=>'. OAL only supports: ==, !=, >, <, >=, <=, 'in', 'like'
+        // Example error message: "OAL parsing failed at test.oal:1:46: mismatched input '=>' expecting..."
+        // or "OAL parsing failed at test.oal:1:46: extraneous input '=' expecting..."
+        // The parser sees '<' as a valid operator start, but then encounters '=' unexpectedly
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should reject invalid operators");
@@ -184,6 +205,10 @@ public class OALParsingErrorTest {
     public void testSyntaxError_MissingFunction() {
         String script = "service_resp_time = from(Service.latency);";
 
+        // Expected error: Missing aggregation function call after from() clause
+        // Example error message: "OAL parsing failed at test.oal:1:42: mismatched input ';' expecting '.'"
+        // or "OAL parsing failed at test.oal:1:42: extraneous input ';' expecting '.'"
+        // The parser expects a '.' followed by an aggregation function name
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should require aggregation function");
@@ -201,6 +226,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_InvalidFunctionArguments() {
         String script = "service_p99 = from(Service.latency).percentile(,);";
 
+        // Expected error: Empty argument in function call (two commas with nothing between)
+        // Example error message: "OAL parsing failed at test.oal:1:47: extraneous input ',' expecting {IDENTIFIER, NUMBER, ')'}"
+        // The parser expects either an argument value or the closing parenthesis, not a comma
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should reject empty function arguments");
@@ -217,6 +245,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_MultipleEquals() {
         String script = "service_resp_time == from(Service.latency).longAvg();";
 
+        // Expected error: Using '==' (comparison) instead of '=' (assignment)
+        // Example error message: "OAL parsing failed at test.oal:1:19: extraneous input '=' expecting 'from'"
+        // The parser sees the first '=' as assignment, then encounters an unexpected second '='
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should reject multiple equals signs");
@@ -234,6 +265,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_InvalidCharacters() throws Exception {
         String script = "service@resp_time = from(Service.latency).longAvg();";
 
+        // Expected error: Invalid character '@' in identifier (variable name)
+        // Example error message: "OAL parsing failed at test.oal:1:7: token recognition error at: '@'"
+        // or may parse as two separate tokens: "service" and "resp_time", causing structural errors
         // The parser may not throw if @ is treated as separating tokens
         // Instead verify it doesn't produce valid metrics or throws error
         try {
@@ -254,6 +288,10 @@ public class OALParsingErrorTest {
     public void testSyntaxError_UnclosedString() {
         String script = "service_sla = from(Service.*).filter(name == \"test).percent();";
 
+        // Expected error: String literal not closed (missing closing quote)
+        // Example error message: "OAL parsing failed at test.oal:1:50: token recognition error at: '\")'"
+        // or "OAL parsing failed at test.oal:1:57: mismatched input..."
+        // The lexer fails to find the closing quote and may consume rest of line as string
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should detect unclosed string literals");
@@ -303,6 +341,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_InvalidSourceName() {
         String script = "service_resp_time = from(Servicelatency).longAvg();";
 
+        // Expected error: Invalid source name "Servicelatency" (not recognized in grammar)
+        // Example error message: "OAL parsing failed at test.oal:1:25: mismatched input 'Servicelatency' expecting {valid source names...}"
+        // or may fail during semantic validation if parser accepts it syntactically
         // "Servicelatency" is not a valid source name in the grammar
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
@@ -322,6 +363,12 @@ public class OALParsingErrorTest {
     public void testSyntaxError_MultipleFiltersInvalid() {
         String script = "service_sla = from(Service.*).filter(status == true) filter(latency > 100).percent();";
 
+        // Expected error: Missing '.' before second filter() call (filters must be chained with dots)
+        // Example error message: "OAL parsing failed at test.oal:1:53: extraneous input 'filter' expecting {'.', ';', EOF}"
+        // After the first filter() completes, parser expects either:
+        // - '.' to chain another function call
+        // - ';' to end the statement
+        // - EOF if at end of file
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should reject multiple filters without proper chaining");
@@ -338,6 +385,9 @@ public class OALParsingErrorTest {
     public void testSyntaxError_NestedFunctions() {
         String script = "service_resp_time = from(Service.latency).longAvg(sum());";
 
+        // Expected error: Nested function calls not allowed (sum() inside longAvg())
+        // Example error message: "OAL parsing failed at test.oal:1:51: mismatched input 'sum' expecting {IDENTIFIER, NUMBER, ')'}"
+        // The parser expects function arguments to be simple values (identifiers/literals), not other function calls
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "test.oal");
         }, "Parser should reject nested function calls");
@@ -395,6 +445,13 @@ public class OALParsingErrorTest {
             "service_resp_time = from(Service.latency).longAvg();\n" +
             "service_sla = from(Service.*).filter(status == ).percent();\n";  // Error on line 2
 
+        // Expected error: Incomplete filter expression on line 2
+        // Example error message: "OAL parsing failed at error.oal:2:43: mismatched input ')' expecting {IDENTIFIER, STRING, NUMBER, 'true', 'false', ...}"
+        // Error message should include:
+        // - File name: "error.oal"
+        // - Line number: "2:"
+        // - Clear header: "OAL parsing failed"
+        // - Description of syntax problem
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             OALScriptParserV2.parse(script, "error.oal");
         });
@@ -413,9 +470,18 @@ public class OALParsingErrorTest {
     @Test
     public void testMultipleErrors_AllReported() throws Exception {
         String script =
-            "service_resp_time = from(Service.latency).longAvg()\n" +  // Missing semicolon between statements
-            "service_sla = from().percent();\n";  // Missing source
+            "service_resp_time = from(Service.latency).longAvg()\n" +  // Error 1: Missing semicolon (line 1)
+            "service_sla = from().percent();\n";  // Error 2: Missing source (line 2)
 
+        // Expected errors (parser typically reports first error only):
+        // Error 1 at line 1:48: Missing semicolon causes parser to see "service_sla" as unexpected token
+        //   Example: "OAL parsing failed at multi-error.oal:2:0: mismatched input 'service_sla' expecting {'.', ';', EOF}"
+        //   Or alternatively reports at line 1 end
+        // Error 2 at line 2:18: Empty from() clause (would be reported if Error 1 is fixed)
+        //   Example: "OAL parsing failed at multi-error.oal:2:18: expecting {IDENTIFIER, 'All'} at ')'"
+        //
+        // Note: Most parsers use "fail-fast" strategy - stop at first error. This script has cascading errors.
+        //
         // Parser may stop at first error or collect multiple
         try {
             OALScriptParserV2 result = OALScriptParserV2.parse(script, "multi-error.oal");

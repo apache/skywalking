@@ -37,8 +37,10 @@ import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
+import org.apache.skywalking.oap.server.core.source.K8SService;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
+import org.apache.skywalking.oap.server.core.source.TCPService;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,11 +71,16 @@ public class OALClassGeneratorV2Test {
 
     @BeforeAll
     public static void initializeScopes() {
+        // Set generated file path to target/test-classes
+        OALClassGeneratorV2.setGeneratedFilePath("target/test-classes");
+
         try {
             DefaultScopeDefine.Listener listener = new DefaultScopeDefine.Listener();
             listener.notify(Service.class);
             listener.notify(Endpoint.class);
             listener.notify(ServiceRelation.class);
+            listener.notify(K8SService.class);
+            listener.notify(TCPService.class);
         } catch (RuntimeException e) {
             // Scopes may already be registered by other tests
         }
@@ -277,37 +284,6 @@ public class OALClassGeneratorV2Test {
     }
 
     /**
-     * Test that filter expressions are correctly processed by the enricher.
-     * This is a unit test for filter processing - doesn't generate bytecode.
-     */
-    @Test
-    public void testFilterExpressionProcessing() throws Exception {
-        // OAL with filter expression
-        String oal = "test_sla = from(Endpoint.*).filter(status == true).percent(status == true);";
-
-        MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
-
-        // Parse and enrich
-        OALScriptParserV2 parser = OALScriptParserV2.parse(oal);
-        MetricDefinition metric = parser.getMetrics().get(0);
-        CodeGenModel model = enricher.enrich(metric);
-
-        // Verify filter expressions are converted to template-ready format
-        assertFalse(model.getFilterExpressions().isEmpty(),
-            "Filter expressions should be populated");
-        assertEquals(1, model.getFilterExpressions().size());
-
-        CodeGenModel.FilterExpressionV2 filterExpr = model.getFilterExpressions().get(0);
-        assertNotNull(filterExpr.getExpressionObject(), "Expression object should not be null");
-        assertTrue(filterExpr.getExpressionObject().contains("Match"),
-            "Expression object should be a matcher class (e.g., EqualMatch, NotEqualMatch)");
-        assertNotNull(filterExpr.getLeft(), "Left side should not be null");
-        assertTrue(filterExpr.getLeft().contains("source."),
-            "Left side should reference source");
-        assertNotNull(filterExpr.getRight(), "Right side should not be null");
-    }
-
-    /**
      * Test full code generation for metrics with filter expressions.
      * Uses ServiceRelation source to avoid frozen class conflicts with other tests.
      *
@@ -393,6 +369,51 @@ public class OALClassGeneratorV2Test {
     }
 
     /**
+     * Test code generation with `in` filter operator using array values.
+     * This verifies that `in [...]` syntax generates correct bytecode that can be loaded by JVM.
+     *
+     * Examples from OAL doc:
+     * - filter(name in ["Endpoint1", "Endpoint2"]) - string array
+     * - filter(httpResponseStatusCode in [404, 500, 503]) - number array
+     * - filter(type in [RequestType.RPC, RequestType.gRPC]) - enum array
+     */
+    @Test
+    public void testInFilterOperatorGeneration() throws Exception {
+        // Test `in` with string array using TCPService to avoid dispatcher conflicts
+        String oal = "tcp_service_tls_mode_filtered = from(TCPService.*)" +
+            ".filter(tlsMode in [\"STRICT\", \"PERMISSIVE\", \"DISABLED\"]).count();";
+
+        OALClassGeneratorV2 generator = createGenerator();
+        MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
+
+        List<Class> metricsClasses = new ArrayList<>();
+        List<Class> dispatcherClasses = new ArrayList<>();
+
+        generateClasses(oal, generator, enricher, metricsClasses, dispatcherClasses);
+
+        // Verify metrics class generated
+        assertEquals(1, metricsClasses.size());
+        Class<?> metricsClass = metricsClasses.get(0);
+        assertEquals("TcpServiceTlsModeFilteredMetrics", metricsClass.getSimpleName());
+        assertTrue(CountMetrics.class.isAssignableFrom(metricsClass));
+
+        // Verify dispatcher generated with filter logic
+        assertEquals(1, dispatcherClasses.size());
+        Class<?> dispatcherClass = dispatcherClasses.get(0);
+        assertEquals("TCPServiceDispatcher", dispatcherClass.getSimpleName());
+        assertTrue(SourceDispatcher.class.isAssignableFrom(dispatcherClass));
+
+        // Verify the doMetrics method exists (contains the InMatch filter logic)
+        Method doMethod = findMethodByName(dispatcherClass, "doTcpServiceTlsModeFiltered");
+        assertNotNull(doMethod, "doTcpServiceTlsModeFiltered should be generated");
+
+        // Verify class can be instantiated
+        Object metricsInstance = metricsClass.getDeclaredConstructor().newInstance();
+        assertNotNull(metricsInstance);
+        assertTrue(metricsInstance instanceof Metrics);
+    }
+
+    /**
      * Create a configured OALClassGeneratorV2 instance.
      */
     private OALClassGeneratorV2 createGenerator() {
@@ -400,7 +421,9 @@ public class OALClassGeneratorV2Test {
         OALClassGeneratorV2 generator = new OALClassGeneratorV2(oalDefine);
         generator.setCurrentClassLoader(OALClassGeneratorV2Test.class.getClassLoader());
         generator.setStorageBuilderFactory(new StorageBuilderFactory.Default());
-        generator.setOpenEngineDebug(false);
+        // Enable debug mode to write generated classes to disk for inspection
+        generator.setOpenEngineDebug(true);
+        generator.prepareRTTempFolder();
         return generator;
     }
 
