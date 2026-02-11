@@ -273,10 +273,20 @@ public class MetricDefinitionEnricher {
                     } else if (funcArg.isAttribute()) {
                         // Use isXxx() for boolean parameters, getXxx() otherwise
                         String attr = funcArg.asAttribute();
-                        String accessor = parameterType.equals(boolean.class)
-                            ? ClassMethodUtil.toIsMethod(attr)
-                            : ClassMethodUtil.toGetMethod(attr);
-                        String expression = "source." + accessor + "()";
+                        String expression;
+                        // Handle nested attributes by splitting on dot
+                        if (attr.contains(".")) {
+                            List<String> attributes = java.util.Arrays.asList(attr.split("\\."));
+                            String accessor = parameterType.equals(boolean.class)
+                                ? ClassMethodUtil.toIsMethod(attributes)
+                                : ClassMethodUtil.toGetMethod(attributes);
+                            expression = "source." + accessor;
+                        } else {
+                            String accessor = parameterType.equals(boolean.class)
+                                ? ClassMethodUtil.toIsMethod(attr)
+                                : ClassMethodUtil.toGetMethod(attr);
+                            expression = "source." + accessor + "()";
+                        }
                         // Cast numeric types to match parameter type
                         if (parameterType.equals(long.class)) {
                             expression = "(long)(" + expression + ")";

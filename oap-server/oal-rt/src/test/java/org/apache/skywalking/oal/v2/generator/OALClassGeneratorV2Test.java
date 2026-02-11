@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.K8SService;
+import org.apache.skywalking.oap.server.core.source.K8SServiceInstance;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.TCPService;
@@ -80,6 +81,7 @@ public class OALClassGeneratorV2Test {
             listener.notify(Endpoint.class);
             listener.notify(ServiceRelation.class);
             listener.notify(K8SService.class);
+            listener.notify(K8SServiceInstance.class);
             listener.notify(TCPService.class);
         } catch (RuntimeException e) {
             // Scopes may already be registered by other tests
@@ -448,6 +450,58 @@ public class OALClassGeneratorV2Test {
             metricsClasses,
             dispatcherClasses
         );
+    }
+
+    /**
+     * Test code generation with nested boolean attribute as function argument.
+     * Uses K8SServiceInstance source with apdex(serviceName, protocol.success).
+     *
+     * This is a regression test for the bug where nested boolean attributes were not
+     * handled correctly in function arguments. The bug generated invalid code like:
+     *   source.isProtocol.success()
+     * instead of:
+     *   source.getProtocol().isSuccess()
+     *
+     * @throws Exception if code generation fails
+     */
+    @Test
+    public void testNestedBooleanAttributeInFunctionArgument() throws Exception {
+        // This OAL pattern uses apdex(serviceName, protocol.success) where:
+        // - protocol is a nested object (Protocol class)
+        // - success is a boolean field on Protocol
+        // The generated code must be: source.getProtocol().isSuccess()
+        String oal = "kubernetes_service_instance_apdex = from(K8SServiceInstance.protocol.http.latency)" +
+            ".filter(detectPoint == DetectPoint.SERVER)" +
+            ".filter(type == \"protocol\")" +
+            ".filter(protocol.type == \"http\")" +
+            ".apdex(serviceName, protocol.success);";
+
+        OALClassGeneratorV2 generator = createGenerator();
+        MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
+
+        List<Class> metricsClasses = new ArrayList<>();
+        List<Class> dispatcherClasses = new ArrayList<>();
+
+        // This will throw OALCompileException if the generated code is invalid
+        // (e.g., "no such class: source.isProtocol")
+        generateClasses(oal, generator, enricher, metricsClasses, dispatcherClasses);
+
+        // Verify metrics class generated
+        assertEquals(1, metricsClasses.size());
+        assertEquals(1, dispatcherClasses.size());
+
+        Class<?> apdexClass = findClassBySimpleName(metricsClasses, "KubernetesServiceInstanceApdexMetrics");
+        assertNotNull(apdexClass, "KubernetesServiceInstanceApdexMetrics should be generated");
+
+        // Verify dispatcher class
+        Class<?> dispatcherClass = dispatcherClasses.get(0);
+        assertEquals("K8SServiceInstanceDispatcher", dispatcherClass.getSimpleName());
+        assertTrue(SourceDispatcher.class.isAssignableFrom(dispatcherClass));
+
+        // Verify doMetrics method exists
+        Method doApdex = findMethodByName(dispatcherClass, "doKubernetesServiceInstanceApdex");
+        assertNotNull(doApdex, "doKubernetesServiceInstanceApdex method should be generated");
+        assertTrue(Modifier.isPrivate(doApdex.getModifiers()));
     }
 
     /**

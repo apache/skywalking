@@ -24,6 +24,7 @@ import org.apache.skywalking.oal.v2.parser.OALScriptParserV2;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.K8SService;
+import org.apache.skywalking.oap.server.core.source.K8SServiceInstance;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.apache.skywalking.oap.server.core.source.TCPService;
@@ -58,6 +59,7 @@ public class MetricDefinitionEnricherTest {
             listener.notify(Endpoint.class);
             listener.notify(ServiceRelation.class);
             listener.notify(K8SService.class);
+            listener.notify(K8SServiceInstance.class);
             listener.notify(TCPService.class);
         } catch (RuntimeException e) {
             // Scopes may already be registered by other tests
@@ -244,6 +246,51 @@ public class MetricDefinitionEnricherTest {
                 "Should not use getStatus for boolean field: " + argStr);
         }
         assertTrue(foundIsStatus, "Expected isStatus() accessor for boolean argument");
+    }
+
+    /**
+     * Test nested boolean attribute as function argument: apdex(serviceName, protocol.success)
+     * Should generate: source.getProtocol().isSuccess()
+     * NOT: source.isProtocol.success()
+     *
+     * This is a regression test for the bug where nested boolean attributes were not
+     * handled correctly in function arguments.
+     */
+    @Test
+    public void testNestedBooleanArgAccessor() throws Exception {
+        String oal = "kubernetes_service_instance_apdex = from(K8SServiceInstance.protocol.http.latency)" +
+            ".filter(detectPoint == DetectPoint.SERVER)" +
+            ".filter(type == \"protocol\")" +
+            ".filter(protocol.type == \"http\")" +
+            ".apdex(serviceName, protocol.success);";
+
+        MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(SOURCE_PACKAGE, METRICS_PACKAGE);
+        OALScriptParserV2 parser = OALScriptParserV2.parse(oal);
+        MetricDefinition metric = parser.getMetrics().get(0);
+        CodeGenModel model = enricher.enrich(metric);
+
+        // Verify entrance method args
+        assertNotNull(model.getEntranceMethod());
+        List<Object> argsExpressions = model.getEntranceMethod().getArgsExpressions();
+
+        // Find the protocol.success argument (should use getProtocol().isSuccess())
+        boolean foundNestedBoolean = false;
+        for (Object arg : argsExpressions) {
+            String argStr = arg.toString();
+            if (argStr.contains("getProtocol") && argStr.contains("isSuccess")) {
+                foundNestedBoolean = true;
+                // Verify it's using the correct format: getProtocol().isSuccess()
+                assertTrue(argStr.contains("getProtocol()"),
+                    "Expected getProtocol() but got: " + argStr);
+                assertTrue(argStr.contains("isSuccess()"),
+                    "Expected isSuccess() but got: " + argStr);
+            }
+            // Should NOT generate invalid code like isProtocol.success()
+            assertFalse(argStr.contains("isProtocol.success"),
+                "Should not generate isProtocol.success(): " + argStr);
+        }
+        assertTrue(foundNestedBoolean,
+            "Expected getProtocol().isSuccess() accessor for nested boolean argument");
     }
 
     /**
