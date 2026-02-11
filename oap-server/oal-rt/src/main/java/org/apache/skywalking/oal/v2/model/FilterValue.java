@@ -37,7 +37,7 @@ import lombok.Getter;
  *
  * Examples:
  * <pre>
- * latency > 100              → NUMBER: 100L
+ * latency &gt; 100              → NUMBER: 100L
  * status == true             → BOOLEAN: true
  * name like "serv%"          → STRING: "serv%"
  * type == RequestType.MQ     → ENUM: RequestType.MQ

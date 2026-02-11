@@ -30,7 +30,7 @@ import lombok.Getter;
  *
  * Example OAL:
  * <pre>
- * service_resp_time = from(Service.latency).filter(latency > 0).longAvg().decorator("ServiceDecorator");
+ * service_resp_time = from(Service.latency).filter(latency &gt; 0).longAvg().decorator("ServiceDecorator");
  * </pre>
  *
  * This class is immutable and thread-safe. Use the Builder to construct instances.

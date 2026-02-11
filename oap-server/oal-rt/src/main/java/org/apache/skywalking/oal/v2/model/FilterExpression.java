@@ -27,7 +27,7 @@ import lombok.Getter;
  *
  * Examples:
  * <pre>
- * latency > 100          → fieldName="latency", operator=">", value=NUMBER:100
+ * latency &gt; 100          → fieldName="latency", operator="&gt;", value=NUMBER:100
  * status == true         → fieldName="status", operator="==", value=BOOLEAN:true
  * name like "serv%"      → fieldName="name", operator="like", value=STRING:"serv%"
  * tag["key"] != null     → fieldName="tag[key]", operator="!=", value=NULL

@@ -39,7 +39,7 @@ import org.apache.skywalking.oal.v2.model.SourceReference;
  * <pre>
  * service_resp_time = from(Service.latency).longAvg();
  * service_sla = from(Service.*).filter(status == true).percent();
- * endpoint_calls = from(Endpoint.*).filter(latency > 100).count();
+ * endpoint_calls = from(Endpoint.*).filter(latency &gt; 100).count();
  * </pre>
  *
  * Parsing flow for "service_resp_time = from(Service.latency).longAvg();":
