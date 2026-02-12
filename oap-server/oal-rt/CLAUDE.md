@@ -21,8 +21,7 @@ org.apache.skywalking.oal.v2/
 ├── generator/              # Code generation
 │   ├── CodeGenModel        # Code generation data model
 │   ├── MetricDefinitionEnricher  # Metadata enrichment
-│   ├── OALClassGeneratorV2       # Javassist bytecode generator
-│   └── OALSourceGenerator        # Source file generator (for debugging)
+│   └── OALClassGeneratorV2       # Javassist bytecode generator
 ├── metadata/               # Source/metrics metadata utilities
 │   ├── SourceColumnsFactory
 │   ├── SourceColumn
@@ -87,19 +86,17 @@ model.getPersistentFields();     // Fields for storage
 model.getMetricsClassName();     // e.g., "LongAvgMetrics"
 ```
 
-## Generated Source Files
+## Debug Output
 
-During tests, source files are generated to `target/test-classes/` for inspection:
+When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
 
 ```
-target/test-classes/
-└── org/apache/skywalking/oap/server/core/source/oal/rt/
-    ├── metrics/           - Generated metrics classes
-    │   └── builder/       - Generated builder classes
-    └── dispatcher/        - Generated dispatcher classes
+{skywalking}/oal-rt/
+├── metrics/           - Generated metrics .class files
+└── dispatcher/        - Generated dispatcher .class files
 ```
 
-These files are 100% consistent with the Javassist bytecode loaded into JVM (verified by `SourceBytecodeConsistencyTest`).
+This is useful for debugging code generation issues or comparing V1 vs V2 output.
 
 ## Runtime Integration
 

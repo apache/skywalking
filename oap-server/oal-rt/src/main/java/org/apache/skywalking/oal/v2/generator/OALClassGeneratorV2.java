@@ -94,6 +94,8 @@ public class OALClassGeneratorV2 {
 
     private static final String CLASS_FILE_CHARSET = "UTF-8";
 
+    private static boolean IS_RT_TEMP_FOLDER_INIT_COMPLETED = false;
+
     private boolean openEngineDebug;
     private final ClassPool classPool;
     private final OALDefine oalDefine;
@@ -292,7 +294,6 @@ public class OALClassGeneratorV2 {
 
         log.debug("Generated V2 metrics class: " + metricsClass.getName());
         writeGeneratedFile(metricsClass, "metrics");
-        writeSourceFile(model, "metrics");
 
         return targetClass;
     }
@@ -434,17 +435,20 @@ public class OALClassGeneratorV2 {
     }
 
     public void prepareRTTempFolder() {
-        if (openEngineDebug) {
+        if (!IS_RT_TEMP_FOLDER_INIT_COMPLETED && openEngineDebug) {
             File workPath = WorkPath.getPath();
-            File folder = new File(workPath.getParentFile(), "oal-rt-v2/");
+            File folder = new File(workPath.getParentFile(), "oal-rt/");
             if (folder.exists()) {
                 try {
-                    FileUtils.deleteDirectory(folder);
+                    // Clean contents instead of deleting folder (handles Docker volume mounts)
+                    FileUtils.cleanDirectory(folder);
                 } catch (IOException e) {
-                    log.warn("Can't delete " + folder.getAbsolutePath() + " temp folder.", e);
+                    log.warn("Can't clean " + folder.getAbsolutePath() + " temp folder.", e);
                 }
+            } else {
+                folder.mkdirs();
             }
-            folder.mkdirs();
+            IS_RT_TEMP_FOLDER_INIT_COMPLETED = true;
         }
     }
 
@@ -498,117 +502,13 @@ public class OALClassGeneratorV2 {
 
     public static String getGeneratedFilePath() {
         if (GENERATED_FILE_PATH == null) {
-            return String.valueOf(new File(WorkPath.getPath().getParentFile(), "oal-rt-v2/"));
+            return String.valueOf(new File(WorkPath.getPath().getParentFile(), "oal-rt/"));
         }
         return GENERATED_FILE_PATH;
     }
 
     public void setOpenEngineDebug(boolean debug) {
         this.openEngineDebug = debug;
-    }
-
-    /**
-     * Generate complete Java source code for a metrics class.
-     * This is useful for comparing V1 vs V2 generated code.
-     *
-     * @param model The code generation model
-     * @return Complete Java source code as a string
-     */
-    public String generateMetricsClassSourceCode(CodeGenModel model) throws OALCompileException {
-        StringBuilder source = new StringBuilder();
-
-        // Package declaration
-        source.append("package ").append(oalDefine.getDynamicMetricsClassPackage()).append(";\n\n");
-
-        // Imports
-        source.append("import org.apache.skywalking.oap.server.core.analysis.Stream;\n");
-        source.append("import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;\n");
-        source.append("import org.apache.skywalking.oap.server.core.analysis.metrics.").append(model.getMetricsClassName()).append(";\n");
-        source.append("import org.apache.skywalking.oap.server.core.storage.annotation.*;\n");
-        source.append("import lombok.Getter;\n");
-        source.append("import lombok.Setter;\n\n");
-
-        // Class-level @Stream annotation
-        source.append("@Stream(\n");
-        source.append("    name = \"").append(model.getTableName()).append("\",\n");
-        source.append("    scopeId = ").append(model.getSourceScopeId()).append(",\n");
-        source.append("    builder = ").append(metricsBuilderClassName(model, false)).append(".class,\n");
-        source.append("    processor = ").append(METRICS_STREAM_PROCESSOR).append(".class\n");
-        source.append(")\n");
-
-        // Class declaration
-        String className = metricsClassName(model, false);
-        source.append("public class ").append(className)
-            .append(" extends ").append(model.getMetricsClassName())
-            .append(" implements WithMetadata {\n\n");
-
-        // Fields with annotations
-        for (CodeGenModel.SourceFieldV2 field : model.getFieldsFromSource()) {
-            source.append("    @Column(name = \"").append(field.getColumnName()).append("\"");
-            if (field.getType().equals(String.class)) {
-                source.append(", length = ").append(field.getLength());
-            }
-            source.append(")\n");
-
-            if (field.isID()) {
-                source.append("    @BanyanDB.SeriesID(index = 0)\n");
-                source.append("    @ElasticSearch.EnableDocValues\n");
-            }
-
-            if (field.isShardingKey()) {
-                source.append("    @BanyanDB.ShardingKey(index = ").append(field.getShardingKeyIdx()).append(")\n");
-            }
-
-            source.append("    @Getter @Setter\n");
-            source.append("    private ").append(field.getType().getSimpleName())
-                .append(" ").append(field.getFieldName()).append(";\n\n");
-        }
-
-        // Constructor
-        source.append("    public ").append(className).append("() {\n");
-        source.append("    }\n\n");
-
-        // Methods from templates
-        for (String method : METRICS_CLASS_METHODS) {
-            StringWriter methodEntity = new StringWriter();
-            try {
-                configuration.getTemplate("metrics/" + method + ".ftl").process(model, methodEntity);
-                source.append("    ").append(methodEntity.toString()).append("\n\n");
-            } catch (Exception e) {
-                log.error("Can't generate method " + method + " for source code.", e);
-                throw new OALCompileException(e.getMessage(), e);
-            }
-        }
-
-        source.append("}\n");
-
-        return source.toString();
-    }
-
-    /**
-     * Write complete Java source file to disk for comparison.
-     */
-    private void writeSourceFile(CodeGenModel model, String type) throws OALCompileException {
-        if (openEngineDebug) {
-            String className = metricsClassName(model, false);
-            try {
-                File folder = new File(getGeneratedFilePath() + File.separator + type + "-source");
-                if (!folder.exists()) {
-                    folder.mkdirs();
-                }
-                File file = new File(folder, className + ".java");
-                if (file.exists()) {
-                    file.delete();
-                }
-
-                String sourceCode = generateMetricsClassSourceCode(model);
-                FileUtils.writeStringToFile(file, sourceCode, CLASS_FILE_CHARSET);
-
-                log.debug("Wrote source file: " + file.getAbsolutePath());
-            } catch (IOException e) {
-                log.warn("Can't write source file for " + className + ", ignore.", e);
-            }
-        }
     }
 
     /**
