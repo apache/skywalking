@@ -47,8 +47,6 @@ import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.skywalking.oap.server.core.WorkPath;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
@@ -100,7 +98,6 @@ public class OALClassGeneratorV2 {
     private final ClassPool classPool;
     private final OALDefine oalDefine;
     private Configuration configuration;
-    private ClassLoader currentClassLoader;
     private StorageBuilderFactory storageBuilderFactory;
     private static String GENERATED_FILE_PATH;
 
@@ -282,11 +279,7 @@ public class OALClassGeneratorV2 {
 
         Class targetClass;
         try {
-            if (SystemUtils.isJavaVersionAtMost(JavaVersion.JAVA_1_8)) {
-                targetClass = metricsClass.toClass(currentClassLoader, null);
-            } else {
-                targetClass = metricsClass.toClass(MetricClassPackageHolder.class);
-            }
+            targetClass = metricsClass.toClass(MetricClassPackageHolder.class);
         } catch (CannotCompileException e) {
             log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
@@ -337,11 +330,7 @@ public class OALClassGeneratorV2 {
         }
 
         try {
-            if (SystemUtils.isJavaVersionAtMost(JavaVersion.JAVA_1_8)) {
-                metricsBuilderClass.toClass(currentClassLoader, null);
-            } else {
-                metricsBuilderClass.toClass(MetricBuilderClassPackageHolder.class);
-            }
+            metricsBuilderClass.toClass(MetricBuilderClassPackageHolder.class);
         } catch (CannotCompileException e) {
             log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
@@ -408,11 +397,7 @@ public class OALClassGeneratorV2 {
 
         Class targetClass;
         try {
-            if (SystemUtils.isJavaVersionAtMost(JavaVersion.JAVA_1_8)) {
-                targetClass = dispatcherClass.toClass(currentClassLoader, null);
-            } else {
-                targetClass = dispatcherClass.toClass(DispatcherClassPackageHolder.class);
-            }
+            targetClass = dispatcherClass.toClass(DispatcherClassPackageHolder.class);
         } catch (CannotCompileException e) {
             log.error("Can't compile/load " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
@@ -486,10 +471,6 @@ public class OALClassGeneratorV2 {
                 }
             }
         }
-    }
-
-    public void setCurrentClassLoader(ClassLoader currentClassLoader) {
-        this.currentClassLoader = currentClassLoader;
     }
 
     public void setStorageBuilderFactory(StorageBuilderFactory storageBuilderFactory) {

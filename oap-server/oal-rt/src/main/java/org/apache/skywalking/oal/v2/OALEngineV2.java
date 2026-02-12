@@ -92,7 +92,6 @@ public class OALEngineV2 implements OALEngine {
 
         // Prepare temp folder for generated classes
         classGeneratorV2.prepareRTTempFolder();
-        classGeneratorV2.setCurrentClassLoader(currentClassLoader);
 
         // Load OAL script, parse, and generate classes with proper resource management
         try (Reader reader = ResourceUtils.read(oalDefine.getConfigFile())) {

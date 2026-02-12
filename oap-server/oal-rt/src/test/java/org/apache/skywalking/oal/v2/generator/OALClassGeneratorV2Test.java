@@ -420,7 +420,6 @@ public class OALClassGeneratorV2Test {
     private OALClassGeneratorV2 createGenerator() {
         TestOALDefine oalDefine = new TestOALDefine();
         OALClassGeneratorV2 generator = new OALClassGeneratorV2(oalDefine);
-        generator.setCurrentClassLoader(OALClassGeneratorV2Test.class.getClassLoader());
         generator.setStorageBuilderFactory(new StorageBuilderFactory.Default());
         generator.prepareRTTempFolder();
         return generator;

@@ -278,7 +278,6 @@ public class RuntimeOALGenerationTest {
                 OALClassGeneratorV2 generator = new OALClassGeneratorV2(define, classPool);
                 generator.setOpenEngineDebug(true);
                 generator.setStorageBuilderFactory(new StorageBuilderFactory.Default());
-                generator.setCurrentClassLoader(this.getClass().getClassLoader());
 
                 // Generate classes
                 List<Class> metricsClasses = new ArrayList<>();
