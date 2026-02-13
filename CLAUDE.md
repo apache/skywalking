@@ -182,6 +182,40 @@ public class XxxModuleProvider extends ModuleProvider {
 Java, XML, and YAML/YML files must include the Apache 2.0 license header (see `HEADER` file).
 JSON and Markdown files are excluded (JSON doesn't support comments, see `.licenserc.yaml`).
 
+### JDK 11 Compatibility
+
+All code must be compatible with JDK 11 (LTS). The project supports JDK 11, 17, and 21.
+
+**Prohibited Java features (post-JDK 11):**
+
+| Feature | JDK Version | Use Instead |
+|---------|-------------|-------------|
+| Switch expressions (`->`) | 14+ | Traditional `switch` with `case:` and `break` |
+| `Stream.toList()` | 16+ | `.collect(Collectors.toList())` |
+| Text blocks (`"""..."""`) | 15+ | String concatenation or `+` |
+| Records | 14+ | Regular classes with Lombok `@Data` |
+| Pattern matching for `instanceof` | 14+ | Traditional cast after `instanceof` |
+| Sealed classes/interfaces | 15+ | Regular classes/interfaces |
+
+**Allowed Java features (JDK 11 compatible):**
+- `List.of()`, `Set.of()`, `Map.of()` - Immutable collections (Java 9+)
+- `Optional` methods - `orElseThrow()`, `ifPresentOrElse()` (Java 9+)
+- Lambda expressions and method references (Java 8+)
+- Stream API (Java 8+)
+- Lombok annotations (`@Getter`, `@Builder`, `@Data`, `@Slf4j`)
+
+**Verification commands:**
+```bash
+# Check for switch expressions (should return no matches)
+grep -r "switch.*->" src/ --include="*.java"
+
+# Check for Stream.toList() (should return no matches)
+grep -r "\.toList()" src/ --include="*.java"
+
+# Check for text blocks (should return no matches)
+grep -r '"""' src/ --include="*.java"
+```
+
 ## Testing
 
 ### Test Frameworks
@@ -507,16 +541,6 @@ The project uses submodules for protocol definitions and UI:
 
 Always use `--recurse-submodules` when cloning or update submodules manually.
 
-## IDE Setup (IntelliJ IDEA)
-
-1. Import as Maven project
-2. Run `./mvnw compile -Dmaven.test.skip=true` to generate protobuf sources
-3. Mark generated source folders:
-   - `*/target/generated-sources/protobuf/java`
-   - `*/target/generated-sources/protobuf/grpc-java`
-   - `*/target/generated-sources/antlr4`
-4. Import `codeStyle.xml` for consistent formatting
-
 ## Key Files for Understanding the Codebase
 
 - `oap-server/server-core/src/main/java/.../CoreModule.java` - Core module definition
@@ -559,12 +583,6 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 - `guides/` - Contributing guides, build instructions, testing
 - `changes/changes.md` - Changelog (update when making changes)
 - `swip/` - SkyWalking Improvement Proposals
-
-## Community
-
-- GitHub Issues: https://github.com/apache/skywalking/issues
-- Mailing List: dev@skywalking.apache.org
-- Slack: #skywalking channel at Apache Slack
 
 ## Submitting Pull Requests
 

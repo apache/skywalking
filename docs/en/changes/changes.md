@@ -1,6 +1,12 @@
 ## 10.4.0
 
 #### Project
+* Introduce OAL V2 engine:
+  - Immutable AST models for thread safety and predictable behavior
+  - Type-safe enums replacing string-based filter operators
+  - Precise error location reporting with file, line, and column numbers
+  - Clean separation between parsing and code generation phases
+  - Enhanced testability with models that can be constructed without parsing
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.
