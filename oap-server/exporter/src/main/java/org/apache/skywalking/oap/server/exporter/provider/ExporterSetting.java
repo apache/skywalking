@@ -28,8 +28,7 @@ public class ExporterSetting extends ModuleConfig {
     private boolean enableGRPCMetrics = false;
     private String gRPCTargetHost;
     private int gRPCTargetPort;
-    private int bufferChannelSize = 20000;
-    private int bufferChannelNum = 2;
+    private int bufferSize = 20000;
 
     //kafka
     private boolean enableKafkaTrace = false;

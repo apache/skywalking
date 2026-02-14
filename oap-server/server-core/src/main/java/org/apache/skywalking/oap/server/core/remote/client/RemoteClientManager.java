@@ -240,7 +240,7 @@ public class RemoteClientManager implements Service, ClusterWatcher {
                         newRemoteClients.add(client);
                     } else {
                         RemoteClient client;
-                        client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout, sslContext);
+                        client = new GRPCRemoteClient(moduleDefineHolder, address, 3000, remoteTimeout, sslContext);
                         client.connect();
                         newRemoteClients.add(client);
                     }

@@ -76,7 +76,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-datacarrier-queue</artifactId>
+            <artifactId>library-batch-queue</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -513,4 +513,16 @@ public class BatchQueue<T> {
     boolean isDedicatedScheduler() {
         return dedicatedScheduler;
     }
+
+    /**
+     * Take a point-in-time snapshot of queue usage across all partitions.
+     */
+    public BatchQueueStats stats() {
+        final ArrayBlockingQueue<T>[] currentPartitions = this.partitions;
+        final int[] used = new int[currentPartitions.length];
+        for (int i = 0; i < currentPartitions.length; i++) {
+            used[i] = currentPartitions[i].size();
+        }
+        return new BatchQueueStats(currentPartitions.length, config.getBufferSize(), used);
+    }
 }

@@ -12,6 +12,25 @@
 * Add `CLAUDE.md` as AI assistant guide for the project.
 * Upgrade Groovy to 5.0.3 in OAP backend.
 * Bump up nodejs to v24.13.0 for the latest UI(booster-ui) compiling.
+* Add `library-batch-queue` module — a partitioned, self-draining queue with type-based dispatch,
+  adaptive partitioning, and idle backoff. Designed to replace DataCarrier in high-fan-out scenarios.
+* Replace DataCarrier with BatchQueue for L1 metrics aggregation, L2 metrics persistence, TopN persistence,
+  all three exporters (gRPC metrics, Kafka trace, Kafka log), and gRPC remote client.
+  All metric types (OAL + MAL) now share unified queues instead of separate OAL/MAL pools.
+  Each exporter keeps its own dedicated queue with 1 thread, preserving original buffer strategies.
+  Thread count comparison on an 8-core machine (gRPC remote client excluded — unchanged 1 thread per peer):
+
+  | Queue | Old threads | Old channels | Old buffer slots | New threads | New partitions | New buffer slots | New policy |
+  |-------|-------------|--------------|------------------|-------------|----------------|------------------|------------|
+  | L1 Aggregation (OAL) | 24 | ~1,240 | ~12.4M | 8 (unified) | ~460 adaptive | ~9.2M | `cpuCores(1.0)` |
+  | L1 Aggregation (MAL) | 2 | ~100 | ~100K | (unified above) | | | |
+  | L2 Persistence (OAL) | 2 | ~620 | ~1.24M | 3 (unified) | ~460 adaptive | ~920K | `cpuCoresWithBase(1, 0.25)` |
+  | L2 Persistence (MAL) | 1 | ~100 | ~100K | (unified above) | | | |
+  | TopN Persistence | 4 | 4 | 4K | 1 | 4 adaptive | 4K | `fixed(1)` |
+  | Exporters (gRPC/Kafka) | 3 | 6 | 120K | 3 (1 per exporter) | — | 60K | `fixed(1)` each |
+  | **Total** | **36** | **~2,070** | **~13.9M** | **15** | **~924** | **~10.2M** | |
+
+* Remove `library-datacarrier-queue` module. All usages have been replaced by `library-batch-queue`.
 
 #### OAP Server
 

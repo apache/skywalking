@@ -75,4 +75,36 @@ public class ThreadPolicyTest {
     public void testToStringCpuCores() {
         assertEquals("cpuCores(0.5)", ThreadPolicy.cpuCores(0.5).toString());
     }
+
+    @Test
+    public void testCpuCoresWithBaseAddsBaseToScaled() {
+        final int cores = Runtime.getRuntime().availableProcessors();
+        final int resolved = ThreadPolicy.cpuCoresWithBase(2, 0.25).resolve();
+        assertEquals(2 + (int) Math.round(0.25 * cores), resolved);
+    }
+
+    @Test
+    public void testCpuCoresWithBaseResolvesAtLeastOne() {
+        assertTrue(ThreadPolicy.cpuCoresWithBase(0, 0.001).resolve() >= 1);
+    }
+
+    @Test
+    public void testCpuCoresWithBaseRejectsNegativeBase() {
+        assertThrows(IllegalArgumentException.class, () -> ThreadPolicy.cpuCoresWithBase(-1, 0.25));
+    }
+
+    @Test
+    public void testCpuCoresWithBaseRejectsZeroMultiplier() {
+        assertThrows(IllegalArgumentException.class, () -> ThreadPolicy.cpuCoresWithBase(2, 0));
+    }
+
+    @Test
+    public void testCpuCoresWithBaseRejectsNegativeMultiplier() {
+        assertThrows(IllegalArgumentException.class, () -> ThreadPolicy.cpuCoresWithBase(2, -0.5));
+    }
+
+    @Test
+    public void testToStringCpuCoresWithBase() {
+        assertEquals("cpuCoresWithBase(2, 0.25)", ThreadPolicy.cpuCoresWithBase(2, 0.25).toString());
+    }
 }

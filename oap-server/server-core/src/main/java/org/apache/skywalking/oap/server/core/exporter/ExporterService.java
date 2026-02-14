@@ -22,8 +22,6 @@ import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ExporterService<T> extends Service {
 
-    void start();
-
     void export(T data);
 
     boolean isEnabled();

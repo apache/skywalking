@@ -6693,17 +6693,17 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "topk(10,avg by(metricName)(metrics_aggregation_queue_used_percentage{job=\"$job\",level=\"1\",kind=\"OAL\"}))",
+          "expr": "avg by(slot)(metrics_aggregation_queue_used_percentage{job=\"$job\",level=\"1\"})",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{metricName}}",
+          "legendFormat": "{{slot}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "OAL L1 Aggregation Queue Percentage (%)",
+      "title": "L1 Aggregation Queue Percentage (%)",
       "type": "timeseries"
     },
     {
@@ -6793,17 +6793,17 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "topk(10,avg by(metricName)(metrics_aggregation_queue_used_percentage{job=\"$job\",level=\"1\",kind=\"MAL\"}))",
+          "expr": "avg by(slot)(metrics_aggregation_queue_used_percentage{job=\"$job\",level=\"2\"})",
           "format": "time_series",
           "hide": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{metricName}}",
+          "legendFormat": "{{slot}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "MAL L1 Aggregation Queue Percentage (%)",
+      "title": "L2 Aggregation Queue Percentage (%)",
       "type": "timeseries"
     },
     {
@@ -6870,206 +6870,6 @@
         "w": 8,
         "x": 8,
         "y": 122
-      },
-      "id": 150,
-      "interval": "1m",
-      "options": {
-        "dataLinks": [],
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.3.1",
-      "targets": [
-        {
-          "datasource": {
-            "uid": "$datasource"
-          },
-          "editorMode": "code",
-          "expr": "topk(10,avg by(metricName)(metrics_aggregation_queue_used_percentage{job=\"$job\",level=\"2\",kind=\"OAL\"}))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "{{metricName}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "OAL L2 Aggregation Queue Percentage (%)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "uid": "$datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 122
-      },
-      "id": 151,
-      "interval": "1m",
-      "options": {
-        "dataLinks": [],
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.3.1",
-      "targets": [
-        {
-          "datasource": {
-            "uid": "$datasource"
-          },
-          "editorMode": "code",
-          "expr": "topk(10,avg by(metricName)(metrics_aggregation_queue_used_percentage{job=\"$job\",level=\"2\",kind=\"MAL\"}))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "{{metricName}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "MAL L2 Aggregation Queue Percentage (%)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "uid": "$datasource"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 0,
-        "y": 128
       },
       "id": 149,
       "interval": "1m",
@@ -7168,8 +6968,8 @@
       "gridPos": {
         "h": 6,
         "w": 8,
-        "x": 8,
-        "y": 128
+        "x": 16,
+        "y": 122
       },
       "id": 152,
       "interval": "1m",
@@ -7269,7 +7069,7 @@
       "gridPos": {
         "h": 6,
         "w": 8,
-        "x": 16,
+        "x": 0,
         "y": 128
       },
       "id": 146,
@@ -7421,8 +7221,8 @@
       "gridPos": {
         "h": 6,
         "w": 8,
-        "x": 0,
-        "y": 134
+        "x": 8,
+        "y": 128
       },
       "id": 145,
       "interval": "1m",

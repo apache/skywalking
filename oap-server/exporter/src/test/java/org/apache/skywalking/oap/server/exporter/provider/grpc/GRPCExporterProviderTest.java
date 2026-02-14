@@ -62,8 +62,7 @@ public class GRPCExporterProviderTest {
         assertNotNull(config);
         assertNull(config.getGRPCTargetHost());
         assertEquals(0, config.getGRPCTargetPort());
-        assertEquals(20000, config.getBufferChannelSize());
-        assertEquals(2, config.getBufferChannelNum());
+        assertEquals(20000, config.getBufferSize());
 
         //for test
         config.setGRPCTargetHost("localhost");

@@ -41,11 +41,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-datacarrier-queue</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>library-banyandb-client</artifactId>
             <version>${project.version}</version>
         </dependency>

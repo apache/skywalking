@@ -22,19 +22,22 @@ package org.apache.skywalking.oap.server.library.batchqueue;
  * Determines the number of threads for a BatchQueue's dedicated scheduler
  * or for a shared scheduler.
  *
- * Two modes:
+ * Three modes:
  * - fixed(N): exactly N threads, regardless of hardware.
  * - cpuCores(multiplier): multiplier * Runtime.availableProcessors(), rounded.
+ * - cpuCoresWithBase(base, multiplier): base + multiplier * Runtime.availableProcessors(), rounded.
  *
  * Resolved value is always >= 1 — every pool must have at least one thread.
  * fixed() requires count >= 1 at construction. cpuCores() applies max(1, ...) at resolution.
  */
 public class ThreadPolicy {
     private final int fixedCount;
+    private final int base;
     private final double cpuMultiplier;
 
-    private ThreadPolicy(final int fixedCount, final double cpuMultiplier) {
+    private ThreadPolicy(final int fixedCount, final int base, final double cpuMultiplier) {
         this.fixedCount = fixedCount;
+        this.base = base;
         this.cpuMultiplier = cpuMultiplier;
     }
 
@@ -47,7 +50,7 @@ public class ThreadPolicy {
         if (count < 1) {
             throw new IllegalArgumentException("Thread count must be >= 1, got: " + count);
         }
-        return new ThreadPolicy(count, 0);
+        return new ThreadPolicy(count, 0, 0);
     }
 
     /**
@@ -60,7 +63,25 @@ public class ThreadPolicy {
         if (multiplier <= 0) {
             throw new IllegalArgumentException("CPU multiplier must be > 0, got: " + multiplier);
         }
-        return new ThreadPolicy(0, multiplier);
+        return new ThreadPolicy(0, 0, multiplier);
+    }
+
+    /**
+     * Threads = base + round(multiplier * available CPU cores), min 1.
+     * Base must be >= 0, multiplier must be > 0.
+     *
+     * Example: cpuCoresWithBase(2, 0.25) on 8-core = 2 + 2 = 4, on 16-core = 2 + 4 = 6, on 24-core = 2 + 6 = 8.
+     *
+     * @throws IllegalArgumentException if base < 0 or multiplier <= 0
+     */
+    public static ThreadPolicy cpuCoresWithBase(final int base, final double multiplier) {
+        if (base < 0) {
+            throw new IllegalArgumentException("Base must be >= 0, got: " + base);
+        }
+        if (multiplier <= 0) {
+            throw new IllegalArgumentException("CPU multiplier must be > 0, got: " + multiplier);
+        }
+        return new ThreadPolicy(0, base, multiplier);
     }
 
     /**
@@ -70,13 +91,16 @@ public class ThreadPolicy {
         if (fixedCount > 0) {
             return fixedCount;
         }
-        return Math.max(1, (int) Math.round(cpuMultiplier * Runtime.getRuntime().availableProcessors()));
+        return Math.max(1, base + (int) Math.round(cpuMultiplier * Runtime.getRuntime().availableProcessors()));
     }
 
     @Override
     public String toString() {
         if (fixedCount > 0) {
             return "fixed(" + fixedCount + ")";
+        }
+        if (base > 0) {
+            return "cpuCoresWithBase(" + base + ", " + cpuMultiplier + ")";
         }
         return "cpuCores(" + cpuMultiplier + ")";
     }

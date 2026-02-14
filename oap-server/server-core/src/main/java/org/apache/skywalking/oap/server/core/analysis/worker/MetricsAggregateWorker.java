@@ -18,19 +18,21 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.buffer.BufferStrategy;
-import org.apache.skywalking.oap.server.library.datacarrier.buffer.QueueBuffer;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueStats;
+import org.apache.skywalking.oap.server.library.batchqueue.BufferStrategy;
+import org.apache.skywalking.oap.server.library.batchqueue.HandlerConsumer;
+import org.apache.skywalking.oap.server.library.batchqueue.PartitionPolicy;
+import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -43,46 +45,50 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  * it merges the data just after the receiver analysis. The metrics belonging to the same entity, metrics type and time
  * bucket, the L1 aggregation will merge them into one metrics object to reduce the unnecessary memory and network
  * payload.
+ *
+ * <p>All metric types (OAL and MAL) share a single {@link BatchQueue} with adaptive partitioning.
+ * The {@code typeHash()} partition selector ensures same metric class lands on the same partition,
+ * so each handler's {@link MergableBufferedData} is only accessed by one drain thread.
  */
 @Slf4j
-public abstract class MetricsAggregateWorker extends AbstractWorker<Metrics> {
-    public final long l1FlushPeriod;
-    private AbstractWorker<Metrics> nextWorker;
-    private final DataCarrier<Metrics> dataCarrier;
-    private final MergableBufferedData<Metrics> mergeDataCache;
-    private CounterMetrics abandonCounter;
-    private CounterMetrics aggregationCounter;
-    private GaugeMetrics queuePercentageGauge;
-    private long lastSendTime = 0;
-    private final int queueTotalSize;
+public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
+    private static final String L1_QUEUE_NAME = "METRICS_L1_AGGREGATION";
+    private static final BatchQueueConfig<Metrics> L1_QUEUE_CONFIG =
+        BatchQueueConfig.<Metrics>builder()
+            .threads(ThreadPolicy.cpuCores(1.0))
+            .partitions(PartitionPolicy.adaptive())
+            .bufferSize(20_000)
+            .strategy(BufferStrategy.IF_POSSIBLE)
+            .minIdleMs(1)
+            .maxIdleMs(50)
+            .build();
 
-    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder,
-                           AbstractWorker<Metrics> nextWorker,
-                           String modelName,
-                           long l1FlushPeriod,
-                           MetricStreamKind kind,
-                           String poolName,
-                           int poolSize,
-                           boolean isSignalDrivenMode,
-                           int queueChannelSize,
-                           int queueBufferSize
-                           ) {
+    private static final int TOP_N = 10;
+    /** slot label -> gauge instance. Keys: "total", "top1" .. "top10". */
+    private static Map<String, GaugeMetrics> QUEUE_USAGE_GAUGE;
+
+    private final BatchQueue<Metrics> l1Queue;
+    private final long l1FlushPeriod;
+    private final AbstractWorker<Metrics> nextWorker;
+    private final MergableBufferedData<Metrics> mergeDataCache;
+    private final CounterMetrics abandonCounter;
+    private final CounterMetrics aggregationCounter;
+    private long lastSendTime = 0;
+
+    MetricsAggregateWorker(final ModuleDefineHolder moduleDefineHolder,
+                           final AbstractWorker<Metrics> nextWorker,
+                           final String modelName,
+                           final long l1FlushPeriod,
+                           final Class<? extends Metrics> metricsClass) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
-        this.mergeDataCache = new MergableBufferedData();
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(poolName, poolSize, 200, isSignalDrivenMode);
-        this.dataCarrier = new DataCarrier<>(
-            "MetricsAggregateWorker." + modelName, poolName, queueChannelSize, queueBufferSize, BufferStrategy.IF_POSSIBLE);
-        try {
-            ConsumerPoolFactory.INSTANCE.createIfAbsent(poolName, creator);
-        } catch (Exception e) {
-            throw new UnexpectedException(e.getMessage(), e);
-        }
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(poolName), new AggregatorConsumer());
+        this.mergeDataCache = new MergableBufferedData<>();
+        this.l1FlushPeriod = l1FlushPeriod;
+        this.l1Queue = BatchQueueManager.create(L1_QUEUE_NAME, L1_QUEUE_CONFIG);
 
-        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
-                                                          .provider()
-                                                          .getService(MetricsCreator.class);
+        final MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                                .provider()
+                                                                .getService(MetricsCreator.class);
         abandonCounter = metricsCreator.createCounter(
             "metrics_aggregator_abandon", "The abandon number of rows received in aggregation.",
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
@@ -93,68 +99,78 @@ public abstract class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
             new MetricsTag.Values(modelName, "1", "minute")
         );
-        queuePercentageGauge = metricsCreator.createGauge(
-            "metrics_aggregation_queue_used_percentage", "The percentage of queue used in aggregation.",
-            new MetricsTag.Keys("metricName", "level", "kind"),
-            new MetricsTag.Values(modelName, "1", kind.name())
-        );
-        this.l1FlushPeriod = l1FlushPeriod;
-        queueTotalSize = Arrays.stream(dataCarrier.getChannels().getBufferChannels())
-                               .mapToInt(QueueBuffer::getBufferSize)
-                               .sum();
+
+        if (QUEUE_USAGE_GAUGE == null) {
+            final Map<String, GaugeMetrics> gauge = new LinkedHashMap<>();
+            gauge.put("total", metricsCreator.createGauge(
+                "metrics_aggregation_queue_used_percentage",
+                "The percentage of queue used in L1 aggregation.",
+                new MetricsTag.Keys("level", "slot"),
+                new MetricsTag.Values("1", "total")
+            ));
+            for (int i = 1; i <= TOP_N; i++) {
+                gauge.put("top" + i, metricsCreator.createGauge(
+                    "metrics_aggregation_queue_used_percentage",
+                    "The percentage of queue used in L1 aggregation.",
+                    new MetricsTag.Keys("level", "slot"),
+                    new MetricsTag.Values("1", "top" + i)
+                ));
+            }
+            QUEUE_USAGE_GAUGE = gauge;
+        }
+
+        l1Queue.addHandler(metricsClass, new L1Handler());
     }
 
-    /**
-     * MetricsAggregateWorker#in operation does include enqueue only
-     */
     @Override
-    public void in(Metrics metrics) {
-        if (!dataCarrier.produce(metrics)) {
+    public void in(final Metrics metrics) {
+        if (!l1Queue.produce(metrics)) {
             abandonCounter.inc();
         }
     }
 
-    /**
-     * Dequeue consuming. According to {@link IConsumer#consume(List)}, this is a serial operation for every work
-     * instance.
-     *
-     * @param metricsList from the queue.
-     */
-    private void onWork(List<Metrics> metricsList) {
-        metricsList.forEach(metrics -> {
+    private void onWork(final List<Metrics> metricsList) {
+        for (final Metrics metrics : metricsList) {
             aggregationCounter.inc();
             mergeDataCache.accept(metrics);
-        });
-
+        }
+        updateQueueUsageGauges();
         flush();
     }
 
+    private void updateQueueUsageGauges() {
+        final Map<String, GaugeMetrics> gauge = QUEUE_USAGE_GAUGE;
+        if (gauge == null) {
+            return;
+        }
+        final BatchQueueStats stats = l1Queue.stats();
+        gauge.get("total").setValue(stats.totalUsedPercentage());
+        final List<BatchQueueStats.PartitionUsage> topPartitions = stats.topN(TOP_N);
+        for (int i = 1; i <= TOP_N; i++) {
+            if (i <= topPartitions.size()) {
+                gauge.get("top" + i).setValue(topPartitions.get(i - 1).getUsedPercentage());
+            } else {
+                gauge.get("top" + i).setValue(0);
+            }
+        }
+    }
+
     private void flush() {
-        long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
         if (currentTime - lastSendTime > l1FlushPeriod) {
-            mergeDataCache.read().forEach(
-                data -> {
-                    nextWorker.in(data);
-                }
-            );
+            mergeDataCache.read().forEach(nextWorker::in);
             lastSendTime = currentTime;
         }
     }
 
-    protected class AggregatorConsumer implements IConsumer<Metrics> {
+    private class L1Handler implements HandlerConsumer<Metrics> {
         @Override
-        public void consume(List<Metrics> data) {
-            queuePercentageGauge.setValue(Math.round(100 * (double) data.size() / queueTotalSize));
-            MetricsAggregateWorker.this.onWork(data);
+        public void consume(final List<Metrics> data) {
+            onWork(data);
         }
 
         @Override
-        public void onError(List<Metrics> data, Throwable t) {
-            log.error(t.getMessage(), t);
-        }
-
-        @Override
-        public void nothingToConsume() {
+        public void onIdle() {
             flush();
         }
     }

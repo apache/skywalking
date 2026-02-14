@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BatchQueueTest {
@@ -482,6 +483,195 @@ public class BatchQueueTest {
 
         assertTrue(laterGap > earlyGap,
             "Later gap (" + laterGap + "ms) should be larger than early gap (" + earlyGap + "ms)");
+    }
+
+    // --- Stats ---
+
+    @Test
+    public void testStatsReflectsQueueUsage() {
+        final CountDownLatch blockLatch = new CountDownLatch(1);
+        final BatchQueue<String> queue = BatchQueueManager.create("stats-usage-test",
+            BatchQueueConfig.<String>builder()
+                .threads(ThreadPolicy.fixed(1))
+                .strategy(BufferStrategy.IF_POSSIBLE)
+                .consumer(data -> {
+                    try {
+                        blockLatch.await();
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                })
+                .bufferSize(100)
+                .build());
+
+        // Wait for the consumer to block on the first item
+        queue.produce("trigger");
+        Awaitility.await().atMost(2, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .until(() -> {
+                final BatchQueueStats stats = queue.stats();
+                return stats.totalUsed() == 0; // first item already drained into blocked consumer
+            });
+
+        // Produce 10 items — they'll sit in the partition because consumer is blocked
+        for (int i = 0; i < 10; i++) {
+            queue.produce("item-" + i);
+        }
+
+        final BatchQueueStats stats = queue.stats();
+        assertEquals(1, stats.getPartitionCount());
+        assertEquals(100, stats.getBufferSize());
+        assertEquals(100, stats.totalCapacity());
+        assertEquals(10, stats.totalUsed());
+        assertEquals(10.0, stats.totalUsedPercentage(), 0.01);
+        assertEquals(10, stats.partitionUsed(0));
+        assertEquals(10.0, stats.partitionUsedPercentage(0), 0.01);
+
+        blockLatch.countDown();
+    }
+
+    @Test
+    public void testStatsWithMultiplePartitions() {
+        final CountDownLatch blockLatch = new CountDownLatch(1);
+        final BatchQueue<String> queue = BatchQueueManager.create("stats-multi-partition-test",
+            BatchQueueConfig.<String>builder()
+                .threads(ThreadPolicy.fixed(2))
+                .partitions(PartitionPolicy.fixed(4))
+                .strategy(BufferStrategy.IF_POSSIBLE)
+                .partitionSelector((data, count) -> Integer.parseInt(data) % count)
+                .consumer(data -> {
+                    try {
+                        blockLatch.await();
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                })
+                .bufferSize(50)
+                .build());
+
+        // Wait for drain threads to block
+        queue.produce("0");
+        queue.produce("1");
+        Awaitility.await().atMost(2, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .until(() -> queue.stats().totalUsed() == 0);
+
+        // Produce items targeting specific partitions: value % 4
+        for (int i = 0; i < 20; i++) {
+            queue.produce(String.valueOf(i));
+        }
+
+        final BatchQueueStats stats = queue.stats();
+        assertEquals(4, stats.getPartitionCount());
+        assertEquals(50, stats.getBufferSize());
+        assertEquals(200, stats.totalCapacity());
+        assertEquals(20, stats.totalUsed());
+        // Each partition gets 5 items (0,4,8,12,16 / 1,5,9,13,17 / 2,6,10,14,18 / 3,7,11,15,19)
+        for (int p = 0; p < 4; p++) {
+            assertEquals(5, stats.partitionUsed(p));
+            assertEquals(10.0, stats.partitionUsedPercentage(p), 0.01);
+        }
+
+        blockLatch.countDown();
+    }
+
+    @Test
+    public void testStatsSnapshotIsImmutable() {
+        final CountDownLatch blockLatch = new CountDownLatch(1);
+        final BatchQueue<String> queue = BatchQueueManager.create("stats-immutable-test",
+            BatchQueueConfig.<String>builder()
+                .threads(ThreadPolicy.fixed(1))
+                .strategy(BufferStrategy.IF_POSSIBLE)
+                .consumer(data -> {
+                    try {
+                        blockLatch.await();
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                })
+                .bufferSize(100)
+                .build());
+
+        queue.produce("trigger");
+        Awaitility.await().atMost(2, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .until(() -> queue.stats().totalUsed() == 0);
+
+        for (int i = 0; i < 5; i++) {
+            queue.produce("item-" + i);
+        }
+
+        final BatchQueueStats snapshot = queue.stats();
+        assertEquals(5, snapshot.totalUsed());
+
+        // Produce more — the snapshot should not change
+        for (int i = 0; i < 5; i++) {
+            queue.produce("more-" + i);
+        }
+
+        assertEquals(5, snapshot.totalUsed());
+        assertNotEquals(5, queue.stats().totalUsed());
+
+        blockLatch.countDown();
+    }
+
+    @Test
+    public void testStatsTopNReturnsHottestPartitions() {
+        final CountDownLatch blockLatch = new CountDownLatch(1);
+        final BatchQueue<String> queue = BatchQueueManager.create("stats-topn-test",
+            BatchQueueConfig.<String>builder()
+                .threads(ThreadPolicy.fixed(2))
+                .partitions(PartitionPolicy.fixed(4))
+                .strategy(BufferStrategy.IF_POSSIBLE)
+                .partitionSelector((data, count) -> Integer.parseInt(data.split("-")[0]) % count)
+                .consumer(data -> {
+                    try {
+                        blockLatch.await();
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                })
+                .bufferSize(100)
+                .build());
+
+        // Wait for drain threads to block
+        queue.produce("0-trigger");
+        queue.produce("1-trigger");
+        Awaitility.await().atMost(2, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .until(() -> queue.stats().totalUsed() == 0);
+
+        // Load partitions unevenly: p0=20, p1=5, p2=15, p3=10
+        for (int i = 0; i < 20; i++) {
+            queue.produce("0-" + i);
+        }
+        for (int i = 0; i < 5; i++) {
+            queue.produce("1-" + i);
+        }
+        for (int i = 0; i < 15; i++) {
+            queue.produce("2-" + i);
+        }
+        for (int i = 0; i < 10; i++) {
+            queue.produce("3-" + i);
+        }
+
+        final BatchQueueStats stats = queue.stats();
+        final java.util.List<BatchQueueStats.PartitionUsage> top2 = stats.topN(2);
+
+        assertEquals(2, top2.size());
+        // Highest: partition 0 (20 items)
+        assertEquals(0, top2.get(0).getPartitionIndex());
+        assertEquals(20, top2.get(0).getUsed());
+        assertEquals(20.0, top2.get(0).getUsedPercentage(), 0.01);
+        // Second: partition 2 (15 items)
+        assertEquals(2, top2.get(1).getPartitionIndex());
+        assertEquals(15, top2.get(1).getUsed());
+
+        // topN with n > partitionCount returns all
+        final java.util.List<BatchQueueStats.PartitionUsage> topAll = stats.topN(10);
+        assertEquals(4, topAll.size());
+
+        blockLatch.countDown();
     }
 
     @Test

@@ -30,9 +30,11 @@ import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentReco
 import org.apache.skywalking.oap.server.core.exporter.TraceExportService;
 import org.apache.skywalking.oap.server.exporter.provider.ExporterSetting;
 import org.apache.skywalking.oap.server.exporter.provider.kafka.KafkaExportProducer;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.buffer.BufferStrategy;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
+import org.apache.skywalking.oap.server.library.batchqueue.BufferStrategy;
+import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -40,8 +42,8 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class KafkaTraceExporter extends KafkaExportProducer implements TraceExportService, IConsumer<SegmentRecord> {
-    private DataCarrier<SegmentRecord> exportBuffer;
+public class KafkaTraceExporter extends KafkaExportProducer implements TraceExportService {
+    private BatchQueue<SegmentRecord> queue;
     private CounterMetrics successCounter;
     private CounterMetrics errorCounter;
     private final ModuleManager moduleManager;
@@ -51,14 +53,18 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
         this.moduleManager = manager;
     }
 
-    @Override
     public void start() {
         super.getProducer();
-        exportBuffer = new DataCarrier<>(
-            "KafkaTraceExporter", "KafkaTraceExporter", setting.getBufferChannelNum(), setting.getBufferChannelSize(),
-            BufferStrategy.IF_POSSIBLE
+        this.queue = BatchQueueManager.create(
+            "EXPORTER_KAFKA_TRACE",
+            BatchQueueConfig.<SegmentRecord>builder()
+                .threads(ThreadPolicy.fixed(1))
+                .bufferSize(setting.getBufferSize())
+                .strategy(BufferStrategy.IF_POSSIBLE)
+                .consumer(this::consumeSegmentRecords)
+                .maxIdleMs(200)
+                .build()
         );
-        exportBuffer.consume(this, 1, 200);
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
@@ -75,9 +81,8 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
 
     public void export(SegmentRecord segmentRecord) {
         if (segmentRecord != null) {
-            exportBuffer.produce(segmentRecord);
+            queue.produce(segmentRecord);
         }
-
     }
 
     @Override
@@ -85,8 +90,7 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
         return setting.isEnableKafkaTrace();
     }
 
-    @Override
-    public void consume(final List<SegmentRecord> data) {
+    private void consumeSegmentRecords(final List<SegmentRecord> data) {
         for (SegmentRecord segmentRecord : data) {
             if (segmentRecord != null) {
                 try {
@@ -123,10 +127,5 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
             }
         }
         return false;
-    }
-
-    @Override
-    public void onError(final List<SegmentRecord> data, final Throwable t) {
-
     }
 }

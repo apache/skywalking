@@ -18,22 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.buffer.QueueBuffer;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueStats;
+import org.apache.skywalking.oap.server.library.batchqueue.BufferStrategy;
+import org.apache.skywalking.oap.server.library.batchqueue.HandlerConsumer;
+import org.apache.skywalking.oap.server.library.batchqueue.PartitionPolicy;
+import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
@@ -41,16 +44,32 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
- * MetricsPersistentMinWorker is an extension of {@link MetricsPersistentWorker} and focuses on the Minute Metrics data persistent.
+ * MetricsPersistentMinWorker is an extension of {@link MetricsPersistentWorker} and focuses on the
+ * Minute Metrics data persistent.
+ *
+ * <p>All metric types (OAL and MAL) share a single {@link BatchQueue} with adaptive partitioning.
+ * The {@code typeHash()} partition selector ensures same metric class lands on the same partition,
+ * so each handler's {@link org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache}
+ * is only accessed by one drain thread.
  */
 @Slf4j
-public abstract class MetricsPersistentMinWorker extends MetricsPersistentWorker {
-    private final DataCarrier<Metrics> dataCarrier;
+public class MetricsPersistentMinWorker extends MetricsPersistentWorker {
+    private static final String L2_QUEUE_NAME = "METRICS_L2_PERSISTENCE";
+    private static final BatchQueueConfig<Metrics> L2_QUEUE_CONFIG =
+        BatchQueueConfig.<Metrics>builder()
+            .threads(ThreadPolicy.cpuCoresWithBase(1, 0.25))
+            .partitions(PartitionPolicy.adaptive())
+            .bufferSize(2_000)
+            .strategy(BufferStrategy.BLOCKING)
+            .minIdleMs(1)
+            .maxIdleMs(50)
+            .build();
 
-    /**
-     * The percentage of queue used in aggregation
-     */
-    private final GaugeMetrics queuePercentageGauge;
+    private static final int TOP_N = 10;
+    /** slot label -> gauge instance. Keys: "total", "top1" .. "top10". */
+    private static Map<String, GaugeMetrics> QUEUE_USAGE_GAUGE;
+
+    private final BatchQueue<Metrics> l2Queue;
 
     /**
      * @since 9.4.0
@@ -59,41 +78,45 @@ public abstract class MetricsPersistentMinWorker extends MetricsPersistentWorker
 
     // Not going to expose this as a configuration, only for testing purpose
     private final boolean isTestingTTL = "true".equalsIgnoreCase(System.getenv("TESTING_TTL"));
-    private final int queueTotalSize;
 
     MetricsPersistentMinWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                                AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
                                MetricsTransWorker transWorker, boolean supportUpdate,
                                long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind,
-                               String poolName, int poolSize, boolean isSignalDrivenMode,
-                               int queueChannelSize, int queueBufferSize) {
+                               Class<? extends Metrics> metricsClass) {
         super(
             moduleDefineHolder, model, metricsDAO, nextAlarmWorker, nextExportWorker, transWorker, supportUpdate,
             storageSessionTimeout, metricsDataTTL, kind
         );
 
-        BulkConsumePool.Creator creator = new BulkConsumePool.Creator(poolName, poolSize, 200, isSignalDrivenMode);
-        try {
-            ConsumerPoolFactory.INSTANCE.createIfAbsent(poolName, creator);
-        } catch (Exception e) {
-            throw new UnexpectedException(e.getMessage(), e);
-        }
-        this.dataCarrier = new DataCarrier<>("MetricsPersistentWorker." + model.getName(), poolName, queueChannelSize, queueBufferSize);
-        this.dataCarrier.consume(ConsumerPoolFactory.INSTANCE.get(poolName), new PersistentConsumer());
+        this.l2Queue = BatchQueueManager.create(L2_QUEUE_NAME, L2_QUEUE_CONFIG);
 
-        MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
-                                                          .provider()
-                                                          .getService(MetricsCreator.class);
-        queuePercentageGauge = metricsCreator.createGauge(
-            "metrics_aggregation_queue_used_percentage", "The percentage of queue used in aggregation.",
-            new MetricsTag.Keys("metricName", "level", "kind"),
-            new MetricsTag.Values(model.getName(), "2", kind.name())
-        );
         serverStatusService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServerStatusService.class);
         serverStatusService.registerWatcher(this);
-        queueTotalSize = Arrays.stream(dataCarrier.getChannels().getBufferChannels())
-                                    .mapToInt(QueueBuffer::getBufferSize)
-                                    .sum();
+
+        if (QUEUE_USAGE_GAUGE == null) {
+            final MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                                    .provider()
+                                                                    .getService(MetricsCreator.class);
+            final Map<String, GaugeMetrics> gauge = new LinkedHashMap<>();
+            gauge.put("total", metricsCreator.createGauge(
+                "metrics_aggregation_queue_used_percentage",
+                "The percentage of queue used in L2 persistence.",
+                new MetricsTag.Keys("level", "slot"),
+                new MetricsTag.Values("2", "total")
+            ));
+            for (int i = 1; i <= TOP_N; i++) {
+                gauge.put("top" + i, metricsCreator.createGauge(
+                    "metrics_aggregation_queue_used_percentage",
+                    "The percentage of queue used in L2 persistence.",
+                    new MetricsTag.Keys("level", "slot"),
+                    new MetricsTag.Values("2", "top" + i)
+                ));
+            }
+            QUEUE_USAGE_GAUGE = gauge;
+        }
+
+        l2Queue.addHandler(metricsClass, new L2Handler());
     }
 
     /**
@@ -107,24 +130,31 @@ public abstract class MetricsPersistentMinWorker extends MetricsPersistentWorker
             return;
         }
         getAggregationCounter().inc();
-        dataCarrier.produce(metrics);
+        l2Queue.produce(metrics);
     }
 
-    /**
-     * Metrics queue processor, merge the received metrics if existing one with same ID(s) and time bucket.
-     *
-     * ID is declared through {@link Object#hashCode()} and {@link Object#equals(Object)} as usual.
-     */
-    private class PersistentConsumer implements IConsumer<Metrics> {
+    private void updateQueueUsageGauges() {
+        final Map<String, GaugeMetrics> gauge = QUEUE_USAGE_GAUGE;
+        if (gauge == null) {
+            return;
+        }
+        final BatchQueueStats stats = l2Queue.stats();
+        gauge.get("total").setValue(stats.totalUsedPercentage());
+        final List<BatchQueueStats.PartitionUsage> topPartitions = stats.topN(TOP_N);
+        for (int i = 1; i <= TOP_N; i++) {
+            if (i <= topPartitions.size()) {
+                gauge.get("top" + i).setValue(topPartitions.get(i - 1).getUsedPercentage());
+            } else {
+                gauge.get("top" + i).setValue(0);
+            }
+        }
+    }
+
+    private class L2Handler implements HandlerConsumer<Metrics> {
         @Override
         public void consume(List<Metrics> data) {
-            queuePercentageGauge.setValue(Math.round(100 * (double) data.size() / queueTotalSize));
-            MetricsPersistentMinWorker.this.onWork(data);
-        }
-
-        @Override
-        public void onError(List<Metrics> data, Throwable t) {
-            log.error(t.getMessage(), t);
+            updateQueueUsageGauges();
+            onWork(data);
         }
     }
 }
