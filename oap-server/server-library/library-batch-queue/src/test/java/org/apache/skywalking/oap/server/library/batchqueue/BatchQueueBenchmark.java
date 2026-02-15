@@ -198,164 +198,232 @@ public class BatchQueueBenchmark {
     @Test
     public void benchmark500Types_quarter() throws Exception {
         runBenchmark("500-types-quarter", 500, 125, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark1000Types_quarter() throws Exception {
         runBenchmark("1000-types-quarter", 1000, 250, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark2000Types_quarter() throws Exception {
         runBenchmark("2000-types-quarter", 2000, 500, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark500TypesBlocking_quarter() throws Exception {
         runBenchmark("500-types-blocking-quarter", 500, 125, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark1000TypesBlocking_quarter() throws Exception {
         runBenchmark("1000-types-blocking-quarter", 1000, 250, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark2000TypesBlocking_quarter() throws Exception {
         runBenchmark("2000-types-blocking-quarter", 2000, 500, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark500Types_half() throws Exception {
         runBenchmark("500-types-half", 500, 250, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark1000Types_half() throws Exception {
         runBenchmark("1000-types-half", 1000, 500, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark2000Types_half() throws Exception {
         runBenchmark("2000-types-half", 2000, 1000, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark500TypesBlocking_half() throws Exception {
         runBenchmark("500-types-blocking-half", 500, 250, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark1000TypesBlocking_half() throws Exception {
         runBenchmark("1000-types-blocking-half", 1000, 500, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark2000TypesBlocking_half() throws Exception {
         runBenchmark("2000-types-blocking-half", 2000, 1000, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark500Types_adaptive() throws Exception {
-        runAdaptiveBenchmark("500-types-adaptive", 500, BufferStrategy.IF_POSSIBLE);
+        runAdaptiveBenchmark("500-types-adaptive", 500, BufferStrategy.IF_POSSIBLE, false);
     }
 
     @Test
     public void benchmark1000Types_adaptive() throws Exception {
-        runAdaptiveBenchmark("1000-types-adaptive", 1000, BufferStrategy.IF_POSSIBLE);
+        runAdaptiveBenchmark("1000-types-adaptive", 1000, BufferStrategy.IF_POSSIBLE, false);
     }
 
     @Test
     public void benchmark2000Types_adaptive() throws Exception {
-        runAdaptiveBenchmark("2000-types-adaptive", 2000, BufferStrategy.IF_POSSIBLE);
+        runAdaptiveBenchmark("2000-types-adaptive", 2000, BufferStrategy.IF_POSSIBLE, false);
     }
 
     @Test
     public void benchmark500TypesBlocking_adaptive() throws Exception {
-        runAdaptiveBenchmark("500-types-blocking-adaptive", 500, BufferStrategy.BLOCKING);
+        runAdaptiveBenchmark("500-types-blocking-adaptive", 500, BufferStrategy.BLOCKING, false);
     }
 
     @Test
     public void benchmark1000TypesBlocking_adaptive() throws Exception {
-        runAdaptiveBenchmark("1000-types-blocking-adaptive", 1000, BufferStrategy.BLOCKING);
+        runAdaptiveBenchmark("1000-types-blocking-adaptive", 1000, BufferStrategy.BLOCKING, false);
     }
 
     @Test
     public void benchmark2000TypesBlocking_adaptive() throws Exception {
-        runAdaptiveBenchmark("2000-types-blocking-adaptive", 2000, BufferStrategy.BLOCKING);
+        runAdaptiveBenchmark("2000-types-blocking-adaptive", 2000, BufferStrategy.BLOCKING, false);
     }
 
     @Test
     public void benchmark500Types_1to1() throws Exception {
         runBenchmark("500-types-1to1", 500, 500, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark1000Types_1to1() throws Exception {
         runBenchmark("1000-types-1to1", 1000, 1000, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark2000Types_1to1() throws Exception {
         runBenchmark("2000-types-1to1", 2000, 2000, 50_000,
-            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, true);
+            BufferStrategy.IF_POSSIBLE, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark500TypesBlocking_1to1() throws Exception {
         runBenchmark("500-types-blocking-1to1", 500, 500, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark1000TypesBlocking_1to1() throws Exception {
         runBenchmark("1000-types-blocking-1to1", 1000, 1000, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
     @Test
     public void benchmark2000TypesBlocking_1to1() throws Exception {
         runBenchmark("2000-types-blocking-1to1", 2000, 2000, 50_000,
-            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, true);
+            BufferStrategy.BLOCKING, TYPE_ID_SELECTOR, false);
     }
 
-    private void runAdaptiveBenchmark(final String label, final int typeCount,
-                                      final BufferStrategy strategy) throws Exception {
+    /**
+     * Run the same adaptive benchmark 3 times each (static vs rebalanced)
+     * to distinguish real overhead from run-to-run variance.
+     */
+    @Test
+    public void benchmarkRebalanceOverhead() throws Exception {
+        log.info("\n========================================");
+        log.info("  Rebalance overhead: 1000 types, BLOCKING");
+        log.info("========================================\n");
+
+        final int typeCount = 1000;
+        final BufferStrategy strategy = BufferStrategy.BLOCKING;
+        final int runs = 3;
+
+        final double[] staticRates = new double[runs];
+        final double[] rebalRates = new double[runs];
+
+        for (int i = 0; i < runs; i++) {
+            staticRates[i] = runAdaptiveBenchmark(
+                "overhead-static-" + i, typeCount, strategy, false);
+            cleanup();
+            rebalRates[i] = runAdaptiveBenchmark(
+                "overhead-rebal-" + i, typeCount, strategy, true);
+            cleanup();
+        }
+
+        // Compute stats
+        double staticSum = 0;
+        double rebalSum = 0;
+        for (int i = 0; i < runs; i++) {
+            staticSum += staticRates[i];
+            rebalSum += rebalRates[i];
+        }
+        final double staticAvg = staticSum / runs;
+        final double rebalAvg = rebalSum / runs;
+
+        double staticVarSum = 0;
+        double rebalVarSum = 0;
+        for (int i = 0; i < runs; i++) {
+            staticVarSum += (staticRates[i] - staticAvg) * (staticRates[i] - staticAvg);
+            rebalVarSum += (rebalRates[i] - rebalAvg) * (rebalRates[i] - rebalAvg);
+        }
+        final double staticStddev = Math.sqrt(staticVarSum / runs);
+        final double rebalStddev = Math.sqrt(rebalVarSum / runs);
+
+        log.info("\n--- OVERHEAD ANALYSIS ---");
+        log.info("  Run   Static (items/s)   Rebalanced (items/s)");
+        log.info("  ---   ----------------   --------------------");
+        for (int i = 0; i < runs; i++) {
+            log.info("   {}    {}          {}",
+                i + 1,
+                String.format("%16s", String.format("%,.0f", staticRates[i])),
+                String.format("%16s", String.format("%,.0f", rebalRates[i])));
+        }
+        log.info("  Avg   {}          {}",
+            String.format("%16s", String.format("%,.0f", staticAvg)),
+            String.format("%16s", String.format("%,.0f", rebalAvg)));
+        log.info("  Std   {}          {}",
+            String.format("%16s", String.format("%,.0f", staticStddev)),
+            String.format("%16s", String.format("%,.0f", rebalStddev)));
+        final double delta = staticAvg > 0 ? (rebalAvg - staticAvg) / staticAvg * 100 : 0;
+        final double noiseRange = staticAvg > 0 ? staticStddev / staticAvg * 100 : 0;
+        log.info("  Delta:  {}%  (noise range: +/-{}%)",
+            String.format("%+.1f", delta), String.format("%.1f", noiseRange));
+        log.info("");
+    }
+
+    private double runAdaptiveBenchmark(final String label, final int typeCount,
+                                        final BufferStrategy strategy,
+                                        final boolean rebalance) throws Exception {
         // adaptive(): threshold = threadCount * 25 = 200
         //   500 types → 350p (200 + 300/2)
         //  1000 types → 600p (200 + 800/2)
         //  2000 types → 1100p (200 + 1800/2)
         final int partitionCount = PartitionPolicy.adaptive()
             .resolve(THREADS.resolve(), typeCount);
-        runBenchmark(label, typeCount, partitionCount, 50_000,
-            strategy, TYPE_ID_SELECTOR, true);
+        return runBenchmark(label, typeCount, partitionCount, 50_000,
+            strategy, TYPE_ID_SELECTOR, rebalance);
     }
 
-    private void runBenchmark(final String label, final int typeCount,
-                              final int partitionCount, final int bufferSize,
-                              final BufferStrategy strategy) throws Exception {
-        runBenchmark(label, typeCount, partitionCount, bufferSize, strategy, null, true);
+    private double runBenchmark(final String label, final int typeCount,
+                                final int partitionCount, final int bufferSize,
+                                final BufferStrategy strategy) throws Exception {
+        return runBenchmark(label, typeCount, partitionCount, bufferSize, strategy, null, false);
     }
 
-    private void runBenchmark(final String label, final int typeCount,
-                              final int partitionCount, final int bufferSize,
-                              final BufferStrategy strategy,
-                              final PartitionSelector<BenchmarkMetricTypes.TypedMetric> selector,
-                              final boolean ignored) throws Exception {
+    private double runBenchmark(final String label, final int typeCount,
+                                final int partitionCount, final int bufferSize,
+                                final BufferStrategy strategy,
+                                final PartitionSelector<BenchmarkMetricTypes.TypedMetric> selector,
+                                final boolean rebalance) throws Exception {
         final AtomicLong consumed = new AtomicLong(0);
         final PartitionPolicy partitions = PartitionPolicy.fixed(partitionCount);
 
@@ -369,6 +437,9 @@ public class BatchQueueBenchmark {
                 .maxIdleMs(50);
         if (selector != null) {
             configBuilder.partitionSelector(selector);
+        }
+        if (rebalance) {
+            configBuilder.balancer(DrainBalancer.throughputWeighted(), 2000);
         }
 
         final BatchQueue<BenchmarkMetricTypes.TypedMetric> queue = BatchQueueManager.create(
@@ -394,6 +465,7 @@ public class BatchQueueBenchmark {
 
         Thread.sleep(500);
         final long totalConsumed = consumed.get();
+        final double consumeRate = totalConsumed * 1000.0 / measureDuration;
 
         log.info("\n=== BatchQueue Benchmark: {} ===\n"
                 + "  Types:       {}\n"
@@ -401,18 +473,22 @@ public class BatchQueueBenchmark {
                 + "  Partitions:  {}\n"
                 + "  BufferSize:  {}\n"
                 + "  Strategy:    {}\n"
+                + "  Rebalance:   {}\n"
                 + "  Producers:   {}\n"
                 + "  Duration:    {} ms\n"
                 + "  Produced:    {}\n"
                 + "  Consumed:    {}\n"
                 + "  Consume rate:  {} items/sec\n"
                 + "  Drop rate:     {}%\n",
-            label, typeCount, THREADS, partitions, bufferSize, strategy, PRODUCER_THREADS,
+            label, typeCount, THREADS, partitions, bufferSize, strategy,
+            rebalance, PRODUCER_THREADS,
             measureDuration,
             String.format("%,d", produced), String.format("%,d", totalConsumed),
-            String.format("%,.0f", totalConsumed * 1000.0 / measureDuration),
+            String.format("%,.0f", consumeRate),
             String.format("%.2f", produced > 0
                 ? (produced - totalConsumed) * 100.0 / produced : 0));
+
+        return consumeRate;
     }
 
     private long runProducers(final BatchQueue<BenchmarkMetricTypes.TypedMetric> queue,

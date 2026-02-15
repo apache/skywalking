@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
 import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
 import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueStats;
 import org.apache.skywalking.oap.server.library.batchqueue.BufferStrategy;
+import org.apache.skywalking.oap.server.library.batchqueue.DrainBalancer;
 import org.apache.skywalking.oap.server.library.batchqueue.HandlerConsumer;
 import org.apache.skywalking.oap.server.library.batchqueue.PartitionPolicy;
 import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
@@ -59,6 +60,7 @@ public class MetricsPersistentMinWorker extends MetricsPersistentWorker {
         BatchQueueConfig.<Metrics>builder()
             .threads(ThreadPolicy.cpuCoresWithBase(1, 0.25))
             .partitions(PartitionPolicy.adaptive())
+            .balancer(DrainBalancer.throughputWeighted(), 10_000)
             .bufferSize(2_000)
             .strategy(BufferStrategy.BLOCKING)
             .minIdleMs(1)

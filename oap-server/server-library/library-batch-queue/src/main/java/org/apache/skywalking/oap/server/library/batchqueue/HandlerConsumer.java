@@ -27,6 +27,8 @@ import java.util.List;
 public interface HandlerConsumer<T> {
     /**
      * Process a batch of data belonging to this handler's type.
+     *
+     * @param data the batch of items to process
      */
     void consume(List<T> data);
 

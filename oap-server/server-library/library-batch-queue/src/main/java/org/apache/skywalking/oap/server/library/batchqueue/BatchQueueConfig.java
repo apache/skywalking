@@ -73,6 +73,21 @@ public class BatchQueueConfig<T> {
     @Builder.Default
     private long maxIdleMs = 50;
 
+    /**
+     * Drain balancer for periodic rebalancing of partition-to-thread assignments.
+     * Set via {@code .balancer(DrainBalancer, intervalMs)} on the builder.
+     * When null (default), rebalancing is disabled.
+     *
+     * @see DrainBalancer#throughputWeighted()
+     */
+    private DrainBalancer balancer;
+
+    /**
+     * Rebalance interval in milliseconds. Set together with {@link #balancer}
+     * via {@code .balancer(DrainBalancer, intervalMs)} on the builder.
+     */
+    private long rebalanceIntervalMs;
+
     void validate() {
         final boolean hasDedicated = threads != null;
         final boolean hasShared = sharedSchedulerName != null;
@@ -98,12 +113,32 @@ public class BatchQueueConfig<T> {
     }
 
     /**
-     * Builder customization: convenience method for setting shared scheduler fields together.
+     * Builder customizations: convenience methods for setting paired fields together.
      */
     public static class BatchQueueConfigBuilder<T> {
+        /**
+         * Configure the queue to use a shared scheduler instead of a dedicated one.
+         *
+         * @param name the shared scheduler name (queues with the same name share a pool)
+         * @param threads the thread policy for the shared scheduler
+         * @return this builder
+         */
         public BatchQueueConfigBuilder<T> sharedScheduler(final String name, final ThreadPolicy threads) {
             this.sharedSchedulerName = name;
             this.sharedSchedulerThreads = threads;
+            return this;
+        }
+
+        /**
+         * Enable periodic drain rebalancing with the given strategy and interval.
+         *
+         * @param balancer rebalancing strategy (e.g. {@link DrainBalancer#throughputWeighted()})
+         * @param intervalMs rebalance interval in milliseconds
+         * @return this builder
+         */
+        public BatchQueueConfigBuilder<T> balancer(final DrainBalancer balancer, final long intervalMs) {
+            this.balancer = balancer;
+            this.rebalanceIntervalMs = intervalMs;
             return this;
         }
     }

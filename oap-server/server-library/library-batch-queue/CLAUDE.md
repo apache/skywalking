@@ -62,7 +62,7 @@ BatchQueueConfig.builder()
 |-------|------|
 | `BatchQueue<T>` | The queue itself. Holds partitions, runs drain loops, dispatches to consumers/handlers. |
 | `BatchQueueManager` | Global registry. Creates queues by name, manages shared schedulers with ref-counting. |
-| `BatchQueueConfig<T>` | Builder for queue configuration (threads, partitions, buffer, strategy, consumer). |
+| `BatchQueueConfig<T>` | Builder for queue configuration (threads, partitions, buffer, strategy, consumer, balancer). |
 | `ThreadPolicy` | Resolves thread count: `fixed(N)`, `cpuCores(mult)`, `cpuCoresWithBase(base, mult)`. |
 | `PartitionPolicy` | Resolves partition count: `fixed(N)`, `threadMultiply(N)`, `adaptive()`. |
 | `PartitionSelector<T>` | Routes items to partitions. Default `typeHash()` groups by class. |
@@ -70,6 +70,7 @@ BatchQueueConfig.builder()
 | `BufferStrategy` | `BLOCKING` (put, waits) or `IF_POSSIBLE` (offer, drops if full). |
 | `BatchQueueStats` | Point-in-time snapshot of queue usage. `totalUsed()`, `topN(n)`, per-partition stats. |
 | `QueueErrorHandler<T>` | Optional error callback. If absent, errors are logged. |
+| `DrainBalancer` | Strategy for periodic partition-to-thread rebalancing. Default `throughputWeighted()`. |
 
 ## ThreadPolicy
 
@@ -94,12 +95,58 @@ Adaptive growth (default multiplier 25, with 8 threads -> threshold 200):
 - 100 handlers -> 100 partitions (1:1)
 - 500 handlers -> 350 partitions (200 + 300/2)
 
+## Drain Rebalancing
+
+Static round-robin partition assignment creates thread imbalance when metric types have varying
+throughput (e.g., endpoint-scoped OAL >> service-scoped OAL). The `DrainBalancer` periodically
+reassigns partitions to equalize per-thread load.
+
+### Configuration
+
+Opt-in via the builder's `.balancer(strategy, intervalMs)` method:
+
+```java
+BatchQueueConfig.builder()
+    .threads(ThreadPolicy.cpuCores(1.0))
+    .partitions(PartitionPolicy.adaptive())
+    .balancer(DrainBalancer.throughputWeighted(), 300_000)  // rebalance every 5 min
+    ...
+```
+
+Silently ignored for single-thread queues (nothing to rebalance).
+
+### How it works
+
+1. **Throughput counters** — `produce()` increments a per-partition `AtomicLong` counter before `put/offer`.
+2. **LPT assignment** — The rebalancer snapshots and resets counters, sorts partitions by throughput descending, assigns each to the least-loaded thread (Longest Processing Time heuristic).
+3. **Two-phase handoff** — Moved partitions go through revoke (UNOWNED) → wait for old owner's drain cycle to finish (cycleCount fence) → assign to new owner. This prevents concurrent handler invocations.
+4. **Skip threshold** — Rebalancing is skipped when max/min thread load ratio < 1.15 (BLOCKING backpressure compresses observed ratios).
+
+### Safety guarantees
+
+| Property | Mechanism |
+|----------|-----------|
+| No concurrent handler calls | Two-phase handoff: revoke + cycle-count fence + assign |
+| No data loss | Items stay in `ArrayBlockingQueue` during the UNOWNED gap |
+| No data duplication | `drainTo` atomically moves items out of the queue |
+| Lock-free hot path | Only `AtomicIntegerArray.get()` added to drain loop |
+| Lock-free produce path | Only `AtomicLongArray.incrementAndGet()` added |
+
+### Benchmark results (4 drain threads, 16 producers, 100 types, skewed load)
+
+```
+                    Static          Rebalanced
+  Throughput:    7,211,794         8,729,310  items/sec
+  Load ratio:       1.30x             1.04x  (max/min thread)
+  Improvement:                       +21.0%
+```
+
 ## Usage in the Codebase
 
 ### L1 Metrics Aggregation (`MetricsAggregateWorker`)
 ```
 threads:    cpuCores(1.0)        -- 8 threads on 8-core
-partitions: adaptive()           -- grows with metric types (~460 for typical OAL+MAL)
+partitions: adaptive()           -- grows with metric types (~330 for typical OAL+MAL on 8 threads)
 bufferSize: 20,000 per partition
 strategy:   IF_POSSIBLE
 idleMs:     1..50

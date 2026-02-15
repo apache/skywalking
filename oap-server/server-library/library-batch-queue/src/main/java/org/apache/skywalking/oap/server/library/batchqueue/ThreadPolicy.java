@@ -44,7 +44,9 @@ public class ThreadPolicy {
     /**
      * Fixed number of threads. Count must be &gt;= 1.
      *
-     * @throws IllegalArgumentException if count < 1
+     * @param count the exact number of threads
+     * @return a ThreadPolicy with a fixed thread count
+     * @throws IllegalArgumentException if count &lt; 1
      */
     public static ThreadPolicy fixed(final int count) {
         if (count < 1) {
@@ -57,7 +59,9 @@ public class ThreadPolicy {
      * Threads = multiplier * available CPU cores, rounded, min 1.
      * Multiplier must be &gt; 0.
      *
-     * @throws IllegalArgumentException if multiplier <= 0
+     * @param multiplier factor applied to available CPU core count
+     * @return a ThreadPolicy proportional to CPU cores
+     * @throws IllegalArgumentException if multiplier &lt;= 0
      */
     public static ThreadPolicy cpuCores(final double multiplier) {
         if (multiplier <= 0) {
@@ -72,7 +76,10 @@ public class ThreadPolicy {
      *
      * Example: cpuCoresWithBase(2, 0.25) on 8-core = 2 + 2 = 4, on 16-core = 2 + 4 = 6, on 24-core = 2 + 6 = 8.
      *
-     * @throws IllegalArgumentException if base < 0 or multiplier <= 0
+     * @param base fixed base thread count added to the CPU-proportional portion
+     * @param multiplier factor applied to available CPU core count
+     * @return a ThreadPolicy that combines a fixed base with a CPU-proportional count
+     * @throws IllegalArgumentException if base &lt; 0 or multiplier &lt;= 0
      */
     public static ThreadPolicy cpuCoresWithBase(final int base, final double multiplier) {
         if (base < 0) {
@@ -86,12 +93,37 @@ public class ThreadPolicy {
 
     /**
      * Resolve the actual thread count. Always returns &gt;= 1.
+     *
+     * @return the resolved thread count, at least 1
      */
     public int resolve() {
         if (fixedCount > 0) {
             return fixedCount;
         }
         return Math.max(1, base + (int) Math.round(cpuMultiplier * Runtime.getRuntime().availableProcessors()));
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final ThreadPolicy that = (ThreadPolicy) o;
+        return fixedCount == that.fixedCount
+            && base == that.base
+            && Double.compare(that.cpuMultiplier, cpuMultiplier) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fixedCount;
+        result = 31 * result + base;
+        final long temp = Double.doubleToLongBits(cpuMultiplier);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 
     @Override

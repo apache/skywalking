@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BatchQueueManagerTest {
@@ -54,16 +55,16 @@ public class BatchQueueManagerTest {
     }
 
     @Test
-    public void testCreateReturnsExistingIfPresent() {
+    public void testCreateThrowsOnDuplicateName() {
         final BatchQueueConfig<String> config = BatchQueueConfig.<String>builder()
             .threads(ThreadPolicy.fixed(1))
             .consumer(data -> { })
             .bufferSize(100)
             .build();
 
-        final BatchQueue<String> first = BatchQueueManager.create("absent-test", config);
-        final BatchQueue<String> second = BatchQueueManager.create("absent-test", config);
-        assertSame(first, second);
+        BatchQueueManager.create("absent-test", config);
+        assertThrows(IllegalStateException.class,
+            () -> BatchQueueManager.create("absent-test", config));
     }
 
     @Test

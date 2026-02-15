@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
 import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.verification.AtLeast;
@@ -40,7 +41,6 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -52,6 +52,13 @@ public class RemoteClientManagerTestCase {
 
     private RemoteClientManager clientManager;
     private ClusterNodesQuery clusterNodesQuery;
+
+    @AfterEach
+    public void tearDown() {
+        clientManager.getRemoteClient().stream()
+            .filter(c -> !c.getAddress().isSelf())
+            .forEach(RemoteClient::close);
+    }
 
     @BeforeEach
     public void setup() {

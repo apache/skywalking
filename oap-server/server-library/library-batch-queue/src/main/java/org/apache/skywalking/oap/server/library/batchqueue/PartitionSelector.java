@@ -47,6 +47,9 @@ public interface PartitionSelector<T> {
      * Default selector: routes by {@code data.getClass().hashCode()}.
      * Same type always hits the same partition, so each consumer thread
      * drains pre-grouped batches — dispatch grouping is effectively a no-op.
+     *
+     * @param <T> the queue element type
+     * @return a selector that partitions by item class hash
      */
     static <T> PartitionSelector<T> typeHash() {
         return (data, count) -> (data.getClass().hashCode() & 0x7FFFFFFF) % count;

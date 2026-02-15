@@ -23,15 +23,17 @@
 
   | Queue | Old threads | Old channels | Old buffer slots | New threads | New partitions | New buffer slots | New policy |
   |-------|-------------|--------------|------------------|-------------|----------------|------------------|------------|
-  | L1 Aggregation (OAL) | 24 | ~1,240 | ~12.4M | 8 (unified) | ~460 adaptive | ~9.2M | `cpuCores(1.0)` |
+  | L1 Aggregation (OAL) | 24 | ~1,240 | ~12.4M | 8 (unified) | ~330 adaptive | ~6.6M | `cpuCores(1.0)` |
   | L1 Aggregation (MAL) | 2 | ~100 | ~100K | (unified above) | | | |
-  | L2 Persistence (OAL) | 2 | ~620 | ~1.24M | 3 (unified) | ~460 adaptive | ~920K | `cpuCoresWithBase(1, 0.25)` |
+  | L2 Persistence (OAL) | 2 | ~620 | ~1.24M | 3 (unified) | ~330 adaptive | ~660K | `cpuCoresWithBase(1, 0.25)` |
   | L2 Persistence (MAL) | 1 | ~100 | ~100K | (unified above) | | | |
   | TopN Persistence | 4 | 4 | 4K | 1 | 4 adaptive | 4K | `fixed(1)` |
   | Exporters (gRPC/Kafka) | 3 | 6 | 120K | 3 (1 per exporter) | — | 60K | `fixed(1)` each |
-  | **Total** | **36** | **~2,070** | **~13.9M** | **15** | **~924** | **~10.2M** | |
+  | **Total** | **36** | **~2,070** | **~13.9M** | **15** | **~664** | **~7.3M** | |
 
 * Remove `library-datacarrier-queue` module. All usages have been replaced by `library-batch-queue`.
+* Enable throughput-weighted drain rebalancing for L1 aggregation and L2 persistence queues (10s interval).
+  Periodically reassigns partitions across drain threads to equalize load when metric types have skewed throughput.
 
 #### OAP Server
 
@@ -55,8 +57,8 @@
 
   | Catalog | Thread Name | Count | Policy | Partitions |
   |---------|-------------|-------|--------|------------|
-  | Data Pipeline | `BatchQueue-METRICS_L1_AGGREGATION-N` | 8 | `cpuCores(1.0)` | ~460 adaptive |
-  | Data Pipeline | `BatchQueue-METRICS_L2_PERSISTENCE-N` | 3 | `cpuCoresWithBase(1, 0.25)` | ~460 adaptive |
+  | Data Pipeline | `BatchQueue-METRICS_L1_AGGREGATION-N` | 8 | `cpuCores(1.0)` | ~330 adaptive |
+  | Data Pipeline | `BatchQueue-METRICS_L2_PERSISTENCE-N` | 3 | `cpuCoresWithBase(1, 0.25)` | ~330 adaptive |
   | Data Pipeline | `BatchQueue-TOPN_PERSISTENCE-N` | 1 | `fixed(1)` | ~4 adaptive |
   | Data Pipeline | `BatchQueue-GRPC_REMOTE_{host}_{port}-N` | 1 per peer | `fixed(1)` | `fixed(1)` |
   | Data Pipeline | `BatchQueue-EXPORTER_GRPC_METRICS-N` | 1 | `fixed(1)` | `fixed(1)` |

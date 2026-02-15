@@ -213,6 +213,11 @@ public class BatchQueue<T> {
     private final int[] consecutiveIdleCycles;
 
     /** Set to false on {@link #shutdown()} to stop drain loops and reject new data. */
+    /**
+     * Whether the queue is currently accepting produces and running drain loops.
+     *
+     * @return true if the queue is running
+     */
     @Getter
     private volatile boolean running;
 
@@ -424,6 +429,9 @@ public class BatchQueue<T> {
      * count and grows the partition array if needed. For non-adaptive policies the
      * resolved count never changes, so this is a no-op beyond the registration.
      * Drain loop threads pick up new partitions on their next cycle via volatile reads.
+     *
+     * @param type the class of items to route to this handler
+     * @param handler the consumer that processes batches of the given type
      */
     @SuppressWarnings("unchecked")
     public void addHandler(final Class<? extends T> type, final HandlerConsumer<T> handler) {
@@ -522,6 +530,7 @@ public class BatchQueue<T> {
      *   <li>IF_POSSIBLE — returns false immediately if the partition is full (data dropped)</li>
      * </ul>
      *
+     * @param data the item to enqueue
      * @return true if data was accepted, false if dropped or queue is stopped
      */
     public boolean produce(final T data) {
@@ -844,6 +853,8 @@ public class BatchQueue<T> {
 
     /**
      * Take a point-in-time snapshot of queue usage across all partitions.
+     *
+     * @return a stats snapshot containing per-partition usage and capacity
      */
     public BatchQueueStats stats() {
         final ArrayBlockingQueue<T>[] currentPartitions = this.partitions;

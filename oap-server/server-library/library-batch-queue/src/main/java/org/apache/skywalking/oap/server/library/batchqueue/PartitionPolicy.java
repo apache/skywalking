@@ -53,6 +53,8 @@ public class PartitionPolicy {
     /**
      * Fixed number of partitions.
      *
+     * @param count the exact number of partitions
+     * @return a PartitionPolicy with a fixed partition count
      * @throws IllegalArgumentException if count &lt; 1
      */
     public static PartitionPolicy fixed(final int count) {
@@ -65,6 +67,8 @@ public class PartitionPolicy {
     /**
      * Partitions = multiplier * resolved thread count.
      *
+     * @param multiplier factor applied to thread count
+     * @return a PartitionPolicy that scales with thread count
      * @throws IllegalArgumentException if multiplier &lt; 1
      */
     public static PartitionPolicy threadMultiply(final int multiplier) {
@@ -95,6 +99,8 @@ public class PartitionPolicy {
      *  1000 handlers → 600 partitions  (200 + 800/2)
      *  2000 handlers → 1100 partitions (200 + 1800/2)
      * </pre>
+     *
+     * @return an adaptive PartitionPolicy with default threshold multiplier
      */
     public static PartitionPolicy adaptive() {
         return new PartitionPolicy(0, DEFAULT_ADAPTIVE_MULTIPLIER, true);
@@ -108,6 +114,7 @@ public class PartitionPolicy {
      * at 1:2 ratio: {@code threshold + (handlerCount - threshold) / 2}.
      *
      * @param multiplier threshold per thread (default 25)
+     * @return a PartitionPolicy that grows with handler registrations
      * @throws IllegalArgumentException if multiplier &lt; 1
      */
     public static PartitionPolicy adaptive(final int multiplier) {
@@ -128,6 +135,10 @@ public class PartitionPolicy {
      *       &lt;= threshold, returns handlerCount (1:1). If above, returns
      *       threshold + (handlerCount - threshold) / 2.</li>
      * </ul>
+     *
+     * @param resolvedThreadCount the resolved number of drain threads
+     * @param handlerCount the current number of registered type handlers
+     * @return the resolved partition count, always &gt;= 1
      */
     public int resolve(final int resolvedThreadCount, final int handlerCount) {
         if (fixedCount > 0) {

@@ -674,6 +674,142 @@ public class BatchQueueTest {
         blockLatch.countDown();
     }
 
+    // --- Rebalancing ---
+
+    @Test
+    public void testRebalancingIgnoredForSingleThread() {
+        final BatchQueue<Object> queue = BatchQueueManager.create("rebal-single",
+            BatchQueueConfig.<Object>builder()
+                .threads(ThreadPolicy.fixed(1))
+                .partitions(PartitionPolicy.fixed(4))
+                .balancer(DrainBalancer.throughputWeighted(), 1000)
+                .consumer(data -> { })
+                .bufferSize(100)
+                .build());
+
+        // Single thread — nothing to rebalance, silently skipped
+        assertFalse(queue.isRebalancingEnabled());
+    }
+
+    @Test
+    public void testRebalancingIgnoredWithoutBalancer() {
+        final BatchQueue<Object> queue = BatchQueueManager.create("rebal-no-balancer",
+            BatchQueueConfig.<Object>builder()
+                .threads(ThreadPolicy.fixed(2))
+                .partitions(PartitionPolicy.fixed(4))
+                .consumer(data -> { })
+                .bufferSize(100)
+                .build());
+
+        // No balancer configured — rebalancing not enabled
+        assertFalse(queue.isRebalancingEnabled());
+    }
+
+    @Test
+    public void testRebalancingNoDataLoss() throws Exception {
+        final AtomicInteger totalReceived = new AtomicInteger(0);
+        final int itemCount = 5000;
+
+        final BatchQueue<Object> queue = BatchQueueManager.create("rebal-no-loss",
+            BatchQueueConfig.<Object>builder()
+                .threads(ThreadPolicy.fixed(2))
+                .partitions(PartitionPolicy.fixed(8))
+                .balancer(DrainBalancer.throughputWeighted(), 100)
+                .bufferSize(2000)
+                .strategy(BufferStrategy.BLOCKING)
+                .build());
+
+        // Register 8 handler types, each just counts
+        for (int i = 0; i < 8; i++) {
+            queue.addHandler(BenchmarkMetricTypes.CLASSES[i],
+                data -> totalReceived.addAndGet(data.size()));
+        }
+
+        assertTrue(queue.isRebalancingEnabled());
+
+        // Produce items across all 8 types
+        for (int i = 0; i < itemCount; i++) {
+            queue.produce(BenchmarkMetricTypes.FACTORIES[i % 8].create(i));
+        }
+
+        Awaitility.await().atMost(10, TimeUnit.SECONDS)
+            .until(() -> totalReceived.get() == itemCount);
+
+        assertEquals(itemCount, totalReceived.get());
+    }
+
+    @Test
+    public void testRebalancingRedistributesPartitions() throws Exception {
+        final AtomicInteger totalReceived = new AtomicInteger(0);
+
+        final BatchQueue<Object> queue = BatchQueueManager.create("rebal-redistribute",
+            BatchQueueConfig.<Object>builder()
+                .threads(ThreadPolicy.fixed(2))
+                .partitions(PartitionPolicy.fixed(4))
+                .balancer(DrainBalancer.throughputWeighted(), 200)
+                .bufferSize(2000)
+                .strategy(BufferStrategy.IF_POSSIBLE)
+                .build());
+
+        // Register 4 handler types
+        for (int i = 0; i < 4; i++) {
+            queue.addHandler(BenchmarkMetricTypes.CLASSES[i],
+                data -> totalReceived.addAndGet(data.size()));
+        }
+
+        // Produce heavily skewed load: type 0 gets 90% of items
+        for (int round = 0; round < 5; round++) {
+            for (int i = 0; i < 900; i++) {
+                queue.produce(BenchmarkMetricTypes.FACTORIES[0].create(i));
+            }
+            for (int i = 0; i < 34; i++) {
+                queue.produce(BenchmarkMetricTypes.FACTORIES[1].create(i));
+                queue.produce(BenchmarkMetricTypes.FACTORIES[2].create(i));
+                queue.produce(BenchmarkMetricTypes.FACTORIES[3].create(i));
+            }
+            Thread.sleep(50);
+        }
+
+        // Wait for all data to be consumed
+        final int expectedTotal = 5 * (900 + 34 * 3);
+        Awaitility.await().atMost(10, TimeUnit.SECONDS)
+            .until(() -> totalReceived.get() == expectedTotal);
+
+        assertEquals(expectedTotal, totalReceived.get());
+    }
+
+    @Test
+    public void testRebalancingWithPartitionGrowth() {
+        final AtomicInteger totalReceived = new AtomicInteger(0);
+
+        final BatchQueue<Object> queue = BatchQueueManager.create("rebal-growth",
+            BatchQueueConfig.<Object>builder()
+                .threads(ThreadPolicy.fixed(2))
+                .partitions(PartitionPolicy.adaptive())
+                .balancer(DrainBalancer.throughputWeighted(), 200)
+                .bufferSize(1000)
+                .build());
+
+        assertTrue(queue.isRebalancingEnabled());
+
+        // Add handlers — this grows partitions while rebalancing is active
+        for (int i = 0; i < 20; i++) {
+            queue.addHandler(BenchmarkMetricTypes.CLASSES[i],
+                data -> totalReceived.addAndGet(data.size()));
+        }
+
+        // Produce items across all 20 types
+        final int itemCount = 2000;
+        for (int i = 0; i < itemCount; i++) {
+            queue.produce(BenchmarkMetricTypes.FACTORIES[i % 20].create(i));
+        }
+
+        Awaitility.await().atMost(10, TimeUnit.SECONDS)
+            .until(() -> totalReceived.get() == itemCount);
+
+        assertEquals(itemCount, totalReceived.get());
+    }
+
     @Test
     public void testBackoffResetsOnData() throws Exception {
         final AtomicInteger consumeCount = new AtomicInteger(0);

@@ -80,7 +80,7 @@ public class BatchQueueManager {
                                                                 final ThreadPolicy threads) {
         SHARED_SCHEDULER_POLICIES.compute(name, (k, existing) -> {
             if (existing != null) {
-                if (!existing.toString().equals(threads.toString())) {
+                if (!existing.equals(threads)) {
                     log.warn("Shared scheduler [{}]: ThreadPolicy mismatch. "
                             + "Existing={}, requested={}. Using existing.",
                         name, existing, threads);
@@ -128,7 +128,14 @@ public class BatchQueueManager {
     @SuppressWarnings("unchecked")
     public static <T> BatchQueue<T> create(final String name, final BatchQueueConfig<T> config) {
         config.validate();
-        return (BatchQueue<T>) QUEUES.computeIfAbsent(name, k -> new BatchQueue<>(name, config));
+        final BatchQueue<T> queue = new BatchQueue<>(name, config);
+        final BatchQueue<?> existing = QUEUES.putIfAbsent(name, queue);
+        if (existing != null) {
+            queue.shutdown();
+            throw new IllegalStateException(
+                "BatchQueue [" + name + "] already exists. Each queue name must be unique.");
+        }
+        return queue;
     }
 
     @SuppressWarnings("unchecked")

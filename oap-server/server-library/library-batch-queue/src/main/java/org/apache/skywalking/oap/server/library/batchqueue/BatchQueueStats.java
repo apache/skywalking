@@ -48,6 +48,8 @@ public class BatchQueueStats {
 
     /**
      * Total capacity across all partitions: {@code partitionCount * bufferSize}.
+     *
+     * @return total capacity in item slots
      */
     public long totalCapacity() {
         return (long) partitionCount * bufferSize;
@@ -55,6 +57,8 @@ public class BatchQueueStats {
 
     /**
      * Total number of items currently queued across all partitions.
+     *
+     * @return sum of items across all partitions
      */
     public int totalUsed() {
         int sum = 0;
@@ -66,6 +70,8 @@ public class BatchQueueStats {
 
     /**
      * Overall queue usage as a percentage (0.0–100.0).
+     *
+     * @return usage percentage across all partitions
      */
     public double totalUsedPercentage() {
         final long capacity = totalCapacity();
@@ -77,6 +83,9 @@ public class BatchQueueStats {
 
     /**
      * Number of items currently queued in the given partition.
+     *
+     * @param index the partition index
+     * @return number of items in the partition
      */
     public int partitionUsed(final int index) {
         return partitionUsed[index];
@@ -84,6 +93,9 @@ public class BatchQueueStats {
 
     /**
      * Usage of the given partition as a percentage (0.0–100.0).
+     *
+     * @param index the partition index
+     * @return usage percentage for the partition
      */
     public double partitionUsedPercentage(final int index) {
         if (bufferSize == 0) {
@@ -94,7 +106,10 @@ public class BatchQueueStats {
 
     /**
      * Return the top {@code n} most-loaded partitions, sorted by usage descending.
-     * If {@code n >= partitionCount}, all partitions are returned.
+     * If {@code n &gt;= partitionCount}, all partitions are returned.
+     *
+     * @param n the maximum number of partitions to return
+     * @return list of partition usage snapshots sorted by usage descending
      */
     public List<PartitionUsage> topN(final int n) {
         final Integer[] indices = new Integer[partitionCount];
