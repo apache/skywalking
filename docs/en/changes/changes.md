@@ -13,7 +13,8 @@
 * Upgrade Groovy to 5.0.3 in OAP backend.
 * Bump up nodejs to v24.13.0 for the latest UI(booster-ui) compiling.
 * Add `library-batch-queue` module — a partitioned, self-draining queue with type-based dispatch,
-  adaptive partitioning, and idle backoff. Designed to replace DataCarrier in high-fan-out scenarios.
+  adaptive partitioning, idle backoff, and throughput-weighted drain rebalancing (`DrainBalancer`).
+  Designed to replace DataCarrier in high-fan-out scenarios.
 * Replace DataCarrier with BatchQueue for L1 metrics aggregation, L2 metrics persistence, TopN persistence,
   all three exporters (gRPC metrics, Kafka trace, Kafka log), and gRPC remote client.
   All metric types (OAL + MAL) now share unified queues instead of separate OAL/MAL pools.
@@ -48,6 +49,34 @@
 * Replace BanyanDB Java client with native implementation.
 * Remove `bydb.dependencies.properties` and set the compatible BanyanDB API version number in `${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS}`.
 * Fix trace profiling query time range condition.
+* Add named ThreadFactory to all `Executors.newXxx()` calls to replace anonymous `pool-N-thread-M` thread names
+  with meaningful names for easier thread dump analysis. Complete OAP server thread inventory
+  (counts on an 8-core machine, exporters and JDBC are optional):
+
+  | Catalog | Thread Name | Count | Policy | Partitions |
+  |---------|-------------|-------|--------|------------|
+  | Data Pipeline | `BatchQueue-METRICS_L1_AGGREGATION-N` | 8 | `cpuCores(1.0)` | ~460 adaptive |
+  | Data Pipeline | `BatchQueue-METRICS_L2_PERSISTENCE-N` | 3 | `cpuCoresWithBase(1, 0.25)` | ~460 adaptive |
+  | Data Pipeline | `BatchQueue-TOPN_PERSISTENCE-N` | 1 | `fixed(1)` | ~4 adaptive |
+  | Data Pipeline | `BatchQueue-GRPC_REMOTE_{host}_{port}-N` | 1 per peer | `fixed(1)` | `fixed(1)` |
+  | Data Pipeline | `BatchQueue-EXPORTER_GRPC_METRICS-N` | 1 | `fixed(1)` | `fixed(1)` |
+  | Data Pipeline | `BatchQueue-EXPORTER_KAFKA_TRACE-N` | 1 | `fixed(1)` | `fixed(1)` |
+  | Data Pipeline | `BatchQueue-EXPORTER_KAFKA_LOG-N` | 1 | `fixed(1)` | `fixed(1)` |
+  | Data Pipeline | `BatchQueue-JDBC_ASYNC_BATCH_PERSISTENT-N` | 4 (configurable) | `fixed(N)` | `fixed(N)` |
+  | Scheduler | `RemoteClientManager` | 1 | scheduled | — |
+  | Scheduler | `PersistenceTimer` | 1 | scheduled | — |
+  | Scheduler | `PersistenceTimer-prepare-N` | 2 (configurable) | fixed pool | — |
+  | Scheduler | `DataTTLKeeper` | 1 | scheduled | — |
+  | Scheduler | `CacheUpdateTimer` | 1 | scheduled | — |
+  | Scheduler | `HierarchyAutoMatching` | 1 | scheduled | — |
+  | Scheduler | `WatermarkWatcher` | 1 | scheduled | — |
+  | Scheduler | `AlarmCore` | 1 | scheduled | — |
+  | Scheduler | `HealthChecker` | 1 | scheduled | — |
+  | Scheduler | `EndpointUriRecognition` | 1 (conditional) | scheduled | — |
+  | Scheduler | `FileChangeMonitor` | 1 | scheduled | — |
+  | Scheduler | `BanyanDB-ChannelManager` | 1 | scheduled | — |
+  | Scheduler | `GRPCClient-HealthCheck-{host}:{port}` | 1 per client | scheduled | — |
+  | Scheduler | `EBPFProfiling-N` | configurable | fixed pool | — |
 * Fix BanyanDB time range overflow in profile thread snapshot query.
 * `BrowserErrorLog`, OAP Server generated UUID to replace the original client side ID, because Browser scripts can't guarantee generated IDs are globally unique.
 * MQE: fix multiple labeled metric query and ensure no results are returned if no label value combinations match.

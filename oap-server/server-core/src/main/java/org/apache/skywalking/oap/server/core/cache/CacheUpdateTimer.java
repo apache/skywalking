@@ -59,7 +59,7 @@ public enum CacheUpdateTimer {
 
         final long timeInterval = 10;
 
-        Executors.newSingleThreadScheduledExecutor()
+        Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "CacheUpdateTimer"))
                  .scheduleAtFixedRate(
                      new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> log
                          .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);

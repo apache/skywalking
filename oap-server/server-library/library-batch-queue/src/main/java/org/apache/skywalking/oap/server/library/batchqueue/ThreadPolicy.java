@@ -27,8 +27,8 @@ package org.apache.skywalking.oap.server.library.batchqueue;
  * - cpuCores(multiplier): multiplier * Runtime.availableProcessors(), rounded.
  * - cpuCoresWithBase(base, multiplier): base + multiplier * Runtime.availableProcessors(), rounded.
  *
- * Resolved value is always >= 1 — every pool must have at least one thread.
- * fixed() requires count >= 1 at construction. cpuCores() applies max(1, ...) at resolution.
+ * Resolved value is always &gt;= 1 — every pool must have at least one thread.
+ * fixed() requires count &gt;= 1 at construction. cpuCores() applies max(1, ...) at resolution.
  */
 public class ThreadPolicy {
     private final int fixedCount;
@@ -42,7 +42,7 @@ public class ThreadPolicy {
     }
 
     /**
-     * Fixed number of threads. Count must be >= 1.
+     * Fixed number of threads. Count must be &gt;= 1.
      *
      * @throws IllegalArgumentException if count < 1
      */
@@ -55,7 +55,7 @@ public class ThreadPolicy {
 
     /**
      * Threads = multiplier * available CPU cores, rounded, min 1.
-     * Multiplier must be > 0.
+     * Multiplier must be &gt; 0.
      *
      * @throws IllegalArgumentException if multiplier <= 0
      */
@@ -68,7 +68,7 @@ public class ThreadPolicy {
 
     /**
      * Threads = base + round(multiplier * available CPU cores), min 1.
-     * Base must be >= 0, multiplier must be > 0.
+     * Base must be &gt;= 0, multiplier must be &gt; 0.
      *
      * Example: cpuCoresWithBase(2, 0.25) on 8-core = 2 + 2 = 4, on 16-core = 2 + 4 = 6, on 24-core = 2 + 6 = 8.
      *
@@ -85,7 +85,7 @@ public class ThreadPolicy {
     }
 
     /**
-     * Resolve the actual thread count. Always returns >= 1.
+     * Resolve the actual thread count. Always returns &gt;= 1.
      */
     public int resolve() {
         if (fixedCount > 0) {

@@ -39,32 +39,32 @@ import lombok.extern.slf4j.Slf4j;
  *
  * <p>Internal maps:
  * <pre>
- * QUEUES:                     queueName     -> BatchQueue instance
- * SHARED_SCHEDULERS:          schedulerName -> ScheduledExecutorService
- * SHARED_SCHEDULER_POLICIES:  schedulerName -> ThreadPolicy (first-wins)
- * SHARED_SCHEDULER_REF_COUNTS: schedulerName -> AtomicInteger (reference count)
+ * QUEUES:                     queueName     -&gt; BatchQueue instance
+ * SHARED_SCHEDULERS:          schedulerName -&gt; ScheduledExecutorService
+ * SHARED_SCHEDULER_POLICIES:  schedulerName -&gt; ThreadPolicy (first-wins)
+ * SHARED_SCHEDULER_REF_COUNTS: schedulerName -&gt; AtomicInteger (reference count)
  * </pre>
  */
 @Slf4j
 public class BatchQueueManager {
     /**
-     * queueName -> BatchQueue instance. Each queue has a unique name.
+     * queueName -&gt; BatchQueue instance. Each queue has a unique name.
      */
     private static final ConcurrentHashMap<String, BatchQueue<?>> QUEUES = new ConcurrentHashMap<>();
     /**
-     * schedulerName -> ScheduledExecutorService. Multiple queues can share one scheduler by
+     * schedulerName -&gt; ScheduledExecutorService. Multiple queues can share one scheduler by
      * referencing the same scheduler name in their config.
      */
     private static final ConcurrentHashMap<String, ScheduledExecutorService> SHARED_SCHEDULERS =
         new ConcurrentHashMap<>();
     /**
-     * schedulerName -> ThreadPolicy. Tracks the first-wins policy for each shared scheduler
+     * schedulerName -&gt; ThreadPolicy. Tracks the first-wins policy for each shared scheduler
      * to detect mismatched configs.
      */
     private static final ConcurrentHashMap<String, ThreadPolicy> SHARED_SCHEDULER_POLICIES =
         new ConcurrentHashMap<>();
     /**
-     * schedulerName -> reference count. Incremented when a queue acquires the scheduler,
+     * schedulerName -&gt; reference count. Incremented when a queue acquires the scheduler,
      * decremented when a queue releases it. Scheduler is shut down when count reaches 0.
      */
     private static final ConcurrentHashMap<String, AtomicInteger> SHARED_SCHEDULER_REF_COUNTS =

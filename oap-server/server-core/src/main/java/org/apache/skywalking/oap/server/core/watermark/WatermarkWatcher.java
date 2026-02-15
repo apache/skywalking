@@ -80,7 +80,7 @@ public class WatermarkWatcher {
                                                           .getService(MetricsCreator.class);
         this.addListener(WatermarkGRPCInterceptor.INSTANCE);
 
-        Executors.newSingleThreadScheduledExecutor()
+        Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "WatermarkWatcher"))
                  .scheduleWithFixedDelay(this::watch, 0, 10, TimeUnit.SECONDS);
     }
 

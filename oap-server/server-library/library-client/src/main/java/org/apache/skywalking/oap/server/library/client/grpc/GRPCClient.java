@@ -167,7 +167,8 @@ public class GRPCClient implements Client, HealthCheckable {
 
     private void checkHealth() {
         if (healthCheckExecutor == null) {
-            healthCheckExecutor = Executors.newSingleThreadScheduledExecutor();
+            healthCheckExecutor = Executors.newSingleThreadScheduledExecutor(
+                r -> new Thread(r, "GRPCClient-HealthCheck-" + host + ":" + port));
             healthCheckExecutor.scheduleAtFixedRate(healthCheckRunnable, initialDelay, period, TimeUnit.SECONDS
             );
         }

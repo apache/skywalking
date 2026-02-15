@@ -80,7 +80,7 @@ public class HealthCheckerProvider extends ModuleProvider {
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         score.set(-1);
-        ses = Executors.newSingleThreadScheduledExecutor();
+        ses = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "HealthChecker"));
         healthQueryService = new HealthQueryService(score, details);
         this.registerServiceImplementation(HealthQueryService.class, healthQueryService);
     }

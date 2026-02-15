@@ -57,7 +57,8 @@ public class ChannelManager extends ManagedChannel {
 
     public static ChannelManager create(ChannelManagerSettings settings, ChannelFactory channelFactory)
             throws IOException {
-        return new ChannelManager(settings, channelFactory, Executors.newSingleThreadScheduledExecutor());
+        return new ChannelManager(settings, channelFactory,
+            Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "BanyanDB-ChannelManager")));
     }
 
     ChannelManager(ChannelManagerSettings settings, ChannelFactory channelFactory, ScheduledExecutorService executor) throws IOException {

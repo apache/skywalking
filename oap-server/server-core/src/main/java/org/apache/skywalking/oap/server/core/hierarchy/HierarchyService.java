@@ -136,7 +136,7 @@ public class HierarchyService implements org.apache.skywalking.oap.server.librar
         if (!this.isEnableHierarchy) {
             return;
         }
-        Executors.newSingleThreadScheduledExecutor()
+        Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "HierarchyAutoMatching"))
                  .scheduleWithFixedDelay(
                      new RunnableWithExceptionProtection(this::autoMatchingServiceRelation, t -> log.error(
                          "Scheduled auto matching service hierarchy from service traffic failure.", t)), 30, 20, TimeUnit.SECONDS);

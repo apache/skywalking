@@ -60,7 +60,7 @@ public enum DataTTLKeeperTimer {
         this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
         this.moduleConfig = moduleConfig;
 
-        Executors.newSingleThreadScheduledExecutor()
+        Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "DataTTLKeeper"))
                  .scheduleAtFixedRate(
                      new RunnableWithExceptionProtection(
                          this::delete,
