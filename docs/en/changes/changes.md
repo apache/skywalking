@@ -15,11 +15,17 @@
 * Add virtual thread support (JDK 25+) for gRPC and Armeria HTTP server handler threads.
   Set `SW_VIRTUAL_THREADS_ENABLED=false` to disable.
 
-  | Pool | JDK < 25 | JDK 25+ |
+  | Pool | Threads (JDK < 25) | Threads (JDK 25+) |
   |---|---|---|
-  | gRPC handler (`core-grpc`, `receiver-grpc`, `als-grpc`, `ebpf-grpc`) | Cached platform threads (unbounded) | Virtual threads (per-task) |
-  | HTTP blocking (`core-http`, `receiver-http`, `promql-http`, `logql-http`, `zipkin-query-http`, `zipkin-http`, `firehose-http`) | Cached platform threads (max 200/server) | Virtual threads (per-task) |
-  | Netty/Armeria I/O event loops | Platform threads (`cores*2` / `cores`) | Unchanged |
+  | gRPC server handler (`core-grpc`) | Cached platform (unbounded) | Virtual threads |
+  | HTTP blocking (`core-http`) | Cached platform (max 200) | Virtual threads |
+  | HTTP blocking (`firehose-http`) | Cached platform (max 200) | Virtual threads |
+  | HTTP blocking (`logql-http`) | Cached platform (max 200) | Virtual threads |
+  | HTTP blocking (`promql-http`) | Cached platform (max 200) | Virtual threads |
+  | VT carrier threads (ForkJoinPool) | N/A | 9 shared |
+
+  On JDK 25+, all 5 pools share 9 carrier threads instead of up to 800+ platform threads.
+* Change default Docker base image to JDK 25 (`eclipse-temurin:25-jre`). JDK 11 kept as `-java11` variant.
 
 #### OAP Server
 
