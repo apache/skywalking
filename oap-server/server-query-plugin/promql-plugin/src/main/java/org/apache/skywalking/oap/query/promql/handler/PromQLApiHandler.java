@@ -35,6 +35,9 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.io.IOException;
@@ -118,6 +121,7 @@ public class PromQLApiHandler {
     private AggregationQueryService aggregationQueryService;
     private RecordQueryService recordQueryService;
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final long REGEX_MATCH_TIMEOUT_NANOS = TimeUnit.SECONDS.toNanos(5);
     public static final DateTimeFormatter RFC3339_FORMATTER = new DateTimeFormatterBuilder()
         .parseCaseInsensitive()
         .append(DateTimeFormatter.ISO_LOCAL_DATE)
@@ -789,11 +793,13 @@ public class PromQLApiHandler {
                 List<Service> services = metadataQuery.listServices(layer).join();
                 services.stream().filter(s -> !s.getName().equals(serviceName)).limit(limitNum).forEach(result::add);
             } else if (matcher.getMatchOp() == PromQLParser.RM) {
+                final Pattern pattern = compileRegex(serviceName);
                 List<Service> services = metadataQuery.listServices(layer).join();
-                services.stream().filter(s -> s.getName().matches(serviceName)).limit(limitNum).forEach(result::add);
+                services.stream().filter(s -> safeMatches(pattern, s.getName())).limit(limitNum).forEach(result::add);
             } else if (matcher.getMatchOp() == PromQLParser.NRM) {
+                final Pattern pattern = compileRegex(serviceName);
                 List<Service> services = metadataQuery.listServices(layer).join();
-                services.stream().filter(s -> !s.getName().matches(serviceName)).limit(limitNum).forEach(result::add);
+                services.stream().filter(s -> !safeMatches(pattern, s.getName())).limit(limitNum).forEach(result::add);
             }
         } else {
             List<Service> services = metadataQuery.listServices(
@@ -825,9 +831,11 @@ public class PromQLApiHandler {
             } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
                 instances.stream().filter(n -> !n.getName().equals(instanceName)).limit(limitNum).forEach(result::add);
             } else if (matcher.getMatchOp() == PromQLParser.RM) {
-                instances.stream().filter(n -> n.getName().matches(instanceName)).limit(limitNum).forEach(result::add);
+                final Pattern pattern = compileRegex(instanceName);
+                instances.stream().filter(n -> safeMatches(pattern, n.getName())).limit(limitNum).forEach(result::add);
             } else if (matcher.getMatchOp() == PromQLParser.NRM) {
-                instances.stream().filter(n -> !n.getName().matches(instanceName)).limit(limitNum).forEach(result::add);
+                final Pattern pattern = compileRegex(instanceName);
+                instances.stream().filter(n -> !safeMatches(pattern, n.getName())).limit(limitNum).forEach(result::add);
             }
         } else {
             instances.stream().limit(limitNum).forEach(result::add);
@@ -859,14 +867,62 @@ public class PromQLApiHandler {
             } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
                 endpoints.stream().filter(e -> !e.getName().equals(endpointName)).limit(limitNum).forEach(result::add);
             } else if (matcher.getMatchOp() == PromQLParser.RM) {
-                endpoints.stream().filter(e -> e.getName().matches(endpointName)).limit(limitNum).forEach(result::add);
+                final Pattern pattern = compileRegex(endpointName);
+                endpoints.stream().filter(e -> safeMatches(pattern, e.getName())).limit(limitNum).forEach(result::add);
             } else if (matcher.getMatchOp() == PromQLParser.NRM) {
-                endpoints.stream().filter(e -> !e.getName().matches(endpointName)).limit(limitNum).forEach(result::add);
+                final Pattern pattern = compileRegex(endpointName);
+                endpoints.stream().filter(e -> !safeMatches(pattern, e.getName())).limit(limitNum).forEach(result::add);
             }
         } else {
             endpoints.stream().limit(limitNum).forEach(result::add);
         }
         return result;
+    }
+
+    private static Pattern compileRegex(final String regex) throws IllegalExpressionException {
+        try {
+            return Pattern.compile(regex);
+        } catch (PatternSyntaxException e) {
+            throw new IllegalExpressionException("Invalid regex pattern: " + e.getMessage(), e);
+        }
+    }
+
+    private static boolean safeMatches(final Pattern pattern, final String input) {
+        return pattern.matcher(new TimeLimitedCharSequence(input, REGEX_MATCH_TIMEOUT_NANOS)).matches();
+    }
+
+    private static class TimeLimitedCharSequence implements CharSequence {
+        private final CharSequence delegate;
+        private final long deadlineNanos;
+
+        private TimeLimitedCharSequence(final CharSequence delegate, final long timeoutNanos) {
+            this.delegate = delegate;
+            this.deadlineNanos = System.nanoTime() + timeoutNanos;
+        }
+
+        @Override
+        public int length() {
+            return delegate.length();
+        }
+
+        @Override
+        public char charAt(final int index) {
+            if (System.nanoTime() > deadlineNanos) {
+                throw new RuntimeException("Regex matching timed out");
+            }
+            return delegate.charAt(index);
+        }
+
+        @Override
+        public CharSequence subSequence(final int start, final int end) {
+            return new TimeLimitedCharSequence(delegate.subSequence(start, end),
+                                               Math.max(0, deadlineNanos - System.nanoTime()));
+        }
+
+        @Override
+        public String toString() {
+            return delegate.toString();
+        }
     }
 
     public enum QueryType {
