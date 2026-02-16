@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.library.util;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
@@ -150,6 +151,35 @@ public final class VirtualThreads {
                 return createVirtualThreadExecutor(namePrefix);
             } catch (final ReflectiveOperationException e) {
                 log.warn("Failed to create virtual thread executor [{}], "
+                             + "falling back to platform threads", namePrefix, e);
+            }
+        }
+        return platformExecutorSupplier.get();
+    }
+
+    /**
+     * Create a named scheduled executor service with virtual threads enabled by default.
+     * On JDK 25+, creates a virtual-thread-backed {@link ScheduledExecutorService}.
+     * On older JDKs, delegates to the provided {@code platformExecutorSupplier}.
+     *
+     * <p>This is designed for frameworks (e.g. Armeria) that require a
+     * {@link ScheduledExecutorService} for their blocking task executor.
+     * All methods — including scheduling — are fully backed by virtual threads.
+     * Scheduling is implemented by sleeping in a virtual thread.
+     *
+     * @param namePrefix               prefix for virtual thread names
+     * @param platformExecutorSupplier  supplies the platform-thread executor as fallback
+     * @return virtual thread scheduled executor on JDK 25+, or the supplier's executor otherwise
+     */
+    public static ScheduledExecutorService createScheduledExecutor(
+            final String namePrefix,
+            final Supplier<ScheduledExecutorService> platformExecutorSupplier) {
+        if (SUPPORTED) {
+            try {
+                final ExecutorService vtExecutor = createVirtualThreadExecutor(namePrefix);
+                return new VirtualThreadScheduledExecutor(vtExecutor);
+            } catch (final ReflectiveOperationException e) {
+                log.warn("Failed to create virtual thread scheduled executor [{}], "
                              + "falling back to platform threads", namePrefix, e);
             }
         }

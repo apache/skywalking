@@ -88,6 +88,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
                                                                 .build();
 
             httpServer = new HTTPServer(httpServerConfig);
+            httpServer.setBlockingTaskName("zipkin-http");
             httpServer.initialize();
 
             httpServer.addHandler(

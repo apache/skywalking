@@ -77,6 +77,7 @@ public class ZipkinQueryProvider extends ModuleProvider {
                                                             .build();
 
         httpServer = new HTTPServer(httpServerConfig);
+        httpServer.setBlockingTaskName("zipkin-query-http");
         httpServer.initialize();
         httpServer.addHandler(
             new ZipkinQueryHandler(config, getManager()),

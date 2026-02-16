@@ -21,6 +21,8 @@ import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +80,38 @@ public class VirtualThreadsTest {
                        "Platform thread name should start with 'pt-check-', but was: " + capture.name);
             assertFalse(isVirtual(capture.thread),
                         "Thread should NOT be virtual when enableVirtualThreads=false");
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    @Test
+    public void testScheduledExecutorUsesVirtualThreads() throws Exception {
+        if (!VirtualThreads.isSupported()) {
+            return;
+        }
+        final ScheduledExecutorService executor = VirtualThreads.createScheduledExecutor(
+            "sched-vt", () -> null);
+        assertNotNull(executor);
+        try {
+            // Test execute() runs on virtual threads
+            final ThreadCapture capture = submitAndCapture(executor);
+            assertTrue(capture.name.startsWith("vt:sched-vt-"),
+                       "Scheduled executor virtual thread name should start with 'vt:sched-vt-', but was: "
+                           + capture.name);
+            assertTrue(isVirtual(capture.thread),
+                       "Scheduled executor should use virtual threads on JDK 25+");
+
+            // Test schedule() also dispatches to virtual threads
+            final AtomicReference<Thread> scheduledRef = new AtomicReference<>();
+            final CountDownLatch scheduledLatch = new CountDownLatch(1);
+            final ScheduledFuture<?> future = executor.schedule(() -> {
+                scheduledRef.set(Thread.currentThread());
+                scheduledLatch.countDown();
+            }, 10, TimeUnit.MILLISECONDS);
+            assertTrue(scheduledLatch.await(5, TimeUnit.SECONDS), "Scheduled task did not complete");
+            assertTrue(isVirtual(scheduledRef.get()),
+                       "Scheduled task should run on a virtual thread");
         } finally {
             executor.shutdown();
         }

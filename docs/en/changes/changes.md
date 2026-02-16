@@ -12,6 +12,14 @@
 * Add `CLAUDE.md` as AI assistant guide for the project.
 * Upgrade Groovy to 5.0.3 in OAP backend.
 * Bump up nodejs to v24.13.0 for the latest UI(booster-ui) compiling.
+* Add virtual thread support (JDK 25+) for gRPC and Armeria HTTP server handler threads.
+  Set `SW_VIRTUAL_THREADS_ENABLED=false` to disable.
+
+  | Pool | JDK < 25 | JDK 25+ |
+  |---|---|---|
+  | gRPC handler (`core-grpc`, `receiver-grpc`, `als-grpc`, `ebpf-grpc`) | Cached platform threads (unbounded) | Virtual threads (per-task) |
+  | HTTP blocking (`core-http`, `receiver-http`, `promql-http`, `logql-http`, `zipkin-query-http`, `zipkin-http`, `firehose-http`) | Cached platform threads (max 200/server) | Virtual threads (per-task) |
+  | Netty/Armeria I/O event loops | Platform threads (`cores*2` / `cores`) | Unchanged |
 
 #### OAP Server
 

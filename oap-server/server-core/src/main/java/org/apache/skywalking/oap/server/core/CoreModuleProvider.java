@@ -265,6 +265,7 @@ public class CoreModuleProvider extends ModuleProvider {
         setBootingParameter("oap.external.http.host", moduleConfig.getRestHost());
         setBootingParameter("oap.external.http.port", moduleConfig.getRestPort());
         httpServer = new HTTPServer(httpServerConfig);
+        httpServer.setBlockingTaskName("core-http");
         httpServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
