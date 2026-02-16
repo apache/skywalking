@@ -550,7 +550,7 @@ process environment and take effect across all modules.
 | Environment Variable              | Value(s) and Explanation                                                                                                                                                                                                                                            | Default |
 |-----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
 | SW_OAL_ENGINE_DEBUG               | Set to any non-empty value to dump OAL-generated `.class` files to disk (under the `oal-rt/` directory relative to the OAP working path). Useful for debugging code generation issues. Leave unset in production.                                                  | (not set, no files written) |
-| SW_VIRTUAL_THREADS_ENABLED        | Set to `false` to disable virtual threads on JDK 25+. On JDK 25+, gRPC server handler threads are virtual threads by default. Set this variable to `false` to force traditional platform thread pools. Ignored on JDK versions below 25.                           | (not set, virtual threads enabled on JDK 25+) |
+| SW_VIRTUAL_THREADS_ENABLED        | Set to `false` to disable virtual threads on JDK 25+. On JDK 25+, gRPC server handler threads and HTTP blocking task executors are virtual threads by default. Set this variable to `false` to force traditional platform thread pools. Ignored on JDK versions below 25. | (not set, virtual threads enabled on JDK 25+) |
 
 ## Note
 
