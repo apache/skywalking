@@ -107,6 +107,7 @@ public class EBPFReceiverProvider extends ModuleProvider {
             if (config.getGRPCThreadPoolSize() > 0) {
                 grpcServer.setThreadPoolSize(config.getGRPCThreadPoolSize());
             }
+            grpcServer.setThreadPoolName("ebpf-grpc");
             grpcServer.initialize();
 
             this.receiverGRPCHandlerRegister = new GRPCHandlerRegisterImpl(grpcServer);

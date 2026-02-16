@@ -249,6 +249,7 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.getGRPCThreadPoolSize() > 0) {
             grpcServer.setThreadPoolSize(moduleConfig.getGRPCThreadPoolSize());
         }
+        grpcServer.setThreadPoolName("core-grpc");
         grpcServer.initialize();
 
         HTTPServerConfig httpServerConfig = HTTPServerConfig.builder()

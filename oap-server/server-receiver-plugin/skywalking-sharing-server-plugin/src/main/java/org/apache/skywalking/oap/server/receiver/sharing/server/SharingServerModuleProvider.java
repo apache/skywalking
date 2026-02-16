@@ -128,6 +128,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
             if (config.getGRPCThreadPoolSize() > 0) {
                 grpcServer.setThreadPoolSize(config.getGRPCThreadPoolSize());
             }
+            grpcServer.setThreadPoolName("receiver-grpc");
             grpcServer.initialize();
 
             GRPCHandlerRegisterImpl grpcHandlerRegister = new GRPCHandlerRegisterImpl(grpcServer);
