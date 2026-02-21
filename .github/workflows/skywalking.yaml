@@ -204,6 +204,22 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - name: Disable containerd image store
+        shell: bash
+        run: |
+          DAEMON_JSON="/etc/docker/daemon.json"
+          if [ -f "$DAEMON_JSON" ]; then
+            sudo jq '. + {"features": {"containerd-snapshotter": false}}' "$DAEMON_JSON" \
+              | sudo tee "${DAEMON_JSON}.tmp" > /dev/null
+            sudo mv "${DAEMON_JSON}.tmp" "$DAEMON_JSON"
+          else
+            echo '{"features": {"containerd-snapshotter": false}}' \
+              | sudo tee "$DAEMON_JSON" > /dev/null
+          fi
+          sudo systemctl restart docker
+          docker version
+          docker info
+          echo "DOCKER_API_VERSION=$(docker version --format '{{.Server.APIVersion}}')" >> "$GITHUB_ENV"
       - uses: actions/download-artifact@v4
         name: Download distribution tar
         with:
@@ -739,6 +755,22 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - name: Disable containerd image store
+        shell: bash
+        run: |
+          DAEMON_JSON="/etc/docker/daemon.json"
+          if [ -f "$DAEMON_JSON" ]; then
+            sudo jq '. + {"features": {"containerd-snapshotter": false}}' "$DAEMON_JSON" \
+              | sudo tee "${DAEMON_JSON}.tmp" > /dev/null
+            sudo mv "${DAEMON_JSON}.tmp" "$DAEMON_JSON"
+          else
+            echo '{"features": {"containerd-snapshotter": false}}' \
+              | sudo tee "$DAEMON_JSON" > /dev/null
+          fi
+          sudo systemctl restart docker
+          docker version
+          docker info
+          echo "DOCKER_API_VERSION=$(docker version --format '{{.Server.APIVersion}}')" >> "$GITHUB_ENV"
       - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
       - uses: apache/skywalking-cli/actions/setup@master
         with:
@@ -823,6 +855,22 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - name: Disable containerd image store
+        shell: bash
+        run: |
+          DAEMON_JSON="/etc/docker/daemon.json"
+          if [ -f "$DAEMON_JSON" ]; then
+            sudo jq '. + {"features": {"containerd-snapshotter": false}}' "$DAEMON_JSON" \
+              | sudo tee "${DAEMON_JSON}.tmp" > /dev/null
+            sudo mv "${DAEMON_JSON}.tmp" "$DAEMON_JSON"
+          else
+            echo '{"features": {"containerd-snapshotter": false}}' \
+              | sudo tee "$DAEMON_JSON" > /dev/null
+          fi
+          sudo systemctl restart docker
+          docker version
+          docker info
+          echo "DOCKER_API_VERSION=$(docker version --format '{{.Server.APIVersion}}')" >> "$GITHUB_ENV"
       - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
       - uses: apache/skywalking-cli/actions/setup@master
         with:
@@ -884,6 +932,22 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - name: Disable containerd image store
+        shell: bash
+        run: |
+          DAEMON_JSON="/etc/docker/daemon.json"
+          if [ -f "$DAEMON_JSON" ]; then
+            sudo jq '. + {"features": {"containerd-snapshotter": false}}' "$DAEMON_JSON" \
+              | sudo tee "${DAEMON_JSON}.tmp" > /dev/null
+            sudo mv "${DAEMON_JSON}.tmp" "$DAEMON_JSON"
+          else
+            echo '{"features": {"containerd-snapshotter": false}}' \
+              | sudo tee "$DAEMON_JSON" > /dev/null
+          fi
+          sudo systemctl restart docker
+          docker version
+          docker info
+          echo "DOCKER_API_VERSION=$(docker version --format '{{.Server.APIVersion}}')" >> "$GITHUB_ENV"
       - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
       - uses: apache/skywalking-cli/actions/setup@master
         with:
@@ -940,6 +1004,22 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      - name: Disable containerd image store
+        shell: bash
+        run: |
+          DAEMON_JSON="/etc/docker/daemon.json"
+          if [ -f "$DAEMON_JSON" ]; then
+            sudo jq '. + {"features": {"containerd-snapshotter": false}}' "$DAEMON_JSON" \
+              | sudo tee "${DAEMON_JSON}.tmp" > /dev/null
+            sudo mv "${DAEMON_JSON}.tmp" "$DAEMON_JSON"
+          else
+            echo '{"features": {"containerd-snapshotter": false}}' \
+              | sudo tee "$DAEMON_JSON" > /dev/null
+          fi
+          sudo systemctl restart docker
+          docker version
+          docker info
+          echo "DOCKER_API_VERSION=$(docker version --format '{{.Server.APIVersion}}')" >> "$GITHUB_ENV"
       - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
       - uses: apache/skywalking-cli/actions/setup@master
         with:
