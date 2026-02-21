@@ -111,6 +111,7 @@ public class GRPCRemoteClient implements RemoteClient {
                 .minIdleMs(10)
                 .maxIdleMs(100)
                 .build();
+
             this.queue = BatchQueueManager.create(queueName, config);
             this.isConnect = true;
         }

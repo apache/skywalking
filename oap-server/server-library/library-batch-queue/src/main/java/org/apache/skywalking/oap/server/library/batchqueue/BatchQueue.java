@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.library.batchqueue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -549,13 +550,13 @@ public class BatchQueue<T> {
                 if (combined.isEmpty()) {
                     // Nothing to drain — increase backoff and notify idle
                     consecutiveIdleCycles[taskIndex]++;
-                    notifyIdle();
+                    notifyIdle(taskIndex, myPartitions);
                     break;
                 }
 
                 // Data found — reset backoff and dispatch
                 consecutiveIdleCycles[taskIndex] = 0;
-                dispatch(combined);
+                dispatch(combined, taskIndex, myPartitions);
             }
         } catch (final Throwable t) {
             log.error("BatchQueue[{}]: drain loop error", name, t);
@@ -580,10 +581,17 @@ public class BatchQueue<T> {
      *       to one consumer, regardless of item types.</li>
      *   <li><b>Handler map</b>: items are grouped by {@code item.getClass()}, then
      *       each group is dispatched to its registered handler. Unregistered types
-     *       are logged as errors and dropped.</li>
+     *       are logged as errors and dropped. After dispatch, owned handlers whose
+     *       type was <em>not</em> in the batch receive an {@code onIdle()} call so
+     *       they can flush any accumulated data.</li>
      * </ol>
+     *
+     * @param batch        the drained items
+     * @param taskIndex    the drain task index
+     * @param myPartitions the partitions assigned to this task
      */
-    private void dispatch(final List<T> batch) {
+    private void dispatch(final List<T> batch, final int taskIndex,
+                          final int[] myPartitions) {
         if (config.getConsumer() != null) {
             try {
                 config.getConsumer().consume(batch);
@@ -614,13 +622,24 @@ public class BatchQueue<T> {
                 }
             }
         }
+
+        // Notify idle for owned handlers whose type had no data in this cycle.
+        // myPartitions is null during shutdown — skip idle notification.
+        if (myPartitions != null) {
+            notifyIdleAbsentTypes(taskIndex, myPartitions, grouped.keySet());
+        }
     }
 
     /**
-     * Notify consumer/handlers that a drain cycle found no data.
-     * Useful for flush-on-idle semantics (e.g. flush partial batches to storage).
+     * Notify consumer/handlers that a drain cycle found no data at all.
+     * For single-consumer mode, calls {@code onIdle()} directly.
+     * For handler-map mode, delegates to {@link #notifyIdleAbsentTypes} with
+     * an empty dispatched set (all handlers are idle).
+     *
+     * @param taskIndex the drain task that is idle
+     * @param myPartitions the partitions assigned to this task
      */
-    private void notifyIdle() {
+    private void notifyIdle(final int taskIndex, final int[] myPartitions) {
         if (config.getConsumer() != null) {
             try {
                 config.getConsumer().onIdle();
@@ -628,14 +647,54 @@ public class BatchQueue<T> {
                 log.error("BatchQueue[{}]: onIdle error in consumer", name, t);
             }
         } else {
-            for (final HandlerConsumer<T> handler : handlerMap.values()) {
-                try {
-                    handler.onIdle();
-                } catch (final Throwable t) {
-                    log.error("BatchQueue[{}]: onIdle error in handler", name, t);
-                }
+            notifyIdleAbsentTypes(taskIndex, myPartitions, Collections.emptySet());
+        }
+    }
+
+    /**
+     * Notify owned handlers whose type was <em>not</em> in the dispatched set.
+     * Each handler's type is hashed to a partition; only handlers whose partition
+     * is owned by the calling task are notified, preventing concurrent
+     * {@code onIdle()} calls on the same handler from different drain threads.
+     *
+     * @param taskIndex       the drain task index
+     * @param myPartitions    the partitions assigned to this task
+     * @param dispatchedTypes types that had data in this cycle (skip these)
+     */
+    private void notifyIdleAbsentTypes(final int taskIndex, final int[] myPartitions,
+                                       final Set<Class<?>> dispatchedTypes) {
+        final int partitionCount = partitions.length;
+        final boolean checkOwnership = rebalancingEnabled;
+        for (final Map.Entry<Class<?>, HandlerConsumer<T>> entry : handlerMap.entrySet()) {
+            if (dispatchedTypes.contains(entry.getKey())) {
+                continue;
+            }
+            final int partition = (entry.getKey().hashCode() & 0x7FFFFFFF) % partitionCount;
+            if (!isOwnedByTask(partition, taskIndex, myPartitions, checkOwnership)) {
+                continue;
+            }
+            try {
+                entry.getValue().onIdle();
+            } catch (final Throwable t) {
+                log.error("BatchQueue[{}]: onIdle error in handler", name, t);
             }
         }
+    }
+
+    /**
+     * Check whether a partition is owned by the given drain task.
+     */
+    private boolean isOwnedByTask(final int partition, final int taskIndex,
+                                  final int[] myPartitions, final boolean checkOwnership) {
+        if (checkOwnership) {
+            return partitionOwner.get(partition) == taskIndex;
+        }
+        for (final int p : myPartitions) {
+            if (p == partition) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void handleError(final List<T> data, final Throwable t) {
@@ -793,7 +852,8 @@ public class BatchQueue<T> {
             partition.drainTo(combined);
         }
         if (!combined.isEmpty()) {
-            dispatch(combined);
+            // Shutdown dispatch — no idle notification needed
+            dispatch(combined, -1, null);
         }
         scheduler.shutdown();
     }
