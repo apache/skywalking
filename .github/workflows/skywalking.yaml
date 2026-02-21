@@ -216,7 +216,10 @@ jobs:
             echo '{"features": {"containerd-snapshotter": false}}' \
               | sudo tee "$DAEMON_JSON" > /dev/null
           fi
+          sudo apt-get update -q && sudo apt-get install -y -q docker-ce docker-ce-cli
           sudo systemctl restart docker
+          docker version
+          docker info
       - uses: actions/download-artifact@v4
         name: Download distribution tar
         with:
@@ -764,7 +767,10 @@ jobs:
             echo '{"features": {"containerd-snapshotter": false}}' \
               | sudo tee "$DAEMON_JSON" > /dev/null
           fi
+          sudo apt-get update -q && sudo apt-get install -y -q docker-ce docker-ce-cli
           sudo systemctl restart docker
+          docker version
+          docker info
       - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
       - uses: apache/skywalking-cli/actions/setup@master
         with:
@@ -861,7 +867,10 @@ jobs:
             echo '{"features": {"containerd-snapshotter": false}}' \
               | sudo tee "$DAEMON_JSON" > /dev/null
           fi
+          sudo apt-get update -q && sudo apt-get install -y -q docker-ce docker-ce-cli
           sudo systemctl restart docker
+          docker version
+          docker info
       - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
       - uses: apache/skywalking-cli/actions/setup@master
         with:
@@ -935,7 +944,10 @@ jobs:
             echo '{"features": {"containerd-snapshotter": false}}' \
               | sudo tee "$DAEMON_JSON" > /dev/null
           fi
+          sudo apt-get update -q && sudo apt-get install -y -q docker-ce docker-ce-cli
           sudo systemctl restart docker
+          docker version
+          docker info
       - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
       - uses: apache/skywalking-cli/actions/setup@master
         with:
@@ -1004,7 +1016,10 @@ jobs:
             echo '{"features": {"containerd-snapshotter": false}}' \
               | sudo tee "$DAEMON_JSON" > /dev/null
           fi
+          sudo apt-get update -q && sudo apt-get install -y -q docker-ce docker-ce-cli
           sudo systemctl restart docker
+          docker version
+          docker info
       - run: grep -v '^#' test/e2e-v2/script/env >> "$GITHUB_ENV"
       - uses: apache/skywalking-cli/actions/setup@master
         with:
