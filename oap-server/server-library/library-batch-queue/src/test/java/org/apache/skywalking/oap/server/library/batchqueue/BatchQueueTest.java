@@ -236,51 +236,6 @@ public class BatchQueueTest {
         assertEquals(100, queue.getPartitionCount());
     }
 
-    // --- Shared scheduler ---
-
-    @Test
-    public void testSharedSchedulerQueuesSharePool() {
-        final List<String> received1 = new CopyOnWriteArrayList<>();
-        final List<String> received2 = new CopyOnWriteArrayList<>();
-
-        final BatchQueue<String> q1 = BatchQueueManager.create("shared-q1",
-            BatchQueueConfig.<String>builder()
-                .sharedScheduler("TEST_POOL", ThreadPolicy.fixed(2))
-                .consumer(data -> received1.addAll(data))
-                .bufferSize(1000)
-                .build());
-
-        final BatchQueue<String> q2 = BatchQueueManager.create("shared-q2",
-            BatchQueueConfig.<String>builder()
-                .sharedScheduler("TEST_POOL", ThreadPolicy.fixed(2))
-                .consumer(data -> received2.addAll(data))
-                .bufferSize(1000)
-                .build());
-
-        assertFalse(q1.isDedicatedScheduler());
-        assertFalse(q2.isDedicatedScheduler());
-
-        for (int i = 0; i < 50; i++) {
-            q1.produce("a-" + i);
-            q2.produce("b-" + i);
-        }
-
-        Awaitility.await().atMost(5, TimeUnit.SECONDS)
-            .until(() -> received1.size() == 50 && received2.size() == 50);
-    }
-
-    @Test
-    public void testDedicatedSchedulerIsOwned() {
-        final BatchQueue<String> queue = BatchQueueManager.create("dedicated-test",
-            BatchQueueConfig.<String>builder()
-                .threads(ThreadPolicy.fixed(2))
-                .consumer(data -> { })
-                .bufferSize(100)
-                .build());
-
-        assertTrue(queue.isDedicatedScheduler());
-    }
-
     // --- Produce and buffer strategy ---
 
     @Test

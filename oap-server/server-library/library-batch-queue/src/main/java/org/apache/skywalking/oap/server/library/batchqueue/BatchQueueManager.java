@@ -21,28 +21,15 @@ package org.apache.skywalking.oap.server.library.batchqueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Global registry for batch queues and shared schedulers.
+ * Global registry for batch queues.
  * Thread-safe. Queues are created by name and shared across modules.
- *
- * <p>Shared schedulers are created lazily on first queue reference — no separate
- * setup step needed. This eliminates startup ordering dependencies.
- *
- * <p>Shared schedulers are reference-counted: each queue that uses a shared scheduler
- * increments the count on creation and decrements on shutdown. When the count reaches
- * zero, the scheduler is shut down automatically.
  *
  * <p>Internal maps:
  * <pre>
- * QUEUES:                     queueName     -&gt; BatchQueue instance
- * SHARED_SCHEDULERS:          schedulerName -&gt; ScheduledExecutorService
- * SHARED_SCHEDULER_POLICIES:  schedulerName -&gt; ThreadPolicy (first-wins)
- * SHARED_SCHEDULER_REF_COUNTS: schedulerName -&gt; AtomicInteger (reference count)
+ * QUEUES: queueName -&gt; BatchQueue instance
  * </pre>
  */
 @Slf4j
@@ -51,81 +38,11 @@ public class BatchQueueManager {
      * queueName -&gt; BatchQueue instance. Each queue has a unique name.
      */
     private static final ConcurrentHashMap<String, BatchQueue<?>> QUEUES = new ConcurrentHashMap<>();
-    /**
-     * schedulerName -&gt; ScheduledExecutorService. Multiple queues can share one scheduler by
-     * referencing the same scheduler name in their config.
-     */
-    private static final ConcurrentHashMap<String, ScheduledExecutorService> SHARED_SCHEDULERS =
-        new ConcurrentHashMap<>();
-    /**
-     * schedulerName -&gt; ThreadPolicy. Tracks the first-wins policy for each shared scheduler
-     * to detect mismatched configs.
-     */
-    private static final ConcurrentHashMap<String, ThreadPolicy> SHARED_SCHEDULER_POLICIES =
-        new ConcurrentHashMap<>();
-    /**
-     * schedulerName -&gt; reference count. Incremented when a queue acquires the scheduler,
-     * decremented when a queue releases it. Scheduler is shut down when count reaches 0.
-     */
-    private static final ConcurrentHashMap<String, AtomicInteger> SHARED_SCHEDULER_REF_COUNTS =
-        new ConcurrentHashMap<>();
 
     /**
-     * Get or create a shared scheduler and increment its reference count.
-     * Called internally by BatchQueue constructor.
-     * First call creates the scheduler; subsequent calls reuse it.
-     * If ThreadPolicy differs from the first creator, logs a warning (first one wins).
+     * Create a new queue with the given name and config. Throws if a queue with the same name
+     * already exists. Use {@link #getOrCreate} when multiple callers share a single queue.
      */
-    static ScheduledExecutorService getOrCreateSharedScheduler(final String name,
-                                                                final ThreadPolicy threads) {
-        SHARED_SCHEDULER_POLICIES.compute(name, (k, existing) -> {
-            if (existing != null) {
-                if (!existing.equals(threads)) {
-                    log.warn("Shared scheduler [{}]: ThreadPolicy mismatch. "
-                            + "Existing={}, requested={}. Using existing.",
-                        name, existing, threads);
-                }
-                return existing;
-            }
-            return threads;
-        });
-
-        SHARED_SCHEDULER_REF_COUNTS.computeIfAbsent(name, k -> new AtomicInteger(0)).incrementAndGet();
-
-        return SHARED_SCHEDULERS.computeIfAbsent(name, k -> {
-            final int threadCount = threads.resolve();
-            log.info("Creating shared scheduler [{}] with {} threads ({})",
-                name, threadCount, threads);
-            return Executors.newScheduledThreadPool(threadCount, r -> {
-                final Thread t = new Thread(r);
-                t.setName("SharedScheduler-" + name + "-" + t.getId());
-                t.setDaemon(true);
-                return t;
-            });
-        });
-    }
-
-    /**
-     * Decrement the reference count for a shared scheduler.
-     * When the count reaches zero, the scheduler is shut down and removed.
-     */
-    static void releaseSharedScheduler(final String name) {
-        final AtomicInteger refCount = SHARED_SCHEDULER_REF_COUNTS.get(name);
-        if (refCount == null) {
-            return;
-        }
-        if (refCount.decrementAndGet() <= 0) {
-            SHARED_SCHEDULER_REF_COUNTS.remove(name);
-            SHARED_SCHEDULER_POLICIES.remove(name);
-            final ScheduledExecutorService scheduler = SHARED_SCHEDULERS.remove(name);
-            if (scheduler != null) {
-                log.info("Shutting down shared scheduler [{}] (ref count reached 0)", name);
-                scheduler.shutdown();
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
     public static <T> BatchQueue<T> create(final String name, final BatchQueueConfig<T> config) {
         config.validate();
         final BatchQueue<T> queue = new BatchQueue<>(name, config);
@@ -134,6 +51,27 @@ public class BatchQueueManager {
             queue.shutdown();
             throw new IllegalStateException(
                 "BatchQueue [" + name + "] already exists. Each queue name must be unique.");
+        }
+        return queue;
+    }
+
+    /**
+     * Get an existing queue or create a new one. The first caller creates the queue;
+     * subsequent callers with the same name get the existing instance (config is ignored
+     * for them). Thread-safe via CAS on the internal map.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> BatchQueue<T> getOrCreate(final String name, final BatchQueueConfig<T> config) {
+        final BatchQueue<?> existing = QUEUES.get(name);
+        if (existing != null) {
+            return (BatchQueue<T>) existing;
+        }
+        config.validate();
+        final BatchQueue<T> queue = new BatchQueue<>(name, config);
+        final BatchQueue<?> prev = QUEUES.putIfAbsent(name, queue);
+        if (prev != null) {
+            queue.shutdown();
+            return (BatchQueue<T>) prev;
         }
         return queue;
     }
@@ -151,7 +89,7 @@ public class BatchQueueManager {
     }
 
     /**
-     * Shutdown all queues and all shared schedulers. Called during OAP server shutdown.
+     * Shutdown all queues. Called during OAP server shutdown.
      */
     public static void shutdownAll() {
         final List<BatchQueue<?>> allQueues = new ArrayList<>(QUEUES.values());
@@ -164,17 +102,6 @@ public class BatchQueueManager {
                 log.error("Error shutting down queue: {}", queue.getName(), t);
             }
         }
-
-        for (final ScheduledExecutorService scheduler : SHARED_SCHEDULERS.values()) {
-            try {
-                scheduler.shutdown();
-            } catch (final Throwable t) {
-                log.error("Error shutting down shared scheduler", t);
-            }
-        }
-        SHARED_SCHEDULERS.clear();
-        SHARED_SCHEDULER_POLICIES.clear();
-        SHARED_SCHEDULER_REF_COUNTS.clear();
     }
 
     /**

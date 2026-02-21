@@ -47,9 +47,9 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  * bucket, the L1 aggregation will merge them into one metrics object to reduce the unnecessary memory and network
  * payload.
  *
- * <p>All metric types (OAL and MAL) share a single {@link BatchQueue} with adaptive partitioning.
+ * <p>All metric types share a single {@link BatchQueue} with adaptive partitioning.
  * The {@code typeHash()} partition selector ensures same metric class lands on the same partition,
- * so each handler's {@link MergableBufferedData} is only accessed by one drain thread.
+ * so each worker's {@link MergableBufferedData} is only accessed by one drain thread.
  */
 @Slf4j
 public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
@@ -86,7 +86,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergableBufferedData<>();
         this.l1FlushPeriod = l1FlushPeriod;
-        this.l1Queue = BatchQueueManager.create(L1_QUEUE_NAME, L1_QUEUE_CONFIG);
+        this.l1Queue = BatchQueueManager.getOrCreate(L1_QUEUE_NAME, L1_QUEUE_CONFIG);
 
         final MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
                                                                 .provider()

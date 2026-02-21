@@ -19,8 +19,7 @@
 package org.apache.skywalking.oap.server.library.batchqueue;
 
 /**
- * Determines the number of threads for a BatchQueue's dedicated scheduler
- * or for a shared scheduler.
+ * Determines the number of threads for a BatchQueue's scheduler.
  *
  * Three modes:
  * - fixed(N): exactly N threads, regardless of hardware.

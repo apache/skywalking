@@ -91,7 +91,7 @@ public class MetricsPersistentMinWorker extends MetricsPersistentWorker {
             storageSessionTimeout, metricsDataTTL, kind
         );
 
-        this.l2Queue = BatchQueueManager.create(L2_QUEUE_NAME, L2_QUEUE_CONFIG);
+        this.l2Queue = BatchQueueManager.getOrCreate(L2_QUEUE_NAME, L2_QUEUE_CONFIG);
 
         serverStatusService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServerStatusService.class);
         serverStatusService.registerWatcher(this);

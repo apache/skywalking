@@ -36,35 +36,8 @@ public class BatchQueueConfigTest {
     }
 
     @Test
-    public void testSharedSchedulerConfig() {
+    public void testRejectsNullThreads() {
         final BatchQueueConfig<String> config = BatchQueueConfig.<String>builder()
-            .sharedScheduler("IO_POOL", ThreadPolicy.fixed(4))
-            .build();
-        config.validate();
-        assertEquals("IO_POOL", config.getSharedSchedulerName());
-        assertNotNull(config.getSharedSchedulerThreads());
-    }
-
-    @Test
-    public void testRejectsBothThreadsAndShared() {
-        final BatchQueueConfig<String> config = BatchQueueConfig.<String>builder()
-            .threads(ThreadPolicy.fixed(2))
-            .sharedScheduler("IO_POOL", ThreadPolicy.fixed(4))
-            .build();
-        assertThrows(IllegalArgumentException.class, config::validate);
-    }
-
-    @Test
-    public void testRejectsNeitherThreadsNorShared() {
-        final BatchQueueConfig<String> config = BatchQueueConfig.<String>builder()
-            .build();
-        assertThrows(IllegalArgumentException.class, config::validate);
-    }
-
-    @Test
-    public void testRejectsSharedWithoutThreadPolicy() {
-        final BatchQueueConfig<String> config = BatchQueueConfig.<String>builder()
-            .sharedSchedulerName("IO_POOL")
             .build();
         assertThrows(IllegalArgumentException.class, config::validate);
     }

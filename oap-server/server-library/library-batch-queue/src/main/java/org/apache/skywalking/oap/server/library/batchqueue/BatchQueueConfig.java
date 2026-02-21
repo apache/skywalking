@@ -25,22 +25,9 @@ import lombok.Getter;
 @Builder
 public class BatchQueueConfig<T> {
     /**
-     * Thread policy for a dedicated ScheduledExecutorService.
-     * When set, the queue creates its own scheduler.
-     * When null, sharedSchedulerName/sharedSchedulerThreads must be set.
+     * Thread policy for the ScheduledExecutorService.
      */
     private ThreadPolicy threads;
-
-    /**
-     * Shared scheduler name. Set via the builder method
-     * {@code sharedScheduler(name, threads)}.
-     */
-    private String sharedSchedulerName;
-
-    /**
-     * Thread policy for the shared scheduler. Set together with sharedSchedulerName.
-     */
-    private ThreadPolicy sharedSchedulerThreads;
 
     @Builder.Default
     private PartitionPolicy partitions = PartitionPolicy.fixed(1);
@@ -89,16 +76,8 @@ public class BatchQueueConfig<T> {
     private long rebalanceIntervalMs;
 
     void validate() {
-        final boolean hasDedicated = threads != null;
-        final boolean hasShared = sharedSchedulerName != null;
-        if (hasDedicated == hasShared) {
-            throw new IllegalArgumentException(
-                "Exactly one of threads or sharedScheduler must be set. " +
-                    "threads=" + threads + ", sharedSchedulerName=" + sharedSchedulerName);
-        }
-        if (hasShared && sharedSchedulerThreads == null) {
-            throw new IllegalArgumentException(
-                "sharedSchedulerThreads must be set when sharedSchedulerName is set");
+        if (threads == null) {
+            throw new IllegalArgumentException("threads must be set.");
         }
         if (bufferSize < 1) {
             throw new IllegalArgumentException("bufferSize must be >= 1, got: " + bufferSize);
@@ -116,19 +95,6 @@ public class BatchQueueConfig<T> {
      * Builder customizations: convenience methods for setting paired fields together.
      */
     public static class BatchQueueConfigBuilder<T> {
-        /**
-         * Configure the queue to use a shared scheduler instead of a dedicated one.
-         *
-         * @param name the shared scheduler name (queues with the same name share a pool)
-         * @param threads the thread policy for the shared scheduler
-         * @return this builder
-         */
-        public BatchQueueConfigBuilder<T> sharedScheduler(final String name, final ThreadPolicy threads) {
-            this.sharedSchedulerName = name;
-            this.sharedSchedulerThreads = threads;
-            return this;
-        }
-
         /**
          * Enable periodic drain rebalancing with the given strategy and interval.
          *

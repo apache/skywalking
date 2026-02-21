@@ -34,34 +34,19 @@ Use for: homogeneous queues where all items are the same type (JDBC batch, singl
 Call `queue.addHandler(TypeA.class, handlerA)` per type. Drained items are grouped by `getClass()` and dispatched to matching handlers. Unregistered types are logged and dropped.
 Use for: shared queues where many metric types coexist (L1 aggregation, L2 persistence, TopN).
 
-## Scheduler Modes
+## Queue Sharing
 
-### Dedicated scheduler
-The queue owns a `ScheduledThreadPool`. Each thread is assigned a fixed subset of partitions (round-robin). Multiple threads drain concurrently.
-
-```java
-BatchQueueConfig.builder()
-    .threads(ThreadPolicy.cpuCores(1.0))   // own thread pool
-    .partitions(PartitionPolicy.adaptive())
-    ...
-```
-
-### Shared scheduler
-Multiple queues share one `ScheduledThreadPool` (reference-counted, auto-shutdown). Each queue gets 1 drain task on the shared pool. Useful for low-throughput I/O queues.
-
-```java
-BatchQueueConfig.builder()
-    .sharedScheduler("exporter", ThreadPolicy.fixed(1))  // shared pool
-    .partitions(PartitionPolicy.fixed(1))
-    ...
-```
+Multiple workers of the same concern share a single queue via `BatchQueueManager.getOrCreate(name, config)`.
+The first caller creates the queue; subsequent callers with the same name get the existing instance.
+Each worker registers its type handler via `addHandler()`. For strict unique-name enforcement,
+use `BatchQueueManager.create(name, config)` which throws on duplicate names.
 
 ## Key Classes
 
 | Class | Role |
 |-------|------|
 | `BatchQueue<T>` | The queue itself. Holds partitions, runs drain loops, dispatches to consumers/handlers. |
-| `BatchQueueManager` | Global registry. Creates queues by name, manages shared schedulers with ref-counting. |
+| `BatchQueueManager` | Global registry. Creates/retrieves queues by name. `create()` for unique, `getOrCreate()` for shared. |
 | `BatchQueueConfig<T>` | Builder for queue configuration (threads, partitions, buffer, strategy, consumer, balancer). |
 | `ThreadPolicy` | Resolves thread count: `fixed(N)`, `cpuCores(mult)`, `cpuCoresWithBase(base, mult)`. |
 | `PartitionPolicy` | Resolves partition count: `fixed(N)`, `threadMultiply(N)`, `adaptive()`. |
@@ -145,8 +130,10 @@ Silently ignored for single-thread queues (nothing to rebalance).
 
 ### L1 Metrics Aggregation (`MetricsAggregateWorker`)
 ```
+queue:      getOrCreate("METRICS_L1_AGGREGATION", ...)
 threads:    cpuCores(1.0)        -- 8 threads on 8-core
 partitions: adaptive()           -- grows with metric types (~330 for typical OAL+MAL on 8 threads)
+balancer:   throughputWeighted(), 10s
 bufferSize: 20,000 per partition
 strategy:   IF_POSSIBLE
 idleMs:     1..50
@@ -155,26 +142,30 @@ mode:       handler map (one handler per metric class)
 
 ### L2 Metrics Persistence (`MetricsPersistentMinWorker`)
 ```
+queue:      getOrCreate("METRICS_L2_PERSISTENCE", ...)
 threads:    cpuCoresWithBase(1, 0.25)  -- 3 threads on 8-core
 partitions: adaptive()                 -- grows with metric types
+balancer:   throughputWeighted(), 10s
 bufferSize: 2,000 per partition
-strategy:   IF_POSSIBLE
+strategy:   BLOCKING
 idleMs:     1..50
 mode:       handler map (one handler per metric class)
 ```
 
 ### TopN Persistence (`TopNWorker`)
 ```
+queue:      getOrCreate("TOPN_PERSISTENCE", ...)
 threads:    fixed(1)
 partitions: adaptive()         -- grows with TopN types
 bufferSize: 1,000 per partition
-strategy:   IF_POSSIBLE
+strategy:   BLOCKING
 idleMs:     10..100
 mode:       handler map (one handler per TopN class)
 ```
 
 ### gRPC Remote Client (`GRPCRemoteClient`)
 ```
+queue:      create(unique name per client, ...)
 threads:    fixed(1)
 partitions: fixed(1)
 bufferSize: configurable (channelSize * bufferSize)
@@ -185,6 +176,7 @@ mode:       single consumer (sends over gRPC stream)
 
 ### Exporters (gRPC metrics, Kafka trace, Kafka log)
 ```
+queue:      create(unique name per exporter, ...)
 threads:    fixed(1) each
 partitions: fixed(1) each
 bufferSize: configurable (default 20,000)
@@ -195,6 +187,7 @@ mode:       single consumer
 
 ### JDBC Batch DAO (`JDBCBatchDAO`)
 ```
+queue:      create("JDBC_BATCH_PERSISTENCE", ...)
 threads:    fixed(N) where N = asyncBatchPersistentPoolSize (default 4)
 partitions: fixed(N) (1 partition per thread)
 bufferSize: 10,000 per partition
@@ -205,9 +198,10 @@ mode:       single consumer (JDBC batch flush)
 
 ## Lifecycle
 
-1. `BatchQueueManager.create(name, config)` -- creates and starts drain loops immediately
-2. `queue.addHandler(type, handler)` -- registers type handler (adaptive: may grow partitions)
-3. `queue.produce(data)` -- routes to partition, blocks or drops per strategy
-4. Drain loops run continuously, dispatching batches to consumers/handlers
-5. `BatchQueueManager.shutdown(name)` -- stops drain, final flush, releases scheduler
-6. `BatchQueueManager.shutdownAll()` -- called during OAP server shutdown
+1. `BatchQueueManager.getOrCreate(name, config)` -- gets existing or creates new queue, starts drain loops
+2. `BatchQueueManager.create(name, config)` -- creates queue (throws if name already exists)
+3. `queue.addHandler(type, handler)` -- registers type handler (adaptive: may grow partitions)
+4. `queue.produce(data)` -- routes to partition, blocks or drops per strategy
+5. Drain loops run continuously, dispatching batches to consumers/handlers
+6. `BatchQueueManager.shutdown(name)` -- stops drain, final flush
+7. `BatchQueueManager.shutdownAll()` -- called during OAP server shutdown

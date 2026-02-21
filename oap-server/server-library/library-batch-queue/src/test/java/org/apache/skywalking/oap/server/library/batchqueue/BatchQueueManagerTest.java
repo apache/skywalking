@@ -21,15 +21,11 @@ package org.apache.skywalking.oap.server.library.batchqueue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BatchQueueManagerTest {
 
@@ -68,6 +64,19 @@ public class BatchQueueManagerTest {
     }
 
     @Test
+    public void testGetOrCreateReturnsSameInstance() {
+        final BatchQueueConfig<String> config = BatchQueueConfig.<String>builder()
+            .threads(ThreadPolicy.fixed(1))
+            .consumer(data -> { })
+            .bufferSize(100)
+            .build();
+
+        final BatchQueue<String> first = BatchQueueManager.getOrCreate("shared-test", config);
+        final BatchQueue<String> second = BatchQueueManager.getOrCreate("shared-test", config);
+        assertSame(first, second);
+    }
+
+    @Test
     public void testGetNonExistentReturnsNull() {
         assertNull(BatchQueueManager.get("nonexistent"));
     }
@@ -97,7 +106,7 @@ public class BatchQueueManagerTest {
 
         BatchQueueManager.create("q2",
             BatchQueueConfig.<String>builder()
-                .sharedScheduler("SHARED", ThreadPolicy.fixed(2))
+                .threads(ThreadPolicy.fixed(1))
                 .consumer(data -> { })
                 .bufferSize(100)
                 .build());
@@ -106,58 +115,5 @@ public class BatchQueueManagerTest {
 
         assertNull(BatchQueueManager.get("q1"));
         assertNull(BatchQueueManager.get("q2"));
-    }
-
-    @Test
-    public void testSharedSchedulerCreatedLazily() {
-        // First queue referencing shared scheduler creates it
-        final BatchQueue<String> q1 = BatchQueueManager.create("lazy1",
-            BatchQueueConfig.<String>builder()
-                .sharedScheduler("LAZY_POOL", ThreadPolicy.fixed(2))
-                .consumer(data -> { })
-                .bufferSize(100)
-                .build());
-
-        // Second queue uses the same pool
-        final BatchQueue<String> q2 = BatchQueueManager.create("lazy2",
-            BatchQueueConfig.<String>builder()
-                .sharedScheduler("LAZY_POOL", ThreadPolicy.fixed(2))
-                .consumer(data -> { })
-                .bufferSize(100)
-                .build());
-
-        assertNotNull(q1);
-        assertNotNull(q2);
-        // Both should be running on shared scheduler (not dedicated)
-        assertNotNull(BatchQueueManager.get("lazy1"));
-        assertNotNull(BatchQueueManager.get("lazy2"));
-    }
-
-    @Test
-    public void testSharedSchedulerRefCounting() {
-        final BatchQueueConfig<String> config = BatchQueueConfig.<String>builder()
-            .sharedScheduler("REF_POOL", ThreadPolicy.fixed(2))
-            .consumer(data -> { })
-            .bufferSize(100)
-            .build();
-
-        BatchQueueManager.create("ref1", config);
-        BatchQueueManager.create("ref2", config);
-
-        // Capture the scheduler before any shutdown
-        final ScheduledExecutorService scheduler =
-            BatchQueueManager.getOrCreateSharedScheduler("REF_POOL", ThreadPolicy.fixed(2));
-        // Release the extra ref from getOrCreateSharedScheduler call above
-        BatchQueueManager.releaseSharedScheduler("REF_POOL");
-
-        assertFalse(scheduler.isShutdown());
-
-        // Shutting down first queue should NOT shut down the shared scheduler
-        BatchQueueManager.shutdown("ref1");
-        assertFalse(scheduler.isShutdown());
-
-        // Shutting down last queue SHOULD shut down the shared scheduler
-        BatchQueueManager.shutdown("ref2");
-        assertTrue(scheduler.isShutdown());
     }
 }

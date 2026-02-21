@@ -94,20 +94,9 @@ import lombok.extern.slf4j.Slf4j;
  * Delay doubles on each consecutive idle cycle: {@code minIdleMs * 2^idleCount},
  * capped at {@code maxIdleMs}. Resets to {@code minIdleMs} on first non-empty drain.
  *
- * <h3>Scheduler modes</h3>
- * <ul>
- *   <li><b>Dedicated</b> — this queue owns its own ScheduledThreadPool. Each thread
- *       is assigned a fixed subset of partitions (round-robin). Thread count and
- *       partition count are configured independently.</li>
- *   <li><b>Shared</b> — the queue borrows a scheduler from {@link BatchQueueManager},
- *       shared with other queues. Only 1 drain task is submitted (drains all partitions).
- *       The shared scheduler is reference-counted and shut down when the last queue
- *       releases it.</li>
- * </ul>
- *
  * <h3>Use case examples</h3>
  * <pre>
- * shared scheduler, partitions=1, one consumer    --&gt; I/O queue (gRPC, Kafka, JDBC)
+ * dedicated fixed(1), partitions=1, one consumer  --&gt; I/O queue (gRPC, Kafka, JDBC)
  * dedicated fixed(1), partitions=1, many handlers --&gt; TopN (all types share 1 thread)
  * dedicated cpuCores(1.0), adaptive(),
  *           many handlers                         --&gt; metrics aggregation
@@ -121,15 +110,8 @@ public class BatchQueue<T> {
     private final String name;
     private final BatchQueueConfig<T> config;
 
-    /** The thread pool that executes drain tasks. Either dedicated or shared. */
+    /** The thread pool that executes drain tasks. */
     private final ScheduledExecutorService scheduler;
-
-    /** True if this queue owns the scheduler and should shut it down. */
-    @Getter(AccessLevel.PACKAGE)
-    private final boolean dedicatedScheduler;
-
-    /** Non-null only for shared schedulers; used to release the ref count on shutdown. */
-    private final String sharedSchedulerName;
 
     /**
      * Cached partition selector from config. Only used when {@code partitions.length > 1};
@@ -313,55 +295,32 @@ public class BatchQueue<T> {
         this.handlerMap = new ConcurrentHashMap<>();
         this.warnedUnregisteredTypes = ConcurrentHashMap.newKeySet();
 
-        if (config.getSharedSchedulerName() != null) {
-            // ---- Shared scheduler mode ----
-            final ScheduledExecutorService sharedScheduler =
-                BatchQueueManager.getOrCreateSharedScheduler(
-                    config.getSharedSchedulerName(), config.getSharedSchedulerThreads());
+        int threadCount = config.getThreads().resolve();
+        this.resolvedThreadCount = threadCount;
 
-            this.resolvedThreadCount = 1;
-            final int partitionCount = config.getPartitions().resolve(1, 0);
-            this.partitions = new ArrayBlockingQueue[partitionCount];
-            for (int i = 0; i < partitions.length; i++) {
-                partitions[i] = new ArrayBlockingQueue<>(config.getBufferSize());
-            }
+        // For adaptive with 0 handlers, resolve returns threadCount (sensible initial).
+        // For fixed/threadMultiply, resolve returns the configured count.
+        final int partitionCount = config.getPartitions().resolve(threadCount, 0);
 
-            this.scheduler = sharedScheduler;
-            this.dedicatedScheduler = false;
-            this.sharedSchedulerName = config.getSharedSchedulerName();
-            this.taskCount = 1;
-            this.assignedPartitions = buildAssignments(1, partitionCount);
-        } else {
-            // ---- Dedicated scheduler mode ----
-            int threadCount = config.getThreads().resolve();
-            this.resolvedThreadCount = threadCount;
-
-            // For adaptive with 0 handlers, resolve returns threadCount (sensible initial).
-            // For fixed/threadMultiply, resolve returns the configured count.
-            final int partitionCount = config.getPartitions().resolve(threadCount, 0);
-
-            if (partitionCount < threadCount) {
-                log.warn("BatchQueue[{}]: partitions({}) < threads({}), reducing threads to {}",
-                    name, partitionCount, threadCount, partitionCount);
-                threadCount = partitionCount;
-            }
-
-            this.partitions = new ArrayBlockingQueue[partitionCount];
-            for (int i = 0; i < partitions.length; i++) {
-                partitions[i] = new ArrayBlockingQueue<>(config.getBufferSize());
-            }
-
-            this.scheduler = Executors.newScheduledThreadPool(threadCount, r -> {
-                final Thread t = new Thread(r);
-                t.setName("BatchQueue-" + name + "-" + t.getId());
-                t.setDaemon(true);
-                return t;
-            });
-            this.dedicatedScheduler = true;
-            this.sharedSchedulerName = null;
-            this.taskCount = threadCount;
-            this.assignedPartitions = buildAssignments(threadCount, partitionCount);
+        if (partitionCount < threadCount) {
+            log.warn("BatchQueue[{}]: partitions({}) < threads({}), reducing threads to {}",
+                name, partitionCount, threadCount, partitionCount);
+            threadCount = partitionCount;
         }
+
+        this.partitions = new ArrayBlockingQueue[partitionCount];
+        for (int i = 0; i < partitions.length; i++) {
+            partitions[i] = new ArrayBlockingQueue<>(config.getBufferSize());
+        }
+
+        this.scheduler = Executors.newScheduledThreadPool(threadCount, r -> {
+            final Thread t = new Thread(r);
+            t.setName("BatchQueue-" + name + "-" + t.getId());
+            t.setDaemon(true);
+            return t;
+        });
+        this.taskCount = threadCount;
+        this.assignedPartitions = buildAssignments(threadCount, partitionCount);
 
         this.consecutiveIdleCycles = new int[taskCount];
         this.running = true;
@@ -823,7 +782,7 @@ public class BatchQueue<T> {
 
     /**
      * Stop the queue: reject new produces, perform a final drain of all partitions,
-     * and release the scheduler (dedicated: shutdown; shared: decrement ref count).
+     * and shut down the scheduler.
      */
     void shutdown() {
         running = false;
@@ -836,11 +795,7 @@ public class BatchQueue<T> {
         if (!combined.isEmpty()) {
             dispatch(combined);
         }
-        if (dedicatedScheduler) {
-            scheduler.shutdown();
-        } else if (sharedSchedulerName != null) {
-            BatchQueueManager.releaseSharedScheduler(sharedSchedulerName);
-        }
+        scheduler.shutdown();
     }
 
     int getPartitionCount() {

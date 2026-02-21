@@ -71,7 +71,7 @@ public class TopNWorker extends PersistenceWorker<TopN> {
         );
         this.recordDAO = recordDAO;
         this.model = model;
-        this.topNQueue = BatchQueueManager.create(TOPN_QUEUE_NAME, TOPN_QUEUE_CONFIG);
+        this.topNQueue = BatchQueueManager.getOrCreate(TOPN_QUEUE_NAME, TOPN_QUEUE_CONFIG);
         this.lastReportTimestamp = System.currentTimeMillis();
         // Top N persistent works per 10 minutes default.
         this.reportPeriod = reportPeriod;
