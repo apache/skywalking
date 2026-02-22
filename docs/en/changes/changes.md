@@ -39,9 +39,6 @@
 
 #### OAP Server
 
-* Fix `HttpAlarmCallback` creating a new `HttpClient` on every alarm `post()` call, leaking NIO selector threads.
-  Replace with a shared static singleton.
-
 * KubernetesCoordinator: make self instance return real pod IP address instead of `127.0.0.1`.
 * Enhance the alarm kernel with recovered status notification capability
 * Fix BrowserWebVitalsPerfData `clsTime` to `cls` and make it double type.
@@ -93,6 +90,8 @@
 * PromQL service: fix time parse issue when using RFC3339 time format for querying.
 * Envoy metrics service receiver: support adapter listener metrics.
 * Envoy metrics service receiver: support config MAL rules files.
+* Fix `HttpAlarmCallback` creating a new `HttpClient` on every alarm `post()` call, leaking NIO selector threads.
+  Replace with a shared static singleton.
 
 #### UI
 * Fix the missing icon in new native trace view.
