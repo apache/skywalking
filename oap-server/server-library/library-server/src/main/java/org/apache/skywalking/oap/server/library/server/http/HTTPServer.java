@@ -22,11 +22,13 @@ import com.google.common.collect.Sets;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.util.EventLoopGroups;
 import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.encoding.DecodingService;
 import com.linecorp.armeria.server.logging.LoggingService;
+import io.netty.channel.EventLoopGroup;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +48,18 @@ import static java.util.Objects.requireNonNull;
 
 @Slf4j
 public class HTTPServer implements Server {
+    /**
+     * Shared event loop group for all HTTP servers. HTTP traffic (UI queries,
+     * PromQL, LogQL) is much lighter than gRPC, so we use a smaller pool
+     * instead of Armeria's default (availableProcessors * 2).
+     */
+    private static final EventLoopGroup SHARED_WORKER_GROUP;
+
+    static {
+        final int threads = Math.max(5, Runtime.getRuntime().availableProcessors() / 4);
+        SHARED_WORKER_GROUP = EventLoopGroups.newEventLoopGroup(threads);
+    }
+
     private final HTTPServerConfig config;
     protected ServerBuilder sb;
     // Health check service, supports HEAD, GET method.
@@ -64,6 +78,7 @@ public class HTTPServer implements Server {
     public void initialize() {
         sb = com.linecorp.armeria.server.Server
             .builder()
+            .workerGroup(SHARED_WORKER_GROUP, false)
             .baseContextPath(config.getContextPath())
             .serviceUnder("/docs", DocService.builder().build())
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())

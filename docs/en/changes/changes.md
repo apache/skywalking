@@ -47,6 +47,23 @@
 
   On JDK 25+, all 11 thread pools above share ~9 carrier threads instead of up to 1,400+ platform threads.
 * Change default Docker base image to JDK 25 (`eclipse-temurin:25-jre`). JDK 11 kept as `-java11` variant.
+* Thread count benchmark comparison — 2-node OAP cluster on JDK 25 with BanyanDB, Istio bookinfo traffic
+  (10-core machine, JVM-internal threads excluded):
+
+  | Pool                                  | v10.3.0 threads    | v10.4.0 threads | Notes                                       |
+  |---------------------------------------|--------------------|-----------------|---------------------------------------------|
+  | L1 Aggregation (OAL + MAL)            | 26 (DataCarrier)   | 10 (BatchQueue) | Unified OAL + MAL                           |
+  | L2 Persistence (OAL + MAL)            | 3 (DataCarrier)    | 4 (BatchQueue) | Unified OAL + MAL                           |
+  | TopN Persistence                      | 4 (DataCarrier)    | 1 (BatchQueue) |                                             |
+  | gRPC Remote Client                    | 1 (DataCarrier)    | 1 (BatchQueue) | Per peer                                    |
+  | Armeria HTTP event loop               | 20                 | 5 | `max(5, cores/4)` shared group              |
+  | Armeria HTTP handler                  | on-demand platform | - | Virtual threads on JDK 25+                  |
+  | gRPC event loop                       | 10                 | 10 | Unchanged                                   |
+  | gRPC handler                          | ~9 (platform)      | - | Virtual threads on JDK 25+                  |
+  | ForkJoinPool (Virtual Thread carrier) | 0                  | ~10 | JDK 25+ virtual thread scheduler            |
+  | HttpClient-SelectorManager            | 4                  | 2 | SharedKubernetesClient                      |
+  | Schedulers + others                   | ~24                | ~24 | Mostly unchanged                            |
+  | **Total (OAP threads)**               | **150+**           | **~72** | **~50% reduction, stable in high payload.** |
 
 #### OAP Server
 
@@ -107,6 +124,9 @@
   `KubernetesClientBuilder().build()` calls across 7 files. Fixes `KubernetesCoordinator` client leak
   (never closed, NIO selector thread persisted). Uses `KubernetesHttpClientFactory` with virtual threads
   on JDK 25+ or a single fixed executor thread on JDK <25.
+* Reduce Armeria HTTP server event loop threads from Armeria's default (`availableProcessors * 2`)
+  to `max(5, availableProcessors / 4)`. All HTTP servers share a single worker group. HTTP traffic
+  (UI queries, PromQL, LogQL) is much lighter than gRPC and does not need as many I/O threads.
 
 #### UI
 * Fix the missing icon in new native trace view.
