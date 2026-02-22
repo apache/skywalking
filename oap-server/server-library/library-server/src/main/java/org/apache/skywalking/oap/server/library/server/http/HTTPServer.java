@@ -35,10 +35,12 @@ import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ssl.PrivateKeyUtil;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 
 import static java.util.Objects.requireNonNull;
 
@@ -48,9 +50,14 @@ public class HTTPServer implements Server {
     protected ServerBuilder sb;
     // Health check service, supports HEAD, GET method.
     protected final Set<HttpMethod> allowedMethods = Sets.newHashSet(HttpMethod.HEAD);
+    private String blockingTaskName = "http-blocking";
 
     public HTTPServer(HTTPServerConfig config) {
         this.config = config;
+    }
+
+    public void setBlockingTaskName(final String blockingTaskName) {
+        this.blockingTaskName = blockingTaskName;
     }
 
     @Override
@@ -91,6 +98,14 @@ public class HTTPServer implements Server {
 
         if (config.isAcceptProxyRequest()) {
             sb.absoluteUriTransformer(this::transformAbsoluteURI);
+        }
+
+        if (VirtualThreads.isSupported()) {
+            final ScheduledExecutorService blockingExecutor = VirtualThreads.createScheduledExecutor(
+                blockingTaskName, () -> null);
+            if (blockingExecutor != null) {
+                sb.blockingTaskExecutor(blockingExecutor, true);
+            }
         }
 
         log.info("Server root context path: {}", config.getContextPath());

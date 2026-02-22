@@ -81,6 +81,7 @@ public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
                                                                   .tlsCertChainPath(moduleConfig.getTlsCertChainPath())
                                                                   .build();
         httpServer = new HTTPServer(httpServerConfig);
+        httpServer.setBlockingTaskName("firehose-http");
         httpServer.initialize();
     }
 

@@ -76,6 +76,7 @@ public class LogQLProvider extends ModuleProvider {
                                                             .build();
 
         httpServer = new HTTPServer(httpServerConfig);
+        httpServer.setBlockingTaskName("logql-http");
         httpServer.initialize();
         httpServer.addHandler(
             new LogQLApiHandler(getManager()),

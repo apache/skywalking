@@ -249,6 +249,7 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.getGRPCThreadPoolSize() > 0) {
             grpcServer.setThreadPoolSize(moduleConfig.getGRPCThreadPoolSize());
         }
+        grpcServer.setThreadPoolName("core-grpc");
         grpcServer.initialize();
 
         HTTPServerConfig httpServerConfig = HTTPServerConfig.builder()
@@ -264,6 +265,7 @@ public class CoreModuleProvider extends ModuleProvider {
         setBootingParameter("oap.external.http.host", moduleConfig.getRestHost());
         setBootingParameter("oap.external.http.port", moduleConfig.getRestPort());
         httpServer = new HTTPServer(httpServerConfig);
+        httpServer.setBlockingTaskName("core-http");
         httpServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));

@@ -102,6 +102,7 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
             if (config.getGRPCThreadPoolSize() > 0) {
                 grpcServer.setThreadPoolSize(config.getGRPCThreadPoolSize());
             }
+            grpcServer.setThreadPoolName("als-grpc");
             grpcServer.initialize();
 
             this.receiverGRPCHandlerRegister = new GRPCHandlerRegisterImpl(grpcServer);
