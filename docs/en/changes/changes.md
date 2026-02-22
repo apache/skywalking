@@ -36,6 +36,17 @@
   Periodically reassigns partitions across drain threads to equalize load when metric types have skewed throughput.
 * Add benchmark framework under `benchmarks/` with Kind-based Kubernetes environments, automated thread dump
   collection and analysis. First case: `thread-analysis` on `istio-cluster_oap-banyandb` environment.
+* Add virtual thread support (JDK 25+) for gRPC and Armeria HTTP server handler threads.
+  Set `SW_VIRTUAL_THREADS_ENABLED=false` to disable.
+
+  | Pool | Threads (JDK < 25) | Threads (JDK 25+) |
+  |---|---|---|
+  | gRPC server handler (`core-grpc`, `receiver-grpc`, `als-grpc`, `ebpf-grpc`) | Cached platform (unbounded) | Virtual threads |
+  | HTTP blocking (`core-http`, `receiver-http`, `promql-http`, `logql-http`, `zipkin-query-http`, `zipkin-http`, `firehose-http`) | Cached platform (max 200) | Virtual threads |
+  | VT carrier threads (ForkJoinPool) | N/A | ~9 shared |
+
+  On JDK 25+, all 11 thread pools above share ~9 carrier threads instead of up to 1,400+ platform threads.
+* Change default Docker base image to JDK 25 (`eclipse-temurin:25-jre`). JDK 11 kept as `-java11` variant.
 
 #### OAP Server
 

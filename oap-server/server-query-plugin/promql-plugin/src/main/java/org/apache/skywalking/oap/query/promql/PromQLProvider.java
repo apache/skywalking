@@ -77,6 +77,7 @@ public class PromQLProvider extends ModuleProvider {
                                                             .build();
 
         httpServer = new HTTPServer(httpServerConfig);
+        httpServer.setBlockingTaskName("promql-http");
         httpServer.initialize();
         httpServer.addHandler(
             new PromQLApiHandler(getManager(), config),

@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.ssl.DynamicSslContext;
 import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 
 @Slf4j
 public class GRPCServer implements Server {
@@ -53,6 +54,7 @@ public class GRPCServer implements Server {
     private String trustedCAsFile;
     private DynamicSslContext sslContext;
     private int threadPoolSize;
+    private String threadPoolName = "grpcServerPool";
     private static final Marker SERVER_START_MARKER = MarkerFactory.getMarker("Console");
 
     public GRPCServer(String host, int port) {
@@ -70,6 +72,10 @@ public class GRPCServer implements Server {
 
     public void setThreadPoolSize(int threadPoolSize) {
         this.threadPoolSize = threadPoolSize;
+    }
+
+    public void setThreadPoolName(String threadPoolName) {
+        this.threadPoolName = threadPoolName;
     }
 
     /**
@@ -96,11 +102,21 @@ public class GRPCServer implements Server {
         if (maxMessageSize > 0) {
             nettyServerBuilder.maxInboundMessageSize(maxMessageSize);
         }
-        if (threadPoolSize > 0) {
-            ExecutorService executor = new ThreadPoolExecutor(
-                threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS, new SynchronousQueue<>(),
-                new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler()
-            );
+        final ExecutorService executor = VirtualThreads.createExecutor(
+            threadPoolName,
+            () -> {
+                if (threadPoolSize > 0) {
+                    return new ThreadPoolExecutor(
+                        threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS,
+                        new SynchronousQueue<>(),
+                        new CustomThreadFactory(threadPoolName),
+                        new CustomRejectedExecutionHandler()
+                    );
+                }
+                return null;
+            }
+        );
+        if (executor != null) {
             nettyServerBuilder.executor(executor);
         }
 

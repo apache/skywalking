@@ -90,6 +90,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
             setBootingParameter("oap.external.http.port", config.getRestPort());
 
             httpServer = new HTTPServer(httpServerConfig);
+            httpServer.setBlockingTaskName("receiver-http");
             httpServer.initialize();
 
             this.registerServiceImplementation(HTTPHandlerRegister.class, new HTTPHandlerRegisterImpl(httpServer));
@@ -128,6 +129,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
             if (config.getGRPCThreadPoolSize() > 0) {
                 grpcServer.setThreadPoolSize(config.getGRPCThreadPoolSize());
             }
+            grpcServer.setThreadPoolName("receiver-grpc");
             grpcServer.initialize();
 
             GRPCHandlerRegisterImpl grpcHandlerRegister = new GRPCHandlerRegisterImpl(grpcServer);
