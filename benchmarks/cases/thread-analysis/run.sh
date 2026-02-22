@@ -23,7 +23,7 @@
 #   ./run.sh <env-context-file>
 #
 # The env-context file is produced by an env-setup script (e.g.,
-# envs-setup/cluster_oap-banyandb/setup.sh).
+# envs-setup/istio-cluster_oap-banyandb/setup.sh).
 
 set -euo pipefail
 

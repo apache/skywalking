@@ -30,6 +30,11 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class HttpAlarmCallback implements AlarmCallback {
+    private static final HttpClient HTTP_CLIENT = HttpClient
+            .newBuilder()
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build();
+
     protected String post(
             final URI uri,
             final String body,
@@ -43,10 +48,7 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
                 .timeout(Duration.ofSeconds(12));
         headers.forEach(request::header);
 
-        final var response = HttpClient
-                .newBuilder()
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .build()
+        final var response = HTTP_CLIENT
                 .send(request.build(), HttpResponse.BodyHandlers.ofString());
 
         final var status = response.statusCode();

@@ -65,14 +65,14 @@ This chains environment setup and benchmark execution in one command.
 
 ```bash
 # Full run: cluster OAP + BanyanDB environment, thread analysis case
-./benchmarks/run.sh run cluster_oap-banyandb thread-analysis
+./benchmarks/run.sh run istio-cluster_oap-banyandb thread-analysis
 ```
 
 ## Available Environments
 
 | Name | Description |
 |------|-------------|
-| `cluster_oap-banyandb` | 2-node OAP cluster with BanyanDB on Kind. Istio ALS (Access Log Service) for telemetry. Bookinfo sample app with Envoy sidecars at ~5 RPS. Deployed via SkyWalking Helm chart. |
+| `istio-cluster_oap-banyandb` | 2-node OAP cluster with BanyanDB on Kind. Istio ALS (Access Log Service) for telemetry. Bookinfo sample app with Envoy sidecars at ~5 RPS. Deployed via SkyWalking Helm chart. |
 
 ### Environment Pre-checks
 

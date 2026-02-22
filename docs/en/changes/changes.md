@@ -34,8 +34,13 @@
 * Remove `library-datacarrier-queue` module. All usages have been replaced by `library-batch-queue`.
 * Enable throughput-weighted drain rebalancing for L1 aggregation and L2 persistence queues (10s interval).
   Periodically reassigns partitions across drain threads to equalize load when metric types have skewed throughput.
+* Add benchmark framework under `benchmarks/` with Kind-based Kubernetes environments, automated thread dump
+  collection and analysis. First case: `thread-analysis` on `istio-cluster_oap-banyandb` environment.
 
 #### OAP Server
+
+* Fix `HttpAlarmCallback` creating a new `HttpClient` on every alarm `post()` call, leaking NIO selector threads.
+  Replace with a shared static singleton.
 
 * KubernetesCoordinator: make self instance return real pod IP address instead of `127.0.0.1`.
 * Enhance the alarm kernel with recovered status notification capability

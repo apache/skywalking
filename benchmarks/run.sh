@@ -26,8 +26,8 @@
 # Available cases:         (ls benchmarks/cases/)
 #
 # Examples:
-#   ./benchmarks/run.sh setup cluster_oap-banyandb
-#   ./benchmarks/run.sh run   cluster_oap-banyandb thread-analysis
+#   ./benchmarks/run.sh setup istio-cluster_oap-banyandb
+#   ./benchmarks/run.sh run   istio-cluster_oap-banyandb thread-analysis
 
 set -euo pipefail
 
