@@ -103,6 +103,10 @@
 * Envoy metrics service receiver: support config MAL rules files.
 * Fix `HttpAlarmCallback` creating a new `HttpClient` on every alarm `post()` call, leaking NIO selector threads.
   Replace with a shared static singleton.
+* Add `SharedKubernetesClient` singleton in `library-kubernetes-support` to replace 9 separate
+  `KubernetesClientBuilder().build()` calls across 7 files. Fixes `KubernetesCoordinator` client leak
+  (never closed, NIO selector thread persisted). Uses `KubernetesHttpClientFactory` with virtual threads
+  on JDK 25+ or a single fixed executor thread on JDK <25.
 
 #### UI
 * Fix the missing icon in new native trace view.
