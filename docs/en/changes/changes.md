@@ -57,9 +57,9 @@
   | TopN Persistence                      | 4 (DataCarrier)    | 1 (BatchQueue) |                                             |
   | gRPC Remote Client                    | 1 (DataCarrier)    | 1 (BatchQueue) | Per peer                                    |
   | Armeria HTTP event loop               | 20                 | 5 | `max(5, cores/4)` shared group              |
-  | Armeria HTTP handler                  | on-demand platform | - | Virtual threads on JDK 25+                  |
+  | Armeria HTTP handler                  | on-demand platform(increasing with payload) | - | Virtual threads on JDK 25+                  |
   | gRPC event loop                       | 10                 | 10 | Unchanged                                   |
-  | gRPC handler                          | ~9 (platform)      | - | Virtual threads on JDK 25+                  |
+  | gRPC handler                          | on-demand platform(increasing with payload)| - | Virtual threads on JDK 25+                  |
   | ForkJoinPool (Virtual Thread carrier) | 0                  | ~10 | JDK 25+ virtual thread scheduler            |
   | HttpClient-SelectorManager            | 4                  | 2 | SharedKubernetesClient                      |
   | Schedulers + others                   | ~24                | ~24 | Mostly unchanged                            |
