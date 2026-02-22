@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -80,7 +81,13 @@ public class HealthCheckerProvider extends ModuleProvider {
 
     @Override public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         score.set(-1);
-        ses = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "HealthChecker"));
+        ses = VirtualThreads.createScheduledExecutor(
+            "HealthChecker",
+            () -> Executors.newSingleThreadScheduledExecutor(r -> {
+                final Thread t = new Thread(r, "HealthChecker");
+                t.setDaemon(true);
+                return t;
+            }));
         healthQueryService = new HealthQueryService(score, details);
         this.registerServiceImplementation(HealthQueryService.class, healthQueryService);
     }

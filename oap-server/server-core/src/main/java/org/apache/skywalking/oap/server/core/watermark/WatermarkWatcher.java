@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,8 +81,14 @@ public class WatermarkWatcher {
                                                           .getService(MetricsCreator.class);
         this.addListener(WatermarkGRPCInterceptor.INSTANCE);
 
-        Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "WatermarkWatcher"))
-                 .scheduleWithFixedDelay(this::watch, 0, 10, TimeUnit.SECONDS);
+        VirtualThreads.createScheduledExecutor(
+                          "WatermarkWatcher",
+                          () -> Executors.newSingleThreadScheduledExecutor(r -> {
+                              final Thread t = new Thread(r, "WatermarkWatcher");
+                              t.setDaemon(true);
+                              return t;
+                          }))
+                      .scheduleWithFixedDelay(this::watch, 0, 10, TimeUnit.SECONDS);
     }
 
     private void watch() {

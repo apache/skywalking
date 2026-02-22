@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -136,10 +137,16 @@ public class HierarchyService implements org.apache.skywalking.oap.server.librar
         if (!this.isEnableHierarchy) {
             return;
         }
-        Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "HierarchyAutoMatching"))
-                 .scheduleWithFixedDelay(
-                     new RunnableWithExceptionProtection(this::autoMatchingServiceRelation, t -> log.error(
-                         "Scheduled auto matching service hierarchy from service traffic failure.", t)), 30, 20, TimeUnit.SECONDS);
+        VirtualThreads.createScheduledExecutor(
+                          "HierarchyAutoMatching",
+                          () -> Executors.newSingleThreadScheduledExecutor(r -> {
+                              final Thread t = new Thread(r, "HierarchyAutoMatching");
+                              t.setDaemon(true);
+                              return t;
+                          }))
+                      .scheduleWithFixedDelay(
+                          new RunnableWithExceptionProtection(this::autoMatchingServiceRelation, t -> log.error(
+                              "Scheduled auto matching service hierarchy from service traffic failure.", t)), 30, 20, TimeUnit.SECONDS);
     }
 
     private void autoMatchingServiceRelation(String upperServiceName,
