@@ -23,7 +23,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
 
 import java.time.Duration;
@@ -44,30 +43,26 @@ public enum KubernetesPods {
         podByIP = cacheBuilder.build(new CacheLoader<>() {
             @Override
             public Optional<Pod> load(String ip) {
-                try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
-                    return kubernetesClient
-                            .pods()
-                            .inAnyNamespace()
-                            .withField("status.podIP", ip)
-                            .list()
-                            .getItems()
-                            .stream()
-                            .findFirst();
-                }
+                return SharedKubernetesClient.INSTANCE.get()
+                        .pods()
+                        .inAnyNamespace()
+                        .withField("status.podIP", ip)
+                        .list()
+                        .getItems()
+                        .stream()
+                        .findFirst();
             }
         });
 
         podByObjectID = cacheBuilder.build(new CacheLoader<>() {
             @Override
             public Optional<Pod> load(ObjectID objectID) {
-                try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
-                    return Optional.ofNullable(
-                            kubernetesClient
-                                    .pods()
-                                    .inNamespace(objectID.namespace())
-                                    .withName(objectID.name())
-                                    .get());
-                }
+                return Optional.ofNullable(
+                        SharedKubernetesClient.INSTANCE.get()
+                                .pods()
+                                .inNamespace(objectID.namespace())
+                                .withName(objectID.name())
+                                .get());
             }
         });
     }

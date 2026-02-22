@@ -356,9 +356,12 @@ OAP_PODS_CHECK=($(kubectl -n "$NAMESPACE" get pods -l app=skywalking,component=o
 EXPECTED_NODES=${#OAP_PODS_CHECK[@]}
 CLUSTER_HEALTHY=true
 
+CURL_IMAGE="curlimages/curl:latest"
 for pod in "${OAP_PODS_CHECK[@]}"; do
     log "  Checking $pod..."
-    METRICS=$(kubectl -n "$NAMESPACE" exec "$pod" -c oap -- curl -s http://localhost:1234/metrics 2>/dev/null)
+    POD_IP=$(kubectl -n "$NAMESPACE" get pod "$pod" -o jsonpath='{.status.podIP}')
+    METRICS=$(kubectl -n "$NAMESPACE" run "health-check-${pod##*-}" --rm -i --restart=Never \
+        --image="$CURL_IMAGE" -- curl -s "http://${POD_IP}:1234/metrics" 2>/dev/null) || METRICS=""
     REMOTE_OUT=$(echo "$METRICS" | grep '^remote_out_count{' || true)
 
     if [ -z "$REMOTE_OUT" ]; then

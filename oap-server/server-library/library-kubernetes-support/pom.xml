@@ -29,6 +29,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-client</artifactId>
         </dependency>

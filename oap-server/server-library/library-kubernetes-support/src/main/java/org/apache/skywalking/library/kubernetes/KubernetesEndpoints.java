@@ -23,7 +23,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +42,8 @@ public enum KubernetesEndpoints {
                         .expireAfterWrite(Duration.ofMinutes(3));
 
         endpoints = cacheBuilder.build(CacheLoader.from(() -> {
-            try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
-                return kubernetesClient
+            try {
+                return SharedKubernetesClient.INSTANCE.get()
                         .endpoints()
                         .inAnyNamespace()
                         .list()

@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.configuration.configmap;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.informers.cache.Lister;
+import org.apache.skywalking.library.kubernetes.SharedKubernetesClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -32,19 +32,13 @@ public class ConfigurationConfigmapInformer {
     private final Lister<ConfigMap> configMapLister;
 
     public ConfigurationConfigmapInformer(ConfigmapConfigurationSettings settings) {
-        final var client = new KubernetesClientBuilder().build();
-        final var informer = client
+        final var informer = SharedKubernetesClient.INSTANCE.get()
             .configMaps()
             .inNamespace(settings.getNamespace())
             .withLabelSelector(settings.getLabelSelector())
             .inform();
 
         configMapLister = new Lister<>(informer.getIndexer());
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            informer.stop();
-            client.close();
-        }));
     }
 
     public Map<String, String> configMapData() {
