@@ -40,6 +40,82 @@ import org.apache.skywalking.oap.server.library.server.grpc.ssl.DynamicSslContex
 import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
 import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 
+/**
+ * gRPC server backed by Netty. Used by up to 4 OAP server endpoints (core-grpc,
+ * receiver-grpc, ebpf-grpc, als-grpc). gRPC is the primary telemetry ingestion path.
+ *
+ * <h3>Thread model</h3>
+ * gRPC-netty uses a three-tier thread model:
+ * <ol>
+ *   <li><b>Boss event loop</b> — 1 thread. Accepts TCP connections, creates Netty channels,
+ *       then hands them off to worker event loop. Shared across all gRPC servers.</li>
+ *   <li><b>Worker event loop</b> — non-blocking I/O multiplexing (HTTP/2 framing, read/write,
+ *       TLS). gRPC defaults to {@code cores} threads (halves Netty's {@code cores * 2}),
+ *       shared across all servers via {@code SharedResourcePool}. Must never block —
+ *       a few threads can serve thousands of connections.</li>
+ *   <li><b>Application executor</b> — where gRPC service methods actually run
+ *       ({@code onMessage}, {@code onHalfClose}, {@code onComplete}). gRPC dispatches
+ *       callbacks from the event loop to this executor via
+ *       {@code JumpToApplicationThreadServerStreamListener}. For streaming RPCs, the
+ *       thread is held only during each individual callback, not for the entire stream —
+ *       between messages the thread returns to the pool.</li>
+ * </ol>
+ *
+ * <h3>Application executor</h3>
+ * gRPC's default application executor is an <b>unbounded {@code CachedThreadPool}</b>
+ * ({@code Executors.newCachedThreadPool()}, named {@code grpc-default-executor}).
+ * gRPC chose this for safety — application code may block (JDBC, file I/O, synchronized),
+ * and blocking the event loop would freeze all connections. The {@code CachedThreadPool}
+ * never rejects work but grows unboundedly: each burst creates new threads (expensive),
+ * idle threads die after 60s, then the next burst creates them again.
+ *
+ * <p>While benchmarks show {@code CachedThreadPool} is <b>2x slower</b> than a fixed pool
+ * (see <a href="https://github.com/grpc/grpc-java/issues/7381">grpc-java#7381</a>),
+ * we keep the default on JDK &lt;25 because SkyWalking extensions may register gRPC handlers
+ * that perform long-blocking I/O (on-demand queries, external calls). A bounded pool would
+ * risk starving other gRPC services. On JDK 25+, virtual threads replace this pool —
+ * each callback gets its own virtual thread, combining unbounded concurrency with
+ * minimal resource overhead.
+ *
+ * <p>Using {@code directExecutor()} is unsafe for SkyWalking because some handlers call
+ * {@code BatchQueue.produce()} with {@code BLOCKING} strategy which can block the thread
+ * — that would freeze the event loop and stall all connections.
+ *
+ * <h3>Thread policies</h3>
+ * <pre>
+ *                     gRPC default                 SkyWalking
+ *   Boss EL:          1, shared                    (unchanged)
+ *   Worker EL:        cores, shared                (unchanged)
+ *   App executor:     CachedThreadPool (unbounded) JDK 25+: virtual threads
+ *                                                   JDK &lt;25: gRPC default (unchanged)
+ * </pre>
+ *
+ * <h4>Worker event loop: {@code cores}, shared by gRPC (default, unchanged)</h4>
+ * <pre>
+ *   cores:    2    4    8   10   24
+ *   threads:  2    4    8   10   24
+ * </pre>
+ * Non-blocking I/O multiplexing — a few threads handle thousands of connections.
+ * gRPC's internal {@code SharedResourcePool} already shares one event loop group across
+ * all {@code NettyServerBuilder} instances that use the default. No custom configuration
+ * needed.
+ *
+ * <h3>Comparison with HTTP (Armeria)</h3>
+ * <pre>
+ *                     gRPC                                HTTP (Armeria)
+ *   Event loop:       cores, shared (gRPC default)        min(5, cores), shared
+ *   Handler/blocking: JDK 25+: virtual threads            JDK 25+: virtual threads
+ *                     JDK &lt;25: CachedThreadPool (default) JDK &lt;25: Armeria default cached pool
+ * </pre>
+ * Both gRPC and HTTP keep their framework's default unbounded pool on JDK &lt;25 because
+ * handlers may block on long I/O (storage queries, extension callbacks). On JDK 25+,
+ * virtual threads replace both pools.
+ *
+ * <h3>User-configured thread pool</h3>
+ * When {@code threadPoolSize > 0} is set via config, it overrides the default with a
+ * per-server fixed pool of that size. On JDK 25+ it is ignored — virtual threads
+ * are always used.
+ */
 @Slf4j
 public class GRPCServer implements Server {
 
@@ -91,6 +167,16 @@ public class GRPCServer implements Server {
         this.trustedCAsFile = trustedCAsFile;
     }
 
+    /**
+     * Build the gRPC server with optional TLS and handler executor.
+     *
+     * <p>Handler executor assignment:
+     * <ul>
+     *   <li>JDK 25+: virtual-thread-per-task executor (ignores threadPoolSize)</li>
+     *   <li>JDK &lt;25, threadPoolSize &gt; 0: per-server fixed pool (legacy config)</li>
+     *   <li>JDK &lt;25, threadPoolSize == 0: gRPC default CachedThreadPool (unbounded)</li>
+     * </ul>
+     */
     @Override
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
@@ -102,6 +188,9 @@ public class GRPCServer implements Server {
         if (maxMessageSize > 0) {
             nettyServerBuilder.maxInboundMessageSize(maxMessageSize);
         }
+        // JDK 25+: virtual threads for all servers (threadPoolSize ignored)
+        // JDK <25, threadPoolSize > 0: per-server fixed pool (legacy config override)
+        // JDK <25, threadPoolSize == 0: gRPC default CachedThreadPool (safe for extensions)
         final ExecutorService executor = VirtualThreads.createExecutor(
             threadPoolName,
             () -> {

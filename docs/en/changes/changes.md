@@ -56,7 +56,7 @@
   | L2 Persistence (OAL + MAL)            | 3 (DataCarrier)    | 4 (BatchQueue) | Unified OAL + MAL                           |
   | TopN Persistence                      | 4 (DataCarrier)    | 1 (BatchQueue) |                                             |
   | gRPC Remote Client                    | 1 (DataCarrier)    | 1 (BatchQueue) | Per peer                                    |
-  | Armeria HTTP event loop               | 20                 | 5 | `max(5, cores/4)` shared group              |
+  | Armeria HTTP event loop               | 20                 | 5 | `min(5, cores)` shared group                |
   | Armeria HTTP handler                  | on-demand platform(increasing with payload) | - | Virtual threads on JDK 25+                  |
   | gRPC event loop                       | 10                 | 10 | Unchanged                                   |
   | gRPC handler                          | on-demand platform(increasing with payload)| - | Virtual threads on JDK 25+                  |
@@ -124,9 +124,11 @@
   `KubernetesClientBuilder().build()` calls across 7 files. Fixes `KubernetesCoordinator` client leak
   (never closed, NIO selector thread persisted). Uses `KubernetesHttpClientFactory` with virtual threads
   on JDK 25+ or a single fixed executor thread on JDK <25.
-* Reduce Armeria HTTP server event loop threads from Armeria's default (`availableProcessors * 2`)
-  to `max(5, availableProcessors / 4)`. All HTTP servers share a single worker group. HTTP traffic
-  (UI queries, PromQL, LogQL) is much lighter than gRPC and does not need as many I/O threads.
+* Reduce Armeria HTTP server event loop threads. All 7 HTTP servers now share one event loop group
+  instead of each creating their own (Armeria default: `cores * 2` per server = 140 on 10-core).
+  Event loop: `min(5, cores)` shared — non-blocking I/O multiplexing needs few threads.
+  Blocking executor: JDK 25+ uses virtual threads; JDK <25 keeps Armeria's default cached pool
+  (up to 200 on-demand threads) because HTTP handlers block on long storage/DB queries.
 
 #### UI
 * Fix the missing icon in new native trace view.
