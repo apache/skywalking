@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 
 /**
  * Implement Config Watcher register using a periodic sync task.
@@ -81,12 +82,18 @@ public abstract class FetchingConfigWatcherRegister extends ConfigWatcherRegiste
         log.info(
             "Current configurations after the bootstrap sync." + LINE_SEPARATOR + singleConfigChangeWatcherRegister.toString());
 
-        Executors.newSingleThreadScheduledExecutor()
-                 .scheduleAtFixedRate(
-                     new RunnableWithExceptionProtection(
-                         this::configSync,
-                         t -> log.error("Sync config center error.", t)
-                     ), 0, syncPeriod, TimeUnit.SECONDS);
+        VirtualThreads.createScheduledExecutor(
+                          "ConfigWatcherSync",
+                          () -> Executors.newSingleThreadScheduledExecutor(r -> {
+                              final Thread t = new Thread(r, "ConfigWatcherSync");
+                              t.setDaemon(true);
+                              return t;
+                          }))
+                      .scheduleAtFixedRate(
+                          new RunnableWithExceptionProtection(
+                              this::configSync,
+                              t -> log.error("Sync config center error.", t)
+                          ), 0, syncPeriod, TimeUnit.SECONDS);
     }
 
     void configSync() {

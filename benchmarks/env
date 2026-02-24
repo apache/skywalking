@@ -1,0 +1,52 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Benchmark environment configuration.
+# All environment setup scripts source this file for image repos and versions.
+#
+# To use local builds, set *_IMAGE_MODE to "local" and keep *_IMAGE_TAG as "latest".
+# To use remote images, set *_IMAGE_MODE to "remote" and configure the full registry path.
+
+##############################################################################
+# SkyWalking OAP
+##############################################################################
+SW_OAP_IMAGE_MODE="local"
+SW_OAP_IMAGE_REPO="skywalking/oap"
+SW_OAP_IMAGE_TAG="latest"
+
+##############################################################################
+# SkyWalking UI
+##############################################################################
+SW_UI_IMAGE_MODE="local"
+SW_UI_IMAGE_REPO="skywalking/ui"
+SW_UI_IMAGE_TAG="latest"
+
+##############################################################################
+# BanyanDB
+##############################################################################
+SW_BANYANDB_IMAGE_REPO="ghcr.io/apache/skywalking-banyandb"
+SW_BANYANDB_IMAGE_TAG="208982aaa11092bc38018a9e1b24eda67e829312"
+
+##############################################################################
+# SkyWalking Helm Chart
+##############################################################################
+SW_HELM_CHART="oci://ghcr.io/apache/skywalking-helm/skywalking-helm"
+SW_KUBERNETES_COMMIT_SHA="6fe5e6f0d3b7686c6be0457733e825ee68cb9b35"
+
+##############################################################################
+# Istio
+##############################################################################
+ISTIO_VERSION="1.25.2"
+ALS_ANALYZER="k8s-mesh"

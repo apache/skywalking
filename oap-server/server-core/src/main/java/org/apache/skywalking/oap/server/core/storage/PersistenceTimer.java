@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -89,9 +90,12 @@ public enum PersistenceTimer {
             0.5, 1, 3, 5, 10, 15, 20, 25, 50, 120
         );
 
-        prepareExecutorService = Executors.newFixedThreadPool(moduleConfig.getPrepareThreads());
+        final AtomicInteger prepareThreadSeq = new AtomicInteger(0);
+        prepareExecutorService = Executors.newFixedThreadPool(
+            moduleConfig.getPrepareThreads(),
+            r -> new Thread(r, "PersistenceTimer-prepare-" + prepareThreadSeq.incrementAndGet()));
         if (!isStarted) {
-            Executors.newSingleThreadScheduledExecutor()
+            Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "PersistenceTimer"))
                      .scheduleWithFixedDelay(
                          new RunnableWithExceptionProtection(
                              () -> extractDataAndSave(batchDAO).join(),

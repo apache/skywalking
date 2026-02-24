@@ -23,6 +23,10 @@ import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.util.MutableHandlerRegistry;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
@@ -35,6 +39,7 @@ import org.apache.skywalking.oap.server.exporter.grpc.KeyValue;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionMetric;
 import org.apache.skywalking.oap.server.exporter.provider.ExporterSetting;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,10 +47,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
 
 import static org.apache.skywalking.oap.server.core.exporter.ExportEvent.EventType.INCREMENT;
 import static org.mockito.Mockito.when;
@@ -95,6 +96,7 @@ public class GRPCExporterTest {
 
     @AfterEach
     public void after() {
+        BatchQueueManager.shutdown("EXPORTER_GRPC_METRICS");
         channel.shutdown();
         server.shutdown();
 
@@ -144,32 +146,15 @@ public class GRPCExporterTest {
     }
 
     @Test
-    public void init() {
-        exporter.init(null);
-    }
-
-    @Test
     public void consume() {
-        exporter.consume(dataList());
-        exporter.consume(Collections.emptyList());
+        exporter.consumeExportData(dataList());
+        exporter.consumeExportData(Collections.emptyList());
         List<ExportMetricValue> exportMetricValues = ((MockMetricExportServiceImpl) service).exportMetricValues;
         Assertions.assertEquals(3, exportMetricValues.size());
         Assertions.assertEquals(12, exportMetricValues.get(0).getMetricValues(0).getLongValue());
         Assertions.assertEquals(1234567891234563312L, exportMetricValues.get(1).getMetricValues(0).getLongValue());
         Assertions.assertEquals(1000L, exportMetricValues.get(2).getMetricValues(0).getLongValue());
         Assertions.assertEquals(KeyValue.newBuilder().setKey("labelName").setValue("labelValue").build(), exportMetricValues.get(2).getMetricValues(0).getLabels(0));
-    }
-
-    @Test
-    public void onError() {
-        Exception e = new IllegalArgumentException("something wrong");
-        exporter.onError(Collections.emptyList(), e);
-        exporter.onError(dataList(), e);
-    }
-
-    @Test
-    public void onExit() {
-        exporter.onExit();
     }
 
     private List<ExportData> dataList() {

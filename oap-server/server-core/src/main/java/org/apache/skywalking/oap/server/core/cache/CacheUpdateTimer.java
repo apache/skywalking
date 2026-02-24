@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
@@ -59,10 +60,16 @@ public enum CacheUpdateTimer {
 
         final long timeInterval = 10;
 
-        Executors.newSingleThreadScheduledExecutor()
-                 .scheduleAtFixedRate(
-                     new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> log
-                         .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
+        VirtualThreads.createScheduledExecutor(
+                          "CacheUpdateTimer",
+                          () -> Executors.newSingleThreadScheduledExecutor(r -> {
+                              final Thread t = new Thread(r, "CacheUpdateTimer");
+                              t.setDaemon(true);
+                              return t;
+                          }))
+                      .scheduleAtFixedRate(
+                          new RunnableWithExceptionProtection(() -> update(moduleDefineHolder), t -> log
+                              .error("Cache update failure.", t)), 1, timeInterval, TimeUnit.SECONDS);
         this.ttl = ttl;
 
     }

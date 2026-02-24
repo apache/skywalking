@@ -27,35 +27,56 @@ import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
+import org.apache.skywalking.oap.server.library.batchqueue.BufferStrategy;
+import org.apache.skywalking.oap.server.library.batchqueue.HandlerConsumer;
+import org.apache.skywalking.oap.server.library.batchqueue.PartitionPolicy;
+import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
  * Top N worker is a persistence worker. Cache and order the data, flush in longer period.
+ *
+ * <p>All TopN types share a single {@link BatchQueue} with fixed threads.
+ * The {@code typeHash()} partition selector ensures same TopN class lands on the same partition,
+ * so each worker's {@link LimitedSizeBufferedData} is only accessed by one drain thread.
  */
 @Slf4j
 public class TopNWorker extends PersistenceWorker<TopN> {
+    private static final String TOPN_QUEUE_NAME = "TOPN_PERSISTENCE";
+    private static final BatchQueueConfig<TopN> TOPN_QUEUE_CONFIG =
+        BatchQueueConfig.<TopN>builder()
+            .threads(ThreadPolicy.fixed(1))
+            .partitions(PartitionPolicy.adaptive())
+            .bufferSize(1_000)
+            .strategy(BufferStrategy.BLOCKING)
+            .minIdleMs(10)
+            .maxIdleMs(100)
+            .build();
+
     private final IRecordDAO recordDAO;
     private final Model model;
-    private final DataCarrier<TopN> dataCarrier;
+    private final BatchQueue<TopN> topNQueue;
     private long reportPeriod;
     private volatile long lastReportTimestamp;
 
     TopNWorker(ModuleDefineHolder moduleDefineHolder, Model model, int topNSize, long reportPeriod,
-               IRecordDAO recordDAO) {
+               IRecordDAO recordDAO, Class<? extends TopN> topNClass) {
         super(
             moduleDefineHolder,
             new ReadWriteSafeCache<>(new LimitedSizeBufferedData<>(topNSize), new LimitedSizeBufferedData<>(topNSize))
         );
         this.recordDAO = recordDAO;
         this.model = model;
-        this.dataCarrier = new DataCarrier<>("TopNWorker", 1, 1000);
-        this.dataCarrier.consume(new TopNWorker.TopNConsumer(), 1);
+        this.topNQueue = BatchQueueManager.getOrCreate(TOPN_QUEUE_NAME, TOPN_QUEUE_CONFIG);
         this.lastReportTimestamp = System.currentTimeMillis();
         // Top N persistent works per 10 minutes default.
         this.reportPeriod = reportPeriod;
+
+        topNQueue.addHandler(topNClass, new TopNHandler());
     }
 
     /**
@@ -92,18 +113,13 @@ public class TopNWorker extends PersistenceWorker<TopN> {
 
     @Override
     public void in(TopN n) {
-        dataCarrier.produce(n);
+        topNQueue.produce(n);
     }
 
-    private class TopNConsumer implements IConsumer<TopN> {
+    private class TopNHandler implements HandlerConsumer<TopN> {
         @Override
         public void consume(List<TopN> data) {
-            TopNWorker.this.onWork(data);
-        }
-
-        @Override
-        public void onError(List<TopN> data, Throwable t) {
-            log.error(t.getMessage(), t);
+            onWork(data);
         }
     }
 }

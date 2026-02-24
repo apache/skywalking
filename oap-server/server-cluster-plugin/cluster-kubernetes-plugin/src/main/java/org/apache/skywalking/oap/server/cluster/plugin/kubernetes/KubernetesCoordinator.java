@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
 import com.linecorp.armeria.client.Endpoint;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.kubernetes.SharedKubernetesClient;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
@@ -72,8 +72,8 @@ public class KubernetesCoordinator extends ClusterCoordinator {
         if (port == -1) {
             port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
         }
-        final var kubernetesClient = new KubernetesClientBuilder().build();
-        final var builder = KubernetesLabelSelectorEndpointGroup.builder(kubernetesClient);
+        final var builder = KubernetesLabelSelectorEndpointGroup.builder(
+            SharedKubernetesClient.INSTANCE.get());
 
         if (StringUtil.isNotBlank(config.getNamespace())) {
             builder.namespace(config.getNamespace());

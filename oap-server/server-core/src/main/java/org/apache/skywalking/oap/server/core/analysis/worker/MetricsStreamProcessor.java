@@ -185,7 +185,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
             metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Minute)
         );
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
-            moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate, kind);
+            moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate, kind, metricsClass);
 
         String remoteReceiverWorkerName = stream.getName() + "_rec";
         IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
@@ -194,19 +194,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         workerInstanceSetter.put(remoteReceiverWorkerName, minutePersistentWorker, kind, metricsClass);
 
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
-        MetricsAggregateWorker aggregateWorker;
-        switch (kind) {
-            case OAL:
-                aggregateWorker = new MetricsAggregateOALWorker(
-                    moduleDefineHolder, remoteWorker, stream.getName(), l1FlushPeriod, kind);
-                break;
-            case MAL:
-                aggregateWorker = new MetricsAggregateMALWorker(
-                    moduleDefineHolder, remoteWorker, stream.getName(), l1FlushPeriod, kind);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported MetricStreamKind: " + kind);
-        }
+        MetricsAggregateWorker aggregateWorker = new MetricsAggregateWorker(
+            moduleDefineHolder, remoteWorker, stream.getName(), l1FlushPeriod, metricsClass);
         entryWorkers.put(metricsClass, aggregateWorker);
     }
 
@@ -215,27 +204,15 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                            Model model,
                                                            MetricsTransWorker transWorker,
                                                            boolean supportUpdate,
-                                                           MetricStreamKind kind) {
+                                                           MetricStreamKind kind,
+                                                           Class<? extends Metrics> metricsClass) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
         ExportMetricsWorker exportWorker = new ExportMetricsWorker(moduleDefineHolder);
 
-        MetricsPersistentWorker minutePersistentWorker;
-        switch (kind) {
-            case OAL:
-                minutePersistentWorker = new MetricsPersistentMinOALWorker(
-                    moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker,
-                    supportUpdate, storageSessionTimeout, metricsDataTTL, kind
-                );
-                break;
-            case MAL:
-                minutePersistentWorker = new MetricsPersistentMinMALWorker(
-                    moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker,
-                    supportUpdate, storageSessionTimeout, metricsDataTTL, kind
-                );
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported MetricStreamKind: " + kind);
-        }
+        MetricsPersistentMinWorker minutePersistentWorker = new MetricsPersistentMinWorker(
+            moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker,
+            supportUpdate, storageSessionTimeout, metricsDataTTL, kind, metricsClass
+        );
         persistentWorkers.add(minutePersistentWorker);
 
         return minutePersistentWorker;

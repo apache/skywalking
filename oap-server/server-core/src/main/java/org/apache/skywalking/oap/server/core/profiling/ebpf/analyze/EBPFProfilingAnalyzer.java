@@ -40,6 +40,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,7 +61,10 @@ public class EBPFProfilingAnalyzer {
     public EBPFProfilingAnalyzer(ModuleManager moduleManager, int maxDurationOfQuery, int fetchDataThreadPoolSize) {
         this.moduleManager = moduleManager;
         this.maxQueryTimeoutInSecond = maxDurationOfQuery;
-        this.fetchDataThreadPool = Executors.newFixedThreadPool(fetchDataThreadPoolSize);
+        final AtomicInteger fetchThreadSeq = new AtomicInteger(0);
+        this.fetchDataThreadPool = Executors.newFixedThreadPool(
+            fetchDataThreadPoolSize,
+            r -> new Thread(r, "EBPFProfiling-" + fetchThreadSeq.incrementAndGet()));
     }
 
     /**

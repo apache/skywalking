@@ -346,6 +346,8 @@ jobs:
         test:
           - name: Cluster ZK/ES
             config: test/e2e-v2/cases/cluster/zk/es/e2e.yaml
+          - name: Cluster ZK/BanyanDB
+            config: test/e2e-v2/cases/cluster/zk/banyandb/e2e.yaml
 
           - name: Agent NodeJS Backend
             config: test/e2e-v2/cases/nodejs/e2e.yaml

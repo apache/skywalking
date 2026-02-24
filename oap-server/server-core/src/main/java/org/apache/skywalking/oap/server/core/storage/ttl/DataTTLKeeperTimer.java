@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -60,13 +61,19 @@ public enum DataTTLKeeperTimer {
         this.clusterNodesQuery = moduleManager.find(ClusterModule.NAME).provider().getService(ClusterNodesQuery.class);
         this.moduleConfig = moduleConfig;
 
-        Executors.newSingleThreadScheduledExecutor()
-                 .scheduleAtFixedRate(
-                     new RunnableWithExceptionProtection(
-                         this::delete,
-                         t -> log.error("Remove data in background failure.", t)
-                     ), moduleConfig
-                         .getDataKeeperExecutePeriod(), moduleConfig.getDataKeeperExecutePeriod(), TimeUnit.MINUTES);
+        VirtualThreads.createScheduledExecutor(
+                          "DataTTLKeeper",
+                          () -> Executors.newSingleThreadScheduledExecutor(r -> {
+                              final Thread t = new Thread(r, "DataTTLKeeper");
+                              t.setDaemon(true);
+                              return t;
+                          }))
+                      .scheduleAtFixedRate(
+                          new RunnableWithExceptionProtection(
+                              this::delete,
+                              t -> log.error("Remove data in background failure.", t)
+                          ), moduleConfig
+                              .getDataKeeperExecutePeriod(), moduleConfig.getDataKeeperExecutePeriod(), TimeUnit.MINUTES);
     }
 
     /**

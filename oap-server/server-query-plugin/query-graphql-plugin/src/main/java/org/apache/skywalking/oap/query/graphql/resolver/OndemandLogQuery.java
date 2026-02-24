@@ -26,8 +26,8 @@ import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodSpec;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.KubernetesClientException;
+import org.apache.skywalking.library.kubernetes.SharedKubernetesClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.query.graphql.type.InternalLog;
@@ -100,11 +100,12 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
     public PodContainers listContainers(
         final String namespace,
         final String podName) {
-        try (final var client = new KubernetesClientBuilder().build()) {
-            if (Strings.isNullOrEmpty(namespace) || Strings.isNullOrEmpty(podName)) {
-                return new PodContainers()
-                    .setErrorReason("namespace and podName can't be null or empty");
-            }
+        if (Strings.isNullOrEmpty(namespace) || Strings.isNullOrEmpty(podName)) {
+            return new PodContainers()
+                .setErrorReason("namespace and podName can't be null or empty");
+        }
+        try {
+            final var client = SharedKubernetesClient.INSTANCE.get();
             final var pod = client.pods().inNamespace(namespace).withName(podName).get();
             if (isNull(pod)) {
                 return new PodContainers().setErrorReason("No pod can be found");
@@ -138,7 +139,8 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
         if (Strings.isNullOrEmpty(namespace) || Strings.isNullOrEmpty(podName)) {
             return new Logs().setErrorReason("namespace and podName can't be null or empty");
         }
-        try (final var client = new KubernetesClientBuilder().build()) {
+        try {
+            final var client = SharedKubernetesClient.INSTANCE.get();
             final Pod pod = client.pods().inNamespace(namespace).withName(podName).get();
             final ObjectMeta podMetadata = pod.getMetadata();
             if (isNull(podMetadata)) {

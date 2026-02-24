@@ -18,38 +18,47 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.BatchSQLExecutor;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
+import org.apache.skywalking.oap.server.library.batchqueue.PartitionPolicy;
+import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.BatchSQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
 @Slf4j
 public class JDBCBatchDAO implements IBatchDAO {
     private final JDBCClient jdbcClient;
-    private final DataCarrier<PrepareRequest> dataCarrier;
+    private final BatchQueue<PrepareRequest> queue;
     private final int maxBatchSqlSize;
 
     public JDBCBatchDAO(JDBCClient jdbcClient, int maxBatchSqlSize, int asyncBatchPersistentPoolSize) {
         this.jdbcClient = jdbcClient;
-        String name = "H2_ASYNCHRONOUS_BATCH_PERSISTENT";
         if (log.isDebugEnabled()) {
-            log.debug("H2_ASYNCHRONOUS_BATCH_PERSISTENT poolSize: {}, maxBatchSqlSize:{}", asyncBatchPersistentPoolSize, maxBatchSqlSize);
+            log.debug("JDBC_ASYNC_BATCH_PERSISTENT poolSize: {}, maxBatchSqlSize:{}", asyncBatchPersistentPoolSize, maxBatchSqlSize);
         }
         this.maxBatchSqlSize = maxBatchSqlSize;
-        this.dataCarrier = new DataCarrier<>(name, asyncBatchPersistentPoolSize, 10000);
-        this.dataCarrier.consume(new H2BatchConsumer(this), asyncBatchPersistentPoolSize, 20);
+        this.queue = BatchQueueManager.create(
+            "JDBC_ASYNC_BATCH_PERSISTENT",
+            BatchQueueConfig.<PrepareRequest>builder()
+                .threads(ThreadPolicy.fixed(asyncBatchPersistentPoolSize))
+                .partitions(PartitionPolicy.fixed(asyncBatchPersistentPoolSize))
+                .bufferSize(10_000)
+                .consumer(batch -> flush(batch))
+                .maxIdleMs(20)
+                .build()
+        );
     }
 
     @Override
@@ -89,25 +98,6 @@ public class JDBCBatchDAO implements IBatchDAO {
 
     @Override
     public void insert(InsertRequest insertRequest) {
-        this.dataCarrier.produce(insertRequest);
-    }
-
-    private static class H2BatchConsumer implements IConsumer<PrepareRequest> {
-
-        private final JDBCBatchDAO h2BatchDAO;
-
-        private H2BatchConsumer(JDBCBatchDAO h2BatchDAO) {
-            this.h2BatchDAO = h2BatchDAO;
-        }
-
-        @Override
-        public void consume(List<PrepareRequest> prepareRequests) {
-            h2BatchDAO.flush(prepareRequests);
-        }
-
-        @Override
-        public void onError(List<PrepareRequest> prepareRequests, Throwable t) {
-            log.error(t.getMessage(), t);
-        }
+        this.queue.produce(insertRequest);
     }
 }

@@ -31,9 +31,13 @@ import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteMessage;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
+import org.apache.skywalking.oap.server.library.batchqueue.BufferStrategy;
+import org.apache.skywalking.oap.server.library.batchqueue.HandlerConsumer;
+import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -46,13 +50,13 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  */
 @Slf4j
 public class GRPCRemoteClient implements RemoteClient {
-    private final int channelSize;
     private final int bufferSize;
     private final Address address;
     private final AtomicInteger concurrentStreamObserverNumber = new AtomicInteger(0);
     private SslContext sslContext;
     private GRPCClient client;
-    private DataCarrier<RemoteMessage> carrier;
+    private BatchQueue<RemoteMessage> queue;
+    private String queueName;
     private boolean isConnect;
     private CounterMetrics remoteOutCounter;
     private CounterMetrics remoteOutErrorCounter;
@@ -61,13 +65,11 @@ public class GRPCRemoteClient implements RemoteClient {
 
     public GRPCRemoteClient(final ModuleDefineHolder moduleDefineHolder,
                             final Address address,
-                            final int channelSize,
                             final int bufferSize,
                             final int remoteTimeout,
                             final SslContext sslContext) {
 
         this.address = address;
-        this.channelSize = channelSize;
         this.bufferSize = bufferSize;
         this.remoteTimeout = remoteTimeout;
         this.sslContext = sslContext;
@@ -100,7 +102,17 @@ public class GRPCRemoteClient implements RemoteClient {
     public void connect() {
         if (!isConnect) {
             this.getClient().connect();
-            this.getDataCarrier().consume(new RemoteMessageConsumer(), 1);
+            this.queueName = "GRPC_REMOTE_" + address.getHost() + "_" + address.getPort();
+            final BatchQueueConfig<RemoteMessage> config = BatchQueueConfig.<RemoteMessage>builder()
+                .threads(ThreadPolicy.fixed(1))
+                .bufferSize(bufferSize)
+                .strategy(BufferStrategy.BLOCKING)
+                .consumer(new RemoteMessageConsumer())
+                .minIdleMs(10)
+                .maxIdleMs(100)
+                .build();
+
+            this.queue = BatchQueueManager.create(queueName, config);
             this.isConnect = true;
         }
     }
@@ -130,17 +142,6 @@ public class GRPCRemoteClient implements RemoteClient {
         return RemoteServiceGrpc.newStub(getChannel());
     }
 
-    DataCarrier<RemoteMessage> getDataCarrier() {
-        if (Objects.isNull(this.carrier)) {
-            synchronized (GRPCRemoteClient.class) {
-                if (Objects.isNull(this.carrier)) {
-                    this.carrier = new DataCarrier<>("GRPCRemoteClient", channelSize, bufferSize);
-                }
-            }
-        }
-        return this.carrier;
-    }
-
     /**
      * Push stream data which need to send to another OAP server.
      *
@@ -153,10 +154,10 @@ public class GRPCRemoteClient implements RemoteClient {
         builder.setNextWorkerName(nextWorkerName);
         builder.setRemoteData(streamData.serialize());
 
-        this.getDataCarrier().produce(builder.build());
+        this.queue.produce(builder.build());
     }
 
-    class RemoteMessageConsumer implements IConsumer<RemoteMessage> {
+    class RemoteMessageConsumer implements HandlerConsumer<RemoteMessage> {
         @Override
         public void consume(List<RemoteMessage> remoteMessages) {
             try {
@@ -170,11 +171,6 @@ public class GRPCRemoteClient implements RemoteClient {
                 remoteOutErrorCounter.inc();
                 log.error(t.getMessage(), t);
             }
-        }
-
-        @Override
-        public void onError(List<RemoteMessage> remoteMessages, Throwable t) {
-            log.error(t.getMessage(), t);
         }
     }
 
@@ -247,8 +243,8 @@ public class GRPCRemoteClient implements RemoteClient {
 
     @Override
     public void close() {
-        if (Objects.nonNull(this.carrier)) {
-            this.carrier.shutdownConsumers();
+        if (queueName != null) {
+            BatchQueueManager.shutdown(queueName);
         }
         if (Objects.nonNull(this.client)) {
             this.client.shutdown();

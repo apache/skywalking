@@ -37,9 +37,11 @@ import org.apache.skywalking.oap.server.core.exporter.LogExportService;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.exporter.provider.ExporterSetting;
 import org.apache.skywalking.oap.server.exporter.provider.kafka.KafkaExportProducer;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.buffer.BufferStrategy;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
+import org.apache.skywalking.oap.server.library.batchqueue.BufferStrategy;
+import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -48,8 +50,8 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class KafkaLogExporter extends KafkaExportProducer implements LogExportService, IConsumer<LogRecord> {
-    private DataCarrier<LogRecord> exportBuffer;
+public class KafkaLogExporter extends KafkaExportProducer implements LogExportService {
+    private BatchQueue<LogRecord> queue;
     private CounterMetrics successCounter;
     private CounterMetrics errorCounter;
     private final ModuleManager moduleManager;
@@ -59,14 +61,18 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
         this.moduleManager = manager;
     }
 
-    @Override
     public void start() {
         super.getProducer();
-        exportBuffer = new DataCarrier<>(
-            "KafkaLogExporter", "KafkaLogExporter", setting.getBufferChannelNum(), setting.getBufferChannelSize(),
-            BufferStrategy.IF_POSSIBLE
+        this.queue = BatchQueueManager.create(
+            "EXPORTER_KAFKA_LOG",
+            BatchQueueConfig.<LogRecord>builder()
+                .threads(ThreadPolicy.fixed(1))
+                .bufferSize(setting.getBufferSize())
+                .strategy(BufferStrategy.IF_POSSIBLE)
+                .consumer(this::consumeLogRecords)
+                .maxIdleMs(200)
+                .build()
         );
-        exportBuffer.consume(this, 1, 200);
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
@@ -84,7 +90,7 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
     @Override
     public void export(final LogRecord logRecord) {
         if (logRecord != null) {
-            exportBuffer.produce(logRecord);
+            queue.produce(logRecord);
         }
     }
 
@@ -93,8 +99,7 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
         return setting.isEnableKafkaLog();
     }
 
-    @Override
-    public void consume(final List<LogRecord> data) {
+    private void consumeLogRecords(final List<LogRecord> data) {
         for (LogRecord logRecord : data) {
             if (logRecord != null) {
                 try {
@@ -118,11 +123,6 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
                 }
             }
         }
-    }
-
-    @Override
-    public void onError(final List<LogRecord> data, final Throwable t) {
-
     }
 
     private LogData transLogData(LogRecord logRecord) throws InvalidProtocolBufferException {

@@ -28,13 +28,13 @@ import io.fabric8.kubernetes.api.model.NodeStatus;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.kubernetes.KubernetesEndpoints;
 import org.apache.skywalking.library.kubernetes.KubernetesPods;
 import org.apache.skywalking.library.kubernetes.KubernetesServices;
 import org.apache.skywalking.library.kubernetes.ObjectID;
+import org.apache.skywalking.library.kubernetes.SharedKubernetesClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
@@ -71,8 +71,8 @@ public class K8SServiceRegistry {
                 .expireAfterWrite(Duration.ofMinutes(3));
 
         nodeIPs = cacheBuilder.build(CacheLoader.from(() -> {
-            try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
-                return kubernetesClient
+            try {
+                return SharedKubernetesClient.INSTANCE.get()
                     .nodes()
                     .list()
                     .getItems()

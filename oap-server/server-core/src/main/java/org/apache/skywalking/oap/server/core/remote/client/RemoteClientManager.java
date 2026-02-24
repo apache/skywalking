@@ -94,7 +94,7 @@ public class RemoteClientManager implements Service, ClusterWatcher {
 
     public void start() {
         Optional.ofNullable(sslContext).ifPresent(DynamicSslContext::start);
-        Executors.newSingleThreadScheduledExecutor()
+        Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "RemoteClientManager"))
                  .scheduleWithFixedDelay(new RunnableWithExceptionProtection(this::refresh, t -> log.error(
                      "Scheduled refresh Remote Clients failure.", t)), 1, 10, TimeUnit.SECONDS);
     }
@@ -240,7 +240,7 @@ public class RemoteClientManager implements Service, ClusterWatcher {
                         newRemoteClients.add(client);
                     } else {
                         RemoteClient client;
-                        client = new GRPCRemoteClient(moduleDefineHolder, address, 1, 3000, remoteTimeout, sslContext);
+                        client = new GRPCRemoteClient(moduleDefineHolder, address, 3000, remoteTimeout, sslContext);
                         client.connect();
                         newRemoteClients.add(client);
                     }

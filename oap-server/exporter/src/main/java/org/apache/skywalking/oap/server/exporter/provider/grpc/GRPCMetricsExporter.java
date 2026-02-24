@@ -48,14 +48,17 @@ import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionReq;
 import org.apache.skywalking.oap.server.exporter.grpc.SubscriptionsResp;
 import org.apache.skywalking.oap.server.exporter.provider.ExporterSetting;
 import org.apache.skywalking.oap.server.exporter.provider.MetricFormatter;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueConfig;
+import org.apache.skywalking.oap.server.library.batchqueue.BatchQueueManager;
+import org.apache.skywalking.oap.server.library.batchqueue.BufferStrategy;
+import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 
 @Slf4j
-public class GRPCMetricsExporter extends MetricFormatter implements MetricValuesExportService, IConsumer<ExportData> {
+public class GRPCMetricsExporter extends MetricFormatter implements MetricValuesExportService {
     /**
      * The period of subscription list fetching is hardcoded as 30s.
      */
@@ -63,7 +66,7 @@ public class GRPCMetricsExporter extends MetricFormatter implements MetricValues
     private final ExporterSetting setting;
     private MetricExportServiceGrpc.MetricExportServiceStub exportServiceFutureStub;
     private MetricExportServiceGrpc.MetricExportServiceBlockingStub blockingStub;
-    private DataCarrier exportBuffer;
+    private BatchQueue<ExportData> queue;
     private ReentrantLock fetchListLock;
     private volatile List<SubscriptionMetric> subscriptionList;
     private volatile long lastFetchTimestamp = 0;
@@ -72,15 +75,22 @@ public class GRPCMetricsExporter extends MetricFormatter implements MetricValues
         this.setting = setting;
     }
 
-    @Override
     public void start() {
         GRPCClient client = new GRPCClient(setting.getGRPCTargetHost(), setting.getGRPCTargetPort());
         client.connect();
         ManagedChannel channel = client.getChannel();
         exportServiceFutureStub = MetricExportServiceGrpc.newStub(channel);
         blockingStub = MetricExportServiceGrpc.newBlockingStub(channel);
-        exportBuffer = new DataCarrier<ExportData>(setting.getBufferChannelNum(), setting.getBufferChannelSize());
-        exportBuffer.consume(this, 1, 200);
+        this.queue = BatchQueueManager.create(
+            "EXPORTER_GRPC_METRICS",
+            BatchQueueConfig.<ExportData>builder()
+                .threads(ThreadPolicy.fixed(1))
+                .bufferSize(setting.getBufferSize())
+                .strategy(BufferStrategy.BLOCKING)
+                .consumer(this::consumeExportData)
+                .maxIdleMs(200)
+                .build()
+        );
         subscriptionList = new ArrayList<>();
         fetchListLock = new ReentrantLock();
     }
@@ -91,12 +101,12 @@ public class GRPCMetricsExporter extends MetricFormatter implements MetricValues
         if (metrics instanceof WithMetadata) {
             MetricsMetaInfo meta = ((WithMetadata) metrics).getMeta();
             if (subscriptionList.size() == 0 && ExportEvent.EventType.INCREMENT.equals(event.getType())) {
-                exportBuffer.produce(new ExportData(meta, metrics, event.getType()));
+                queue.produce(new ExportData(meta, metrics, event.getType()));
             } else {
                 subscriptionList.forEach(subscriptionMetric -> {
                     if (subscriptionMetric.getMetricName().equals(meta.getMetricsName()) &&
                         eventTypeMatch(event.getType(), subscriptionMetric.getEventType())) {
-                        exportBuffer.produce(new ExportData(meta, metrics, event.getType()));
+                        queue.produce(new ExportData(meta, metrics, event.getType()));
                     }
                 });
             }
@@ -133,8 +143,7 @@ public class GRPCMetricsExporter extends MetricFormatter implements MetricValues
         }
     }
 
-    @Override
-    public void consume(List<ExportData> data) {
+    void consumeExportData(List<ExportData> data) {
         if (CollectionUtils.isNotEmpty(data)) {
             GRPCStreamStatus status = new GRPCStreamStatus();
             StreamObserver<ExportMetricValue> streamObserver =
@@ -245,11 +254,6 @@ public class GRPCMetricsExporter extends MetricFormatter implements MetricValues
             );
         }
         fetchSubscriptionList();
-    }
-
-    @Override
-    public void onError(List<ExportData> data, Throwable t) {
-        log.error(t.getMessage(), t);
     }
 
     private boolean eventTypeMatch(ExportEvent.EventType eventType,

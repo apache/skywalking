@@ -23,7 +23,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +44,8 @@ public enum KubernetesServices {
                         .expireAfterWrite(Duration.ofMinutes(3));
 
         services = cacheBuilder.build(CacheLoader.from(() -> {
-            try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
-                return kubernetesClient
+            try {
+                return SharedKubernetesClient.INSTANCE.get()
                         .services()
                         .inAnyNamespace()
                         .list()
@@ -60,14 +59,12 @@ public enum KubernetesServices {
         serviceByID = cacheBuilder.build(new CacheLoader<>() {
             @Override
             public Optional<Service> load(ObjectID id) {
-                try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
-                    return Optional.ofNullable(
-                        kubernetesClient
-                            .services()
-                            .inNamespace(id.namespace())
-                            .withName(id.name())
-                            .get());
-                }
+                return Optional.ofNullable(
+                    SharedKubernetesClient.INSTANCE.get()
+                        .services()
+                        .inNamespace(id.namespace())
+                        .withName(id.name())
+                        .get());
             }
         });
     }

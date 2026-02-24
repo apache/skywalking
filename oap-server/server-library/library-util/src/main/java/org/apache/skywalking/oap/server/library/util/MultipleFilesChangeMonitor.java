@@ -134,7 +134,8 @@ public class MultipleFilesChangeMonitor {
         SCHEDULER_CHANGE_LOCK.lock();
         try {
             if (FILE_MONITOR_TASK_SCHEDULER == null) {
-                FILE_MONITOR_TASK_SCHEDULER = Executors.newSingleThreadScheduledExecutor()
+                FILE_MONITOR_TASK_SCHEDULER = Executors.newSingleThreadScheduledExecutor(
+                                                           r -> new Thread(r, "FileChangeMonitor"))
                                                        .scheduleAtFixedRate(
                                                            MultipleFilesChangeMonitor::scanChanges, 1, 200,
                                                            TimeUnit.MILLISECONDS

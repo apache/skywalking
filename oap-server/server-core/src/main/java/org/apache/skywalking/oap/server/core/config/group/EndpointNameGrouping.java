@@ -210,7 +210,7 @@ public class EndpointNameGrouping implements EndpointNameGroupService {
         }
         this.quickUriGroupingRule = new QuickUriGroupingRule();
         HTTPUrlRecognitionConfig config = this.httpUrlRecognitionConfig;
-        Executors.newSingleThreadScheduledExecutor()
+        Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "EndpointUriRecognition"))
             .scheduleWithFixedDelay(
                 new RunnableWithExceptionProtection(
                     () -> {
