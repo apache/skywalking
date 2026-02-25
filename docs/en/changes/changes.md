@@ -138,6 +138,7 @@
 * Fix validation guard for router.
 * Add the `coldStage` to the `Duration` for queries.
 * Optimize the pages theme.
+* Fix incorrect virtual service names.
 
 #### Documentation
 
