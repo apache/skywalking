@@ -31,5 +31,6 @@ public enum RequestType {
      */
     LOGIC,
     TCP,
-    MQ
+    MQ,
+    GenAI
 }
