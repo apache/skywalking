@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
+import java.util.List;
+
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.junit.jupiter.api.Assertions;
@@ -49,8 +51,15 @@ public class LimitedSizeBufferedDataTest {
             9,
             4
         };
+        List<MockStorageData> result = collection.read();
+        result.sort((a, b) -> {
+            if (a.getTimestamp() != b.getTimestamp()) {
+                return Long.compare(a.getTimestamp(), b.getTimestamp());
+            }
+            return Long.compare(a.getLatency(), b.getLatency());
+        });
         int i = 0;
-        for (MockStorageData data : collection.read()) {
+        for (MockStorageData data : result) {
             Assertions.assertEquals(expected[i++], data.latency);
         }
     }

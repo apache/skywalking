@@ -24,9 +24,9 @@ import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.powermock.reflect.Whitebox;
 
 import java.io.ByteArrayInputStream;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -74,8 +74,10 @@ public class FieldsHelperTest {
     }
 
     @BeforeEach
-    public void setUp() {
-        Whitebox.setInternalState(FieldsHelper.forClass(ServiceInfo.class), "initialized", false);
+    public void setUp() throws Exception {
+        Field initializedField = FieldsHelper.class.getDeclaredField("initialized");
+        initializedField.setAccessible(true);
+        initializedField.set(FieldsHelper.forClass(ServiceInfo.class), false);
     }
 
     @ParameterizedTest(name = "{0}")

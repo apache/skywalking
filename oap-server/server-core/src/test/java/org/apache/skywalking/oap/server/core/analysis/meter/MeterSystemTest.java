@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.meter;
 
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +28,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -44,15 +43,16 @@ public class MeterSystemTest {
     private MeterSystem meterSystem;
 
     @BeforeEach
-    public void setup() throws StorageException {
+    public void setup() throws Exception {
         meterSystem = spy(new MeterSystem(moduleManager));
-        Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
-                                  Mockito.spy(MetricsStreamProcessor.getInstance()));
+        Field processorField = MetricsStreamProcessor.class.getDeclaredField("PROCESSOR");
+        processorField.setAccessible(true);
+        processorField.set(null, Mockito.spy(MetricsStreamProcessor.getInstance()));
         doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
     }
 
     @Test
-    public void testCreate() {
+    public void testCreate() throws Exception {
         // validate with same name, function and scope types
         meterSystem.create("test_meter", "avg", ScopeType.SERVICE);
         validateMeterDefinition("test_meter", Long.class, ScopeType.SERVICE);
@@ -76,11 +76,18 @@ public class MeterSystemTest {
         }
     }
 
-    private void validateMeterDefinition(String meterName, Class<?> dataType, ScopeType type) {
-        Map<String, ?> meterPrototypes = Whitebox.getInternalState(meterSystem, "meterPrototypes");
+    private void validateMeterDefinition(String meterName, Class<?> dataType, ScopeType type) throws Exception {
+        Field meterPrototypesField = MeterSystem.class.getDeclaredField("meterPrototypes");
+        meterPrototypesField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<String, ?> meterPrototypes = (Map<String, ?>) meterPrototypesField.get(meterSystem);
         Object meterDefinition = meterPrototypes.get(meterName);
-        Class<?> realDataType = Whitebox.getInternalState(meterDefinition, "dataType");
-        ScopeType realScopeTypes = Whitebox.getInternalState(meterDefinition, "scopeType");
+        Field dataTypeField = meterDefinition.getClass().getDeclaredField("dataType");
+        dataTypeField.setAccessible(true);
+        Class<?> realDataType = (Class<?>) dataTypeField.get(meterDefinition);
+        Field scopeTypeField = meterDefinition.getClass().getDeclaredField("scopeType");
+        scopeTypeField.setAccessible(true);
+        ScopeType realScopeTypes = (ScopeType) scopeTypeField.get(meterDefinition);
 
         Assertions.assertEquals(dataType, realDataType);
         Assertions.assertEquals(type, realScopeTypes);

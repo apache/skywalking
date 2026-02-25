@@ -33,8 +33,8 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +51,7 @@ public class PersistenceTimerTest {
 
     @Test
     public void testExtractDataAndSave() throws Exception {
-        Set<PrepareRequest> result = new HashSet();
+        Set<PrepareRequest> result = new HashSet<>();
         int count = 101;
         int workCount = 10;
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
@@ -82,7 +82,10 @@ public class PersistenceTimerTest {
         PersistenceTimer.INSTANCE.isStarted = true;
 
         PersistenceTimer.INSTANCE.start(moduleManager, moduleConfig);
-        CompletableFuture<Void> f = Whitebox.invokeMethod(PersistenceTimer.INSTANCE, "extractDataAndSave", iBatchDAO);
+        Method method = PersistenceTimer.class.getDeclaredMethod("extractDataAndSave", IBatchDAO.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        CompletableFuture<Void> f = (CompletableFuture<Void>) method.invoke(PersistenceTimer.INSTANCE, iBatchDAO);
         f.join();
 
         Assertions.assertEquals(count * workCount * 2, result.size());

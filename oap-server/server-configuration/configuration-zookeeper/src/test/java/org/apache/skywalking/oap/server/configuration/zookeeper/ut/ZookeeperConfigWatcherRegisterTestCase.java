@@ -22,14 +22,16 @@ import com.google.common.collect.Sets;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
+import org.apache.skywalking.oap.server.configuration.zookeeper.ZookeeperConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.zookeeper.ZookeeperServerSettings;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
 
 public class ZookeeperConfigWatcherRegisterTestCase {
     @Test
@@ -46,7 +48,9 @@ public class ZookeeperConfigWatcherRegisterTestCase {
         when(mockPathChildrenCache.getCurrentData(namespace + "/" + key)).thenReturn(new ChildData(namespace + "/" + key, null, value
             .getBytes()));
 
-        Whitebox.setInternalState(mockRegister, "childrenCache", mockPathChildrenCache);
+        Field childrenCacheField = ZookeeperConfigWatcherRegister.class.getDeclaredField("childrenCache");
+        childrenCacheField.setAccessible(true);
+        childrenCacheField.set(mockRegister, mockPathChildrenCache);
 
         final ConfigTable configTable = mockRegister.readConfig(Sets.newHashSet(key)).get();
 

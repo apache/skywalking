@@ -58,7 +58,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     /**
      * Singleton instance.
      */
-    private final static MetricsStreamProcessor PROCESSOR = new MetricsStreamProcessor();
+    private static MetricsStreamProcessor PROCESSOR = new MetricsStreamProcessor();
 
     /**
      * Worker table hosts all entrance workers.
