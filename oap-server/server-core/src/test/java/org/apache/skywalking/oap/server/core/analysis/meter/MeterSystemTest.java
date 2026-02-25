@@ -21,11 +21,13 @@ package org.apache.skywalking.oap.server.core.analysis.meter;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -41,14 +43,23 @@ public class MeterSystemTest {
     @Mock
     private ModuleManager moduleManager;
     private MeterSystem meterSystem;
+    private MockedStatic<MetricsStreamProcessor> mockedProcessor;
+    private MetricsStreamProcessor processorMock;
 
     @BeforeEach
     public void setup() throws Exception {
         meterSystem = spy(new MeterSystem(moduleManager));
-        Field processorField = MetricsStreamProcessor.class.getDeclaredField("PROCESSOR");
-        processorField.setAccessible(true);
-        processorField.set(null, Mockito.spy(MetricsStreamProcessor.getInstance()));
-        doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
+        processorMock = Mockito.mock(MetricsStreamProcessor.class);
+        mockedProcessor = Mockito.mockStatic(MetricsStreamProcessor.class);
+        mockedProcessor.when(MetricsStreamProcessor::getInstance).thenReturn(processorMock);
+        doNothing().when(processorMock).create(any(), (StreamDefinition) any(), any());
+    }
+
+    @AfterEach
+    public void tearDown() {
+        if (mockedProcessor != null) {
+            mockedProcessor.close();
+        }
     }
 
     @Test

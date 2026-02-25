@@ -48,7 +48,7 @@ public class ZookeeperConfigWatcherRegisterTestCase {
         when(mockPathChildrenCache.getCurrentData(namespace + "/" + key)).thenReturn(new ChildData(namespace + "/" + key, null, value
             .getBytes()));
 
-        Field childrenCacheField = ZookeeperConfigWatcherRegister.class.getDeclaredField("childrenCache");
+        Field childrenCacheField = MockZookeeperConfigWatcherRegister.class.getDeclaredField("childrenCache");
         childrenCacheField.setAccessible(true);
         childrenCacheField.set(mockRegister, mockPathChildrenCache);
 
