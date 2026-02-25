@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.batchqueue;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -457,15 +458,60 @@ public class BatchQueueBenchmark {
         Thread.sleep(200);
         consumed.set(0);
 
-        // Measure
+        // Measure — sample queue usage periodically during the run
+        final int sampleCount = MEASURE_SECONDS;
+        final double[] usageSamples = new double[sampleCount];
+        final double[] topPartitionSamples = new double[sampleCount];
+
         final long measureStart = System.currentTimeMillis();
         final long measureEnd = measureStart + MEASURE_SECONDS * 1000L;
+
+        final Thread sampler = new Thread(() -> {
+            for (int s = 0; s < sampleCount; s++) {
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException e) {
+                    break;
+                }
+                final BatchQueueStats stats = queue.stats();
+                usageSamples[s] = stats.totalUsedPercentage();
+                final List<BatchQueueStats.PartitionUsage> top = stats.topN(1);
+                topPartitionSamples[s] = top.isEmpty() ? 0 : top.get(0).getUsedPercentage();
+            }
+        });
+        sampler.setName("UsageSampler");
+        sampler.setDaemon(true);
+        sampler.start();
+
         final long produced = runProducers(queue, typeCount, PRODUCER_THREADS, measureEnd);
         final long measureDuration = System.currentTimeMillis() - measureStart;
+
+        sampler.join(2000);
 
         Thread.sleep(500);
         final long totalConsumed = consumed.get();
         final double consumeRate = totalConsumed * 1000.0 / measureDuration;
+
+        // Compute queue usage stats
+        double usageSum = 0;
+        double usageMax = 0;
+        double topSum = 0;
+        double topMax = 0;
+        int validSamples = 0;
+        for (int s = 0; s < sampleCount; s++) {
+            if (usageSamples[s] > 0 || s == 0) {
+                validSamples++;
+                usageSum += usageSamples[s];
+                usageMax = Math.max(usageMax, usageSamples[s]);
+                topSum += topPartitionSamples[s];
+                topMax = Math.max(topMax, topPartitionSamples[s]);
+            }
+        }
+        final double usageAvg = validSamples > 0 ? usageSum / validSamples : 0;
+        final double topAvg = validSamples > 0 ? topSum / validSamples : 0;
+
+        // Final snapshot after producers stop
+        final BatchQueueStats finalStats = queue.stats();
 
         log.info("\n=== BatchQueue Benchmark: {} ===\n"
                 + "  Types:       {}\n"
@@ -479,14 +525,25 @@ public class BatchQueueBenchmark {
                 + "  Produced:    {}\n"
                 + "  Consumed:    {}\n"
                 + "  Consume rate:  {} items/sec\n"
-                + "  Drop rate:     {}%\n",
+                + "  Drop rate:     {}%\n"
+                + "  --- Queue Usage (sampled every 1s during measurement) ---\n"
+                + "  Total usage:   avg={}%, max={}%\n"
+                + "  Top partition: avg={}%, max={}%\n"
+                + "  Final snapshot: totalUsed={}/{} ({}%), top1 partition={}%\n",
             label, typeCount, THREADS, partitions, bufferSize, strategy,
             rebalance, PRODUCER_THREADS,
             measureDuration,
             String.format("%,d", produced), String.format("%,d", totalConsumed),
             String.format("%,.0f", consumeRate),
             String.format("%.2f", produced > 0
-                ? (produced - totalConsumed) * 100.0 / produced : 0));
+                ? (produced - totalConsumed) * 100.0 / produced : 0),
+            String.format("%.1f", usageAvg), String.format("%.1f", usageMax),
+            String.format("%.1f", topAvg), String.format("%.1f", topMax),
+            String.format("%,d", finalStats.totalUsed()),
+            String.format("%,d", finalStats.totalCapacity()),
+            String.format("%.1f", finalStats.totalUsedPercentage()),
+            String.format("%.1f", finalStats.topN(1).isEmpty()
+                ? 0 : finalStats.topN(1).get(0).getUsedPercentage()));
 
         return consumeRate;
     }
