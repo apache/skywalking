@@ -470,7 +470,7 @@
                   "i": "22",
                   "type": "Widget",
                   "expressions": [
-                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_percentage{level='1'},10,des,avg)"
+                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_per_ten_thousand{level='1'},10,des,avg)/100"
                   ],
                   "graph": {
                     "type": "Line",
@@ -492,7 +492,7 @@
                   "i": "23",
                   "type": "Widget",
                   "expressions": [
-                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_percentage{level='2'},10,des,avg)"
+                    "sort_values(meter_oap_instance_metrics_aggregation_queue_used_per_ten_thousand{level='2'},10,des,avg)/100"
                   ],
                   "graph": {
                     "type": "Line",
