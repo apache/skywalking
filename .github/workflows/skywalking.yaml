@@ -853,10 +853,38 @@ jobs:
         with:
           e2e-file: test/e2e-v2/cases/istio/als/e2e.yaml
       - if: ${{ failure() }}
+        name: Diagnose Kind cluster
         run: |
+          echo "=== Runner image ==="
+          cat /etc/os-release | head -5
+          echo "=== Docker info ==="
+          docker version --format 'Docker {{.Server.Version}}'
+          echo "=== Disk & memory ==="
           df -h
-          du -sh .
-          docker images
+          free -h
+          echo "=== Kind cluster node ==="
+          kubectl get nodes -o wide --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          echo "=== All pods ==="
+          kubectl get pods -A -o wide --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          echo "=== Pod descriptions (non-Running) ==="
+          kubectl get pods -A --kubeconfig /tmp/e2e-k8s.config --no-headers 2>/dev/null | grep -v Running | while read ns name rest; do
+            echo "--- $ns/$name ---"
+            kubectl describe pod "$name" -n "$ns" --kubeconfig /tmp/e2e-k8s.config 2>/dev/null | tail -30
+          done || true
+          echo "=== Events (warnings) ==="
+          kubectl get events -A --kubeconfig /tmp/e2e-k8s.config --field-selector type=Warning --sort-by='.lastTimestamp' 2>/dev/null | tail -30 || true
+          echo "=== ES pod logs ==="
+          kubectl logs -n istio-system -l app=elasticsearch --tail=80 --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          echo "=== ES init container logs ==="
+          for pod in $(kubectl get pods -n istio-system -l app=elasticsearch --kubeconfig /tmp/e2e-k8s.config -o name 2>/dev/null); do
+            kubectl logs -n istio-system "$pod" --all-containers --previous --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          done || true
+          echo "=== ulimit inside Kind node ==="
+          docker exec kind-control-plane sh -c 'ulimit -n; ulimit -u; cat /proc/sys/vm/max_map_count' 2>/dev/null || true
+          echo "=== OAP pod logs ==="
+          kubectl logs -n istio-system -l app=skywalking -c skywalking --tail=30 --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          echo "=== Node describe (resources) ==="
+          kubectl describe node --kubeconfig /tmp/e2e-k8s.config 2>/dev/null | grep -A 20 "Allocated resources" || true
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         name: Upload Logs
@@ -914,10 +942,38 @@ jobs:
         with:
           e2e-file: test/e2e-v2/cases/istio/ambient-als/e2e.yaml
       - if: ${{ failure() }}
+        name: Diagnose Kind cluster
         run: |
+          echo "=== Runner image ==="
+          cat /etc/os-release | head -5
+          echo "=== Docker info ==="
+          docker version --format 'Docker {{.Server.Version}}'
+          echo "=== Disk & memory ==="
           df -h
-          du -sh .
-          docker images
+          free -h
+          echo "=== Kind cluster node ==="
+          kubectl get nodes -o wide --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          echo "=== All pods ==="
+          kubectl get pods -A -o wide --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          echo "=== Pod descriptions (non-Running) ==="
+          kubectl get pods -A --kubeconfig /tmp/e2e-k8s.config --no-headers 2>/dev/null | grep -v Running | while read ns name rest; do
+            echo "--- $ns/$name ---"
+            kubectl describe pod "$name" -n "$ns" --kubeconfig /tmp/e2e-k8s.config 2>/dev/null | tail -30
+          done || true
+          echo "=== Events (warnings) ==="
+          kubectl get events -A --kubeconfig /tmp/e2e-k8s.config --field-selector type=Warning --sort-by='.lastTimestamp' 2>/dev/null | tail -30 || true
+          echo "=== ES pod logs ==="
+          kubectl logs -n istio-system -l app=elasticsearch --tail=80 --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          echo "=== ES init container logs ==="
+          for pod in $(kubectl get pods -n istio-system -l app=elasticsearch --kubeconfig /tmp/e2e-k8s.config -o name 2>/dev/null); do
+            kubectl logs -n istio-system "$pod" --all-containers --previous --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          done || true
+          echo "=== ulimit inside Kind node ==="
+          docker exec kind-control-plane sh -c 'ulimit -n; ulimit -u; cat /proc/sys/vm/max_map_count' 2>/dev/null || true
+          echo "=== OAP pod logs ==="
+          kubectl logs -n istio-system -l app=skywalking -c skywalking --tail=30 --kubeconfig /tmp/e2e-k8s.config 2>/dev/null || true
+          echo "=== Node describe (resources) ==="
+          kubectl describe node --kubeconfig /tmp/e2e-k8s.config 2>/dev/null | grep -A 20 "Allocated resources" || true
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         name: Upload Logs

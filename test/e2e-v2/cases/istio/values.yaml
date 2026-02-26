@@ -39,6 +39,7 @@ oap:
 
 
 elasticsearch:
+  esJavaOpts: "-Djdk.platform.numa.support=true"
   esConfig:
     elasticsearch.yml: |
       cluster.routing.allocation.disk.threshold_enabled: false
