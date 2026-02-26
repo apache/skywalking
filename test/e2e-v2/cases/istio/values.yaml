@@ -39,12 +39,11 @@ oap:
 
 
 elasticsearch:
-  extraEnvs:
-    - name: JAVA_TOOL_OPTIONS
-      value: "-Djdk.platform.numa.support=true"
+  imageTag: "8.18.8"
   esConfig:
     elasticsearch.yml: |
       cluster.routing.allocation.disk.threshold_enabled: false
+      xpack.security.enabled: false
   volumeClaimTemplate:
     accessModes: [ "ReadWriteOnce" ]
     resources:
