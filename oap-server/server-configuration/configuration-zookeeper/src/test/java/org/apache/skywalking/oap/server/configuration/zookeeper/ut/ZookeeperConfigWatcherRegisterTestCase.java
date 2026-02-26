@@ -22,7 +22,6 @@ import com.google.common.collect.Sets;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.apache.skywalking.oap.server.configuration.zookeeper.ZookeeperConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.zookeeper.ZookeeperServerSettings;
 import org.junit.jupiter.api.Test;
 
