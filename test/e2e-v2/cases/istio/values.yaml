@@ -40,7 +40,7 @@ oap:
 
 elasticsearch:
   imageTag: "8.18.8"
-  roles: {}
+  roles: null
   esConfig:
     elasticsearch.yml: |
       cluster.routing.allocation.disk.threshold_enabled: false
