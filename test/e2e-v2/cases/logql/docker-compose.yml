@@ -70,7 +70,7 @@ services:
         condition: service_healthy
 
   es:
-    image: elastic/elasticsearch:7.10.2
+    image: elastic/elasticsearch:8.18.8
     ports:
       - 9200
     networks:

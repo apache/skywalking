@@ -45,14 +45,21 @@ setup:
         kubectl label namespace default istio-injection=enabled
     - name: Install helm
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh helm
+    - name: Install ECK operator
+      command: |
+        helm pull oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+          --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" --untar
+        helm dep up skywalking-helm
+        helm -n istio-system install eck-operator skywalking-helm/charts/eck-operator-*.tgz \
+          --create-namespace
+        kubectl -n istio-system rollout status --watch --timeout=120s statefulset/elastic-operator
     - name: Install SkyWalking
       command: |
         helm -n istio-system install skywalking \
           oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
           --set fullnameOverride=skywalking \
-          --set elasticsearch.replicas=1 \
-          --set elasticsearch.minimumMasterNodes=1 \
+          --set eckOperator.enabled=false \
           --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=$ALS_ANALYZER \
           --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=$ALS_ANALYZER \
           --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \

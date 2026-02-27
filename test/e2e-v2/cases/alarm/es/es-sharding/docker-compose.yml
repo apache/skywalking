@@ -17,13 +17,14 @@ version: '2.1'
 
 services:
   es:
-    image: elastic/elasticsearch:7.15.0
+    image: elastic/elasticsearch:8.18.8
     expose:
       - 9200
     networks:
       - e2e
     environment:
       - discovery.type=single-node
+      - xpack.security.enabled=false
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
       interval: 5s
