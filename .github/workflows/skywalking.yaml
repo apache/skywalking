@@ -376,21 +376,9 @@ jobs:
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
           - name: Storage PostgreSQL
             config: test/e2e-v2/cases/storage/postgres/e2e.yaml
-          - name: Storage ES 7.16.3
+          - name: Storage ES 8.18.8
             config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=7.16.3
-          - name: Storage ES 7.17.10
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=7.17.10
-          - name: Storage ES 8.1.0
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=8.1.0
-          - name: Storage ES 8.9.0
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=8.9.0
-          - name: Storage ES 8.9.0
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=8.18.1
+            env: ES_VERSION=8.18.8
           - name: Storage OpenSearch 1.3.10
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.3.10
@@ -424,15 +412,9 @@ jobs:
           - name: Baseline-driven Alarm BanyanDB
             config: test/e2e-v2/cases/baseline/banyandb/e2e.yaml
 
-          - name: TTL ES 7.16.3
+          - name: TTL ES 8.18.8
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
-            env: ES_VERSION=7.16.3
-          - name: TTL ES 8.8.1
-            config: test/e2e-v2/cases/ttl/es/e2e.yaml
-            env: ES_VERSION=8.8.1
-          - name: TTL ES 8.18.1
-            config: test/e2e-v2/cases/ttl/es/e2e.yaml
-            env: ES_VERSION=8.18.1
+            env: ES_VERSION=8.18.8
 
           - name: Event BanyanDB
             config: test/e2e-v2/cases/event/banyandb/e2e.yaml
@@ -445,33 +427,18 @@ jobs:
             config: test/e2e-v2/cases/log/mysql/e2e.yaml
           - name: Log PostgreSQL
             config: test/e2e-v2/cases/log/postgres/e2e.yaml
-          - name: Log ES 7.16.3
+          - name: Log ES 8.18.8
             config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=7.16.3
-          - name: Log ES 7.17.10
-            config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=7.17.10
-          - name: Log ES 8.8.1 Sharding
+            env: ES_VERSION=8.18.8
+          - name: Log ES 8.18.8 Sharding
             config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
-            env: ES_VERSION=8.8.1
-          - name: Log ES 8.18.1 Sharding
-            config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
-            env: ES_VERSION=8.18.1
+            env: ES_VERSION=8.18.8
           - name: Log BanyanDB
             config: test/e2e-v2/cases/log/banyandb/e2e.yaml
 
-          - name: Log FluentBit ES 7.16.3
+          - name: Log FluentBit ES 8.18.8
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=7.16.3
-          - name: Log FluentBit ES 7.17.10
-            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=7.17.10
-          - name: Log FluentBit ES 8.8.1
-            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=8.8.1
-          - name: Log FluentBit ES 8.18.1
-            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=8.18.1
+            env: ES_VERSION=8.18.8
 
           - name: Trace Profiling BanyanDB
             config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml

@@ -29,7 +29,7 @@ services:
       retries: 120
 
   es:
-    image: elastic/elasticsearch:7.15.0
+    image: elastic/elasticsearch:8.18.8
     expose:
       - 9200
     networks:

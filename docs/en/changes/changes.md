@@ -12,6 +12,7 @@
 * Add `CLAUDE.md` as AI assistant guide for the project.
 * Upgrade Groovy to 5.0.3 in OAP backend.
 * Bump up nodejs to v24.13.0 for the latest UI(booster-ui) compiling.
+* Drop Elasticsearch 7.x (EOL) from E2E tests, upgrade all ES tests to 8.18.8, and update skywalking-helm to use ECK 8.18.8.
 * Add `library-batch-queue` module — a partitioned, self-draining queue with type-based dispatch,
   adaptive partitioning, idle backoff, and throughput-weighted drain rebalancing (`DrainBalancer`).
   Designed to replace DataCarrier in high-fan-out scenarios.
