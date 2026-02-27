@@ -542,6 +542,51 @@ ztunnel:
 Dmdb-jdbc-driver:
   id: 163
   languages: Java
+spring-ai-unknown:
+  id: 164
+  languages: Java
+spring-ai-anthropic:
+  id: 165
+  languages: Java
+spring-ai-aws-bedrock:
+  id: 166
+  languages: Java
+spring-ai-azure-openai:
+  id: 167
+  languages: Java
+spring-ai-cohere:
+  id: 168
+  languages: Java
+spring-ai-deepseek:
+  id: 169
+  languages: Java
+spring-ai-gcp-genai:
+  id: 170
+  languages: Java
+spring-ai-gcp-vertex-ai:
+  id: 171
+  languages: Java
+spring-ai-mistral-ai:
+  id: 172
+  languages: Java
+spring-ai-openai:
+  id: 173
+  languages: Java
+spring-ai-huggingface:
+  id: 174
+  languages: Java
+spring-ai-minimax:
+  id: 175
+  languages: Java
+spring-ai-ollama:
+  id: 176
+  languages: Java
+spring-ai-zhipu-ai:
+  id: 177
+  languages: Java
+spring-ai:
+  id: 178
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -815,6 +860,12 @@ Sinatra:
   id: 12001
   languages: Ruby
 
+# genai components
+GenAI:
+  id: 13000
+  languages: Java
+
+
 # Component Server mapping defines the server display names of some components
 # e.g.
 # Jedis is a client library in Java for Redis server
@@ -873,3 +924,17 @@ Component-Server-Mappings:
   amqp-producer: amqp
   amqp-consumer: amqp
   GoRedis: Redis
+  spring-ai-unknown: GenAI
+  spring-ai-anthropic: GenAI
+  spring-ai-aws-bedrock: GenAI
+  spring-ai-azure-openai: GenAI
+  spring-ai-cohere: GenAI
+  spring-ai-deepseek: GenAI
+  spring-ai-gcp-genai: GenAI
+  spring-ai-gcp-vertex-ai: GenAI
+  spring-ai-mistral-ai: GenAI
+  spring-ai-openai: GenAI
+  spring-ai-huggingface: GenAI
+  spring-ai-minimax: GenAI
+  spring-ai-ollama: GenAI
+  spring-ai-zhipu-ai: GenAI

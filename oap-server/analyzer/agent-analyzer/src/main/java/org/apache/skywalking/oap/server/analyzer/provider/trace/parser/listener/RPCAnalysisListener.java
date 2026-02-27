@@ -242,6 +242,9 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             case MQ:
                 sourceBuilder.setType(RequestType.MQ);
                 break;
+            case GenAI:
+                sourceBuilder.setType(RequestType.GenAI);
+                break;
             default:
                 sourceBuilder.setType(RequestType.RPC);
                 break;
@@ -363,6 +366,8 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
                 return Layer.UNDEFINED;
             case FAAS:
                 return Layer.FAAS;
+            case GenAI:
+                return Layer.VIRTUAL_GENAI;
             default:
                 throw new UnexpectedException("Can't transfer to the Layer. SpanLayer=" + spanLayer);
         }
