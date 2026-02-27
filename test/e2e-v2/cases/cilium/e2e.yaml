@@ -47,14 +47,20 @@ setup:
         bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh cilium
         cilium install --wait
         cilium status --wait
+    - name: Install ECK operator
+      command: |
+        helm pull oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+          --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" --untar
+        helm -n kube-system install eck-operator skywalking-helm/charts/eck-operator-*.tgz \
+          --create-namespace
+        kubectl -n kube-system rollout status --watch --timeout=120s statefulset/elastic-operator
     - name: Install SkyWalking
       command: |
         helm -n kube-system install skywalking \
           oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
           --set fullnameOverride=skywalking \
-          --set elasticsearch.replicas=1 \
-          --set elasticsearch.minimumMasterNodes=1 \
+          --set eckOperator.enabled=false \
           --set oap.replicas=1 \
           --set ui.image.repository=skywalking/ui \
           --set ui.image.tag=latest \
