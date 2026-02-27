@@ -66,6 +66,8 @@
   | Schedulers + others                   | ~24                | ~24 | Mostly unchanged                            |
   | **Total (OAP threads)**               | **150+**           | **~72** | **~50% reduction, stable in high payload.** |
 
+* Replace PowerMock Whitebox with standard Java Reflection in `server-library`, `server-core`, and `server-configuration` to support JDK 25+.
+
 #### OAP Server
 
 * KubernetesCoordinator: make self instance return real pod IP address instead of `127.0.0.1`.

@@ -44,10 +44,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -99,7 +99,9 @@ public class ElasticSearchIT {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Field loadedProviderField = ModuleDefine.class.getDeclaredField("loadedProvider");
+        loadedProviderField.setAccessible(true);
+        loadedProviderField.set(telemetryModule, telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
     }
 
