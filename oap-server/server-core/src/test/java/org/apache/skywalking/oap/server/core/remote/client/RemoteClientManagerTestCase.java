@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
@@ -68,6 +69,8 @@ public class RemoteClientManagerTestCase {
 
         ModuleDefineTesting coreModuleDefine = new ModuleDefineTesting();
         moduleManager.put(CoreModule.NAME, coreModuleDefine);
+        ServerStatusService serverStatusService = mock(ServerStatusService.class);
+        coreModuleDefine.provider().registerServiceImplementation(ServerStatusService.class, serverStatusService);
 
         this.clusterNodesQuery = mock(ClusterNodesQuery.class);
         clusterModuleDefine.provider().registerServiceImplementation(ClusterNodesQuery.class, clusterNodesQuery);

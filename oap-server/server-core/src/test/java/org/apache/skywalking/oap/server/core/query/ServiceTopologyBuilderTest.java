@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +43,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
 
 import static org.mockito.Mockito.when;
 
@@ -73,11 +73,13 @@ public class ServiceTopologyBuilderTest {
 
     @SneakyThrows
     @Test
-    public void testServiceTopologyBuild() {
+    public void testServiceTopologyBuild() throws Exception {
         Service svrA = getSvrA();
         Service svrB = getSvrB();
         final ServiceTopologyBuilder serviceTopologyBuilder = new ServiceTopologyBuilder(moduleManager);
-        Whitebox.setInternalState(serviceTopologyBuilder, "metadataQueryService", metadataQueryService);
+        Field metadataQueryServiceField = ServiceTopologyBuilder.class.getDeclaredField("metadataQueryService");
+        metadataQueryServiceField.setAccessible(true);
+        metadataQueryServiceField.set(serviceTopologyBuilder, metadataQueryService);
         when(metadataQueryService.getService(svrA.getId())).thenReturn(svrA);
         when(metadataQueryService.getService(svrB.getId())).thenReturn(svrB);
         List<Call.CallDetail> serviceRelationClientCalls = new ArrayList<>();

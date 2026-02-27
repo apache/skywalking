@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.hierarchy;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.query.HierarchyQueryService;
@@ -27,7 +28,6 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceHierarchy;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
 
 import static org.mockito.Mockito.mock;
 
@@ -48,8 +48,11 @@ public class HierarchyQueryServiceTest {
 
     @Test
     public void testFilterConjecturableRelations() throws Exception {
-        ServiceHierarchy hierarchy = Whitebox.invokeMethod(
-            hierarchyQueryService, "filterConjecturableRelations", mockCache(), invokeBuildServiceRelation(), 10);
+        Method method = HierarchyQueryService.class.getDeclaredMethod("filterConjecturableRelations",
+                Map.class, ServiceHierarchy.class, int.class);
+        method.setAccessible(true);
+        ServiceHierarchy hierarchy = (ServiceHierarchy) method.invoke(hierarchyQueryService, mockCache(),
+                invokeBuildServiceRelation(), 10);
         Assertions.assertEquals(5, hierarchy.getRelations().size());
         Assertions.assertEquals(mockHierarchy(true), hierarchy);
     }
@@ -58,10 +61,12 @@ public class HierarchyQueryServiceTest {
         ServiceHierarchy hierarchy = new ServiceHierarchy();
         HierarchyRelatedService serviceA = new HierarchyRelatedService();
         serviceA.setId("A");
-        Whitebox.invokeMethod(
-            hierarchyQueryService, "buildServiceRelation", mockCache(), hierarchy, serviceA, 10,
-            HierarchyQueryService.HierarchyDirection.All
-        );
+        Method method = HierarchyQueryService.class.getDeclaredMethod("buildServiceRelation",
+                Map.class, ServiceHierarchy.class, HierarchyRelatedService.class, int.class,
+                HierarchyQueryService.HierarchyDirection.class);
+        method.setAccessible(true);
+        method.invoke(hierarchyQueryService, mockCache(), hierarchy, serviceA, 10,
+                HierarchyQueryService.HierarchyDirection.All);
         return hierarchy;
     }
 

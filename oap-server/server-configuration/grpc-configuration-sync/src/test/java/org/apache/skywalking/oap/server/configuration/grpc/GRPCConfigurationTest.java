@@ -31,9 +31,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.powermock.reflect.Whitebox;
 
-import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,7 +55,7 @@ public class GRPCConfigurationTest {
     private MutableHandlerRegistry serviceRegistry;
 
     @BeforeEach
-    public void before() throws IOException {
+    public void before() throws Exception {
         serviceRegistry = new MutableHandlerRegistry();
         final String name = UUID.randomUUID().toString();
         InProcessServerBuilder serverBuilder =
@@ -76,7 +75,9 @@ public class GRPCConfigurationTest {
         provider = new GRPCConfigurationProvider();
         register = new GRPCConfigWatcherRegister(settings);
         ConfigurationServiceGrpc.ConfigurationServiceBlockingStub blockingStub = ConfigurationServiceGrpc.newBlockingStub(channel);
-        Whitebox.setInternalState(register, "stub", blockingStub);
+        Field stubField = GRPCConfigWatcherRegister.class.getDeclaredField("stub");
+        stubField.setAccessible(true);
+        stubField.set(register, blockingStub);
         initWatcher();
         assertNotNull(provider);
     }

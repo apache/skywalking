@@ -25,8 +25,8 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -93,7 +93,7 @@ public class FetchingConfigWatcherRegisterTest {
     }
 
     @Test
-    public void testRegisterTableLog() {
+    public void testRegisterTableLog() throws Exception {
         register.registerConfigChangeWatcher(new ConfigChangeWatcher("MockModule", new MockProvider(), "prop2") {
             @Override
             public void notify(ConfigChangeEvent value) {
@@ -118,11 +118,22 @@ public class FetchingConfigWatcherRegisterTest {
         });
 
         register.configSync();
-        FetchingConfigWatcherRegister.Register registerTable = Whitebox.getInternalState(this.register, "singleConfigChangeWatcherRegister");
-        FetchingConfigWatcherRegister.Register groupRegisterTable = Whitebox.getInternalState(this.register, "groupConfigChangeWatcherRegister");
+        Field singleField = FetchingConfigWatcherRegister.class.getDeclaredField("singleConfigChangeWatcherRegister");
+        singleField.setAccessible(true);
+        FetchingConfigWatcherRegister.Register registerTable = (FetchingConfigWatcherRegister.Register) singleField.get(this.register);
+        Field groupField = FetchingConfigWatcherRegister.class.getDeclaredField("groupConfigChangeWatcherRegister");
+        groupField.setAccessible(true);
+        FetchingConfigWatcherRegister.Register groupRegisterTable = (FetchingConfigWatcherRegister.Register) groupField.get(this.register);
 
-        String expected = "Following dynamic config items are available." + FetchingConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + FetchingConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.prop2    module:MockModule    provider:provider    value(current):null" + FetchingConfigWatcherRegister.LINE_SEPARATOR;
-        String groupConfigExpected = "Following dynamic config items are available." + FetchingConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + FetchingConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.groupItems1    module:MockModule    provider:provider    groupItems(current):null" + FetchingConfigWatcherRegister.LINE_SEPARATOR;
+        String expected = "Following dynamic config items are available." + FetchingConfigWatcherRegister.LINE_SEPARATOR
+                + "---------------------------------------------" + FetchingConfigWatcherRegister.LINE_SEPARATOR
+                + "key:MockModule.provider.prop2    module:MockModule    provider:provider    value(current):null"
+                + FetchingConfigWatcherRegister.LINE_SEPARATOR;
+        String groupConfigExpected = "Following dynamic config items are available."
+                + FetchingConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------"
+                + FetchingConfigWatcherRegister.LINE_SEPARATOR
+                + "key:MockModule.provider.groupItems1    module:MockModule    provider:provider    groupItems(current):null"
+                + FetchingConfigWatcherRegister.LINE_SEPARATOR;
 
         assertEquals(expected, registerTable.toString());
         assertEquals(groupConfigExpected, groupRegisterTable.toString());

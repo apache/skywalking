@@ -30,8 +30,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,8 +46,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings({
-    "unchecked",
-    "OptionalGetWithoutIsPresent"
+        "unchecked",
+        "OptionalGetWithoutIsPresent"
 })
 public class ConsulConfigurationWatcherRegisterTest {
     @Mock
@@ -56,11 +56,15 @@ public class ConsulConfigurationWatcherRegisterTest {
     private ConcurrentHashMap<String, Optional<String>> configItemKeyedByName;
 
     @Test
-    public void shouldUpdateCachesWhenNotified() {
+    public void shouldUpdateCachesWhenNotified() throws Exception {
         cacheByKey = new ConcurrentHashMap<>();
         configItemKeyedByName = new ConcurrentHashMap<>();
-        Whitebox.setInternalState(register, "cachesByKey", cacheByKey);
-        Whitebox.setInternalState(register, "configItemKeyedByName", configItemKeyedByName);
+        Field cachesField = ConsulConfigurationWatcherRegister.class.getDeclaredField("cachesByKey");
+        cachesField.setAccessible(true);
+        cachesField.set(register, cacheByKey);
+        Field itemsField = ConsulConfigurationWatcherRegister.class.getDeclaredField("configItemKeyedByName");
+        itemsField.setAccessible(true);
+        itemsField.set(register, configItemKeyedByName);
 
         KVCache cache1 = mock(KVCache.class);
         KVCache cache2 = mock(KVCache.class);
@@ -105,14 +109,18 @@ public class ConsulConfigurationWatcherRegisterTest {
     }
 
     @Test
-    public void shouldUnsubscribeWhenKeyRemoved() {
+    public void shouldUnsubscribeWhenKeyRemoved() throws Exception {
         cacheByKey = new ConcurrentHashMap<>();
         KVCache existedCache = mock(KVCache.class);
         cacheByKey.put("existedKey", existedCache);
 
         configItemKeyedByName = new ConcurrentHashMap<>();
-        Whitebox.setInternalState(register, "cachesByKey", cacheByKey);
-        Whitebox.setInternalState(register, "configItemKeyedByName", configItemKeyedByName);
+        Field cachesField = ConsulConfigurationWatcherRegister.class.getDeclaredField("cachesByKey");
+        cachesField.setAccessible(true);
+        cachesField.set(register, cacheByKey);
+        Field itemsField = ConsulConfigurationWatcherRegister.class.getDeclaredField("configItemKeyedByName");
+        itemsField.setAccessible(true);
+        itemsField.set(register, configItemKeyedByName);
 
         KVCache cache1 = mock(KVCache.class);
         KVCache cache2 = mock(KVCache.class);
