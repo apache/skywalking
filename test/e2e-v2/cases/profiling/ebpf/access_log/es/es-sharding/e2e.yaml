@@ -45,6 +45,7 @@ setup:
         kubectl create namespace istio-system
         helm pull oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" --untar
+        helm dep up skywalking-helm
         helm -n istio-system install eck-operator skywalking-helm/charts/eck-operator-*.tgz
         kubectl -n istio-system rollout status --watch --timeout=120s statefulset/elastic-operator
     - name: Install SkyWalking

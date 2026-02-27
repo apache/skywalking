@@ -379,9 +379,6 @@ jobs:
           - name: Storage ES 8.18.8
             config: test/e2e-v2/cases/storage/es/e2e.yaml
             env: ES_VERSION=8.18.8
-          - name: Storage OpenSearch 1.3.10
-            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.10
           - name: Storage OpenSearch 2.4.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
@@ -450,16 +447,9 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
           - name: Trace Profiling Postgres
             config: test/e2e-v2/cases/profiling/trace/postgres/e2e.yaml
-          - name: Trace Profiling OpenSearch 1.1.0
-            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.1.0
-          - name: Trace Profiling OpenSearch 1.3.6
-            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
           - name: Trace Profiling OpenSearch 2.4.0
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
-
           - name: Go Trace Profiling
             config: test/e2e-v2/cases/profiling/trace/go/e2e.yaml
 
@@ -608,8 +598,6 @@ jobs:
             config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
           - name: Zipkin MySQL
             config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
-          - name: Zipkin Opensearch
-            config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
           - name: Zipkin Postgres
             config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
           - name: Zipkin Kafka
@@ -674,12 +662,6 @@ jobs:
             config: test/e2e-v2/cases/menu/mysql/e2e.yaml
           - name: UI Menu Postgres
             config: test/e2e-v2/cases/menu/postgres/e2e.yaml
-          - name: UI Menu OpenSearch 1.1.0
-            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.1.0
-          - name: UI Menu OpenSearch 1.3.6
-            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
           - name: UI Menu OpenSearch 2.4.0
             config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0

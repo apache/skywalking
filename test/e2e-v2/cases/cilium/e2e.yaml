@@ -51,6 +51,7 @@ setup:
       command: |
         helm pull oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" --untar
+        helm dep up skywalking-helm
         helm -n kube-system install eck-operator skywalking-helm/charts/eck-operator-*.tgz \
           --create-namespace
         kubectl -n kube-system rollout status --watch --timeout=120s statefulset/elastic-operator
