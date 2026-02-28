@@ -1089,7 +1089,7 @@ public class MalToJavaTranspiler {
 
     // ---- Utility ----
 
-    static String escapeJava(final String s) {
+    public static String escapeJava(final String s) {
         return s.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
                 .replace("\n", "\\n")

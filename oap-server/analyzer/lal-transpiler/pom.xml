@@ -19,39 +19,28 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>analyzer</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>analyzer</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>agent-analyzer</module>
-        <module>log-analyzer</module>
-        <module>meter-analyzer</module>
-        <module>event-analyzer</module>
-        <module>mal-transpiler</module>
-        <module>lal-transpiler</module>
-    </modules>
+    <artifactId>lal-transpiler</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-network</artifactId>
+            <artifactId>log-analyzer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-module</artifactId>
+            <artifactId>mal-transpiler</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-util</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy</artifactId>
         </dependency>
     </dependencies>
 </project>
