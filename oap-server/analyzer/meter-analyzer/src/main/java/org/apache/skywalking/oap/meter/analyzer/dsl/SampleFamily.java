@@ -60,6 +60,11 @@ import com.google.common.collect.Maps;
 import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Function3;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyFunctions.DecorateFunction;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyFunctions.ForEachFunction;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyFunctions.PropertiesExtractor;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyFunctions.SampleFilter;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyFunctions.TagFunction;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -400,12 +405,45 @@ public class SampleFamily {
         );
     }
 
+    @SuppressWarnings(value = "unchecked")
+    public SampleFamily tag(TagFunction fn) {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return SampleFamily.build(
+            this.context,
+            Arrays.stream(samples)
+                  .map(sample -> {
+                      Map<String, String> arg = Maps.newHashMap(sample.labels);
+                      Map<String, String> r = fn.apply(arg);
+                      return sample.toBuilder()
+                                   .labels(
+                                       ImmutableMap.copyOf(
+                                           Optional.ofNullable(r).orElse(arg)))
+                                   .build();
+                  }).toArray(Sample[]::new)
+        );
+    }
+
     public SampleFamily filter(Closure<Boolean> filter) {
         if (this == EMPTY) {
             return EMPTY;
         }
         final Sample[] filtered = Arrays.stream(samples)
                                         .filter(it -> filter.call(it.labels))
+                                        .toArray(Sample[]::new);
+        if (filtered.length == 0) {
+            return EMPTY;
+        }
+        return SampleFamily.build(context, filtered);
+    }
+
+    public SampleFamily filter(SampleFilter filter) {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        final Sample[] filtered = Arrays.stream(samples)
+                                        .filter(it -> filter.test(it.labels))
                                         .toArray(Sample[]::new);
         if (filtered.length == 0) {
             return EMPTY;
@@ -517,11 +555,29 @@ public class SampleFamily {
             return EMPTY;
         }
         return createMeterSamples(new InstanceEntityDescription(
+            serviceKeys, instanceKeys, layer, serviceDelimiter, instanceDelimiter,
+            propertiesExtractor == null ? null : propertiesExtractor::call));
+    }
+
+    public SampleFamily instance(List<String> serviceKeys, String serviceDelimiter,
+                                 List<String> instanceKeys, String instanceDelimiter,
+                                 Layer layer, PropertiesExtractor propertiesExtractor) {
+        Preconditions.checkArgument(serviceKeys.size() > 0);
+        Preconditions.checkArgument(instanceKeys.size() > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.SERVICE_INSTANCE;
+            ctx.scopeLabels.addAll(serviceKeys);
+            ctx.scopeLabels.addAll(instanceKeys);
+        });
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return createMeterSamples(new InstanceEntityDescription(
             serviceKeys, instanceKeys, layer, serviceDelimiter, instanceDelimiter, propertiesExtractor));
     }
 
     public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
-        return instance(serviceKeys, Const.POINT, instanceKeys, Const.POINT, layer, null);
+        return instance(serviceKeys, Const.POINT, instanceKeys, Const.POINT, layer, (Closure<Map<String, String>>) null);
     }
 
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, String delimiter, Layer layer) {
@@ -596,6 +652,19 @@ public class SampleFamily {
             Map<String, String> labels = Maps.newHashMap(sample.getLabels());
             for (String element : array) {
                 each.call(element, labels);
+            }
+            return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
+        }).toArray(Sample[]::new));
+    }
+
+    public SampleFamily forEach(List<String> array, ForEachFunction each) {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return SampleFamily.build(this.context, Arrays.stream(this.samples).map(sample -> {
+            Map<String, String> labels = Maps.newHashMap(sample.getLabels());
+            for (String element : array) {
+                each.accept(element, labels);
             }
             return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
         }).toArray(Sample[]::new));
@@ -717,6 +786,26 @@ public class SampleFamily {
         return this;
     }
 
+    public SampleFamily decorate(DecorateFunction c) {
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            if (ctx.getScopeType() != ScopeType.SERVICE) {
+                throw new IllegalStateException("decorate() should be invoked after service()");
+            }
+            if (ctx.isHistogram()) {
+                throw new IllegalStateException("decorate() not supported for histogram metrics");
+            }
+        });
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        this.context.getMeterSamples().keySet().forEach(meterEntity -> {
+            if (meterEntity.getScopeType().equals(ScopeType.SERVICE)) {
+                c.accept(meterEntity);
+            }
+        });
+        return this;
+    }
+
     /**
      * The parsing context holds key results more than sample collection.
      */
@@ -777,7 +866,7 @@ public class SampleFamily {
                     InstanceEntityDescription instanceEntityDescription = (InstanceEntityDescription) entityDescription;
                     Map<String, String> properties = null;
                     if (instanceEntityDescription.getPropertiesExtractor() != null) {
-                        properties = instanceEntityDescription.getPropertiesExtractor().call(samples.get(0).labels);
+                        properties = instanceEntityDescription.getPropertiesExtractor().apply(samples.get(0).labels);
                     }
                     return MeterEntity.newServiceInstance(
                         InternalOps.dim(samples, instanceEntityDescription.getServiceKeys(), instanceEntityDescription.getServiceDelimiter()),

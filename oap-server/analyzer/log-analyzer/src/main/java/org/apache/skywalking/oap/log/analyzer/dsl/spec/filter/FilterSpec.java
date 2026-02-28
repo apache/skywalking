@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
@@ -188,5 +189,170 @@ public class FilterSpec extends AbstractSpec {
     @SuppressWarnings("unused")
     public void filter(final Closure<?> cl) {
         cl.call();
+    }
+
+    public void text(final Consumer<TextParserSpec> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        consumer.accept(textParser);
+    }
+
+    public void text() {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+    }
+
+    public void json(final Consumer<JsonParserSpec> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        consumer.accept(jsonParser);
+
+        final LogData.Builder logData = BINDING.get().log();
+        try {
+            final Map<String, Object> parsed = jsonParser.create().readValue(
+                logData.getBody().getJson().getJson(), parsedType
+            );
+            BINDING.get().parsed(parsed);
+        } catch (final Exception e) {
+            if (jsonParser.abortOnFailure()) {
+                BINDING.get().abort();
+            }
+        }
+    }
+
+    public void json() {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+
+        final LogData.Builder logData = BINDING.get().log();
+        try {
+            final Map<String, Object> parsed = jsonParser.create().readValue(
+                logData.getBody().getJson().getJson(), parsedType
+            );
+            BINDING.get().parsed(parsed);
+        } catch (final Exception e) {
+            if (jsonParser.abortOnFailure()) {
+                BINDING.get().abort();
+            }
+        }
+    }
+
+    public void yaml(final Consumer<YamlParserSpec> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        consumer.accept(yamlParser);
+
+        final LogData.Builder logData = BINDING.get().log();
+        try {
+            final Map<String, Object> parsed = yamlParser.create().load(
+                logData.getBody().getYaml().getYaml()
+            );
+            BINDING.get().parsed(parsed);
+        } catch (final Exception e) {
+            if (yamlParser.abortOnFailure()) {
+                BINDING.get().abort();
+            }
+        }
+    }
+
+    public void yaml() {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+
+        final LogData.Builder logData = BINDING.get().log();
+        try {
+            final Map<String, Object> parsed = yamlParser.create().load(
+                logData.getBody().getYaml().getYaml()
+            );
+            BINDING.get().parsed(parsed);
+        } catch (final Exception e) {
+            if (yamlParser.abortOnFailure()) {
+                BINDING.get().abort();
+            }
+        }
+    }
+
+    public void extractor(final Consumer<ExtractorSpec> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        consumer.accept(extractor);
+    }
+
+    public void sink(final Consumer<SinkSpec> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        consumer.accept(sink);
+
+        final Binding b = BINDING.get();
+        final LogData.Builder logData = b.log();
+        final Message extraLog = b.extraLog();
+
+        if (!b.shouldSave()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Log is dropped: {}", TextFormat.shortDebugString(logData));
+            }
+            return;
+        }
+
+        final Optional<AtomicReference<Log>> container = BINDING.get().logContainer();
+        if (container.isPresent()) {
+            sinkListenerFactories.stream()
+                     .map(LogSinkListenerFactory::create)
+                     .filter(it -> it instanceof RecordSinkListener)
+                     .map(it -> it.parse(logData, extraLog))
+                     .map(it -> (RecordSinkListener) it)
+                     .map(RecordSinkListener::getLog)
+                     .findFirst()
+                     .ifPresent(log -> container.get().set(log));
+        } else {
+            sinkListenerFactories.stream()
+                     .map(LogSinkListenerFactory::create)
+                     .forEach(it -> it.parse(logData, extraLog).build());
+        }
+    }
+
+    public void sink() {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+
+        final Binding b = BINDING.get();
+        final LogData.Builder logData = b.log();
+        final Message extraLog = b.extraLog();
+
+        if (!b.shouldSave()) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Log is dropped: {}", TextFormat.shortDebugString(logData));
+            }
+            return;
+        }
+
+        final Optional<AtomicReference<Log>> container = BINDING.get().logContainer();
+        if (container.isPresent()) {
+            sinkListenerFactories.stream()
+                     .map(LogSinkListenerFactory::create)
+                     .filter(it -> it instanceof RecordSinkListener)
+                     .map(it -> it.parse(logData, extraLog))
+                     .map(it -> (RecordSinkListener) it)
+                     .map(RecordSinkListener::getLog)
+                     .findFirst()
+                     .ifPresent(log -> container.get().set(log));
+        } else {
+            sinkListenerFactories.stream()
+                     .map(LogSinkListenerFactory::create)
+                     .forEach(it -> it.parse(logData, extraLog).build());
+        }
+    }
+
+    public void abort() {
+        BINDING.get().abort();
     }
 }

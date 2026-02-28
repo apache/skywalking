@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
@@ -325,6 +326,93 @@ public class ExtractorSpec extends AbstractSpec {
 
         cl.setDelegate(sampledTrace);
         cl.call();
+
+        builder.validate();
+        final Record record = builder.toRecord();
+        final ISource entity = builder.toEntity();
+        RecordStreamProcessor.getInstance().in(record);
+        sourceReceiver.receive(entity);
+    }
+
+    public void metrics(final Consumer<SampleBuilder> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        final SampleBuilder builder = new SampleBuilder();
+        consumer.accept(builder);
+
+        final Sample sample = builder.build();
+        final SampleFamily sampleFamily = SampleFamilyBuilder.newBuilder(sample).build();
+
+        final Optional<List<SampleFamily>> possibleMetricsContainer = BINDING.get().metricsContainer();
+
+        if (possibleMetricsContainer.isPresent()) {
+            possibleMetricsContainer.get().add(sampleFamily);
+        } else {
+            metricConverts.forEach(it -> it.toMeter(
+                ImmutableMap.<String, SampleFamily>builder()
+                            .put(sample.getName(), sampleFamily)
+                            .build()
+            ));
+        }
+    }
+
+    public void slowSql(final Consumer<SlowSqlSpec> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        LogData.Builder log = BINDING.get().log();
+        if (log.getLayer() == null
+            || log.getService() == null
+            || log.getTimestamp() < 1) {
+            LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
+            return;
+        }
+        DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
+        builder.setLayer(Layer.nameOf(log.getLayer()));
+
+        builder.setServiceName(log.getService());
+
+        BINDING.get().databaseSlowStatement(builder);
+
+        consumer.accept(slowSql);
+
+        if (builder.getId() == null
+            || builder.getLatency() < 1
+            || builder.getStatement() == null) {
+            LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
+            return;
+        }
+
+        long timeBucketForDB = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Second);
+        builder.setTimeBucket(timeBucketForDB);
+        builder.setTimestamp(log.getTimestamp());
+
+        builder.prepare();
+        sourceReceiver.receive(builder.toDatabaseSlowStatement());
+
+        ServiceMeta serviceMeta = new ServiceMeta();
+        serviceMeta.setName(builder.getServiceName());
+        serviceMeta.setLayer(builder.getLayer());
+        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
+        serviceMeta.setTimeBucket(timeBucket);
+        sourceReceiver.receive(serviceMeta);
+    }
+
+    public void sampledTrace(final Consumer<SampledTraceSpec> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        LogData.Builder log = BINDING.get().log();
+        SampledTraceBuilder builder = new SampledTraceBuilder(namingControl);
+        builder.setLayer(log.getLayer());
+        builder.setTimestamp(log.getTimestamp());
+        builder.setServiceName(log.getService());
+        builder.setServiceInstanceName(log.getServiceInstance());
+        builder.setTraceId(log.getTraceContext().getTraceId());
+        BINDING.get().sampledTrace(builder);
+
+        consumer.accept(sampledTrace);
 
         builder.validate();
         final Record record = builder.toRecord();

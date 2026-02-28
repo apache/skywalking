@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.log.analyzer.dsl.spec.sink;
 
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
+import java.util.function.Consumer;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -44,6 +45,13 @@ public class SinkSpec extends AbstractSpec {
         cl.call();
     }
 
+    public void sampler(final Consumer<SamplerSpec> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        consumer.accept(sampler);
+    }
+
     @SuppressWarnings("unused")
     public void enforcer(final Closure<?> cl) {
         if (BINDING.get().shouldAbort()) {
@@ -52,8 +60,22 @@ public class SinkSpec extends AbstractSpec {
         BINDING.get().save();
     }
 
+    public void enforcer() {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        BINDING.get().save();
+    }
+
     @SuppressWarnings("unused")
     public void dropper(final Closure<?> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+        BINDING.get().drop();
+    }
+
+    public void dropper() {
         if (BINDING.get().shouldAbort()) {
             return;
         }
