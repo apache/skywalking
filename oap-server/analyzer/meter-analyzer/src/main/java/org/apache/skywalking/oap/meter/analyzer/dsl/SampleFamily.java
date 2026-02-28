@@ -57,7 +57,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Function3;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyFunctions.DecorateFunction;
@@ -223,7 +222,6 @@ public class SampleFamily {
     }
 
     public SampleFamily avg(List<String> by) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -249,7 +247,6 @@ public class SampleFamily {
     }
 
     public SampleFamily count(List<String> by) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -302,7 +299,6 @@ public class SampleFamily {
     }
 
     protected SampleFamily aggregate(List<String> by, DoubleBinaryOperator aggregator) {
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -383,29 +379,6 @@ public class SampleFamily {
     }
 
     @SuppressWarnings(value = "unchecked")
-    public SampleFamily tag(Closure<?> cl) {
-        if (this == EMPTY) {
-            return EMPTY;
-        }
-        return SampleFamily.build(
-            this.context,
-            Arrays.stream(samples)
-                  .map(sample -> {
-                      Object delegate = new Object();
-                      Closure<?> c = cl.rehydrate(delegate, sample, delegate);
-                      Map<String, String> arg = Maps.newHashMap(sample.labels);
-                      Object r = c.call(arg);
-                      return sample.toBuilder()
-                                   .labels(
-                                       ImmutableMap.copyOf(
-                                           Optional.ofNullable((r instanceof Map) ? (Map<String, String>) r : null)
-                                                   .orElse(arg)))
-                                   .build();
-                  }).toArray(Sample[]::new)
-        );
-    }
-
-    @SuppressWarnings(value = "unchecked")
     public SampleFamily tag(TagFunction fn) {
         if (this == EMPTY) {
             return EMPTY;
@@ -423,19 +396,6 @@ public class SampleFamily {
                                    .build();
                   }).toArray(Sample[]::new)
         );
-    }
-
-    public SampleFamily filter(Closure<Boolean> filter) {
-        if (this == EMPTY) {
-            return EMPTY;
-        }
-        final Sample[] filtered = Arrays.stream(samples)
-                                        .filter(it -> filter.call(it.labels))
-                                        .toArray(Sample[]::new);
-        if (filtered.length == 0) {
-            return EMPTY;
-        }
-        return SampleFamily.build(context, filtered);
     }
 
     public SampleFamily filter(SampleFilter filter) {
@@ -478,7 +438,6 @@ public class SampleFamily {
     public SampleFamily histogram(String le, TimeUnit unit) {
         long scale = unit.toMillis(1);
         Preconditions.checkArgument(scale > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.isHistogram = true);
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -508,21 +467,11 @@ public class SampleFamily {
 
     public SampleFamily histogram_percentile(List<Integer> percentiles) {
         Preconditions.checkArgument(percentiles.size() > 0);
-        int[] p = percentiles.stream().mapToInt(i -> i).toArray();
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            Preconditions.checkState(
-                ctx.isHistogram, "histogram() should be invoked before invoking histogram_percentile()");
-            ctx.percentiles = p;
-        });
         return this;
     }
 
     public SampleFamily service(List<String> labelKeys, Layer layer) {
         Preconditions.checkArgument(labelKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.SERVICE;
-            ctx.scopeLabels.addAll(labelKeys);
-        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -531,10 +480,6 @@ public class SampleFamily {
 
     public SampleFamily service(List<String> labelKeys, String delimiter, Layer layer) {
         Preconditions.checkArgument(labelKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.SERVICE;
-            ctx.scopeLabels.addAll(labelKeys);
-        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -543,32 +488,9 @@ public class SampleFamily {
 
     public SampleFamily instance(List<String> serviceKeys, String serviceDelimiter,
                                  List<String> instanceKeys, String instanceDelimiter,
-                                 Layer layer, Closure<Map<String, String>> propertiesExtractor) {
-        Preconditions.checkArgument(serviceKeys.size() > 0);
-        Preconditions.checkArgument(instanceKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.SERVICE_INSTANCE;
-            ctx.scopeLabels.addAll(serviceKeys);
-            ctx.scopeLabels.addAll(instanceKeys);
-        });
-        if (this == EMPTY) {
-            return EMPTY;
-        }
-        return createMeterSamples(new InstanceEntityDescription(
-            serviceKeys, instanceKeys, layer, serviceDelimiter, instanceDelimiter,
-            propertiesExtractor == null ? null : propertiesExtractor::call));
-    }
-
-    public SampleFamily instance(List<String> serviceKeys, String serviceDelimiter,
-                                 List<String> instanceKeys, String instanceDelimiter,
                                  Layer layer, PropertiesExtractor propertiesExtractor) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(instanceKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.SERVICE_INSTANCE;
-            ctx.scopeLabels.addAll(serviceKeys);
-            ctx.scopeLabels.addAll(instanceKeys);
-        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -577,17 +499,12 @@ public class SampleFamily {
     }
 
     public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
-        return instance(serviceKeys, Const.POINT, instanceKeys, Const.POINT, layer, (Closure<Map<String, String>>) null);
+        return instance(serviceKeys, Const.POINT, instanceKeys, Const.POINT, layer, (PropertiesExtractor) null);
     }
 
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, String delimiter, Layer layer) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(endpointKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.ENDPOINT;
-            ctx.scopeLabels.addAll(serviceKeys);
-            ctx.scopeLabels.addAll(endpointKeys);
-        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -602,13 +519,6 @@ public class SampleFamily {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(serviceInstanceKeys.size() > 0);
         Preconditions.checkArgument(processKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.PROCESS;
-            ctx.scopeLabels.addAll(serviceKeys);
-            ctx.scopeLabels.addAll(serviceInstanceKeys);
-            ctx.scopeLabels.addAll(processKeys);
-            ctx.scopeLabels.add(layerKey);
-        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -618,11 +528,6 @@ public class SampleFamily {
     public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys, Layer layer) {
         Preconditions.checkArgument(sourceServiceKeys.size() > 0);
         Preconditions.checkArgument(destServiceKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.SERVICE_RELATION;
-            ctx.scopeLabels.addAll(sourceServiceKeys);
-            ctx.scopeLabels.addAll(destServiceKeys);
-        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -632,29 +537,10 @@ public class SampleFamily {
     public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys, String delimiter, Layer layer, String componentIdKey) {
         Preconditions.checkArgument(sourceServiceKeys.size() > 0);
         Preconditions.checkArgument(destServiceKeys.size() > 0);
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.SERVICE_RELATION;
-            ctx.scopeLabels.addAll(sourceServiceKeys);
-            ctx.scopeLabels.addAll(destServiceKeys);
-            ctx.scopeLabels.add(componentIdKey);
-        });
         if (this == EMPTY) {
             return EMPTY;
         }
         return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer, delimiter, componentIdKey));
-    }
-
-    public SampleFamily forEach(List<String> array, Closure<Void> each) {
-        if (this == EMPTY) {
-            return EMPTY;
-        }
-        return SampleFamily.build(this.context, Arrays.stream(this.samples).map(sample -> {
-            Map<String, String> labels = Maps.newHashMap(sample.getLabels());
-            for (String element : array) {
-                each.call(element, labels);
-            }
-            return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
-        }).toArray(Sample[]::new));
     }
 
     public SampleFamily forEach(List<String> array, ForEachFunction each) {
@@ -675,15 +561,6 @@ public class SampleFamily {
         Preconditions.checkArgument(instanceKeys.size() > 0);
         Preconditions.checkArgument(StringUtil.isNotEmpty(sourceProcessIdKey));
         Preconditions.checkArgument(StringUtil.isNotEmpty(destProcessIdKey));
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            ctx.scopeType = ScopeType.PROCESS_RELATION;
-            ctx.scopeLabels.addAll(serviceKeys);
-            ctx.scopeLabels.addAll(instanceKeys);
-            ctx.scopeLabels.add(detectPointKey);
-            ctx.scopeLabels.add(sourceProcessIdKey);
-            ctx.scopeLabels.add(destProcessIdKey);
-            ctx.scopeLabels.add(componentKey);
-        });
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -758,43 +635,10 @@ public class SampleFamily {
     }
 
     public SampleFamily downsampling(final DownsamplingType type) {
-        ExpressionParsingContext.get().ifPresent(it -> it.downsampling = type);
-        return this;
-    }
-
-    /**
-     * Decorate the service meter entity with the given closure.
-     */
-    public SampleFamily decorate(Closure<Void> c) {
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            if (ctx.getScopeType() != ScopeType.SERVICE) {
-                throw new IllegalStateException("decorate() should be invoked after service()");
-            }
-            if (ctx.isHistogram()) {
-                throw new IllegalStateException("decorate() not supported for histogram metrics");
-            }
-        });
-        if (this == EMPTY) {
-            return EMPTY;
-        }
-        this.context.getMeterSamples().keySet().forEach(meterEntity -> {
-            // Only service meter entity can be decorated
-            if (meterEntity.getScopeType().equals(ScopeType.SERVICE)) {
-                c.call(meterEntity);
-            }
-        });
         return this;
     }
 
     public SampleFamily decorate(DecorateFunction c) {
-        ExpressionParsingContext.get().ifPresent(ctx -> {
-            if (ctx.getScopeType() != ScopeType.SERVICE) {
-                throw new IllegalStateException("decorate() should be invoked after service()");
-            }
-            if (ctx.isHistogram()) {
-                throw new IllegalStateException("decorate() not supported for histogram metrics");
-            }
-        });
         if (this == EMPTY) {
             return EMPTY;
         }

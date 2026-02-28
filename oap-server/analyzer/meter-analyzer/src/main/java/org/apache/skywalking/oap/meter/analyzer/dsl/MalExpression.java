@@ -22,9 +22,14 @@ import java.util.Map;
 
 /**
  * Pure Java replacement for Groovy-based MAL DelegatingScript.
- * Each transpiled MAL expression implements this interface.
+ * Each compiled MAL expression implements this interface.
  */
-@FunctionalInterface
 public interface MalExpression {
     SampleFamily run(Map<String, SampleFamily> samples);
+
+    /**
+     * Returns compile-time metadata extracted from the expression AST:
+     * sample names, scope type, aggregation labels, downsampling, etc.
+     */
+    ExpressionMetadata metadata();
 }

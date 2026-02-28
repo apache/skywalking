@@ -83,6 +83,7 @@
             <modules>
                 <module>oap-server</module>
                 <module>oap-server-bom</module>
+                <module>test/script-compiler</module>
             </modules>
         </profile>
         <profile>

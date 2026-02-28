@@ -13,15 +13,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.log.analyzer.dsl;
 
+import com.google.protobuf.Descriptors;
 import com.google.protobuf.Message;
-import groovy.lang.Closure;
-import groovy.lang.GroovyObjectSupport;
-import groovy.lang.MissingPropertyException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,33 +29,36 @@ import lombok.Getter;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
-
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.server.core.source.Log;
 
 /**
- * The binding bridge between OAP and the DSL, which provides some convenient methods to ease the use of the raw {@link groovy.lang.Binding#setProperty(java.lang.String, java.lang.Object)} and {@link
- * groovy.lang.Binding#getProperty(java.lang.String)}.
+ * Same-FQCN replacement for upstream Binding.
+ * Pure Java implementation that does not extend groovy.lang.Binding.
+ * Uses a simple HashMap for property storage instead of Groovy's binding mechanism.
  */
-public class Binding extends groovy.lang.Binding {
+public class Binding {
     public static final String KEY_LOG = "log";
-
     public static final String KEY_PARSED = "parsed";
-
     public static final String KEY_SAVE = "save";
-
     public static final String KEY_ABORT = "abort";
-
     public static final String KEY_METRICS_CONTAINER = "metrics_container";
-
     public static final String KEY_LOG_CONTAINER = "log_container";
-
     public static final String KEY_DATABASE_SLOW_STATEMENT = "database_slow_statement";
-
     public static final String KEY_SAMPLED_TRACE = "sampled_trace";
+
+    private final Map<String, Object> properties = new HashMap<>();
 
     public Binding() {
         setProperty(KEY_PARSED, new Parsed());
+    }
+
+    public void setProperty(final String name, final Object value) {
+        properties.put(name, value);
+    }
+
+    public Object getProperty(final String name) {
+        return properties.get(name);
     }
 
     public Binding log(final LogData.Builder log) {
@@ -105,7 +106,7 @@ public class Binding extends groovy.lang.Binding {
         return (DatabaseSlowStatementBuilder) getProperty(KEY_DATABASE_SLOW_STATEMENT);
     }
 
-    public Binding databaseSlowStatement(DatabaseSlowStatementBuilder databaseSlowStatementBuilder) {
+    public Binding databaseSlowStatement(final DatabaseSlowStatementBuilder databaseSlowStatementBuilder) {
         setProperty(KEY_DATABASE_SLOW_STATEMENT, databaseSlowStatementBuilder);
         return this;
     }
@@ -114,7 +115,7 @@ public class Binding extends groovy.lang.Binding {
         return (SampledTraceBuilder) getProperty(KEY_SAMPLED_TRACE);
     }
 
-    public Binding sampledTrace(SampledTraceBuilder sampledTraceBuilder) {
+    public Binding sampledTrace(final SampledTraceBuilder sampledTraceBuilder) {
         setProperty(KEY_SAMPLED_TRACE, sampledTraceBuilder);
         return this;
     }
@@ -142,41 +143,27 @@ public class Binding extends groovy.lang.Binding {
         return (boolean) getProperty(KEY_ABORT);
     }
 
-    /**
-     * Set the metrics container to store all metrics generated from the pipeline,
-     * if no container is set, all generated metrics will be sent to MAL engine for further processing,
-     * if metrics container is set, all metrics are only stored in the container, and won't be sent to MAL.
-     *
-     * @param container the metrics container
-     */
-    public Binding metricsContainer(List<SampleFamily> container) {
+    public Binding metricsContainer(final List<SampleFamily> container) {
         setProperty(KEY_METRICS_CONTAINER, container);
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public Optional<List<SampleFamily>> metricsContainer() {
-        // noinspection unchecked
         return Optional.ofNullable((List<SampleFamily>) getProperty(KEY_METRICS_CONTAINER));
     }
 
-    /**
-     * Set the log container to store the final log if it should be persisted in storage,
-     * if no container is set, the final log will be sent to source receiver,
-     * if log container is set, the log is only stored in the container, and won't be sent to source receiver.
-     *
-     * @param container the log container
-     */
-    public Binding logContainer(AtomicReference<Log> container) {
+    public Binding logContainer(final AtomicReference<Log> container) {
         setProperty(KEY_LOG_CONTAINER, container);
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public Optional<AtomicReference<Log>> logContainer() {
-        // noinspection unchecked
         return Optional.ofNullable((AtomicReference<Log>) getProperty(KEY_LOG_CONTAINER));
     }
 
-    public static class Parsed extends GroovyObjectSupport {
+    public static class Parsed {
         @Getter
         private Matcher matcher;
 
@@ -206,17 +193,20 @@ public class Binding extends groovy.lang.Binding {
             return null;
         }
 
-        @SuppressWarnings("unused")
-        public Object propertyMissing(final String name) {
-            return getAt(name);
-        }
-
-        static Object getField(Object obj, String name) {
-            try {
-                Closure<?> c = new Closure<Object>(obj, obj) {
-                };
-                return c.getProperty(name);
-            } catch (MissingPropertyException ignored) {
+        static Object getField(final Object obj, final String name) {
+            if (obj instanceof Message) {
+                final Descriptors.FieldDescriptor fd =
+                    ((Message) obj).getDescriptorForType().findFieldByName(name);
+                if (fd != null) {
+                    return ((Message) obj).getField(fd);
+                }
+            }
+            if (obj instanceof Message.Builder) {
+                final Descriptors.FieldDescriptor fd =
+                    ((Message.Builder) obj).getDescriptorForType().findFieldByName(name);
+                if (fd != null) {
+                    return ((Message.Builder) obj).getField(fd);
+                }
             }
             return null;
         }

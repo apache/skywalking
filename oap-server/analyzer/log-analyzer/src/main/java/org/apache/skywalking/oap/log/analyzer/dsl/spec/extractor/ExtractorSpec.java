@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -239,99 +237,6 @@ public class ExtractorSpec extends AbstractSpec {
             final LogData.Builder logData = BINDING.get().log();
             logData.setLayer(layer);
         }
-    }
-
-    @SuppressWarnings("unused")
-    public void metrics(@DelegatesTo(SampleBuilder.class) final Closure<?> cl) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        final SampleBuilder builder = new SampleBuilder();
-        cl.setDelegate(builder);
-        cl.call();
-
-        final Sample sample = builder.build();
-        final SampleFamily sampleFamily = SampleFamilyBuilder.newBuilder(sample).build();
-
-        final Optional<List<SampleFamily>> possibleMetricsContainer = BINDING.get().metricsContainer();
-
-        if (possibleMetricsContainer.isPresent()) {
-            possibleMetricsContainer.get().add(sampleFamily);
-        } else {
-            metricConverts.forEach(it -> it.toMeter(
-                ImmutableMap.<String, SampleFamily>builder()
-                            .put(sample.getName(), sampleFamily)
-                            .build()
-            ));
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void slowSql(@DelegatesTo(SlowSqlSpec.class) final Closure<?> cl) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        LogData.Builder log = BINDING.get().log();
-        if (log.getLayer() == null
-            || log.getService() == null
-            || log.getTimestamp() < 1) {
-            LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
-            return;
-        }
-        DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
-        builder.setLayer(Layer.nameOf(log.getLayer()));
-
-        builder.setServiceName(log.getService());
-
-        BINDING.get().databaseSlowStatement(builder);
-
-        cl.setDelegate(slowSql);
-        cl.call();
-
-        if (builder.getId() == null
-            || builder.getLatency() < 1
-            || builder.getStatement() == null) {
-            LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
-            return;
-        }
-
-        long timeBucketForDB = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Second);
-        builder.setTimeBucket(timeBucketForDB);
-        builder.setTimestamp(log.getTimestamp());
-
-        builder.prepare();
-        sourceReceiver.receive(builder.toDatabaseSlowStatement());
-
-        ServiceMeta serviceMeta = new ServiceMeta();
-        serviceMeta.setName(builder.getServiceName());
-        serviceMeta.setLayer(builder.getLayer());
-        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
-        serviceMeta.setTimeBucket(timeBucket);
-        sourceReceiver.receive(serviceMeta);
-    }
-
-    @SuppressWarnings("unused")
-    public void sampledTrace(@DelegatesTo(SampledTraceSpec.class) final Closure<?> cl) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        LogData.Builder log = BINDING.get().log();
-        SampledTraceBuilder builder = new SampledTraceBuilder(namingControl);
-        builder.setLayer(log.getLayer());
-        builder.setTimestamp(log.getTimestamp());
-        builder.setServiceName(log.getService());
-        builder.setServiceInstanceName(log.getServiceInstance());
-        builder.setTraceId(log.getTraceContext().getTraceId());
-        BINDING.get().sampledTrace(builder);
-
-        cl.setDelegate(sampledTrace);
-        cl.call();
-
-        builder.validate();
-        final Record record = builder.toRecord();
-        final ISource entity = builder.toEntity();
-        RecordStreamProcessor.getInstance().in(record);
-        sourceReceiver.receive(entity);
     }
 
     public void metrics(final Consumer<SampleBuilder> consumer) {

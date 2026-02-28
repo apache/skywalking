@@ -13,36 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import com.google.common.collect.ImmutableList;
-import groovy.lang.Binding;
-import groovy.lang.GString;
-import groovy.lang.GroovyShell;
-import groovy.util.DelegatingScript;
-import java.lang.reflect.Array;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.skywalking.oap.meter.analyzer.dsl.registry.ProcessRegistry;
-import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.codehaus.groovy.ast.stmt.DoWhileStatement;
-import org.codehaus.groovy.ast.stmt.ForStatement;
-import org.codehaus.groovy.ast.stmt.Statement;
-import org.codehaus.groovy.ast.stmt.WhileStatement;
-import org.codehaus.groovy.control.CompilerConfiguration;
-import org.codehaus.groovy.control.customizers.ImportCustomizer;
-import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.meter.analyzer.compiler.MALClassGenerator;
 
 /**
- * DSL combines methods to parse groovy based DSL expression.
+ * DSL compiles MAL expression strings into {@link Expression} objects
+ * using ANTLR4 parsing and Javassist bytecode generation.
  */
+@Slf4j
 public final class DSL {
+
+    private static final MALClassGenerator GENERATOR = new MALClassGenerator();
 
     /**
      * Parse string literal to Expression object, which can be reused.
@@ -52,40 +37,13 @@ public final class DSL {
      * @return Expression object could be executed.
      */
     public static Expression parse(final String metricName, final String expression) {
-        CompilerConfiguration cc = new CompilerConfiguration();
-        cc.setScriptBaseClass(DelegatingScript.class.getName());
-        ImportCustomizer icz = new ImportCustomizer();
-        icz.addImport("K8sRetagType", K8sRetagType.class.getName());
-        icz.addImport("DetectPoint", DetectPoint.class.getName());
-        icz.addImport("Layer", Layer.class.getName());
-        icz.addImport("ProcessRegistry", ProcessRegistry.class.getName());
-        cc.addCompilationCustomizers(icz);
-
-        final SecureASTCustomizer secureASTCustomizer = new SecureASTCustomizer();
-        secureASTCustomizer.setDisallowedStatements(
-            ImmutableList.<Class<? extends Statement>>builder()
-                         .add(WhileStatement.class)
-                         .add(DoWhileStatement.class)
-                         .add(ForStatement.class)
-                         .build());
-        // noinspection rawtypes
-        secureASTCustomizer.setAllowedReceiversClasses(
-            ImmutableList.<Class>builder()
-                         .add(Object.class)
-                         .add(Map.class)
-                         .add(List.class)
-                         .add(Array.class)
-                         .add(K8sRetagType.class)
-                         .add(DetectPoint.class)
-                         .add(Layer.class)
-                         .add(ProcessRegistry.class)
-                         .add(GString.class)
-                         .add(String.class)
-                .build());
-        cc.addCompilationCustomizers(secureASTCustomizer);
-
-        GroovyShell sh = new GroovyShell(new Binding(), cc);
-        DelegatingScript script = (DelegatingScript) sh.parse(expression);
-        return new Expression(metricName, expression, script);
+        try {
+            final MalExpression malExpr = GENERATOR.compile(metricName, expression);
+            return new Expression(metricName, expression, malExpr);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                "Failed to compile MAL expression for metric: " + metricName
+                    + ", expression: " + expression, e);
+        }
     }
 }

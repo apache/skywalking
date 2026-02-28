@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec;
 
-import groovy.lang.Closure;
+import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -42,13 +42,8 @@ public abstract class AbstractSpec {
     }
 
     @SuppressWarnings("unused")
-    public void abort(final Closure<Void> cl) {
+    public void abort(final Consumer<Void> cl) {
         BINDING.get().abort();
-    }
-
-    @SuppressWarnings("unused")
-    public Object propertyMissing(final String name) {
-        return BINDING.get().getVariable(name);
     }
 
     @SuppressWarnings("unused")

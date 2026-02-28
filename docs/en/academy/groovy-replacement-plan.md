@@ -606,6 +606,120 @@ v1 (Groovy) and v2 (Java) never coexist in the OAP runtime classpath. The `mal-l
 7. **Remove `LALDelegatingScript.java`**: replaced by `LalExpression` interface
 8. **Verify `server-core` has zero Groovy imports**: `HierarchyDefinitionService` and `HierarchyService` now use `BiFunction` only
 
+### Phase 8: Replace v2 Manifest Loading with Real Compilers (ANTLR4 + Javassist)
+
+Phase 7 completed: v2 modules are standalone (zero Groovy), v1 depends on v2. Currently, v2 loads transpiled classes via manifest files (`META-INF/mal-expressions.txt`, `META-INF/lal-expressions.txt`) that were pre-compiled at build time. This prevents on-demand config changes since MAL/LAL/hierarchy configs are in the final package and users may want to modify them.
+
+The goal is to replace this manifest-based approach with **real compilers** following the OAL pattern: ANTLR4 grammar -> parser -> model -> Javassist class generation -> listener notification. This enables runtime compilation when configs change.
+
+#### Module Renaming: Drop `-v2` Suffix
+
+Since v1 modules move to `test/script-compiler/`, the v2 modules become the primary ones and lose the `-v2` suffix:
+- `meter-analyzer-v2` -> `meter-analyzer` (package stays `o.a.s.oap.meter.analyzer`)
+- `log-analyzer-v2` -> `log-analyzer` (package stays `o.a.s.oap.log.analyzer`)
+- `hierarchy-v2` -> `hierarchy` (no v1 name conflict since v1 moves out)
+- `.v2.` sub-packages (`dsl.v2.DSL`, `dsl.v2.Binding`, etc.) merge back into parent packages (`dsl.DSL`, `dsl.Binding`)
+
+#### Target Module Structure
+
+```
+oap-server/
+  mal-grammar/                   NEW — ANTLR4 grammar for MAL expressions
+  lal-grammar/                   NEW — ANTLR4 grammar for LAL scripts
+  hierarchy-rule-grammar/        NEW — ANTLR4 grammar for hierarchy matching rules
+
+oap-server/analyzer/
+  agent-analyzer/                (stays)
+  event-analyzer/                (stays)
+  meter-analyzer/                (renamed from meter-analyzer-v2, runtime MAL, calls mal-compiler)
+  log-analyzer/                  (renamed from log-analyzer-v2, runtime LAL, calls lal-compiler)
+  hierarchy/                     (renamed from hierarchy-v2, calls hierarchy-rule-compiler)
+  mal-compiler/                  NEW — MAL expression compiler engine
+  lal-compiler/                  NEW — LAL script compiler engine
+  hierarchy-rule-compiler/       NEW — hierarchy rule compiler engine
+
+test/script-compiler/            NEW — aggregator for v1/transpiler/checker (not in dist)
+  mal-groovy/                    <- meter-analyzer v1 (Groovy)
+  lal-groovy/                    <- log-analyzer v1 (Groovy)
+  hierarchy-groovy/              <- hierarchy-v1 (Groovy)
+  mal-transpiler/                <- mal-transpiler
+  lal-transpiler/                <- lal-transpiler
+  mal-lal-v1-v2-checker/         <- mal-lal-v1-v2-checker
+  hierarchy-v1-v2-checker/       <- hierarchy-v1-v2-checker
+```
+
+#### Generated Class Grouping by Config File Name
+
+MAL metrics come from YAML config files (e.g., `oap.yaml`, `spring-micrometer.yaml`). Each file contains multiple `metricsRules`. The compiler groups generated classes by source file name.
+
+- **MAL Compiler API**: `MALCompilerEngine.compile(configFileName, MetricRuleConfig)` -> grouped by file
+- **Generated class naming**: `rt.<configFile>.MalExpr_<metricName>`, e.g., `rt.oap.MalExpr_instance_jvm_cpu`
+- **LAL Compiler API**: `LALCompilerEngine.compile(configFileName, List<LALConfig>)` -> grouped by file
+- **Generated class naming**: `rt.<configFile>.LalExpr_<ruleName>`
+
+#### Eliminate `ExpressionParsingContext` ThreadLocal (MAL only)
+
+The current MAL `run()` method serves dual purposes controlled by a ThreadLocal:
+1. **Parse phase** (startup): `ExpressionParsingContext` ThreadLocal is set, `run()` is called with an empty map to discover which metric names the expression references
+2. **Runtime phase** (every ingestion cycle): ThreadLocal is not set, `run()` computes the actual result
+
+This is eliminated by extracting metadata statically. The `MalExpression` interface gains a `metadata()` method:
+
+```java
+public interface MalExpression {
+    /** Pure computation. No side effects. */
+    SampleFamily run(Map<String, SampleFamily> samples);
+
+    /** Compile-time metadata -- sample names, scope, downsampling, etc. */
+    ExpressionMetadata metadata();
+}
+```
+
+The ANTLR4 compiler extracts all metadata from the parse tree at compile time:
+
+| Metadata | Extracted from |
+|--|--|
+| `sampleNames` | Bare identifiers (metric references) |
+| `scopeType` | Terminal method: `.service()`, `.instance()`, `.endpoint()` |
+| `downsampling` | Aggregation arg: `AVG`, `SUM`, `MAX`, etc. |
+| `percentiles` | `.percentile()` call arguments |
+| `isHistogram` | Presence of `.histogram()` in chain |
+
+Generated class emits metadata as static fields:
+
+```java
+public class MalExpr_instance_jvm_cpu implements MalExpression {
+    private static final ExpressionMetadata METADATA = new ExpressionMetadata(
+        List.of("instance_jvm_cpu"),  // sampleNames
+        ScopeType.SERVICE_INSTANCE,   // from .service()/instance() call
+        DownsamplingType.AVG          // from aggregation
+    );
+
+    @Override
+    public ExpressionMetadata metadata() { return METADATA; }
+
+    @Override
+    public SampleFamily run(Map<String, SampleFamily> samples) {
+        return ((SampleFamily) samples.getOrDefault("instance_jvm_cpu", SampleFamily.EMPTY))
+            .sum(List.of("service", "instance"));
+    }
+}
+```
+
+Result: `run()` is pure computation, `metadata()` is static facts, `ExpressionParsingContext` and its ThreadLocal are deleted. No dry run with empty map at startup.
+
+LAL and hierarchy do **not** have this problem -- LAL passes `Binding` explicitly as a parameter, hierarchy rules are stateless lambdas.
+
+#### Implementation Sub-Phases
+
+- 8.1: Rename modules (drop -v2 suffix, flatten .v2. sub-packages)
+- 8.2: Grammar modules (ANTLR4 .g4 files)
+- 8.3: Compiler model + parser (no code gen)
+- 8.4: Javassist code generation (including static `ExpressionMetadata` on generated MAL classes)
+- 8.5: Engine integration (wire compilers into renamed modules, delete `ExpressionParsingContext`)
+- 8.6: Move v1/transpiler/checker to test/script-compiler/
+- 8.7: Cleanup (remove manifests, verify zero Groovy)
+
 ---
 
 ## 6. What Gets Removed from Runtime
@@ -880,7 +994,6 @@ New MAL/LAL YAML rules added to `server-starter/src/main/resources/` are automat
 | LAL YAML files processed | 8 |
 | LAL rules transpiled | 10 (6 unique after SHA-256 dedup) |
 | Hierarchy rules replaced | 4 |
-| Hierarchy rules replaced | 4 |
 | Total generated Java classes | ~1,289 |
 | Comparison test assertions | 1,300+ (MAL: 1,281, LAL: 19, hierarchy: 4 rules x multiple service pairs) |
 | Lines of transpiler code (MAL) | ~1,230 |
@@ -909,4 +1022,4 @@ New MAL/LAL YAML rules added to `server-starter/src/main/resources/` are automat
 4. **Phase 5**: Hierarchy v1/v2 module split -- refactor `server-core` to remove Groovy, create `hierarchy-v1/` (Groovy, checker-only) and `hierarchy-v2/` (Java lambdas, runtime)
 5. **Phase 6**: Build comparison test suites -- `mal-lal-v1-v2-checker/` AND `hierarchy-v1-v2-checker/`
 6. **Phase 7**: Switch `server-starter` from v1 to v2 for all three subsystems (MAL, LAL, hierarchy), remove Groovy from runtime classpath
-7. **Eventually**: Remove `mal-lal-v1`, `hierarchy-v1`, and all checker modules once community confidence is established
+7. **Phase 8**: Replace v2 manifest-based class loading with real ANTLR4 + Javassist compilers following the OAL pattern, enabling runtime compilation when configs change. Rename modules (drop `-v2` suffix), move v1/transpiler/checker to `test/script-compiler/`.

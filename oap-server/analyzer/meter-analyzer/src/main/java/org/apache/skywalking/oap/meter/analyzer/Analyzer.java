@@ -37,7 +37,7 @@ import org.apache.commons.text.CaseUtils;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
-import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext;
+import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
@@ -89,7 +89,7 @@ public class Analyzer {
         if (!Strings.isNullOrEmpty(filterExpression)) {
             filter = new FilterExpression(filterExpression);
         }
-        ExpressionParsingContext ctx = e.parse();
+        ExpressionMetadata ctx = e.parse();
         Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem, ctx);
         analyzer.init();
         return analyzer;
@@ -105,7 +105,7 @@ public class Analyzer {
 
     private final MeterSystem meterSystem;
 
-    private final ExpressionParsingContext ctx;
+    private final ExpressionMetadata ctx;
 
     private MetricType metricType;
 

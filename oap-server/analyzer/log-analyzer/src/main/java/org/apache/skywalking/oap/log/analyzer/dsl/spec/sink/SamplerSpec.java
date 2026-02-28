@@ -18,21 +18,16 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl.spec.sink;
 
-import groovy.lang.Closure;
-import groovy.lang.DelegatesTo;
-import groovy.lang.GString;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
-import org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler.PossibilitySampler;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler.RateLimitingSampler;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler.Sampler;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class SamplerSpec extends AbstractSpec {
-    private final Map<GString, Sampler> rateLimitSamplers;
     private final Map<String, Sampler> rateLimitSamplersByString;
     private final Map<Integer, Sampler> possibilitySamplers;
     private final RateLimitingSampler.ResetHandler rlsResetHandler;
@@ -41,24 +36,9 @@ public class SamplerSpec extends AbstractSpec {
                        final LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
 
-        rateLimitSamplers = new ConcurrentHashMap<>();
         rateLimitSamplersByString = new ConcurrentHashMap<>();
         possibilitySamplers = new ConcurrentHashMap<>();
         rlsResetHandler = new RateLimitingSampler.ResetHandler();
-    }
-
-    @SuppressWarnings("unused")
-    public void rateLimit(final GString id, @DelegatesTo(RateLimitingSampler.class) final Closure<?> cl) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-
-        final Sampler sampler = rateLimitSamplers.computeIfAbsent(id, $ -> new RateLimitingSampler(rlsResetHandler).start());
-
-        cl.setDelegate(sampler);
-        cl.call();
-
-        sampleWith(sampler);
     }
 
     @SuppressWarnings("unused")
@@ -71,20 +51,6 @@ public class SamplerSpec extends AbstractSpec {
             id, $ -> new RateLimitingSampler(rlsResetHandler).start());
 
         consumer.accept((RateLimitingSampler) sampler);
-
-        sampleWith(sampler);
-    }
-
-    @SuppressWarnings("unused")
-    public void possibility(final int percentage, @DelegatesTo(PossibilitySampler.class) final Closure<?> cl) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-
-        final Sampler sampler = possibilitySamplers.computeIfAbsent(percentage, $ -> new PossibilitySampler(percentage).start());
-
-        cl.setDelegate(sampler);
-        cl.call();
 
         sampleWith(sampler);
     }
