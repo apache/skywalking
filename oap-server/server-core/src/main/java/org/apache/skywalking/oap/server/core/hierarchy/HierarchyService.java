@@ -199,8 +199,7 @@ public class HierarchyService implements org.apache.skywalking.oap.server.librar
                     if (lowerLayers != null && lowerLayers.get(comparedServiceLayer) != null) {
                         try {
                             if (lowerLayers.get(comparedServiceLayer)
-                                           .getClosure()
-                                           .call(service, comparedService)) {
+                                           .match(service, comparedService)) {
                                 autoMatchingServiceRelation(service.getName(), Layer.nameOf(serviceLayer),
                                                             comparedService.getName(),
                                                             Layer.nameOf(comparedServiceLayer)
@@ -208,7 +207,7 @@ public class HierarchyService implements org.apache.skywalking.oap.server.librar
                             }
                         } catch (Throwable e) {
                             log.error(
-                                "Auto matching service hierarchy from service traffic failure. Upper layer {}, lower layer {}, closure{}",
+                                "Auto matching service hierarchy from service traffic failure. Upper layer {}, lower layer {}, rule {}",
                                 serviceLayer,
                                 comparedServiceLayer,
                                 lowerLayers.get(comparedServiceLayer).getExpression(), e
@@ -218,8 +217,7 @@ public class HierarchyService implements org.apache.skywalking.oap.server.librar
                     } else if (comparedLowerLayers != null && comparedLowerLayers.get(serviceLayer) != null) {
                         try {
                             if (comparedLowerLayers.get(serviceLayer)
-                                                   .getClosure()
-                                                   .call(comparedService, service)) {
+                                                   .match(comparedService, service)) {
                                 autoMatchingServiceRelation(
                                     comparedService.getName(),
                                     Layer.nameOf(comparedServiceLayer),
@@ -229,7 +227,7 @@ public class HierarchyService implements org.apache.skywalking.oap.server.librar
                             }
                         } catch (Throwable e) {
                             log.error(
-                                "Auto matching service hierarchy from service traffic failure. Upper layer {}, lower layer {}, closure{}",
+                                "Auto matching service hierarchy from service traffic failure. Upper layer {}, lower layer {}, rule {}",
                                 comparedServiceLayer,
                                 serviceLayer,
                                 comparedLowerLayers.get(serviceLayer).getExpression(), e
