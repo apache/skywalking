@@ -35,6 +35,8 @@
         <module>event-analyzer</module>
         <module>mal-transpiler</module>
         <module>lal-transpiler</module>
+        <module>meter-analyzer-v2</module>
+        <module>log-analyzer-v2</module>
     </modules>
 
     <dependencies>
