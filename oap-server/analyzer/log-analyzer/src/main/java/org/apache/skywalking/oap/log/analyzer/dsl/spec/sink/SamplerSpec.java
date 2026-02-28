@@ -23,6 +23,7 @@ import groovy.lang.DelegatesTo;
 import groovy.lang.GString;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler.PossibilitySampler;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.sink.sampler.RateLimitingSampler;
@@ -32,6 +33,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 public class SamplerSpec extends AbstractSpec {
     private final Map<GString, Sampler> rateLimitSamplers;
+    private final Map<String, Sampler> rateLimitSamplersByString;
     private final Map<Integer, Sampler> possibilitySamplers;
     private final RateLimitingSampler.ResetHandler rlsResetHandler;
 
@@ -40,6 +42,7 @@ public class SamplerSpec extends AbstractSpec {
         super(moduleManager, moduleConfig);
 
         rateLimitSamplers = new ConcurrentHashMap<>();
+        rateLimitSamplersByString = new ConcurrentHashMap<>();
         possibilitySamplers = new ConcurrentHashMap<>();
         rlsResetHandler = new RateLimitingSampler.ResetHandler();
     }
@@ -54,6 +57,20 @@ public class SamplerSpec extends AbstractSpec {
 
         cl.setDelegate(sampler);
         cl.call();
+
+        sampleWith(sampler);
+    }
+
+    @SuppressWarnings("unused")
+    public void rateLimit(final String id, final Consumer<RateLimitingSampler> consumer) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+
+        final Sampler sampler = rateLimitSamplersByString.computeIfAbsent(
+            id, $ -> new RateLimitingSampler(rlsResetHandler).start());
+
+        consumer.accept((RateLimitingSampler) sampler);
 
         sampleWith(sampler);
     }

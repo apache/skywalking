@@ -68,7 +68,7 @@ import org.codehaus.groovy.syntax.Types;
 @Slf4j
 public class LalToJavaTranspiler {
 
-    static final String GENERATED_PACKAGE =
+    public static final String GENERATED_PACKAGE =
         "org.apache.skywalking.oap.server.core.source.oal.rt.lal";
 
     private static final Set<String> CONSUMER_METHODS = Set.of(

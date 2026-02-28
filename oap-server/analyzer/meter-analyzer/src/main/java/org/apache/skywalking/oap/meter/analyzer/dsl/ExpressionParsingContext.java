@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 @Builder
 public class ExpressionParsingContext implements Closeable {
 
-    static ExpressionParsingContext create() {
+    public static ExpressionParsingContext create() {
         if (CACHE.get() == null) {
             CACHE.set(ExpressionParsingContext.builder()
                                               .samples(Lists.newArrayList())
@@ -52,7 +52,7 @@ public class ExpressionParsingContext implements Closeable {
         return CACHE.get();
     }
 
-    static Optional<ExpressionParsingContext> get() {
+    public static Optional<ExpressionParsingContext> get() {
         return Optional.ofNullable(CACHE.get());
     }
 

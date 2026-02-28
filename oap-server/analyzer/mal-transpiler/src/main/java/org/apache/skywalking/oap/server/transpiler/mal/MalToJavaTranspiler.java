@@ -88,7 +88,7 @@ import org.codehaus.groovy.control.Phases;
 @Slf4j
 public class MalToJavaTranspiler {
 
-    static final String GENERATED_PACKAGE =
+    public static final String GENERATED_PACKAGE =
         "org.apache.skywalking.oap.server.core.source.oal.rt.mal";
 
     private static final Set<String> DOWNSAMPLING_CONSTANTS = Set.of(

@@ -19,45 +19,33 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>analyzer</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>analyzer</artifactId>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>agent-analyzer</module>
-        <module>log-analyzer</module>
-        <module>meter-analyzer</module>
-        <module>event-analyzer</module>
-        <module>mal-transpiler</module>
-        <module>lal-transpiler</module>
-        <module>meter-analyzer-v2</module>
-        <module>log-analyzer-v2</module>
-        <module>hierarchy-v1</module>
-        <module>hierarchy-v2</module>
-        <module>hierarchy-v1-v2-checker</module>
-        <module>mal-lal-v1-v2-checker</module>
-    </modules>
+    <artifactId>hierarchy-v1-v2-checker</artifactId>
+    <description>Dual-path comparison tests: Groovy hierarchy rules (v1) vs Java hierarchy rules (v2)</description>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-network</artifactId>
+            <artifactId>hierarchy-v1</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-module</artifactId>
+            <artifactId>hierarchy-v2</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-util</artifactId>
+            <artifactId>server-core</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
