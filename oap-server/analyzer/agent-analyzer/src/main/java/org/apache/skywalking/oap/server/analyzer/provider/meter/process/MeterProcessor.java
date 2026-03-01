@@ -53,7 +53,7 @@ public class MeterProcessor {
     private final MeterProcessService processService;
 
     /**
-     * All of meters has been read. Using it to process groovy script.
+     * All of meters has been read. Using it to process MAL expressions.
      */
     private final Map<String, List<SampleBuilder>> meters = new HashMap<>();
 

@@ -392,6 +392,8 @@ catalog:
         path: "/en/concepts-and-designs/ebpf-cpu-profiling"
       - name: "Diagnose Service Mesh Network Performance with eBPF"
         path: "/en/academy/diagnose-service-mesh-network-performance-with-ebpf"
+      - name: "DSL Compiler Design"
+        path: "/en/academy/dsl-compiler-design"
   - name: "FAQs"
     path: "/en/faq/readme"
   - name: "Contributing Guides"
