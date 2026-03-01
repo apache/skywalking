@@ -245,11 +245,43 @@ public final class LALScriptModel {
     @Getter
     public static final class RateLimitBlock implements SamplerContent {
         private final String id;
+        private final List<InterpolationPart> idParts;
         private final long rpm;
 
-        public RateLimitBlock(final String id, final long rpm) {
+        public RateLimitBlock(final String id,
+                              final List<InterpolationPart> idParts,
+                              final long rpm) {
             this.id = id;
+            this.idParts = idParts != null
+                ? Collections.unmodifiableList(idParts) : Collections.emptyList();
             this.rpm = rpm;
+        }
+
+        public boolean isIdInterpolated() {
+            return !idParts.isEmpty();
+        }
+    }
+
+    @Getter
+    public static final class InterpolationPart {
+        private final String literal;
+        private final ValueAccess expression;
+
+        private InterpolationPart(final String literal, final ValueAccess expression) {
+            this.literal = literal;
+            this.expression = expression;
+        }
+
+        public static InterpolationPart ofLiteral(final String text) {
+            return new InterpolationPart(text, null);
+        }
+
+        public static InterpolationPart ofExpression(final ValueAccess expr) {
+            return new InterpolationPart(null, expr);
+        }
+
+        public boolean isLiteral() {
+            return literal != null;
         }
     }
 
@@ -341,21 +373,56 @@ public final class LALScriptModel {
         private final List<String> segments;
         private final boolean parsedRef;
         private final boolean logRef;
+        private final boolean processRegistryRef;
+        private final boolean stringLiteral;
+        private final boolean numberLiteral;
         private final List<ValueAccessSegment> chain;
+        private final String functionCallName;
+        private final List<FunctionArg> functionCallArgs;
 
         public ValueAccess(final List<String> segments,
                            final boolean parsedRef,
                            final boolean logRef,
                            final List<ValueAccessSegment> chain) {
+            this(segments, parsedRef, logRef, false, false, false,
+                chain, null, Collections.emptyList());
+        }
+
+        public ValueAccess(final List<String> segments,
+                           final boolean parsedRef,
+                           final boolean logRef,
+                           final boolean processRegistryRef,
+                           final boolean stringLiteral,
+                           final boolean numberLiteral,
+                           final List<ValueAccessSegment> chain,
+                           final String functionCallName,
+                           final List<FunctionArg> functionCallArgs) {
             this.segments = Collections.unmodifiableList(segments);
             this.parsedRef = parsedRef;
             this.logRef = logRef;
+            this.processRegistryRef = processRegistryRef;
+            this.stringLiteral = stringLiteral;
+            this.numberLiteral = numberLiteral;
             this.chain = chain != null
                 ? Collections.unmodifiableList(chain) : Collections.emptyList();
+            this.functionCallName = functionCallName;
+            this.functionCallArgs = functionCallArgs != null
+                ? Collections.unmodifiableList(functionCallArgs) : Collections.emptyList();
         }
 
         public String toPathString() {
             return String.join(".", segments);
+        }
+    }
+
+    @Getter
+    public static final class FunctionArg {
+        private final ValueAccess value;
+        private final String castType;
+
+        public FunctionArg(final ValueAccess value, final String castType) {
+            this.value = value;
+            this.castType = castType;
         }
     }
 
@@ -376,12 +443,14 @@ public final class LALScriptModel {
     @Getter
     public static final class MethodSegment implements ValueAccessSegment {
         private final String name;
-        private final List<String> arguments;
+        private final List<FunctionArg> arguments;
         private final boolean safeNav;
 
-        public MethodSegment(final String name, final List<String> arguments, final boolean safeNav) {
+        public MethodSegment(final String name, final List<FunctionArg> arguments,
+                             final boolean safeNav) {
             this.name = name;
-            this.arguments = Collections.unmodifiableList(arguments);
+            this.arguments = arguments != null
+                ? Collections.unmodifiableList(arguments) : Collections.emptyList();
             this.safeNav = safeNav;
         }
     }

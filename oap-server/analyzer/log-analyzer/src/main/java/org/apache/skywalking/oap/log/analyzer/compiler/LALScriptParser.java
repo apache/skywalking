@@ -29,6 +29,7 @@ import org.antlr.v4.runtime.Recognizer;
 import org.apache.skywalking.lal.rt.grammar.LALLexer;
 import org.apache.skywalking.lal.rt.grammar.LALParser;
 import org.apache.skywalking.oap.log.analyzer.compiler.LALScriptModel.AbortStatement;
+import org.apache.skywalking.oap.log.analyzer.compiler.LALScriptModel.InterpolationPart;
 import org.apache.skywalking.oap.log.analyzer.compiler.LALScriptModel.CompareOp;
 import org.apache.skywalking.oap.log.analyzer.compiler.LALScriptModel.ComparisonCondition;
 import org.apache.skywalking.oap.log.analyzer.compiler.LALScriptModel.Condition;
@@ -428,7 +429,8 @@ public final class LALScriptParser {
         for (final LALParser.RateLimitBlockContext rlc : ctx.samplerContent().rateLimitBlock()) {
             final String id = stripQuotes(rlc.rateLimitId().getText());
             final long rpm = Long.parseLong(rlc.rateLimitContent().NUMBER().getText());
-            contents.add(new RateLimitBlock(id, rpm));
+            final List<InterpolationPart> idParts = parseInterpolation(id);
+            contents.add(new RateLimitBlock(id, idParts, rpm));
         }
         for (final LALParser.IfStatementContext isc : ctx.samplerContent().ifStatement()) {
             contents.add((SamplerContent) visitIfStatement(isc));
@@ -439,17 +441,45 @@ public final class LALScriptParser {
     // ==================== If statement ====================
 
     private static IfBlock visitIfStatement(final LALParser.IfStatementContext ctx) {
-        final Condition condition = visitCondition(ctx.condition(0));
-        final List<FilterStatement> thenBranch = visitIfBody(ctx.ifBody(0));
-
-        List<FilterStatement> elseBranch = null;
-        // Handle else-if and else branches
+        final int condCount = ctx.condition().size();
         final int bodyCount = ctx.ifBody().size();
-        if (bodyCount > 1) {
-            elseBranch = visitIfBody(ctx.ifBody(bodyCount - 1));
+        // Whether there is a trailing else (no condition) block
+        final boolean hasElse = bodyCount > condCount;
+
+        // Build the chain from the last else-if backwards.
+        // For: if(A){b0} else if(B){b1} else if(C){b2} else{b3}
+        //   condCount=3, bodyCount=4, hasElse=true
+        //   Result: IfBlock(A, b0, IfBlock(B, b1, IfBlock(C, b2, b3)))
+
+        // Start from the innermost else-if (last condition)
+        List<FilterStatement> trailingElse = hasElse
+            ? visitIfBody(ctx.ifBody(bodyCount - 1)) : null;
+
+        // Build from the last condition backwards to index 1
+        IfBlock nested = null;
+        for (int i = condCount - 1; i >= 1; i--) {
+            final Condition cond = visitCondition(ctx.condition(i));
+            final List<FilterStatement> body = visitIfBody(ctx.ifBody(i));
+            final List<FilterStatement> elsePart;
+            if (nested != null) {
+                elsePart = List.of(nested);
+            } else {
+                elsePart = trailingElse;
+            }
+            nested = new IfBlock(cond, body, elsePart);
         }
 
-        return new IfBlock(condition, thenBranch, elseBranch);
+        // Build the outermost if block (index 0)
+        final Condition topCond = visitCondition(ctx.condition(0));
+        final List<FilterStatement> topBody = visitIfBody(ctx.ifBody(0));
+        final List<FilterStatement> topElse;
+        if (nested != null) {
+            topElse = List.of(nested);
+        } else {
+            topElse = trailingElse;
+        }
+
+        return new IfBlock(topCond, topBody, topElse);
     }
 
     private static List<FilterStatement> visitIfBody(final LALParser.IfBodyContext ctx) {
@@ -541,8 +571,11 @@ public final class LALScriptParser {
         if (leftCtx instanceof LALParser.CondFunctionCallContext) {
             final LALParser.FunctionInvocationContext fi =
                 ((LALParser.CondFunctionCallContext) leftCtx).functionInvocation();
+            final String funcName = fi.functionName().getText();
+            final List<LALScriptModel.FunctionArg> funcArgs = visitFunctionArgs(fi);
             final ValueAccess left = new ValueAccess(
-                List.of(fi.getText()), false, false, List.of());
+                List.of(fi.getText()), false, false, false, false, false,
+                List.of(), funcName, funcArgs);
             return new ComparisonCondition(left, null, op,
                 visitConditionExprAsValue(rightCtx));
         }
@@ -582,6 +615,16 @@ public final class LALScriptParser {
             final String cast = va.typeCast() != null ? extractCastType(va.typeCast()) : null;
             return new ExprCondition(visitValueAccess(va.valueAccess()), cast);
         }
+        if (ctx instanceof LALParser.CondFunctionCallContext) {
+            final LALParser.FunctionInvocationContext fi =
+                ((LALParser.CondFunctionCallContext) ctx).functionInvocation();
+            final String funcName = fi.functionName().getText();
+            final List<LALScriptModel.FunctionArg> funcArgs = visitFunctionArgs(fi);
+            final ValueAccess va = new ValueAccess(
+                List.of(fi.getText()), false, false, false, false, false,
+                List.of(), funcName, funcArgs);
+            return new ExprCondition(va, null);
+        }
         return new ExprCondition(
             new ValueAccess(List.of(ctx.getText()), false, false, List.of()), null);
     }
@@ -592,6 +635,11 @@ public final class LALScriptParser {
         final List<String> segments = new ArrayList<>();
         boolean parsedRef = false;
         boolean logRef = false;
+        boolean processRegistryRef = false;
+        boolean stringLiteral = false;
+        boolean numberLiteral = false;
+        String functionCallName = null;
+        List<LALScriptModel.FunctionArg> functionCallArgs = null;
 
         final LALParser.ValueAccessPrimaryContext primary = ctx.valueAccessPrimary();
         if (primary instanceof LALParser.ValueParsedContext) {
@@ -601,17 +649,22 @@ public final class LALScriptParser {
             logRef = true;
             segments.add("log");
         } else if (primary instanceof LALParser.ValueProcessRegistryContext) {
+            processRegistryRef = true;
             segments.add("ProcessRegistry");
         } else if (primary instanceof LALParser.ValueIdentifierContext) {
             segments.add(((LALParser.ValueIdentifierContext) primary).IDENTIFIER().getText());
         } else if (primary instanceof LALParser.ValueStringContext) {
+            stringLiteral = true;
             segments.add(stripQuotes(
                 ((LALParser.ValueStringContext) primary).STRING().getText()));
         } else if (primary instanceof LALParser.ValueNumberContext) {
+            numberLiteral = true;
             segments.add(((LALParser.ValueNumberContext) primary).NUMBER().getText());
         } else if (primary instanceof LALParser.ValueFunctionCallContext) {
             final LALParser.FunctionInvocationContext fi =
                 ((LALParser.ValueFunctionCallContext) primary).functionInvocation();
+            functionCallName = fi.functionName().getText();
+            functionCallArgs = visitFunctionArgs(fi);
             segments.add(fi.getText());
         } else {
             segments.add(primary.getText());
@@ -634,17 +687,57 @@ public final class LALScriptParser {
                     ((LALParser.SegmentMethodContext) seg).functionInvocation();
                 segments.add(fi.functionName().getText() + "()");
                 chain.add(new LALScriptModel.MethodSegment(
-                    fi.functionName().getText(), List.of(), false));
+                    fi.functionName().getText(), visitFunctionArgs(fi), false));
             } else if (seg instanceof LALParser.SegmentSafeMethodContext) {
                 final LALParser.FunctionInvocationContext fi =
                     ((LALParser.SegmentSafeMethodContext) seg).functionInvocation();
                 segments.add(fi.functionName().getText() + "()");
                 chain.add(new LALScriptModel.MethodSegment(
-                    fi.functionName().getText(), List.of(), true));
+                    fi.functionName().getText(), visitFunctionArgs(fi), true));
             }
         }
 
-        return new ValueAccess(segments, parsedRef, logRef, chain);
+        return new ValueAccess(segments, parsedRef, logRef,
+            processRegistryRef, stringLiteral, numberLiteral,
+            chain, functionCallName, functionCallArgs);
+    }
+
+    private static List<LALScriptModel.FunctionArg> visitFunctionArgs(
+            final LALParser.FunctionInvocationContext fi) {
+        if (fi.functionArgList() == null) {
+            return List.of();
+        }
+        final List<LALScriptModel.FunctionArg> args = new ArrayList<>();
+        for (final LALParser.FunctionArgContext fac : fi.functionArgList().functionArg()) {
+            if (fac.valueAccess() != null) {
+                final ValueAccess va = visitValueAccess(fac.valueAccess());
+                final String cast = fac.typeCast() != null
+                    ? extractCastType(fac.typeCast()) : null;
+                args.add(new LALScriptModel.FunctionArg(va, cast));
+            } else if (fac.STRING() != null) {
+                final String val = stripQuotes(fac.STRING().getText());
+                final ValueAccess va = new ValueAccess(
+                    List.of(val), false, false, true, true, false,
+                    List.of(), null, null);
+                args.add(new LALScriptModel.FunctionArg(va, null));
+            } else if (fac.NUMBER() != null) {
+                final ValueAccess va = new ValueAccess(
+                    List.of(fac.NUMBER().getText()), false, false,
+                    false, false, true, List.of(), null, null);
+                args.add(new LALScriptModel.FunctionArg(va, null));
+            } else if (fac.boolValue() != null) {
+                final ValueAccess va = new ValueAccess(
+                    List.of(fac.boolValue().getText()), false, false,
+                    false, false, false, List.of(), null, null);
+                args.add(new LALScriptModel.FunctionArg(va, null));
+            } else {
+                // NULL
+                final ValueAccess va = new ValueAccess(
+                    List.of("null"), false, false, List.of());
+                args.add(new LALScriptModel.FunctionArg(va, null));
+            }
+        }
+        return args;
     }
 
     private static String resolveValueAsString(final LALParser.ValueAccessContext ctx) {
@@ -693,5 +786,79 @@ public final class LALScriptParser {
             return s;
         }
         return s.substring(0, maxLen) + "...";
+    }
+
+    // ==================== GString interpolation ====================
+
+    /**
+     * Parses Groovy-style GString interpolation in a string.
+     * E.g. {@code "${log.service}:${parsed?.field}"} produces
+     * [expr(log.service), literal(":"), expr(parsed?.field)].
+     *
+     * @return list of parts, or {@code null} if no interpolation found
+     */
+    static List<InterpolationPart> parseInterpolation(final String s) {
+        if (!s.contains("${")) {
+            return null;
+        }
+        final List<InterpolationPart> parts = new ArrayList<>();
+        int pos = 0;
+        while (pos < s.length()) {
+            final int start = s.indexOf("${", pos);
+            if (start < 0) {
+                // Remaining literal text
+                if (pos < s.length()) {
+                    parts.add(InterpolationPart.ofLiteral(s.substring(pos)));
+                }
+                break;
+            }
+            // Literal text before ${
+            if (start > pos) {
+                parts.add(InterpolationPart.ofLiteral(s.substring(pos, start)));
+            }
+            // Find matching closing brace, respecting nesting
+            int depth = 1;
+            int i = start + 2;
+            while (i < s.length() && depth > 0) {
+                final char c = s.charAt(i);
+                if (c == '{') {
+                    depth++;
+                } else if (c == '}') {
+                    depth--;
+                }
+                i++;
+            }
+            if (depth != 0) {
+                throw new IllegalArgumentException(
+                    "Unclosed interpolation in: " + s);
+            }
+            final String expr = s.substring(start + 2, i - 1);
+            // Parse the expression as a valueAccess through ANTLR
+            parts.add(InterpolationPart.ofExpression(parseValueAccessExpr(expr)));
+            pos = i;
+        }
+        return parts;
+    }
+
+    /**
+     * Parses a standalone valueAccess expression string by wrapping it in
+     * a minimal LAL script and extracting the parsed ValueAccess.
+     */
+    private static ValueAccess parseValueAccessExpr(final String expr) {
+        // Wrap in: filter { if (EXPR) { sink {} } }
+        // The expression becomes a condition, parsed as ExprCondition
+        // whose ValueAccess is what we want.
+        final String wrapper = "filter { if (" + expr + ") { sink {} } }";
+        final LALScriptModel model = parse(wrapper);
+        final IfBlock ifBlock = (IfBlock) model.getStatements().get(0);
+        final LALScriptModel.Condition cond = ifBlock.getCondition();
+        if (cond instanceof ExprCondition) {
+            return ((ExprCondition) cond).getExpr();
+        }
+        if (cond instanceof ComparisonCondition) {
+            return ((ComparisonCondition) cond).getLeft();
+        }
+        throw new IllegalArgumentException(
+            "Cannot parse interpolation expression: " + expr);
     }
 }
