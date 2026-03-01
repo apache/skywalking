@@ -37,6 +37,11 @@ expression
     : additiveExpression EOF
     ;
 
+// A standalone filter closure: { tags -> tags.job_name == 'value' }
+filterExpression
+    : closureExpression EOF
+    ;
+
 // ==================== Arithmetic ====================
 
 additiveExpression
@@ -123,8 +128,10 @@ closureParams
     ;
 
 closureBody
-    : closureStatement+
-    | L_BRACE closureStatement+ R_BRACE      // optional extra braces: { tags -> { ... } }
+    : closureCondition                         // bare condition: { tags -> tags.x == 'v' }
+    | L_BRACE closureCondition R_BRACE         // braced condition: { tags -> { tags.x == 'v' } }
+    | closureStatement+
+    | L_BRACE closureStatement+ R_BRACE        // optional extra braces: { tags -> { ... } }
     ;
 
 closureStatement

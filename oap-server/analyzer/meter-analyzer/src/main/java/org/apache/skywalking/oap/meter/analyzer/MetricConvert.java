@@ -38,6 +38,30 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * MetricConvert converts {@link SampleFamily} collection to meter-system metrics, then store them to backend storage.
+ *
+ * <p>One MetricConvert instance is created per MAL config YAML file (e.g., {@code vm.yaml}).
+ * It holds a list of {@link Analyzer}s, one per {@code metricsRules} entry in the YAML.
+ *
+ * <p>Construction (at startup):
+ * <pre>
+ *   YAML file (e.g., vm.yaml)
+ *     metricPrefix: meter_vm
+ *     expSuffix:    service(['host'], Layer.OS_LINUX)
+ *     filter:       { tags -&gt; tags.job_name == 'vm-monitoring' }
+ *     metricsRules:
+ *       - name: cpu_total_percentage
+ *         exp:  (node_cpu_seconds_total * 100).sum(['host']).rate('PT1M')
+ *
+ *   MetricConvert(rule, meterSystem)
+ *     for each rule:
+ *       metricName = metricPrefix + "_" + name    → "meter_vm_cpu_total_percentage"
+ *       finalExp   = (exp).expSuffix              → "(...).service(['host'], Layer.OS_LINUX)"
+ *       → Analyzer.build(metricName, filter, finalExp, meterSystem)
+ * </pre>
+ *
+ * <p>Runtime ({@link #toMeter}): receives the full {@code sampleFamilies} map (all metrics
+ * from one scrape) and broadcasts it to every Analyzer. Each Analyzer self-filters to only
+ * the input metrics it needs (via {@code this.samples} from compile-time metadata).
  */
 @Slf4j
 public class MetricConvert {
@@ -95,9 +119,14 @@ public class MetricConvert {
     }
 
     /**
-     * toMeter transforms {@link SampleFamily} collection  to meter-system metrics.
+     * Broadcasts the full sample family map to every Analyzer in this config file.
      *
-     * @param sampleFamilies {@link SampleFamily} collection.
+     * <p>The map contains ALL metrics from a single scrape batch keyed by Prometheus metric name
+     * (e.g., "node_cpu_seconds_total", "node_memory_MemTotal_bytes", ...).
+     * Each Analyzer selects only the entries it needs via O(1) HashMap lookups on
+     * {@code this.samples} (derived from compile-time AST metadata).
+     *
+     * @param sampleFamilies all sample families from one scrape, keyed by metric name.
      */
     public void toMeter(final ImmutableMap<String, SampleFamily> sampleFamilies) {
         Preconditions.checkNotNull(sampleFamilies);

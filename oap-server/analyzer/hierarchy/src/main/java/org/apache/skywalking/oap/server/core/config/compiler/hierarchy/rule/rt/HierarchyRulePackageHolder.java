@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.config.compiler.rt;
+package org.apache.skywalking.oap.server.core.config.compiler.hierarchy.rule.rt;
 
 /**
  * Empty marker class used as the class loading anchor for Javassist

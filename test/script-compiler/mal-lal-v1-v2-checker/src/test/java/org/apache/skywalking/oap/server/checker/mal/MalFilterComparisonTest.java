@@ -29,11 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import groovy.lang.Closure;
 import groovy.lang.GroovyShell;
+import org.apache.skywalking.oap.meter.analyzer.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.meter.analyzer.dsl.MalFilter;
-import org.apache.skywalking.oap.server.checker.InMemoryCompiler;
-import org.apache.skywalking.oap.server.transpiler.mal.MalToJavaTranspiler;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -46,27 +43,11 @@ import static org.junit.jupiter.api.Assertions.fail;
  * For each unique filter expression across all MAL YAML files:
  * <ul>
  *   <li>Path A (v1): Groovy {@code GroovyShell.evaluate()} -> {@code Closure<Boolean>}</li>
- *   <li>Path B (v2): Transpile to {@link MalFilter}, compile in-memory</li>
+ *   <li>Path B (v2): ANTLR4 + Javassist compilation via {@link MALClassGenerator}</li>
  * </ul>
  * Both paths are invoked with representative tag maps and results compared.
  */
 class MalFilterComparisonTest {
-
-    private static InMemoryCompiler COMPILER;
-    private static int CLASS_COUNTER;
-
-    @BeforeAll
-    static void initCompiler() throws Exception {
-        COMPILER = new InMemoryCompiler();
-        CLASS_COUNTER = 0;
-    }
-
-    @AfterAll
-    static void closeCompiler() throws Exception {
-        if (COMPILER != null) {
-            COMPILER.close();
-        }
-    }
 
     @TestFactory
     Collection<DynamicTest> filterExpressionsMatch() throws Exception {
@@ -85,7 +66,6 @@ class MalFilterComparisonTest {
 
     @SuppressWarnings("unchecked")
     private void compareFilter(final String filterExpr) throws Exception {
-        // Extract the tag key from the filter expression for test data
         final List<Map<String, String>> testTags = buildTestTags(filterExpr);
 
         // ---- V1: Groovy closure ----
@@ -97,16 +77,11 @@ class MalFilterComparisonTest {
             return;
         }
 
-        // ---- V2: Transpiled MalFilter ----
+        // ---- V2: ANTLR4 + Javassist compilation ----
         final MalFilter v2Filter;
         try {
-            final MalToJavaTranspiler transpiler = new MalToJavaTranspiler();
-            final String className = "MalFilter_check_" + (CLASS_COUNTER++);
-            final String javaSource = transpiler.transpileFilter(className, filterExpr);
-
-            final Class<?> clazz = COMPILER.compile(
-                MalToJavaTranspiler.GENERATED_PACKAGE, className, javaSource);
-            v2Filter = (MalFilter) clazz.getDeclaredConstructor().newInstance();
+            final MALClassGenerator generator = new MALClassGenerator();
+            v2Filter = generator.compileFilter(filterExpr);
         } catch (Exception e) {
             fail("V2 (Java) failed for filter: " + filterExpr + " - " + e.getMessage());
             return;
@@ -118,14 +93,12 @@ class MalFilterComparisonTest {
             try {
                 v1Result = v1Closure.call(tags);
             } catch (Exception e) {
-                // Some filters error on empty/missing tags in Groovy too
                 continue;
             }
             boolean v2Result;
             try {
                 v2Result = v2Filter.test(tags);
             } catch (NullPointerException e) {
-                // List.of().contains(null) throws NPE; Groovy 'in' returns false
                 v2Result = false;
             }
             assertEquals(v1Result, v2Result,
@@ -137,12 +110,8 @@ class MalFilterComparisonTest {
     private List<Map<String, String>> buildTestTags(final String filterExpr) {
         final List<Map<String, String>> testTags = new ArrayList<>();
 
-        // Always test with an empty map
         testTags.add(new HashMap<>());
 
-        // Extract key-value patterns from the expression to build matching and non-matching tags.
-        // Common patterns: tags.job_name == 'mysql-monitoring', tags.Namespace == 'AWS/DynamoDB'
-        // We build: one matching map, one non-matching map
         final java.util.regex.Pattern kvPattern =
             java.util.regex.Pattern.compile("tags\\.(\\w+)\\s*==\\s*'([^']+)'");
         final java.util.regex.Matcher matcher = kvPattern.matcher(filterExpr);
@@ -161,7 +130,6 @@ class MalFilterComparisonTest {
             testTags.add(mismatchTags);
         }
 
-        // Also test with a random unrelated key
         final Map<String, String> unrelatedTags = new HashMap<>();
         unrelatedTags.put("unrelated_key", "some_value");
         testTags.add(unrelatedTags);
@@ -183,7 +151,6 @@ class MalFilterComparisonTest {
             collectFiltersFromDir(dirPath.toFile(), yaml, filters);
         }
 
-        // Also check log-mal-rules and envoy-metrics-rules
         for (final String dir : new String[]{"log-mal-rules", "envoy-metrics-rules"}) {
             final Path dirPath = findResourceDir(dir);
             if (dirPath != null) {
@@ -225,15 +192,15 @@ class MalFilterComparisonTest {
     }
 
     private Path findResourceDir(final String name) {
-        final Path starterResources = Path.of(
-            "oap-server/server-starter/src/main/resources/" + name);
-        if (Files.isDirectory(starterResources)) {
-            return starterResources;
-        }
-        final Path fromRoot = Path.of(
-            System.getProperty("user.dir")).resolve("../../server-starter/src/main/resources/" + name);
-        if (Files.isDirectory(fromRoot)) {
-            return fromRoot;
+        final String[] candidates = {
+            "oap-server/server-starter/src/main/resources/" + name,
+            "../../../oap-server/server-starter/src/main/resources/" + name
+        };
+        for (final String candidate : candidates) {
+            final Path path = Path.of(candidate);
+            if (Files.isDirectory(path)) {
+                return path;
+            }
         }
         return null;
     }

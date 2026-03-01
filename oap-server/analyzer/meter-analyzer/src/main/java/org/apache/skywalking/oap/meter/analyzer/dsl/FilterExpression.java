@@ -17,54 +17,32 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.meter.analyzer.compiler.MALClassGenerator;
 
 /**
- * Same-FQCN replacement for upstream FilterExpression.
- * Loads transpiled {@link MalFilter} classes from mal-filter-expressions.properties
- * manifest instead of Groovy filter closures -- no Groovy runtime needed.
+ * Compiles a MAL filter closure expression into a {@link MalFilter}
+ * using ANTLR4 parsing and Javassist bytecode generation.
  */
 @Slf4j
 @ToString(of = {"literal"})
 public class FilterExpression {
-    private static final String MANIFEST_PATH = "META-INF/mal-filter-expressions.properties";
-    private static volatile Map<String, String> FILTER_MAP;
-    private static final AtomicInteger LOADED_COUNT = new AtomicInteger();
+    private static final MALClassGenerator GENERATOR = new MALClassGenerator();
 
     private final String literal;
     private final MalFilter malFilter;
 
-    @SuppressWarnings("unchecked")
     public FilterExpression(final String literal) {
         this.literal = literal;
-
-        final Map<String, String> filterMap = loadManifest();
-        final String className = filterMap.get(literal);
-        if (className == null) {
-            throw new IllegalStateException(
-                "Transpiled MAL filter not found for: " + literal
-                    + ". Available filters: " + filterMap.size());
-        }
-
         try {
-            final Class<?> filterClass = Class.forName(className);
-            malFilter = (MalFilter) filterClass.getDeclaredConstructor().newInstance();
-            final int count = LOADED_COUNT.incrementAndGet();
-            log.debug("Loaded transpiled MAL filter [{}/{}]: {}", count, filterMap.size(), literal);
-        } catch (ClassNotFoundException e) {
+            this.malFilter = GENERATOR.compileFilter(literal);
+        } catch (Exception e) {
             throw new IllegalStateException(
-                "Transpiled MAL filter class not found: " + className, e);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException(
-                "Failed to instantiate transpiled MAL filter: " + className, e);
+                "Failed to compile MAL filter expression: " + literal, e);
         }
     }
 
@@ -82,32 +60,5 @@ public class FilterExpression {
             log.error("failed to run \"{}\"", literal, t);
         }
         return sampleFamilies;
-    }
-
-    private static Map<String, String> loadManifest() {
-        if (FILTER_MAP != null) {
-            return FILTER_MAP;
-        }
-        synchronized (FilterExpression.class) {
-            if (FILTER_MAP != null) {
-                return FILTER_MAP;
-            }
-            final Map<String, String> map = new HashMap<>();
-            try (InputStream is = FilterExpression.class.getClassLoader().getResourceAsStream(MANIFEST_PATH)) {
-                if (is == null) {
-                    log.warn("MAL filter manifest not found: {}", MANIFEST_PATH);
-                    FILTER_MAP = map;
-                    return map;
-                }
-                final Properties props = new Properties();
-                props.load(is);
-                props.forEach((k, v) -> map.put((String) k, (String) v));
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed to load MAL filter manifest", e);
-            }
-            log.info("Loaded {} transpiled MAL filters from manifest", map.size());
-            FILTER_MAP = map;
-            return map;
-        }
     }
 }

@@ -23,17 +23,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.log.analyzer.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.dsl.LalExpression;
-import org.apache.skywalking.oap.server.checker.InMemoryCompiler;
-import org.apache.skywalking.oap.server.transpiler.lal.LalToJavaTranspiler;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -41,32 +37,14 @@ import static org.junit.jupiter.api.Assertions.fail;
  * For each LAL rule across all LAL YAML files:
  * <ul>
  *   <li>Path A (v1): Verify Groovy compiles the DSL without error</li>
- *   <li>Path B (v2): Transpile to Java, compile in-memory, verify it
- *        implements {@link LalExpression}</li>
+ *   <li>Path B (v2): ANTLR4 + Javassist compilation via {@link LALClassGenerator},
+ *        verify it produces a valid {@link LalExpression}</li>
  * </ul>
- * Both paths must accept the same DSL input. The transpiled Java class
- * must compile and be instantiable.
  */
 class LalComparisonTest {
 
-    private static InMemoryCompiler COMPILER;
-    private static int CLASS_COUNTER;
-
-    @BeforeAll
-    static void initCompiler() throws Exception {
-        COMPILER = new InMemoryCompiler();
-        CLASS_COUNTER = 0;
-    }
-
-    @AfterAll
-    static void closeCompiler() throws Exception {
-        if (COMPILER != null) {
-            COMPILER.close();
-        }
-    }
-
     @TestFactory
-    Collection<DynamicTest> lalScriptsTranspileAndCompile() throws Exception {
+    Collection<DynamicTest> lalScriptsCompile() throws Exception {
         final List<DynamicTest> tests = new ArrayList<>();
         final Map<String, List<LalRule>> yamlRules = loadAllLalYamlFiles();
 
@@ -75,7 +53,7 @@ class LalComparisonTest {
             for (final LalRule rule : entry.getValue()) {
                 tests.add(DynamicTest.dynamicTest(
                     yamlFile + " | " + rule.name,
-                    () -> verifyTranspileAndCompile(rule.name, rule.dsl)
+                    () -> verifyCompilation(rule.name, rule.dsl)
                 ));
             }
         }
@@ -83,8 +61,8 @@ class LalComparisonTest {
         return tests;
     }
 
-    private void verifyTranspileAndCompile(final String ruleName,
-                                           final String dsl) throws Exception {
+    private void verifyCompilation(final String ruleName,
+                                   final String dsl) throws Exception {
         // ---- V1: Verify Groovy can parse the DSL ----
         try {
             final groovy.lang.GroovyShell sh = new groovy.lang.GroovyShell();
@@ -95,22 +73,11 @@ class LalComparisonTest {
             return;
         }
 
-        // ---- V2: Transpile and compile ----
+        // ---- V2: ANTLR4 + Javassist compilation ----
         try {
-            final LalToJavaTranspiler transpiler = new LalToJavaTranspiler();
-            final String className = "LalExpr_check_" + (CLASS_COUNTER++);
-            final String javaSource = transpiler.transpile(className, dsl);
-            assertNotNull(javaSource, "V2 transpiler should produce source for '" + ruleName + "'");
-
-            final Class<?> clazz = COMPILER.compile(
-                LalToJavaTranspiler.GENERATED_PACKAGE, className, javaSource);
-
-            assertTrue(LalExpression.class.isAssignableFrom(clazz),
-                "Generated class should implement LalExpression for '" + ruleName + "'");
-
-            final LalExpression expr = (LalExpression) clazz
-                .getDeclaredConstructor().newInstance();
-            assertNotNull(expr, "V2 should instantiate for '" + ruleName + "'");
+            final LALClassGenerator generator = new LALClassGenerator();
+            final LalExpression expr = generator.compile(dsl);
+            assertNotNull(expr, "V2 should compile '" + ruleName + "'");
         } catch (Exception e) {
             fail("V2 (Java) failed for LAL rule '" + ruleName + "': " + e.getMessage());
         }
@@ -161,15 +128,15 @@ class LalComparisonTest {
     }
 
     private Path findResourceDir(final String name) {
-        final Path starterResources = Path.of(
-            "oap-server/server-starter/src/main/resources/" + name);
-        if (Files.isDirectory(starterResources)) {
-            return starterResources;
-        }
-        final Path fromRoot = Path.of(
-            System.getProperty("user.dir")).resolve("../../server-starter/src/main/resources/" + name);
-        if (Files.isDirectory(fromRoot)) {
-            return fromRoot;
+        final String[] candidates = {
+            "oap-server/server-starter/src/main/resources/" + name,
+            "../../../oap-server/server-starter/src/main/resources/" + name
+        };
+        for (final String candidate : candidates) {
+            final Path path = Path.of(candidate);
+            if (Files.isDirectory(path)) {
+                return path;
+            }
         }
         return null;
     }

@@ -33,9 +33,22 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.apache.skywalking.oap.server.core.source.Log;
 
 /**
- * Same-FQCN replacement for upstream Binding.
- * Pure Java implementation that does not extend groovy.lang.Binding.
- * Uses a simple HashMap for property storage instead of Groovy's binding mechanism.
+ * Mutable property storage for a single LAL script execution cycle.
+ *
+ * <p>A new Binding is created for each incoming log in
+ * {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogFilterListener#parse}.
+ * It carries all per-log state through the compiled LAL pipeline:
+ * <ul>
+ *   <li>{@code log} — the incoming {@code LogData.Builder}</li>
+ *   <li>{@code parsed} — structured data extracted by json/text/yaml parsers</li>
+ *   <li>{@code save}/{@code abort} — control flags set by extractor/sink logic</li>
+ *   <li>{@code metrics_container} — optional list for LAL-extracted metrics (log-MAL)</li>
+ *   <li>{@code log_container} — optional container for the built {@code Log} source object</li>
+ * </ul>
+ *
+ * <p>The Binding is injected into {@link org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec}
+ * via a ThreadLocal ({@code BINDING}), so all Spec methods ({@code FilterSpec}, {@code ExtractorSpec},
+ * {@code SinkSpec}) can access the current log data without explicit parameter passing.
  */
 public class Binding {
     public static final String KEY_LOG = "log";

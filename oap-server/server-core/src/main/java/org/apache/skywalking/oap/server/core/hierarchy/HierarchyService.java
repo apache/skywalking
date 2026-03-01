@@ -38,6 +38,33 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 
+/**
+ * Runtime service that builds hierarchy relations between services and instances.
+ *
+ * <p>Uses the compiled matching rules from
+ * {@link HierarchyDefinitionService} to determine if two services are
+ * hierarchically related (e.g., a MESH service sitting above a K8S_SERVICE).
+ *
+ * <p>Two paths for creating relations:
+ * <ol>
+ *   <li><b>Explicit</b> (from agent telemetry): receivers call
+ *       {@link #toServiceHierarchyRelation} or {@link #toInstanceHierarchyRelation}
+ *       when agents report detected service-to-service relationships.</li>
+ *   <li><b>Auto-matching</b> (scheduled background task): {@link #startAutoMatchingServiceHierarchy()}
+ *       starts a background task that runs every 20 seconds, comparing all known
+ *       service pairs against the compiled hierarchy rules:
+ *       <ul>
+ *         <li>Retrieves all services from {@link MetadataQueryService}.</li>
+ *         <li>For each pair (i, j), checks if hierarchy rules exist for
+ *             layer[i]→layer[j] or layer[j]→layer[i].</li>
+ *         <li>Invokes {@link HierarchyDefinitionService.MatchingRule#match}
+ *             which executes the compiled {@code BiFunction}.</li>
+ *         <li>If matched, creates a {@link ServiceHierarchyRelation} and sends it
+ *             to {@link SourceReceiver} for persistence.</li>
+ *       </ul>
+ *   </li>
+ * </ol>
+ */
 @Slf4j
 public class HierarchyService implements org.apache.skywalking.oap.server.library.module.Service {
     private final ModuleManager moduleManager;

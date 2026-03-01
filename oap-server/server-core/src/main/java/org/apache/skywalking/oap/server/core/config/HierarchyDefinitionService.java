@@ -22,7 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.ServiceLoader;
 import java.util.function.BiFunction;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -35,12 +35,38 @@ import org.yaml.snakeyaml.Yaml;
 
 import static java.util.stream.Collectors.toMap;
 
+/**
+ * Loads hierarchy definitions from {@code hierarchy-definition.yml} and compiles
+ * matching rules into executable {@code BiFunction<Service, Service, Boolean>}
+ * matchers via a pluggable {@link HierarchyRuleProvider} (discovered through Java SPI).
+ *
+ * <p>Initialization (at startup, in CoreModuleProvider):
+ * <ol>
+ *   <li>Reads {@code hierarchy-definition.yml} containing three sections:
+ *       {@code hierarchy} (layer-to-lower-layer mapping with rule names),
+ *       {@code auto-matching-rules} (rule name to expression string),
+ *       and {@code layer-levels} (layer to numeric level).</li>
+ *   <li>Discovers a {@link HierarchyRuleProvider} via {@code ServiceLoader}
+ *       (e.g., {@code CompiledHierarchyRuleProvider} from the hierarchy module).</li>
+ *   <li>Calls {@link HierarchyRuleProvider#buildRules} which compiles each rule
+ *       expression (e.g., {@code "{ (u, l) -> u.name == l.name }"}) into a
+ *       {@code BiFunction} via ANTLR4 + Javassist.</li>
+ *   <li>Wraps each compiled matcher in a {@link MatchingRule} and maps them
+ *       to the layer hierarchy structure.</li>
+ *   <li>Validates all layers exist in the {@code Layer} enum and that upper
+ *       layers have higher level numbers than their lower layers.</li>
+ * </ol>
+ *
+ * <p>The resulting {@link #getHierarchyDefinition()} map is consumed by
+ * {@link org.apache.skywalking.oap.server.core.hierarchy.HierarchyService}
+ * for runtime service matching.
+ */
 @Slf4j
 public class HierarchyDefinitionService implements org.apache.skywalking.oap.server.library.module.Service {
 
     /**
      * Functional interface for building hierarchy matching rules.
-     * Implementations are provided by hierarchy-v1 (Groovy) or hierarchy-v2 (pure Java).
+     * Discovered via Java SPI ({@code ServiceLoader}).
      */
     @FunctionalInterface
     public interface HierarchyRuleProvider {
@@ -64,48 +90,29 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
     }
 
     /**
-     * Convenience constructor that uses the default Java rule provider.
+     * Convenience constructor that discovers a {@link HierarchyRuleProvider}
+     * via Java SPI ({@code ServiceLoader}). Only loads the provider when
+     * hierarchy is enabled.
      */
     public HierarchyDefinitionService(final CoreModuleConfig moduleConfig) {
-        this(moduleConfig, new DefaultJavaRuleProvider());
+        this.hierarchyDefinition = new HashMap<>();
+        this.layerLevels = new HashMap<>();
+        if (moduleConfig.isEnableHierarchy()) {
+            this.init(loadProvider());
+            this.checkLayers();
+        }
     }
 
-    /**
-     * Default pure Java rule provider with 4 built-in hierarchy matching rules.
-     * No Groovy dependency.
-     */
-    private static class DefaultJavaRuleProvider implements HierarchyRuleProvider {
-        @Override
-        public Map<String, BiFunction<Service, Service, Boolean>> buildRules(
-                final Map<String, String> ruleExpressions) {
-            final Map<String, BiFunction<Service, Service, Boolean>> registry = new HashMap<>();
-            registry.put("name", (u, l) -> Objects.equals(u.getName(), l.getName()));
-            registry.put("short-name", (u, l) -> Objects.equals(u.getShortName(), l.getShortName()));
-            registry.put("lower-short-name-remove-ns", (u, l) -> {
-                final String sn = l.getShortName();
-                final int dot = sn.lastIndexOf('.');
-                return dot > 0 && Objects.equals(u.getShortName(), sn.substring(0, dot));
-            });
-            registry.put("lower-short-name-with-fqdn", (u, l) -> {
-                final String sn = u.getShortName();
-                final int colon = sn.lastIndexOf(':');
-                return colon > 0 && Objects.equals(
-                    sn.substring(0, colon),
-                    l.getShortName() + ".svc.cluster.local");
-            });
-
-            final Map<String, BiFunction<Service, Service, Boolean>> rules = new HashMap<>();
-            ruleExpressions.forEach((name, expression) -> {
-                final BiFunction<Service, Service, Boolean> fn = registry.get(name);
-                if (fn == null) {
-                    throw new IllegalArgumentException(
-                        "Unknown hierarchy matching rule: " + name
-                            + ". Known rules: " + registry.keySet());
-                }
-                rules.put(name, fn);
-            });
-            return rules;
+    private static HierarchyRuleProvider loadProvider() {
+        final ServiceLoader<HierarchyRuleProvider> loader =
+            ServiceLoader.load(HierarchyRuleProvider.class);
+        for (final HierarchyRuleProvider provider : loader) {
+            log.info("Using hierarchy rule provider: {}", provider.getClass().getName());
+            return provider;
         }
+        throw new IllegalStateException(
+            "No HierarchyRuleProvider found on classpath. "
+                + "Ensure the hierarchy analyzer module is included.");
     }
 
     @SuppressWarnings("unchecked")

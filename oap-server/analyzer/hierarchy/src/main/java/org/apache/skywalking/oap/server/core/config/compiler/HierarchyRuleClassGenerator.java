@@ -24,19 +24,21 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
-import org.apache.skywalking.oap.server.core.config.compiler.rt.HierarchyRulePackageHolder;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.config.compiler.hierarchy.rule.rt.HierarchyRulePackageHolder;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 
 /**
  * Generates {@link BiFunction BiFunction&lt;Service, Service, Boolean&gt;} implementation classes
  * from {@link HierarchyRuleModel} AST using Javassist bytecode generation.
  */
+@Slf4j
 public final class HierarchyRuleClassGenerator {
 
     private static final AtomicInteger CLASS_COUNTER = new AtomicInteger(0);
 
     private static final String PACKAGE_PREFIX =
-        "org.apache.skywalking.oap.server.core.config.compiler.rt.";
+        "org.apache.skywalking.oap.server.core.config.compiler.hierarchy.rule.rt.";
 
     private final ClassPool classPool;
 
@@ -68,6 +70,12 @@ public final class HierarchyRuleClassGenerator {
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
 
         final String applyBody = generateApplyMethod(model);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Hierarchy compile [{}] AST: {}", ruleName, model);
+            log.debug("Hierarchy compile [{}] apply():\n{}", ruleName, applyBody);
+        }
+
         ctClass.addMethod(CtNewMethod.make(applyBody, ctClass));
 
         final Class<?> clazz = ctClass.toClass(HierarchyRulePackageHolder.class);

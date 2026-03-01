@@ -47,6 +47,27 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The top-level runtime API that compiled LAL expressions invoke.
+ *
+ * <p>A compiled {@link org.apache.skywalking.oap.log.analyzer.dsl.LalExpression}
+ * calls methods on this class in the order defined by the LAL script:
+ * <ol>
+ *   <li><b>Parser</b>: {@code json()}, {@code text()}, or {@code yaml()} — parses the log body
+ *       into structured data stored in {@link Binding#parsed()}.</li>
+ *   <li><b>Extractor</b>: {@code extractor(Consumer)} — extracts service name, layer, tags,
+ *       metrics, slow SQL, sampled traces, etc.</li>
+ *   <li><b>Sink</b>: {@code sink()} or {@code sink(Consumer)} — materializes the log into
+ *       storage via {@link LogSinkListenerFactory} instances (RecordSinkListener,
+ *       TrafficSinkListener), unless the log has been dropped or aborted.</li>
+ * </ol>
+ *
+ * <p>All methods read the current log data from the ThreadLocal {@code BINDING}
+ * (inherited from {@link AbstractSpec}), which is set by
+ * {@link org.apache.skywalking.oap.log.analyzer.dsl.DSL#bind(Binding)} before each execution.
+ * Every method checks {@code shouldAbort()} first and short-circuits if a previous
+ * step aborted the pipeline.
+ */
 public class FilterSpec extends AbstractSpec {
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterSpec.class);
 

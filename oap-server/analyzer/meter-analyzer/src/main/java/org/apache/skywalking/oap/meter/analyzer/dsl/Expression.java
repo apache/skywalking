@@ -22,8 +22,16 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Same-FQCN replacement for upstream Expression.
- * Wraps a compiled {@link MalExpression} (pure Java) instead of a Groovy DelegatingScript.
+ * Wraps a compiled {@link MalExpression} with runtime state management.
+ *
+ * <p>Two-phase usage:
+ * <ul>
+ *   <li>{@link #parse()} — returns compile-time {@link ExpressionMetadata} extracted from the AST.
+ *       Called once at startup by {@link org.apache.skywalking.oap.meter.analyzer.Analyzer#build}
+ *       to discover sample names, scope type, aggregation labels, and metric type.</li>
+ *   <li>{@link #run(Map)} — executes the compiled expression on actual sample data.
+ *       Called at every ingestion cycle. Pure computation, no side effects.</li>
+ * </ul>
  */
 @Slf4j
 @ToString(of = {"literal"})

@@ -109,6 +109,40 @@ public final class MALScriptParser {
     }
 
     /**
+     * Parse a standalone filter closure expression into a {@link ClosureArgument}.
+     *
+     * @param filterExpression e.g. {@code "{ tags -> tags.job_name == 'mysql-monitoring' }"}
+     */
+    public static ClosureArgument parseFilter(final String filterExpression) {
+        final MALLexer lexer = new MALLexer(CharStreams.fromString(filterExpression));
+        final CommonTokenStream tokens = new CommonTokenStream(lexer);
+        final MALParser parser = new MALParser(tokens);
+
+        final List<String> errors = new ArrayList<>();
+        parser.removeErrorListeners();
+        parser.addErrorListener(new BaseErrorListener() {
+            @Override
+            public void syntaxError(final Recognizer<?, ?> recognizer,
+                                    final Object offendingSymbol,
+                                    final int line,
+                                    final int charPositionInLine,
+                                    final String msg,
+                                    final RecognitionException e) {
+                errors.add(line + ":" + charPositionInLine + " " + msg);
+            }
+        });
+
+        final MALParser.FilterExpressionContext tree = parser.filterExpression();
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(
+                "MAL filter expression parsing failed: " + String.join("; ", errors)
+                    + " in expression: " + filterExpression);
+        }
+
+        return new ClosureVisitor().visitClosure(tree.closureExpression());
+    }
+
+    /**
      * Visitor transforming ANTLR4 parse tree into MAL expression AST.
      */
     private static final class MALExprVisitor extends MALParserBaseVisitor<Expr> {
@@ -246,6 +280,11 @@ public final class MALScriptParser {
 
         private List<ClosureStatement> convertClosureBody(
                 final MALParser.ClosureBodyContext ctx) {
+            // Bare condition or braced condition: { tags -> tags.x == 'v' }
+            if (ctx.closureCondition() != null) {
+                final ClosureCondition cond = convertCondition(ctx.closureCondition());
+                return List.of(new ClosureExprStatement(cond));
+            }
             final List<ClosureStatement> stmts = new ArrayList<>();
             for (final MALParser.ClosureStatementContext stmtCtx : ctx.closureStatement()) {
                 stmts.add(convertClosureStatement(stmtCtx));
@@ -444,12 +483,14 @@ public final class MALScriptParser {
             final String target = ctx.closureTarget().IDENTIFIER().getText();
             final List<ClosureChainSegment> segments = new ArrayList<>();
 
-            for (final MALParser.ClosureChainSegmentContext seg : ctx.closureChainSegment()) {
-                final boolean safeNav = segments.size() < ctx.closureChainSegment().size()
-                    && ctx.safeNav().size() > 0;
-                // Determine if this segment uses safe navigation
-                // by checking position relative to safeNav tokens
-                segments.add(convertClosureChainSegment(seg, false));
+            final int totalSegs = ctx.closureChainSegment().size();
+            final int safeNavCount = ctx.safeNav().size();
+            final int dotSegCount = totalSegs - safeNavCount;
+
+            for (int i = 0; i < totalSegs; i++) {
+                final boolean isSafeNav = i >= dotSegCount;
+                segments.add(convertClosureChainSegment(
+                    ctx.closureChainSegment().get(i), isSafeNav));
             }
 
             return new ClosureMethodChain(target, segments);

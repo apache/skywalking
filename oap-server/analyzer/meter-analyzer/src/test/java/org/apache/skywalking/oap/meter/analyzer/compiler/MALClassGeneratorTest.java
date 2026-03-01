@@ -23,6 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MALClassGeneratorTest {
 
@@ -111,5 +113,57 @@ class MALClassGeneratorTest {
         // Generated source should contain getOrDefault for the metric
         org.junit.jupiter.api.Assertions.assertTrue(
             source.contains("getOrDefault"));
+    }
+
+    @Test
+    void filterSafeNavCompiles() throws Exception {
+        final String source = generator.generateFilterSource(
+            "{ tags -> tags.job_name == 'aws-cloud-eks-monitoring'"
+            + " && tags.Service?.trim() }");
+        assertNotNull(source);
+        assertTrue(source.contains("trim"), "Generated source should contain trim()");
+        assertNotNull(generator.compileFilter(
+            "{ tags -> tags.job_name == 'aws-cloud-eks-monitoring'"
+            + " && tags.Service?.trim() }"));
+    }
+
+    // ==================== Error handling tests ====================
+
+    @Test
+    void emptyExpressionThrows() {
+        // Demo error: MAL expression parsing failed: 1:0 mismatched input '<EOF>'
+        //   expecting {IDENTIFIER, NUMBER, '(', '-'}
+        assertThrows(Exception.class, () -> generator.compile("test", ""));
+    }
+
+    @Test
+    void malformedExpressionThrows() {
+        // Demo error: MAL expression parsing failed: 1:7 token recognition error at: '@'
+        assertThrows(Exception.class,
+            () -> generator.compile("test", "metric.@invalid"));
+    }
+
+    @Test
+    void unclosedParenthesisThrows() {
+        // Demo error: MAL expression parsing failed: 1:8 mismatched input '<EOF>'
+        //   expecting {')', '+', '-', '*', '/'}
+        assertThrows(Exception.class,
+            () -> generator.compile("test", "(metric1 "));
+    }
+
+    @Test
+    void invalidFilterClosureThrows() {
+        // Demo error: MAL filter parsing failed: 1:0 mismatched input 'invalid'
+        //   expecting '{'
+        assertThrows(Exception.class,
+            () -> generator.compileFilter("invalid filter"));
+    }
+
+    @Test
+    void emptyFilterBodyThrows() {
+        // Demo error: MAL filter parsing failed: 1:1 mismatched input '}'
+        //   expecting {IDENTIFIER, ...}
+        assertThrows(Exception.class,
+            () -> generator.compileFilter("{ }"));
     }
 }

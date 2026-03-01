@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LALClassGeneratorTest {
 
@@ -93,5 +94,37 @@ class LALClassGeneratorTest {
             source.contains("filterSpec.json()"));
         org.junit.jupiter.api.Assertions.assertTrue(
             source.contains("filterSpec.sink()"));
+    }
+
+    // ==================== Error handling tests ====================
+
+    @Test
+    void emptyScriptThrows() {
+        // Demo error: LAL script parsing failed: 1:0 mismatched input '<EOF>'
+        //   expecting 'filter'
+        assertThrows(Exception.class, () -> generator.compile(""));
+    }
+
+    @Test
+    void missingFilterKeywordThrows() {
+        // Demo error: LAL script parsing failed: 1:0 extraneous input 'json'
+        //   expecting 'filter'
+        assertThrows(Exception.class, () -> generator.compile("json {}"));
+    }
+
+    @Test
+    void unclosedBraceThrows() {
+        // Demo error: LAL script parsing failed: 1:15 mismatched input '<EOF>'
+        //   expecting '}'
+        assertThrows(Exception.class,
+            () -> generator.compile("filter { json {"));
+    }
+
+    @Test
+    void invalidStatementInFilterThrows() {
+        // Demo error: LAL script parsing failed: 1:9 extraneous input 'invalid'
+        //   expecting {'text', 'json', 'yaml', 'extractor', 'sink', 'abort', 'if', '}'}
+        assertThrows(Exception.class,
+            () -> generator.compile("filter { invalid {} }"));
     }
 }

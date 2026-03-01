@@ -21,8 +21,7 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 import java.util.Map;
 
 /**
- * Pure Java replacement for Groovy Closure-based MAL filter expressions.
- * Each transpiled filter expression implements this interface.
+ * Each compiled MAL filter expression implements this interface.
  */
 @FunctionalInterface
 public interface MalFilter {

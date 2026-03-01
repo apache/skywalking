@@ -69,6 +69,29 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * Analyzer analyses DSL expression with input samples, then to generate meter-system metrics.
+ *
+ * <p>One Analyzer is created per {@code metricsRules} entry in a MAL config YAML file.
+ *
+ * <p>Initialization ({@link #build}):
+ * <ol>
+ *   <li>Compiles the MAL expression string into a
+ *       {@link org.apache.skywalking.oap.meter.analyzer.dsl.MalExpression MalExpression}
+ *       via ANTLR4 + Javassist.</li>
+ *   <li>Extracts compile-time {@link ExpressionMetadata} from the AST (sample names, scope type,
+ *       aggregation labels, downsampling, histogram/percentile info).</li>
+ *   <li>Registers the metric in {@link MeterSystem} (generates storage class via Javassist).</li>
+ * </ol>
+ *
+ * <p>Runtime ({@link #analyse}):
+ * <ol>
+ *   <li>Receives the full {@code sampleFamilies} map (all metrics from one scrape).</li>
+ *   <li>Selects only the entries matching {@code this.samples} (e.g., ["node_cpu_seconds_total"]).
+ *       This is an O(n) lookup where n is the number of input metric names in the expression
+ *       (typically 1-2), not the size of the full map.</li>
+ *   <li>Applies the optional tag filter (e.g., {@code job_name == 'vm-monitoring'}).</li>
+ *   <li>Executes the compiled MAL expression on the filtered input.</li>
+ *   <li>Sends computed metric values to MeterSystem for storage.</li>
+ * </ol>
  */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -112,11 +135,17 @@ public class Analyzer {
     private int[] percentiles;
 
     /**
-     * analyse intends to parse expression with input samples to meter-system metrics.
+     * Analyse the full sample family map and produce meter-system metrics.
      *
-     * @param sampleFamilies input samples.
+     * <p>The {@code sampleFamilies} map contains ALL metrics from one scrape batch.
+     * This method first selects only the entries matching {@code this.samples}
+     * (the input metric names extracted from the MAL expression AST at compile time),
+     * then applies the optional filter and runs the expression on the selected subset.
+     *
+     * @param sampleFamilies all sample families from one scrape, keyed by metric name.
      */
     public void analyse(final ImmutableMap<String, SampleFamily> sampleFamilies) {
+        // Select only the metric families this expression references (typically 1-2 keys).
         Map<String, SampleFamily> input = samples.stream()
                                                  .map(s -> Tuple.of(s, sampleFamilies.get(s)))
                                                  .filter(t -> t._2 != null)
@@ -232,6 +261,13 @@ public class Analyzer {
         private final String literal;
     }
 
+    /**
+     * Initializes runtime state from compile-time metadata.
+     *
+     * <p>{@code ctx.getSamples()} provides the Prometheus metric names this expression references
+     * (e.g., ["node_cpu_seconds_total"]). These are used at runtime to select relevant entries
+     * from the full sample family map, avoiding unnecessary expression evaluation.
+     */
     private void init() {
         this.samples = ctx.getSamples();
         if (ctx.isHistogram()) {

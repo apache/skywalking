@@ -38,6 +38,29 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
+/**
+ * Runtime listener that executes compiled LAL rules against incoming log data.
+ *
+ * <p>Each instance wraps a collection of {@link DSL} objects — one per LAL rule
+ * defined for a specific {@link Layer}. Created per-log by {@link Factory#create(Layer)}.
+ *
+ * <p>Two-phase execution (called by {@link org.apache.skywalking.oap.log.analyzer.provider.log.LogAnalyzer}):
+ * <ol>
+ *   <li>{@link #parse} — creates a fresh {@link Binding} with the current log data
+ *       and binds it to every DSL instance (sets the ThreadLocal in each Spec).</li>
+ *   <li>{@link #build} — calls {@link DSL#evaluate()} on every DSL instance,
+ *       which invokes the compiled {@link org.apache.skywalking.oap.log.analyzer.dsl.LalExpression}
+ *       to run the filter/extractor/sink pipeline.</li>
+ * </ol>
+ *
+ * <p>The inner {@link Factory} is created once at startup by
+ * {@link org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider#start()}.
+ * It loads all {@code .yaml} LAL config files, compiles each rule's DSL string
+ * into a {@link DSL} instance via
+ * {@link DSL#of(org.apache.skywalking.oap.server.library.module.ModuleManager,
+ *   org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig, String)},
+ * and organizes them by {@link Layer}.
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class LogFilterListener implements LogAnalysisListener {

@@ -17,44 +17,33 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl;
 
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.log.analyzer.compiler.LALClassGenerator;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DSLV2Test {
 
     @Test
-    void ofThrowsWhenManifestMissing() {
-        // No META-INF/lal-expressions.txt on test classpath
-        assertThrows(ModuleStartException.class,
-            () -> DSL.of(null, null, "filter { json {} sink {} }"));
+    void compileSimpleFilterExpression() throws Exception {
+        final LALClassGenerator generator = new LALClassGenerator();
+        final LalExpression expr = generator.compile("filter { json {} sink {} }");
+        assertNotNull(expr);
     }
 
     @Test
-    void sha256Deterministic() {
-        final String input = "filter { json {} sink {} }";
-        final String hash1 = DSL.sha256(input);
-        final String hash2 = DSL.sha256(input);
-        assertNotNull(hash1);
-        assertEquals(64, hash1.length());
-        assertEquals(hash1, hash2);
+    void compileFilterWithExtractor() throws Exception {
+        final LALClassGenerator generator = new LALClassGenerator();
+        final LalExpression expr = generator.compile(
+            "filter { json {} extractor { service parsed.service as String } sink {} }");
+        assertNotNull(expr);
     }
 
     @Test
-    void sha256DifferentInputsDifferentHashes() {
-        final String hash1 = DSL.sha256("filter { json {} sink {} }");
-        final String hash2 = DSL.sha256("filter { text {} sink {} }");
-        assertNotNull(hash1);
-        assertNotNull(hash2);
-        assertNotEquals(hash1, hash2);
-    }
-
-    private static void assertNotEquals(final String a, final String b) {
-        if (a.equals(b)) {
-            throw new AssertionError("Expected different values but got: " + a);
-        }
+    void compileThrowsOnInvalidExpression() {
+        final LALClassGenerator generator = new LALClassGenerator();
+        assertThrows(Exception.class,
+            () -> generator.compile("??? invalid !!!"));
     }
 }

@@ -26,6 +26,7 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.compiler.rt.LalExpressionPackageHolder;
 import org.apache.skywalking.oap.log.analyzer.dsl.LalExpression;
 
@@ -37,6 +38,7 @@ import org.apache.skywalking.oap.log.analyzer.dsl.LalExpression;
  * Consumer callbacks are pre-compiled as separate classes and
  * stored as fields on the main class.
  */
+@Slf4j
 public final class LALClassGenerator {
 
     private static final AtomicInteger CLASS_COUNTER = new AtomicInteger(0);
@@ -106,6 +108,12 @@ public final class LALClassGenerator {
         // Phase 4: Generate execute method referencing consumer fields
         final int[] counter = {0};
         final String executeBody = generateExecuteMethod(model, counter);
+
+        if (log.isDebugEnabled()) {
+            log.debug("LAL compile AST: {}", model);
+            log.debug("LAL compile execute():\n{}", executeBody);
+        }
+
         ctClass.addMethod(CtNewMethod.make(executeBody, ctClass));
 
         final Class<?> clazz = ctClass.toClass(LalExpressionPackageHolder.class);
@@ -221,16 +229,36 @@ public final class LALClassGenerator {
             } else if (stmt instanceof LALScriptModel.TagAssignment) {
                 final LALScriptModel.TagAssignment tag =
                     (LALScriptModel.TagAssignment) stmt;
-                if (tag.getTags().size() == 1) {
-                    final Map.Entry<String, LALScriptModel.TagValue> entry =
-                        tag.getTags().entrySet().iterator().next();
-                    sb.append("  _t.tag(\"")
-                      .append(escapeJava(entry.getKey())).append("\", ");
-                    generateCastedValueAccess(sb, entry.getValue().getValue(),
-                        entry.getValue().getCastType());
-                    sb.append(");\n");
-                }
+                generateTagAssignment(sb, tag);
             }
+        }
+    }
+
+    private void generateTagAssignment(final StringBuilder sb,
+                                         final LALScriptModel.TagAssignment tag) {
+        final Map<String, LALScriptModel.TagValue> tags = tag.getTags();
+        if (tags.isEmpty()) {
+            return;
+        }
+        if (tags.size() == 1) {
+            final Map.Entry<String, LALScriptModel.TagValue> entry =
+                tags.entrySet().iterator().next();
+            sb.append("  _t.tag(java.util.Collections.singletonMap(\"")
+              .append(escapeJava(entry.getKey())).append("\", ");
+            generateCastedValueAccess(sb, entry.getValue().getValue(),
+                entry.getValue().getCastType());
+            sb.append("));\n");
+        } else {
+            sb.append("  { java.util.Map _tagMap = new java.util.LinkedHashMap();\n");
+            for (final Map.Entry<String, LALScriptModel.TagValue> entry
+                    : tags.entrySet()) {
+                sb.append("    _tagMap.put(\"")
+                  .append(escapeJava(entry.getKey())).append("\", ");
+                generateCastedValueAccess(sb, entry.getValue().getValue(),
+                    entry.getValue().getCastType());
+                sb.append(");\n");
+            }
+            sb.append("    _t.tag(_tagMap); }\n");
         }
     }
 

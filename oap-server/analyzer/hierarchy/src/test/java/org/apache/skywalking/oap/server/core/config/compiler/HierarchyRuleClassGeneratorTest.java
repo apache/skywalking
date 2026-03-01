@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HierarchyRuleClassGeneratorTest {
@@ -118,5 +119,40 @@ class HierarchyRuleClassGeneratorTest {
 
         upper.setShortName("no-port");
         assertFalse(fn.apply(upper, lower));
+    }
+
+    // ==================== Error handling tests ====================
+
+    @Test
+    void emptyExpressionThrows() {
+        // Demo error: Hierarchy rule parsing failed: 1:0 mismatched input '<EOF>'
+        //   expecting '{'
+        assertThrows(Exception.class,
+            () -> generator.compile("empty", ""));
+    }
+
+    @Test
+    void missingClosureBracesThrows() {
+        // Demo error: Hierarchy rule parsing failed: 1:0 mismatched input 'u'
+        //   expecting '{'
+        assertThrows(Exception.class,
+            () -> generator.compile("test", "u.name == l.name"));
+    }
+
+    @Test
+    void missingParametersThrows() {
+        // Demo error: Hierarchy rule parsing failed: 1:2 mismatched input '}'
+        //   expecting '('
+        assertThrows(Exception.class,
+            () -> generator.compile("test", "{ }"));
+    }
+
+    @Test
+    void invalidFieldAccessThrows() {
+        // Demo error: [source error] getNonExistent() not found in Service
+        // (Javassist cannot find the getter for a non-existent field)
+        assertThrows(Exception.class,
+            () -> generator.compile("test",
+                "{ (u, l) -> u.nonExistent == l.nonExistent }"));
     }
 }

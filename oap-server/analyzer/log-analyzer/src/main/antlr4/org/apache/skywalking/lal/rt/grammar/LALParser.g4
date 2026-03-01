@@ -404,6 +404,7 @@ valueAccess
 valueAccessPrimary
     : PARSED                                      # valueParsed
     | LOG                                         # valueLog
+    | PROCESS_REGISTRY                            # valueProcessRegistry
     | IDENTIFIER                                  # valueIdentifier
     | STRING                                      # valueString
     | NUMBER                                      # valueNumber
@@ -420,7 +421,12 @@ valueAccessSegment
     ;
 
 functionInvocation
-    : IDENTIFIER L_PAREN functionArgList? R_PAREN
+    : functionName L_PAREN functionArgList? R_PAREN
+    ;
+
+functionName
+    : IDENTIFIER
+    | TAG
     ;
 
 functionArgList

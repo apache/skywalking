@@ -399,7 +399,7 @@ public final class MALExpressionModel {
 
     // ==================== Closure conditions ====================
 
-    public interface ClosureCondition {
+    public interface ClosureCondition extends ClosureExpr {
     }
 
     @Getter

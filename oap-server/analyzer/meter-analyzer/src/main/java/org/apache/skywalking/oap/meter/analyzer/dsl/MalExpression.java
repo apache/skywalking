@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 import java.util.Map;
 
 /**
- * Pure Java replacement for Groovy-based MAL DelegatingScript.
  * Each compiled MAL expression implements this interface.
  */
 public interface MalExpression {

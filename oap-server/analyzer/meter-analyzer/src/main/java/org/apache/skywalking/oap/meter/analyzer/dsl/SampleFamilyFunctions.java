@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 
 /**
- * Pure Java functional interfaces replacing Groovy Closure parameters in SampleFamily methods.
+ * Functional interfaces used as parameters in {@link SampleFamily} methods.
  */
 public final class SampleFamilyFunctions {
 
@@ -33,7 +33,6 @@ public final class SampleFamilyFunctions {
     }
 
     /**
-     * Replaces {@code Closure<?>} in {@link SampleFamily#tag(groovy.lang.Closure)}.
      * Receives a mutable label map and returns the (possibly modified) map.
      */
     @FunctionalInterface
@@ -41,7 +40,6 @@ public final class SampleFamilyFunctions {
     }
 
     /**
-     * Replaces {@code Closure<Boolean>} in {@link SampleFamily#filter(groovy.lang.Closure)}.
      * Tests whether a sample's labels match the filter criteria.
      */
     @FunctionalInterface
@@ -49,7 +47,6 @@ public final class SampleFamilyFunctions {
     }
 
     /**
-     * Replaces {@code Closure<Void>} in {@link SampleFamily#forEach(java.util.List, groovy.lang.Closure)}.
      * Called for each element in the array with the element value and a mutable labels map.
      */
     @FunctionalInterface
@@ -58,7 +55,6 @@ public final class SampleFamilyFunctions {
     }
 
     /**
-     * Replaces {@code Closure<Void>} in {@link SampleFamily#decorate(groovy.lang.Closure)}.
      * Decorates service meter entities.
      */
     @FunctionalInterface
@@ -66,9 +62,6 @@ public final class SampleFamilyFunctions {
     }
 
     /**
-     * Replaces {@code Closure<Map<String, String>>} in
-     * {@link SampleFamily#instance(java.util.List, String, java.util.List, String,
-     * org.apache.skywalking.oap.server.core.analysis.Layer, groovy.lang.Closure)}.
      * Extracts instance properties from sample labels.
      */
     @FunctionalInterface

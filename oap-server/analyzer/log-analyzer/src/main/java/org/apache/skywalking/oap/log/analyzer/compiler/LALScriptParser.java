@@ -538,7 +538,15 @@ public final class LALScriptParser {
             return new ComparisonCondition(left, leftCast, op,
                 visitConditionExprAsValue(rightCtx));
         }
-        // For function calls and other forms, wrap as expression condition
+        if (leftCtx instanceof LALParser.CondFunctionCallContext) {
+            final LALParser.FunctionInvocationContext fi =
+                ((LALParser.CondFunctionCallContext) leftCtx).functionInvocation();
+            final ValueAccess left = new ValueAccess(
+                List.of(fi.getText()), false, false, List.of());
+            return new ComparisonCondition(left, null, op,
+                visitConditionExprAsValue(rightCtx));
+        }
+        // For other forms, wrap as expression condition
         return new ExprCondition(
             new ValueAccess(List.of(leftCtx.getText()), false, false, List.of()), null);
     }
@@ -592,6 +600,8 @@ public final class LALScriptParser {
         } else if (primary instanceof LALParser.ValueLogContext) {
             logRef = true;
             segments.add("log");
+        } else if (primary instanceof LALParser.ValueProcessRegistryContext) {
+            segments.add("ProcessRegistry");
         } else if (primary instanceof LALParser.ValueIdentifierContext) {
             segments.add(((LALParser.ValueIdentifierContext) primary).IDENTIFIER().getText());
         } else if (primary instanceof LALParser.ValueStringContext) {
@@ -622,15 +632,15 @@ public final class LALScriptParser {
             } else if (seg instanceof LALParser.SegmentMethodContext) {
                 final LALParser.FunctionInvocationContext fi =
                     ((LALParser.SegmentMethodContext) seg).functionInvocation();
-                segments.add(fi.IDENTIFIER().getText() + "()");
+                segments.add(fi.functionName().getText() + "()");
                 chain.add(new LALScriptModel.MethodSegment(
-                    fi.IDENTIFIER().getText(), List.of(), false));
+                    fi.functionName().getText(), List.of(), false));
             } else if (seg instanceof LALParser.SegmentSafeMethodContext) {
                 final LALParser.FunctionInvocationContext fi =
                     ((LALParser.SegmentSafeMethodContext) seg).functionInvocation();
-                segments.add(fi.IDENTIFIER().getText() + "()");
+                segments.add(fi.functionName().getText() + "()");
                 chain.add(new LALScriptModel.MethodSegment(
-                    fi.IDENTIFIER().getText(), List.of(), true));
+                    fi.functionName().getText(), List.of(), true));
             }
         }
 

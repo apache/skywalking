@@ -26,16 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.meter.analyzer.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
+import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext;
 import org.apache.skywalking.oap.meter.analyzer.dsl.MalExpression;
-import org.apache.skywalking.oap.server.checker.InMemoryCompiler;
-import org.apache.skywalking.oap.server.transpiler.mal.MalToJavaTranspiler;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -46,34 +43,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Dual-path comparison test for MAL (Meter Analysis Language) expressions.
  * For each metric rule across all MAL YAML files:
  * <ul>
- *   <li>Path A (v1): Groovy compilation via upstream {@link DSL#parse(String, String)}</li>
- *   <li>Path B (v2): Transpiled Java via {@link MalToJavaTranspiler}, compiled in-memory</li>
+ *   <li>Path A (v1): Groovy compilation via upstream {@code DSL.parse()}</li>
+ *   <li>Path B (v2): ANTLR4 + Javassist compilation via {@link MALClassGenerator}</li>
  * </ul>
- * Both paths run {@code parse()} with empty input and compare the resulting
- * {@link ExpressionParsingContext} (samples, scope, downsampling, aggregation labels).
+ * Both paths run metadata extraction and compare the resulting metadata
+ * (samples, scope, downsampling, aggregation labels).
  */
 @Slf4j
 class MalComparisonTest {
 
-    private static InMemoryCompiler COMPILER;
-    private static final AtomicInteger CLASS_COUNTER = new AtomicInteger();
-    private static final AtomicInteger V2_TRANSPILE_GAPS = new AtomicInteger();
-
-    @BeforeAll
-    static void initCompiler() throws Exception {
-        COMPILER = new InMemoryCompiler();
-    }
-
-    @AfterAll
-    static void closeCompiler() throws Exception {
-        if (COMPILER != null) {
-            COMPILER.close();
-        }
-        final int gaps = V2_TRANSPILE_GAPS.get();
-        if (gaps > 0) {
-            log.warn("{} MAL expressions could not be transpiled to Java (known transpiler gaps)", gaps);
-        }
-    }
+    private static final AtomicInteger V2_COMPILE_GAPS = new AtomicInteger();
 
     @TestFactory
     Collection<DynamicTest> malExpressionsMatch() throws Exception {
@@ -97,70 +76,49 @@ class MalComparisonTest {
                                    final String expression) throws Exception {
         // ---- V1: Groovy path ----
         ExpressionParsingContext v1Ctx = null;
-        String v1Error = null;
         try {
             final Expression v1Expr = DSL.parse(metricName, expression);
             v1Ctx = v1Expr.parse();
         } catch (Exception e) {
-            v1Error = e.getMessage();
+            // V1 failed - skip comparison
         }
 
-        // ---- V2: Transpiled Java path ----
-        ExpressionParsingContext v2Ctx = null;
+        // ---- V2: ANTLR4 + Javassist compilation ----
+        ExpressionMetadata v2Meta = null;
         String v2Error = null;
         try {
-            final MalToJavaTranspiler transpiler = new MalToJavaTranspiler();
-            final String className = "MalExpr_check_" + CLASS_COUNTER.getAndIncrement();
-            final String javaSource = transpiler.transpileExpression(className, expression);
-
-            final Class<?> clazz = COMPILER.compile(
-                MalToJavaTranspiler.GENERATED_PACKAGE, className, javaSource);
-            final MalExpression malExpr = (MalExpression) clazz
-                .getDeclaredConstructor().newInstance();
-
-            // Run parse: create parsing context, execute with empty map, extract context
-            try (ExpressionParsingContext ctx = ExpressionParsingContext.create()) {
-                try {
-                    malExpr.run(ImmutableMap.of());
-                } catch (Exception ignored) {
-                    // Expected: expressions fail with empty input
-                }
-                ctx.validate(expression);
-                v2Ctx = ctx;
-            }
+            final MALClassGenerator generator = new MALClassGenerator();
+            final MalExpression malExpr = generator.compile(metricName, expression);
+            v2Meta = malExpr.metadata();
         } catch (Exception e) {
             v2Error = e.getMessage();
         }
 
         // ---- Compare ----
-        if (v1Ctx == null && v2Ctx == null) {
-            // Both failed - acceptable (known limitations in both paths)
+        if (v1Ctx == null && v2Meta == null) {
             return;
         }
         if (v1Ctx == null) {
-            // V1 failed but V2 succeeded - V2 is more capable, acceptable
             return;
         }
-        if (v2Ctx == null) {
-            // V2 transpiler/compilation gap - log and count, not a test failure.
-            // These are known limitations of the transpiler that will be addressed incrementally.
-            V2_TRANSPILE_GAPS.incrementAndGet();
-            log.info("V2 transpile gap for '{}': {}", metricName, v2Error);
+        if (v2Meta == null) {
+            V2_COMPILE_GAPS.incrementAndGet();
+            log.info("V2 compile gap for '{}': {}", metricName, v2Error);
             return;
         }
 
-        // Both succeeded - compare contexts
-        assertEquals(v1Ctx.getSamples(), v2Ctx.getSamples(),
+        // Both succeeded - compare metadata
+        assertEquals(v1Ctx.getSamples(), v2Meta.getSamples(),
             metricName + ": samples mismatch");
-        assertEquals(v1Ctx.getScopeType(), v2Ctx.getScopeType(),
+        assertEquals(v1Ctx.getScopeType(), v2Meta.getScopeType(),
             metricName + ": scopeType mismatch");
-        assertEquals(v1Ctx.getDownsampling(), v2Ctx.getDownsampling(),
+        assertEquals(v1Ctx.getDownsampling(), v2Meta.getDownsampling(),
             metricName + ": downsampling mismatch");
-        assertEquals(v1Ctx.isHistogram(), v2Ctx.isHistogram(),
+        assertEquals(v1Ctx.isHistogram(), v2Meta.isHistogram(),
             metricName + ": isHistogram mismatch");
-        assertEquals(v1Ctx.getScopeLabels(), v2Ctx.getScopeLabels(),
+        assertEquals(v1Ctx.getScopeLabels(), v2Meta.getScopeLabels(),
             metricName + ": scopeLabels mismatch");
-        assertEquals(v1Ctx.getAggregationLabels(), v2Ctx.getAggregationLabels(),
+        assertEquals(v1Ctx.getAggregationLabels(), v2Meta.getAggregationLabels(),
             metricName + ": aggregationLabels mismatch");
     }
 
@@ -240,17 +198,15 @@ class MalComparisonTest {
     }
 
     private Path findResourceDir(final String name) {
-        // Look in server-starter resources
-        final Path starterResources = Path.of(
-            "oap-server/server-starter/src/main/resources/" + name);
-        if (Files.isDirectory(starterResources)) {
-            return starterResources;
-        }
-        // Try from project root
-        final Path fromRoot = Path.of(
-            System.getProperty("user.dir")).resolve("../../server-starter/src/main/resources/" + name);
-        if (Files.isDirectory(fromRoot)) {
-            return fromRoot;
+        final String[] candidates = {
+            "oap-server/server-starter/src/main/resources/" + name,
+            "../../../oap-server/server-starter/src/main/resources/" + name
+        };
+        for (final String candidate : candidates) {
+            final Path path = Path.of(candidate);
+            if (Files.isDirectory(path)) {
+                return path;
+            }
         }
         return null;
     }

@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.apache.skywalking.oap.server.core.config.compiler.CompiledHierarchyRuleProvider;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,7 +71,7 @@ class HierarchyRuleComparisonTest {
         final Map<String, String> ruleExpressions = (Map<String, String>) config.get("auto-matching-rules");
 
         final GroovyHierarchyRuleProvider groovyProvider = new GroovyHierarchyRuleProvider();
-        final JavaHierarchyRuleProvider javaProvider = new JavaHierarchyRuleProvider();
+        final CompiledHierarchyRuleProvider javaProvider = new CompiledHierarchyRuleProvider();
 
         final Map<String, BiFunction<Service, Service, Boolean>> v1Rules =
             groovyProvider.buildRules(ruleExpressions);

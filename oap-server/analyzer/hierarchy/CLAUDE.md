@@ -34,8 +34,12 @@ oap-server/analyzer/hierarchy/
     HierarchyRuleScriptParser.java              — ANTLR4 facade: expression → AST
     HierarchyRuleModel.java                     — Immutable AST model classes
     HierarchyRuleClassGenerator.java            — Javassist code generator
-    rt/
+    CompiledHierarchyRuleProvider.java          — SPI provider: compiles rule expressions
+    hierarchy/rule/rt/
       HierarchyRulePackageHolder.java           — Class loading anchor (empty marker)
+
+  src/main/resources/META-INF/services/
+    ...HierarchyDefinitionService$HierarchyRuleProvider — SPI registration
 
   src/test/java/.../compiler/
     HierarchyRuleScriptParserTest.java          — 5 parser tests
@@ -47,8 +51,9 @@ oap-server/analyzer/hierarchy/
 | Component | Package / Name |
 |-----------|---------------|
 | Parser/Model/Generator | `org.apache.skywalking.oap.server.core.config.compiler` |
-| Generated classes | `org.apache.skywalking.oap.server.core.config.compiler.rt.HierarchyRule_<N>` |
-| Package holder | `org.apache.skywalking.oap.server.core.config.compiler.rt.HierarchyRulePackageHolder` |
+| Generated classes | `org.apache.skywalking.oap.server.core.config.compiler.hierarchy.rule.rt.HierarchyRule_<N>` |
+| Package holder | `org.apache.skywalking.oap.server.core.config.compiler.hierarchy.rule.rt.HierarchyRulePackageHolder` |
+| SPI provider | `org.apache.skywalking.oap.server.core.config.compiler.CompiledHierarchyRuleProvider` |
 | Service type | `org.apache.skywalking.oap.server.core.query.type.Service` (in server-core) |
 
 `<N>` is a global `AtomicInteger` counter.

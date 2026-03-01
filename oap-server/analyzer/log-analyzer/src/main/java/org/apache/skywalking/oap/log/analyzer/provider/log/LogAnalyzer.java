@@ -33,7 +33,24 @@ import org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisL
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
- * Analyze the collected log data, is the entry point for log analysis.
+ * Entry point for log analysis. Created per-request by the log receiver.
+ *
+ * <p>Runtime execution ({@link #doAnalysis}):
+ * <ol>
+ *   <li>Validates the incoming log (service name must be non-empty, layer must be valid).</li>
+ *   <li>Calls {@code createAnalysisListeners(layer)} — asks all registered
+ *       {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListenerFactory}
+ *       instances to create listeners for the log's layer. For LAL, this is
+ *       {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogFilterListener.Factory},
+ *       which returns a listener wrapping all compiled {@link org.apache.skywalking.oap.log.analyzer.dsl.DSL}
+ *       instances for that layer.</li>
+ *   <li>{@code notifyAnalysisListener(builder, extraLog)} — calls
+ *       {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListener#parse}
+ *       on each listener, which binds the log data to the compiled LAL scripts.</li>
+ *   <li>{@code notifyAnalysisListenerToBuild()} — calls
+ *       {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListener#build}
+ *       on each listener, which evaluates the compiled LAL scripts (extractors, sinks).</li>
+ * </ol>
  */
 @Slf4j
 @RequiredArgsConstructor

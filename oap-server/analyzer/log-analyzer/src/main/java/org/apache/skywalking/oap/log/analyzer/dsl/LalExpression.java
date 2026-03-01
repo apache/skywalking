@@ -21,8 +21,13 @@ package org.apache.skywalking.oap.log.analyzer.dsl;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.filter.FilterSpec;
 
 /**
- * Pure Java replacement for Groovy-based LAL DelegatingScript.
- * Each transpiled LAL expression implements this interface.
+ * Functional interface implemented by each compiled LAL class.
+ *
+ * <p>Generated at startup by
+ * {@link org.apache.skywalking.oap.log.analyzer.compiler.LALClassGenerator}
+ * via ANTLR4 parsing and Javassist bytecode generation.
+ * The generated {@code execute} method calls {@link FilterSpec} methods
+ * (json/text/yaml, extractor, sink) in the order defined by the LAL script.
  */
 @FunctionalInterface
 public interface LalExpression {
