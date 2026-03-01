@@ -29,7 +29,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,8 +114,17 @@ public class CiliumNodeManagerTest {
                      List<RemoteInstance> allOAPInstances,
                      List<CiliumNode> allCiliumNodes,
                      List<CiliumNode> shouldMonitorNodeBySelf) {
-        Whitebox.setInternalState(ciliumNodeManager, "remoteInstances", allOAPInstances);
-        Whitebox.setInternalState(ciliumNodeManager, "allNodes", allCiliumNodes);
+        try {
+            Field instancesField = CiliumNodeManager.class.getDeclaredField("remoteInstances");
+            instancesField.setAccessible(true);
+            instancesField.set(ciliumNodeManager, allOAPInstances);
+
+            Field nodesField = CiliumNodeManager.class.getDeclaredField("allNodes");
+            nodesField.setAccessible(true);
+            nodesField.set(ciliumNodeManager, allCiliumNodes);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         ciliumNodeManager.refreshUsingNodes();
         final List<CiliumNode> nodes = nodeUpdateListener.getNodes();
         nodes.sort(Comparator.comparing(CiliumNode::getAddress));

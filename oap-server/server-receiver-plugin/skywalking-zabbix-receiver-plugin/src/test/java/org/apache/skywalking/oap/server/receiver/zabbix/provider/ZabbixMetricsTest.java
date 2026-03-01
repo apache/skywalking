@@ -40,13 +40,15 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.powermock.reflect.Whitebox;
+import org.mockito.MockedStatic;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -74,9 +76,22 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
+    protected MockedStatic<MetricsStreamProcessor> mockedMetricsStreamProcessor;
+    protected MetricsStreamProcessor spyProcessor;
+
     @BeforeEach
     public void beforeEach() throws Throwable {
+        spyProcessor = Mockito.spy(new MetricsStreamProcessor());
+        mockedMetricsStreamProcessor = Mockito.mockStatic(MetricsStreamProcessor.class);
+        mockedMetricsStreamProcessor.when(MetricsStreamProcessor::getInstance).thenReturn(spyProcessor);
         setupMetrics();
+    }
+
+    @AfterEach
+    public void afterEach() {
+        if (mockedMetricsStreamProcessor != null) {
+            mockedMetricsStreamProcessor.close();
+        }
     }
 
     @AfterAll
@@ -91,22 +106,26 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
 
         // prepare the context
         meterSystem = Mockito.spy(new MeterSystem(moduleManager));
-        Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
-                                  Mockito.spy(MetricsStreamProcessor.getInstance()));
-        doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
-        CoreModule coreModule = Mockito.spy(CoreModule.class);
+        doNothing().when(spyProcessor).create(any(), (StreamDefinition) any(), any());
+        CoreModule coreModule = Mockito.mock(CoreModule.class);
 
-        Whitebox.setInternalState(coreModule, "loadedProvider", moduleProvider);
+        when(coreModule.provider()).thenReturn(moduleProvider);
+
+        try {
+            Field functionRegisterField = MeterSystem.class.getDeclaredField("functionRegister");
+            functionRegisterField.setAccessible(true);
+            final HashMap<String, Class> map = Maps.newHashMap();
+            map.put("avg", AvgFunction.class);
+            map.put("avgLabeled", AvgLabeledFunction.class);
+            map.put("avgHistogram", AvgHistogramFunction.class);
+            map.put("avgHistogramPercentile", AvgHistogramPercentileFunction.class);
+            functionRegisterField.set(meterSystem, map);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
         when(moduleManager.find(CoreModule.NAME)).thenReturn(coreModule);
         when(moduleProvider.getService(MeterSystem.class)).thenReturn(meterSystem);
-
-        // prepare the meter functions
-        final HashMap<String, Class> map = Maps.newHashMap();
-        map.put("avg", AvgFunction.class);
-        map.put("avgLabeled", AvgLabeledFunction.class);
-        map.put("avgHistogram", AvgHistogramFunction.class);
-        map.put("avgHistogramPercentile", AvgHistogramPercentileFunction.class);
-        Whitebox.setInternalState(meterSystem, "functionRegister", map);
         super.setupMetrics();
     }
 

@@ -33,8 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
-
+import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -228,11 +227,13 @@ public class TraceSamplingPolicyWatcherTest {
 
     @Test
     @Timeout(20)
-    public void testServiceSampleRateDynamicUpdate() throws InterruptedException {
+    public void testServiceSampleRateDynamicUpdate() throws Exception {
         ConfigWatcherRegister register = new ServiceMockConfigWatcherRegister(3);
 
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
-        Whitebox.setInternalState(provider, "moduleConfig", moduleConfig);
+        Field moduleConfigField = AnalyzerModuleProvider.class.getDeclaredField("moduleConfig");
+        moduleConfigField.setAccessible(true);
+        moduleConfigField.set(provider, moduleConfig);
         provider.getModuleConfig().setTraceSamplingPolicyWatcher(watcher);
         register.registerConfigChangeWatcher(watcher);
         register.start();
@@ -250,7 +251,7 @@ public class TraceSamplingPolicyWatcherTest {
     }
 
     @Test
-    public void testServiceSampleRateNotify() {
+    public void testServiceSampleRateNotify() throws Exception {
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
         ConfigChangeWatcher.ConfigChangeEvent value1 = new ConfigChangeWatcher.ConfigChangeEvent(
             "services:\n" +
@@ -368,9 +369,11 @@ public class TraceSamplingPolicyWatcherTest {
         Assertions.assertFalse(watcher.shouldSample("", 10000, duration - 1));
     }
 
-    private SamplingPolicy getSamplingPolicy(String service, TraceSamplingPolicyWatcher watcher) {
-        AtomicReference<SamplingPolicySettings> samplingPolicySettings = Whitebox.getInternalState(
-            watcher, "samplingPolicySettings");
+    private SamplingPolicy getSamplingPolicy(String service, TraceSamplingPolicyWatcher watcher) throws Exception {
+        Field settingsField = TraceSamplingPolicyWatcher.class.getDeclaredField("samplingPolicySettings");
+        settingsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        AtomicReference<SamplingPolicySettings> samplingPolicySettings = (AtomicReference<SamplingPolicySettings>) settingsField.get(watcher);
         return samplingPolicySettings.get().get(service);
     }
 }

@@ -35,7 +35,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 import java.util.Collection;
 import java.util.List;
@@ -64,9 +65,17 @@ public class ClusterModuleConsulProviderTest {
     @BeforeEach
     public void before() {
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
-        provider.setManager(moduleManager);
-        Whitebox.setInternalState(provider, "config", new ClusterModuleConsulConfig());
+        try {
+            Field loadedProviderField = ModuleDefine.class.getDeclaredField("loadedProvider");
+            loadedProviderField.setAccessible(true);
+            loadedProviderField.set(telemetryModule, telemetryProvider);
+            provider.setManager(moduleManager);
+            Field configField = ClusterModuleConsulProvider.class.getDeclaredField("config");
+            configField.setAccessible(true);
+            configField.set(provider, new ClusterModuleConsulConfig());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -89,7 +98,13 @@ public class ClusterModuleConsulProviderTest {
     public void prepare() throws Exception {
         ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
         consulConfig.setHostPort("10.0.0.1:1000,10.0.0.2:1001");
-        Whitebox.setInternalState(provider, "config", consulConfig);
+        try {
+            Field configField = ClusterModuleConsulProvider.class.getDeclaredField("config");
+            configField.setAccessible(true);
+            configField.set(provider, consulConfig);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         Consul consulClient = mock(Consul.class);
         Consul.Builder builder = mock(Consul.Builder.class);
@@ -119,7 +134,13 @@ public class ClusterModuleConsulProviderTest {
     public void prepareSingle() throws Exception {
         ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
         consulConfig.setHostPort("10.0.0.1:1000");
-        Whitebox.setInternalState(provider, "config", consulConfig);
+        try {
+            Field configField = ClusterModuleConsulProvider.class.getDeclaredField("config");
+            configField.setAccessible(true);
+            configField.set(provider, consulConfig);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
         Consul consulClient = mock(Consul.class);
         Consul.Builder builder = mock(Consul.Builder.class);

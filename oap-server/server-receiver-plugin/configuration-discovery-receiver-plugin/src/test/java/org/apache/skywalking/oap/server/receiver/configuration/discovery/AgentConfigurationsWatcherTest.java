@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -45,8 +45,14 @@ public class AgentConfigurationsWatcherTest {
 
     @Test
     public void testConfigModifyEvent() throws IOException {
-        AgentConfigurationsTable agentConfigurationsTable = Whitebox.getInternalState(
-            agentConfigurationsWatcher, "agentConfigurationsTable");
+        AgentConfigurationsTable agentConfigurationsTable;
+        try {
+            Field field = AgentConfigurationsWatcher.class.getDeclaredField("agentConfigurationsTable");
+            field.setAccessible(true);
+            agentConfigurationsTable = (AgentConfigurationsTable) field.get(agentConfigurationsWatcher);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         assertTrue(agentConfigurationsTable.getAgentConfigurationsCache().isEmpty());
 
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
@@ -58,8 +64,14 @@ public class AgentConfigurationsWatcherTest {
             ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        AgentConfigurationsTable modifyAgentConfigurationsTable = Whitebox.getInternalState(
-            agentConfigurationsWatcher, "agentConfigurationsTable");
+        AgentConfigurationsTable modifyAgentConfigurationsTable;
+        try {
+            Field field = AgentConfigurationsWatcher.class.getDeclaredField("agentConfigurationsTable");
+            field.setAccessible(true);
+            modifyAgentConfigurationsTable = (AgentConfigurationsTable) field.get(agentConfigurationsWatcher);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         Map<String, AgentConfigurations> configurationCache = modifyAgentConfigurationsTable.getAgentConfigurationsCache();
         Assertions.assertEquals(2, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
@@ -90,16 +102,25 @@ public class AgentConfigurationsWatcherTest {
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
         agentConfigurationsWatcher = spy(new AgentConfigurationsWatcher(null));
 
-        Whitebox.setInternalState(
-            agentConfigurationsWatcher, "agentConfigurationsTable",
-            new AgentConfigurationsReader(reader).readAgentConfigurationsTable()
-        );
+        try {
+            Field field = AgentConfigurationsWatcher.class.getDeclaredField("agentConfigurationsTable");
+            field.setAccessible(true);
+            field.set(agentConfigurationsWatcher, new AgentConfigurationsReader(reader).readAgentConfigurationsTable());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         agentConfigurationsWatcher.notify(
             new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
-        AgentConfigurationsTable agentConfigurationsTable = Whitebox.getInternalState(
-            agentConfigurationsWatcher, "agentConfigurationsTable");
+        AgentConfigurationsTable agentConfigurationsTable;
+        try {
+            Field field = AgentConfigurationsWatcher.class.getDeclaredField("agentConfigurationsTable");
+            field.setAccessible(true);
+            agentConfigurationsTable = (AgentConfigurationsTable) field.get(agentConfigurationsWatcher);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         Map<String, AgentConfigurations> configurationCache = agentConfigurationsTable.getAgentConfigurationsCache();
 
         Assertions.assertEquals(0, configurationCache.size());

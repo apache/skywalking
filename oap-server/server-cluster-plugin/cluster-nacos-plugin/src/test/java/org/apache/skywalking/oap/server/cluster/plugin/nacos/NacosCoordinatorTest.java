@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,7 +60,13 @@ public class NacosCoordinatorTest {
         nacosConfig.setServiceName(SERVICE_NAME);
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new NacosCoordinator(manager, namingService, nacosConfig);
-        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
+        try {
+            Field healthCheckerField = NacosCoordinator.class.getDeclaredField("healthChecker");
+            healthCheckerField.setAccessible(true);
+            healthCheckerField.set(coordinator, healthChecker);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

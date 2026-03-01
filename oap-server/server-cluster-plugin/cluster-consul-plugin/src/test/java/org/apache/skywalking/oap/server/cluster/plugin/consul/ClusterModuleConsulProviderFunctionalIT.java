@@ -41,7 +41,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -79,7 +80,13 @@ public class ClusterModuleConsulProviderFunctionalIT {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                 .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        try {
+            Field loadedProviderField = ModuleDefine.class.getDeclaredField("loadedProvider");
+            loadedProviderField.setAccessible(true);
+            loadedProviderField.set(telemetryModule, telemetryProvider);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         consulAddress = container.getHost() + ":" + container.getMappedPort(8500);
     }
@@ -220,7 +227,14 @@ public class ClusterModuleConsulProviderFunctionalIT {
         assertEquals(2,  queryRemoteNodes(providerB, 2).size());
 
         // unregister A
-        Consul client = Whitebox.getInternalState(providerA, "client");
+        Consul client;
+        try {
+            Field clientField = ClusterModuleConsulProvider.class.getDeclaredField("client");
+            clientField.setAccessible(true);
+            client = (Consul) clientField.get(providerA);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         AgentClient agentClient = client.agentClient();
         agentClient.deregister(instanceA.getAddress().toString());
 

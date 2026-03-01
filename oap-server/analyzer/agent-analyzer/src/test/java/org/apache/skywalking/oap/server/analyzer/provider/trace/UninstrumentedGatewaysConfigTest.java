@@ -18,21 +18,23 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
+import java.lang.reflect.Method;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
 
 public class UninstrumentedGatewaysConfigTest {
     @Test
     public void testParseGatewayYAML() throws Exception {
         final UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig
             = new UninstrumentedGatewaysConfig(new MockProvider());
+        Method parseGatewaysFromFileMethod = UninstrumentedGatewaysConfig.class.getDeclaredMethod("parseGatewaysFromFile", String.class);
+        parseGatewaysFromFileMethod.setAccessible(true);
         UninstrumentedGatewaysConfig.GatewayInfos gatewayInfos
-            = Whitebox.invokeMethod(uninstrumentedGatewaysConfig, "parseGatewaysFromFile", "gateways.yml");
+            = (UninstrumentedGatewaysConfig.GatewayInfos) parseGatewaysFromFileMethod.invoke(uninstrumentedGatewaysConfig, "gateways.yml");
         Assertions.assertEquals(1, gatewayInfos.getGateways().size());
     }
 

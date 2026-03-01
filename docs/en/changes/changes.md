@@ -66,7 +66,7 @@
   | Schedulers + others                   | ~24                | ~24 | Mostly unchanged                            |
   | **Total (OAP threads)**               | **150+**           | **~72** | **~50% reduction, stable in high payload.** |
 
-* Replace PowerMock Whitebox with standard Java Reflection in `server-library`, `server-core`, and `server-configuration` to support JDK 25+.
+* Replace PowerMock Whitebox with standard Java Reflection in `server-library`, `server-core`, `server-configuration`, `analyzer`, `server-cluster-plugin`, `server-receiver-plugin`, `server-fetcher-plugin` to support JDK 25+.
 
 #### OAP Server
 

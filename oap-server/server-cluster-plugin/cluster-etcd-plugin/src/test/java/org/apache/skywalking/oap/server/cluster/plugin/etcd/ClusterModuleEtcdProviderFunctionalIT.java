@@ -36,7 +36,8 @@ import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -211,7 +212,9 @@ public class ClusterModuleEtcdProviderFunctionalIT {
         assertEquals(2,  queryRemoteNodes(providerB, 2).size());
 
         // unregister A
-        Client client = Whitebox.getInternalState(coordinatorA, "client");
+        Field clientField = EtcdCoordinator.class.getDeclaredField("client");
+        clientField.setAccessible(true);
+        Client client = (Client) clientField.get(coordinatorA);
         client.close();
 
         // only B
@@ -247,7 +250,13 @@ public class ClusterModuleEtcdProviderFunctionalIT {
             config.setInternalComPort(internalComPort);
         }
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        try {
+            Field loadedProviderField = ModuleDefine.class.getDeclaredField("loadedProvider");
+            loadedProviderField.setAccessible(true);
+            loadedProviderField.set(telemetryModule, telemetryProvider);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         ModuleManager manager = mock(ModuleManager.class);
         Mockito.when(manager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
 

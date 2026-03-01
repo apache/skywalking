@@ -29,7 +29,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,9 +50,17 @@ public class ClusterModuleKubernetesProviderTest {
         final var config = new ClusterModuleKubernetesConfig();
         config.setLabelSelector("app=oap");
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
-        provider.setManager(moduleManager);
-        Whitebox.setInternalState(provider, "config", config);
+        try {
+            Field loadedProviderField = ModuleDefine.class.getDeclaredField("loadedProvider");
+            loadedProviderField.setAccessible(true);
+            loadedProviderField.set(telemetryModule, telemetryProvider);
+            provider.setManager(moduleManager);
+            Field configField = ClusterModuleKubernetesProvider.class.getDeclaredField("config");
+            configField.setAccessible(true);
+            configField.set(provider, config);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

@@ -24,9 +24,10 @@ import org.apache.skywalking.oap.server.library.util.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ClusterManagerMetricsAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -41,8 +42,11 @@ public class ClusterManagerMetricsAdapterTest {
 
     @SneakyThrows
     @BeforeEach
-    public void setUp() {
-        Whitebox.setInternalState(FieldsHelper.forClass(this.getClass()), "initialized", false);
+    public void setUp() throws Exception {
+        Field helperMapField = FieldsHelper.class.getDeclaredField("HELPER_MAP");
+        helperMapField.setAccessible(true);
+        ((Map<?, ?>) helperMapField.get(null)).clear();
+
         EnvoyMetricReceiverConfig config = new EnvoyMetricReceiverConfig();
         clusterManagerMetricsAdapter = new ClusterManagerMetricsAdapter(config);
         FieldsHelper.forClass(config.serviceMetaInfoFactory().clazz()).init("metadata-service-mapping.yaml");

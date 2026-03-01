@@ -42,20 +42,22 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -66,6 +68,8 @@ public class MeterProcessorTest {
     private ModuleManager moduleManager;
     private MeterSystem meterSystem;
     private MeterProcessor processor;
+
+    private MockedStatic<MetricsStreamProcessor> mockedMetricsStreamProcessor;
 
     private String service = "test-service";
     private String serviceInstance = "test-service-instance";
@@ -83,16 +87,20 @@ public class MeterProcessorTest {
         when(moduleManager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
         when(moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class)).thenReturn(meterSystem);
         MetricsStreamProcessor mockProcessor = mock(MetricsStreamProcessor.class);
-        Whitebox.setInternalState(
-                MetricsStreamProcessor.class,
-                "PROCESSOR",
-                mockProcessor
-        );
+        mockedMetricsStreamProcessor = mockStatic(MetricsStreamProcessor.class);
+        mockedMetricsStreamProcessor.when(MetricsStreamProcessor::getInstance).thenReturn(mockProcessor);
         doNothing().when(mockProcessor).create(any(), (StreamDefinition) any(), any());
         final MeterProcessService processService = new MeterProcessService(moduleManager);
         List<MeterConfig> config = MeterConfigs.loadConfig("meter-analyzer-config", Arrays.asList("config"));
         processService.start(config);
         processor = new MeterProcessor(processService);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        if (mockedMetricsStreamProcessor != null) {
+            mockedMetricsStreamProcessor.close();
+        }
     }
 
     @Test

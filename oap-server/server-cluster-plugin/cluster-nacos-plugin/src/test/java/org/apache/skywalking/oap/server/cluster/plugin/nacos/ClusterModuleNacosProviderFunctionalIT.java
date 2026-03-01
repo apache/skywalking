@@ -43,7 +43,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import java.lang.reflect.Field;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -78,7 +79,13 @@ public class ClusterModuleNacosProviderFunctionalIT {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        try {
+            Field loadedProviderField = ModuleDefine.class.getDeclaredField("loadedProvider");
+            loadedProviderField.setAccessible(true);
+            loadedProviderField.set(telemetryModule, telemetryProvider);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         nacosAddress = container.getHost() + ":" + container.getMappedPort(8848);
         Integer nacosPortOffset = container.getMappedPort(9848) - container.getMappedPort(8848);
@@ -219,7 +226,9 @@ public class ClusterModuleNacosProviderFunctionalIT {
         assertEquals(2, queryRemoteNodes(providerB, 2).size());
 
         // deregister A
-        NamingService namingServiceA = Whitebox.getInternalState(coordinatorA, "namingService");
+        Field namingServiceField = NacosCoordinator.class.getDeclaredField("namingService");
+        namingServiceField.setAccessible(true);
+        NamingService namingServiceA = (NamingService) namingServiceField.get(coordinatorA);
         namingServiceA.deregisterInstance(serviceName, addressA.getHost(), addressA.getPort());
 
         // only B

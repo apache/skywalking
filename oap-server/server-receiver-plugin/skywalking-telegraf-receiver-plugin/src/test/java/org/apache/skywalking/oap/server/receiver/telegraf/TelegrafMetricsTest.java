@@ -24,11 +24,11 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.CoreModuleProvider;
+
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonParseException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -63,7 +63,6 @@ import java.util.Map;
 @ExtendWith(MockitoExtension.class)
 public class TelegrafMetricsTest {
 
-    protected CoreModuleProvider moduleProvider;
     protected ModuleManager moduleManager;
     protected MeterSystem meterSystem;
     protected TelegrafServiceHandler telegrafServiceHandler;
@@ -83,7 +82,7 @@ public class TelegrafMetricsTest {
 
     @BeforeEach
     public void setupMetrics() throws Throwable {
-        moduleProvider = Mockito.mock(CoreModuleProvider.class);
+
         moduleManager = new MockModuleManager() {
             @Override
             protected void init() {
@@ -105,17 +104,6 @@ public class TelegrafMetricsTest {
 
         // prepare the context
         meterSystem = Mockito.mock(MeterSystem.class);
-
-        // FIX 1: Removed spy() wrapper.
-        // We use the instance directly. If it is a Mock (from other tests), using it directly is fine.
-        Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
-                MetricsStreamProcessor.getInstance());
-
-        // FIX 2: Changed spy(CoreModule.class) to mock(CoreModule.class)
-        // Spying on a Class literal is invalid in modern Mockito.
-        CoreModule coreModule = Mockito.mock(CoreModule.class);
-
-        Whitebox.setInternalState(coreModule, "loadedProvider", moduleProvider);
 
         telegrafServiceHandler = buildTelegrafServiceHandler();
     }
