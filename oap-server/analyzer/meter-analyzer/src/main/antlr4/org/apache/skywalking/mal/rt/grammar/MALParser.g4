@@ -89,6 +89,8 @@ argument
     : additiveExpression                     // nested expression (metric ref, number, arithmetic)
     | stringList                             // ["tag1", "tag2"]
     | numberList                             // [50, 75, 90, 95, 99]
+    | L_PAREN stringList R_PAREN             // (["tag1", "tag2"]) — extra parens
+    | L_PAREN numberList R_PAREN             // ([50, 75, 90]) — extra parens
     | closureExpression                      // {tags -> ...}
     | enumRef                                // Layer.GENERAL, K8sRetagType.Pod2Service
     | STRING                                 // "PT1M", "k8s-key"
@@ -137,8 +139,15 @@ closureBody
 closureStatement
     : ifStatement
     | returnStatement
+    | variableDeclaration
     | assignmentStatement
     | expressionStatement
+    ;
+
+// ==================== Variable declarations ====================
+// Groovy-style: String result = "", String protocol = tags['protocol']
+variableDeclaration
+    : IDENTIFIER IDENTIFIER ASSIGN closureExpr SEMI?
     ;
 
 // ==================== Closure statements ====================
@@ -193,7 +202,9 @@ closureConditionPrimary
     ;
 
 closureExpr
-    : closureExpr PLUS closureExpr                                 # closureAdd
+    : closureExpr QUESTION closureExpr COLON closureExpr           # closureTernary
+    | closureExpr QUESTION COLON closureExpr                       # closureElvis
+    | closureExpr PLUS closureExpr                                 # closureAdd
     | closureExpr MINUS closureExpr                                # closureSub
     | closureExpr STAR closureExpr                                 # closureMul
     | closureExpr SLASH closureExpr                                # closureDiv
@@ -205,11 +216,28 @@ closureExprPrimary
     | NUMBER                                                       # closureNumber
     | NULL                                                         # closureNull
     | boolLiteral                                                  # closureBool
+    | closureMapLiteral                                            # closureMap
     | closureMethodChain                                           # closureChain
+    | L_PAREN closureExpr R_PAREN                                  # closureParen
+    ;
+
+// Groovy map literal: ['key': expr, 'key2': expr2]
+closureMapLiteral
+    : L_BRACKET closureMapEntry (COMMA closureMapEntry)* R_BRACKET
+    ;
+
+closureMapEntry
+    : STRING COLON closureExpr
     ;
 
 closureMethodChain
-    : closureTarget (DOT closureChainSegment)* (safeNav closureChainSegment)*
+    : closureTarget closureChainAccess*
+    ;
+
+closureChainAccess
+    : DOT closureChainSegment
+    | safeNav closureChainSegment
+    | L_BRACKET closureExpr R_BRACKET                              // direct bracket: tags['key']
     ;
 
 closureTarget

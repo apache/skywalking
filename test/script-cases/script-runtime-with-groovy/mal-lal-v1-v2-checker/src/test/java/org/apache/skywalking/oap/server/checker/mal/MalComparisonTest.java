@@ -21,10 +21,14 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
@@ -32,6 +36,10 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
 import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext;
 import org.apache.skywalking.oap.meter.analyzer.dsl.MalExpression;
+import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
+import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -46,11 +54,20 @@ import static org.junit.jupiter.api.Assertions.fail;
  *   <li>Path A (v1): Groovy compilation via upstream {@code DSL.parse()}</li>
  *   <li>Path B (v2): ANTLR4 + Javassist compilation via {@link MALClassGenerator}</li>
  * </ul>
- * Both paths run metadata extraction and compare the resulting metadata
- * (samples, scope, downsampling, aggregation labels).
+ * Both paths run metadata extraction and runtime execution comparison.
+ * Metadata: compare samples, scope, downsampling, aggregation labels.
+ * Runtime: execute with mock SampleFamily data and compare output.
  */
 @Slf4j
 class MalComparisonTest {
+
+    private static final Pattern TAG_EQUAL_PATTERN =
+        Pattern.compile("\\.tagEqual\\s*\\(\\s*'([^']+)'\\s*,\\s*'([^']+)'\\s*\\)");
+
+    private static final String[] HISTOGRAM_LE_VALUES =
+        {"50", "100", "250", "500", "1000"};
+
+    private long timestampCounter = System.currentTimeMillis();
 
     @TestFactory
     Collection<DynamicTest> malExpressionsMatch() throws Exception {
@@ -73,26 +90,28 @@ class MalComparisonTest {
     private void compareExpression(final String metricName,
                                    final String expression) throws Exception {
         // ---- V1: Groovy path ----
+        Expression v1Expr = null;
         ExpressionParsingContext v1Ctx = null;
         try {
-            final Expression v1Expr = DSL.parse(metricName, expression);
+            v1Expr = DSL.parse(metricName, expression);
             v1Ctx = v1Expr.parse();
         } catch (Exception e) {
             // V1 failed - skip comparison
         }
 
         // ---- V2: ANTLR4 + Javassist compilation ----
+        MalExpression v2MalExpr = null;
         ExpressionMetadata v2Meta = null;
         String v2Error = null;
         try {
             final MALClassGenerator generator = new MALClassGenerator();
-            final MalExpression malExpr = generator.compile(metricName, expression);
-            v2Meta = malExpr.metadata();
+            v2MalExpr = generator.compile(metricName, expression);
+            v2Meta = v2MalExpr.metadata();
         } catch (Exception e) {
             v2Error = e.getMessage();
         }
 
-        // ---- Compare ----
+        // ---- Compare metadata ----
         if (v1Ctx == null && v2Meta == null) {
             // Both failed — consistent behavior
             return;
@@ -103,6 +122,7 @@ class MalComparisonTest {
         }
         if (v2Meta == null) {
             fail(metricName + ": v2 compile failed but v1 succeeded — " + v2Error);
+            return;
         }
 
         // Both succeeded - compare metadata
@@ -118,6 +138,210 @@ class MalComparisonTest {
             metricName + ": scopeLabels mismatch");
         assertEquals(v1Ctx.getAggregationLabels(), v2Meta.getAggregationLabels(),
             metricName + ": aggregationLabels mismatch");
+
+        // ---- Runtime execution comparison ----
+        compareExecution(metricName, expression, v1Expr, v2MalExpr, v2Meta);
+    }
+
+    private void compareExecution(final String metricName,
+                                  final String expression,
+                                  final Expression v1Expr,
+                                  final MalExpression v2MalExpr,
+                                  final ExpressionMetadata v2Meta) {
+        final boolean hasIncrease = expression.contains(".increase(")
+            || expression.contains(".rate(");
+
+        // For increase()/rate(), prime the CounterWindow with initial data
+        if (hasIncrease) {
+            try {
+                v1Expr.run(buildMockData(metricName, expression, v2Meta));
+            } catch (Exception ignored) {
+            }
+            try {
+                final Map<String, SampleFamily> primeData =
+                    buildMockData(metricName, expression, v2Meta);
+                for (final SampleFamily s : primeData.values()) {
+                    if (s != SampleFamily.EMPTY) {
+                        s.context.setMetricName(metricName);
+                    }
+                }
+                v2MalExpr.run(primeData);
+            } catch (Exception ignored) {
+            }
+        }
+
+        // Build fresh test data for actual comparison
+        final Map<String, SampleFamily> v1Data =
+            buildMockData(metricName, expression, v2Meta);
+        final Map<String, SampleFamily> v2Data =
+            buildMockData(metricName, expression, v2Meta);
+
+        // V1 run
+        Result v1Result;
+        try {
+            v1Result = v1Expr.run(v1Data);
+        } catch (Exception e) {
+            // V1 runtime failed — skip comparison
+            return;
+        }
+
+        // V2 run
+        SampleFamily v2Sf;
+        try {
+            for (final SampleFamily s : v2Data.values()) {
+                if (s != SampleFamily.EMPTY) {
+                    s.context.setMetricName(metricName);
+                }
+            }
+            v2Sf = v2MalExpr.run(v2Data);
+        } catch (Exception e) {
+            if (v1Result.isSuccess()) {
+                fail(metricName + ": v2 runtime failed but v1 succeeded — "
+                    + e.getClass().getSimpleName() + ": " + e.getMessage());
+            }
+            return;
+        }
+
+        // Compare results
+        final boolean v2Success = v2Sf != null && v2Sf != SampleFamily.EMPTY;
+        assertEquals(v1Result.isSuccess(), v2Success,
+            metricName + ": success mismatch (v1=" + v1Result.isSuccess()
+                + ", v2=" + v2Success + ")");
+
+        if (v1Result.isSuccess() && v2Success) {
+            compareSampleFamilies(metricName, v1Result.getData(), v2Sf);
+        }
+    }
+
+    private Map<String, SampleFamily> buildMockData(final String metricName,
+                                                     final String expression,
+                                                     final ExpressionMetadata meta) {
+        final Map<String, SampleFamily> data = new HashMap<>();
+        final long now = timestampCounter++;
+
+        // Extract tagEqual constraints from the expression
+        final Map<String, String> tagEqualLabels = extractTagEqualLabels(expression);
+
+        for (final String sampleName : meta.getSamples()) {
+            // Build labels from aggregation labels
+            final Map<String, String> labels = new HashMap<>();
+            for (final String label : meta.getAggregationLabels()) {
+                labels.put(label, inferLabelValue(label, tagEqualLabels));
+            }
+            // Also add tagEqual labels not in aggregation labels
+            labels.putAll(tagEqualLabels);
+
+            if (meta.isHistogram()) {
+                data.put(sampleName,
+                    buildHistogramSamples(sampleName, labels, now));
+            } else {
+                final Sample sample = Sample.builder()
+                    .name(sampleName)
+                    .labels(ImmutableMap.copyOf(labels))
+                    .value(100.0)
+                    .timestamp(now)
+                    .build();
+                data.put(sampleName,
+                    SampleFamilyBuilder.newBuilder(sample).build());
+            }
+        }
+        return data;
+    }
+
+    private SampleFamily buildHistogramSamples(final String sampleName,
+                                               final Map<String, String> baseLabels,
+                                               final long timestamp) {
+        final List<Sample> samples = new ArrayList<>();
+        double cumulativeValue = 0;
+        for (final String le : HISTOGRAM_LE_VALUES) {
+            cumulativeValue += 10.0;
+            final Map<String, String> labels = new HashMap<>(baseLabels);
+            labels.put("le", le);
+            samples.add(Sample.builder()
+                .name(sampleName)
+                .labels(ImmutableMap.copyOf(labels))
+                .value(cumulativeValue)
+                .timestamp(timestamp)
+                .build());
+        }
+        return SampleFamilyBuilder.newBuilder(
+            samples.toArray(new Sample[0])).build();
+    }
+
+    private static Map<String, String> extractTagEqualLabels(final String expression) {
+        final Map<String, String> labels = new HashMap<>();
+        final Matcher matcher = TAG_EQUAL_PATTERN.matcher(expression);
+        while (matcher.find()) {
+            labels.put(matcher.group(1), matcher.group(2));
+        }
+        return labels;
+    }
+
+    private static String inferLabelValue(final String label,
+                                          final Map<String, String> tagEqualLabels) {
+        // If tagEqual specifies this label, use that value
+        if (tagEqualLabels.containsKey(label)) {
+            return tagEqualLabels.get(label);
+        }
+        switch (label) {
+            case "service":
+                return "test-service";
+            case "instance":
+            case "service_instance_id":
+                return "test-instance";
+            case "endpoint":
+                return "/test";
+            case "host_name":
+                return "test-host";
+            case "le":
+                return "100";
+            case "job_name":
+                return "mysql-monitoring";
+            case "cluster":
+                return "test-cluster";
+            case "node":
+            case "node_id":
+                return "test-node";
+            case "topic":
+                return "test-topic";
+            case "queue":
+                return "test-queue";
+            case "broker":
+                return "test-broker";
+            default:
+                return "test-value";
+        }
+    }
+
+    private static void compareSampleFamilies(final String metricName,
+                                              final SampleFamily v1Sf,
+                                              final SampleFamily v2Sf) {
+        // Sort both sample arrays by labels for stable comparison
+        final Sample[] v1Sorted = sortSamples(v1Sf.samples);
+        final Sample[] v2Sorted = sortSamples(v2Sf.samples);
+
+        assertEquals(v1Sorted.length, v2Sorted.length,
+            metricName + ": output sample count mismatch (v1="
+                + v1Sorted.length + ", v2=" + v2Sorted.length + ")");
+
+        for (int i = 0; i < v1Sorted.length; i++) {
+            assertEquals(v1Sorted[i].getLabels(), v2Sorted[i].getLabels(),
+                metricName + ": output sample[" + i + "] labels mismatch");
+            assertEquals(v1Sorted[i].getValue(), v2Sorted[i].getValue(), 0.001,
+                metricName + ": output sample[" + i + "] value mismatch"
+                    + " (v1=" + v1Sorted[i].getValue()
+                    + ", v2=" + v2Sorted[i].getValue() + ")");
+        }
+    }
+
+    private static Sample[] sortSamples(final Sample[] samples) {
+        final Sample[] sorted = Arrays.copyOf(samples, samples.length);
+        Arrays.sort(sorted, (a, b) -> {
+            final String aKey = a.getLabels().toString();
+            final String bKey = b.getLabels().toString();
+            return aKey.compareTo(bKey);
+        });
+        return sorted;
     }
 
     @SuppressWarnings("unchecked")

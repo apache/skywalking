@@ -507,8 +507,10 @@ public final class LALClassGenerator {
             final ConsumerInfo parentInfo,
             final int[] subCounter) {
         for (final LALScriptModel.FilterStatement stmt : stmts) {
-            if (stmt instanceof LALScriptModel.FieldAssignment) {
-                // SampledTrace fields (processId, latency, etc.) are parsed as FieldAssignment
+            if (stmt instanceof LALScriptModel.SampledTraceField) {
+                generateSampledTraceField(sb,
+                    (LALScriptModel.SampledTraceField) stmt);
+            } else if (stmt instanceof LALScriptModel.FieldAssignment) {
                 generateSampledTraceFieldFromAssignment(sb,
                     (LALScriptModel.FieldAssignment) stmt);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
@@ -767,11 +769,8 @@ public final class LALClassGenerator {
     private String generateExecuteMethod(final LALScriptModel model,
                                           final int[] counter) {
         final StringBuilder sb = new StringBuilder();
-        sb.append("public void execute(Object arg0, Object arg1) {\n");
-        sb.append("  ").append(FILTER_SPEC).append(" filterSpec = (")
-          .append(FILTER_SPEC).append(") arg0;\n");
-        sb.append("  ").append(BINDING).append(" binding = (")
-          .append(BINDING).append(") arg1;\n");
+        sb.append("public void execute(").append(FILTER_SPEC)
+          .append(" filterSpec, ").append(BINDING).append(" binding) {\n");
 
         for (final LALScriptModel.FilterStatement stmt
                 : model.getStatements()) {
@@ -861,6 +860,8 @@ public final class LALClassGenerator {
             + "    return ((" + BINDING_PARSED + ") obj).getAt(key);"
             + "  if (obj instanceof java.util.Map)"
             + "    return ((java.util.Map) obj).get(key);"
+            + "  Object protoResult = " + BINDING_PARSED + ".getField(obj, key);"
+            + "  if (protoResult != null) return protoResult;"
             + "  return null;"
             + "}", ctClass));
 
@@ -876,6 +877,11 @@ public final class LALClassGenerator {
             + "  if (obj instanceof Number) return ((Number) obj).intValue();"
             + "  if (obj instanceof String) return Integer.parseInt((String) obj);"
             + "  return 0;"
+            + "}", ctClass));
+
+        ctClass.addMethod(CtNewMethod.make(
+            "private static String toStr(Object obj) {"
+            + "  return obj == null ? null : String.valueOf(obj);"
             + "}", ctClass));
 
         ctClass.addMethod(CtNewMethod.make(
@@ -1044,7 +1050,7 @@ public final class LALClassGenerator {
                                             final LALScriptModel.ValueAccess value,
                                             final String castType) {
         if ("String".equals(castType)) {
-            sb.append("String.valueOf(");
+            sb.append("toStr(");
             generateValueAccess(sb, value);
             sb.append(")");
         } else if ("Long".equals(castType)) {
@@ -1068,7 +1074,7 @@ public final class LALClassGenerator {
                                          final LALScriptModel.ValueAccess value,
                                          final String castType) {
         if ("String".equals(castType)) {
-            sb.append("String.valueOf(");
+            sb.append("toStr(");
             generateValueAccess(sb, value);
             sb.append(")");
         } else {

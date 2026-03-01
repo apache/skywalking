@@ -271,13 +271,53 @@ public final class MALExpressionModel {
         }
     }
 
+    /**
+     * Assignment statement: {@code tags.key = expr} or {@code tags[expr] = expr}
+     *
+     * <p>{@code mapVar} is the variable (e.g. "tags"), {@code keyExpr} is the key
+     * expression (string literal for field access, or arbitrary expression for bracket access).
+     */
     @Getter
     public static final class ClosureAssignment implements ClosureStatement {
-        private final String target;
+        private final String mapVar;
+        private final ClosureExpr keyExpr;
         private final ClosureExpr value;
 
-        public ClosureAssignment(final String target, final ClosureExpr value) {
-            this.target = target;
+        public ClosureAssignment(final String mapVar, final ClosureExpr keyExpr,
+                                 final ClosureExpr value) {
+            this.mapVar = mapVar;
+            this.keyExpr = keyExpr;
+            this.value = value;
+        }
+    }
+
+    /**
+     * Local variable declaration: {@code String result = ""}, {@code String protocol = tags['protocol']}
+     */
+    @Getter
+    public static final class ClosureVarDecl implements ClosureStatement {
+        private final String typeName;
+        private final String varName;
+        private final ClosureExpr initializer;
+
+        public ClosureVarDecl(final String typeName, final String varName,
+                              final ClosureExpr initializer) {
+            this.typeName = typeName;
+            this.varName = varName;
+            this.initializer = initializer;
+        }
+    }
+
+    /**
+     * Local variable reassignment: {@code result = '129'}
+     */
+    @Getter
+    public static final class ClosureVarAssign implements ClosureStatement {
+        private final String varName;
+        private final ClosureExpr value;
+
+        public ClosureVarAssign(final String varName, final ClosureExpr value) {
+            this.varName = varName;
             this.value = value;
         }
     }
@@ -327,6 +367,32 @@ public final class MALExpressionModel {
     }
 
     /**
+     * Groovy map literal: {@code ['pod': tags.pod, 'namespace': tags.namespace]}
+     */
+    @Getter
+    public static final class ClosureMapLiteral implements ClosureExpr {
+        private final List<MapEntry> entries;
+
+        public ClosureMapLiteral(final List<MapEntry> entries) {
+            this.entries = Collections.unmodifiableList(entries);
+        }
+    }
+
+    /**
+     * Single entry in a Groovy map literal: {@code 'key': expr}
+     */
+    @Getter
+    public static final class MapEntry {
+        private final String key;
+        private final ClosureExpr value;
+
+        public MapEntry(final String key, final ClosureExpr value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    /**
      * Method chain in closure: {@code tags.service_name}, {@code tags['key']},
      * {@code tags.service?.trim()}
      */
@@ -354,6 +420,36 @@ public final class MALExpressionModel {
             this.left = left;
             this.op = op;
             this.right = right;
+        }
+    }
+
+    @Getter
+    public static final class ClosureElvisExpr implements ClosureExpr {
+        private final ClosureExpr primary;
+        private final ClosureExpr fallback;
+
+        public ClosureElvisExpr(final ClosureExpr primary,
+                                final ClosureExpr fallback) {
+            this.primary = primary;
+            this.fallback = fallback;
+        }
+    }
+
+    /**
+     * Ternary expression: {@code condition ? trueExpr : falseExpr}
+     */
+    @Getter
+    public static final class ClosureTernaryExpr implements ClosureExpr {
+        private final ClosureExpr condition;
+        private final ClosureExpr trueExpr;
+        private final ClosureExpr falseExpr;
+
+        public ClosureTernaryExpr(final ClosureExpr condition,
+                                  final ClosureExpr trueExpr,
+                                  final ClosureExpr falseExpr) {
+            this.condition = condition;
+            this.trueExpr = trueExpr;
+            this.falseExpr = falseExpr;
         }
     }
 

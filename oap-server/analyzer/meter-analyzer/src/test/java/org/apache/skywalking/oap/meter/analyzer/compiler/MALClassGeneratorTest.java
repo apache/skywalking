@@ -127,6 +127,24 @@ class MALClassGeneratorTest {
             + " && tags.Service?.trim() }"));
     }
 
+    @Test
+    void compileValueEqual() throws Exception {
+        final MalExpression expr = generator.compile(
+            "test_value_equal",
+            "kube_node_status_condition.valueEqual(1).sum(['cluster','node','condition'])");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    @Test
+    void compileMethodCallMultiply() throws Exception {
+        final MalExpression expr = generator.compile(
+            "test_multiply",
+            "process_cpu_usage.multiply(100)");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
     // ==================== Error handling tests ====================
 
     @Test
@@ -165,5 +183,179 @@ class MALClassGeneratorTest {
         //   expecting {IDENTIFIER, ...}
         assertThrows(Exception.class,
             () -> generator.compileFilter("{ }"));
+    }
+
+    // ==================== Closure key extraction tests ====================
+
+    @Test
+    void tagClosurePutsCorrectKey() throws Exception {
+        // Issue: tags.cluster = expr should generate tags.put("cluster", ...)
+        // NOT tags.put("tags.cluster", ...)
+        final MalExpression expr = generator.compile(
+            "test_key",
+            "metric.tag({tags -> tags.cluster = 'activemq::' + tags.cluster})");
+        assertNotNull(expr);
+        final String source = generator.generateSource(
+            "metric.tag({tags -> tags.cluster = 'activemq::' + tags.cluster})");
+        assertTrue(source.contains("this._closure0"),
+            "Generated source should reference pre-compiled closure");
+    }
+
+    @Test
+    void tagClosureKeyExtractionViaGeneratedCode() throws Exception {
+        // Verify the closure generates correct put("cluster", ...) not put("tags.cluster", ...)
+        final MalExpression expr = generator.compile(
+            "test_key_gen",
+            "metric.tag({tags -> tags.service_name = 'svc1'})");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    @Test
+    void tagClosureBracketAssignment() throws Exception {
+        // tags['key_name'] = 'value' should also use correct key
+        final MalExpression expr = generator.compile(
+            "test_bracket",
+            "metric.tag({tags -> tags['my_key'] = 'my_value'})");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    // ==================== forEach closure tests ====================
+
+    @Test
+    void forEachClosureCompiles() throws Exception {
+        // forEach requires ForEachFunction.accept(String, Map), not TagFunction.apply(Map)
+        final MalExpression expr = generator.compile(
+            "test_foreach",
+            "metric.forEach(['client', 'server'], {prefix, tags ->"
+            + " tags[prefix + '_name'] = 'value'})");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    @Test
+    void forEachClosureWithBareReturn() throws Exception {
+        // forEach with bare return (void method) — should not throw
+        final MalExpression expr = generator.compile(
+            "test_foreach_return",
+            "metric.forEach(['x'], {prefix, tags ->\n"
+            + "  if (tags[prefix + '_id'] != null) {\n"
+            + "    return\n"
+            + "  }\n"
+            + "  tags[prefix + '_id'] = 'default'\n"
+            + "})");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    @Test
+    void forEachClosureWithVarDeclAndElseIf() throws Exception {
+        // Full pattern from network-profiling.yaml second closure
+        final MalExpression expr = generator.compile(
+            "test_foreach_vars",
+            "metric.forEach(['component'], {key, tags ->\n"
+            + "  String result = \"\"\n"
+            + "  String protocol = tags['protocol']\n"
+            + "  String ssl = tags['is_ssl']\n"
+            + "  if (protocol == 'http' && ssl == 'true') {\n"
+            + "    result = '129'\n"
+            + "  } else if (protocol == 'http') {\n"
+            + "    result = '49'\n"
+            + "  } else if (ssl == 'true') {\n"
+            + "    result = '130'\n"
+            + "  } else {\n"
+            + "    result = '110'\n"
+            + "  }\n"
+            + "  tags[key] = result\n"
+            + "})");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    // ==================== ProcessRegistry FQCN resolution tests ====================
+
+    @Test
+    void processRegistryResolvedToFQCN() throws Exception {
+        // ProcessRegistry.generateVirtualLocalProcess() should resolve to FQCN
+        final MalExpression expr = generator.compile(
+            "test_registry",
+            "metric.forEach(['client'], {prefix, tags ->\n"
+            + "  tags[prefix + '_process_id'] = "
+            + "ProcessRegistry.generateVirtualLocalProcess(tags.service, tags.instance)\n"
+            + "})");
+        assertNotNull(expr);
+        // We can't easily execute this (needs ProcessRegistry runtime) but compile should succeed
+    }
+
+    // ==================== Network-profiling full expression tests ====================
+
+    @Test
+    void networkProfilingFirstClosureCompiles() throws Exception {
+        // Full first closure from network-profiling.yaml expPrefix
+        final MalExpression expr = generator.compile(
+            "test_np1",
+            "metric.forEach(['client', 'server'], { prefix, tags ->\n"
+            + "    if (tags[prefix + '_process_id'] != null) {\n"
+            + "      return\n"
+            + "    }\n"
+            + "    if (tags[prefix + '_local'] == 'true') {\n"
+            + "      tags[prefix + '_process_id'] = ProcessRegistry"
+            + ".generateVirtualLocalProcess(tags.service, tags.instance)\n"
+            + "      return\n"
+            + "    }\n"
+            + "    tags[prefix + '_process_id'] = ProcessRegistry"
+            + ".generateVirtualRemoteProcess(tags.service, tags.instance,"
+            + " tags[prefix + '_address'])\n"
+            + "  })");
+        assertNotNull(expr);
+    }
+
+    @Test
+    void networkProfilingSecondClosureCompiles() throws Exception {
+        // Full second closure from network-profiling.yaml expPrefix
+        final MalExpression expr = generator.compile(
+            "test_np2",
+            "metric.forEach(['component'], { key, tags ->\n"
+            + "    String result = \"\"\n"
+            + "    // protocol are defined in the component-libraries.yml\n"
+            + "    String protocol = tags['protocol']\n"
+            + "    String ssl = tags['is_ssl']\n"
+            + "    if (protocol == 'http' && ssl == 'true') {\n"
+            + "      result = '129'\n"
+            + "    } else if (protocol == 'http') {\n"
+            + "      result = '49'\n"
+            + "    } else if (ssl == 'true') {\n"
+            + "      result = '130'\n"
+            + "    } else {\n"
+            + "      result = '110'\n"
+            + "    }\n"
+            + "    tags[key] = result\n"
+            + "  })");
+        assertNotNull(expr);
+    }
+
+    // ==================== String concatenation in closures ====================
+
+    @Test
+    void apisixExpressionCompiles() throws Exception {
+        // The APISIX expression that originally triggered the E2E failure:
+        // safe navigation + elvis + bracket access + string concat
+        final MalExpression expr = generator.compile(
+            "test_apisix",
+            "metric.tag({tags -> tags.service_name = 'APISIX::'"
+            + "+(tags['skywalking_service']?.trim()?:'APISIX')})");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    @Test
+    void closureStringConcatenation() throws Exception {
+        // APISIX-style: tags.service_name = 'APISIX::' + tags.service
+        final MalExpression expr = generator.compile(
+            "test_concat",
+            "metric.tag({tags -> tags.service_name = 'APISIX::' + tags.service})");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
     }
 }

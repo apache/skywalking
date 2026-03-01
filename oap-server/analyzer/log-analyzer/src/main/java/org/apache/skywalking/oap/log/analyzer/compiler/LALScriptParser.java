@@ -499,6 +499,14 @@ public final class LALScriptParser {
                 stmts.add((FilterStatement) new DropperStatement());
             }
         }
+        for (final LALParser.SampledTraceStatementContext stc :
+                ctx.sampledTraceStatement()) {
+            if (stc.ifStatement() != null) {
+                stmts.add((FilterStatement) visitIfStatement(stc.ifStatement()));
+            } else {
+                stmts.add((FilterStatement) visitSampledTraceField(stc));
+            }
+        }
         return stmts;
     }
 

@@ -51,6 +51,8 @@ import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.Clos
 import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.ClosureReturnStatement;
 import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.ClosureStatement;
 import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.ClosureStringLiteral;
+import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.ClosureVarAssign;
+import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.ClosureVarDecl;
 import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.CompareOp;
 import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.EnumRefArgument;
 import org.apache.skywalking.oap.meter.analyzer.compiler.MALExpressionModel.Expr;
@@ -302,11 +304,36 @@ public final class MALScriptParser {
                     ? convertClosureExpr(ctx.returnStatement().closureExpr()) : null;
                 return new ClosureReturnStatement(value);
             }
+            if (ctx.variableDeclaration() != null) {
+                final MALParser.VariableDeclarationContext vd = ctx.variableDeclaration();
+                return new ClosureVarDecl(
+                    vd.IDENTIFIER(0).getText(),
+                    vd.IDENTIFIER(1).getText(),
+                    convertClosureExpr(vd.closureExpr()));
+            }
             if (ctx.assignmentStatement() != null) {
-                final String target = ctx.assignmentStatement().closureFieldAccess().getText();
+                final MALParser.ClosureFieldAccessContext fa =
+                    ctx.assignmentStatement().closureFieldAccess();
+                final List<org.antlr.v4.runtime.tree.TerminalNode> ids = fa.IDENTIFIER();
+                final String firstId = ids.get(0).getText();
+                if (ids.size() == 1 && fa.closureExpr() == null) {
+                    // bare variable assignment: result = '129'
+                    final ClosureExpr value =
+                        convertClosureExpr(ctx.assignmentStatement().closureExpr());
+                    return new ClosureVarAssign(firstId, value);
+                }
+                // Map assignment: tags.field = value or tags[expr] = value
+                final ClosureExpr keyExpr;
+                if (fa.closureExpr() != null) {
+                    // tags[expr] = value
+                    keyExpr = convertClosureExpr(fa.closureExpr());
+                } else {
+                    // tags.field = value — the key is the last IDENTIFIER
+                    keyExpr = new ClosureStringLiteral(ids.get(ids.size() - 1).getText());
+                }
                 final ClosureExpr value =
                     convertClosureExpr(ctx.assignmentStatement().closureExpr());
-                return new ClosureAssignment(target, value);
+                return new ClosureAssignment(firstId, keyExpr, value);
             }
             // expressionStatement
             return new ClosureExprStatement(
@@ -421,6 +448,21 @@ public final class MALScriptParser {
         }
 
         private ClosureExpr convertClosureExpr(final MALParser.ClosureExprContext ctx) {
+            if (ctx instanceof MALParser.ClosureTernaryContext) {
+                final MALParser.ClosureTernaryContext ternary =
+                    (MALParser.ClosureTernaryContext) ctx;
+                return new MALExpressionModel.ClosureTernaryExpr(
+                    convertClosureExpr(ternary.closureExpr(0)),
+                    convertClosureExpr(ternary.closureExpr(1)),
+                    convertClosureExpr(ternary.closureExpr(2)));
+            }
+            if (ctx instanceof MALParser.ClosureElvisContext) {
+                final MALParser.ClosureElvisContext elvis =
+                    (MALParser.ClosureElvisContext) ctx;
+                return new MALExpressionModel.ClosureElvisExpr(
+                    convertClosureExpr(elvis.closureExpr(0)),
+                    convertClosureExpr(elvis.closureExpr(1)));
+            }
             if (ctx instanceof MALParser.ClosureAddContext) {
                 final MALParser.ClosureAddContext add = (MALParser.ClosureAddContext) ctx;
                 return new ClosureBinaryExpr(
@@ -473,6 +515,22 @@ public final class MALScriptParser {
                 final MALParser.ClosureBoolContext bc = (MALParser.ClosureBoolContext) ctx;
                 return new ClosureBoolLiteral(bc.boolLiteral().TRUE() != null);
             }
+            if (ctx instanceof MALParser.ClosureParenContext) {
+                return convertClosureExpr(
+                    ((MALParser.ClosureParenContext) ctx).closureExpr());
+            }
+            if (ctx instanceof MALParser.ClosureMapContext) {
+                final MALParser.ClosureMapLiteralContext mapCtx =
+                    ((MALParser.ClosureMapContext) ctx).closureMapLiteral();
+                final List<MALExpressionModel.MapEntry> entries = new ArrayList<>();
+                for (final MALParser.ClosureMapEntryContext entry :
+                        mapCtx.closureMapEntry()) {
+                    entries.add(new MALExpressionModel.MapEntry(
+                        stripQuotes(entry.STRING().getText()),
+                        convertClosureExpr(entry.closureExpr())));
+                }
+                return new MALExpressionModel.ClosureMapLiteral(entries);
+            }
             // closureChain
             final MALParser.ClosureChainContext chain = (MALParser.ClosureChainContext) ctx;
             return convertClosureMethodChain(chain.closureMethodChain());
@@ -483,14 +541,16 @@ public final class MALScriptParser {
             final String target = ctx.closureTarget().IDENTIFIER().getText();
             final List<ClosureChainSegment> segments = new ArrayList<>();
 
-            final int totalSegs = ctx.closureChainSegment().size();
-            final int safeNavCount = ctx.safeNav().size();
-            final int dotSegCount = totalSegs - safeNavCount;
-
-            for (int i = 0; i < totalSegs; i++) {
-                final boolean isSafeNav = i >= dotSegCount;
-                segments.add(convertClosureChainSegment(
-                    ctx.closureChainSegment().get(i), isSafeNav));
+            for (final MALParser.ClosureChainAccessContext acc : ctx.closureChainAccess()) {
+                if (acc.closureChainSegment() != null) {
+                    final boolean isSafeNav = acc.safeNav() != null;
+                    segments.add(convertClosureChainSegment(
+                        acc.closureChainSegment(), isSafeNav));
+                } else if (acc.closureExpr() != null) {
+                    // Direct bracket access: tags['key'] or tags[expr]
+                    segments.add(new ClosureIndexAccess(
+                        convertClosureExpr(acc.closureExpr())));
+                }
             }
 
             return new ClosureMethodChain(target, segments);

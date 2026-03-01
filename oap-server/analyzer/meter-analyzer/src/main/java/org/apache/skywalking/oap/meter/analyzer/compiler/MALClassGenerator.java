@@ -61,6 +61,11 @@ public final class MALClassGenerator {
      */
     private static final java.util.Map<String, String> ENUM_FQCN;
 
+    /**
+     * Well-known helper classes used inside MAL closures (Groovy imports).
+     */
+    private static final java.util.Map<String, String> CLOSURE_CLASS_FQCN;
+
     static {
         ENUM_FQCN = new java.util.HashMap<>();
         ENUM_FQCN.put("Layer", "org.apache.skywalking.oap.server.core.analysis.Layer");
@@ -69,13 +74,25 @@ public final class MALClassGenerator {
             "org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType");
         ENUM_FQCN.put("DownsamplingType",
             "org.apache.skywalking.oap.meter.analyzer.dsl.DownsamplingType");
+
+        CLOSURE_CLASS_FQCN = new java.util.HashMap<>();
+        CLOSURE_CLASS_FQCN.put("ProcessRegistry",
+            "org.apache.skywalking.oap.meter.analyzer.dsl.registry.ProcessRegistry");
     }
 
     private final ClassPool classPool;
     private int closureCounter;
 
     public MALClassGenerator() {
-        this(ClassPool.getDefault());
+        this(createClassPool());
+    }
+
+    private static ClassPool createClassPool() {
+        final ClassPool pool = new ClassPool(true);
+        pool.appendClassPath(
+            new javassist.LoaderClassPath(
+                Thread.currentThread().getContextClassLoader()));
+        return pool;
     }
 
     public MALClassGenerator(final ClassPool classPool) {
@@ -253,28 +270,41 @@ public final class MALClassGenerator {
             collectClosuresFromChain(
                 ((MALExpressionModel.ParenChainExpr) expr).getMethodChain(), closures);
         } else if (expr instanceof MALExpressionModel.FunctionCallExpr) {
-            collectClosuresFromArgs(
-                ((MALExpressionModel.FunctionCallExpr) expr).getArguments(), closures);
+            final MALExpressionModel.FunctionCallExpr fce =
+                (MALExpressionModel.FunctionCallExpr) expr;
+            collectClosuresFromArgs(fce.getFunctionName(),
+                fce.getArguments(), closures);
             collectClosuresFromChain(
-                ((MALExpressionModel.FunctionCallExpr) expr).getMethodChain(), closures);
+                fce.getMethodChain(), closures);
         }
     }
 
     private void collectClosuresFromChain(final List<MALExpressionModel.MethodCall> chain,
                                           final List<ClosureInfo> closures) {
         for (final MALExpressionModel.MethodCall mc : chain) {
-            collectClosuresFromArgs(mc.getArguments(), closures);
+            collectClosuresFromArgs(mc.getName(), mc.getArguments(), closures);
         }
     }
 
-    private void collectClosuresFromArgs(final List<MALExpressionModel.Argument> args,
+    private void collectClosuresFromArgs(final String methodName,
+                                         final List<MALExpressionModel.Argument> args,
                                          final List<ClosureInfo> closures) {
         for (final MALExpressionModel.Argument arg : args) {
             if (arg instanceof MALExpressionModel.ClosureArgument) {
+                final String interfaceType;
+                if ("forEach".equals(methodName)) {
+                    interfaceType = "org.apache.skywalking.oap.meter.analyzer.dsl"
+                        + ".SampleFamilyFunctions$ForEachFunction";
+                } else if ("instance".equals(methodName)) {
+                    interfaceType = "org.apache.skywalking.oap.meter.analyzer.dsl"
+                        + ".SampleFamilyFunctions$PropertiesExtractor";
+                } else {
+                    interfaceType = "org.apache.skywalking.oap.meter.analyzer.dsl"
+                        + ".SampleFamilyFunctions$TagFunction";
+                }
                 final ClosureInfo info = new ClosureInfo(
                     (MALExpressionModel.ClosureArgument) arg,
-                    "org.apache.skywalking.oap.meter.analyzer.dsl"
-                    + ".SampleFamilyFunctions$TagFunction");
+                    interfaceType);
                 info.fieldIndex = closures.size();
                 closures.add(info);
             } else if (arg instanceof MALExpressionModel.ExprArgument) {
@@ -284,6 +314,12 @@ public final class MALClassGenerator {
         }
     }
 
+    private static final String FOR_EACH_FUNCTION_TYPE =
+        "org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyFunctions$ForEachFunction";
+
+    private static final String PROPERTIES_EXTRACTOR_TYPE =
+        "org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyFunctions$PropertiesExtractor";
+
     private Object compileClosureClass(final String className,
                                        final ClosureInfo info) throws Exception {
         final CtClass ctClass = classPool.makeClass(className);
@@ -292,22 +328,86 @@ public final class MALClassGenerator {
 
         final MALExpressionModel.ClosureArgument closure = info.closure;
         final List<String> params = closure.getParams();
-        final String paramName = params.isEmpty() ? "it" : params.get(0);
+        final boolean isForEach = FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType);
+        final boolean isPropertiesExtractor =
+            PROPERTIES_EXTRACTOR_TYPE.equals(info.interfaceType);
 
-        final StringBuilder sb = new StringBuilder();
-        sb.append("public java.util.Map apply(java.util.Map ").append(paramName)
-          .append(") {\n");
-        for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
-            generateClosureStatement(sb, stmt, paramName);
+        if (isForEach) {
+            // ForEachFunction: void accept(String element, Map<String, String> tags)
+            // Closure params: { prefix, tags -> ... } or { element, tags -> ... }
+            final String elementParam = params.size() >= 1 ? params.get(0) : "element";
+            final String tagsParam = params.size() >= 2 ? params.get(1) : "tags";
+
+            final StringBuilder sb = new StringBuilder();
+            sb.append("public void accept(String ").append(elementParam)
+              .append(", java.util.Map ").append(tagsParam).append(") {\n");
+            for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
+                generateClosureStatement(sb, stmt, tagsParam);
+            }
+            sb.append("}\n");
+
+            if (log.isDebugEnabled()) {
+                log.debug("ForEach closure body:\n{}", sb);
+            }
+            ctClass.addMethod(CtNewMethod.make(sb.toString(), ctClass));
+        } else if (isPropertiesExtractor) {
+            // PropertiesExtractor: Map<String,String> apply(Map<String,String> tags)
+            // Body is typically a single map literal expression
+            final String paramName = params.isEmpty() ? "it" : params.get(0);
+
+            final StringBuilder sb = new StringBuilder();
+            sb.append("public java.util.Map apply(java.util.Map ").append(paramName)
+              .append(") {\n");
+
+            // If the body is a single expression statement with a map literal,
+            // generate HashMap construction as the return value
+            final List<MALExpressionModel.ClosureStatement> body = closure.getBody();
+            if (body.size() == 1
+                    && body.get(0) instanceof MALExpressionModel.ClosureExprStatement
+                    && ((MALExpressionModel.ClosureExprStatement) body.get(0)).getExpr()
+                        instanceof MALExpressionModel.ClosureMapLiteral) {
+                final MALExpressionModel.ClosureMapLiteral mapLit =
+                    (MALExpressionModel.ClosureMapLiteral)
+                        ((MALExpressionModel.ClosureExprStatement) body.get(0)).getExpr();
+                sb.append("  java.util.Map _result = new java.util.HashMap();\n");
+                for (final MALExpressionModel.MapEntry entry : mapLit.getEntries()) {
+                    sb.append("  _result.put(\"")
+                      .append(escapeJava(entry.getKey())).append("\", ");
+                    generateClosureExpr(sb, entry.getValue(), paramName);
+                    sb.append(");\n");
+                }
+                sb.append("  return _result;\n");
+            } else {
+                for (final MALExpressionModel.ClosureStatement stmt : body) {
+                    generateClosureStatement(sb, stmt, paramName);
+                }
+                sb.append("  return ").append(paramName).append(";\n");
+            }
+            sb.append("}\n");
+
+            ctClass.addMethod(CtNewMethod.make(sb.toString(), ctClass));
+            ctClass.addMethod(CtNewMethod.make(
+                "public Object apply(Object o) { return apply((java.util.Map) o); }",
+                ctClass));
+        } else {
+            // TagFunction: Map<String,String> apply(Map<String,String> tags)
+            final String paramName = params.isEmpty() ? "it" : params.get(0);
+
+            final StringBuilder sb = new StringBuilder();
+            sb.append("public java.util.Map apply(java.util.Map ").append(paramName)
+              .append(") {\n");
+            for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
+                generateClosureStatement(sb, stmt, paramName);
+            }
+            sb.append("  return ").append(paramName).append(";\n");
+            sb.append("}\n");
+
+            // Also add the Object apply(Object) bridge method
+            ctClass.addMethod(CtNewMethod.make(sb.toString(), ctClass));
+            ctClass.addMethod(CtNewMethod.make(
+                "public Object apply(Object o) { return apply((java.util.Map) o); }",
+                ctClass));
         }
-        sb.append("  return ").append(paramName).append(";\n");
-        sb.append("}\n");
-
-        // Also add the Object apply(Object) bridge method
-        ctClass.addMethod(CtNewMethod.make(sb.toString(), ctClass));
-        ctClass.addMethod(CtNewMethod.make(
-            "public Object apply(Object o) { return apply((java.util.Map) o); }",
-            ctClass));
 
         final Class<?> clazz = ctClass.toClass(MalExpressionPackageHolder.class);
         ctClass.detach();
@@ -427,12 +527,10 @@ public final class MALClassGenerator {
                     sb.append(").multiply(Double.valueOf(").append(num).append("))");
                     break;
                 case DIV:
-                    sb.append("(");
+                    sb.append("org.apache.skywalking.oap.meter.analyzer.compiler.rt")
+                      .append(".MalRuntimeHelper.divReverse(").append(num).append(", ");
                     generateExpr(sb, right);
-                    sb.append(").newValue(new java.util.function.Function() { ")
-                      .append("public Object apply(Object v) { ")
-                      .append("return Double.valueOf(").append(num)
-                      .append(" / ((Double)v).doubleValue()); } })");
+                    sb.append(")");
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported op: " + op);
@@ -463,6 +561,16 @@ public final class MALClassGenerator {
         "tagEqual", "tagNotEqual", "tagMatch", "tagNotMatch"
     );
 
+    /**
+     * Methods on SampleFamily whose first argument is a primitive {@code double}.
+     * Javassist cannot auto-unbox {@code Double} to {@code double}, so numeric
+     * arguments to these methods must be emitted as raw double literals.
+     */
+    private static final Set<String> PRIMITIVE_DOUBLE_METHODS = Set.of(
+        "valueEqual", "valueNotEqual", "valueGreater",
+        "valueGreaterEqual", "valueLess", "valueLessEqual"
+    );
+
     private void generateMethodChain(final StringBuilder sb,
                                      final List<MALExpressionModel.MethodCall> chain) {
         for (final MALExpressionModel.MethodCall mc : chain) {
@@ -479,15 +587,39 @@ public final class MALClassGenerator {
                 }
                 sb.append('}');
             } else {
+                final boolean primitiveDouble =
+                    PRIMITIVE_DOUBLE_METHODS.contains(mc.getName());
                 for (int i = 0; i < args.size(); i++) {
                     if (i > 0) {
                         sb.append(", ");
                     }
-                    generateArgument(sb, args.get(i));
+                    generateMethodCallArg(sb, args.get(i), primitiveDouble);
                 }
             }
             sb.append(')');
         }
+    }
+
+    /**
+     * Generates a method call argument, handling numeric ExprArgument
+     * specially when the target method expects a primitive double.
+     */
+    private void generateMethodCallArg(final StringBuilder sb,
+                                        final MALExpressionModel.Argument arg,
+                                        final boolean primitiveDouble) {
+        if (primitiveDouble
+                && arg instanceof MALExpressionModel.ExprArgument) {
+            final MALExpressionModel.Expr innerExpr =
+                ((MALExpressionModel.ExprArgument) arg).getExpr();
+            if (innerExpr instanceof MALExpressionModel.NumberExpr) {
+                // Emit raw double literal for methods taking primitive double
+                final double num =
+                    ((MALExpressionModel.NumberExpr) innerExpr).getValue();
+                sb.append(num);
+                return;
+            }
+        }
+        generateArgument(sb, arg);
     }
 
     private static boolean allStringArgs(final List<MALExpressionModel.Argument> args) {
@@ -547,7 +679,12 @@ public final class MALClassGenerator {
         } else if (arg instanceof MALExpressionModel.ExprArgument) {
             final MALExpressionModel.Expr innerExpr =
                 ((MALExpressionModel.ExprArgument) arg).getExpr();
-            if (innerExpr instanceof MALExpressionModel.MetricExpr
+            if (innerExpr instanceof MALExpressionModel.NumberExpr) {
+                // Numeric literal argument (e.g., valueEqual(1), multiply(100))
+                // Emit as Double.valueOf() to match Number parameter types.
+                final double num = ((MALExpressionModel.NumberExpr) innerExpr).getValue();
+                sb.append("Double.valueOf(").append(num).append(")");
+            } else if (innerExpr instanceof MALExpressionModel.MetricExpr
                     && ((MALExpressionModel.MetricExpr) innerExpr).getMethodChain().isEmpty()) {
                 // Bare identifier — could be an enum constant like SUM, AVG
                 final String name =
@@ -578,8 +715,9 @@ public final class MALClassGenerator {
         if (stmt instanceof MALExpressionModel.ClosureAssignment) {
             final MALExpressionModel.ClosureAssignment assign =
                 (MALExpressionModel.ClosureAssignment) stmt;
-            sb.append("    ").append(paramName).append(".put(\"")
-              .append(escapeJava(assign.getTarget())).append("\", ");
+            sb.append("    ").append(assign.getMapVar()).append(".put(");
+            generateClosureExpr(sb, assign.getKeyExpr(), paramName);
+            sb.append(", ");
             generateClosureExpr(sb, assign.getValue(), paramName);
             sb.append(");\n");
         } else if (stmt instanceof MALExpressionModel.ClosureIfStatement) {
@@ -600,9 +738,28 @@ public final class MALClassGenerator {
                 sb.append("    }\n");
             }
         } else if (stmt instanceof MALExpressionModel.ClosureReturnStatement) {
-            sb.append("    return (java.util.Map) ");
-            generateClosureExpr(sb,
-                ((MALExpressionModel.ClosureReturnStatement) stmt).getValue(), paramName);
+            final MALExpressionModel.ClosureReturnStatement retStmt =
+                (MALExpressionModel.ClosureReturnStatement) stmt;
+            if (retStmt.getValue() == null) {
+                // Bare return (void return for ForEachFunction, or early exit)
+                sb.append("    return;\n");
+            } else {
+                sb.append("    return (java.util.Map) ");
+                generateClosureExpr(sb, retStmt.getValue(), paramName);
+                sb.append(";\n");
+            }
+        } else if (stmt instanceof MALExpressionModel.ClosureVarDecl) {
+            final MALExpressionModel.ClosureVarDecl vd =
+                (MALExpressionModel.ClosureVarDecl) stmt;
+            sb.append("    ").append(vd.getTypeName()).append(" ")
+              .append(vd.getVarName()).append(" = ");
+            generateClosureExpr(sb, vd.getInitializer(), paramName);
+            sb.append(";\n");
+        } else if (stmt instanceof MALExpressionModel.ClosureVarAssign) {
+            final MALExpressionModel.ClosureVarAssign va =
+                (MALExpressionModel.ClosureVarAssign) stmt;
+            sb.append("    ").append(va.getVarName()).append(" = ");
+            generateClosureExpr(sb, va.getValue(), paramName);
             sb.append(";\n");
         } else if (stmt instanceof MALExpressionModel.ClosureExprStatement) {
             sb.append("    ");
@@ -625,6 +782,20 @@ public final class MALClassGenerator {
             sb.append(((MALExpressionModel.ClosureBoolLiteral) expr).isValue());
         } else if (expr instanceof MALExpressionModel.ClosureNullLiteral) {
             sb.append("null");
+        } else if (expr instanceof MALExpressionModel.ClosureMapLiteral) {
+            // Inline map construction using java.util.Map.of()
+            final MALExpressionModel.ClosureMapLiteral mapLit =
+                (MALExpressionModel.ClosureMapLiteral) expr;
+            sb.append("java.util.Map.of(");
+            for (int i = 0; i < mapLit.getEntries().size(); i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                final MALExpressionModel.MapEntry entry = mapLit.getEntries().get(i);
+                sb.append('"').append(escapeJava(entry.getKey())).append("\", ");
+                generateClosureExpr(sb, entry.getValue(), paramName);
+            }
+            sb.append(")");
         } else if (expr instanceof MALExpressionModel.ClosureMethodChain) {
             generateClosureMethodChain(sb,
                 (MALExpressionModel.ClosureMethodChain) expr, paramName);
@@ -651,6 +822,24 @@ public final class MALClassGenerator {
             }
             generateClosureExpr(sb, bin.getRight(), paramName);
             sb.append(")");
+        } else if (expr instanceof MALExpressionModel.ClosureTernaryExpr) {
+            final MALExpressionModel.ClosureTernaryExpr ternary =
+                (MALExpressionModel.ClosureTernaryExpr) expr;
+            sb.append("(((Object)(");
+            generateClosureExpr(sb, ternary.getCondition(), paramName);
+            sb.append(")) != null ? (");
+            generateClosureExpr(sb, ternary.getTrueExpr(), paramName);
+            sb.append(") : (");
+            generateClosureExpr(sb, ternary.getFalseExpr(), paramName);
+            sb.append("))");
+        } else if (expr instanceof MALExpressionModel.ClosureElvisExpr) {
+            final MALExpressionModel.ClosureElvisExpr elvis =
+                (MALExpressionModel.ClosureElvisExpr) expr;
+            sb.append("java.util.Optional.ofNullable(");
+            generateClosureExpr(sb, elvis.getPrimary(), paramName);
+            sb.append(").orElse(");
+            generateClosureExpr(sb, elvis.getFallback(), paramName);
+            sb.append(")");
         }
     }
 
@@ -660,31 +849,70 @@ public final class MALClassGenerator {
             final String paramName) {
         // tags.key -> tags.get("key")
         // tags['key'] -> tags.get("key")
+        final String target = chain.getTarget();
+        final String resolvedTarget = CLOSURE_CLASS_FQCN.getOrDefault(target, target);
+        final boolean isClassRef = CLOSURE_CLASS_FQCN.containsKey(target);
         final List<MALExpressionModel.ClosureChainSegment> segs = chain.getSegments();
+
+        // Static class method call: ProcessRegistry.generateVirtualLocalProcess(...)
+        if (isClassRef) {
+            final StringBuilder local = new StringBuilder();
+            local.append(resolvedTarget);
+            for (final MALExpressionModel.ClosureChainSegment seg : segs) {
+                if (seg instanceof MALExpressionModel.ClosureMethodCallSeg) {
+                    final MALExpressionModel.ClosureMethodCallSeg mc =
+                        (MALExpressionModel.ClosureMethodCallSeg) seg;
+                    local.append('.').append(mc.getName()).append('(');
+                    for (int i = 0; i < mc.getArguments().size(); i++) {
+                        if (i > 0) {
+                            local.append(", ");
+                        }
+                        generateClosureExpr(local, mc.getArguments().get(i), paramName);
+                    }
+                    local.append(')');
+                } else if (seg instanceof MALExpressionModel.ClosureFieldAccess) {
+                    local.append('.').append(
+                        ((MALExpressionModel.ClosureFieldAccess) seg).getName());
+                }
+            }
+            sb.append(local);
+            return;
+        }
+
+        if (segs.isEmpty()) {
+            // Bare identifier (e.g. a local variable like "prefix", "result")
+            sb.append(resolvedTarget);
+            return;
+        }
+
         if (segs.size() == 1
                 && segs.get(0) instanceof MALExpressionModel.ClosureFieldAccess) {
             final String key =
                 ((MALExpressionModel.ClosureFieldAccess) segs.get(0)).getName();
-            sb.append(chain.getTarget()).append(".get(\"")
+            sb.append("(String) ").append(resolvedTarget).append(".get(\"")
               .append(escapeJava(key)).append("\")");
         } else if (segs.size() == 1
                 && segs.get(0) instanceof MALExpressionModel.ClosureIndexAccess) {
-            sb.append(chain.getTarget()).append(".get(");
+            sb.append("(String) ").append(resolvedTarget).append(".get(");
             generateClosureExpr(sb,
                 ((MALExpressionModel.ClosureIndexAccess) segs.get(0)).getIndex(), paramName);
             sb.append(")");
         } else {
             // General chain: build in a local buffer to support safe navigation
             final StringBuilder local = new StringBuilder();
-            local.append(chain.getTarget());
+            local.append(resolvedTarget);
             for (final MALExpressionModel.ClosureChainSegment seg : segs) {
                 if (seg instanceof MALExpressionModel.ClosureFieldAccess) {
-                    local.append(".get(\"")
+                    final String prior = local.toString();
+                    local.setLength(0);
+                    local.append("(String) ").append(prior).append(".get(\"")
                       .append(escapeJava(
                           ((MALExpressionModel.ClosureFieldAccess) seg).getName()))
                       .append("\")");
                 } else if (seg instanceof MALExpressionModel.ClosureIndexAccess) {
-                    local.append(".get(");
+                    final String prior2 = local.toString();
+                    local.setLength(0);
+                    local.append("(String) ").append(prior2).append(".get(");
                     generateClosureExpr(local,
                         ((MALExpressionModel.ClosureIndexAccess) seg).getIndex(), paramName);
                     local.append(")");

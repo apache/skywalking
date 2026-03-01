@@ -197,7 +197,7 @@ public final class LALScriptModel {
     }
 
     @Getter
-    public static final class SampledTraceField implements SampledTraceStatement {
+    public static final class SampledTraceField implements SampledTraceStatement, FilterStatement {
         private final SampledTraceFieldType fieldType;
         private final ValueAccess value;
         private final String castType;

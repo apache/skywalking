@@ -231,6 +231,127 @@ class MALScriptParserTest {
     }
 
     @Test
+    void parseTagAssignmentExtractsCorrectKey() {
+        // Issue: tags.cluster = expr should produce key "cluster", not "tags.cluster"
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.tag({tags -> tags.cluster = 'activemq::' + tags.cluster})");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        final ClosureArgument closure =
+            (ClosureArgument) metric.getMethodChain().get(0).getArguments().get(0);
+        assertEquals(1, closure.getBody().size());
+
+        final MALExpressionModel.ClosureAssignment assign =
+            (MALExpressionModel.ClosureAssignment) closure.getBody().get(0);
+        assertEquals("tags", assign.getMapVar());
+        // Key should be "cluster", not "tags.cluster"
+        assertInstanceOf(MALExpressionModel.ClosureStringLiteral.class, assign.getKeyExpr());
+        assertEquals("cluster",
+            ((MALExpressionModel.ClosureStringLiteral) assign.getKeyExpr()).getValue());
+    }
+
+    @Test
+    void parseTagBracketAssignment() {
+        // tags[prefix + '_process_id'] = expr
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.tag({prefix, tags -> tags[prefix + '_id'] = 'val'})");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        final ClosureArgument closure =
+            (ClosureArgument) metric.getMethodChain().get(0).getArguments().get(0);
+        assertEquals(List.of("prefix", "tags"), closure.getParams());
+
+        final MALExpressionModel.ClosureAssignment assign =
+            (MALExpressionModel.ClosureAssignment) closure.getBody().get(0);
+        assertEquals("tags", assign.getMapVar());
+        // Key is a binary expression (prefix + '_id')
+        assertInstanceOf(MALExpressionModel.ClosureBinaryExpr.class, assign.getKeyExpr());
+    }
+
+    @Test
+    void parseForEachClosure() {
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.forEach(['client', 'server'], {prefix, tags -> tags.key = prefix})");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        assertEquals("forEach", metric.getMethodChain().get(0).getName());
+
+        final ClosureArgument closure =
+            (ClosureArgument) metric.getMethodChain().get(0).getArguments().get(1);
+        assertEquals(List.of("prefix", "tags"), closure.getParams());
+    }
+
+    @Test
+    void parseVariableDeclaration() {
+        // String result = "" — Groovy local variable declaration
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.forEach(['x'], {key, tags ->\n"
+            + "  String result = \"\"\n"
+            + "  tags[key] = result\n"
+            + "})");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        final ClosureArgument closure =
+            (ClosureArgument) metric.getMethodChain().get(0).getArguments().get(1);
+        assertEquals(2, closure.getBody().size());
+        // First statement: variable declaration
+        assertInstanceOf(MALExpressionModel.ClosureVarDecl.class, closure.getBody().get(0));
+        final MALExpressionModel.ClosureVarDecl vd =
+            (MALExpressionModel.ClosureVarDecl) closure.getBody().get(0);
+        assertEquals("String", vd.getTypeName());
+        assertEquals("result", vd.getVarName());
+    }
+
+    @Test
+    void parseBareReturn() {
+        // return with no expression (void return)
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.forEach(['x'], {prefix, tags ->\n"
+            + "  if (tags[prefix + '_id'] != null) {\n"
+            + "    return\n"
+            + "  }\n"
+            + "  tags[prefix + '_id'] = 'default'\n"
+            + "})");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        final ClosureArgument closure =
+            (ClosureArgument) metric.getMethodChain().get(0).getArguments().get(1);
+        // First statement is if, which contains a bare return
+        assertInstanceOf(MALExpressionModel.ClosureIfStatement.class, closure.getBody().get(0));
+        final MALExpressionModel.ClosureIfStatement ifStmt =
+            (MALExpressionModel.ClosureIfStatement) closure.getBody().get(0);
+        assertInstanceOf(MALExpressionModel.ClosureReturnStatement.class,
+            ifStmt.getThenBranch().get(0));
+        final MALExpressionModel.ClosureReturnStatement ret =
+            (MALExpressionModel.ClosureReturnStatement) ifStmt.getThenBranch().get(0);
+        // Bare return — value should be null
+        assertEquals(null, ret.getValue());
+    }
+
+    @Test
+    void parseStaticMethodCall() {
+        // ProcessRegistry.generateVirtualLocalProcess(tags.service, tags.instance)
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.tag({tags -> "
+            + "tags.pid = ProcessRegistry.generateVirtualLocalProcess(tags.service, tags.instance)"
+            + "})");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        final ClosureArgument closure =
+            (ClosureArgument) metric.getMethodChain().get(0).getArguments().get(0);
+        final MALExpressionModel.ClosureAssignment assign =
+            (MALExpressionModel.ClosureAssignment) closure.getBody().get(0);
+        // RHS should be a ClosureMethodChain with target "ProcessRegistry"
+        assertInstanceOf(MALExpressionModel.ClosureMethodChain.class, assign.getValue());
+        final MALExpressionModel.ClosureMethodChain chain =
+            (MALExpressionModel.ClosureMethodChain) assign.getValue();
+        assertEquals("ProcessRegistry", chain.getTarget());
+        assertEquals(1, chain.getSegments().size());
+        assertInstanceOf(MALExpressionModel.ClosureMethodCallSeg.class,
+            chain.getSegments().get(0));
+    }
+
+    @Test
     void parseSyntaxErrorThrows() {
         assertThrows(IllegalArgumentException.class,
             () -> MALScriptParser.parse("metric.sum("));

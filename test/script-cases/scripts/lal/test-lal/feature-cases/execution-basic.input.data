@@ -1,0 +1,157 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Mock input data and expected output for execution-basic.yaml rules.
+# Format: YAML keyed by rule name. Each entry describes body-type, body,
+# optional tags, and expected assertions after execution.
+
+json-parse-extract:
+  body-type: json
+  body: '{"service":"my-svc","instance":"inst-01","endpoint":"/api","layer":"GENERAL"}'
+  expect:
+    service: my-svc
+    instance: inst-01
+    endpoint: /api
+    layer: GENERAL
+    save: true
+    abort: false
+
+tag-condition-true:
+  body-type: json
+  body: '{"service":"db-svc"}'
+  tags:
+    LOG_KIND: SLOW_SQL
+  expect:
+    service: db-svc
+
+tag-condition-false:
+  body-type: json
+  body: '{"service":"db-svc"}'
+  tags:
+    LOG_KIND: NORMAL
+  expect:
+    service: ""
+
+tag-assignment:
+  body-type: json
+  body: '{"env":"prod","region":"us-east"}'
+  expect:
+    tag.key1: prod
+    tag.key2: us-east
+
+safe-nav-missing:
+  body-type: json
+  body: '{"other":"val"}'
+  expect:
+    service: ""
+    abort: false
+
+safe-nav-present:
+  body-type: json
+  body: '{"data":{"name":"found"}}'
+  expect:
+    service: found
+
+if-else-if-error:
+  body-type: json
+  body: '{"level":"ERROR"}'
+  expect:
+    service: error-handler
+
+if-else-if-warn:
+  body-type: json
+  body: '{"level":"WARN"}'
+  expect:
+    service: warn-handler
+
+if-else-if-default:
+  body-type: json
+  body: '{"level":"DEBUG"}'
+  expect:
+    service: default-handler
+
+sink-enforcer:
+  body-type: json
+  body: '{}'
+  expect:
+    save: true
+
+sink-dropper:
+  body-type: json
+  body: '{}'
+  expect:
+    save: false
+
+sampler-rate-limit:
+  body-type: json
+  body: '{}'
+  expect:
+    save: true
+
+sampler-interpolated-id:
+  body-type: json
+  body: '{"code":"200"}'
+  expect:
+    save: true
+
+abort-stops-pipeline:
+  body-type: json
+  body: '{"service":"should-not-be-set"}'
+  expect:
+    abort: true
+    service: ""
+
+conditional-abort-true:
+  body-type: json
+  body: '{"skip":"true","service":"my-svc"}'
+  expect:
+    abort: true
+    service: ""
+
+conditional-abort-false:
+  body-type: json
+  body: '{"skip":"false","service":"my-svc"}'
+  expect:
+    abort: false
+    service: my-svc
+
+timestamp-extraction:
+  body-type: json
+  body: '{"time":"1609459200000"}'
+  expect:
+    timestamp: 1609459200000
+
+text-parser-regexp:
+  body-type: text
+  body: "1609459200000 ERROR Something failed"
+  expect:
+    service: ERROR
+
+sampled-trace-basic:
+  body-type: json
+  body: '{"latency":150,"uri":"/test","reason":"slow","pid":"proc-a","dpid":"proc-b","dp":"client"}'
+  service: trace-svc
+  instance: trace-inst
+  trace-id: trace-basic-001
+  timestamp: 1609459200000
+  expect:
+    save: true
+    sampledTrace.latency: 150
+    sampledTrace.uri: /test
+    sampledTrace.reason: SLOW
+    sampledTrace.processId: proc-a
+    sampledTrace.destProcessId: proc-b
+    sampledTrace.detectPoint: CLIENT
+    sampledTrace.componentId: 49

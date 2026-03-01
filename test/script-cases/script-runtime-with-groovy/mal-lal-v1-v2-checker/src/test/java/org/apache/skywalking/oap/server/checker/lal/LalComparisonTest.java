@@ -19,7 +19,6 @@ package org.apache.skywalking.oap.server.checker.lal;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ import static org.mockito.Mockito.when;
  * <ul>
  *   <li>Path A (v1): Groovy compilation + runtime execution via {@link DSL}</li>
  *   <li>Path B (v2): ANTLR4 + Javassist compilation via {@link LALClassGenerator}
- *        + runtime execution via reflective {@code execute(Object, Object)} call</li>
+ *        + runtime execution via {@code LalExpression.execute(FilterSpec, Binding)}</li>
  * </ul>
  * Both paths are fed the same mock LogData and the resulting Binding state
  * (service, layer, tags, abort/save flags) is compared.
@@ -110,7 +109,8 @@ class LalComparisonTest {
         String v2Error = null;
         try {
             final LALClassGenerator generator = new LALClassGenerator();
-            final Object v2Expr = generator.compile(dsl);
+            final org.apache.skywalking.oap.log.analyzer.dsl.LalExpression v2Expr =
+                generator.compile(dsl);
 
             final FilterSpec v2FilterSpec = new FilterSpec(manager, new LogAnalyzerModuleConfig());
             disableSinkListenersOnSpec(v2FilterSpec);
@@ -118,11 +118,7 @@ class LalComparisonTest {
             v2Binding = new Binding().log(testLog);
             v2FilterSpec.bind(v2Binding);
 
-            // Call execute(Object, Object) via reflection since the Javassist-generated
-            // class declares execute(Object, Object) rather than the typed signature
-            final Method executeMethod = v2Expr.getClass().getMethod("execute",
-                Object.class, Object.class);
-            executeMethod.invoke(v2Expr, v2FilterSpec, v2Binding);
+            v2Expr.execute(v2FilterSpec, v2Binding);
         } catch (Exception e) {
             final Throwable cause = e.getCause() != null ? e.getCause() : e;
             v2Error = cause.getClass().getSimpleName() + ": " + cause.getMessage();
@@ -286,14 +282,11 @@ class LalComparisonTest {
             return result;
         }
 
-        final File[] files = lalDir.toFile().listFiles();
-        if (files == null) {
-            return result;
-        }
-        for (final File file : files) {
-            if (!file.getName().endsWith(".yaml") && !file.getName().endsWith(".yml")) {
-                continue;
-            }
+        // Scan top-level and subdirectories (oap-cases/, feature-cases/)
+        final List<File> yamlFiles = new ArrayList<>();
+        collectYamlFiles(lalDir.toFile(), yamlFiles);
+
+        for (final File file : yamlFiles) {
             final String content = Files.readString(file.toPath());
             final Map<String, Object> config = yaml.load(content);
             if (config == null || !config.containsKey("rules")) {
@@ -314,7 +307,8 @@ class LalComparisonTest {
                 lalRules.add(new LalRule(name, dslStr));
             }
             if (!lalRules.isEmpty()) {
-                result.put("lal/" + file.getName(), lalRules);
+                final String relative = lalDir.relativize(file.toPath()).toString();
+                result.put("lal/" + relative, lalRules);
             }
         }
         return result;
@@ -332,6 +326,22 @@ class LalComparisonTest {
             }
         }
         return null;
+    }
+
+    private static void collectYamlFiles(final File dir,
+                                            final List<File> result) {
+        final File[] children = dir.listFiles();
+        if (children == null) {
+            return;
+        }
+        for (final File child : children) {
+            if (child.isDirectory()) {
+                collectYamlFiles(child, result);
+            } else if (child.getName().endsWith(".yaml")
+                    || child.getName().endsWith(".yml")) {
+                result.add(child);
+            }
+        }
     }
 
     private static class LalRule {

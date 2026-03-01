@@ -206,22 +206,46 @@ public class Binding {
             return null;
         }
 
-        static Object getField(final Object obj, final String name) {
+        public static Object getField(final Object obj, final String name) {
             if (obj instanceof Message) {
-                final Descriptors.FieldDescriptor fd =
+                Descriptors.FieldDescriptor fd =
                     ((Message) obj).getDescriptorForType().findFieldByName(name);
+                if (fd == null) {
+                    fd = ((Message) obj).getDescriptorForType()
+                        .findFieldByName(camelToSnake(name));
+                }
                 if (fd != null) {
                     return ((Message) obj).getField(fd);
                 }
             }
             if (obj instanceof Message.Builder) {
-                final Descriptors.FieldDescriptor fd =
+                Descriptors.FieldDescriptor fd =
                     ((Message.Builder) obj).getDescriptorForType().findFieldByName(name);
+                if (fd == null) {
+                    fd = ((Message.Builder) obj).getDescriptorForType()
+                        .findFieldByName(camelToSnake(name));
+                }
                 if (fd != null) {
                     return ((Message.Builder) obj).getField(fd);
                 }
             }
             return null;
+        }
+
+        private static String camelToSnake(final String name) {
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < name.length(); i++) {
+                final char c = name.charAt(i);
+                if (Character.isUpperCase(c)) {
+                    if (i > 0) {
+                        sb.append('_');
+                    }
+                    sb.append(Character.toLowerCase(c));
+                } else {
+                    sb.append(c);
+                }
+            }
+            return sb.toString();
         }
     }
 }
