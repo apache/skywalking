@@ -1,0 +1,149 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'elasticsearch-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'elasticsearch::' + tags.cluster}).instance(['cluster'], ['name'], Layer.ELASTICSEARCH)
+metricPrefix: meter_elasticsearch_node
+metricsRules:
+  # node rules
+  - name: rules
+    exp: elasticsearch_process_cpu_percent.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'es_client_node' , 'es_data_node' , 'es_ingest_node' , 'es_master_node'])
+  - name: open_file_count
+    exp: elasticsearch_process_open_files_count.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])
+  - name: all_disk_free_space
+    exp: elasticsearch_filesystem_data_available_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])
+  - name: jvm_memory_used
+    exp: elasticsearch_jvm_memory_used_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])
+
+  # jvm
+  - name: jvm_memory_nonheap_used
+    exp: elasticsearch_jvm_memory_used_bytes.tagNotEqual('cluster','unknown_cluster').tagEqual('area' , 'non-heap').sum(['cluster' , 'name'])
+  - name: jvm_memory_heap_used
+    exp: elasticsearch_jvm_memory_used_bytes.tagNotEqual('cluster','unknown_cluster').tagEqual('area' , 'heap').sum(['cluster' , 'name'])
+  - name: jvm_memory_heap_max
+    exp: elasticsearch_jvm_memory_max_bytes.tagNotEqual('cluster','unknown_cluster').tagEqual('area' , 'heap').sum(['cluster' , 'name'])
+  - name: jvm_memory_nonheap_committed
+    exp: elasticsearch_jvm_memory_committed_bytes.tagNotEqual('cluster','unknown_cluster').tagEqual('area' , 'non-heap').sum(['cluster' , 'name'])
+  - name: jvm_memory_heap_committed
+    exp: elasticsearch_jvm_memory_committed_bytes.tagNotEqual('cluster','unknown_cluster').tagEqual('area' , 'heap').sum(['cluster' , 'name'])
+  - name: jvm_memory_pool_peak_used
+    exp: elasticsearch_jvm_memory_pool_peak_used_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'pool'])
+  - name: jvm_gc_count
+    exp: elasticsearch_jvm_gc_collection_seconds_count.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'gc']).increase('PT1M')
+  - name: jvm_gc_time
+    exp: (elasticsearch_jvm_gc_collection_seconds_sum * 1000).tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'gc']).increase('PT1M')
+
+  # cpu
+  - name: process_cpu_percent
+    exp: elasticsearch_process_cpu_percent.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])
+  - name: os_cpu_percent
+    exp: elasticsearch_os_cpu_percent.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])
+  - name: os_load1
+    exp: elasticsearch_os_load1.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']) * 100
+  - name: os_load5
+    exp: elasticsearch_os_load5.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']) * 100
+  - name: os_load15
+    exp: elasticsearch_os_load15.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']) * 100
+
+  # translog
+  - name: indices_translog_operations
+    exp: elasticsearch_indices_translog_operations.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).irate()
+  - name: indices_translog_size
+    exp: elasticsearch_indices_translog_size_in_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).irate()
+
+  # breakers tripped
+  - name: breakers_tripped
+    exp: elasticsearch_breakers_tripped.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'breaker']).increase('PT1M')
+  - name: breakers_estimated_size
+    exp: elasticsearch_breakers_estimated_size_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'breaker'])
+
+  # disk
+  - name: disk_usage_percent
+    exp: 100 - (elasticsearch_filesystem_data_available_bytes * 100).tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'mount']) / elasticsearch_filesystem_data_size_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'mount'])
+  - name: disk_usage
+    exp: elasticsearch_filesystem_data_size_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'mount']) - elasticsearch_filesystem_data_available_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'mount'])
+  - name: disk_io_read_bytes
+    exp: elasticsearch_filesystem_io_stats_device_read_size_kilobytes_sum.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'mount']).irate()
+  - name: disk_io_write_bytes
+    exp: elasticsearch_filesystem_io_stats_device_write_size_kilobytes_sum.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name' , 'mount']).irate()
+
+  # network
+  - name: network_send_bytes
+    exp: elasticsearch_transport_tx_size_bytes_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).irate()
+  - name: network_receive_bytes
+    exp: elasticsearch_transport_rx_size_bytes_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).irate()
+
+  # operations
+  - name: indices_search_query_total_req_rate
+    exp: elasticsearch_indices_search_query_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_search_query_time_seconds_proc_rate
+    exp: 1 / ((elasticsearch_indices_search_query_time_seconds.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M') + elasticsearch_indices_search_fetch_time_seconds.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M') + elasticsearch_indices_search_scroll_time_seconds.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M') + elasticsearch_indices_search_suggest_time_seconds.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')) / elasticsearch_indices_search_query_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M'))
+  - name: indices_search_fetch_total_req_rate
+    exp: elasticsearch_indices_search_fetch_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_search_fetch_time_seconds
+    exp: elasticsearch_indices_search_fetch_time_seconds.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).increase('PT1M')
+  - name: indices_indexing_index_total_req_rate
+    exp: elasticsearch_indices_indexing_index_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_indexing_index_total_proc_rate
+    exp: 1 / (elasticsearch_indices_indexing_index_time_seconds_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M') / elasticsearch_indices_indexing_index_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M'))
+  - name: indices_merges_total_req_rate
+    exp: elasticsearch_indices_merges_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_refresh_total_req_rate
+    exp: elasticsearch_indices_refresh_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_flush_total_req_rate
+    exp: elasticsearch_indices_flush_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_get_exists_total_req_rate
+    exp: elasticsearch_indices_get_exists_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_get_missing_total_req_rate
+    exp: elasticsearch_indices_get_missing_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_get_total_req_rate
+    exp: elasticsearch_indices_get_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_indexing_delete_total_req_rate
+    exp: elasticsearch_indices_indexing_delete_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_search_scroll_total_req_rate
+    exp: elasticsearch_indices_search_scroll_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_search_suggest_total_req_rate
+    exp: elasticsearch_indices_search_suggest_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+
+  - name: indices_docs
+    exp: elasticsearch_indices_docs.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])
+  - name: indices_docs_deleted_total
+    exp: elasticsearch_indices_docs_deleted.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])
+  - name: indices_docs_deleted
+    exp: elasticsearch_indices_docs_deleted.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_merges_docs_total
+    exp: elasticsearch_indices_merges_docs_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+  - name: indices_merges_total_size_bytes_total
+    exp: elasticsearch_indices_merges_total_size_bytes_total.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name']).rate('PT1M')
+
+  - name: segment_count
+    exp: elasticsearch_indices_segments_count.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])
+  - name: segment_memory
+    exp: elasticsearch_indices_segments_memory_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster' , 'name'])

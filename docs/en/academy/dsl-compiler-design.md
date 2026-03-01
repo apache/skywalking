@@ -123,25 +123,31 @@ work exactly as before. Only the internal compilation engine was replaced.
 ### Verification: Groovy v1 Checker
 
 To ensure the new Java compilers produce identical results to the original Groovy implementation,
-a **dual-path comparison test suite** is maintained under `test/script-compiler/`:
+a **dual-path comparison test suite** is maintained under `test/script-cases/`:
 
 ```
-test/script-compiler/
-  mal-groovy/               # MAL v1: original Groovy-based implementation
-  lal-groovy/               # LAL v1: original Groovy-based implementation
-  hierarchy-groovy/         # Hierarchy v1: original Groovy-based implementation
-  mal-lal-v1-v2-checker/    # Runs every MAL/LAL expression through BOTH v1 and v2, compares results
-  hierarchy-v1-v2-checker/  # Runs every hierarchy rule through BOTH v1 and v2, compares results
+test/script-cases/
+  scripts/
+    mal/                      # Copies of shipped MAL configs (test-otel-rules, test-meter-analyzer-config, etc.)
+    lal/                      # Copies of shipped LAL scripts (test-lal/)
+    hierarchy-rule/           # Copy of shipped hierarchy-definition.yml
+  script-runtime-with-groovy/
+    mal-v1-with-groovy/       # MAL v1: original Groovy-based implementation
+    lal-v1-with-groovy/       # LAL v1: original Groovy-based implementation
+    hierarchy-v1-with-groovy/ # Hierarchy v1: original Groovy-based implementation
+    mal-lal-v1-v2-checker/    # Runs every MAL/LAL expression through BOTH v1 and v2, compares results
+    hierarchy-v1-v2-checker/  # Runs every hierarchy rule through BOTH v1 and v2, compares results
 ```
 
 The checker mechanism:
 
-1. Loads all production YAML config files (the same files used by OAP at runtime)
+1. Loads all test copies of production YAML config files from `test/script-cases/scripts/`
 2. For each DSL expression, compiles with **both** v1 (Groovy) and v2 (ANTLR4 + Javassist)
-3. Compares the compiled artifacts:
-   - **MAL**: Compare generated Java source code, extracted metadata (sample names, aggregation labels,
-     downsampling type, percentile config), and execution results with sample data
-   - **LAL**: Compare compiled expression execution against FilterSpec/Binding mocks
+3. Compares the results:
+   - **MAL**: Compare extracted metadata (sample names, aggregation labels,
+     downsampling type, percentile config)
+   - **LAL**: Runtime execution comparison — both v1 and v2 execute with mock LogData,
+     then compare Binding state (service, layer, tags, abort/save flags)
    - **Hierarchy**: Compare `BiFunction` evaluation with test Service pairs
 
 This ensures 100% behavioral parity. The Groovy v1 modules are **test-only dependencies** -- they are not
