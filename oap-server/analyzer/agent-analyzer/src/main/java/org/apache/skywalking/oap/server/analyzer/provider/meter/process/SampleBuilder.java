@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.Builder;
-import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 
 /**
  * Help to build Sample with agent side meter.

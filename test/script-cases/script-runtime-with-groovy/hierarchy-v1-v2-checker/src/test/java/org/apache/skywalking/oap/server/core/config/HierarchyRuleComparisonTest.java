@@ -29,7 +29,7 @@ import java.util.function.BiFunction;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.apache.skywalking.oap.server.core.config.compiler.CompiledHierarchyRuleProvider;
+import org.apache.skywalking.oap.server.core.config.v2.compiler.CompiledHierarchyRuleProvider;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

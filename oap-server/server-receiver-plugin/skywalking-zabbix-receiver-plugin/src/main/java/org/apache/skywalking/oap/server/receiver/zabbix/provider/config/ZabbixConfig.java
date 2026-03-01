@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.zabbix.provider.config;
 
 import lombok.Data;
-import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
+import org.apache.skywalking.oap.meter.analyzer.v2.MetricRuleConfig;
 
 import java.util.List;
 

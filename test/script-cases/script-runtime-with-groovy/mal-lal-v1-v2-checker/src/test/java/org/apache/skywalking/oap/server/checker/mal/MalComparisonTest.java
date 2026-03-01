@@ -30,16 +30,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.meter.analyzer.compiler.MALClassGenerator;
-import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
-import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
-import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionMetadata;
-import org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext;
-import org.apache.skywalking.oap.meter.analyzer.dsl.MalExpression;
-import org.apache.skywalking.oap.meter.analyzer.dsl.Result;
-import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
-import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
-import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -49,14 +41,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Dual-path comparison test for MAL (Meter Analysis Language) expressions.
- * For each metric rule across all MAL YAML files:
  * <ul>
- *   <li>Path A (v1): Groovy compilation via upstream {@code DSL.parse()}</li>
- *   <li>Path B (v2): ANTLR4 + Javassist compilation via {@link MALClassGenerator}</li>
+ *   <li>Path A (v1): Groovy via {@code org.apache.skywalking.oap.meter.analyzer.dsl.DSL}</li>
+ *   <li>Path B (v2): ANTLR4 + Javassist via {@link MALClassGenerator}</li>
  * </ul>
- * Both paths run metadata extraction and runtime execution comparison.
- * Metadata: compare samples, scope, downsampling, aggregation labels.
- * Runtime: execute with mock SampleFamily data and compare output.
+ *
+ * <p>v1 classes use original package {@code org.apache.skywalking.oap.meter.analyzer.dsl.*},
+ * v2 classes use {@code org.apache.skywalking.oap.meter.analyzer.v2.dsl.*}.
+ * Both are called via hard-coded typed references (no reflection).
  */
 @Slf4j
 class MalComparisonTest {
@@ -89,18 +81,19 @@ class MalComparisonTest {
 
     private void compareExpression(final String metricName,
                                    final String expression) throws Exception {
-        // ---- V1: Groovy path ----
-        Expression v1Expr = null;
-        ExpressionParsingContext v1Ctx = null;
+        // ---- V1: Groovy path (original packages) ----
+        org.apache.skywalking.oap.meter.analyzer.dsl.Expression v1Expr = null;
+        org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext v1Ctx = null;
         try {
-            v1Expr = DSL.parse(metricName, expression);
+            v1Expr = org.apache.skywalking.oap.meter.analyzer.dsl.DSL.parse(
+                metricName, expression);
             v1Ctx = v1Expr.parse();
         } catch (Exception e) {
             // V1 failed - skip comparison
         }
 
-        // ---- V2: ANTLR4 + Javassist compilation ----
-        MalExpression v2MalExpr = null;
+        // ---- V2: ANTLR4 + Javassist (.v2. packages) ----
+        org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression v2MalExpr = null;
         ExpressionMetadata v2Meta = null;
         String v2Error = null;
         try {
@@ -113,11 +106,9 @@ class MalComparisonTest {
 
         // ---- Compare metadata ----
         if (v1Ctx == null && v2Meta == null) {
-            // Both failed — consistent behavior
             return;
         }
         if (v1Ctx == null) {
-            // V1 failed but v2 succeeded — v2 is more capable, OK
             return;
         }
         if (v2Meta == null) {
@@ -125,12 +116,13 @@ class MalComparisonTest {
             return;
         }
 
-        // Both succeeded - compare metadata
         assertEquals(v1Ctx.getSamples(), v2Meta.getSamples(),
             metricName + ": samples mismatch");
         assertEquals(v1Ctx.getScopeType(), v2Meta.getScopeType(),
             metricName + ": scopeType mismatch");
-        assertEquals(v1Ctx.getDownsampling(), v2Meta.getDownsampling(),
+        assertEquals(
+            v1Ctx.getDownsampling() == null ? null : v1Ctx.getDownsampling().name(),
+            v2Meta.getDownsampling() == null ? null : v2Meta.getDownsampling().name(),
             metricName + ": downsampling mismatch");
         assertEquals(v1Ctx.isHistogram(), v2Meta.isHistogram(),
             metricName + ": isHistogram mismatch");
@@ -143,25 +135,26 @@ class MalComparisonTest {
         compareExecution(metricName, expression, v1Expr, v2MalExpr, v2Meta);
     }
 
-    private void compareExecution(final String metricName,
-                                  final String expression,
-                                  final Expression v1Expr,
-                                  final MalExpression v2MalExpr,
-                                  final ExpressionMetadata v2Meta) {
+    private void compareExecution(
+            final String metricName,
+            final String expression,
+            final org.apache.skywalking.oap.meter.analyzer.dsl.Expression v1Expr,
+            final org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression v2MalExpr,
+            final ExpressionMetadata v2Meta) {
         final boolean hasIncrease = expression.contains(".increase(")
             || expression.contains(".rate(");
 
         // For increase()/rate(), prime the CounterWindow with initial data
         if (hasIncrease) {
             try {
-                v1Expr.run(buildMockData(metricName, expression, v2Meta));
+                v1Expr.run(buildV1MockData(metricName, expression, v2Meta));
             } catch (Exception ignored) {
             }
             try {
-                final Map<String, SampleFamily> primeData =
-                    buildMockData(metricName, expression, v2Meta);
-                for (final SampleFamily s : primeData.values()) {
-                    if (s != SampleFamily.EMPTY) {
+                final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> primeData =
+                    buildV2MockData(metricName, expression, v2Meta);
+                for (final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily s : primeData.values()) {
+                    if (s != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY) {
                         s.context.setMetricName(metricName);
                     }
                 }
@@ -170,26 +163,25 @@ class MalComparisonTest {
             }
         }
 
-        // Build fresh test data for actual comparison
-        final Map<String, SampleFamily> v1Data =
-            buildMockData(metricName, expression, v2Meta);
-        final Map<String, SampleFamily> v2Data =
-            buildMockData(metricName, expression, v2Meta);
+        // Build fresh test data
+        final Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> v1Data =
+            buildV1MockData(metricName, expression, v2Meta);
+        final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> v2Data =
+            buildV2MockData(metricName, expression, v2Meta);
 
         // V1 run
-        Result v1Result;
+        org.apache.skywalking.oap.meter.analyzer.dsl.Result v1Result;
         try {
             v1Result = v1Expr.run(v1Data);
         } catch (Exception e) {
-            // V1 runtime failed — skip comparison
             return;
         }
 
         // V2 run
-        SampleFamily v2Sf;
+        org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily v2Sf;
         try {
-            for (final SampleFamily s : v2Data.values()) {
-                if (s != SampleFamily.EMPTY) {
+            for (final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily s : v2Data.values()) {
+                if (s != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY) {
                     s.context.setMetricName(metricName);
                 }
             }
@@ -203,7 +195,8 @@ class MalComparisonTest {
         }
 
         // Compare results
-        final boolean v2Success = v2Sf != null && v2Sf != SampleFamily.EMPTY;
+        final boolean v2Success = v2Sf != null
+            && v2Sf != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY;
         assertEquals(v1Result.isSuccess(), v2Success,
             metricName + ": success mismatch (v1=" + v1Result.isSuccess()
                 + ", v2=" + v2Success + ")");
@@ -213,60 +206,163 @@ class MalComparisonTest {
         }
     }
 
-    private Map<String, SampleFamily> buildMockData(final String metricName,
-                                                     final String expression,
-                                                     final ExpressionMetadata meta) {
-        final Map<String, SampleFamily> data = new HashMap<>();
-        final long now = timestampCounter++;
+    // ==================== V1 mock data (original packages) ====================
 
-        // Extract tagEqual constraints from the expression
+    private Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> buildV1MockData(
+            final String metricName, final String expression,
+            final ExpressionMetadata meta) {
+        final Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> data =
+            new HashMap<>();
+        final long now = timestampCounter++;
         final Map<String, String> tagEqualLabels = extractTagEqualLabels(expression);
 
         for (final String sampleName : meta.getSamples()) {
-            // Build labels from aggregation labels
             final Map<String, String> labels = new HashMap<>();
             for (final String label : meta.getAggregationLabels()) {
                 labels.put(label, inferLabelValue(label, tagEqualLabels));
             }
-            // Also add tagEqual labels not in aggregation labels
             labels.putAll(tagEqualLabels);
 
             if (meta.isHistogram()) {
-                data.put(sampleName,
-                    buildHistogramSamples(sampleName, labels, now));
+                data.put(sampleName, buildV1HistogramSamples(sampleName, labels, now));
             } else {
-                final Sample sample = Sample.builder()
-                    .name(sampleName)
-                    .labels(ImmutableMap.copyOf(labels))
-                    .value(100.0)
-                    .timestamp(now)
-                    .build();
+                final org.apache.skywalking.oap.meter.analyzer.dsl.Sample sample =
+                    org.apache.skywalking.oap.meter.analyzer.dsl.Sample.builder()
+                        .name(sampleName)
+                        .labels(ImmutableMap.copyOf(labels))
+                        .value(100.0)
+                        .timestamp(now)
+                        .build();
                 data.put(sampleName,
-                    SampleFamilyBuilder.newBuilder(sample).build());
+                    org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder
+                        .newBuilder(sample).build());
             }
         }
         return data;
     }
 
-    private SampleFamily buildHistogramSamples(final String sampleName,
-                                               final Map<String, String> baseLabels,
-                                               final long timestamp) {
-        final List<Sample> samples = new ArrayList<>();
+    private org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily buildV1HistogramSamples(
+            final String sampleName, final Map<String, String> baseLabels,
+            final long timestamp) {
+        final List<org.apache.skywalking.oap.meter.analyzer.dsl.Sample> samples =
+            new ArrayList<>();
         double cumulativeValue = 0;
         for (final String le : HISTOGRAM_LE_VALUES) {
             cumulativeValue += 10.0;
             final Map<String, String> labels = new HashMap<>(baseLabels);
             labels.put("le", le);
-            samples.add(Sample.builder()
+            samples.add(org.apache.skywalking.oap.meter.analyzer.dsl.Sample.builder()
                 .name(sampleName)
                 .labels(ImmutableMap.copyOf(labels))
                 .value(cumulativeValue)
                 .timestamp(timestamp)
                 .build());
         }
-        return SampleFamilyBuilder.newBuilder(
-            samples.toArray(new Sample[0])).build();
+        return org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder.newBuilder(
+            samples.toArray(new org.apache.skywalking.oap.meter.analyzer.dsl.Sample[0])).build();
     }
+
+    // ==================== V2 mock data (.v2. packages) ====================
+
+    private Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> buildV2MockData(
+            final String metricName, final String expression,
+            final ExpressionMetadata meta) {
+        final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> data =
+            new HashMap<>();
+        final long now = timestampCounter++;
+        final Map<String, String> tagEqualLabels = extractTagEqualLabels(expression);
+
+        for (final String sampleName : meta.getSamples()) {
+            final Map<String, String> labels = new HashMap<>();
+            for (final String label : meta.getAggregationLabels()) {
+                labels.put(label, inferLabelValue(label, tagEqualLabels));
+            }
+            labels.putAll(tagEqualLabels);
+
+            if (meta.isHistogram()) {
+                data.put(sampleName, buildV2HistogramSamples(sampleName, labels, now));
+            } else {
+                final org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample sample =
+                    org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample.builder()
+                        .name(sampleName)
+                        .labels(ImmutableMap.copyOf(labels))
+                        .value(100.0)
+                        .timestamp(now)
+                        .build();
+                data.put(sampleName,
+                    org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder
+                        .newBuilder(sample).build());
+            }
+        }
+        return data;
+    }
+
+    private org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily buildV2HistogramSamples(
+            final String sampleName, final Map<String, String> baseLabels,
+            final long timestamp) {
+        final List<org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample> samples =
+            new ArrayList<>();
+        double cumulativeValue = 0;
+        for (final String le : HISTOGRAM_LE_VALUES) {
+            cumulativeValue += 10.0;
+            final Map<String, String> labels = new HashMap<>(baseLabels);
+            labels.put("le", le);
+            samples.add(org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample.builder()
+                .name(sampleName)
+                .labels(ImmutableMap.copyOf(labels))
+                .value(cumulativeValue)
+                .timestamp(timestamp)
+                .build());
+        }
+        return org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder.newBuilder(
+            samples.toArray(
+                new org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample[0])).build();
+    }
+
+    // ==================== Cross-version comparison ====================
+
+    private static void compareSampleFamilies(
+            final String metricName,
+            final org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily v1Sf,
+            final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily v2Sf) {
+        final org.apache.skywalking.oap.meter.analyzer.dsl.Sample[] v1Sorted =
+            sortV1Samples(v1Sf.samples);
+        final org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample[] v2Sorted =
+            sortV2Samples(v2Sf.samples);
+
+        assertEquals(v1Sorted.length, v2Sorted.length,
+            metricName + ": output sample count mismatch (v1="
+                + v1Sorted.length + ", v2=" + v2Sorted.length + ")");
+
+        for (int i = 0; i < v1Sorted.length; i++) {
+            assertEquals(v1Sorted[i].getLabels(), v2Sorted[i].getLabels(),
+                metricName + ": output sample[" + i + "] labels mismatch");
+            assertEquals(v1Sorted[i].getValue(), v2Sorted[i].getValue(), 0.001,
+                metricName + ": output sample[" + i + "] value mismatch"
+                    + " (v1=" + v1Sorted[i].getValue()
+                    + ", v2=" + v2Sorted[i].getValue() + ")");
+        }
+    }
+
+    private static org.apache.skywalking.oap.meter.analyzer.dsl.Sample[] sortV1Samples(
+            final org.apache.skywalking.oap.meter.analyzer.dsl.Sample[] samples) {
+        final org.apache.skywalking.oap.meter.analyzer.dsl.Sample[] sorted =
+            Arrays.copyOf(samples, samples.length);
+        Arrays.sort(sorted, (a, b) -> a.getLabels().toString().compareTo(
+            b.getLabels().toString()));
+        return sorted;
+    }
+
+    private static org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample[] sortV2Samples(
+            final org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample[] samples) {
+        final org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample[] sorted =
+            Arrays.copyOf(samples, samples.length);
+        Arrays.sort(sorted, (a, b) -> a.getLabels().toString().compareTo(
+            b.getLabels().toString()));
+        return sorted;
+    }
+
+    // ==================== Helpers ====================
 
     private static Map<String, String> extractTagEqualLabels(final String expression) {
         final Map<String, String> labels = new HashMap<>();
@@ -279,7 +375,6 @@ class MalComparisonTest {
 
     private static String inferLabelValue(final String label,
                                           final Map<String, String> tagEqualLabels) {
-        // If tagEqual specifies this label, use that value
         if (tagEqualLabels.containsKey(label)) {
             return tagEqualLabels.get(label);
         }
@@ -313,36 +408,7 @@ class MalComparisonTest {
         }
     }
 
-    private static void compareSampleFamilies(final String metricName,
-                                              final SampleFamily v1Sf,
-                                              final SampleFamily v2Sf) {
-        // Sort both sample arrays by labels for stable comparison
-        final Sample[] v1Sorted = sortSamples(v1Sf.samples);
-        final Sample[] v2Sorted = sortSamples(v2Sf.samples);
-
-        assertEquals(v1Sorted.length, v2Sorted.length,
-            metricName + ": output sample count mismatch (v1="
-                + v1Sorted.length + ", v2=" + v2Sorted.length + ")");
-
-        for (int i = 0; i < v1Sorted.length; i++) {
-            assertEquals(v1Sorted[i].getLabels(), v2Sorted[i].getLabels(),
-                metricName + ": output sample[" + i + "] labels mismatch");
-            assertEquals(v1Sorted[i].getValue(), v2Sorted[i].getValue(), 0.001,
-                metricName + ": output sample[" + i + "] value mismatch"
-                    + " (v1=" + v1Sorted[i].getValue()
-                    + ", v2=" + v2Sorted[i].getValue() + ")");
-        }
-    }
-
-    private static Sample[] sortSamples(final Sample[] samples) {
-        final Sample[] sorted = Arrays.copyOf(samples, samples.length);
-        Arrays.sort(sorted, (a, b) -> {
-            final String aKey = a.getLabels().toString();
-            final String bKey = b.getLabels().toString();
-            return aKey.compareTo(bKey);
-        });
-        return sorted;
-    }
+    // ==================== YAML loading ====================
 
     @SuppressWarnings("unchecked")
     private Map<String, List<MalRule>> loadAllMalYamlFiles() throws Exception {

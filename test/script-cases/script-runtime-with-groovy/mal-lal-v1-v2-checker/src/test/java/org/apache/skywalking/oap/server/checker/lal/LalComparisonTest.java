@@ -32,13 +32,10 @@ import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
-import org.apache.skywalking.oap.log.analyzer.compiler.LALClassGenerator;
-import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
-import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
-import org.apache.skywalking.oap.log.analyzer.dsl.spec.filter.FilterSpec;
-import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
-import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider;
+import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
+import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -57,14 +54,14 @@ import static org.mockito.Mockito.when;
 
 /**
  * Dual-path comparison test for LAL (Log Analysis Language) scripts.
- * For each LAL rule across all LAL YAML files:
  * <ul>
- *   <li>Path A (v1): Groovy compilation + runtime execution via {@link DSL}</li>
- *   <li>Path B (v2): ANTLR4 + Javassist compilation via {@link LALClassGenerator}
- *        + runtime execution via {@code LalExpression.execute(FilterSpec, Binding)}</li>
+ *   <li>Path A (v1): Groovy via {@code org.apache.skywalking.oap.log.analyzer.dsl.DSL}</li>
+ *   <li>Path B (v2): ANTLR4 + Javassist via {@link LALClassGenerator}</li>
  * </ul>
- * Both paths are fed the same mock LogData and the resulting Binding state
- * (service, layer, tags, abort/save flags) is compared.
+ * Both paths are fed the same mock LogData and the resulting Binding state is compared.
+ *
+ * <p>v1 classes use original package {@code org.apache.skywalking.oap.log.analyzer.dsl.*},
+ * v2 classes use {@code org.apache.skywalking.oap.log.analyzer.v2.dsl.*}.
  */
 class LalComparisonTest {
 
@@ -91,31 +88,39 @@ class LalComparisonTest {
         final ModuleManager manager = buildMockModuleManager();
         final LogData testLog = buildTestLogData(dsl);
 
-        // ---- V1: Groovy path (via DSL.of which uses GroovyShell internally) ----
-        Binding v1Binding = null;
+        // ---- V1: Groovy path ----
+        // v1 uses original packages: org.apache.skywalking.oap.log.analyzer.dsl.*
+        org.apache.skywalking.oap.log.analyzer.dsl.Binding v1Binding = null;
         try {
-            final DSL v1Dsl = DSL.of(manager, new LogAnalyzerModuleConfig(), dsl);
+            final org.apache.skywalking.oap.log.analyzer.dsl.DSL v1Dsl =
+                org.apache.skywalking.oap.log.analyzer.dsl.DSL.of(
+                    manager,
+                    new org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig(),
+                    dsl);
             disableSinkListeners(v1Dsl);
 
-            v1Binding = new Binding().log(testLog);
+            v1Binding = new org.apache.skywalking.oap.log.analyzer.dsl.Binding().log(testLog);
             v1Dsl.bind(v1Binding);
             v1Dsl.evaluate();
         } catch (Exception e) {
             // V1 failed — skip comparison
         }
 
-        // ---- V2: ANTLR4 + Javassist compilation + execution ----
-        Binding v2Binding = null;
+        // ---- V2: ANTLR4 + Javassist path ----
+        // v2 uses .v2. packages: org.apache.skywalking.oap.log.analyzer.v2.dsl.*
+        org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding v2Binding = null;
         String v2Error = null;
         try {
             final LALClassGenerator generator = new LALClassGenerator();
-            final org.apache.skywalking.oap.log.analyzer.dsl.LalExpression v2Expr =
+            final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression v2Expr =
                 generator.compile(dsl);
 
-            final FilterSpec v2FilterSpec = new FilterSpec(manager, new LogAnalyzerModuleConfig());
+            final org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec v2FilterSpec =
+                new org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec(
+                    manager, new LogAnalyzerModuleConfig());
             disableSinkListenersOnSpec(v2FilterSpec);
 
-            v2Binding = new Binding().log(testLog);
+            v2Binding = new org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding().log(testLog);
             v2FilterSpec.bind(v2Binding);
 
             v2Expr.execute(v2FilterSpec, v2Binding);
@@ -218,7 +223,7 @@ class LalComparisonTest {
         }
     }
 
-    private void disableSinkListenersOnSpec(final FilterSpec filterSpec) {
+    private void disableSinkListenersOnSpec(final Object filterSpec) {
         try {
             setInternalField(filterSpec, "sinkListenerFactories", Collections.emptyList());
         } catch (Exception e) {

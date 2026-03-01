@@ -45,14 +45,16 @@ oap-server/analyzer/log-analyzer/
 
 ## Package & Class Naming
 
+All v2 classes live under `org.apache.skywalking.oap.log.analyzer.v2.*` to avoid FQCN conflicts with the v1 (Groovy) classes.
+
 | Component | Package / Name |
 |-----------|---------------|
-| Parser/Model/Generator | `org.apache.skywalking.oap.log.analyzer.compiler` |
-| Generated classes | `org.apache.skywalking.oap.log.analyzer.compiler.rt.LalExpr_<N>` |
-| Consumer classes | `org.apache.skywalking.oap.log.analyzer.compiler.rt.LalExpr_<N>_C<M>` |
-| Package holder | `org.apache.skywalking.oap.log.analyzer.compiler.rt.LalExpressionPackageHolder` |
-| Binding aware | `org.apache.skywalking.oap.log.analyzer.compiler.rt.BindingAware` |
-| Functional interface | `org.apache.skywalking.oap.log.analyzer.dsl.LalExpression` (in log-analyzer) |
+| Parser/Model/Generator | `org.apache.skywalking.oap.log.analyzer.v2.compiler` |
+| Generated classes | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpr_<N>` |
+| Consumer classes | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpr_<N>_C<M>` |
+| Package holder | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackageHolder` |
+| Binding aware | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.BindingAware` |
+| Functional interface | `org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression` |
 
 `<N>` is a global `AtomicInteger` counter. `<M>` is the consumer index within the script.
 

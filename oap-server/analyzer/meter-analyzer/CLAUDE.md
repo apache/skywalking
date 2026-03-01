@@ -46,14 +46,16 @@ oap-server/analyzer/meter-analyzer/
 
 ## Package & Class Naming
 
+All v2 classes live under `org.apache.skywalking.oap.meter.analyzer.v2.*` to avoid FQCN conflicts with the v1 (Groovy) classes.
+
 | Component | Package / Name |
 |-----------|---------------|
-| Parser/Model/Generator | `org.apache.skywalking.oap.meter.analyzer.compiler` |
-| Generated classes | `org.apache.skywalking.oap.meter.analyzer.compiler.rt.MalExpr_<N>` |
-| Closure classes | `org.apache.skywalking.oap.meter.analyzer.compiler.rt.MalExpr_<N>_Closure<M>` |
-| Package holder | `org.apache.skywalking.oap.meter.analyzer.compiler.rt.MalExpressionPackageHolder` |
-| Runtime helper | `org.apache.skywalking.oap.meter.analyzer.compiler.rt.MalRuntimeHelper` |
-| Functional interface | `org.apache.skywalking.oap.meter.analyzer.dsl.MalExpression` (in meter-analyzer) |
+| Parser/Model/Generator | `org.apache.skywalking.oap.meter.analyzer.v2.compiler` |
+| Generated classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpr_<N>` |
+| Closure classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpr_<N>_Closure<M>` |
+| Package holder | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder` |
+| Runtime helper | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalRuntimeHelper` |
+| Functional interface | `org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression` |
 
 `<N>` is a global `AtomicInteger` counter. `<M>` is the closure index within the expression.
 
@@ -67,7 +69,7 @@ oap-server/analyzer/meter-analyzer/
   - `tag({ ... })` → `SampleFamilyFunctions$TagFunction`
   - `forEach(closure)` / `serviceRelation(closure)` etc. → `SampleFamilyFunctions$ForEachFunction`
   - `instance(closure)` → `SampleFamilyFunctions$PropertiesExtractor`
-- **No new v2 code in shared DSL classes**: New runtime behavior used by generated code goes in `MalRuntimeHelper` (in the `compiler.rt` package) to avoid FQCN conflicts with the v1 Groovy module which shares the same `dsl` package.
+- **v2 package isolation**: All v2 classes are under `*.v2.*` packages, so there are no FQCN conflicts with the v1 Groovy module.
 
 ## Example
 
