@@ -194,7 +194,7 @@
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
-        <jmh.version>1.21</jmh.version>
+        <jmh.version>1.37</jmh.version>
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
         <assertj-core.version>3.20.2</assertj-core.version>
         <cyclonedx-maven-plugin.version>2.8.0</cyclonedx-maven-plugin.version>
