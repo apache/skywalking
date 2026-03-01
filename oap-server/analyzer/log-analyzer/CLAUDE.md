@@ -19,8 +19,7 @@ LAL DSL string
 
 The generated class implements:
 ```java
-void execute(Object filterSpec, Object binding)
-  // cast internally to FilterSpec and Binding
+void execute(FilterSpec filterSpec, Binding binding)
 ```
 
 ## File Structure
@@ -39,8 +38,9 @@ oap-server/analyzer/log-analyzer/
       BindingAware.java                 — Interface for consumers needing Binding access
 
   src/test/java/.../compiler/
-    LALScriptParserTest.java            — 8 parser tests
-    LALClassGeneratorTest.java          — 6 generator tests
+    LALScriptParserTest.java            — 20 parser tests
+    LALClassGeneratorTest.java          — 35 generator tests
+    LALExpressionExecutionTest.java     — 27 data-driven execution tests (from YAML + .input.data)
 ```
 
 ## Package & Class Naming
@@ -93,7 +93,7 @@ Three classes are generated:
    // implements Consumer, BindingAware
    public void accept(Object arg) {
      ExtractorSpec _t = (ExtractorSpec) arg;
-     _t.service(String.valueOf(getAt(binding.parsed(), "service")));
+     _t.service(toStr(getAt(binding.parsed(), "service")));
    }
    ```
 
@@ -101,9 +101,7 @@ Three classes are generated:
    ```java
    public Consumer _consumer0;  // wired after toClass()
 
-   public void execute(Object arg0, Object arg1) {
-     FilterSpec filterSpec = (FilterSpec) arg0;
-     Binding binding = (Binding) arg1;
+   public void execute(FilterSpec filterSpec, Binding binding) {
      filterSpec.json();
      ((BindingAware) this._consumer0).setBinding(binding);
      filterSpec.extractor(this._consumer0);
@@ -119,6 +117,30 @@ Three classes are generated:
 - `extractor { ... }` → always allocates a consumer
 - `sink {}` empty → no consumer, emits `filterSpec.sink()`
 - `sink { enforcer {} }` → allocates a consumer
+
+## Null-Safe String Conversion
+
+Generated code uses `toStr()` instead of `String.valueOf()` for casting parsed values to String:
+```java
+private static String toStr(Object obj) { return obj == null ? null : String.valueOf(obj); }
+```
+This preserves Java `null` for missing fields (matching Groovy's `null as String` → `null` behavior),
+whereas `String.valueOf(null)` would produce the string `"null"`.
+
+## Data-Driven Execution Tests
+
+`LALExpressionExecutionTest` loads LAL rules from YAML and mock input from `.input.data` files:
+
+```
+test/script-cases/scripts/lal/test-lal/
+  oap-cases/                     — copies of shipped LAL configs (each with .input.data)
+  feature-cases/
+    execution-basic.yaml         — 17 LAL feature-coverage rules
+    execution-basic.input.data   — mock input + expected output per rule
+```
+
+Each `.input.data` entry specifies `body-type`, `body`, optional `tags`, and `expect` assertions
+(service, instance, endpoint, layer, tags, abort, save, timestamp, sampledTrace fields).
 
 ## Dependencies
 

@@ -42,7 +42,7 @@ Phase 3: Javassist Bytecode Generation
 | OAL | Extends metrics function class (e.g., `LongAvgMetrics`) | `id()`, `serialize()`, `deserialize()`, plus dispatcher `dispatch(source)` |
 | MAL metric | `MalExpression` | `SampleFamily run(Map<String, SampleFamily> samples)` |
 | MAL filter | `Predicate<Map<String, String>>` | `boolean test(Map<String, String> tags)` |
-| LAL | `LalExpression` | `void execute(Object filterSpec, Object binding)` |
+| LAL | `LalExpression` | `void execute(FilterSpec filterSpec, Binding binding)` |
 | Hierarchy | `BiFunction<Service, Service, Boolean>` | `Boolean apply(Service upper, Service lower)` |
 
 OAL is the most complex -- it generates **three classes per metric** (metrics class with storage annotations,
@@ -144,10 +144,16 @@ The checker mechanism:
 1. Loads all test copies of production YAML config files from `test/script-cases/scripts/`
 2. For each DSL expression, compiles with **both** v1 (Groovy) and v2 (ANTLR4 + Javassist)
 3. Compares the results:
-   - **MAL**: Compare extracted metadata (sample names, aggregation labels,
-     downsampling type, percentile config)
-   - **LAL**: Runtime execution comparison — both v1 and v2 execute with mock LogData,
-     then compare Binding state (service, layer, tags, abort/save flags)
+   - **MAL**: Two-level comparison for each expression:
+     1. **Metadata comparison** -- sample names, aggregation labels, downsampling type, percentile config
+     2. **Runtime execution comparison** -- builds mock `SampleFamily` input data from `ExpressionMetadata`,
+        executes with both v1 and v2, compares output samples (count, labels, values with epsilon).
+        For `increase()`/`rate()` expressions, the `CounterWindow` is primed with an initial run before
+        comparing the second run's output.
+   - **LAL**: Runtime execution comparison -- both v1 and v2 execute with mock LogData,
+     then compare Binding state (service, layer, tags, abort/save flags).
+     Test scripts include both copies of production configs (`oap-cases/`) and
+     dedicated feature-coverage rules (`feature-cases/`).
    - **Hierarchy**: Compare `BiFunction` evaluation with test Service pairs
 
 This ensures 100% behavioral parity. The Groovy v1 modules are **test-only dependencies** -- they are not
@@ -157,7 +163,7 @@ included in the OAP distribution.
 
 | Checker | Expressions Tested | Status |
 |---------|-------------------|--------|
-| MAL metric expressions | 1,187 | All pass |
+| MAL metric expressions | 1,187 | All pass (metadata + runtime execution) |
 | MAL filter expressions | 29 | All pass |
-| LAL scripts | 10 | All pass |
+| LAL scripts | 29 | All pass |
 | Hierarchy rules | 22 | All pass |

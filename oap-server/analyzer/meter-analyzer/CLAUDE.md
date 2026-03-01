@@ -37,10 +37,11 @@ oap-server/analyzer/meter-analyzer/
     MALClassGenerator.java            — Javassist code generator
     rt/
       MalExpressionPackageHolder.java — Class loading anchor (empty marker)
+      MalRuntimeHelper.java           — Static helpers called by generated code (e.g., divReverse)
 
   src/test/java/.../compiler/
-    MALScriptParserTest.java          — 14 parser tests
-    MALClassGeneratorTest.java        — 9 generator tests
+    MALScriptParserTest.java          — 20 parser tests
+    MALClassGeneratorTest.java        — 28 generator tests
 ```
 
 ## Package & Class Naming
@@ -51,16 +52,22 @@ oap-server/analyzer/meter-analyzer/
 | Generated classes | `org.apache.skywalking.oap.meter.analyzer.compiler.rt.MalExpr_<N>` |
 | Closure classes | `org.apache.skywalking.oap.meter.analyzer.compiler.rt.MalExpr_<N>_Closure<M>` |
 | Package holder | `org.apache.skywalking.oap.meter.analyzer.compiler.rt.MalExpressionPackageHolder` |
+| Runtime helper | `org.apache.skywalking.oap.meter.analyzer.compiler.rt.MalRuntimeHelper` |
 | Functional interface | `org.apache.skywalking.oap.meter.analyzer.dsl.MalExpression` (in meter-analyzer) |
 
 `<N>` is a global `AtomicInteger` counter. `<M>` is the closure index within the expression.
 
 ## Javassist Constraints
 
-- **No anonymous inner classes**: Javassist cannot compile `new Consumer() { ... }` or `new Function() { ... }` in method bodies. Closures are pre-compiled as separate `CtClass` instances implementing `SampleFamilyFunctions$TagFunction`, stored as fields (`_closure0`, `_closure1`, ...) on the main class, and wired via reflection after `toClass()`.
+- **No anonymous inner classes**: Javassist cannot compile `new Consumer() { ... }` or `new Function() { ... }` in method bodies. Closures are pre-compiled as separate `CtClass` instances, stored as fields (`_closure0`, `_closure1`, ...) on the main class, and wired via reflection after `toClass()`.
 - **No lambda expressions**: Use the separate-class approach above.
 - **Inner class notation**: Use `$` not `.` for nested classes (e.g., `SampleFamilyFunctions$TagFunction`).
 - **`isPresent()`/`get()` instead of `ifPresent()`**: `ifPresent(Consumer)` would require an anonymous class. Use `Optional.isPresent()` + `Optional.get()` pattern.
+- **Closure interface dispatch**: Different closure call sites use different functional interfaces:
+  - `tag({ ... })` → `SampleFamilyFunctions$TagFunction`
+  - `forEach(closure)` / `serviceRelation(closure)` etc. → `SampleFamilyFunctions$ForEachFunction`
+  - `instance(closure)` → `SampleFamilyFunctions$PropertiesExtractor`
+- **No new v2 code in shared DSL classes**: New runtime behavior used by generated code goes in `MalRuntimeHelper` (in the `compiler.rt` package) to avoid FQCN conflicts with the v1 Groovy module which shares the same `dsl` package.
 
 ## Example
 
