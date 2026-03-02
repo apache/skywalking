@@ -358,4 +358,45 @@ class MALClassGeneratorTest {
         assertNotNull(expr);
         assertNotNull(expr.run(java.util.Map.of()));
     }
+
+    @Test
+    void regexMatchWithDefCompiles() throws Exception {
+        // envoy-ca pattern: def + regex match + ternary with chained indexing
+        final MalExpression expr = generator.compile(
+            "test_regex",
+            "metric.tag({tags ->\n"
+            + "  def matcher = (tags.metrics_name =~ /\\.ssl\\.certificate\\.([^.]+)\\.expiration/)\n"
+            + "  tags.secret_name = matcher ? matcher[0][1] : \"unknown\"\n"
+            + "})");
+        assertNotNull(expr);
+        assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    @Test
+    void envoyCAExpressionCompiles() throws Exception {
+        // Full envoy-ca.yaml expression with regex closure, subtraction of time(), and service
+        final MalExpression expr = generator.compile(
+            "test_envoy_ca",
+            "(metric.tagMatch('metrics_name', '.*ssl.*expiration_unix_time_seconds')"
+            + ".tag({tags ->\n"
+            + "  def matcher = (tags.metrics_name =~ /\\.ssl\\.certificate\\.([^.]+)"
+            + "\\.expiration_unix_time_seconds/)\n"
+            + "  tags.secret_name = matcher ? matcher[0][1] : \"unknown\"\n"
+            + "}).min(['app', 'secret_name']) - time())"
+            + ".downsampling(MIN).service(['app'], Layer.MESH_DP)");
+        assertNotNull(expr);
+    }
+
+    @Test
+    void timeScalarFunctionHandledInMetadata() throws Exception {
+        // time() should not appear as a sample name and should be treated as scalar
+        final MalExpression expr = generator.compile(
+            "test_time",
+            "(metric.sum(['app']) - time()).service(['app'], Layer.GENERAL)");
+        assertNotNull(expr);
+        assertNotNull(expr.metadata());
+        // time() should not be in sample names
+        assertTrue(expr.metadata().getSamples().contains("metric"));
+        assertTrue(expr.metadata().getSamples().size() == 1);
+    }
 }

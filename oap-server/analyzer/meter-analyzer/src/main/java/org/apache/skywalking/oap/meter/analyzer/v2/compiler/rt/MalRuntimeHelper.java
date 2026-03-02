@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
@@ -29,6 +31,28 @@ import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
 public final class MalRuntimeHelper {
 
     private MalRuntimeHelper() {
+    }
+
+    /**
+     * Groovy regex match ({@code =~}): returns a {@code String[][]} where each row is
+     * one match with group 0 (full match) and capture groups 1..N.
+     * Returns {@code null} if the pattern does not match, so that Groovy-style
+     * truthiness checks ({@code matcher ? matcher[0][1] : "unknown"}) work via null check.
+     */
+    public static String[][] regexMatch(final String input, final String regex) {
+        if (input == null) {
+            return null;
+        }
+        final Matcher m = Pattern.compile(regex).matcher(input);
+        if (!m.find()) {
+            return null;
+        }
+        final int groupCount = m.groupCount();
+        final String[] row = new String[groupCount + 1];
+        for (int i = 0; i <= groupCount; i++) {
+            row[i] = m.group(i);
+        }
+        return new String[][] {row};
     }
 
     /**

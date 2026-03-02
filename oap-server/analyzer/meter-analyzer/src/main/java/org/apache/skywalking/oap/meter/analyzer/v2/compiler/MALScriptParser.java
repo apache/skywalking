@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -81,8 +83,38 @@ public final class MALScriptParser {
     private MALScriptParser() {
     }
 
+    /**
+     * Pre-process expression to convert Groovy regex literals used as method
+     * arguments into string literals. E.g., {@code split(/\|/, -1)} becomes
+     * {@code split("\\|", -1)}. Regex literals after {@code =~} are handled
+     * by the lexer mode and are NOT touched here.
+     */
+    static String preprocessRegexLiterals(final String expression) {
+        // Match /pattern/ that appears after ( or , (method arg context),
+        // but NOT after =~ (which is handled by lexer mode)
+        final Pattern argRegex = Pattern.compile(
+            "(?<=[,(])\\s*/([^/\\r\\n]+)/");
+        final Matcher m = argRegex.matcher(expression);
+        if (!m.find()) {
+            return expression;
+        }
+        final StringBuffer sb = new StringBuffer();
+        m.reset();
+        while (m.find()) {
+            final String body = m.group(1);
+            // Preserve leading whitespace from the match
+            final String leading = m.group().substring(0, m.group().indexOf('/'));
+            m.appendReplacement(sb,
+                java.util.regex.Matcher.quoteReplacement(
+                    leading + "\"" + body + "\""));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
     public static Expr parse(final String expression) {
-        final MALLexer lexer = new MALLexer(CharStreams.fromString(expression));
+        final String preprocessed = preprocessRegexLiterals(expression);
+        final MALLexer lexer = new MALLexer(CharStreams.fromString(preprocessed));
         final CommonTokenStream tokens = new CommonTokenStream(lexer);
         final MALParser parser = new MALParser(tokens);
 
@@ -306,8 +338,24 @@ public final class MALScriptParser {
             }
             if (ctx.variableDeclaration() != null) {
                 final MALParser.VariableDeclarationContext vd = ctx.variableDeclaration();
+                final String typeName;
+                final String varName;
+                if (vd.DEF() != null) {
+                    // def keyword: def matcher = ...
+                    // Infer type from initializer
+                    varName = vd.IDENTIFIER(0).getText();
+                    final ClosureExpr init = convertClosureExpr(vd.closureExpr());
+                    typeName = inferDefType(init);
+                    return new ClosureVarDecl(typeName, varName, init);
+                }
+                if (vd.L_BRACKET() != null) {
+                    // Array type: String[] parts = ...
+                    typeName = vd.IDENTIFIER(0).getText() + "[]";
+                } else {
+                    typeName = vd.IDENTIFIER(0).getText();
+                }
                 return new ClosureVarDecl(
-                    vd.IDENTIFIER(0).getText(),
+                    typeName,
                     vd.IDENTIFIER(1).getText(),
                     convertClosureExpr(vd.closureExpr()));
             }
@@ -447,7 +495,64 @@ public final class MALScriptParser {
             return new ClosureExprCondition(convertClosureExpr(exprCtx.closureExpr()));
         }
 
+        /**
+         * Infer the Java type for a {@code def} variable declaration from its initializer.
+         * <ul>
+         *   <li>Regex match ({@code =~}) produces {@code String[][]}</li>
+         *   <li>Method chain ending in {@code .split()} produces {@code String[]}</li>
+         *   <li>Otherwise defaults to {@code Object}</li>
+         * </ul>
+         */
+        private String inferDefType(final ClosureExpr init) {
+            if (init instanceof MALExpressionModel.ClosureRegexMatchExpr) {
+                return "String[][]";
+            }
+            if (init instanceof ClosureMethodChain) {
+                final ClosureMethodChain chain = (ClosureMethodChain) init;
+                final List<MALExpressionModel.ClosureChainSegment> segs = chain.getSegments();
+                if (!segs.isEmpty()) {
+                    final MALExpressionModel.ClosureChainSegment last =
+                        segs.get(segs.size() - 1);
+                    if (last instanceof MALExpressionModel.ClosureMethodCallSeg
+                            && "split".equals(
+                                ((MALExpressionModel.ClosureMethodCallSeg) last).getName())) {
+                        return "String[]";
+                    }
+                }
+            }
+            return "Object";
+        }
+
+        private CompareOp convertCompOp(final MALParser.CompOpContext ctx) {
+            if (ctx.GT() != null) {
+                return CompareOp.GT;
+            }
+            if (ctx.LT() != null) {
+                return CompareOp.LT;
+            }
+            if (ctx.GTE() != null) {
+                return CompareOp.GTE;
+            }
+            if (ctx.LTE() != null) {
+                return CompareOp.LTE;
+            }
+            if (ctx.DEQ() != null) {
+                return CompareOp.EQ;
+            }
+            return CompareOp.NEQ;
+        }
+
         private ClosureExpr convertClosureExpr(final MALParser.ClosureExprContext ctx) {
+            if (ctx instanceof MALParser.ClosureTernaryCompContext) {
+                final MALParser.ClosureTernaryCompContext tc =
+                    (MALParser.ClosureTernaryCompContext) ctx;
+                return new MALExpressionModel.ClosureCompTernaryExpr(
+                    convertClosureExpr(tc.closureExpr(0)),
+                    convertCompOp(tc.compOp()),
+                    convertClosureExpr(tc.closureExpr(1)),
+                    convertClosureExpr(tc.closureExpr(2)),
+                    convertClosureExpr(tc.closureExpr(3)));
+            }
             if (ctx instanceof MALParser.ClosureTernaryContext) {
                 final MALParser.ClosureTernaryContext ternary =
                     (MALParser.ClosureTernaryContext) ctx;
@@ -455,6 +560,15 @@ public final class MALScriptParser {
                     convertClosureExpr(ternary.closureExpr(0)),
                     convertClosureExpr(ternary.closureExpr(1)),
                     convertClosureExpr(ternary.closureExpr(2)));
+            }
+            if (ctx instanceof MALParser.ClosureRegexMatchContext) {
+                final MALParser.ClosureRegexMatchContext rm =
+                    (MALParser.ClosureRegexMatchContext) ctx;
+                final String rawRegex = rm.REGEX_LITERAL().getText();
+                // Strip surrounding slashes: /pattern/ → pattern
+                final String pattern = rawRegex.substring(1, rawRegex.length() - 1);
+                return new MALExpressionModel.ClosureRegexMatchExpr(
+                    convertClosureExpr(rm.closureExpr()), pattern);
             }
             if (ctx instanceof MALParser.ClosureElvisContext) {
                 final MALParser.ClosureElvisContext elvis =
@@ -500,8 +614,9 @@ public final class MALScriptParser {
         private ClosureExpr convertClosureExprPrimary(
                 final MALParser.ClosureExprPrimaryContext ctx) {
             if (ctx instanceof MALParser.ClosureStringContext) {
-                return new ClosureStringLiteral(
-                    stripQuotes(((MALParser.ClosureStringContext) ctx).STRING().getText()));
+                final String raw =
+                    stripQuotes(((MALParser.ClosureStringContext) ctx).STRING().getText());
+                return expandGString(raw);
             }
             if (ctx instanceof MALParser.ClosureNumberContext) {
                 return new ClosureNumberLiteral(
@@ -581,6 +696,93 @@ public final class MALScriptParser {
                 (MALParser.ChainFieldAccessContext) ctx;
             return new ClosureFieldAccess(fa.IDENTIFIER().getText(), safeNav);
         }
+    }
+
+    /**
+     * Expand Groovy GString interpolation: {@code "text ${expr} more"} becomes
+     * a concatenation chain: {@code "text " + expr + " more"}.
+     * If the string contains no {@code ${...}} patterns, returns a plain
+     * {@link ClosureStringLiteral}.
+     */
+    static MALExpressionModel.ClosureExpr expandGString(final String raw) {
+        if (!raw.contains("${")) {
+            return new MALExpressionModel.ClosureStringLiteral(raw);
+        }
+
+        final List<MALExpressionModel.ClosureExpr> parts = new ArrayList<>();
+        int pos = 0;
+        while (pos < raw.length()) {
+            final int dollarBrace = raw.indexOf("${", pos);
+            if (dollarBrace < 0) {
+                // Remaining text
+                parts.add(new MALExpressionModel.ClosureStringLiteral(
+                    raw.substring(pos)));
+                break;
+            }
+            // Text before ${
+            if (dollarBrace > pos) {
+                parts.add(new MALExpressionModel.ClosureStringLiteral(
+                    raw.substring(pos, dollarBrace)));
+            }
+            // Find matching }
+            int braceDepth = 1;
+            int i = dollarBrace + 2;
+            while (i < raw.length() && braceDepth > 0) {
+                if (raw.charAt(i) == '{') {
+                    braceDepth++;
+                } else if (raw.charAt(i) == '}') {
+                    braceDepth--;
+                }
+                i++;
+            }
+            final String innerExpr = raw.substring(dollarBrace + 2, i - 1);
+            // Parse the inner expression as a mini closure expression
+            parts.add(parseGStringInterpolation(innerExpr));
+            pos = i;
+        }
+
+        // Build concatenation chain
+        MALExpressionModel.ClosureExpr result = parts.get(0);
+        for (int i = 1; i < parts.size(); i++) {
+            result = new MALExpressionModel.ClosureBinaryExpr(
+                result, MALExpressionModel.ArithmeticOp.ADD, parts.get(i));
+        }
+        return result;
+    }
+
+    /**
+     * Parse a GString interpolation expression like {@code tags.service_name}
+     * or {@code log.service} into a {@link MALExpressionModel.ClosureMethodChain}.
+     */
+    private static MALExpressionModel.ClosureExpr parseGStringInterpolation(
+            final String expr) {
+        // Simple dotted path: tags.service_name, me.serviceName, etc.
+        // Split on dots and build a chain
+        final String[] dotParts = expr.split("\\.");
+        if (dotParts.length == 1) {
+            // Bare variable reference
+            return new MALExpressionModel.ClosureMethodChain(
+                dotParts[0], Collections.emptyList());
+        }
+        // Build chain: first part is target, rest are field accesses
+        final List<MALExpressionModel.ClosureChainSegment> segments = new ArrayList<>();
+        for (int i = 1; i < dotParts.length; i++) {
+            // Check for method call: name()
+            if (dotParts[i].endsWith("()")) {
+                final String methodName = dotParts[i].substring(
+                    0, dotParts[i].length() - 2);
+                segments.add(new MALExpressionModel.ClosureMethodCallSeg(
+                    methodName, Collections.emptyList(), false));
+            } else if (dotParts[i].endsWith(")")) {
+                // Method with args not supported in GString — treat as field
+                segments.add(new MALExpressionModel.ClosureFieldAccess(
+                    dotParts[i], false));
+            } else {
+                segments.add(new MALExpressionModel.ClosureFieldAccess(
+                    dotParts[i], false));
+            }
+        }
+        return new MALExpressionModel.ClosureMethodChain(dotParts[0], segments);
     }
 
     static String stripQuotes(final String s) {

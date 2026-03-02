@@ -146,8 +146,12 @@ closureStatement
 
 // ==================== Variable declarations ====================
 // Groovy-style: String result = "", String protocol = tags['protocol']
+// Also supports array types: String[] parts = ...
+// Also supports def keyword: def matcher = ...
 variableDeclaration
-    : IDENTIFIER IDENTIFIER ASSIGN closureExpr SEMI?
+    : IDENTIFIER L_BRACKET R_BRACKET IDENTIFIER ASSIGN closureExpr SEMI?
+    | IDENTIFIER IDENTIFIER ASSIGN closureExpr SEMI?
+    | DEF IDENTIFIER ASSIGN closureExpr SEMI?
     ;
 
 // ==================== Closure statements ====================
@@ -202,8 +206,10 @@ closureConditionPrimary
     ;
 
 closureExpr
-    : closureExpr QUESTION closureExpr COLON closureExpr           # closureTernary
+    : closureExpr compOp closureExpr QUESTION closureExpr COLON closureExpr   # closureTernaryComp
+    | closureExpr QUESTION closureExpr COLON closureExpr           # closureTernary
     | closureExpr QUESTION COLON closureExpr                       # closureElvis
+    | closureExpr REGEX_MATCH REGEX_LITERAL                        # closureRegexMatch
     | closureExpr PLUS closureExpr                                 # closureAdd
     | closureExpr MINUS closureExpr                                # closureSub
     | closureExpr STAR closureExpr                                 # closureMul
@@ -256,6 +262,10 @@ safeNav
 
 closureArgList
     : closureExpr (COMMA closureExpr)*
+    ;
+
+compOp
+    : GT | LT | GTE | LTE | DEQ | NEQ
     ;
 
 closureFieldAccess

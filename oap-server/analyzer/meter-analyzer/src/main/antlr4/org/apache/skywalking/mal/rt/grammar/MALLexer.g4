@@ -53,7 +53,11 @@ GTE:        '>=';
 LTE:        '<=';
 NOT:        '!';
 
+// Regex match operator: switches to REGEX_MODE to lex the pattern
+REGEX_MATCH: '=~' -> pushMode(REGEX_MODE);
+
 // Keywords
+DEF:        'def';
 IF:         'if';
 ELSE:       'else';
 RETURN:     'return';
@@ -108,4 +112,21 @@ fragment Letter
 fragment LetterOrDigit
     : Letter
     | [0-9]
+    ;
+
+// ==================== Regex mode ====================
+// Activated after '=~', lexes a /pattern/ regex literal, then pops back.
+mode REGEX_MODE;
+
+REGEX_WS
+    : [ \t\r\n]+ -> channel(HIDDEN)
+    ;
+
+REGEX_LITERAL
+    : '/' RegexBodyChar+ '/'  -> popMode
+    ;
+
+fragment RegexBodyChar
+    : '\\' .         // escaped character (e.g. \. \( \[ )
+    | ~[/\r\n]       // anything except / and newline
     ;

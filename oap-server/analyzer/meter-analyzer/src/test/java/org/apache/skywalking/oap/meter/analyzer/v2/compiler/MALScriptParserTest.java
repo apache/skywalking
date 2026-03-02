@@ -352,6 +352,53 @@ class MALScriptParserTest {
     }
 
     @Test
+    void parseDefWithRegexMatch() {
+        // def matcher = (tags.metrics_name =~ /pattern/)
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.tag({tags ->\n"
+            + "  def matcher = (tags.metrics_name =~ /\\.ssl\\.([^.]+)/)\n"
+            + "  tags.secret_name = matcher ? matcher[0][1] : \"unknown\"\n"
+            + "})");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        final ClosureArgument closure =
+            (ClosureArgument) metric.getMethodChain().get(0).getArguments().get(0);
+        assertEquals(2, closure.getBody().size());
+
+        // First statement: def variable declaration
+        assertInstanceOf(MALExpressionModel.ClosureVarDecl.class, closure.getBody().get(0));
+        final MALExpressionModel.ClosureVarDecl vd =
+            (MALExpressionModel.ClosureVarDecl) closure.getBody().get(0);
+        assertEquals("String[][]", vd.getTypeName());
+        assertEquals("matcher", vd.getVarName());
+        // Initializer should be a regex match expression
+        assertInstanceOf(MALExpressionModel.ClosureRegexMatchExpr.class, vd.getInitializer());
+        final MALExpressionModel.ClosureRegexMatchExpr rm =
+            (MALExpressionModel.ClosureRegexMatchExpr) vd.getInitializer();
+        assertEquals("\\.ssl\\.([^.]+)", rm.getPattern());
+
+        // Second statement: ternary with chained indexing
+        assertInstanceOf(MALExpressionModel.ClosureAssignment.class, closure.getBody().get(1));
+    }
+
+    @Test
+    void parseTimeFunctionCall() {
+        // (expr - time()).downsampling(MIN)
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "(metric.min(['app']) - time()).downsampling(MIN).service(['app'], Layer.MESH_DP)");
+        assertInstanceOf(ParenChainExpr.class, ast);
+        final ParenChainExpr pce = (ParenChainExpr) ast;
+        assertInstanceOf(BinaryExpr.class, pce.getInner());
+        final BinaryExpr bin = (BinaryExpr) pce.getInner();
+        assertEquals(MALExpressionModel.ArithmeticOp.SUB, bin.getOp());
+        assertInstanceOf(MALExpressionModel.FunctionCallExpr.class, bin.getRight());
+        final MALExpressionModel.FunctionCallExpr timeFn =
+            (MALExpressionModel.FunctionCallExpr) bin.getRight();
+        assertEquals("time", timeFn.getFunctionName());
+        assertEquals(0, timeFn.getArguments().size());
+    }
+
+    @Test
     void parseSyntaxErrorThrows() {
         assertThrows(IllegalArgumentException.class,
             () -> MALScriptParser.parse("metric.sum("));

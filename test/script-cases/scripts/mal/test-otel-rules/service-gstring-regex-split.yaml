@@ -1,0 +1,20 @@
+#  Metric Values
+#    0 = Not Satisfied
+#    1 = Satisfied
+#    2 = Not Evaluated
+filter: "{ tags -> tags.job_name == 'oscal-control' }" # The OpenTelemetry job name
+expPrefix: tag({ tags -> tags.service = "-|${tags.service_name}|${tags.service_namespace}|${tags.cluster_name}|-".toString() })
+expSuffix: |-
+  service(['service'], Layer.MESH).decorate({ me ->
+    me.attr0 = 'service'
+    def parts = (me.serviceName ?: '').split(/\|/, -1)
+    me.attr1 = parts.size() > 0 ? parts[0] : ''
+    me.attr2 = parts.size() > 1 ? parts[1] : ''
+    me.attr3 = parts.size() > 2 ? parts[2] : ''
+    me.attr4 = parts.size() > 3 ? parts[3] : ''
+    me.attr5 = parts.size() > 4 ? parts[4] : ''
+  })
+metricPrefix: meter_oscal_control
+metricsRules:
+  - name: last_status_by_service
+    exp: oscal_control_last_status_by_service.tagNotEqual('service_name' , null).sum(['service','oscal_control_bundle','oscal_control_name']).downsampling(LATEST)

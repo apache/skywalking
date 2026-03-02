@@ -453,6 +453,46 @@ public final class MALExpressionModel {
         }
     }
 
+    /**
+     * Ternary with explicit comparison condition: {@code left op right ? trueExpr : falseExpr}.
+     * E.g., {@code parts.length > 0 ? parts[0] : ''}.
+     */
+    @Getter
+    public static final class ClosureCompTernaryExpr implements ClosureExpr {
+        private final ClosureExpr left;
+        private final CompareOp op;
+        private final ClosureExpr right;
+        private final ClosureExpr trueExpr;
+        private final ClosureExpr falseExpr;
+
+        public ClosureCompTernaryExpr(final ClosureExpr left,
+                                      final CompareOp op,
+                                      final ClosureExpr right,
+                                      final ClosureExpr trueExpr,
+                                      final ClosureExpr falseExpr) {
+            this.left = left;
+            this.op = op;
+            this.right = right;
+            this.trueExpr = trueExpr;
+            this.falseExpr = falseExpr;
+        }
+    }
+
+    /**
+     * Groovy regex match: {@code expr =~ /pattern/}.
+     * Represents a regex match that produces a {@code java.util.regex.Matcher}.
+     */
+    @Getter
+    public static final class ClosureRegexMatchExpr implements ClosureExpr {
+        private final ClosureExpr target;
+        private final String pattern;
+
+        public ClosureRegexMatchExpr(final ClosureExpr target, final String pattern) {
+            this.target = target;
+            this.pattern = pattern;
+        }
+    }
+
     // ==================== Closure chain segments ====================
 
     public interface ClosureChainSegment {
