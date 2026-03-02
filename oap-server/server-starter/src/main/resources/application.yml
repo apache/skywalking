@@ -494,6 +494,16 @@ logql:
     restIdleTimeOut: ${SW_LOGQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_LOGQL_REST_QUEUE_SIZE:0}
 
+traceQL:
+  selector: ${SW_TRACEQL:-}
+  default:
+    restHost: ${SW_TRACEQL_REST_HOST:0.0.0.0}
+    restPort: ${SW_TRACEQL_REST_PORT:3200}
+    restContextPathZipkin: ${SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN:/zipkin}
+    restContextPathSkywalking: ${SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING:/skywalking}
+    restIdleTimeOut: ${SW_TRACEQL_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_TRACEQL_REST_QUEUE_SIZE:0}
+
 alarm:
   selector: ${SW_ALARM:default}
   default:

@@ -1,0 +1,80 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912:17912
+
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: banyandb:17912
+      SW_QUERY_ZIPKIN: default
+      SW_RECEIVER_ZIPKIN: default
+      # Enable TraceQL API
+      SW_TRACEQL: default
+      SW_RECEIVER_TEMPO_ZIPKIN: /zipkin
+    expose:
+      - 9411
+    ports:
+      - 9412
+      - 3200:3200
+    networks:
+      - e2e
+    depends_on:
+      banyandb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/12800"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  frontend:
+    extends:
+      file: ../../zipkin/docker-compose-brave.yml
+      service: frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+      oap:
+        condition: service_healthy
+    ports:
+      - 8081
+    networks:
+      - e2e
+
+  backend:
+    extends:
+      file: ../../zipkin/docker-compose-brave.yml
+      service: backend
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+
+networks:
+  e2e:
+
