@@ -43,7 +43,7 @@ cases:
     expected: expected/search-traces-by-service.yml
 
   # Search traces with duration filter using TraceQL %26%26duration%3C100ms
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bduration%3E10us%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=10"
+  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bduration%3E1us%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=10"
     expected: expected/search-traces-by-duration.yml
 
   # Search traces with complex TraceQL query
