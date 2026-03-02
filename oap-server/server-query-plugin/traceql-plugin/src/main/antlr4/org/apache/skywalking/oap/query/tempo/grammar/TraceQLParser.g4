@@ -42,8 +42,8 @@ spansetFilter
 
 // Field expressions
 fieldExpression
-    : attribute operator static                                         # AttributeFilterExpr
-    | intrinsicField operator static                                    # IntrinsicFilterExpr
+    : attribute operator staticValue                                    # AttributeFilterExpr
+    | intrinsicField operator staticValue                               # IntrinsicFilterExpr
     | attribute                                                         # AttributeExistsExpr
     | NOT fieldExpression                                               # NotExpr
     | L_PAREN fieldExpression R_PAREN                                  # ParenExpr
@@ -88,7 +88,7 @@ operator
     ;
 
 // Static values
-static
+staticValue
     : STRING_LITERAL                                                    # StringLiteral
     | NUMBER                                                            # NumericLiteral
     | DURATION_LITERAL                                                  # DurationLiteral

@@ -38,7 +38,7 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryPa
     public TraceQLQueryParams visitAttributeFilterExpr(TraceQLParser.AttributeFilterExprContext ctx) {
         String attribute = extractAttributeName(ctx.attribute());
         String operator = ctx.operator().getText();
-        String value = extractStaticValue(ctx.static_());
+        String value = extractStaticValue(ctx.staticValue());
 
         // Handle specific attributes
         // Note: unscoped .service.name becomes "service.name", scoped becomes "resource.service.name"
@@ -68,7 +68,7 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryPa
     public TraceQLQueryParams visitIntrinsicFilterExpr(TraceQLParser.IntrinsicFilterExprContext ctx) {
         String field = ctx.intrinsicField().getText();
         String operator = ctx.operator().getText();
-        String value = extractStaticValue(ctx.static_());
+        String value = extractStaticValue(ctx.staticValue());
 
         // Handle intrinsic fields
         if ("duration".equals(field)) {
@@ -126,7 +126,7 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryPa
     /**
      * Extract static value from static context.
      */
-    private String extractStaticValue(TraceQLParser.StaticContext ctx) {
+    private String extractStaticValue(TraceQLParser.StaticValueContext ctx) {
         if (ctx instanceof TraceQLParser.StringLiteralContext) {
             String text = ctx.getText();
             // Remove quotes
