@@ -55,6 +55,8 @@ public final class LALClassGenerator {
         "org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding";
     private static final String BINDING_PARSED =
         "org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding.Parsed";
+    private static final String H =
+        "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
     private static final String EXTRACTOR_SPEC =
         "org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.ExtractorSpec";
     private static final String SLOW_SQL_SPEC =
@@ -219,7 +221,6 @@ public final class LALClassGenerator {
         }
 
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
-        addHelperMethods(ctClass);
 
         // Phase 4: Generate execute method referencing consumer fields
         final int[] counter = {0};
@@ -488,11 +489,11 @@ public final class LALClassGenerator {
         if (block.getValue() != null) {
             body.append("  _t.value(");
             if ("Long".equals(block.getValueCast())) {
-                body.append("(double) toLong(");
+                body.append("(double) ").append(H).append(".toLong(");
                 generateValueAccess(body, block.getValue());
                 body.append(")");
             } else if ("Integer".equals(block.getValueCast())) {
-                body.append("(double) toInt(");
+                body.append("(double) ").append(H).append(".toInt(");
                 generateValueAccess(body, block.getValue());
                 body.append(")");
             } else {
@@ -534,7 +535,7 @@ public final class LALClassGenerator {
             body.append(");\n");
         }
         if (block.getLatency() != null) {
-            body.append("  _t.latency(Long.valueOf(toLong(");
+            body.append("  _t.latency(Long.valueOf(").append(H).append(".toLong(");
             generateValueAccess(body, block.getLatency());
             body.append(")));\n");
         }
@@ -586,13 +587,13 @@ public final class LALClassGenerator {
         switch (field.getFieldType()) {
             case LATENCY:
                 methodName = "latency";
-                sb.append("  _t.latency(Long.valueOf(toLong(");
+                sb.append("  _t.latency(Long.valueOf(").append(H).append(".toLong(");
                 generateValueAccess(sb, field.getValue());
                 sb.append(")));\n");
                 return;
             case COMPONENT_ID:
                 methodName = "componentId";
-                sb.append("  _t.componentId(toInt(");
+                sb.append("  _t.componentId(").append(H).append(".toInt(");
                 generateValueAccess(sb, field.getValue());
                 sb.append("));\n");
                 return;
@@ -664,7 +665,7 @@ public final class LALClassGenerator {
         // Map FieldType to SampledTraceSpec methods
         switch (fa.getFieldType()) {
             case TIMESTAMP:
-                sb.append("  _t.latency(Long.valueOf(toLong(");
+                sb.append("  _t.latency(Long.valueOf(").append(H).append(".toLong(");
                 generateValueAccess(sb, fa.getValue());
                 sb.append(")));\n");
                 break;
@@ -869,8 +870,6 @@ public final class LALClassGenerator {
                 ctClass));
         }
 
-        addHelperMethods(ctClass);
-
         final String method = "public void accept(Object arg) {\n"
             + "  " + info.castType + " _t = (" + info.castType + ") arg;\n"
             + info.body
@@ -991,85 +990,6 @@ public final class LALClassGenerator {
         }
     }
 
-    // ==================== Helper methods ====================
-
-    private void addHelperMethods(final CtClass ctClass) throws Exception {
-        ctClass.addMethod(CtNewMethod.make(
-            "private static Object getAt(Object obj, String key) {"
-            + "  if (obj == null) return null;"
-            + "  if (obj instanceof " + BINDING_PARSED + ")"
-            + "    return ((" + BINDING_PARSED + ") obj).getAt(key);"
-            + "  if (obj instanceof java.util.Map)"
-            + "    return ((java.util.Map) obj).get(key);"
-            + "  return " + BINDING_PARSED + ".getField(obj, key);"
-            + "}", ctClass));
-
-        ctClass.addMethod(CtNewMethod.make(
-            "private static long toLong(Object obj) {"
-            + "  if (obj instanceof Number) return ((Number) obj).longValue();"
-            + "  if (obj instanceof String) return Long.parseLong((String) obj);"
-            + "  return 0L;"
-            + "}", ctClass));
-
-        ctClass.addMethod(CtNewMethod.make(
-            "private static int toInt(Object obj) {"
-            + "  if (obj instanceof Number) return ((Number) obj).intValue();"
-            + "  if (obj instanceof String) return Integer.parseInt((String) obj);"
-            + "  return 0;"
-            + "}", ctClass));
-
-        ctClass.addMethod(CtNewMethod.make(
-            "private static String toStr(Object obj) {"
-            + "  return obj == null ? null : String.valueOf(obj);"
-            + "}", ctClass));
-
-        ctClass.addMethod(CtNewMethod.make(
-            "private static boolean toBool(Object obj) {"
-            + "  if (obj instanceof Boolean) return ((Boolean) obj).booleanValue();"
-            + "  if (obj instanceof String)"
-            + " return Boolean.parseBoolean((String) obj);"
-            + "  return obj != null;"
-            + "}", ctClass));
-
-        ctClass.addMethod(CtNewMethod.make(
-            "private static boolean isTruthy(Object obj) {"
-            + "  if (obj == null) return false;"
-            + "  if (obj instanceof Boolean)"
-            + " return ((Boolean) obj).booleanValue();"
-            + "  if (obj instanceof String)"
-            + " return !((String) obj).isEmpty();"
-            + "  if (obj instanceof Number)"
-            + " return ((Number) obj).doubleValue() != 0;"
-            + "  return true;"
-            + "}", ctClass));
-
-        // tag() value lookup using Binding
-        ctClass.addMethod(CtNewMethod.make(
-            "private static String tagValue("
-            + BINDING + " b, String key) {"
-            + "  java.util.List dl = b.log().getTags().getDataList();"
-            + "  for (int i = 0; i < dl.size(); i++) {"
-            + "    org.apache.skywalking.apm.network.common.v3"
-            + ".KeyStringValuePair kv = "
-            + "(org.apache.skywalking.apm.network.common.v3"
-            + ".KeyStringValuePair) dl.get(i);"
-            + "    if (key.equals(kv.getKey())) return kv.getValue();"
-            + "  }"
-            + "  return \"\";"
-            + "}", ctClass));
-
-        // Safe method call helper
-        ctClass.addMethod(CtNewMethod.make(
-            "private static Object safeCall(Object obj, String method) {"
-            + "  if (obj == null) return null;"
-            + "  if (\"toString\".equals(method)) return obj.toString();"
-            + "  if (\"trim\".equals(method)) return obj.toString().trim();"
-            + "  if (\"isEmpty\".equals(method))"
-            + " return Boolean.valueOf(obj.toString().isEmpty());"
-            + "  return obj.toString();"
-            + "}", ctClass));
-    }
-
     // ==================== Conditions ====================
 
     private void generateCondition(final StringBuilder sb,
@@ -1093,25 +1013,25 @@ public final class LALClassGenerator {
                     sb.append(")");
                     break;
                 case GT:
-                    sb.append("toLong(");
+                    sb.append(H).append(".toLong(");
                     generateValueAccessObj(sb, cc.getLeft(), null);
                     sb.append(") > ");
                     generateConditionValueNumeric(sb, cc.getRight());
                     break;
                 case LT:
-                    sb.append("toLong(");
+                    sb.append(H).append(".toLong(");
                     generateValueAccessObj(sb, cc.getLeft(), null);
                     sb.append(") < ");
                     generateConditionValueNumeric(sb, cc.getRight());
                     break;
                 case GTE:
-                    sb.append("toLong(");
+                    sb.append(H).append(".toLong(");
                     generateValueAccessObj(sb, cc.getLeft(), null);
                     sb.append(") >= ");
                     generateConditionValueNumeric(sb, cc.getRight());
                     break;
                 case LTE:
-                    sb.append("toLong(");
+                    sb.append(H).append(".toLong(");
                     generateValueAccessObj(sb, cc.getLeft(), null);
                     sb.append(") <= ");
                     generateConditionValueNumeric(sb, cc.getRight());
@@ -1134,7 +1054,7 @@ public final class LALClassGenerator {
                 ((LALScriptModel.NotCondition) cond).getInner());
             sb.append(")");
         } else if (cond instanceof LALScriptModel.ExprCondition) {
-            sb.append("isTruthy(");
+            sb.append(H).append(".isTruthy(");
             generateValueAccessObj(sb,
                 ((LALScriptModel.ExprCondition) cond).getExpr(),
                 ((LALScriptModel.ExprCondition) cond).getCastType());
@@ -1173,7 +1093,7 @@ public final class LALClassGenerator {
             sb.append((long) ((LALScriptModel.NumberConditionValue) cv)
                 .getValue()).append("L");
         } else if (cv instanceof LALScriptModel.ValueAccessConditionValue) {
-            sb.append("toLong(");
+            sb.append(H).append(".toLong(");
             generateValueAccessObj(sb,
                 ((LALScriptModel.ValueAccessConditionValue) cv).getValue(),
                 null);
@@ -1189,19 +1109,19 @@ public final class LALClassGenerator {
                                             final LALScriptModel.ValueAccess value,
                                             final String castType) {
         if ("String".equals(castType)) {
-            sb.append("toStr(");
+            sb.append(H).append(".toStr(");
             generateValueAccess(sb, value);
             sb.append(")");
         } else if ("Long".equals(castType)) {
-            sb.append("toLong(");
+            sb.append(H).append(".toLong(");
             generateValueAccess(sb, value);
             sb.append(")");
         } else if ("Integer".equals(castType)) {
-            sb.append("toInt(");
+            sb.append(H).append(".toInt(");
             generateValueAccess(sb, value);
             sb.append(")");
         } else if ("Boolean".equals(castType)) {
-            sb.append("toBool(");
+            sb.append(H).append(".toBool(");
             generateValueAccess(sb, value);
             sb.append(")");
         } else {
@@ -1213,7 +1133,7 @@ public final class LALClassGenerator {
                                          final LALScriptModel.ValueAccess value,
                                          final String castType) {
         if ("String".equals(castType)) {
-            sb.append("toStr(");
+            sb.append(H).append(".toStr(");
             generateValueAccess(sb, value);
             sb.append(")");
         } else {
@@ -1228,7 +1148,7 @@ public final class LALClassGenerator {
             if ("tag".equals(value.getFunctionCallName())
                     && !value.getFunctionCallArgs().isEmpty()) {
                 // tag("KEY") → tagValue(binding, "KEY")
-                sb.append("tagValue(binding, \"");
+                sb.append(H).append(".tagValue(binding, \"");
                 final String key = value.getFunctionCallArgs().get(0)
                     .getValue().getSegments().get(0);
                 sb.append(escapeJava(key)).append("\")");
@@ -1288,14 +1208,14 @@ public final class LALClassGenerator {
                 final String name =
                     ((LALScriptModel.FieldSegment) seg).getName();
                 // getAt() already handles null → null, so safe nav is free
-                current = "getAt(" + current + ", \""
+                current = H + ".getAt(" + current + ", \""
                     + escapeJava(name) + "\")";
             } else if (seg instanceof LALScriptModel.MethodSegment) {
                 final LALScriptModel.MethodSegment ms =
                     (LALScriptModel.MethodSegment) seg;
                 if (ms.isSafeNav()) {
                     // Safe navigation: null-safe method call
-                    current = "safeCall(" + current + ", \""
+                    current = H + ".safeCall(" + current + ", \""
                         + escapeJava(ms.getName()) + "\")";
                 } else {
                     if (ms.getArguments().isEmpty()) {
