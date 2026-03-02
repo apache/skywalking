@@ -111,6 +111,33 @@ public final class HierarchyRuleClassGenerator {
         }
     }
 
+    private void addLocalVariableTable(final javassist.CtMethod method,
+                                       final String className,
+                                       final String[][] vars) {
+        try {
+            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
+            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
+            if (code == null) {
+                return;
+            }
+            final javassist.bytecode.ConstPool cp = mi.getConstPool();
+            final int len = code.getCodeLength();
+            final javassist.bytecode.LocalVariableAttribute lva =
+                new javassist.bytecode.LocalVariableAttribute(cp);
+            lva.addEntry(0, len,
+                cp.addUtf8Info("this"),
+                cp.addUtf8Info("L" + className.replace('.', '/') + ";"), 0);
+            for (int i = 0; i < vars.length; i++) {
+                lva.addEntry(0, len,
+                    cp.addUtf8Info(vars[i][0]),
+                    cp.addUtf8Info(vars[i][1]), i + 1);
+            }
+            code.getAttributes().add(lva);
+        } catch (Exception e) {
+            log.warn("Failed to add LocalVariableTable: {}", e.getMessage());
+        }
+    }
+
     /**
      * Compiles a hierarchy rule expression into a BiFunction class.
      *
@@ -145,7 +172,15 @@ public final class HierarchyRuleClassGenerator {
             log.debug("Hierarchy compile [{}] apply():\n{}", ruleName, applyBody);
         }
 
-        ctClass.addMethod(CtNewMethod.make(applyBody, ctClass));
+        final javassist.CtMethod applyMethod = CtNewMethod.make(applyBody, ctClass);
+        ctClass.addMethod(applyMethod);
+        final String svcDesc = "Lorg/apache/skywalking/oap/server/core/query/type/Service;";
+        addLocalVariableTable(applyMethod, className, new String[][]{
+            {"arg0", "Ljava/lang/Object;"},
+            {"arg1", "Ljava/lang/Object;"},
+            {model.getUpperParam(), svcDesc},
+            {model.getLowerParam(), svcDesc}
+        });
 
         writeClassFile(ctClass);
         final Class<?> clazz = ctClass.toClass(HierarchyRulePackageHolder.class);

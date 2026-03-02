@@ -140,6 +140,33 @@ public final class LALClassGenerator {
         }
     }
 
+    private void addLocalVariableTable(final javassist.CtMethod method,
+                                       final String className,
+                                       final String[][] vars) {
+        try {
+            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
+            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
+            if (code == null) {
+                return;
+            }
+            final javassist.bytecode.ConstPool cp = mi.getConstPool();
+            final int len = code.getCodeLength();
+            final javassist.bytecode.LocalVariableAttribute lva =
+                new javassist.bytecode.LocalVariableAttribute(cp);
+            lva.addEntry(0, len,
+                cp.addUtf8Info("this"),
+                cp.addUtf8Info("L" + className.replace('.', '/') + ";"), 0);
+            for (int i = 0; i < vars.length; i++) {
+                lva.addEntry(0, len,
+                    cp.addUtf8Info(vars[i][0]),
+                    cp.addUtf8Info(vars[i][1]), i + 1);
+            }
+            code.getAttributes().add(lva);
+        } catch (Exception e) {
+            log.warn("Failed to add LocalVariableTable: {}", e.getMessage());
+        }
+    }
+
 
     /**
      * Compiles a LAL DSL script into a LalExpression implementation.
@@ -204,7 +231,12 @@ public final class LALClassGenerator {
             log.debug("LAL compile execute():\n{}", executeBody);
         }
 
-        ctClass.addMethod(CtNewMethod.make(executeBody, ctClass));
+        final javassist.CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
+        ctClass.addMethod(execMethod);
+        addLocalVariableTable(execMethod, className, new String[][]{
+            {"filterSpec", "L" + FILTER_SPEC.replace('.', '/') + ";"},
+            {"binding", "L" + BINDING.replace('.', '/') + ";"}
+        });
 
         writeClassFile(ctClass);
 
@@ -848,7 +880,12 @@ public final class LALClassGenerator {
             log.debug("LAL compile consumer {} body:\n{}", className, method);
         }
 
-        ctClass.addMethod(CtNewMethod.make(method, ctClass));
+        final javassist.CtMethod acceptMethod = CtNewMethod.make(method, ctClass);
+        ctClass.addMethod(acceptMethod);
+        addLocalVariableTable(acceptMethod, className, new String[][]{
+            {"arg", "Ljava/lang/Object;"},
+            {"_t", "L" + info.castType.replace('.', '/') + ";"}
+        });
 
         writeClassFile(ctClass);
 
