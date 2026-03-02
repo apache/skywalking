@@ -1054,10 +1054,13 @@ public final class LALClassGenerator {
                 ((LALScriptModel.NotCondition) cond).getInner());
             sb.append(")");
         } else if (cond instanceof LALScriptModel.ExprCondition) {
-            sb.append(H).append(".isTruthy(");
+            final String ct = ((LALScriptModel.ExprCondition) cond).getCastType();
+            final String method = "Boolean".equals(ct) || "boolean".equals(ct)
+                ? ".isTrue(" : ".isNotEmpty(";
+            sb.append(H).append(method);
             generateValueAccessObj(sb,
                 ((LALScriptModel.ExprCondition) cond).getExpr(),
-                ((LALScriptModel.ExprCondition) cond).getCastType());
+                ct);
             sb.append(")");
         }
     }
@@ -1214,9 +1217,16 @@ public final class LALClassGenerator {
                 final LALScriptModel.MethodSegment ms =
                     (LALScriptModel.MethodSegment) seg;
                 if (ms.isSafeNav()) {
-                    // Safe navigation: null-safe method call
-                    current = H + ".safeCall(" + current + ", \""
-                        + escapeJava(ms.getName()) + "\")";
+                    // Safe navigation: dispatch to specific helper
+                    final String mn = ms.getName();
+                    if ("toString".equals(mn)) {
+                        current = H + ".toString(" + current + ")";
+                    } else if ("trim".equals(mn)) {
+                        current = H + ".trim(" + current + ")";
+                    } else {
+                        throw new IllegalArgumentException(
+                            "Unsupported safe-nav method: ?." + mn + "()");
+                    }
                 } else {
                     if (ms.getArguments().isEmpty()) {
                         current = current + "." + ms.getName() + "()";

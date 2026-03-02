@@ -140,9 +140,11 @@ called by generated code via FQCN. This avoids duplicating helper methods in eve
 | `toInt(Object)` | Number/String → `int` |
 | `toStr(Object)` | Null-safe `String.valueOf()` (returns `null` for null input) |
 | `toBool(Object)` | Boolean coercion |
-| `isTruthy(Object)` | Groovy-style truthiness (null/empty/zero → false) |
+| `isTrue(Object)` | Boolean truthiness (null → false, Boolean → value, String → parseBoolean) |
+| `isNotEmpty(Object)` | String non-emptiness (null → false, String → !isEmpty, Object → !toString().isEmpty) |
+| `toString(Object)` | Null-safe toString for `?.toString()` safe navigation |
+| `trim(Object)` | Null-safe trim for `?.trim()` safe navigation |
 | `tagValue(Binding, String)` | Log tag lookup via protobuf `KeyStringValuePair` |
-| `safeCall(Object, String)` | Safe navigation `?.method()` (toString, trim, isEmpty) |
 
 ## Data-Driven Execution Tests
 

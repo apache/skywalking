@@ -203,16 +203,18 @@ class LALClassGeneratorTest {
     }
 
     @Test
-    void generateSourceSafeNavMethodEmitsSafeCall() {
+    void generateSourceSafeNavMethodEmitsSpecificHelper() {
         final String source = generator.generateSource(
             "filter {\n"
             + "  if (parsed?.flags?.toString()) {\n"
             + "    sink {}\n"
             + "  }\n"
             + "}");
-        // Safe method calls should use safeCall helper
-        assertTrue(source.contains("safeCall("),
-            "Expected safeCall for safe nav method but got: " + source);
+        // Safe method calls should emit specific helpers, not generic safeCall
+        assertTrue(source.contains("LalRuntimeHelper.toString("),
+            "Expected toString helper for safe nav method but got: " + source);
+        assertTrue(source.contains("LalRuntimeHelper.isNotEmpty("),
+            "Expected isNotEmpty for ExprCondition but got: " + source);
     }
 
     // ==================== ProcessRegistry static calls ====================

@@ -78,7 +78,11 @@ public final class LalRuntimeHelper {
         return obj != null;
     }
 
-    public static boolean isTruthy(final Object obj) {
+    /**
+     * Boolean truthiness: null is false, Boolean delegates, String
+     * parses, anything else is true.
+     */
+    public static boolean isTrue(final Object obj) {
         if (obj == null) {
             return false;
         }
@@ -86,12 +90,23 @@ public final class LalRuntimeHelper {
             return ((Boolean) obj).booleanValue();
         }
         if (obj instanceof String) {
-            return !((String) obj).isEmpty();
-        }
-        if (obj instanceof Number) {
-            return ((Number) obj).doubleValue() != 0;
+            return Boolean.parseBoolean((String) obj);
         }
         return true;
+    }
+
+    /**
+     * String non-emptiness: null is false, otherwise checks that
+     * toString() is non-empty.
+     */
+    public static boolean isNotEmpty(final Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof String) {
+            return !((String) obj).isEmpty();
+        }
+        return !obj.toString().isEmpty();
     }
 
     public static String tagValue(final Binding b, final String key) {
@@ -105,19 +120,17 @@ public final class LalRuntimeHelper {
         return "";
     }
 
-    public static Object safeCall(final Object obj, final String method) {
-        if (obj == null) {
-            return null;
-        }
-        if ("toString".equals(method)) {
-            return obj.toString();
-        }
-        if ("trim".equals(method)) {
-            return obj.toString().trim();
-        }
-        if ("isEmpty".equals(method)) {
-            return Boolean.valueOf(obj.toString().isEmpty());
-        }
-        return obj.toString();
+    /**
+     * Null-safe toString: returns null when input is null.
+     */
+    public static String toString(final Object obj) {
+        return obj == null ? null : obj.toString();
+    }
+
+    /**
+     * Null-safe trim: returns null when input is null.
+     */
+    public static String trim(final Object obj) {
+        return obj == null ? null : obj.toString().trim();
     }
 }

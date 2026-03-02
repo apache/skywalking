@@ -507,6 +507,24 @@ public final class LALScriptParser {
                 stmts.add((FilterStatement) visitSampledTraceField(stc));
             }
         }
+        // Handle samplerContent alternative (rateLimit blocks inside if within sampler)
+        final LALParser.SamplerContentContext sc = ctx.samplerContent();
+        if (sc != null) {
+            final List<SamplerContent> samplerItems = new ArrayList<>();
+            for (final LALParser.RateLimitBlockContext rlc : sc.rateLimitBlock()) {
+                final String id = stripQuotes(rlc.rateLimitId().getText());
+                final long rpm = Long.parseLong(
+                    rlc.rateLimitContent().NUMBER().getText());
+                final List<InterpolationPart> idParts = parseInterpolation(id);
+                samplerItems.add(new RateLimitBlock(id, idParts, rpm));
+            }
+            for (final LALParser.IfStatementContext isc : sc.ifStatement()) {
+                samplerItems.add((SamplerContent) visitIfStatement(isc));
+            }
+            if (!samplerItems.isEmpty()) {
+                stmts.add((FilterStatement) new SamplerBlock(samplerItems));
+            }
+        }
         return stmts;
     }
 
