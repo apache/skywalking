@@ -23,9 +23,8 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding;
 
 /**
- * Static helper methods called by v2-generated {@code LalExpression} and consumer classes.
- * Centralizes type coercion and field access logic that was previously duplicated
- * into every generated class via {@code addHelperMethods()}.
+ * Static helper methods for type coercion and field access, called by
+ * v2-generated {@code LalExpression} and consumer classes via FQCN static calls.
  */
 public final class LalRuntimeHelper {
 

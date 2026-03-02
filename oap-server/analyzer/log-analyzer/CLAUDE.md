@@ -36,6 +36,7 @@ oap-server/analyzer/log-analyzer/
     rt/
       LalExpressionPackageHolder.java   — Class loading anchor (empty marker)
       BindingAware.java                 — Interface for consumers needing Binding access
+      LalRuntimeHelper.java             — Static helpers called by generated code
 
   src/test/java/.../compiler/
     LALScriptParserTest.java            — 20 parser tests
@@ -54,6 +55,7 @@ All v2 classes live under `org.apache.skywalking.oap.log.analyzer.v2.*` to avoid
 | Consumer classes | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpr_<N>_C<M>` |
 | Package holder | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackageHolder` |
 | Binding aware | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.BindingAware` |
+| Runtime helper | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper` |
 | Functional interface | `org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression` |
 
 `<N>` is a global `AtomicInteger` counter. `<M>` is the consumer index within the script.
@@ -95,7 +97,7 @@ Three classes are generated:
    // implements Consumer, BindingAware
    public void accept(Object arg) {
      ExtractorSpec _t = (ExtractorSpec) arg;
-     _t.service(toStr(getAt(binding.parsed(), "service")));
+     _t.service(LalRuntimeHelper.toStr(LalRuntimeHelper.getAt(binding.parsed(), "service")));
    }
    ```
 
@@ -122,12 +124,25 @@ Three classes are generated:
 
 ## Null-Safe String Conversion
 
-Generated code uses `toStr()` instead of `String.valueOf()` for casting parsed values to String:
-```java
-private static String toStr(Object obj) { return obj == null ? null : String.valueOf(obj); }
-```
+Generated code calls `LalRuntimeHelper.toStr()` instead of `String.valueOf()` for casting parsed values to String.
 This preserves Java `null` for missing fields (matching Groovy's `null as String` → `null` behavior),
 whereas `String.valueOf(null)` would produce the string `"null"`.
+
+## Runtime Helpers (LalRuntimeHelper)
+
+All type coercion and field access logic lives in `LalRuntimeHelper` as `public static` methods,
+called by generated code via FQCN. This avoids duplicating helper methods in every generated class.
+
+| Method | Purpose |
+|--------|---------|
+| `getAt(Object, String)` | Property/map access on parsed log data (`Binding.Parsed`, `Map`, or reflective field) |
+| `toLong(Object)` | Number/String → `long` |
+| `toInt(Object)` | Number/String → `int` |
+| `toStr(Object)` | Null-safe `String.valueOf()` (returns `null` for null input) |
+| `toBool(Object)` | Boolean coercion |
+| `isTruthy(Object)` | Groovy-style truthiness (null/empty/zero → false) |
+| `tagValue(Binding, String)` | Log tag lookup via protobuf `KeyStringValuePair` |
+| `safeCall(Object, String)` | Safe navigation `?.method()` (toString, trim, isEmpty) |
 
 ## Data-Driven Execution Tests
 
