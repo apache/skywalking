@@ -49,9 +49,4 @@ public class TextParserSpec extends AbstractParserSpec {
         }
     }
 
-    public boolean grok(final String grok) {
-        // TODO
-        return false;
-    }
-
 }

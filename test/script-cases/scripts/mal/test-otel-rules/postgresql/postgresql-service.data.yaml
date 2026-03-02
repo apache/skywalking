@@ -1,0 +1,178 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  pg_stat_database_tup_fetched:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_tup_deleted:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_tup_inserted:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_tup_updated:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_tup_returned:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_locks_count:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_activity_count:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_xact_commit:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_xact_rollback:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_blks_hit:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_blks_read:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_temp_bytes:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_checkpoint_write_time_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_checkpoint_sync_time_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_checkpoints_req_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_checkpoints_timed_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_conflicts:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_database_deadlocks:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_buffers_checkpoint_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_buffers_clean_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_buffers_backend_fsync_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_buffers_alloc_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  pg_stat_bgwriter_buffers_backend_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+expected:
+  fetched_rows_rate:
+    min_samples: 1
+  deleted_rows_rate:
+    min_samples: 1
+  inserted_rows_rate:
+    min_samples: 1
+  updated_rows_rate:
+    min_samples: 1
+  returned_rows_rate:
+    min_samples: 1
+  locks_count:
+    min_samples: 1
+  active_sessions:
+    min_samples: 1
+  idle_sessions:
+    min_samples: 1
+  committed_transactions_rate:
+    min_samples: 1
+  rolled_back_transactions_rate:
+    min_samples: 1
+  cache_hit_rate:
+    min_samples: 1
+  temporary_files_rate:
+    min_samples: 1
+  checkpoint_write_time_rate:
+    min_samples: 1
+  checkpoint_sync_time_rate:
+    min_samples: 1
+  checkpoint_req_rate:
+    min_samples: 1
+  checkpoints_timed_rate:
+    min_samples: 1
+  conflicts_rate:
+    min_samples: 1
+  deadlocks_rate:
+    min_samples: 1
+  buffers_checkpoint:
+    min_samples: 1
+  buffers_clean:
+    min_samples: 1
+  buffers_backend_fsync:
+    min_samples: 1
+  buffers_alloc:
+    min_samples: 1
+  buffers_backend:
+    min_samples: 1

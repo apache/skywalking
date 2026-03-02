@@ -1,0 +1,164 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  tags:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  protocol:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  libraries:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  https:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  http:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  ssl:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  tls:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  tcp:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  SUM_PER_MIN:
+    - labels:
+        service: test-service
+        instance: test-instance
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+expected:
+  client_write_cpm:
+    min_samples: 1
+  client_write_total_bytes:
+    min_samples: 1
+  client_write_avg_exe_time:
+    min_samples: 1
+  client_read_cpm:
+    min_samples: 1
+  client_read_total_bytes:
+    min_samples: 1
+  client_read_avg_exe_time:
+    min_samples: 1
+  client_write_avg_rtt_time:
+    min_samples: 1
+  client_connect_cpm:
+    min_samples: 1
+  client_connect_exe_time:
+    min_samples: 1
+  client_close_cpm:
+    min_samples: 1
+  client_close_avg_exe_time:
+    min_samples: 1
+  client_retransmit_cpm:
+    min_samples: 1
+  client_drop_cpm:
+    min_samples: 1
+  client_write_rtt_time_percentile:
+    min_samples: 1
+  client_write_exe_time_percentile:
+    min_samples: 1
+  client_read_exe_time_percentile:
+    min_samples: 1
+  server_write_cpm:
+    min_samples: 1
+  server_write_total_bytes:
+    min_samples: 1
+  server_write_avg_exe_time:
+    min_samples: 1
+  server_read_cpm:
+    min_samples: 1
+  server_read_total_bytes:
+    min_samples: 1
+  server_read_avg_exe_time:
+    min_samples: 1
+  server_write_avg_rtt_time:
+    min_samples: 1
+  server_connect_cpm:
+    min_samples: 1
+  server_connect_avg_exe_time:
+    min_samples: 1
+  server_close_cpm:
+    min_samples: 1
+  server_close_avg_exe_time:
+    min_samples: 1
+  server_retransmit_cpm:
+    min_samples: 1
+  server_drop_cpm:
+    min_samples: 1
+  server_write_rtt_time_percentile:
+    min_samples: 1
+  server_write_exe_time_percentile:
+    min_samples: 1
+  server_read_exe_time_percentile:
+    min_samples: 1
+  http1_request_cpm:
+    min_samples: 1
+  http1_response_status_cpm:
+    min_samples: 1
+  http1_request_package_size:
+    min_samples: 1
+  http1_response_package_size:
+    min_samples: 1
+  http1_request_package_size_percentile:
+    min_samples: 1
+  http1_response_package_size_percentile:
+    min_samples: 1
+  http1_client_duration:
+    min_samples: 1
+  http1_server_duration:
+    min_samples: 1
+  http1_client_duration_percentile:
+    min_samples: 1
+  http1_server_duration_percentile:
+    min_samples: 1

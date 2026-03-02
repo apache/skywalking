@@ -1,0 +1,149 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  flink_jobmanager_numRunningJobs:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  flink_jobmanager_numRegisteredTaskManagers:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  flink_jobmanager_taskSlotsTotal:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  flink_jobmanager_taskSlotsAvailable:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  flink_jobmanager_Status_JVM_CPU_Load:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  tags:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  flink_jobmanager_Status_JVM_CPU_Time:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_Memory_Heap_Used:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_Memory_Heap_Max:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_Memory_NonHeap_Used:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_Memory_NonHeap_Max:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_Threads_Count:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_Memory_Metaspace_Used:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_Memory_Metaspace_Max:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_GarbageCollector_G1_Young_Generation_Count:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_GarbageCollector_G1_Old_Generation_Count:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_GarbageCollector_G1_Young_Generation_Time:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_GarbageCollector_G1_Old_Generation_Time:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_GarbageCollector_All_Count:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+  flink_jobmanager_Status_JVM_GarbageCollector_All_Time:
+    - labels:
+        cluster: test-cluster
+        jobManager_node: test-value
+      value: 100.0
+expected:
+  running_job_number:
+    min_samples: 1
+  taskManagers_registered_number:
+    min_samples: 1
+  taskManagers_slots_total:
+    min_samples: 1
+  taskManagers_slots_available:
+    min_samples: 1
+  jvm_cpu_load:
+    min_samples: 1
+  jvm_cpu_time:
+    min_samples: 1
+  jvm_memory_heap_used:
+    min_samples: 1
+  jvm_memory_heap_available:
+    min_samples: 1
+  jvm_memory_nonHeap_used:
+    min_samples: 1
+  jvm_memory_nonHeap_available:
+    min_samples: 1
+  jvm_thread_count:
+    min_samples: 1
+  jvm_memory_metaspace_used:
+    min_samples: 1
+  jvm_memory_metaspace_available:
+    min_samples: 1
+  jvm_g1_young_generation_count:
+    min_samples: 1
+  jvm_g1_old_generation_count:
+    min_samples: 1
+  jvm_g1_young_generation_time:
+    min_samples: 1
+  jvm_g1_old_generation_time:
+    min_samples: 1
+  jvm_all_garbageCollector_count:
+    min_samples: 1
+  jvm_all_garbageCollector_time:
+    min_samples: 1

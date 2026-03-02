@@ -1,0 +1,78 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  rocketmq_producer_message_size:
+    - labels:
+        cluster: test-cluster
+        topic: test-topic
+      value: 100.0
+  rocketmq_consumer_message_size:
+    - labels:
+        cluster: test-cluster
+        topic: test-topic
+        group: test-value
+      value: 100.0
+  rocketmq_group_get_latency_by_storetime:
+    - labels:
+        cluster: test-cluster
+        topic: test-topic
+        group: test-value
+      value: 100.0
+  rocketmq_producer_tps:
+    - labels:
+        cluster: test-cluster
+        topic: test-topic
+      value: 100.0
+  rocketmq_consumer_tps:
+    - labels:
+        cluster: test-cluster
+        topic: test-topic
+      value: 100.0
+  rocketmq_producer_offset:
+    - labels:
+        cluster: test-cluster
+        topic: test-topic
+        broker: test-broker
+      value: 100.0
+  rocketmq_consumer_offset:
+    - labels:
+        cluster: test-cluster
+        topic: test-topic
+        group: test-value
+      value: 100.0
+expected:
+  max_producer_message_size:
+    min_samples: 1
+  max_consumer_message_size:
+    min_samples: 1
+  consumer_latency:
+    min_samples: 1
+  producer_tps:
+    min_samples: 1
+  consumer_group_tps:
+    min_samples: 1
+  producer_offset:
+    min_samples: 1
+  consumer_group_offset:
+    min_samples: 1
+  producer_message_size:
+    min_samples: 1
+  consumer_message_size:
+    min_samples: 1
+  consumer_group_count:
+    min_samples: 1
+  broker_count:
+    min_samples: 1

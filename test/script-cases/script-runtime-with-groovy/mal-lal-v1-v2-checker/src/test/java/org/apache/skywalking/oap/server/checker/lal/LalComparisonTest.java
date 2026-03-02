@@ -75,7 +75,7 @@ class LalComparisonTest {
             for (final LalRule rule : entry.getValue()) {
                 tests.add(DynamicTest.dynamicTest(
                     yamlFile + " | " + rule.name,
-                    () -> compareExecution(rule.name, rule.dsl)
+                    () -> compareExecution(rule)
                 ));
             }
         }
@@ -83,8 +83,9 @@ class LalComparisonTest {
         return tests;
     }
 
-    private void compareExecution(final String ruleName,
-                                  final String dsl) throws Exception {
+    private void compareExecution(final LalRule rule) throws Exception {
+        final String ruleName = rule.name;
+        final String dsl = rule.dsl;
         final ModuleManager manager = buildMockModuleManager();
         final LogData testLog = buildTestLogData(dsl);
 
@@ -112,6 +113,14 @@ class LalComparisonTest {
         String v2Error = null;
         try {
             final LALClassGenerator generator = new LALClassGenerator();
+            if (rule.sourceFile != null) {
+                final String baseName = rule.sourceFile.getName()
+                    .replaceFirst("\\.(yaml|yml)$", "");
+                generator.setClassOutputDir(new java.io.File(
+                    rule.sourceFile.getParent(),
+                    baseName + ".generated-classes"));
+                generator.setClassNameHint(baseName + "_" + ruleName);
+            }
             final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression v2Expr =
                 generator.compile(dsl);
 
@@ -309,7 +318,7 @@ class LalComparisonTest {
                 if (name == null || dslStr == null) {
                     continue;
                 }
-                lalRules.add(new LalRule(name, dslStr));
+                lalRules.add(new LalRule(name, dslStr, file));
             }
             if (!lalRules.isEmpty()) {
                 final String relative = lalDir.relativize(file.toPath()).toString();
@@ -352,10 +361,12 @@ class LalComparisonTest {
     private static class LalRule {
         final String name;
         final String dsl;
+        final File sourceFile;
 
-        LalRule(final String name, final String dsl) {
+        LalRule(final String name, final String dsl, final File sourceFile) {
             this.name = name;
             this.dsl = dsl;
+            this.sourceFile = sourceFile;
         }
     }
 }

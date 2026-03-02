@@ -39,16 +39,16 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * <ol>
  *   <li>Validates the incoming log (service name must be non-empty, layer must be valid).</li>
  *   <li>Calls {@code createAnalysisListeners(layer)} — asks all registered
- *       {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListenerFactory}
+ *       {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListenerFactory}
  *       instances to create listeners for the log's layer. For LAL, this is
- *       {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogFilterListener.Factory},
- *       which returns a listener wrapping all compiled {@link org.apache.skywalking.oap.log.analyzer.dsl.DSL}
+ *       {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogFilterListener.Factory},
+ *       which returns a listener wrapping all compiled {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL}
  *       instances for that layer.</li>
  *   <li>{@code notifyAnalysisListener(builder, extraLog)} — calls
- *       {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListener#parse}
+ *       {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener#parse}
  *       on each listener, which binds the log data to the compiled LAL scripts.</li>
  *   <li>{@code notifyAnalysisListenerToBuild()} — calls
- *       {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogAnalysisListener#build}
+ *       {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener#build}
  *       on each listener, which evaluates the compiled LAL scripts (extractors, sinks).</li>
  * </ol>
  */

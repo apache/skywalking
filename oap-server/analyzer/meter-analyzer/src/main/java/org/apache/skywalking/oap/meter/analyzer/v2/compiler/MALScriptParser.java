@@ -101,7 +101,9 @@ public final class MALScriptParser {
         final StringBuffer sb = new StringBuffer();
         m.reset();
         while (m.find()) {
-            final String body = m.group(1);
+            // Escape backslashes: regex literal \| must become string literal \\|
+            // because the MAL lexer only recognizes \\, \", \' etc. as escape sequences
+            final String body = m.group(1).replace("\\", "\\\\");
             // Preserve leading whitespace from the match
             final String leading = m.group().substring(0, m.group().indexOf('/'));
             m.appendReplacement(sb,

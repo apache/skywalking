@@ -47,11 +47,6 @@ public interface MetricRuleConfig {
 
     String getFilter();
 
-    /**
-     * Get the init expression script
-     */
-    String getInitExp();
-
     interface RuleConfig {
         /**
          * Get definition metrics name

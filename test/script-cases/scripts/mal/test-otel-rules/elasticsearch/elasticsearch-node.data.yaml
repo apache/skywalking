@@ -1,0 +1,354 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  elasticsearch_process_cpu_percent:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        es_client_node: test-value
+        es_data_node: test-value
+        es_ingest_node: test-value
+        es_master_node: test-value
+      value: 100.0
+  elasticsearch_process_open_files_count:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_filesystem_data_available_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        mount: test-value
+      value: 100.0
+  elasticsearch_jvm_memory_used_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_jvm_memory_max_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_jvm_memory_committed_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_jvm_memory_pool_peak_used_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        pool: PS_Eden_Space
+      value: 100.0
+  elasticsearch_jvm_gc_collection_seconds_count:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        gc: PS Scavenge
+      value: 100.0
+  elasticsearch_jvm_gc_collection_seconds_sum:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        gc: PS Scavenge
+      value: 100.0
+  elasticsearch_os_cpu_percent:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_os_load1:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  tags:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  elasticsearch_os_load5:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  elasticsearch_os_load15:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  elasticsearch_indices_translog_operations:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_translog_size_in_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_breakers_tripped:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        breaker: test-value
+      value: 100.0
+  elasticsearch_breakers_estimated_size_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        breaker: test-value
+      value: 100.0
+  elasticsearch_filesystem_data_size_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        mount: test-value
+      value: 100.0
+  elasticsearch_filesystem_io_stats_device_read_size_kilobytes_sum:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        mount: test-value
+      value: 100.0
+  elasticsearch_filesystem_io_stats_device_write_size_kilobytes_sum:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        mount: test-value
+      value: 100.0
+  elasticsearch_transport_tx_size_bytes_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_transport_rx_size_bytes_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_search_query_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_search_query_time_seconds:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_search_fetch_time_seconds:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_search_scroll_time_seconds:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_search_suggest_time_seconds:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_search_fetch_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_indexing_index_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_indexing_index_time_seconds_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_merges_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_refresh_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_flush_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_get_exists_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_get_missing_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_get_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_indexing_delete_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_search_scroll_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_search_suggest_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_docs:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_docs_deleted:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_merges_docs_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_merges_total_size_bytes_total:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_segments_count:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+  elasticsearch_indices_segments_memory_bytes:
+    - labels:
+        cluster: test-cluster
+        name: test-name
+      value: 100.0
+expected:
+  rules:
+    min_samples: 1
+  open_file_count:
+    min_samples: 1
+  all_disk_free_space:
+    min_samples: 1
+  jvm_memory_used:
+    min_samples: 1
+  jvm_memory_nonheap_used:
+    min_samples: 1
+  jvm_memory_heap_used:
+    min_samples: 1
+  jvm_memory_heap_max:
+    min_samples: 1
+  jvm_memory_nonheap_committed:
+    min_samples: 1
+  jvm_memory_heap_committed:
+    min_samples: 1
+  jvm_memory_pool_peak_used:
+    min_samples: 1
+  jvm_gc_count:
+    min_samples: 1
+  jvm_gc_time:
+    min_samples: 1
+  process_cpu_percent:
+    min_samples: 1
+  os_cpu_percent:
+    min_samples: 1
+  os_load1:
+    min_samples: 1
+  os_load5:
+    min_samples: 1
+  os_load15:
+    min_samples: 1
+  indices_translog_operations:
+    min_samples: 1
+  indices_translog_size:
+    min_samples: 1
+  breakers_tripped:
+    min_samples: 1
+  breakers_estimated_size:
+    min_samples: 1
+  disk_usage_percent:
+    min_samples: 1
+  disk_usage:
+    min_samples: 1
+  disk_io_read_bytes:
+    min_samples: 1
+  disk_io_write_bytes:
+    min_samples: 1
+  network_send_bytes:
+    min_samples: 1
+  network_receive_bytes:
+    min_samples: 1
+  indices_search_query_total_req_rate:
+    min_samples: 1
+  indices_search_query_time_seconds_proc_rate:
+    min_samples: 1
+  indices_search_fetch_total_req_rate:
+    min_samples: 1
+  indices_search_fetch_time_seconds:
+    min_samples: 1
+  indices_indexing_index_total_req_rate:
+    min_samples: 1
+  indices_indexing_index_total_proc_rate:
+    min_samples: 1
+  indices_merges_total_req_rate:
+    min_samples: 1
+  indices_refresh_total_req_rate:
+    min_samples: 1
+  indices_flush_total_req_rate:
+    min_samples: 1
+  indices_get_exists_total_req_rate:
+    min_samples: 1
+  indices_get_missing_total_req_rate:
+    min_samples: 1
+  indices_get_total_req_rate:
+    min_samples: 1
+  indices_indexing_delete_total_req_rate:
+    min_samples: 1
+  indices_search_scroll_total_req_rate:
+    min_samples: 1
+  indices_search_suggest_total_req_rate:
+    min_samples: 1
+  indices_docs:
+    min_samples: 1
+  indices_docs_deleted_total:
+    min_samples: 1
+  indices_docs_deleted:
+    min_samples: 1
+  indices_merges_docs_total:
+    min_samples: 1
+  indices_merges_total_size_bytes_total:
+    min_samples: 1
+  segment_count:
+    min_samples: 1
+  segment_memory:
+    min_samples: 1

@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The top-level runtime API that compiled LAL expressions invoke.
  *
- * <p>A compiled {@link org.apache.skywalking.oap.log.analyzer.dsl.LalExpression}
+ * <p>A compiled {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression}
  * calls methods on this class in the order defined by the LAL script:
  * <ol>
  *   <li><b>Parser</b>: {@code json()}, {@code text()}, or {@code yaml()} — parses the log body
@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>All methods read the current log data from the ThreadLocal {@code BINDING}
  * (inherited from {@link AbstractSpec}), which is set by
- * {@link org.apache.skywalking.oap.log.analyzer.dsl.DSL#bind(Binding)} before each execution.
+ * {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL#bind(Binding)} before each execution.
  * Every method checks {@code shouldAbort()} first and short-circuits if a previous
  * step aborted the pipeline.
  */
@@ -124,25 +124,17 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
         consumer.accept(jsonParser);
-
-        final LogData.Builder logData = BINDING.get().log();
-        try {
-            final Map<String, Object> parsed = jsonParser.create().readValue(
-                logData.getBody().getJson().getJson(), parsedType
-            );
-            BINDING.get().parsed(parsed);
-        } catch (final Exception e) {
-            if (jsonParser.abortOnFailure()) {
-                BINDING.get().abort();
-            }
-        }
+        doJson();
     }
 
     public void json() {
         if (BINDING.get().shouldAbort()) {
             return;
         }
+        doJson();
+    }
 
+    private void doJson() {
         final LogData.Builder logData = BINDING.get().log();
         try {
             final Map<String, Object> parsed = jsonParser.create().readValue(
@@ -161,25 +153,17 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
         consumer.accept(yamlParser);
-
-        final LogData.Builder logData = BINDING.get().log();
-        try {
-            final Map<String, Object> parsed = yamlParser.create().load(
-                logData.getBody().getYaml().getYaml()
-            );
-            BINDING.get().parsed(parsed);
-        } catch (final Exception e) {
-            if (yamlParser.abortOnFailure()) {
-                BINDING.get().abort();
-            }
-        }
+        doYaml();
     }
 
     public void yaml() {
         if (BINDING.get().shouldAbort()) {
             return;
         }
+        doYaml();
+    }
 
+    private void doYaml() {
         final LogData.Builder logData = BINDING.get().log();
         try {
             final Map<String, Object> parsed = yamlParser.create().load(
@@ -205,40 +189,17 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
         consumer.accept(sink);
-
-        final Binding b = BINDING.get();
-        final LogData.Builder logData = b.log();
-        final Message extraLog = b.extraLog();
-
-        if (!b.shouldSave()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Log is dropped: {}", TextFormat.shortDebugString(logData));
-            }
-            return;
-        }
-
-        final Optional<AtomicReference<Log>> container = BINDING.get().logContainer();
-        if (container.isPresent()) {
-            sinkListenerFactories.stream()
-                     .map(LogSinkListenerFactory::create)
-                     .filter(it -> it instanceof RecordSinkListener)
-                     .map(it -> it.parse(logData, extraLog))
-                     .map(it -> (RecordSinkListener) it)
-                     .map(RecordSinkListener::getLog)
-                     .findFirst()
-                     .ifPresent(log -> container.get().set(log));
-        } else {
-            sinkListenerFactories.stream()
-                     .map(LogSinkListenerFactory::create)
-                     .forEach(it -> it.parse(logData, extraLog).build());
-        }
+        doSink();
     }
 
     public void sink() {
         if (BINDING.get().shouldAbort()) {
             return;
         }
+        doSink();
+    }
 
+    private void doSink() {
         final Binding b = BINDING.get();
         final LogData.Builder logData = b.log();
         final Message extraLog = b.extraLog();

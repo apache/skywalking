@@ -1,0 +1,101 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  pulsar_broker_topics_count:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_subscriptions_count:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_producers_count:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_consumers_count:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_rate_in:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_rate_out:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_throughput_in:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_throughput_out:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_storage_size:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_storage_logical_size:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_storage_write_rate:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  pulsar_broker_storage_read_rate:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+expected:
+  total_topics:
+    min_samples: 1
+  total_subscriptions:
+    min_samples: 1
+  total_producers:
+    min_samples: 1
+  total_consumers:
+    min_samples: 1
+  message_rate_in:
+    min_samples: 1
+  message_rate_out:
+    min_samples: 1
+  throughput_in:
+    min_samples: 1
+  throughput_out:
+    min_samples: 1
+  storage_size:
+    min_samples: 1
+  storage_logical_size:
+    min_samples: 1
+  storage_write_rate:
+    min_samples: 1
+  storage_read_rate:
+    min_samples: 1

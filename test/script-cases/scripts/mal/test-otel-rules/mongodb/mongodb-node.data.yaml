@@ -1,0 +1,298 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  mongodb_ss_uptime:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_opcounters:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        legacy_op_type: test-value
+      value: 100.0
+  mongodb_ss_opLatencies_ops:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        op_type: test-value
+      value: 100.0
+  mongodb_ss_opLatencies_latency:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        op_type: test-value
+      value: 100.0
+  mongodb_sys_memory_MemTotal_kb:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_memory_MemAvailable_kb:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  tags:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_version_info:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        edition: test-value
+        mongodb: test-value
+      value: 100.0
+  mongodb_members_self:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        member_state: test-value
+      value: 100.0
+  mongodb_sys_cpu_user_ms:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_sys_cpu_iowait_ms:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_sys_cpu_system_ms:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_sys_cpu_irq_ms:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_sys_cpu_softirq_ms:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_sys_cpu_nice_ms:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_sys_cpu_steal_ms:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_network_bytesIn:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_network_bytesOut:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_sys_memory_MemFree_kb:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_sys_memory_SwapFree_kb:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_dbstats_fsUsedSize:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_dbstats_fsTotalSize:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_connections:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_globalLock_activeClients_total:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_globalLock_activeClients_readers:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_globalLock_activeClients_writers:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_transactions_currentActive:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_transactions_currentInactive:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_metrics_document:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        doc_op_type: test-value
+      value: 100.0
+  mongodb_ss_opcountersRepl:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        legacy_op_type: test-value
+      value: 100.0
+  mongodb_ss_metrics_cursor_open:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        csr_type: test-value
+      value: 100.0
+  mongodb_ss_mem_virtual:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_mem_resident:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_asserts:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        assert_type: test-value
+      value: 100.0
+  mongodb_ss_metrics_repl_buffer_count:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_metrics_repl_buffer_sizeBytes:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_metrics_repl_buffer_maxSizeBytes:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_globalLock_currentQueue:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        count_type: test-value
+      value: 100.0
+  mongodb_ss_metrics_getLastError_wtime_num:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_metrics_getLastError_wtimeouts:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_metrics_getLastError_wtime_totalMillis:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+expected:
+  uptime:
+    min_samples: 1
+  qps:
+    min_samples: 1
+  op_rate:
+    min_samples: 1
+  latency_rate:
+    min_samples: 1
+  memory_usage:
+    min_samples: 1
+  version:
+    min_samples: 1
+  rs_state:
+    min_samples: 1
+  cpu_total_percentage:
+    min_samples: 1
+  network_bytes_in:
+    min_samples: 1
+  network_bytes_out:
+    min_samples: 1
+  memory_free_kb:
+    min_samples: 1
+  swap_memory_free_kb:
+    min_samples: 1
+  fs_used_size:
+    min_samples: 1
+  fs_total_size:
+    min_samples: 1
+  connections:
+    min_samples: 1
+  active_total_num:
+    min_samples: 1
+  active_reader_num:
+    min_samples: 1
+  active_writer_num:
+    min_samples: 1
+  transactions_active:
+    min_samples: 1
+  transactions_inactive:
+    min_samples: 1
+  document_qps:
+    min_samples: 1
+  operation_qps:
+    min_samples: 1
+  repl_operation_qps:
+    min_samples: 1
+  cursor:
+    min_samples: 1
+  mem_virtual:
+    min_samples: 1
+  mem_resident:
+    min_samples: 1
+  asserts:
+    min_samples: 1
+  repl_buffer_count:
+    min_samples: 1
+  repl_buffer_size:
+    min_samples: 1
+  repl_buffer_size_max:
+    min_samples: 1
+  queued_operation:
+    min_samples: 1
+  write_wait_num:
+    min_samples: 1
+  write_wait_timeout_num:
+    min_samples: 1
+  write_wait_time:
+    min_samples: 1

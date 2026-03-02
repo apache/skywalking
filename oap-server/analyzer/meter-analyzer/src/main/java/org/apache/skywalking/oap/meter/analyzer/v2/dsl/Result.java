@@ -40,7 +40,7 @@ public class Result {
      * @return failed result.
      */
     public static Result fail(final Throwable throwable) {
-        return new Result(false, true, throwable.getMessage(), SampleFamily.EMPTY);
+        return new Result(false, throwable.getMessage(), SampleFamily.EMPTY);
     }
 
     /**
@@ -50,7 +50,7 @@ public class Result {
      * @return failed result.
      */
     public static Result fail(String message) {
-        return new Result(false, false, message, SampleFamily.EMPTY);
+        return new Result(false, message, SampleFamily.EMPTY);
     }
 
     /**
@@ -59,7 +59,7 @@ public class Result {
      * @return failed result.
      */
     public static Result fail() {
-        return new Result(false, false, null, SampleFamily.EMPTY);
+        return new Result(false, null, SampleFamily.EMPTY);
     }
 
     /**
@@ -69,12 +69,10 @@ public class Result {
      * @return successful result.
      */
     public static Result success(SampleFamily sf) {
-        return new Result(true, false, null, sf);
+        return new Result(true, null, sf);
     }
 
     private final boolean success;
-
-    private final boolean isThrowable;
 
     private final String error;
 

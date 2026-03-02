@@ -75,7 +75,7 @@ import static java.util.stream.Collectors.toList;
  * <p>Initialization ({@link #build}):
  * <ol>
  *   <li>Compiles the MAL expression string into a
- *       {@link org.apache.skywalking.oap.meter.analyzer.dsl.MalExpression MalExpression}
+ *       {@link org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression MalExpression}
  *       via ANTLR4 + Javassist.</li>
  *   <li>Extracts compile-time {@link ExpressionMetadata} from the AST (sample names, scope type,
  *       aggregation labels, downsampling, histogram/percentile info).</li>

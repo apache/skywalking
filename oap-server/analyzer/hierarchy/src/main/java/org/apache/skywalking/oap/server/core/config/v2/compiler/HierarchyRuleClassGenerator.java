@@ -17,6 +17,9 @@
 
 package org.apache.skywalking.oap.server.core.config.v2.compiler;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -40,7 +43,12 @@ public final class HierarchyRuleClassGenerator {
     private static final String PACKAGE_PREFIX =
         "org.apache.skywalking.oap.server.core.config.v2.compiler.hierarchy.rule.rt.";
 
+    private static final java.util.Set<String> USED_CLASS_NAMES =
+        java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+
     private final ClassPool classPool;
+    private File classOutputDir;
+    private String classNameHint;
 
     public HierarchyRuleClassGenerator() {
         this(ClassPool.getDefault());
@@ -48,6 +56,59 @@ public final class HierarchyRuleClassGenerator {
 
     public HierarchyRuleClassGenerator(final ClassPool classPool) {
         this.classPool = classPool;
+    }
+
+    public void setClassOutputDir(final File dir) {
+        this.classOutputDir = dir;
+    }
+
+    public void setClassNameHint(final String hint) {
+        this.classNameHint = hint;
+    }
+
+    private String makeClassName(final String defaultPrefix) {
+        if (classNameHint != null) {
+            return dedupClassName(PACKAGE_PREFIX + sanitizeName(classNameHint));
+        }
+        return PACKAGE_PREFIX + defaultPrefix + CLASS_COUNTER.getAndIncrement();
+    }
+
+    private String dedupClassName(final String base) {
+        if (USED_CLASS_NAMES.add(base)) {
+            return base;
+        }
+        for (int i = 2; ; i++) {
+            final String candidate = base + "_" + i;
+            if (USED_CLASS_NAMES.add(candidate)) {
+                return candidate;
+            }
+        }
+    }
+
+    private static String sanitizeName(final String name) {
+        final StringBuilder sb = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            final char c = name.charAt(i);
+            sb.append(i == 0
+                ? (Character.isJavaIdentifierStart(c) ? c : '_')
+                : (Character.isJavaIdentifierPart(c) ? c : '_'));
+        }
+        return sb.length() == 0 ? "Generated" : sb.toString();
+    }
+
+    private void writeClassFile(final CtClass ctClass) {
+        if (classOutputDir == null) {
+            return;
+        }
+        if (!classOutputDir.exists()) {
+            classOutputDir.mkdirs();
+        }
+        final File file = new File(classOutputDir, ctClass.getSimpleName() + ".class");
+        try (DataOutputStream out = new DataOutputStream(new FileOutputStream(file))) {
+            ctClass.toBytecode(out);
+        } catch (Exception e) {
+            log.warn("Failed to write class file {}: {}", file, e.getMessage());
+        }
     }
 
     /**
@@ -61,8 +122,16 @@ public final class HierarchyRuleClassGenerator {
     public BiFunction<Service, Service, Boolean> compile(
             final String ruleName, final String expression) throws Exception {
         final HierarchyRuleModel model = HierarchyRuleScriptParser.parse(expression);
-        final String className = PACKAGE_PREFIX + "HierarchyRule_"
-            + CLASS_COUNTER.getAndIncrement();
+        final String saved = classNameHint;
+        if (classNameHint == null) {
+            classNameHint = ruleName;
+        }
+        final String className;
+        try {
+            className = makeClassName("HierarchyRule_");
+        } finally {
+            classNameHint = saved;
+        }
 
         final CtClass ctClass = classPool.makeClass(className);
         ctClass.addInterface(classPool.get("java.util.function.BiFunction"));
@@ -78,6 +147,7 @@ public final class HierarchyRuleClassGenerator {
 
         ctClass.addMethod(CtNewMethod.make(applyBody, ctClass));
 
+        writeClassFile(ctClass);
         final Class<?> clazz = ctClass.toClass(HierarchyRulePackageHolder.class);
         ctClass.detach();
         return (BiFunction<Service, Service, Boolean>) clazz.getDeclaredConstructor().newInstance();

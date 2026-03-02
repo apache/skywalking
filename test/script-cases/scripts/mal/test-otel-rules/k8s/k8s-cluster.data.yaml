@@ -1,0 +1,174 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  kube_node_status_capacity:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_node_status_allocatable:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_pod_container_resource_requests:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_pod_container_resource_limits:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_node_info:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_node_status_condition:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        condition: Available
+        remove: test-value
+      value: 1.0
+  kube_namespace_labels:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_deployment_labels:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_deployment_status_condition:
+    - labels:
+        cluster: test-cluster
+        deployment: test-value
+        namespace: test-namespace
+        condition: Available
+        status: 'true'
+        remove: test-value
+      value: 1.0
+  kube_deployment_spec_replicas:
+    - labels:
+        cluster: test-cluster
+        deployment: test-value
+        namespace: test-namespace
+        remove: test-value
+      value: 1.0
+  kube_statefulset_labels:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_daemonset_labels:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_service_info:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_pod_status_phase:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        phase: test-value
+        pod: test-pod
+        remove: test-value
+      value: 1.0
+  kube_pod_info:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_pod_container_info:
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+      value: 1.0
+  kube_pod_container_status_waiting_reason:
+    - labels:
+        cluster: test-cluster
+        pod: test-pod
+        container: test-container
+        reason: test-value
+        remove: test-value
+      value: 1.0
+  kube_pod_container_status_terminated_reason:
+    - labels:
+        cluster: test-cluster
+        pod: test-pod
+        container: test-container
+        reason: test-value
+        remove: test-value
+      value: 1.0
+expected:
+  cpu_cores:
+    min_samples: 1
+  cpu_cores_allocatable:
+    min_samples: 1
+  cpu_cores_requests:
+    min_samples: 1
+  cpu_cores_limits:
+    min_samples: 1
+  memory_total:
+    min_samples: 1
+  memory_allocatable:
+    min_samples: 1
+  memory_requests:
+    min_samples: 1
+  memory_limits:
+    min_samples: 1
+  storage_total:
+    min_samples: 1
+  storage_allocatable:
+    min_samples: 1
+  node_total:
+    min_samples: 1
+  node_status:
+    min_samples: 1
+  namespace_total:
+    min_samples: 1
+  deployment_total:
+    min_samples: 1
+  deployment_status:
+    min_samples: 1
+  deployment_spec_replicas:
+    min_samples: 1
+  statefulset_total:
+    min_samples: 1
+  daemonset_total:
+    min_samples: 1
+  service_total:
+    min_samples: 1
+  service_pod_status:
+    min_samples: 1
+  pod_total:
+    min_samples: 1
+  pod_status_not_running:
+    min_samples: 1
+  container_total:
+    min_samples: 1
+  pod_status_waiting:
+    min_samples: 1
+  pod_status_terminated:
+    min_samples: 1

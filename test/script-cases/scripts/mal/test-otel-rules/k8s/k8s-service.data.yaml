@@ -1,0 +1,95 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  kube_pod_info:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+      value: 1.0
+  kube_pod_container_resource_requests:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+      value: 1.0
+  kube_pod_container_resource_limits:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+      value: 1.0
+  kube_pod_status_phase:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        pod: test-pod
+        phase: test-value
+      value: 1.0
+  kube_pod_container_status_waiting_reason:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        pod: test-pod
+        container: test-container
+        reason: test-value
+      value: 1.0
+  kube_pod_container_status_terminated_reason:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        pod: test-pod
+        container: test-container
+        reason: test-value
+      value: 1.0
+  kube_pod_container_status_restarts_total:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        pod: test-pod
+      value: 1.0
+  container_cpu_usage_seconds_total:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        pod: test-pod
+      value: 1.0
+  container_memory_working_set_bytes:
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        pod: test-pod
+      value: 1.0
+expected:
+  pod_total:
+    min_samples: 1
+  cpu_cores_requests:
+    min_samples: 1
+  cpu_cores_limits:
+    min_samples: 1
+  memory_requests:
+    min_samples: 1
+  memory_limits:
+    min_samples: 1
+  pod_status:
+    min_samples: 1
+  pod_status_waiting:
+    min_samples: 1
+  pod_status_terminated:
+    min_samples: 1
+  pod_status_restarts_total:
+    min_samples: 1
+  pod_cpu_usage:
+    min_samples: 1
+  pod_memory_usage:
+    min_samples: 1

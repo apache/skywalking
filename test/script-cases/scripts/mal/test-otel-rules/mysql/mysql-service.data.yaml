@@ -1,0 +1,99 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  mysql_global_status_commands_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  mysql_global_status_queries:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  mysql_global_status_threads_connected:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  mysql_global_status_threads_created:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  mysql_global_status_threads_running:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  mysql_global_status_threads_cached:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  mysql_global_status_aborted_connects:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  mysql_global_variables_max_connections:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  mysql_global_status_connection_errors_total:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+  mysql_global_status_slow_queries:
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+      value: 100.0
+expected:
+  commands_insert_rate:
+    min_samples: 1
+  commands_select_rate:
+    min_samples: 1
+  commands_delete_rate:
+    min_samples: 1
+  commands_update_rate:
+    min_samples: 1
+  qps:
+    min_samples: 1
+  tps:
+    min_samples: 1
+  threads_connected:
+    min_samples: 1
+  threads_created:
+    min_samples: 1
+  threads_running:
+    min_samples: 1
+  threads_cached:
+    min_samples: 1
+  connects_aborted:
+    min_samples: 1
+  max_connections:
+    min_samples: 1
+  status_thread_connected:
+    min_samples: 1
+  connection_errors_max_connections:
+    min_samples: 1
+  connection_errors_internal:
+    min_samples: 1
+  slow_queries_rate:
+    min_samples: 1

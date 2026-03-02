@@ -46,7 +46,7 @@ import org.apache.skywalking.oap.server.core.source.Log;
  *   <li>{@code log_container} — optional container for the built {@code Log} source object</li>
  * </ul>
  *
- * <p>The Binding is injected into {@link org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec}
+ * <p>The Binding is injected into {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec}
  * via a ThreadLocal ({@code BINDING}), so all Spec methods ({@code FilterSpec}, {@code ExtractorSpec},
  * {@code SinkSpec}) can access the current log data without explicit parameter passing.
  */

@@ -1,0 +1,151 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  node_cpu_seconds_total:
+    - labels:
+        node_identifier_host_name: test-host
+        mode: user
+      value: 100.0
+  node_load1:
+    - labels:
+      value: 100.0
+  node_load5:
+    - labels:
+      value: 100.0
+  node_load15:
+    - labels:
+      value: 100.0
+  node_memory_MemTotal_bytes:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_memory_MemAvailable_bytes:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_memory_Buffers_bytes:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_memory_Cached_bytes:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_memory_SwapFree_bytes:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_memory_SwapTotal_bytes:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_filesystem_avail_bytes:
+    - labels:
+        node_identifier_host_name: test-host
+        mountpoint: /
+      value: 100.0
+  node_filesystem_size_bytes:
+    - labels:
+        node_identifier_host_name: test-host
+        mountpoint: /
+      value: 100.0
+  node_disk_read_bytes_total:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_disk_written_bytes_total:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_network_receive_bytes_total:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_network_transmit_bytes_total:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_netstat_Tcp_CurrEstab:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_sockstat_TCP_tw:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_sockstat_TCP_alloc:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_sockstat_sockets_used:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_sockstat_UDP_inuse:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+  node_filefd_allocated:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 100.0
+expected:
+  cpu_total_percentage:
+    min_samples: 1
+  cpu_average_used:
+    min_samples: 1
+  cpu_load1:
+    min_samples: 1
+  cpu_load5:
+    min_samples: 1
+  cpu_load15:
+    min_samples: 1
+  memory_total:
+    min_samples: 1
+  memory_available:
+    min_samples: 1
+  memory_used:
+    min_samples: 1
+  memory_buff_cache:
+    min_samples: 1
+  memory_swap_free:
+    min_samples: 1
+  memory_swap_total:
+    min_samples: 1
+  memory_swap_percentage:
+    min_samples: 1
+  filesystem_percentage:
+    min_samples: 1
+  disk_read:
+    min_samples: 1
+  disk_written:
+    min_samples: 1
+  network_receive:
+    min_samples: 1
+  network_transmit:
+    min_samples: 1
+  tcp_curr_estab:
+    min_samples: 1
+  tcp_tw:
+    min_samples: 1
+  tcp_alloc:
+    min_samples: 1
+  sockets_used:
+    min_samples: 1
+  udp_inuse:
+    min_samples: 1
+  filefd_allocated:
+    min_samples: 1

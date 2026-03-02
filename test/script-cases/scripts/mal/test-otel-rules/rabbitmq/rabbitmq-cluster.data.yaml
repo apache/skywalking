@@ -1,0 +1,186 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  rabbitmq_resident_memory_limit_bytes:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_process_resident_memory_bytes:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_disk_space_available_bytes:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_process_max_fds:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_process_open_fds:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_process_max_tcp_sockets:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_process_open_tcp_sockets:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queue_messages_ready:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queue_messages_unacked:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_received_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_confirmed_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_routed_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_received_confirm_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_unroutable_dropped_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_unroutable_returned_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queues:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queues_declared_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queues_created_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queues_deleted_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_channels:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_channels_opened_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_channels_closed_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_connections:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_connections_opened_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_connections_closed_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+expected:
+  memory_available_before_publisher_blocked:
+    min_samples: 1
+  disk_space_available_before_publisher_blocked:
+    min_samples: 1
+  file_descriptors_available:
+    min_samples: 1
+  tcp_socket_available:
+    min_samples: 1
+  message_ready_delivered_consumers:
+    min_samples: 1
+  message_unacknowledged_delivered_consumers:
+    min_samples: 1
+  messages_published:
+    min_samples: 1
+  messages_confirmed:
+    min_samples: 1
+  messages_routed:
+    min_samples: 1
+  messages_unconfirmed:
+    min_samples: 1
+  messages_unroutable_dropped:
+    min_samples: 1
+  messages_unroutable_returned:
+    min_samples: 1
+  queues:
+    min_samples: 1
+  queues_declared_total:
+    min_samples: 1
+  queues_created_total:
+    min_samples: 1
+  queues_deleted_total:
+    min_samples: 1
+  channels:
+    min_samples: 1
+  channels_opened_total:
+    min_samples: 1
+  channels_closed_total:
+    min_samples: 1
+  connections:
+    min_samples: 1
+  connections_opened_total:
+    min_samples: 1
+  connections_closed_total:
+    min_samples: 1

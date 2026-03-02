@@ -17,6 +17,9 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -80,8 +83,14 @@ public final class MALClassGenerator {
             "org.apache.skywalking.oap.meter.analyzer.v2.dsl.registry.ProcessRegistry");
     }
 
+    private static final Set<String> USED_CLASS_NAMES =
+        java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+
     private final ClassPool classPool;
-    private int closureCounter;
+    private List<String> closureFieldNames;
+    private int closureFieldIndex;
+    private File classOutputDir;
+    private String classNameHint;
 
     public MALClassGenerator() {
         this(createClassPool());
@@ -99,6 +108,94 @@ public final class MALClassGenerator {
         this.classPool = classPool;
     }
 
+    public void setClassOutputDir(final File dir) {
+        this.classOutputDir = dir;
+    }
+
+    public void setClassNameHint(final String hint) {
+        this.classNameHint = hint;
+    }
+
+    private String makeClassName(final String defaultPrefix) {
+        if (classNameHint != null) {
+            return dedupClassName(PACKAGE_PREFIX + sanitizeName(classNameHint));
+        }
+        return PACKAGE_PREFIX + defaultPrefix + CLASS_COUNTER.getAndIncrement();
+    }
+
+    private String dedupClassName(final String base) {
+        if (USED_CLASS_NAMES.add(base)) {
+            return base;
+        }
+        for (int i = 2; ; i++) {
+            final String candidate = base + "_" + i;
+            if (USED_CLASS_NAMES.add(candidate)) {
+                return candidate;
+            }
+        }
+    }
+
+    static String sanitizeName(final String name) {
+        final StringBuilder sb = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            final char c = name.charAt(i);
+            sb.append(i == 0
+                ? (Character.isJavaIdentifierStart(c) ? c : '_')
+                : (Character.isJavaIdentifierPart(c) ? c : '_'));
+        }
+        return sb.length() == 0 ? "Generated" : sb.toString();
+    }
+
+    private void writeClassFile(final CtClass ctClass) {
+        if (classOutputDir == null) {
+            return;
+        }
+        if (!classOutputDir.exists()) {
+            classOutputDir.mkdirs();
+        }
+        final File file = new File(classOutputDir, ctClass.getSimpleName() + ".class");
+        try (DataOutputStream out = new DataOutputStream(new FileOutputStream(file))) {
+            ctClass.toBytecode(out);
+        } catch (Exception e) {
+            log.warn("Failed to write class file {}: {}", file, e.getMessage());
+        }
+    }
+
+    private void addRunLocalVariableTable(final javassist.CtMethod method,
+                                          final String className,
+                                          final int tempCount) {
+        try {
+            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
+            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
+            if (code == null) {
+                return;
+            }
+            final javassist.bytecode.ConstPool cp = mi.getConstPool();
+            final int len = code.getCodeLength();
+            final String sfDesc = "L" + SF.replace('.', '/') + ";";
+
+            final javassist.bytecode.LocalVariableAttribute lva =
+                new javassist.bytecode.LocalVariableAttribute(cp);
+            lva.addEntry(0, len,
+                cp.addUtf8Info("this"),
+                cp.addUtf8Info("L" + className.replace('.', '/') + ";"), 0);
+            lva.addEntry(0, len,
+                cp.addUtf8Info("samples"),
+                cp.addUtf8Info("Ljava/util/Map;"), 1);
+            lva.addEntry(0, len,
+                cp.addUtf8Info(RUN_VAR),
+                cp.addUtf8Info(sfDesc), 2);
+            for (int i = 0; i < tempCount; i++) {
+                lva.addEntry(0, len,
+                    cp.addUtf8Info("_t" + i),
+                    cp.addUtf8Info(sfDesc), 3 + i);
+            }
+            code.getAttributes().add(lva);
+        } catch (Exception e) {
+            log.warn("Failed to add LocalVariableTable: {}", e.getMessage());
+        }
+    }
+
     /**
      * Compiles a MAL expression into a MalExpression implementation.
      *
@@ -109,7 +206,15 @@ public final class MALClassGenerator {
     public MalExpression compile(final String metricName,
                                  final String expression) throws Exception {
         final MALExpressionModel.Expr ast = MALScriptParser.parse(expression);
-        return compileFromModel(metricName, ast);
+        final String saved = classNameHint;
+        if (classNameHint == null) {
+            classNameHint = metricName;
+        }
+        try {
+            return compileFromModel(metricName, ast);
+        } finally {
+            classNameHint = saved;
+        }
     }
 
     /**
@@ -123,8 +228,7 @@ public final class MALClassGenerator {
         final MALExpressionModel.ClosureArgument closure =
             MALScriptParser.parseFilter(filterExpression);
 
-        final String className = PACKAGE_PREFIX + "MalFilter_"
-            + CLASS_COUNTER.getAndIncrement();
+        final String className = makeClassName("MalFilter_");
 
         final CtClass ctClass = classPool.makeClass(className);
         ctClass.addInterface(classPool.get(
@@ -174,6 +278,8 @@ public final class MALClassGenerator {
 
         ctClass.addMethod(CtNewMethod.make(filterBody, ctClass));
 
+        writeClassFile(ctClass);
+
         final Class<?> clazz = ctClass.toClass(MalExpressionPackageHolder.class);
         ctClass.detach();
         return (MalFilter) clazz.getDeclaredConstructor().newInstance();
@@ -184,19 +290,29 @@ public final class MALClassGenerator {
      */
     public MalExpression compileFromModel(final String metricName,
                                           final MALExpressionModel.Expr ast) throws Exception {
-        final String className = PACKAGE_PREFIX + "MalExpr_"
-            + CLASS_COUNTER.getAndIncrement();
+        final String className = makeClassName("MalExpr_");
 
-        closureCounter = 0;
+        closureFieldIndex = 0;
         final List<ClosureInfo> closures = new ArrayList<>();
         collectClosures(ast, closures);
 
-        // Generate closure classes first
+        // Generate closure classes first, named by purpose (tag/forEach/instance/decorate)
+        // Defer detach until after main class is compiled so types remain in ClassPool
+        final List<CtClass> pendingDetach = new ArrayList<>();
         final List<Object> closureInstances = new ArrayList<>();
+        final List<String> closureFieldNames = new ArrayList<>();
+        final List<String> closureClassNames = new ArrayList<>();
+        final java.util.Map<String, Integer> closureNameCounts = new java.util.HashMap<>();
         for (int i = 0; i < closures.size(); i++) {
-            final String closureName = className + "_Closure" + i;
+            final String purpose = closures.get(i).methodName;
+            final int count = closureNameCounts.getOrDefault(purpose, 0);
+            closureNameCounts.put(purpose, count + 1);
+            final String suffix = count == 0 ? purpose : purpose + "_" + (count + 1);
+            closureFieldNames.add("_" + suffix);
+            final String closureName = dedupClassName(className + "$" + suffix);
+            closureClassNames.add(closureName);
             final Object instance = compileClosureClass(
-                closureName, closures.get(i));
+                closureName, closures.get(i), pendingDetach);
             closureInstances.add(instance);
         }
 
@@ -204,15 +320,17 @@ public final class MALClassGenerator {
         ctClass.addInterface(classPool.get(
             "org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression"));
 
-        // Add closure fields
+        // Add closure fields with actual types
         for (int i = 0; i < closures.size(); i++) {
-            final String fieldType = closures.get(i).interfaceType;
             ctClass.addField(javassist.CtField.make(
-                "public " + fieldType + " _closure" + i + ";", ctClass));
+                "public " + closureClassNames.get(i) + " "
+                    + closureFieldNames.get(i) + ";", ctClass));
         }
 
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
 
+        this.closureFieldNames = closureFieldNames;
+        this.closureFieldIndex = 0;
         final String runBody = generateRunMethod(ast);
         final ExpressionMetadata metadata = extractMetadata(ast);
         final String metadataBody = generateMetadataMethod(metadata);
@@ -223,18 +341,25 @@ public final class MALClassGenerator {
             log.debug("MAL compile [{}] metadata():\n{}", metricName, metadataBody);
         }
 
-        ctClass.addMethod(CtNewMethod.make(runBody, ctClass));
+        final javassist.CtMethod runMethod = CtNewMethod.make(runBody, ctClass);
+        ctClass.addMethod(runMethod);
+        addRunLocalVariableTable(runMethod, className, runTempCounter);
         ctClass.addMethod(CtNewMethod.make(metadataBody, ctClass));
+
+        writeClassFile(ctClass);
 
         final Class<?> clazz = ctClass.toClass(MalExpressionPackageHolder.class);
         ctClass.detach();
+        for (final CtClass ct : pendingDetach) {
+            ct.detach();
+        }
         final MalExpression instance = (MalExpression) clazz.getDeclaredConstructor()
             .newInstance();
 
         // Set closure fields via reflection
         for (int i = 0; i < closureInstances.size(); i++) {
             final java.lang.reflect.Field field =
-                clazz.getField("_closure" + i);
+                clazz.getField(closureFieldNames.get(i));
             field.set(instance, closureInstances.get(i));
         }
 
@@ -244,12 +369,15 @@ public final class MALClassGenerator {
     private static final class ClosureInfo {
         final MALExpressionModel.ClosureArgument closure;
         final String interfaceType;
+        final String methodName;
         int fieldIndex;
 
         ClosureInfo(final MALExpressionModel.ClosureArgument closure,
-                    final String interfaceType) {
+                    final String interfaceType,
+                    final String methodName) {
             this.closure = closure;
             this.interfaceType = interfaceType;
+            this.methodName = methodName;
         }
     }
 
@@ -306,7 +434,7 @@ public final class MALClassGenerator {
                 }
                 final ClosureInfo info = new ClosureInfo(
                     (MALExpressionModel.ClosureArgument) arg,
-                    interfaceType);
+                    interfaceType, methodName);
                 info.fieldIndex = closures.size();
                 closures.add(info);
             } else if (arg instanceof MALExpressionModel.ExprArgument) {
@@ -332,7 +460,8 @@ public final class MALClassGenerator {
         "org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalRuntimeHelper";
 
     private Object compileClosureClass(final String className,
-                                       final ClosureInfo info) throws Exception {
+                                       final ClosureInfo info,
+                                       final List<CtClass> pendingDetach) throws Exception {
         final CtClass ctClass = classPool.makeClass(className);
         ctClass.addInterface(classPool.get(info.interfaceType));
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
@@ -439,19 +568,206 @@ public final class MALClassGenerator {
                 ctClass));
         }
 
+        writeClassFile(ctClass);
+
         final Class<?> clazz = ctClass.toClass(MalExpressionPackageHolder.class);
-        ctClass.detach();
+        pendingDetach.add(ctClass);
         return clazz.getDeclaredConstructor().newInstance();
     }
 
+    private static final String RUN_VAR = "sf";
+
+    private int runTempCounter;
+
     private String generateRunMethod(final MALExpressionModel.Expr ast) {
+        runTempCounter = 0;
         final StringBuilder sb = new StringBuilder();
         sb.append("public ").append(SF).append(" run(java.util.Map samples) {\n");
-        sb.append("  return ");
-        generateExpr(sb, ast);
-        sb.append(";\n");
+        sb.append("  ").append(SF).append(" ").append(RUN_VAR).append(";\n");
+        generateExprStatements(sb, ast);
+        sb.append("  return ").append(RUN_VAR).append(";\n");
         sb.append("}\n");
         return sb.toString();
+    }
+
+    private String nextTemp() {
+        return "_t" + runTempCounter++;
+    }
+
+    /**
+     * Emits the expression as a series of {@code sf = ...;} reassignment statements,
+     * one per chain call. All results are stored in the single {@code sf} variable.
+     * For binary SF op SF expressions, a temporary variable saves the left operand.
+     */
+    private void generateExprStatements(final StringBuilder sb,
+                                        final MALExpressionModel.Expr expr) {
+        if (expr instanceof MALExpressionModel.MetricExpr) {
+            generateMetricExprStatements(
+                sb, (MALExpressionModel.MetricExpr) expr);
+        } else if (expr instanceof MALExpressionModel.NumberExpr) {
+            final double val = ((MALExpressionModel.NumberExpr) expr).getValue();
+            sb.append("  ").append(RUN_VAR).append(" = ")
+              .append(SF).append(".EMPTY.plus(Double.valueOf(")
+              .append(val).append("));\n");
+        } else if (expr instanceof MALExpressionModel.BinaryExpr) {
+            generateBinaryExprStatements(
+                sb, (MALExpressionModel.BinaryExpr) expr);
+        } else if (expr instanceof MALExpressionModel.UnaryNegExpr) {
+            generateExprStatements(
+                sb, ((MALExpressionModel.UnaryNegExpr) expr).getOperand());
+            sb.append("  ").append(RUN_VAR).append(" = ")
+              .append(RUN_VAR).append(".negative();\n");
+        } else if (expr instanceof MALExpressionModel.FunctionCallExpr) {
+            generateFunctionCallStatements(
+                sb, (MALExpressionModel.FunctionCallExpr) expr);
+        } else if (expr instanceof MALExpressionModel.ParenChainExpr) {
+            generateParenChainStatements(
+                sb, (MALExpressionModel.ParenChainExpr) expr);
+        } else {
+            throw new IllegalArgumentException("Unknown expr type: " + expr);
+        }
+    }
+
+    private void generateMetricExprStatements(
+            final StringBuilder sb, final MALExpressionModel.MetricExpr expr) {
+        sb.append("  ").append(RUN_VAR).append(" = ((").append(SF)
+          .append(") samples.getOrDefault(\"")
+          .append(escapeJava(expr.getMetricName()))
+          .append("\", ").append(SF).append(".EMPTY));\n");
+        emitChainStatements(sb, expr.getMethodChain());
+    }
+
+    private void generateParenChainStatements(
+            final StringBuilder sb, final MALExpressionModel.ParenChainExpr expr) {
+        generateExprStatements(sb, expr.getInner());
+        emitChainStatements(sb, expr.getMethodChain());
+    }
+
+    private void generateFunctionCallStatements(
+            final StringBuilder sb, final MALExpressionModel.FunctionCallExpr expr) {
+        final String fn = expr.getFunctionName();
+        final List<MALExpressionModel.Argument> args = expr.getArguments();
+
+        if (("count".equals(fn) || "topN".equals(fn)) && !args.isEmpty()) {
+            final MALExpressionModel.Argument firstArg = args.get(0);
+            if (firstArg instanceof MALExpressionModel.ExprArgument) {
+                generateExprStatements(
+                    sb, ((MALExpressionModel.ExprArgument) firstArg).getExpr());
+            }
+            sb.append("  ").append(RUN_VAR).append(" = ")
+              .append(RUN_VAR).append('.').append(fn).append('(');
+            for (int i = 1; i < args.size(); i++) {
+                if (i > 1) {
+                    sb.append(", ");
+                }
+                generateArgument(sb, args.get(i));
+            }
+            sb.append(");\n");
+        } else {
+            sb.append("  ").append(RUN_VAR).append(" = ")
+              .append(fn).append('(');
+            for (int i = 0; i < args.size(); i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                generateArgument(sb, args.get(i));
+            }
+            sb.append(");\n");
+        }
+        emitChainStatements(sb, expr.getMethodChain());
+    }
+
+    private void generateBinaryExprStatements(
+            final StringBuilder sb, final MALExpressionModel.BinaryExpr expr) {
+        final MALExpressionModel.Expr left = expr.getLeft();
+        final MALExpressionModel.Expr right = expr.getRight();
+        final MALExpressionModel.ArithmeticOp op = expr.getOp();
+
+        final boolean leftIsNumber = left instanceof MALExpressionModel.NumberExpr
+            || isScalarFunction(left);
+        final boolean rightIsNumber = right instanceof MALExpressionModel.NumberExpr
+            || isScalarFunction(right);
+
+        if (leftIsNumber && !rightIsNumber) {
+            generateExprStatements(sb, right);
+            sb.append("  ").append(RUN_VAR).append(" = ");
+            switch (op) {
+                case ADD:
+                    sb.append(RUN_VAR).append(".plus(Double.valueOf(");
+                    generateScalarExpr(sb, left);
+                    sb.append("))");
+                    break;
+                case SUB:
+                    sb.append(RUN_VAR).append(".minus(Double.valueOf(");
+                    generateScalarExpr(sb, left);
+                    sb.append(")).negative()");
+                    break;
+                case MUL:
+                    sb.append(RUN_VAR).append(".multiply(Double.valueOf(");
+                    generateScalarExpr(sb, left);
+                    sb.append("))");
+                    break;
+                case DIV:
+                    sb.append("org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt")
+                      .append(".MalRuntimeHelper.divReverse(");
+                    generateScalarExpr(sb, left);
+                    sb.append(", ").append(RUN_VAR).append(")");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported op: " + op);
+            }
+            sb.append(";\n");
+        } else if (!leftIsNumber && rightIsNumber) {
+            generateExprStatements(sb, left);
+            sb.append("  ").append(RUN_VAR).append(" = ")
+              .append(RUN_VAR).append(".").append(opMethodName(op))
+              .append("(Double.valueOf(");
+            generateScalarExpr(sb, right);
+            sb.append("));\n");
+        } else {
+            // SF op SF: compute left to sf, save to temp, compute right to sf, combine
+            generateExprStatements(sb, left);
+            final String temp = nextTemp();
+            sb.append("  ").append(SF).append(" ").append(temp)
+              .append(" = ").append(RUN_VAR).append(";\n");
+            generateExprStatements(sb, right);
+            sb.append("  ").append(RUN_VAR).append(" = ")
+              .append(temp).append(".").append(opMethodName(op))
+              .append("(").append(RUN_VAR).append(");\n");
+        }
+    }
+
+    /**
+     * Emits each method chain call as a reassignment of {@code sf}.
+     */
+    private void emitChainStatements(final StringBuilder sb,
+                                     final List<MALExpressionModel.MethodCall> chain) {
+        for (final MALExpressionModel.MethodCall mc : chain) {
+            sb.append("  ").append(RUN_VAR).append(" = ")
+              .append(RUN_VAR).append('.').append(mc.getName()).append('(');
+            final List<MALExpressionModel.Argument> args = mc.getArguments();
+            if (VARARGS_STRING_METHODS.contains(mc.getName()) && !args.isEmpty()
+                    && allStringArgs(args)) {
+                sb.append("new String[]{");
+                for (int i = 0; i < args.size(); i++) {
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
+                    generateArgument(sb, args.get(i));
+                }
+                sb.append('}');
+            } else {
+                final boolean primitiveDouble =
+                    PRIMITIVE_DOUBLE_METHODS.contains(mc.getName());
+                for (int i = 0; i < args.size(); i++) {
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
+                    generateMethodCallArg(sb, args.get(i), primitiveDouble);
+                }
+            }
+            sb.append(");\n");
+        }
     }
 
     private void generateExpr(final StringBuilder sb,
@@ -745,7 +1061,7 @@ public final class MALClassGenerator {
     private void generateClosureArgument(final StringBuilder sb,
                                          final MALExpressionModel.ClosureArgument closure) {
         // Reference pre-compiled closure field
-        sb.append("this._closure").append(closureCounter++);
+        sb.append("this.").append(closureFieldNames.get(closureFieldIndex++));
     }
 
     private void generateClosureStatement(final StringBuilder sb,
@@ -1538,8 +1854,21 @@ public final class MALClassGenerator {
      * Generates the Java source body of the run method for debugging/testing.
      */
     public String generateSource(final String expression) {
-        closureCounter = 0;
         final MALExpressionModel.Expr ast = MALScriptParser.parse(expression);
+        final List<ClosureInfo> closures = new ArrayList<>();
+        collectClosures(ast, closures);
+        // Build field names for source generation
+        final List<String> fieldNames = new ArrayList<>();
+        final java.util.Map<String, Integer> nameCounts = new java.util.HashMap<>();
+        for (final ClosureInfo ci : closures) {
+            final String purpose = ci.methodName;
+            final int count = nameCounts.getOrDefault(purpose, 0);
+            nameCounts.put(purpose, count + 1);
+            final String suffix = count == 0 ? purpose : purpose + "_" + (count + 1);
+            fieldNames.add("_" + suffix);
+        }
+        this.closureFieldNames = fieldNames;
+        this.closureFieldIndex = 0;
         return generateRunMethod(ast);
     }
 

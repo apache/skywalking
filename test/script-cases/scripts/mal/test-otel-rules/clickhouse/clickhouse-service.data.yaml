@@ -1,0 +1,287 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  ClickHouseProfileEvents_FileOpen:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_TCPConnection:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_MySQLConnection:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_HTTPConnection:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_InterserverConnection:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_PostgreSQLConnection:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_NetworkReceiveBytes:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_NetworkSendBytes:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_Query:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_SelectQuery:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_InsertQuery:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_QueryTimeMicroseconds:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_SelectQueryTimeMicroseconds:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_InsertQueryTimeMicroseconds:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_OtherQueryTimeMicroseconds:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_SlowRead:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_InsertedRows:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_InsertedBytes:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_DelayedInserts:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_ReplicatedChecks:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_ReplicatedFetch:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_ReplicatedSend:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_Merge:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_MergedRows:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_MergedUncompressedBytes:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_Move:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_PartsActive:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_PartMutation:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_KafkaMessagesRead:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_KafkaWrites:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_KafkaConsumers:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_KafkaProducers:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_ZooKeeperSession:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_ZooKeeperWatch:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_ZooKeeperBytesSent:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseProfileEvents_ZooKeeperBytesReceived:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_KeeperAliveConnections:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  ClickHouseMetrics_KeeperOutstandingRequets:
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+expected:
+  file_open:
+    min_samples: 1
+  tcp_connections:
+    min_samples: 1
+  mysql_connections:
+    min_samples: 1
+  http_connections:
+    min_samples: 1
+  interserver_connections:
+    min_samples: 1
+  postgresql_connections:
+    min_samples: 1
+  network_receive_bytes:
+    min_samples: 1
+  network_send_bytes:
+    min_samples: 1
+  query:
+    min_samples: 1
+  query_select:
+    min_samples: 1
+  query_insert:
+    min_samples: 1
+  query_select_rate:
+    min_samples: 1
+  query_insert_rate:
+    min_samples: 1
+  querytime_microseconds:
+    min_samples: 1
+  querytime_select_microseconds:
+    min_samples: 1
+  querytime_insert_microseconds:
+    min_samples: 1
+  querytime_other_microseconds:
+    min_samples: 1
+  query_slow:
+    min_samples: 1
+  inserted_rows:
+    min_samples: 1
+  inserted_bytes:
+    min_samples: 1
+  delayed_inserts:
+    min_samples: 1
+  replicated_checks:
+    min_samples: 1
+  replicated_fetch:
+    min_samples: 1
+  replicated_send:
+    min_samples: 1
+  background_merge:
+    min_samples: 1
+  merge_rows:
+    min_samples: 1
+  merge_uncompressed_bytes:
+    min_samples: 1
+  move:
+    min_samples: 1
+  parts_active:
+    min_samples: 1
+  mutations:
+    min_samples: 1
+  kafka_messages_read:
+    min_samples: 1
+  kafka_writes:
+    min_samples: 1
+  kafka_consumers:
+    min_samples: 1
+  kafka_producers:
+    min_samples: 1
+  zookeeper_session:
+    min_samples: 1
+  zookeeper_watch:
+    min_samples: 1
+  zookeeper_bytes_sent:
+    min_samples: 1
+  zookeeper_bytes_received:
+    min_samples: 1
+  keeper_connections_alive:
+    min_samples: 1
+  keeper_outstanding_requests:
+    min_samples: 1

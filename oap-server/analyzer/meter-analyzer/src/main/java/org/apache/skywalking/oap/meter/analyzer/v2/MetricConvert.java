@@ -27,10 +27,6 @@ import java.util.StringJoiner;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsl.DSL;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Expression;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionParsingException;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 
@@ -77,10 +73,6 @@ public class MetricConvert {
 
     public MetricConvert(MetricRuleConfig rule, MeterSystem service) {
         Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
-        // init expression script
-        if (StringUtils.isNotEmpty(rule.getInitExp())) {
-            handleInitExp(rule.getInitExp());
-        }
         this.analyzers = rule.getMetricsRules().stream().map(
             r -> buildAnalyzer(
                 formatMetricName(rule, r.getName()),
@@ -146,14 +138,5 @@ public class MetricConvert {
         StringJoiner metricName = new StringJoiner("_");
         metricName.add(rule.getMetricPrefix()).add(meterRuleName);
         return metricName.toString();
-    }
-
-    private void handleInitExp(String exp) {
-        Expression e = DSL.parse(null, exp);
-        final Result result = e.run(ImmutableMap.of());
-        if (!result.isSuccess() && result.isThrowable()) {
-            throw new ExpressionParsingException(
-                "failed to execute init expression: " + exp + ", error:" + result.getError());
-        }
     }
 }

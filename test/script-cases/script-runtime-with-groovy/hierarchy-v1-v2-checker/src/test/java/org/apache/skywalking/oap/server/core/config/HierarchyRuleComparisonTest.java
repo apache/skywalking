@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.config;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -29,7 +30,7 @@ import java.util.function.BiFunction;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.apache.skywalking.oap.server.core.config.v2.compiler.CompiledHierarchyRuleProvider;
+import org.apache.skywalking.oap.server.core.config.v2.compiler.HierarchyRuleClassGenerator;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,6 +39,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Dual-path comparison test for hierarchy matching rules.
  * Verifies that Groovy-based rules (v1) produce identical results
  * to pure Java rules (v2) for all service pair combinations.
+ *
+ * <p>Test pairs are loaded from a companion {@code .data.yaml} file
+ * alongside the hierarchy definition YAML.
  */
 class HierarchyRuleComparisonTest {
 
@@ -48,36 +52,53 @@ class HierarchyRuleComparisonTest {
         return s;
     }
 
-    /**
-     * Test case: upper service, lower service, and a human-readable description.
-     */
     private static class TestPair {
         final String description;
         final Service upper;
         final Service lower;
+        final Boolean expected;
 
-        TestPair(final String description, final Service upper, final Service lower) {
+        TestPair(final String description, final Service upper,
+                 final Service lower, final Boolean expected) {
             this.description = description;
             this.upper = upper;
             this.lower = lower;
+            this.expected = expected;
         }
     }
 
     @SuppressWarnings("unchecked")
     @TestFactory
     Collection<DynamicTest> allRulesProduceIdenticalResults() throws Exception {
-        final Reader reader = new FileReader(findHierarchyDefinition().toFile());
+        final Path hierarchyYml = findHierarchyDefinition();
+        final Reader reader = new FileReader(hierarchyYml.toFile());
         final Yaml yaml = new Yaml();
         final Map<String, Map> config = yaml.loadAs(reader, Map.class);
-        final Map<String, String> ruleExpressions = (Map<String, String>) config.get("auto-matching-rules");
+        final Map<String, String> ruleExpressions =
+            (Map<String, String>) config.get("auto-matching-rules");
+
+        // Load companion .data.yaml
+        final Map<String, List<TestPair>> testPairsByRule = loadInputData(hierarchyYml);
 
         final GroovyHierarchyRuleProvider groovyProvider = new GroovyHierarchyRuleProvider();
-        final CompiledHierarchyRuleProvider javaProvider = new CompiledHierarchyRuleProvider();
 
         final Map<String, BiFunction<Service, Service, Boolean>> v1Rules =
             groovyProvider.buildRules(ruleExpressions);
-        final Map<String, BiFunction<Service, Service, Boolean>> v2Rules =
-            javaProvider.buildRules(ruleExpressions);
+
+        // Build v2 rules with class output
+        final String baseName = hierarchyYml.getFileName().toString()
+            .replaceFirst("\\.(yaml|yml)$", "");
+        final File classBaseDir = new File(hierarchyYml.getParent().toFile(),
+            baseName + ".generated-classes");
+        final HierarchyRuleClassGenerator generator = new HierarchyRuleClassGenerator();
+        generator.setClassOutputDir(classBaseDir);
+        final java.util.Map<String, BiFunction<Service, Service, Boolean>> v2Rules =
+            new java.util.HashMap<>();
+        for (final Map.Entry<String, String> entry : ruleExpressions.entrySet()) {
+            final String ruleName = entry.getKey();
+            generator.setClassNameHint(ruleName);
+            v2Rules.put(ruleName, generator.compile(ruleName, entry.getValue()));
+        }
 
         final List<DynamicTest> tests = new ArrayList<>();
         for (final Map.Entry<String, String> entry : ruleExpressions.entrySet()) {
@@ -85,7 +106,11 @@ class HierarchyRuleComparisonTest {
             final BiFunction<Service, Service, Boolean> v1 = v1Rules.get(ruleName);
             final BiFunction<Service, Service, Boolean> v2 = v2Rules.get(ruleName);
 
-            for (final TestPair pair : testPairsFor(ruleName)) {
+            final List<TestPair> pairs = testPairsByRule.get(ruleName);
+            if (pairs == null || pairs.isEmpty()) {
+                continue;
+            }
+            for (final TestPair pair : pairs) {
                 tests.add(DynamicTest.dynamicTest(
                     ruleName + " | " + pair.description,
                     () -> {
@@ -94,6 +119,12 @@ class HierarchyRuleComparisonTest {
                         assertEquals(v1Result, v2Result,
                             "Rule '" + ruleName + "' diverged for " + pair.description
                                 + ": v1=" + v1Result + ", v2=" + v2Result);
+                        if (pair.expected != null) {
+                            assertEquals(pair.expected, v1Result,
+                                "Rule '" + ruleName + "' expected " + pair.expected
+                                    + " for " + pair.description
+                                    + " but v1=" + v1Result);
+                        }
                     }
                 ));
             }
@@ -101,91 +132,46 @@ class HierarchyRuleComparisonTest {
         return tests;
     }
 
-    private static List<TestPair> testPairsFor(final String ruleName) {
-        final List<TestPair> pairs = new ArrayList<>();
-        switch (ruleName) {
-            case "name":
-                pairs.add(new TestPair("exact match",
-                    svc("my-service", "my-service"),
-                    svc("my-service", "my-service")));
-                pairs.add(new TestPair("mismatch",
-                    svc("svc-a", "svc-a"),
-                    svc("svc-b", "svc-b")));
-                pairs.add(new TestPair("same shortName different name",
-                    svc("svc-a", "same"),
-                    svc("svc-b", "same")));
-                pairs.add(new TestPair("empty names",
-                    svc("", ""),
-                    svc("", "")));
-                break;
+    @SuppressWarnings("unchecked")
+    private Map<String, List<TestPair>> loadInputData(final Path hierarchyYml) throws Exception {
+        final String baseName = hierarchyYml.getFileName().toString()
+            .replaceFirst("\\.(yaml|yml)$", "");
+        final Path inputPath = hierarchyYml.getParent().resolve(baseName + ".data.yaml");
 
-            case "short-name":
-                pairs.add(new TestPair("exact shortName match",
-                    svc("full-a", "svc"),
-                    svc("full-b", "svc")));
-                pairs.add(new TestPair("shortName mismatch",
-                    svc("a", "svc-1"),
-                    svc("b", "svc-2")));
-                pairs.add(new TestPair("same name different shortName",
-                    svc("same", "short-a"),
-                    svc("same", "short-b")));
-                pairs.add(new TestPair("empty shortNames",
-                    svc("a", ""),
-                    svc("b", "")));
-                break;
-
-            case "lower-short-name-remove-ns":
-                pairs.add(new TestPair("match: svc == svc.namespace",
-                    svc("a", "svc"),
-                    svc("b", "svc.namespace")));
-                pairs.add(new TestPair("match: app == app.default",
-                    svc("a", "app"),
-                    svc("b", "app.default")));
-                pairs.add(new TestPair("no dot in lower",
-                    svc("a", "svc"),
-                    svc("b", "svc")));
-                pairs.add(new TestPair("mismatch prefix",
-                    svc("a", "other"),
-                    svc("b", "svc.namespace")));
-                pairs.add(new TestPair("dot at position 0",
-                    svc("a", ""),
-                    svc("b", ".namespace")));
-                pairs.add(new TestPair("multiple dots - uses last",
-                    svc("a", "svc.ns1"),
-                    svc("b", "svc.ns1.ns2")));
-                pairs.add(new TestPair("empty lower",
-                    svc("a", "svc"),
-                    svc("b", "")));
-                break;
-
-            case "lower-short-name-with-fqdn":
-                pairs.add(new TestPair("match: db.svc.cluster.local:3306 vs db",
-                    svc("a", "db.svc.cluster.local:3306"),
-                    svc("b", "db")));
-                pairs.add(new TestPair("match: redis.svc.cluster.local:6379 vs redis",
-                    svc("a", "redis.svc.cluster.local:6379"),
-                    svc("b", "redis")));
-                pairs.add(new TestPair("no colon in upper",
-                    svc("a", "db"),
-                    svc("b", "db")));
-                pairs.add(new TestPair("wrong fqdn suffix",
-                    svc("a", "db:3306"),
-                    svc("b", "other")));
-                pairs.add(new TestPair("upper without fqdn",
-                    svc("a", "db:3306"),
-                    svc("b", "db")));
-                pairs.add(new TestPair("empty upper",
-                    svc("a", ""),
-                    svc("b", "db")));
-                pairs.add(new TestPair("colon at end",
-                    svc("a", "db.svc.cluster.local:"),
-                    svc("b", "db")));
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown rule: " + ruleName);
+        final Map<String, List<TestPair>> result = new java.util.HashMap<>();
+        if (!Files.isRegularFile(inputPath)) {
+            return result;
         }
-        return pairs;
+
+        final Yaml yaml = new Yaml();
+        final String content = Files.readString(inputPath);
+        final Map<String, Object> inputConfig = yaml.load(content);
+        if (inputConfig == null || !inputConfig.containsKey("input")) {
+            return result;
+        }
+
+        final Map<String, List<Map<String, Object>>> input =
+            (Map<String, List<Map<String, Object>>>) inputConfig.get("input");
+        for (final Map.Entry<String, List<Map<String, Object>>> entry : input.entrySet()) {
+            final String ruleName = entry.getKey();
+            final List<TestPair> pairs = new ArrayList<>();
+            for (final Map<String, Object> pairDef : entry.getValue()) {
+                final String description = (String) pairDef.getOrDefault("description", "");
+                final Map<String, String> upperDef = (Map<String, String>) pairDef.get("upper");
+                final Map<String, String> lowerDef = (Map<String, String>) pairDef.get("lower");
+                final Boolean expected = pairDef.containsKey("expected")
+                    ? (Boolean) pairDef.get("expected") : null;
+                final Service upper = svc(
+                    upperDef.getOrDefault("name", ""),
+                    upperDef.getOrDefault("shortName", ""));
+                final Service lower = svc(
+                    lowerDef.getOrDefault("name", ""),
+                    lowerDef.getOrDefault("shortName", ""));
+                pairs.add(new TestPair(description, upper, lower, expected));
+            }
+            result.put(ruleName, pairs);
+        }
+        return result;
     }
 
     private Path findHierarchyDefinition() {

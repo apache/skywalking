@@ -17,6 +17,9 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +72,12 @@ public final class LALClassGenerator {
     private static final String PROCESS_REGISTRY =
         "org.apache.skywalking.oap.meter.analyzer.v2.dsl.registry.ProcessRegistry";
 
+    private static final java.util.Set<String> USED_CLASS_NAMES =
+        java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+
     private final ClassPool classPool;
+    private File classOutputDir;
+    private String classNameHint;
 
     public LALClassGenerator() {
         this(ClassPool.getDefault());
@@ -78,6 +86,60 @@ public final class LALClassGenerator {
     public LALClassGenerator(final ClassPool classPool) {
         this.classPool = classPool;
     }
+
+    public void setClassOutputDir(final File dir) {
+        this.classOutputDir = dir;
+    }
+
+    public void setClassNameHint(final String hint) {
+        this.classNameHint = hint;
+    }
+
+    private String makeClassName(final String defaultPrefix) {
+        if (classNameHint != null) {
+            return dedupClassName(PACKAGE_PREFIX + sanitizeName(classNameHint));
+        }
+        return PACKAGE_PREFIX + defaultPrefix + CLASS_COUNTER.getAndIncrement();
+    }
+
+    private String dedupClassName(final String base) {
+        if (USED_CLASS_NAMES.add(base)) {
+            return base;
+        }
+        for (int i = 2; ; i++) {
+            final String candidate = base + "_" + i;
+            if (USED_CLASS_NAMES.add(candidate)) {
+                return candidate;
+            }
+        }
+    }
+
+    static String sanitizeName(final String name) {
+        final StringBuilder sb = new StringBuilder(name.length());
+        for (int i = 0; i < name.length(); i++) {
+            final char c = name.charAt(i);
+            sb.append(i == 0
+                ? (Character.isJavaIdentifierStart(c) ? c : '_')
+                : (Character.isJavaIdentifierPart(c) ? c : '_'));
+        }
+        return sb.length() == 0 ? "Generated" : sb.toString();
+    }
+
+    private void writeClassFile(final CtClass ctClass) {
+        if (classOutputDir == null) {
+            return;
+        }
+        if (!classOutputDir.exists()) {
+            classOutputDir.mkdirs();
+        }
+        final File file = new File(classOutputDir, ctClass.getSimpleName() + ".class");
+        try (DataOutputStream out = new DataOutputStream(new FileOutputStream(file))) {
+            ctClass.toBytecode(out);
+        } catch (Exception e) {
+            log.warn("Failed to write class file {}: {}", file, e.getMessage());
+        }
+    }
+
 
     /**
      * Compiles a LAL DSL script into a LalExpression implementation.
@@ -91,30 +153,41 @@ public final class LALClassGenerator {
      * Compiles from a pre-parsed model.
      */
     public LalExpression compileFromModel(final LALScriptModel model) throws Exception {
-        final String className = PACKAGE_PREFIX + "LalExpr_"
-            + CLASS_COUNTER.getAndIncrement();
+        final String className = makeClassName("LalExpr_");
 
         // Phase 1: Collect all consumer info in traversal order
         final List<ConsumerInfo> consumers = new ArrayList<>();
         collectConsumers(model.getStatements(), consumers);
 
-        // Phase 2: Compile consumer classes (recursively handles sub-consumers)
+        // Phase 2: Compile consumer classes, named by purpose (extractor/sink/etc.)
+        // Defer detach until after main class is compiled so types remain in ClassPool
+        final List<CtClass> pendingDetach = new ArrayList<>();
         final List<Object> consumerInstances = new ArrayList<>();
+        final List<String> consumerFieldNames = new ArrayList<>();
+        final List<String> consumerClassNames = new ArrayList<>();
+        final java.util.Map<String, Integer> consumerNameCounts = new java.util.HashMap<>();
         for (int i = 0; i < consumers.size(); i++) {
-            final String consumerName = className + "_C" + i;
+            final String label = consumers.get(i).label();
+            final int count = consumerNameCounts.getOrDefault(label, 0);
+            consumerNameCounts.put(label, count + 1);
+            final String suffix = count == 0 ? label : label + "_" + (count + 1);
+            consumerFieldNames.add("_" + suffix);
+            final String consumerName = dedupClassName(className + "$" + suffix);
+            consumerClassNames.add(consumerName);
             final Object instance = compileConsumerClass(
-                consumerName, consumers.get(i));
+                consumerName, consumers.get(i), pendingDetach);
             consumerInstances.add(instance);
         }
 
-        // Phase 3: Build main class with consumer fields
+        // Phase 3: Build main class with consumer fields (actual types)
         final CtClass ctClass = classPool.makeClass(className);
         ctClass.addInterface(classPool.get(
             "org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression"));
 
         for (int i = 0; i < consumers.size(); i++) {
             ctClass.addField(CtField.make(
-                "public java.util.function.Consumer _consumer" + i + ";",
+                "public " + consumerClassNames.get(i) + " "
+                    + consumerFieldNames.get(i) + ";",
                 ctClass));
         }
 
@@ -123,7 +196,8 @@ public final class LALClassGenerator {
 
         // Phase 4: Generate execute method referencing consumer fields
         final int[] counter = {0};
-        final String executeBody = generateExecuteMethod(model, counter);
+        final String executeBody = generateExecuteMethod(
+            model, counter, consumerFieldNames);
 
         if (log.isDebugEnabled()) {
             log.debug("LAL compile AST: {}", model);
@@ -132,14 +206,20 @@ public final class LALClassGenerator {
 
         ctClass.addMethod(CtNewMethod.make(executeBody, ctClass));
 
+        writeClassFile(ctClass);
+
         final Class<?> clazz = ctClass.toClass(LalExpressionPackageHolder.class);
         ctClass.detach();
+        for (final CtClass ct : pendingDetach) {
+            ct.detach();
+        }
         final LalExpression instance = (LalExpression) clazz
             .getDeclaredConstructor().newInstance();
 
         // Phase 5: Wire consumer fields
         for (int i = 0; i < consumerInstances.size(); i++) {
-            clazz.getField("_consumer" + i).set(instance, consumerInstances.get(i));
+            clazz.getField(consumerFieldNames.get(i))
+                .set(instance, consumerInstances.get(i));
         }
 
         return instance;
@@ -151,18 +231,60 @@ public final class LALClassGenerator {
         final String body;
         final String castType;
         final List<ConsumerInfo> subConsumers;
+        final List<String> subFieldNames;
 
         ConsumerInfo(final String body, final String castType) {
             this.body = body;
             this.castType = castType;
             this.subConsumers = new ArrayList<>();
+            this.subFieldNames = new ArrayList<>();
         }
 
         ConsumerInfo(final String body, final String castType,
-                     final List<ConsumerInfo> subConsumers) {
+                     final List<ConsumerInfo> subConsumers,
+                     final List<String> subFieldNames) {
             this.body = body;
             this.castType = castType;
             this.subConsumers = new ArrayList<>(subConsumers);
+            this.subFieldNames = new ArrayList<>(subFieldNames);
+        }
+
+        String nextSubFieldName(final ConsumerInfo sub) {
+            final String subLabel = sub.label();
+            int count = 0;
+            for (final ConsumerInfo existing : subConsumers) {
+                if (existing.label().equals(subLabel)) {
+                    count++;
+                }
+            }
+            final String fieldName = count == 0
+                ? "_" + subLabel : "_" + subLabel + "_" + (count + 1);
+            subConsumers.add(sub);
+            subFieldNames.add(fieldName);
+            return fieldName;
+        }
+
+        String label() {
+            if (castType.endsWith("ExtractorSpec")) {
+                return "extractor";
+            } else if (castType.endsWith("SinkSpec")) {
+                return "sink";
+            } else if (castType.endsWith("SamplerSpec")) {
+                return "sampler";
+            } else if (castType.endsWith("SlowSqlSpec")) {
+                return "slowSql";
+            } else if (castType.endsWith("SampledTraceSpec")) {
+                return "sampledTrace";
+            } else if (castType.endsWith("SampleBuilder")) {
+                return "sample";
+            } else if (castType.endsWith("RateLimitingSampler")) {
+                return "rateLimiter";
+            }
+            final int dot = castType.lastIndexOf('.');
+            final int dollar = castType.lastIndexOf('$');
+            final int start = Math.max(dot, dollar) + 1;
+            return Character.toLowerCase(castType.charAt(start))
+                + castType.substring(start + 1);
         }
     }
 
@@ -209,27 +331,25 @@ public final class LALClassGenerator {
                 (LALScriptModel.ExtractorBlock) stmt;
             final ConsumerInfo info = new ConsumerInfo("", EXTRACTOR_SPEC);
             final StringBuilder sb = new StringBuilder();
-            final int[] subCounter = {0};
             final List<LALScriptModel.FilterStatement> extractorStmts = new ArrayList<>();
             for (final LALScriptModel.ExtractorStatement es : block.getStatements()) {
                 extractorStmts.add((LALScriptModel.FilterStatement) es);
             }
-            generateExtractorBody(sb, extractorStmts, info, subCounter);
+            generateExtractorBody(sb, extractorStmts, info);
             consumers.add(new ConsumerInfo(sb.toString(), EXTRACTOR_SPEC,
-                info.subConsumers));
+                info.subConsumers, info.subFieldNames));
         } else if (stmt instanceof LALScriptModel.SinkBlock) {
             final LALScriptModel.SinkBlock sink = (LALScriptModel.SinkBlock) stmt;
             if (!sink.getStatements().isEmpty()) {
                 final ConsumerInfo info = new ConsumerInfo("", SINK_SPEC);
                 final StringBuilder sb = new StringBuilder();
-                final int[] subCounter = {0};
                 final List<LALScriptModel.FilterStatement> sinkStmts = new ArrayList<>();
                 for (final LALScriptModel.SinkStatement ss : sink.getStatements()) {
                     sinkStmts.add((LALScriptModel.FilterStatement) ss);
                 }
-                generateSinkBody(sb, sinkStmts, info, subCounter);
+                generateSinkBody(sb, sinkStmts, info);
                 consumers.add(new ConsumerInfo(sb.toString(), SINK_SPEC,
-                    info.subConsumers));
+                    info.subConsumers, info.subFieldNames));
             }
         } else if (stmt instanceof LALScriptModel.IfBlock) {
             final LALScriptModel.IfBlock ifBlock = (LALScriptModel.IfBlock) stmt;
@@ -245,8 +365,7 @@ public final class LALClassGenerator {
     private void generateExtractorBody(
             final StringBuilder sb,
             final List<? extends LALScriptModel.FilterStatement> stmts,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
+            final ConsumerInfo parentInfo) {
         for (final LALScriptModel.FilterStatement stmt : stmts) {
             if (stmt instanceof LALScriptModel.FieldAssignment) {
                 final LALScriptModel.FieldAssignment field =
@@ -265,17 +384,17 @@ public final class LALClassGenerator {
                 generateTagAssignment(sb, (LALScriptModel.TagAssignment) stmt);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
                 generateIfBlockInBody(sb, (LALScriptModel.IfBlock) stmt,
-                    parentInfo, subCounter, true);
+                    parentInfo, true);
             } else if (stmt instanceof LALScriptModel.MetricsBlock) {
                 generateMetricsSubConsumer(sb, (LALScriptModel.MetricsBlock) stmt,
-                    parentInfo, subCounter);
+                    parentInfo);
             } else if (stmt instanceof LALScriptModel.SlowSqlBlock) {
                 generateSlowSqlSubConsumer(sb, (LALScriptModel.SlowSqlBlock) stmt,
-                    parentInfo, subCounter);
+                    parentInfo);
             } else if (stmt instanceof LALScriptModel.SampledTraceBlock) {
                 generateSampledTraceSubConsumer(sb,
                     (LALScriptModel.SampledTraceBlock) stmt,
-                    parentInfo, subCounter);
+                    parentInfo);
             }
         }
     }
@@ -284,23 +403,22 @@ public final class LALClassGenerator {
             final StringBuilder sb,
             final LALScriptModel.IfBlock ifBlock,
             final ConsumerInfo parentInfo,
-            final int[] subCounter,
             final boolean isExtractorContext) {
         sb.append("  if (");
         generateCondition(sb, ifBlock.getCondition());
         sb.append(") {\n");
         if (isExtractorContext) {
-            generateExtractorBody(sb, ifBlock.getThenBranch(), parentInfo, subCounter);
+            generateExtractorBody(sb, ifBlock.getThenBranch(), parentInfo);
         } else {
-            generateSinkBody(sb, ifBlock.getThenBranch(), parentInfo, subCounter);
+            generateSinkBody(sb, ifBlock.getThenBranch(), parentInfo);
         }
         sb.append("  }\n");
         if (!ifBlock.getElseBranch().isEmpty()) {
             sb.append("  else {\n");
             if (isExtractorContext) {
-                generateExtractorBody(sb, ifBlock.getElseBranch(), parentInfo, subCounter);
+                generateExtractorBody(sb, ifBlock.getElseBranch(), parentInfo);
             } else {
-                generateSinkBody(sb, ifBlock.getElseBranch(), parentInfo, subCounter);
+                generateSinkBody(sb, ifBlock.getElseBranch(), parentInfo);
             }
             sb.append("  }\n");
         }
@@ -311,9 +429,7 @@ public final class LALClassGenerator {
     private void generateMetricsSubConsumer(
             final StringBuilder sb,
             final LALScriptModel.MetricsBlock block,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
-        final int idx = subCounter[0]++;
+            final ConsumerInfo parentInfo) {
         final StringBuilder body = new StringBuilder();
         if (block.getName() != null) {
             body.append("  _t.name(\"")
@@ -361,11 +477,10 @@ public final class LALClassGenerator {
         }
 
         final ConsumerInfo sub = new ConsumerInfo(body.toString(), SAMPLE_BUILDER);
-        parentInfo.subConsumers.add(sub);
-        sb.append("  ((").append(PACKAGE_PREFIX)
-          .append("BindingAware) this._sub").append(idx)
-          .append(").setBinding(this.binding);\n");
-        sb.append("  _t.metrics(this._sub").append(idx).append(");\n");
+        final String fieldName = parentInfo.nextSubFieldName(sub);
+        sb.append("  this.").append(fieldName)
+          .append(".setBinding(this.binding);\n");
+        sb.append("  _t.metrics(this.").append(fieldName).append(");\n");
     }
 
     // ==================== SlowSql sub-consumer ====================
@@ -373,9 +488,7 @@ public final class LALClassGenerator {
     private void generateSlowSqlSubConsumer(
             final StringBuilder sb,
             final LALScriptModel.SlowSqlBlock block,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
-        final int idx = subCounter[0]++;
+            final ConsumerInfo parentInfo) {
         final StringBuilder body = new StringBuilder();
         if (block.getId() != null) {
             body.append("  _t.id(");
@@ -395,11 +508,10 @@ public final class LALClassGenerator {
         }
 
         final ConsumerInfo sub = new ConsumerInfo(body.toString(), SLOW_SQL_SPEC);
-        parentInfo.subConsumers.add(sub);
-        sb.append("  ((").append(PACKAGE_PREFIX)
-          .append("BindingAware) this._sub").append(idx)
-          .append(").setBinding(this.binding);\n");
-        sb.append("  _t.slowSql(this._sub").append(idx).append(");\n");
+        final String fieldName = parentInfo.nextSubFieldName(sub);
+        sb.append("  this.").append(fieldName)
+          .append(".setBinding(this.binding);\n");
+        sb.append("  _t.slowSql(this.").append(fieldName).append(");\n");
     }
 
     // ==================== SampledTrace sub-consumer ====================
@@ -407,34 +519,30 @@ public final class LALClassGenerator {
     private void generateSampledTraceSubConsumer(
             final StringBuilder sb,
             final LALScriptModel.SampledTraceBlock block,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
-        final int idx = subCounter[0]++;
+            final ConsumerInfo parentInfo) {
         final StringBuilder body = new StringBuilder();
         final ConsumerInfo sub = new ConsumerInfo("", SAMPLED_TRACE_SPEC);
-        final int[] innerSubCounter = {0};
-        generateSampledTraceBody(body, block.getStatements(), sub, innerSubCounter);
+        generateSampledTraceBody(body, block.getStatements(), sub);
 
         // Propagate any sub-sub-consumers
-        parentInfo.subConsumers.add(new ConsumerInfo(body.toString(),
-            SAMPLED_TRACE_SPEC, sub.subConsumers));
-        sb.append("  ((").append(PACKAGE_PREFIX)
-          .append("BindingAware) this._sub").append(idx)
-          .append(").setBinding(this.binding);\n");
-        sb.append("  _t.sampledTrace(this._sub").append(idx).append(");\n");
+        final ConsumerInfo propagated = new ConsumerInfo(body.toString(),
+            SAMPLED_TRACE_SPEC, sub.subConsumers, sub.subFieldNames);
+        final String fieldName = parentInfo.nextSubFieldName(propagated);
+        sb.append("  this.").append(fieldName)
+          .append(".setBinding(this.binding);\n");
+        sb.append("  _t.sampledTrace(this.").append(fieldName).append(");\n");
     }
 
     private void generateSampledTraceBody(
             final StringBuilder sb,
             final List<LALScriptModel.SampledTraceStatement> stmts,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
+            final ConsumerInfo parentInfo) {
         for (final LALScriptModel.SampledTraceStatement stmt : stmts) {
             if (stmt instanceof LALScriptModel.SampledTraceField) {
                 generateSampledTraceField(sb, (LALScriptModel.SampledTraceField) stmt);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
                 generateSampledTraceIfBlock(sb, (LALScriptModel.IfBlock) stmt,
-                    parentInfo, subCounter);
+                    parentInfo);
             }
         }
     }
@@ -485,18 +593,17 @@ public final class LALClassGenerator {
     private void generateSampledTraceIfBlock(
             final StringBuilder sb,
             final LALScriptModel.IfBlock ifBlock,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
+            final ConsumerInfo parentInfo) {
         sb.append("  if (");
         generateCondition(sb, ifBlock.getCondition());
         sb.append(") {\n");
         generateSampledTraceBodyFromFilterStmts(sb, ifBlock.getThenBranch(),
-            parentInfo, subCounter);
+            parentInfo);
         sb.append("  }\n");
         if (!ifBlock.getElseBranch().isEmpty()) {
             sb.append("  else {\n");
             generateSampledTraceBodyFromFilterStmts(sb, ifBlock.getElseBranch(),
-                parentInfo, subCounter);
+                parentInfo);
             sb.append("  }\n");
         }
     }
@@ -504,8 +611,7 @@ public final class LALClassGenerator {
     private void generateSampledTraceBodyFromFilterStmts(
             final StringBuilder sb,
             final List<? extends LALScriptModel.FilterStatement> stmts,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
+            final ConsumerInfo parentInfo) {
         for (final LALScriptModel.FilterStatement stmt : stmts) {
             if (stmt instanceof LALScriptModel.SampledTraceField) {
                 generateSampledTraceField(sb,
@@ -515,7 +621,7 @@ public final class LALClassGenerator {
                     (LALScriptModel.FieldAssignment) stmt);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
                 generateSampledTraceIfBlock(sb, (LALScriptModel.IfBlock) stmt,
-                    parentInfo, subCounter);
+                    parentInfo);
             }
         }
     }
@@ -544,8 +650,7 @@ public final class LALClassGenerator {
     private void generateSinkBody(
             final StringBuilder sb,
             final List<? extends LALScriptModel.FilterStatement> stmts,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
+            final ConsumerInfo parentInfo) {
         for (final LALScriptModel.FilterStatement stmt : stmts) {
             if (stmt instanceof LALScriptModel.EnforcerStatement) {
                 sb.append("  _t.enforcer();\n");
@@ -553,10 +658,10 @@ public final class LALClassGenerator {
                 sb.append("  _t.dropper();\n");
             } else if (stmt instanceof LALScriptModel.SamplerBlock) {
                 generateSamplerSubConsumer(sb, (LALScriptModel.SamplerBlock) stmt,
-                    parentInfo, subCounter);
+                    parentInfo);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
                 generateIfBlockInBody(sb, (LALScriptModel.IfBlock) stmt,
-                    parentInfo, subCounter, false);
+                    parentInfo, false);
             }
         }
     }
@@ -566,34 +671,30 @@ public final class LALClassGenerator {
     private void generateSamplerSubConsumer(
             final StringBuilder sb,
             final LALScriptModel.SamplerBlock block,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
-        final int idx = subCounter[0]++;
+            final ConsumerInfo parentInfo) {
         final StringBuilder body = new StringBuilder();
         final ConsumerInfo sub = new ConsumerInfo("", SAMPLER_SPEC);
-        final int[] innerSubCounter = {0};
-        generateSamplerBody(body, block.getContents(), sub, innerSubCounter);
+        generateSamplerBody(body, block.getContents(), sub);
 
-        parentInfo.subConsumers.add(new ConsumerInfo(body.toString(),
-            SAMPLER_SPEC, sub.subConsumers));
-        sb.append("  ((").append(PACKAGE_PREFIX)
-          .append("BindingAware) this._sub").append(idx)
-          .append(").setBinding(this.binding);\n");
-        sb.append("  _t.sampler(this._sub").append(idx).append(");\n");
+        final ConsumerInfo propagated = new ConsumerInfo(body.toString(),
+            SAMPLER_SPEC, sub.subConsumers, sub.subFieldNames);
+        final String fieldName = parentInfo.nextSubFieldName(propagated);
+        sb.append("  this.").append(fieldName)
+          .append(".setBinding(this.binding);\n");
+        sb.append("  _t.sampler(this.").append(fieldName).append(");\n");
     }
 
     private void generateSamplerBody(
             final StringBuilder sb,
             final List<LALScriptModel.SamplerContent> contents,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
+            final ConsumerInfo parentInfo) {
         for (final LALScriptModel.SamplerContent content : contents) {
             if (content instanceof LALScriptModel.RateLimitBlock) {
                 generateRateLimitSubConsumer(sb, (LALScriptModel.RateLimitBlock) content,
-                    parentInfo, subCounter);
+                    parentInfo);
             } else if (content instanceof LALScriptModel.IfBlock) {
                 generateSamplerIfBlock(sb, (LALScriptModel.IfBlock) content,
-                    parentInfo, subCounter);
+                    parentInfo);
             }
         }
     }
@@ -601,18 +702,17 @@ public final class LALClassGenerator {
     private void generateSamplerIfBlock(
             final StringBuilder sb,
             final LALScriptModel.IfBlock ifBlock,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
+            final ConsumerInfo parentInfo) {
         sb.append("  if (");
         generateCondition(sb, ifBlock.getCondition());
         sb.append(") {\n");
         generateSamplerBodyFromFilterStmts(sb, ifBlock.getThenBranch(),
-            parentInfo, subCounter);
+            parentInfo);
         sb.append("  }\n");
         if (!ifBlock.getElseBranch().isEmpty()) {
             sb.append("  else {\n");
             generateSamplerBodyFromFilterStmts(sb, ifBlock.getElseBranch(),
-                parentInfo, subCounter);
+                parentInfo);
             sb.append("  }\n");
         }
     }
@@ -620,48 +720,32 @@ public final class LALClassGenerator {
     private void generateSamplerBodyFromFilterStmts(
             final StringBuilder sb,
             final List<? extends LALScriptModel.FilterStatement> stmts,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
+            final ConsumerInfo parentInfo) {
         for (final LALScriptModel.FilterStatement stmt : stmts) {
             if (stmt instanceof LALScriptModel.SamplerBlock) {
-                // SamplerBlock appears in if-branches inside a sampler
-                generateSamplerSubConsumerInline(sb,
-                    (LALScriptModel.SamplerBlock) stmt,
-                    parentInfo, subCounter);
+                // SamplerBlock appears in if-branches inside a sampler,
+                // generate its contents inline
+                generateSamplerBody(sb,
+                    ((LALScriptModel.SamplerBlock) stmt).getContents(),
+                    parentInfo);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
                 generateSamplerIfBlock(sb, (LALScriptModel.IfBlock) stmt,
-                    parentInfo, subCounter);
+                    parentInfo);
             }
         }
-    }
-
-    private void generateSamplerSubConsumerInline(
-            final StringBuilder sb,
-            final LALScriptModel.SamplerBlock block,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
-        // When a sampler block appears inside an if branch of a sampler,
-        // generate its contents inline
-        generateSamplerBody(sb, block.getContents(), parentInfo, subCounter);
     }
 
     private void generateRateLimitSubConsumer(
             final StringBuilder sb,
             final LALScriptModel.RateLimitBlock block,
-            final ConsumerInfo parentInfo,
-            final int[] subCounter) {
-        final int idx = subCounter[0]++;
+            final ConsumerInfo parentInfo) {
         final String body = "  _t.rpm(" + block.getRpm() + ");\n";
         final ConsumerInfo sub = new ConsumerInfo(body, RATE_LIMITING_SAMPLER);
-        parentInfo.subConsumers.add(sub);
-        sb.append("  ((").append(PACKAGE_PREFIX)
-          .append("BindingAware) this._sub").append(idx)
-          .append(").setBinding(this.binding);\n");
+        final String fieldName = parentInfo.nextSubFieldName(sub);
+        sb.append("  this.").append(fieldName)
+          .append(".setBinding(this.binding);\n");
 
         if (block.isIdInterpolated()) {
-            // Emit string concatenation for interpolated IDs
-            // e.g. "${log.service}:${parsed?.field}" →
-            //   "" + String.valueOf(binding.log().getService()) + ":" + String.valueOf(...)
             sb.append("  _t.rateLimit(\"\"");
             for (final LALScriptModel.InterpolationPart part : block.getIdParts()) {
                 sb.append(" + ");
@@ -673,11 +757,11 @@ public final class LALClassGenerator {
                     sb.append(")");
                 }
             }
-            sb.append(", this._sub").append(idx).append(");\n");
+            sb.append(", this.").append(fieldName).append(");\n");
         } else {
             sb.append("  _t.rateLimit(\"")
-              .append(escapeJava(block.getId())).append("\", this._sub")
-              .append(idx).append(");\n");
+              .append(escapeJava(block.getId())).append("\", this.")
+              .append(fieldName).append(");\n");
         }
     }
 
@@ -712,7 +796,23 @@ public final class LALClassGenerator {
     // ==================== Phase 2: Compile consumer classes ====================
 
     private Object compileConsumerClass(final String className,
-                                         final ConsumerInfo info) throws Exception {
+                                         final ConsumerInfo info,
+                                         final List<CtClass> pendingDetach) throws Exception {
+        // Pre-compile sub-consumers so their types are available in ClassPool
+        final List<Object> subInstances = new ArrayList<>();
+        final List<String> subClassNames = new ArrayList<>();
+        final java.util.Map<String, Integer> subNameCounts = new java.util.HashMap<>();
+        for (int i = 0; i < info.subConsumers.size(); i++) {
+            final String subLabel = info.subConsumers.get(i).label();
+            final int cnt = subNameCounts.getOrDefault(subLabel, 0);
+            subNameCounts.put(subLabel, cnt + 1);
+            final String subSuffix = cnt == 0 ? subLabel : subLabel + "_" + (cnt + 1);
+            final String subName = dedupClassName(className + "$" + subSuffix);
+            subClassNames.add(subName);
+            subInstances.add(compileConsumerClass(
+                subName, info.subConsumers.get(i), pendingDetach));
+        }
+
         final CtClass ctClass = classPool.makeClass(className);
         ctClass.addInterface(classPool.get("java.util.function.Consumer"));
         ctClass.addInterface(classPool.get(
@@ -729,10 +829,11 @@ public final class LALClassGenerator {
             "public " + BINDING + " getBinding() {"
             + " return this.binding; }", ctClass));
 
-        // Add sub-consumer fields
+        // Add sub-consumer fields with actual types
         for (int i = 0; i < info.subConsumers.size(); i++) {
             ctClass.addField(CtField.make(
-                "public java.util.function.Consumer _sub" + i + ";",
+                "public " + subClassNames.get(i) + " "
+                    + info.subFieldNames.get(i) + ";",
                 ctClass));
         }
 
@@ -749,16 +850,15 @@ public final class LALClassGenerator {
 
         ctClass.addMethod(CtNewMethod.make(method, ctClass));
 
+        writeClassFile(ctClass);
+
         final Class<?> clazz = ctClass.toClass(LalExpressionPackageHolder.class);
-        ctClass.detach();
+        pendingDetach.add(ctClass);
         final Object instance = clazz.getDeclaredConstructor().newInstance();
 
-        // Compile and wire sub-consumers
-        for (int i = 0; i < info.subConsumers.size(); i++) {
-            final String subName = className + "_S" + i;
-            final Object subInstance = compileConsumerClass(
-                subName, info.subConsumers.get(i));
-            clazz.getField("_sub" + i).set(instance, subInstance);
+        // Wire pre-compiled sub-consumer fields
+        for (int i = 0; i < subInstances.size(); i++) {
+            clazz.getField(info.subFieldNames.get(i)).set(instance, subInstances.get(i));
         }
 
         return instance;
@@ -767,14 +867,15 @@ public final class LALClassGenerator {
     // ==================== Phase 4: Generate execute method ====================
 
     private String generateExecuteMethod(final LALScriptModel model,
-                                          final int[] counter) {
+                                          final int[] counter,
+                                          final List<String> fieldNames) {
         final StringBuilder sb = new StringBuilder();
         sb.append("public void execute(").append(FILTER_SPEC)
           .append(" filterSpec, ").append(BINDING).append(" binding) {\n");
 
         for (final LALScriptModel.FilterStatement stmt
                 : model.getStatements()) {
-            generateFilterStatement(sb, stmt, counter);
+            generateFilterStatement(sb, stmt, counter, fieldNames);
         }
 
         sb.append("}\n");
@@ -783,68 +884,71 @@ public final class LALClassGenerator {
 
     private void generateFilterStatement(final StringBuilder sb,
                                           final LALScriptModel.FilterStatement stmt,
-                                          final int[] counter) {
+                                          final int[] counter,
+                                          final List<String> fieldNames) {
         if (stmt instanceof LALScriptModel.TextParser) {
             final LALScriptModel.TextParser tp = (LALScriptModel.TextParser) stmt;
             if (tp.getRegexpPattern() != null) {
-                emitConsumerCall(sb, "filterSpec.text", counter);
+                emitConsumerCall(sb, "filterSpec.text", counter, fieldNames);
             } else {
                 sb.append("  filterSpec.text();\n");
             }
         } else if (stmt instanceof LALScriptModel.JsonParser) {
             if (((LALScriptModel.JsonParser) stmt).isAbortOnFailure()) {
-                emitConsumerCall(sb, "filterSpec.json", counter);
+                emitConsumerCall(sb, "filterSpec.json", counter, fieldNames);
             } else {
                 sb.append("  filterSpec.json();\n");
             }
         } else if (stmt instanceof LALScriptModel.YamlParser) {
             if (((LALScriptModel.YamlParser) stmt).isAbortOnFailure()) {
-                emitConsumerCall(sb, "filterSpec.yaml", counter);
+                emitConsumerCall(sb, "filterSpec.yaml", counter, fieldNames);
             } else {
                 sb.append("  filterSpec.yaml();\n");
             }
         } else if (stmt instanceof LALScriptModel.AbortStatement) {
             sb.append("  filterSpec.abort();\n");
         } else if (stmt instanceof LALScriptModel.ExtractorBlock) {
-            emitConsumerCall(sb, "filterSpec.extractor", counter);
+            emitConsumerCall(sb, "filterSpec.extractor", counter, fieldNames);
         } else if (stmt instanceof LALScriptModel.SinkBlock) {
             final LALScriptModel.SinkBlock sink = (LALScriptModel.SinkBlock) stmt;
             if (sink.getStatements().isEmpty()) {
                 sb.append("  filterSpec.sink();\n");
             } else {
-                emitConsumerCall(sb, "filterSpec.sink", counter);
+                emitConsumerCall(sb, "filterSpec.sink", counter, fieldNames);
             }
         } else if (stmt instanceof LALScriptModel.IfBlock) {
-            generateIfBlock(sb, (LALScriptModel.IfBlock) stmt, counter);
+            generateIfBlock(sb, (LALScriptModel.IfBlock) stmt,
+                counter, fieldNames);
         }
     }
 
     private void emitConsumerCall(final StringBuilder sb,
                                    final String methodPrefix,
-                                   final int[] counter) {
-        final int idx = counter[0]++;
-        sb.append("  ((")
-          .append(PACKAGE_PREFIX).append("BindingAware) this._consumer")
-          .append(idx).append(").setBinding(binding);\n");
+                                   final int[] counter,
+                                   final List<String> fieldNames) {
+        final String fieldName = fieldNames.get(counter[0]++);
+        sb.append("  this.").append(fieldName)
+          .append(".setBinding(binding);\n");
         sb.append("  ").append(methodPrefix)
-          .append("(this._consumer").append(idx).append(");\n");
+          .append("(this.").append(fieldName).append(");\n");
     }
 
     private void generateIfBlock(final StringBuilder sb,
                                   final LALScriptModel.IfBlock ifBlock,
-                                  final int[] counter) {
+                                  final int[] counter,
+                                  final List<String> fieldNames) {
         sb.append("  if (");
         generateCondition(sb, ifBlock.getCondition());
         sb.append(") {\n");
         for (final LALScriptModel.FilterStatement s : ifBlock.getThenBranch()) {
-            generateFilterStatement(sb, s, counter);
+            generateFilterStatement(sb, s, counter, fieldNames);
         }
         sb.append("  }\n");
         if (!ifBlock.getElseBranch().isEmpty()) {
             sb.append("  else {\n");
             for (final LALScriptModel.FilterStatement s
                     : ifBlock.getElseBranch()) {
-                generateFilterStatement(sb, s, counter);
+                generateFilterStatement(sb, s, counter, fieldNames);
             }
             sb.append("  }\n");
         }
@@ -860,9 +964,7 @@ public final class LALClassGenerator {
             + "    return ((" + BINDING_PARSED + ") obj).getAt(key);"
             + "  if (obj instanceof java.util.Map)"
             + "    return ((java.util.Map) obj).get(key);"
-            + "  Object protoResult = " + BINDING_PARSED + ".getField(obj, key);"
-            + "  if (protoResult != null) return protoResult;"
-            + "  return null;"
+            + "  return " + BINDING_PARSED + ".getField(obj, key);"
             + "}", ctClass));
 
         ctClass.addMethod(CtNewMethod.make(
@@ -1229,7 +1331,19 @@ public final class LALClassGenerator {
      */
     public String generateSource(final String dsl) {
         final LALScriptModel model = LALScriptParser.parse(dsl);
+        final List<ConsumerInfo> consumers = new ArrayList<>();
+        collectConsumers(model.getStatements(), consumers);
+        // Build field names for source generation
+        final List<String> fieldNames = new ArrayList<>();
+        final java.util.Map<String, Integer> nameCounts = new java.util.HashMap<>();
+        for (final ConsumerInfo ci : consumers) {
+            final String label = ci.label();
+            final int count = nameCounts.getOrDefault(label, 0);
+            nameCounts.put(label, count + 1);
+            final String suffix = count == 0 ? label : label + "_" + (count + 1);
+            fieldNames.add("_" + suffix);
+        }
         final int[] counter = {0};
-        return generateExecuteMethod(model, counter);
+        return generateExecuteMethod(model, counter, fieldNames);
     }
 }

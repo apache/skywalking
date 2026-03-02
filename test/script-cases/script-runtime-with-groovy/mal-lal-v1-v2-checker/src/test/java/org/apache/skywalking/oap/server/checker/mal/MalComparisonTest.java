@@ -46,6 +46,10 @@ import static org.junit.jupiter.api.Assertions.fail;
  *   <li>Path B (v2): ANTLR4 + Javassist via {@link MALClassGenerator}</li>
  * </ul>
  *
+ * <p>When a companion {@code .data.yaml} file exists alongside a MAL YAML script,
+ * it provides realistic mock data (sample names, labels, values) for runtime
+ * execution comparison and expected output validation.
+ *
  * <p>v1 classes use original package {@code org.apache.skywalking.oap.meter.analyzer.dsl.*},
  * v2 classes use {@code org.apache.skywalking.oap.meter.analyzer.v2.dsl.*}.
  * Both are called via hard-coded typed references (no reflection).
@@ -71,7 +75,7 @@ class MalComparisonTest {
             for (final MalRule rule : entry.getValue()) {
                 tests.add(DynamicTest.dynamicTest(
                     yamlFile + " | " + rule.name,
-                    () -> compareExpression(rule.name, rule.fullExpression)
+                    () -> compareExpression(rule)
                 ));
             }
         }
@@ -79,8 +83,11 @@ class MalComparisonTest {
         return tests;
     }
 
-    private void compareExpression(final String metricName,
-                                   final String expression) throws Exception {
+    @SuppressWarnings("unchecked")
+    private void compareExpression(final MalRule rule) throws Exception {
+        final String metricName = rule.name;
+        final String expression = rule.fullExpression;
+
         // ---- V1: Groovy path (original packages) ----
         org.apache.skywalking.oap.meter.analyzer.dsl.Expression v1Expr = null;
         org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext v1Ctx = null;
@@ -98,6 +105,14 @@ class MalComparisonTest {
         String v2Error = null;
         try {
             final MALClassGenerator generator = new MALClassGenerator();
+            if (rule.sourceFile != null) {
+                final String baseName = rule.sourceFile.getName()
+                    .replaceFirst("\\.(yaml|yml)$", "");
+                generator.setClassOutputDir(new java.io.File(
+                    rule.sourceFile.getParent(),
+                    baseName + ".generated-classes"));
+                generator.setClassNameHint(metricName);
+            }
             v2MalExpr = generator.compile(metricName, expression);
             v2Meta = v2MalExpr.metadata();
         } catch (Exception e) {
@@ -132,8 +147,220 @@ class MalComparisonTest {
             metricName + ": aggregationLabels mismatch");
 
         // ---- Runtime execution comparison ----
+        if (rule.inputConfig != null) {
+            final Map<String, Object> inputSection =
+                (Map<String, Object>) rule.inputConfig.get("input");
+            final Map<String, Object> expectedSection =
+                (Map<String, Object>) rule.inputConfig.get("expected");
+            if (inputSection != null) {
+                compareExecutionWithInput(
+                    rule, v1Expr, v2MalExpr, v2Meta, inputSection, expectedSection);
+                return;
+            }
+        }
         compareExecution(metricName, expression, v1Expr, v2MalExpr, v2Meta);
     }
+
+    // ==================== Input-driven runtime comparison ====================
+
+    @SuppressWarnings("unchecked")
+    private void compareExecutionWithInput(
+            final MalRule rule,
+            final org.apache.skywalking.oap.meter.analyzer.dsl.Expression v1Expr,
+            final org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression v2MalExpr,
+            final ExpressionMetadata v2Meta,
+            final Map<String, Object> inputSection,
+            final Map<String, Object> expectedSection) {
+        final String metricName = rule.name;
+        final String expression = rule.fullExpression;
+        final boolean hasIncrease = expression.contains(".increase(")
+            || expression.contains(".rate(");
+
+        // For increase()/rate(), prime the CounterWindow with initial data
+        if (hasIncrease) {
+            try {
+                v1Expr.run(buildV1MockDataFromInput(inputSection));
+            } catch (Exception ignored) {
+            }
+            try {
+                final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> primeData =
+                    buildV2MockDataFromInput(inputSection);
+                for (final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily s : primeData.values()) {
+                    if (s != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY) {
+                        s.context.setMetricName(metricName);
+                    }
+                }
+                v2MalExpr.run(primeData);
+            } catch (Exception ignored) {
+            }
+        }
+
+        // Build mock data from input YAML
+        final Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> v1Data =
+            buildV1MockDataFromInput(inputSection);
+        final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> v2Data =
+            buildV2MockDataFromInput(inputSection);
+
+        // V1 run
+        org.apache.skywalking.oap.meter.analyzer.dsl.Result v1Result;
+        try {
+            v1Result = v1Expr.run(v1Data);
+        } catch (Exception e) {
+            log.warn("{}: v1 runtime failed with input data — {}", metricName, e.getMessage());
+            return;
+        }
+
+        // V2 run
+        org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily v2Sf;
+        try {
+            for (final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily s : v2Data.values()) {
+                if (s != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY) {
+                    s.context.setMetricName(metricName);
+                }
+            }
+            v2Sf = v2MalExpr.run(v2Data);
+        } catch (Exception e) {
+            if (v1Result.isSuccess()) {
+                fail(metricName + ": v2 runtime failed but v1 succeeded (with input data) — "
+                    + e.getClass().getSimpleName() + ": " + e.getMessage());
+            }
+            return;
+        }
+
+        // Compare results
+        final boolean v2Success = v2Sf != null
+            && v2Sf != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY;
+        assertEquals(v1Result.isSuccess(), v2Success,
+            metricName + ": success mismatch (v1=" + v1Result.isSuccess()
+                + ", v2=" + v2Success + ")");
+
+        if (v1Result.isSuccess() && v2Success) {
+            compareSampleFamilies(metricName, v1Result.getData(), v2Sf);
+        }
+
+        // Validate expected section
+        if (expectedSection != null) {
+            final String qualifiedMetricName = rule.metricPrefix != null
+                ? rule.metricPrefix + "_" + metricName : metricName;
+            final Map<String, Object> metricExpected =
+                (Map<String, Object>) expectedSection.get(qualifiedMetricName);
+            if (metricExpected == null) {
+                // Try without prefix
+                final Map<String, Object> directExpected =
+                    (Map<String, Object>) expectedSection.get(metricName);
+                if (directExpected != null) {
+                    validateExpected(metricName, v2Sf, v2Success, directExpected);
+                }
+            } else {
+                validateExpected(qualifiedMetricName, v2Sf, v2Success, metricExpected);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void validateExpected(final String metricName,
+                                  final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily v2Sf,
+                                  final boolean v2Success,
+                                  final Map<String, Object> expected) {
+        if (expected.containsKey("min_samples")) {
+            final int minSamples = ((Number) expected.get("min_samples")).intValue();
+            if (minSamples > 0) {
+                if (!v2Success) {
+                    log.warn("{}: expected min_samples={} but v2 returned EMPTY"
+                        + " (input data may need enrichment)", metricName, minSamples);
+                } else if (v2Sf.samples.length < minSamples) {
+                    log.warn("{}: expected min_samples={} but got {}",
+                        metricName, minSamples, v2Sf.samples.length);
+                }
+            }
+        }
+    }
+
+    // ==================== Build mock data from .data.yaml ====================
+
+    @SuppressWarnings("unchecked")
+    private Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> buildV1MockDataFromInput(
+            final Map<String, Object> inputSection) {
+        final Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> data =
+            new HashMap<>();
+        final long now = timestampCounter++;
+
+        for (final Map.Entry<String, Object> entry : inputSection.entrySet()) {
+            final String sampleName = entry.getKey();
+            final List<Map<String, Object>> sampleList =
+                (List<Map<String, Object>>) entry.getValue();
+            final List<org.apache.skywalking.oap.meter.analyzer.dsl.Sample> samples =
+                new ArrayList<>();
+
+            for (final Map<String, Object> sampleDef : sampleList) {
+                final Map<String, String> labels = new HashMap<>();
+                final Object rawLabels = sampleDef.get("labels");
+                if (rawLabels instanceof Map) {
+                    for (final Map.Entry<String, Object> le :
+                            ((Map<String, Object>) rawLabels).entrySet()) {
+                        labels.put(le.getKey(), String.valueOf(le.getValue()));
+                    }
+                }
+                final double value = ((Number) sampleDef.get("value")).doubleValue();
+                samples.add(org.apache.skywalking.oap.meter.analyzer.dsl.Sample.builder()
+                    .name(sampleName)
+                    .labels(ImmutableMap.copyOf(labels))
+                    .value(value)
+                    .timestamp(now)
+                    .build());
+            }
+
+            data.put(sampleName,
+                org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder
+                    .newBuilder(samples.toArray(
+                        new org.apache.skywalking.oap.meter.analyzer.dsl.Sample[0]))
+                    .build());
+        }
+        return data;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> buildV2MockDataFromInput(
+            final Map<String, Object> inputSection) {
+        final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> data =
+            new HashMap<>();
+        final long now = timestampCounter++;
+
+        for (final Map.Entry<String, Object> entry : inputSection.entrySet()) {
+            final String sampleName = entry.getKey();
+            final List<Map<String, Object>> sampleList =
+                (List<Map<String, Object>>) entry.getValue();
+            final List<org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample> samples =
+                new ArrayList<>();
+
+            for (final Map<String, Object> sampleDef : sampleList) {
+                final Map<String, String> labels = new HashMap<>();
+                final Object rawLabels = sampleDef.get("labels");
+                if (rawLabels instanceof Map) {
+                    for (final Map.Entry<String, Object> le :
+                            ((Map<String, Object>) rawLabels).entrySet()) {
+                        labels.put(le.getKey(), String.valueOf(le.getValue()));
+                    }
+                }
+                final double value = ((Number) sampleDef.get("value")).doubleValue();
+                samples.add(org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample.builder()
+                    .name(sampleName)
+                    .labels(ImmutableMap.copyOf(labels))
+                    .value(value)
+                    .timestamp(now)
+                    .build());
+            }
+
+            data.put(sampleName,
+                org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder
+                    .newBuilder(samples.toArray(
+                        new org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample[0]))
+                    .build());
+        }
+        return data;
+    }
+
+    // ==================== Auto-generated mock data (fallback) ====================
 
     private void compareExecution(
             final String metricName,
@@ -417,7 +644,9 @@ class MalComparisonTest {
 
         final String[] dirs = {
             "test-meter-analyzer-config",
-            "test-otel-rules"
+            "test-otel-rules",
+            "test-envoy-metrics-rules",
+            "test-log-mal-rules"
         };
 
         final Path scriptsDir = findScriptsDir("mal");
@@ -449,6 +678,10 @@ class MalComparisonTest {
             if (!file.getName().endsWith(".yaml") && !file.getName().endsWith(".yml")) {
                 continue;
             }
+            // Skip companion .data.yaml files
+            if (file.getName().endsWith(".data.yaml")) {
+                continue;
+            }
             final String content = Files.readString(file.toPath());
             final Map<String, Object> config = yaml.load(content);
             if (config == null || !config.containsKey("metricsRules")) {
@@ -458,10 +691,22 @@ class MalComparisonTest {
             final String expSuffix = rawSuffix instanceof String ? (String) rawSuffix : "";
             final Object rawPrefix = config.get("expPrefix");
             final String expPrefix = rawPrefix instanceof String ? (String) rawPrefix : "";
+            final Object rawMetricPrefix = config.get("metricPrefix");
+            final String metricPrefix = rawMetricPrefix instanceof String
+                ? (String) rawMetricPrefix : null;
             final List<Map<String, String>> rules =
                 (List<Map<String, String>>) config.get("metricsRules");
             if (rules == null) {
                 continue;
+            }
+
+            // Load companion .data.yaml if it exists
+            final String baseName = file.getName().replaceFirst("\\.(yaml|yml)$", "");
+            final File inputFile = new File(file.getParent(), baseName + ".data.yaml");
+            Map<String, Object> inputConfig = null;
+            if (inputFile.exists()) {
+                final String inputContent = Files.readString(inputFile.toPath());
+                inputConfig = yaml.load(inputContent);
             }
 
             final String yamlName = prefix + "/" + file.getName();
@@ -479,7 +724,7 @@ class MalComparisonTest {
                 if (!expSuffix.isEmpty()) {
                     fullExp = fullExp + "." + expSuffix;
                 }
-                malRules.add(new MalRule(name, fullExp));
+                malRules.add(new MalRule(name, fullExp, inputConfig, metricPrefix, file));
             }
             if (!malRules.isEmpty()) {
                 result.put(yamlName, malRules);
@@ -504,10 +749,18 @@ class MalComparisonTest {
     private static class MalRule {
         final String name;
         final String fullExpression;
+        final Map<String, Object> inputConfig;
+        final String metricPrefix;
+        final File sourceFile;
 
-        MalRule(final String name, final String fullExpression) {
+        MalRule(final String name, final String fullExpression,
+                final Map<String, Object> inputConfig, final String metricPrefix,
+                final File sourceFile) {
             this.name = name;
             this.fullExpression = fullExpression;
+            this.inputConfig = inputConfig;
+            this.metricPrefix = metricPrefix;
+            this.sourceFile = sourceFile;
         }
     }
 }

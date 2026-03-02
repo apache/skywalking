@@ -1,0 +1,125 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  mongodb_ss_uptime:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+  mongodb_dbstats_dataSize:
+    - labels:
+        cluster: test-cluster
+        rs_nm: test-value
+        database: test-value
+        service_instance_id: test-instance
+        set: test-value
+      value: 100.0
+  mongodb_dbstats_collections:
+    - labels:
+        cluster: test-cluster
+        rs_nm: test-value
+        database: test-value
+        service_instance_id: test-instance
+        set: test-value
+      value: 100.0
+  mongodb_dbstats_objects:
+    - labels:
+        cluster: test-cluster
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+  mongodb_ss_metrics_document:
+    - labels:
+        cluster: test-cluster
+        doc_op_type: test-value
+        service_instance_id: test-instance
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+  mongodb_ss_opcounters:
+    - labels:
+        cluster: test-cluster
+        legacy_op_type: test-value
+        service_instance_id: test-instance
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+  mongodb_ss_connections:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+  mongodb_ss_metrics_cursor_open:
+    - labels:
+        cluster: test-cluster
+        csr_type: test-value
+        service_instance_id: test-instance
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+  mongodb_mongod_replset_member_replication_lag:
+    - labels:
+        cluster: test-cluster
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+  mongodb_dbstats_indexSize:
+    - labels:
+        cluster: test-cluster
+        database: test-value
+        service_instance_id: test-instance
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+  mongodb_dbstats_indexes:
+    - labels:
+        cluster: test-cluster
+        database: test-value
+        service_instance_id: test-instance
+        rs_nm: test-value
+        set: test-value
+      value: 100.0
+expected:
+  uptime:
+    min_samples: 1
+  data_size:
+    min_samples: 1
+  collection_count:
+    min_samples: 1
+  object_count:
+    min_samples: 1
+  document_avg_qps:
+    min_samples: 1
+  operation_avg_qps:
+    min_samples: 1
+  connections:
+    min_samples: 1
+  cursor_avg:
+    min_samples: 1
+  repl_lag:
+    min_samples: 1
+  db_data_size:
+    min_samples: 1
+  db_index_size:
+    min_samples: 1
+  db_collection_count:
+    min_samples: 1
+  db_index_count:
+    min_samples: 1

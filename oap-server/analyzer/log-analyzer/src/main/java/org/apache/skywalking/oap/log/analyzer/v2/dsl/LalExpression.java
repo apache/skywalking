@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
  * Functional interface implemented by each compiled LAL class.
  *
  * <p>Generated at startup by
- * {@link org.apache.skywalking.oap.log.analyzer.compiler.LALClassGenerator}
+ * {@link org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator}
  * via ANTLR4 parsing and Javassist bytecode generation.
  * The generated {@code execute} method calls {@link FilterSpec} methods
  * (json/text/yaml, extractor, sink) in the order defined by the LAL script.

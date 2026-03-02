@@ -33,3 +33,6 @@ oap-server/server-starter/src/main/resources/version.properties
 # Benchmark reports and downloaded tools
 benchmarks/reports/
 benchmarks/.istio/
+
+# Generated .class files from v2 compiler (created during v1-v2 checker tests)
+test/script-cases/scripts/**/*.generated-classes/

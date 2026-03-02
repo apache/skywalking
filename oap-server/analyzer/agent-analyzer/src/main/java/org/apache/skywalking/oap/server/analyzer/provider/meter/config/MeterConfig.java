@@ -32,7 +32,6 @@ public class MeterConfig implements MetricRuleConfig {
     private String expPrefix;
     private String filter;
     private List<Rule> metricsRules;
-    private String initExp;
 
     @Data
     @NoArgsConstructor

@@ -13,4 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Refer to examples in config-examples/log-mal.yaml
+input:
+  tags:
+    - labels:
+        service: test-service
+      value: 100.0
+expected:
+  http_requests:
+    min_samples: 1
+  http_latency:
+    min_samples: 1
+  http_bandwidth:
+    min_samples: 1
+  http_connections:
+    min_samples: 1
+  http_status:
+    min_samples: 1
+  http_requests_increment:
+    min_samples: 1
+  http_4xx_requests_increment:
+    min_samples: 1
+  http_5xx_requests_increment:
+    min_samples: 1

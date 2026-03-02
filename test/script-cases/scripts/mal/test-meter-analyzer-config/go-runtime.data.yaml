@@ -1,0 +1,238 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  instance_golang_heap_alloc:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_stack_used:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_pause_time:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_count:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_os_threads_num:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_live_goroutines_num:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_host_cpu_used_rate:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_host_mem_used_rate:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_heap_alloc_size:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_count_labeled:
+    - labels:
+        service: test-service
+        instance: test-instance
+        type: cds
+      value: 100.0
+  instance_golang_heap_alloc_objects:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_heap_frees:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_heap_frees_objects:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_memory_heap_labeled:
+    - labels:
+        service: test-service
+        instance: test-instance
+        type: cds
+      value: 100.0
+  instance_golang_metadata_mcache_labeled:
+    - labels:
+        service: test-service
+        instance: test-instance
+        type: cds
+      value: 100.0
+  instance_golang_metadata_mspan_labeled:
+    - labels:
+        service: test-service
+        instance: test-instance
+        type: cds
+      value: 100.0
+  instance_golang_cgo_calls:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_heap_goal:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_heap_objects:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_heap_tiny_allocs:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_limiter_last_enabled:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_stack_starting_size:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_memory_metadata_other:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_memory_os_stacks:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_memory_other:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_memory_profiling_buckets:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_memory_total:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_heap_allocs_by_size:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_heap_frees_by_size:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_gc_pauses:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  instance_golang_sched_latencies:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+expected:
+  instance_golang_heap_alloc:
+    min_samples: 1
+  instance_golang_stack_used:
+    min_samples: 1
+  instance_golang_gc_pause_time:
+    min_samples: 1
+  instance_golang_gc_count:
+    min_samples: 1
+  instance_golang_os_threads_num:
+    min_samples: 1
+  instance_golang_live_goroutines_num:
+    min_samples: 1
+  instance_host_cpu_used_rate:
+    min_samples: 1
+  instance_host_mem_used_rate:
+    min_samples: 1
+  instance_golang_heap_alloc_rate:
+    min_samples: 1
+  instance_golang_gc_count_labeled:
+    min_samples: 1
+  instance_golang_heap_alloc_objects:
+    min_samples: 1
+  instance_golang_heap_frees:
+    min_samples: 1
+  instance_golang_heap_frees_objects:
+    min_samples: 1
+  instance_golang_memory_heap_labeled:
+    min_samples: 1
+  instance_golang_metadata_mcache_labeled:
+    min_samples: 1
+  instance_golang_metadata_mspan_labeled:
+    min_samples: 1
+  instance_golang_cgo_calls:
+    min_samples: 1
+  instance_golang_gc_heap_goal:
+    min_samples: 1
+  instance_golang_gc_heap_objects:
+    min_samples: 1
+  instance_golang_gc_heap_tiny_allocs:
+    min_samples: 1
+  instance_golang_gc_limiter_last_enabled:
+    min_samples: 1
+  instance_golang_gc_stack_starting_size:
+    min_samples: 1
+  instance_golang_memory_metadata_other:
+    min_samples: 1
+  instance_golang_memory_os_stacks:
+    min_samples: 1
+  instance_golang_memory_other:
+    min_samples: 1
+  instance_golang_memory_profiling_buckets:
+    min_samples: 1
+  instance_golang_memory_total:
+    min_samples: 1
+  instance_golang_gc_heap_allocs_by_size:
+    min_samples: 1
+  instance_golang_gc_heap_frees_by_size:
+    min_samples: 1
+  instance_golang_gc_pauses:
+    min_samples: 1
+  instance_golang_sched_latencies:
+    min_samples: 1

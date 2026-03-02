@@ -1,0 +1,141 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  rabbitmq_queue_messages_ready:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_received_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_channels:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_channel_consumers:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_connections:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queues:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queue_messages_unacked:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_redelivered_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_delivered_consume_auto_ack_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_delivered_consume_manual_ack_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_delivered_get_auto_ack_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_delivered_get_manual_ack_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_consumers:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  erlang_vm_allocators:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+      value: 100.0
+  tags:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  rabbitmq_process_resident_memory_bytes:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+expected:
+  queue_messages_ready:
+    min_samples: 1
+  incoming_messages:
+    min_samples: 1
+  publisher_total:
+    min_samples: 1
+  connections_total:
+    min_samples: 1
+  queue_total:
+    min_samples: 1
+  unacknowledged_messages:
+    min_samples: 1
+  outgoing_messages_total:
+    min_samples: 1
+  consumer_total:
+    min_samples: 1
+  channel_total:
+    min_samples: 1
+  allocated_used_percent:
+    min_samples: 1
+  allocated_unused_percent:
+    min_samples: 1
+  allocated_used_bytes:
+    min_samples: 1
+  allocated_unused_bytes:
+    min_samples: 1
+  allocated_total_bytes:
+    min_samples: 1
+  process_resident_memory_bytes:
+    min_samples: 1
+  allocated_by_type:
+    min_samples: 1
+  allocated_multiblock_used:
+    min_samples: 1
+  allocated_multiblock_unused:
+    min_samples: 1
+  allocated_multiblock_pool_used:
+    min_samples: 1
+  allocated_multiblock_pool_unused:
+    min_samples: 1
+  allocated_singleblock_used:
+    min_samples: 1
+  allocated_singleblock_unused:
+    min_samples: 1

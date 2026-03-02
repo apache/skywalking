@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
  * <p>Two-phase usage:
  * <ul>
  *   <li>{@link #parse()} — returns compile-time {@link ExpressionMetadata} extracted from the AST.
- *       Called once at startup by {@link org.apache.skywalking.oap.meter.analyzer.Analyzer#build}
+ *       Called once at startup by {@link org.apache.skywalking.oap.meter.analyzer.v2.Analyzer#build}
  *       to discover sample names, scope type, aggregation labels, and metric type.</li>
  *   <li>{@link #run(Map)} — executes the compiled expression on actual sample data.
  *       Called at every ingestion cycle. Pure computation, no side effects.</li>

@@ -1,0 +1,186 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  bookkeeper_server_thread_executor_completed:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  bookkeeper_server_thread_executor_tasks_completed:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  bookkeeper_server_thread_executor_tasks_rejected:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  bookkeeper_server_thread_executor_tasks_failed:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  bookkeeper_server_BookieHighPriorityThread_threads:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  bookkeeper_server_BookieReadThreadPool_threads:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  bookkeeper_server_BookieHighPriorityThread_max_queue_size:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  bookkeeper_server_BookieReadThreadPool_max_queue_size:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  jvm_memory_bytes_used:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  jvm_memory_bytes_committed:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  jvm_memory_bytes_init:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  jvm_memory_pool_bytes_used:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        pool: PS_Eden_Space
+      value: 100.0
+  jvm_memory_pool_bytes_committed:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        pool: PS_Eden_Space
+      value: 100.0
+  jvm_memory_pool_bytes_init:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        pool: PS_Eden_Space
+      value: 100.0
+  jvm_buffer_pool_used_bytes:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        pool: PS_Eden_Space
+      value: 100.0
+  jvm_buffer_pool_capacity_bytes:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        pool: PS_Eden_Space
+      value: 100.0
+  jvm_buffer_pool_used_buffers:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        pool: PS_Eden_Space
+      value: 100.0
+  jvm_gc_collection_seconds_count:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        gc: PS Scavenge
+      value: 100.0
+  jvm_gc_collection_seconds_sum:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        gc: PS Scavenge
+      value: 100.0
+  jvm_threads_current:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  jvm_threads_daemon:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  jvm_threads_peak:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  jvm_threads_deadlocked:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+expected:
+  thread_executor_completed:
+    min_samples: 1
+  thread_executor_tasks_completed:
+    min_samples: 1
+  thread_executor_tasks_rejected:
+    min_samples: 1
+  thread_executor_tasks_failed:
+    min_samples: 1
+  high_priority_threads:
+    min_samples: 1
+  read_thread_pool_threads:
+    min_samples: 1
+  high_priority_thread_max_queue_size:
+    min_samples: 1
+  read_thread_pool_max_queue_size:
+    min_samples: 1
+  jvm_memory_used:
+    min_samples: 1
+  jvm_memory_committed:
+    min_samples: 1
+  jvm_memory_init:
+    min_samples: 1
+  jvm_memory_pool_used:
+    min_samples: 1
+  jvm_memory_pool_committed:
+    min_samples: 1
+  jvm_memory_pool_init:
+    min_samples: 1
+  jvm_buffer_pool_used_bytes:
+    min_samples: 1
+  jvm_buffer_pool_capacity_bytes:
+    min_samples: 1
+  jvm_buffer_pool_used_buffers:
+    min_samples: 1
+  jvm_gc_collection_seconds_count:
+    min_samples: 1
+  jvm_gc_collection_seconds_sum:
+    min_samples: 1
+  jvm_threads_current:
+    min_samples: 1
+  jvm_threads_daemon:
+    min_samples: 1
+  jvm_threads_peak:
+    min_samples: 1
+  jvm_threads_deadlocked:
+    min_samples: 1

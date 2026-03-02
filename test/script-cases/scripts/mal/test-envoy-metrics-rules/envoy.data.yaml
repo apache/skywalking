@@ -1,0 +1,96 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  server_memory_heap_size:
+    - labels:
+        app: test-app
+        instance: test-instance
+      value: 100.0
+  server_memory_allocated:
+    - labels:
+        app: test-app
+        instance: test-instance
+      value: 100.0
+  server_memory_physical_size:
+    - labels:
+        app: test-app
+        instance: test-instance
+      value: 100.0
+  server_total_connections:
+    - labels:
+        app: test-app
+        instance: test-instance
+      value: 100.0
+  server_parent_connections:
+    - labels:
+        app: test-app
+        instance: test-instance
+      value: 100.0
+  server_concurrency:
+    - labels:
+        app: test-app
+        instance: test-instance
+      value: 100.0
+  server_envoy_bug_failures:
+    - labels:
+        app: test-app
+        instance: test-instance
+      value: 100.0
+  envoy_cluster_metrics:
+    - labels:
+        app: test-app
+        instance: test-instance
+        cluster_name: test-cluster
+      value: 100.0
+expected:
+  heap_memory_used:
+    min_samples: 1
+  heap_memory_max_used:
+    min_samples: 1
+  memory_allocated:
+    min_samples: 1
+  memory_allocated_max:
+    min_samples: 1
+  memory_physical_size:
+    min_samples: 1
+  memory_physical_size_max:
+    min_samples: 1
+  total_connections_used:
+    min_samples: 1
+  parent_connections_used:
+    min_samples: 1
+  worker_threads:
+    min_samples: 1
+  worker_threads_max:
+    min_samples: 1
+  bug_failures:
+    min_samples: 1
+  cluster_membership_healthy:
+    min_samples: 1
+  cluster_up_cx_active:
+    min_samples: 1
+  cluster_up_cx_incr:
+    min_samples: 1
+  cluster_up_rq_active:
+    min_samples: 1
+  cluster_up_rq_incr:
+    min_samples: 1
+  cluster_up_rq_pending_active:
+    min_samples: 1
+  cluster_lb_healthy_panic_incr:
+    min_samples: 1
+  cluster_up_cx_none_healthy_incr:
+    min_samples: 1

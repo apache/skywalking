@@ -1,0 +1,131 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  org_apache_activemq_Broker_ProducerCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_ConsumerCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_QueueSize:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_MemoryUsageByteCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_MemoryPercentUsage:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_EnqueueCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_DequeueCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_AverageEnqueueTime:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_MaxEnqueueTime:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_DispatchCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_ExpiredCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_InFlightCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_AverageMessageSize:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_MaxMessageSize:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+expected:
+  producer_count:
+    min_samples: 1
+  consumer_count:
+    min_samples: 1
+  topic_consumer_count:
+    min_samples: 1
+  queue_size:
+    min_samples: 1
+  memory_usage:
+    min_samples: 1
+  memory_percent_usage:
+    min_samples: 1
+  enqueue_count:
+    min_samples: 1
+  dequeue_count:
+    min_samples: 1
+  average_enqueue_time:
+    min_samples: 1
+  max_enqueue_time:
+    min_samples: 1
+  dispatch_count:
+    min_samples: 1
+  expired_count:
+    min_samples: 1
+  inflight_count:
+    min_samples: 1
+  average_message_size:
+    min_samples: 1
+  max_message_size:
+    min_samples: 1

@@ -197,7 +197,7 @@ class MALClassGeneratorTest {
         assertNotNull(expr);
         final String source = generator.generateSource(
             "metric.tag({tags -> tags.cluster = 'activemq::' + tags.cluster})");
-        assertTrue(source.contains("this._closure0"),
+        assertTrue(source.contains("this._tag"),
             "Generated source should reference pre-compiled closure");
     }
 
@@ -399,4 +399,55 @@ class MALClassGeneratorTest {
         assertTrue(expr.metadata().getSamples().contains("metric"));
         assertTrue(expr.metadata().getSamples().size() == 1);
     }
+
+    @Test
+    void runMethodHasLocalVariableTable() throws Exception {
+        // Compile a class that writes its .class file for inspection
+        final java.io.File tmpDir = java.nio.file.Files.createTempDirectory("mal-lvt").toFile();
+        try {
+            final ClassPool pool = new ClassPool(true);
+            final MALClassGenerator gen = new MALClassGenerator(pool);
+            gen.setClassOutputDir(tmpDir);
+            final MalExpression expr = gen.compile(
+                "test_lvt", "instance_jvm_cpu.sum(['service', 'instance'])");
+            assertNotNull(expr);
+            // Read the .class file bytecode and verify LVT
+            final java.io.File[] classFiles = tmpDir.listFiles((d, n) -> n.endsWith(".class"));
+            assertNotNull(classFiles);
+            assertTrue(classFiles.length > 0, "Should have generated .class file");
+            // Use javassist to read back and check for LocalVariableTable
+            final javassist.bytecode.ClassFile cf =
+                new javassist.bytecode.ClassFile(
+                    new java.io.DataInputStream(
+                        new java.io.FileInputStream(classFiles[0])));
+            final javassist.bytecode.MethodInfo runMi = cf.getMethod("run");
+            assertNotNull(runMi, "Should have run() method");
+            final javassist.bytecode.CodeAttribute code = runMi.getCodeAttribute();
+            assertNotNull(code, "run() should have CodeAttribute");
+            final javassist.bytecode.LocalVariableAttribute lva =
+                (javassist.bytecode.LocalVariableAttribute)
+                    code.getAttribute(javassist.bytecode.LocalVariableAttribute.tag);
+            assertNotNull(lva, "run() should have LocalVariableTable attribute");
+            // Check that slot 1 has name "samples"
+            boolean foundSamples = false;
+            boolean foundSf = false;
+            for (int i = 0; i < lva.tableLength(); i++) {
+                final String name = lva.variableName(i);
+                if ("samples".equals(name)) {
+                    foundSamples = true;
+                }
+                if ("sf".equals(name)) {
+                    foundSf = true;
+                }
+            }
+            assertTrue(foundSamples, "LVT should contain 'samples'");
+            assertTrue(foundSf, "LVT should contain 'sf'");
+        } finally {
+            for (final java.io.File f : tmpDir.listFiles()) {
+                f.delete();
+            }
+            tmpDir.delete();
+        }
+    }
+
 }
