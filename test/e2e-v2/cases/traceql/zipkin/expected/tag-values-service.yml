@@ -14,7 +14,9 @@
 # limitations under the License.
 
 tagValues:
+  {{- contains .tagValues }}
   - type: string
     value: backend
   - type: string
     value: frontend
+  {{- end }}

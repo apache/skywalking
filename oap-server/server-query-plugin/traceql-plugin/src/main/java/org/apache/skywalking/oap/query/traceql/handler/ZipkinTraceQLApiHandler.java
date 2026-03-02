@@ -326,7 +326,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
      */
     private Long parseDurationToMicros(String durationStr) {
         if (durationStr == null || durationStr.isEmpty()) {
-            return null;
+            throw new IllegalArgumentException("Duration string cannot be null or empty");
         }
 
         try {
