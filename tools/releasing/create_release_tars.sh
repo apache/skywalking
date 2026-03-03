@@ -49,11 +49,11 @@ echo "Checking out the release branch ${RELEASE_VERSION}-release..."
 git checkout -b ${RELEASE_VERSION}-release
 
 log_file=$(mktemp)
-echo "Setting the release version ${RELEASE_VERSION} in pom.xml, log file: ${log_file}"
-${MVN} versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${RELEASE_VERSION} > ${log_file} 2>&1
+echo "Setting the release version ${RELEASE_VERSION} in all pom.xml files, log file: ${log_file}"
+${MVN} versions:set -DnewVersion=${RELEASE_VERSION} -DgenerateBackupPoms=false > ${log_file} 2>&1
 
 echo "Committing the pom.xml changes..."
-git add pom.xml
+git add -A '**/pom.xml' pom.xml
 git commit -m "Prepare for release ${RELEASE_VERSION}"
 
 echo "Creating the release tag ${TAG}..."

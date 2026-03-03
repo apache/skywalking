@@ -1027,7 +1027,8 @@ public final class MALClassGenerator {
 
     private static boolean allStringArgs(final List<MALExpressionModel.Argument> args) {
         for (final MALExpressionModel.Argument arg : args) {
-            if (!(arg instanceof MALExpressionModel.StringArgument)) {
+            if (!(arg instanceof MALExpressionModel.StringArgument)
+                    && !(arg instanceof MALExpressionModel.NullArgument)) {
                 return false;
             }
         }
@@ -1069,6 +1070,8 @@ public final class MALClassGenerator {
             sb.append(')');
         } else if (arg instanceof MALExpressionModel.BoolArgument) {
             sb.append(((MALExpressionModel.BoolArgument) arg).isValue());
+        } else if (arg instanceof MALExpressionModel.NullArgument) {
+            sb.append("null");
         } else if (arg instanceof MALExpressionModel.EnumRefArgument) {
             final MALExpressionModel.EnumRefArgument enumRef =
                 (MALExpressionModel.EnumRefArgument) arg;
@@ -1217,7 +1220,13 @@ public final class MALClassGenerator {
               .append(escapeJava(((MALExpressionModel.ClosureStringLiteral) expr).getValue()))
               .append('"');
         } else if (expr instanceof MALExpressionModel.ClosureNumberLiteral) {
-            sb.append(((MALExpressionModel.ClosureNumberLiteral) expr).getValue());
+            final double val =
+                ((MALExpressionModel.ClosureNumberLiteral) expr).getValue();
+            if (val == (int) val) {
+                sb.append((int) val);
+            } else {
+                sb.append(val);
+            }
         } else if (expr instanceof MALExpressionModel.ClosureBoolLiteral) {
             sb.append(((MALExpressionModel.ClosureBoolLiteral) expr).isValue());
         } else if (expr instanceof MALExpressionModel.ClosureNullLiteral) {
@@ -1297,6 +1306,50 @@ public final class MALClassGenerator {
             sb.append(RUNTIME_HELPER_FQCN).append(".regexMatch(String.valueOf(");
             generateClosureExpr(sb, rm.getTarget(), paramName, beanMode);
             sb.append("), \"").append(escapeJava(rm.getPattern())).append("\")");
+        } else if (expr instanceof MALExpressionModel.ClosureExprChain) {
+            final MALExpressionModel.ClosureExprChain chain =
+                (MALExpressionModel.ClosureExprChain) expr;
+            final StringBuilder local = new StringBuilder();
+            // Cast to String when the chain has method calls (e.g., .split(), .toString())
+            // so Javassist can resolve the method on the concrete type.
+            final boolean needsCast = chain.getSegments().stream()
+                .anyMatch(s -> s instanceof MALExpressionModel.ClosureMethodCallSeg);
+            if (needsCast) {
+                local.append("((String) ");
+            } else {
+                local.append("(");
+            }
+            generateClosureExpr(local, chain.getBase(), paramName, beanMode);
+            local.append(")");
+            for (final MALExpressionModel.ClosureChainSegment seg : chain.getSegments()) {
+                if (seg instanceof MALExpressionModel.ClosureMethodCallSeg) {
+                    final MALExpressionModel.ClosureMethodCallSeg mc =
+                        (MALExpressionModel.ClosureMethodCallSeg) seg;
+                    if ("size".equals(mc.getName()) && mc.getArguments().isEmpty()) {
+                        local.append(".length");
+                    } else {
+                        local.append('.').append(mc.getName()).append('(');
+                        for (int i = 0; i < mc.getArguments().size(); i++) {
+                            if (i > 0) {
+                                local.append(", ");
+                            }
+                            generateClosureExpr(local, mc.getArguments().get(i),
+                                paramName, beanMode);
+                        }
+                        local.append(')');
+                    }
+                } else if (seg instanceof MALExpressionModel.ClosureFieldAccess) {
+                    local.append('.').append(
+                        ((MALExpressionModel.ClosureFieldAccess) seg).getName());
+                } else if (seg instanceof MALExpressionModel.ClosureIndexAccess) {
+                    local.append("[(int) ");
+                    generateClosureExpr(local,
+                        ((MALExpressionModel.ClosureIndexAccess) seg).getIndex(),
+                        paramName, beanMode);
+                    local.append(']');
+                }
+            }
+            sb.append(local);
         }
     }
 
@@ -1369,15 +1422,22 @@ public final class MALClassGenerator {
                 } else if (seg instanceof MALExpressionModel.ClosureMethodCallSeg) {
                     final MALExpressionModel.ClosureMethodCallSeg mc =
                         (MALExpressionModel.ClosureMethodCallSeg) seg;
-                    local.append('.').append(mc.getName()).append('(');
-                    for (int i = 0; i < mc.getArguments().size(); i++) {
-                        if (i > 0) {
-                            local.append(", ");
+                    // Groovy .size() on arrays → Java .length (for local vars)
+                    if (!target.equals(paramName)
+                            && "size".equals(mc.getName())
+                            && mc.getArguments().isEmpty()) {
+                        local.append(".length");
+                    } else {
+                        local.append('.').append(mc.getName()).append('(');
+                        for (int i = 0; i < mc.getArguments().size(); i++) {
+                            if (i > 0) {
+                                local.append(", ");
+                            }
+                            generateClosureExpr(local, mc.getArguments().get(i),
+                                paramName, beanMode);
                         }
-                        generateClosureExpr(local, mc.getArguments().get(i), paramName,
-                            beanMode);
+                        local.append(')');
                     }
-                    local.append(')');
                 }
             }
             sb.append(local);

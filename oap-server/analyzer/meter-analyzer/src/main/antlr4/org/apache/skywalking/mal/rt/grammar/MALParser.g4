@@ -95,6 +95,7 @@ argument
     | enumRef                                // Layer.GENERAL, K8sRetagType.Pod2Service
     | STRING                                 // "PT1M", "k8s-key"
     | boolLiteral                            // true, false
+    | NULL                                   // null
     ;
 
 stringList
@@ -214,17 +215,18 @@ closureExpr
     | closureExpr MINUS closureExpr                                # closureSub
     | closureExpr STAR closureExpr                                 # closureMul
     | closureExpr SLASH closureExpr                                # closureDiv
+    | MINUS closureExprPrimary                                      # closureUnaryMinus
     | closureExprPrimary                                           # closurePrimary
     ;
 
 closureExprPrimary
-    : STRING                                                       # closureString
+    : STRING closureChainAccess*                                   # closureString
     | NUMBER                                                       # closureNumber
     | NULL                                                         # closureNull
     | boolLiteral                                                  # closureBool
     | closureMapLiteral                                            # closureMap
     | closureMethodChain                                           # closureChain
-    | L_PAREN closureExpr R_PAREN                                  # closureParen
+    | L_PAREN closureExpr R_PAREN closureChainAccess*              # closureParen
     ;
 
 // Groovy map literal: ['key': expr, 'key2': expr2]

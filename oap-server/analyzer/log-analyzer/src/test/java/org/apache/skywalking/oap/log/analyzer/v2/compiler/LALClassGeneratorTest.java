@@ -206,6 +206,7 @@ class LALClassGeneratorTest {
     void generateSourceSafeNavMethodEmitsSpecificHelper() {
         final String source = generator.generateSource(
             "filter {\n"
+            + "  json {}\n"
             + "  if (parsed?.flags?.toString()) {\n"
             + "    sink {}\n"
             + "  }\n"
@@ -497,8 +498,9 @@ class LALClassGeneratorTest {
     }
 
     @Test
-    void compileEnvoyAlsAbortRule() throws Exception {
-        final LalExpression expr = generator.compile(
+    void compileEnvoyAlsAbortRuleFailsWithoutExtraLogType() {
+        // envoy-als pattern has no parser (json/yaml/text) — requires extraLogType
+        assertThrows(IllegalStateException.class, () -> generator.compile(
             "filter {\n"
             + "  if (parsed?.response?.responseCode?.value as Integer < 400"
             + " && !parsed?.commonProperties?.responseFlags?.toString()?.trim()) {\n"
@@ -511,7 +513,55 @@ class LALClassGeneratorTest {
             + "    tag 'response.flag': parsed?.commonProperties?.responseFlags\n"
             + "  }\n"
             + "  sink {}\n"
-            + "}");
+            + "}"));
+    }
+
+    @Test
+    void compileExtraLogTypeGeneratesDirectGetterCalls() throws Exception {
+        generator.setExtraLogType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        final String dsl =
+            "filter {\n"
+            + "  if (parsed?.response?.responseCode?.value as Integer < 400"
+            + " && !parsed?.commonProperties?.responseFlags?.toString()?.trim()) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  extractor {\n"
+            + "    if (parsed?.response?.responseCode) {\n"
+            + "      tag 'status.code': parsed?.response?.responseCode?.value\n"
+            + "    }\n"
+            + "    tag 'response.flag': parsed?.commonProperties?.responseFlags\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        final String source = generator.generateSource(dsl);
+        final String fqcn =
+            "io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry";
+        // Direct getter chains, not getAt
+        assertTrue(source.contains(
+            "((" + fqcn + ") h.ctx().extraLog()).getResponse()"),
+            "Expected direct getter for parsed.response but got: " + source);
+        assertTrue(source.contains(
+            "((" + fqcn + ") h.ctx().extraLog()).getCommonProperties()"),
+            "Expected direct getter for parsed.commonProperties but got: " + source);
+        assertFalse(source.contains("getAt"),
+            "Should NOT contain getAt calls but got: " + source);
+        // Safe navigation: null checks with == null
+        assertTrue(source.contains("== null"),
+            "Expected null checks for ?. safe navigation but got: " + source);
+        // Numeric comparison: direct primitive, no h.toLong() boxing
+        assertTrue(source.contains(".getValue() < 400"),
+            "Expected direct primitive comparison without boxing but got: " + source);
+        assertFalse(source.contains("h.toLong"),
+            "Should NOT use h.toLong for primitive int comparison but got: " + source);
+        // Single-tag: uses tag(ctx, String, String), not singletonMap
+        assertTrue(source.contains("_e.tag(h.ctx(), \"status.code\""),
+            "Expected tag(ctx, String, String) overload but got: " + source);
+        assertFalse(source.contains("singletonMap"),
+            "Should NOT use singletonMap for single tags but got: " + source);
+
+        // Verify it compiles
+        final LalExpression expr = generator.compile(dsl);
         assertNotNull(expr);
     }
 
@@ -565,6 +615,7 @@ class LALClassGeneratorTest {
     void generateSourceElseIfEmitsNestedBranches() {
         final String source = generator.generateSource(
             "filter {\n"
+            + "  json {}\n"
             + "  if (parsed.a) {\n"
             + "    sink {}\n"
             + "  } else if (parsed.b) {\n"

@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl;
 
-import com.google.protobuf.Descriptors;
 import com.google.protobuf.Message;
 import java.util.HashMap;
 import java.util.List;
@@ -179,61 +178,5 @@ public class ExecutionContext {
 
         @Getter
         private Message extraLog;
-
-        public Object getAt(final String key) {
-            Object result;
-            if (matcher != null && (result = matcher.group(key)) != null) {
-                return result;
-            }
-            if (map != null && (result = map.get(key)) != null) {
-                return result;
-            }
-            if (extraLog != null && (result = getField(extraLog, key)) != null) {
-                return result;
-            }
-            return null;
-        }
-
-        public static Object getField(final Object obj, final String name) {
-            if (obj instanceof Message) {
-                Descriptors.FieldDescriptor fd =
-                    ((Message) obj).getDescriptorForType().findFieldByName(name);
-                if (fd == null) {
-                    fd = ((Message) obj).getDescriptorForType()
-                        .findFieldByName(camelToSnake(name));
-                }
-                if (fd != null) {
-                    return ((Message) obj).getField(fd);
-                }
-            }
-            if (obj instanceof Message.Builder) {
-                Descriptors.FieldDescriptor fd =
-                    ((Message.Builder) obj).getDescriptorForType().findFieldByName(name);
-                if (fd == null) {
-                    fd = ((Message.Builder) obj).getDescriptorForType()
-                        .findFieldByName(camelToSnake(name));
-                }
-                if (fd != null) {
-                    return ((Message.Builder) obj).getField(fd);
-                }
-            }
-            return null;
-        }
-
-        private static String camelToSnake(final String name) {
-            final StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < name.length(); i++) {
-                final char c = name.charAt(i);
-                if (Character.isUpperCase(c)) {
-                    if (i > 0) {
-                        sb.append('_');
-                    }
-                    sb.append(Character.toLowerCase(c));
-                } else {
-                    sb.append(c);
-                }
-            }
-            return sb.toString();
-        }
     }
 }

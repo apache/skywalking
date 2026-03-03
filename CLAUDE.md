@@ -81,28 +81,6 @@ git submodule init && git submodule update
 - `dist` (default): Creates distribution packages
 - `all`: Builds everything including submodule initialization
 
-### CI-Friendly `${revision}` Property
-
-SkyWalking uses Maven's CI-friendly `${revision}` property (defined in the root `pom.xml`) instead of hardcoded version numbers. The `flatten-maven-plugin` resolves `${revision}` at install time, but POMs installed to `~/.m2/repository` may retain the unresolved `${revision}` literal. This causes `Could not find artifact org.apache.skywalking:...:pom:${revision}` errors when building individual modules with `-pl` (without `-am` to rebuild all ancestors from source).
-
-**Prevention**: When building individual modules, always include their ancestor modules via `-am`:
-```bash
-# GOOD: -am builds all ancestor modules from source, avoiding cached POM issues
-./mvnw install -pl oap-server/analyzer/meter-analyzer -am -DskipTests
-
-# RISKY: without -am, Maven resolves ancestors from ~/.m2 which may have broken ${revision}
-./mvnw install -pl oap-server/analyzer/meter-analyzer -DskipTests
-```
-
-**Fix if it happens**: Remove and reinstall the broken cached artifacts:
-```bash
-# Delete all SkyWalking SNAPSHOT artifacts from local cache
-rm -rf ~/.m2/repository/org/apache/skywalking/*/10.4.0-SNAPSHOT
-
-# Rebuild and install from source
-./mvnw install -DskipTests -q
-```
-
 ## Architecture & Key Concepts
 
 ### Module System

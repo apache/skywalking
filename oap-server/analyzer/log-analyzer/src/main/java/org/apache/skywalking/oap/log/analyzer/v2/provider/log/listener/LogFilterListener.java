@@ -22,6 +22,7 @@ import com.google.protobuf.Message;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
 
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -91,17 +93,44 @@ public class LogFilterListener implements LogAnalysisListener {
         public Factory(final ModuleManager moduleManager, final LogAnalyzerModuleConfig config) throws Exception {
             dsls = new HashMap<>();
 
+            // Scan SPI providers for default extraLogType per layer
+            final Map<Layer, Class<?>> spiTypes = new HashMap<>();
+            for (final LALSourceTypeProvider p : ServiceLoader.load(LALSourceTypeProvider.class)) {
+                spiTypes.put(p.layer(), p.extraLogType());
+                log.info("LALSourceTypeProvider: layer={} -> {}",
+                    p.layer().name(), p.extraLogType().getName());
+            }
+
             final List<LALConfig> configList = LALConfigs.load(config.getLalPath(), config.lalFiles())
                                                          .stream()
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
-                Layer layer = Layer.nameOf(c.getLayer());
-                Map<String, DSL> dsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
-                if (dsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl(), c.getExtraLogType())) != null) {
+                final Layer layer = Layer.nameOf(c.getLayer());
+
+                // Per-rule resolution: explicit YAML > SPI > null
+                Class<?> resolvedType = resolveExtraLogType(c, spiTypes.get(layer));
+
+                final Map<String, DSL> layerDsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
+                if (layerDsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl(), resolvedType)) != null) {
                     throw new ModuleStartException("Layer " + layer.name() + " has already set " + c.getName() + " rule.");
                 }
             }
+        }
+
+        private static Class<?> resolveExtraLogType(final LALConfig config,
+                                                     final Class<?> spiType) throws ModuleStartException {
+            final String yamlType = config.getExtraLogType();
+            if (yamlType != null && !yamlType.isEmpty()) {
+                try {
+                    return Class.forName(yamlType);
+                } catch (ClassNotFoundException e) {
+                    throw new ModuleStartException(
+                        "LAL rule '" + config.getName() + "' declares extraLogType '"
+                            + yamlType + "' but the class was not found.", e);
+                }
+            }
+            return spiType;
         }
 
         @Override

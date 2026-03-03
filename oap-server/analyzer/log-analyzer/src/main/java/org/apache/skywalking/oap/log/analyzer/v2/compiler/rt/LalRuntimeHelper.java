@@ -297,20 +297,4 @@ public final class LalRuntimeHelper {
         return obj == null ? null : obj.toString().trim();
     }
 
-    // ==================== Legacy static methods (backward compat) ====================
-    // Kept for existing generated code and tests. New generated code should
-    // use instance methods instead.
-
-    public static Object getAt(final Object obj, final String key) {
-        if (obj == null) {
-            return null;
-        }
-        if (obj instanceof ExecutionContext.Parsed) {
-            return ((ExecutionContext.Parsed) obj).getAt(key);
-        }
-        if (obj instanceof Map) {
-            return ((Map) obj).get(key);
-        }
-        return ExecutionContext.Parsed.getField(obj, key);
-    }
 }

@@ -1,7 +1,6 @@
 /build/
 target/
 .idea/
-.flattened-pom.xml
 *.iml
 .classpath
 .project

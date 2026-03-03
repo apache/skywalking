@@ -107,25 +107,23 @@ The generator detects the parser type from the AST at compile time and generates
 | JSON/YAML nested | `parsed.a.b` | `h.mapVal("a", "b")` |
 | TEXT (regexp) | `parsed.level` | `h.group("level")` |
 | NONE + extraLogType | `parsed.response.code` | `((ExtraLogType) h.ctx().extraLog()).getResponse().getCode()` |
-| NONE (fallback) | `parsed.x` | `LalRuntimeHelper.getAt(ctx.parsed(), "x")` |
+| NONE + no type | `parsed.x` | **Compile error — fails boot** |
 | log fields | `log.service` | `h.ctx().log().getService()` |
 | log trace | `log.traceContext.traceId` | `h.ctx().log().getTraceContext().getTraceId()` |
 | tags | `tag("KEY")` | `h.tagValue("KEY")` |
 
-### extraLogType
+### extraLogType and LALSourceTypeProvider SPI
 
-For LAL rules that process typed protobuf extra logs (e.g., envoy-als), declare `extraLogType` in the YAML config:
+For LAL rules with no DSL parser (`json{}`/`yaml{}`/`text{}`), the compiler needs a type to generate direct getter calls on `parsed.*` fields. Per-rule resolution order:
 
-```yaml
-rules:
-  - name: envoy-als
-    layer: MESH
-    extraLogType: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
-    dsl: |
-      filter { ... }
-```
+1. **DSL parser** (`json{}`, `yaml{}`, `text{}`) — parser wins, extraLogType is ignored
+2. **Explicit `extraLogType`** in YAML rule config — FQCN string, resolved via `Class.forName()`
+3. **`LALSourceTypeProvider` SPI** — default extraLogType for a layer, discovered via `ServiceLoader`
+4. **Compile error** — if none of the above and the rule accesses `parsed.*`, boot fails
 
-The compiler resolves getter chains at compile time using `Class.forName(extraLogType)`. If `extraLogType` is null and no parser is present, a warning is logged and runtime reflection (`getAt`) is used as fallback.
+The SPI interface is in `org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider`. Receiver plugins implement it and register in `META-INF/services/`. Example: `EnvoyHTTPLALSourceTypeProvider` registers `HTTPAccessLogEntry` for `Layer.MESH`.
+
+A single YAML file can have rules with different input types (e.g., `envoy-als.yaml` has a proto-based rule and a `json{}` rule, both in layer MESH). Resolution is per-rule, not per-file.
 
 ## Example
 
@@ -164,8 +162,6 @@ Instance-based helper created at the start of `execute()`, holds the `ExecutionC
 **Boolean evaluation:** `isTrue()`, `isNotEmpty()`
 
 **Safe navigation:** `toString()`, `trim()`
-
-**Legacy static:** `getAt(Object, String)` — kept for fallback when no parser or extraLogType
 
 ## Null-Safe String Conversion
 

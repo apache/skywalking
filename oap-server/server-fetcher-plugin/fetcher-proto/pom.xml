@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.apache.skywalking</groupId>
     <artifactId>server-fetcher-plugin</artifactId>
-    <version>${revision}</version>
+    <version>10.4.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 

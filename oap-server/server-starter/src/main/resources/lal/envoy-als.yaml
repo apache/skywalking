@@ -14,9 +14,13 @@
 # limitations under the License.
 
 rules:
+  # The envoy-als rule has no json/yaml/text parser — it accesses protobuf fields
+  # directly via parsed.* (e.g. parsed?.response?.responseCode?.value).
+  # The extra log type (HTTPAccessLogEntry) is registered via SPI by
+  # EnvoyHTTPLALSourceTypeProvider in envoy-metrics-receiver-plugin,
+  # enabling the compiler to generate direct proto getter calls.
   - name: envoy-als
     layer: MESH
-    extraLogType: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
     dsl: |
       filter {
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)

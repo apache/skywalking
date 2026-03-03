@@ -67,7 +67,7 @@ public final class LALClassGenerator {
     private final ClassPool classPool;
     private File classOutputDir;
     private String classNameHint;
-    private String extraLogType;
+    private Class<?> extraLogType;
 
     // ==================== Parser type detection ====================
 
@@ -85,11 +85,17 @@ public final class LALClassGenerator {
 
     private static class GenCtx {
         final ParserType parserType;
-        final String extraLogType;
+        final Class<?> extraLogType;
         final List<PrivateMethod> privateMethods = new ArrayList<>();
         final Map<String, Integer> methodCounts = new HashMap<>();
 
-        GenCtx(final ParserType parserType, final String extraLogType) {
+        // Set by generateExtraLogAccess for primitive optimization in callers.
+        // Reset to null by generateValueAccess at the start of each value access.
+        Class<?> lastResolvedType;
+        String lastNullChecks;
+        String lastRawChain;
+
+        GenCtx(final ParserType parserType, final Class<?> extraLogType) {
             this.parserType = parserType;
             this.extraLogType = extraLogType;
         }
@@ -97,6 +103,12 @@ public final class LALClassGenerator {
         String nextMethodName(final String prefix) {
             final int count = methodCounts.merge(prefix, 1, Integer::sum);
             return count == 1 ? "_" + prefix : "_" + prefix + "_" + count;
+        }
+
+        void clearExtraLogResult() {
+            lastResolvedType = null;
+            lastNullChecks = null;
+            lastRawChain = null;
         }
     }
 
@@ -116,7 +128,7 @@ public final class LALClassGenerator {
         this.classNameHint = hint;
     }
 
-    public void setExtraLogType(final String extraLogType) {
+    public void setExtraLogType(final Class<?> extraLogType) {
         this.extraLogType = extraLogType;
     }
 
@@ -238,13 +250,9 @@ public final class LALClassGenerator {
         final ParserType parserType = detectParserType(model.getStatements());
         final GenCtx genCtx = new GenCtx(parserType, this.extraLogType);
 
-        if (parserType == ParserType.NONE && this.extraLogType == null) {
-            if (hasParsedAccess(model.getStatements())) {
-                log.warn("LAL rule accesses parsed fields without a parser and without "
-                    + "extraLogType — using runtime reflection, which may impact "
-                    + "performance. Declare extraLogType in the LAL config to enable "
-                    + "direct proto getter calls.");
-            }
+        if (parserType == ParserType.NONE && this.extraLogType != null) {
+            log.info("LAL rule has no parser — using extraLogType {} for "
+                + "direct getter calls.", this.extraLogType.getName());
         }
 
         final String executeBody = generateExecuteMethod(model, genCtx);
@@ -650,29 +658,13 @@ public final class LALClassGenerator {
     private void generateTagAssignment(final StringBuilder sb,
                                          final LALScriptModel.TagAssignment tag,
                                          final GenCtx genCtx) {
-        final Map<String, LALScriptModel.TagValue> tags = tag.getTags();
-        if (tags.isEmpty()) {
-            return;
-        }
-        if (tags.size() == 1) {
-            final Map.Entry<String, LALScriptModel.TagValue> entry =
-                tags.entrySet().iterator().next();
-            sb.append("  _e.tag(h.ctx(), java.util.Collections.singletonMap(\"")
+        for (final Map.Entry<String, LALScriptModel.TagValue> entry
+                : tag.getTags().entrySet()) {
+            sb.append("  _e.tag(h.ctx(), \"")
               .append(escapeJava(entry.getKey())).append("\", ");
-            generateCastedValueAccess(sb, entry.getValue().getValue(),
+            generateStringValueAccess(sb, entry.getValue().getValue(),
                 entry.getValue().getCastType(), genCtx);
-            sb.append("));\n");
-        } else {
-            sb.append("  { java.util.Map _tagMap = new java.util.LinkedHashMap();\n");
-            for (final Map.Entry<String, LALScriptModel.TagValue> entry
-                    : tags.entrySet()) {
-                sb.append("    _tagMap.put(\"")
-                  .append(escapeJava(entry.getKey())).append("\", ");
-                generateCastedValueAccess(sb, entry.getValue().getValue(),
-                    entry.getValue().getCastType(), genCtx);
-                sb.append(");\n");
-            }
-            sb.append("    _e.tag(h.ctx(), _tagMap); }\n");
+            sb.append(");\n");
         }
     }
 
@@ -837,28 +829,16 @@ public final class LALClassGenerator {
                     sb.append(")");
                     break;
                 case GT:
-                    sb.append("h.toLong(");
-                    generateValueAccessObj(sb, cc.getLeft(), null, genCtx);
-                    sb.append(") > ");
-                    generateConditionValueNumeric(sb, cc.getRight(), genCtx);
+                    generateNumericComparison(sb, cc, " > ", genCtx);
                     break;
                 case LT:
-                    sb.append("h.toLong(");
-                    generateValueAccessObj(sb, cc.getLeft(), null, genCtx);
-                    sb.append(") < ");
-                    generateConditionValueNumeric(sb, cc.getRight(), genCtx);
+                    generateNumericComparison(sb, cc, " < ", genCtx);
                     break;
                 case GTE:
-                    sb.append("h.toLong(");
-                    generateValueAccessObj(sb, cc.getLeft(), null, genCtx);
-                    sb.append(") >= ");
-                    generateConditionValueNumeric(sb, cc.getRight(), genCtx);
+                    generateNumericComparison(sb, cc, " >= ", genCtx);
                     break;
                 case LTE:
-                    sb.append("h.toLong(");
-                    generateValueAccessObj(sb, cc.getLeft(), null, genCtx);
-                    sb.append(") <= ");
-                    generateConditionValueNumeric(sb, cc.getRight(), genCtx);
+                    generateNumericComparison(sb, cc, " <= ", genCtx);
                     break;
                 default:
                     break;
@@ -886,6 +866,37 @@ public final class LALClassGenerator {
                 ((LALScriptModel.ExprCondition) cond).getExpr(),
                 ct, genCtx);
             sb.append(")");
+        }
+    }
+
+    private void generateNumericComparison(
+            final StringBuilder sb,
+            final LALScriptModel.ComparisonCondition cc,
+            final String op,
+            final GenCtx genCtx) {
+        // Generate left side into buffer to inspect resolved type
+        final StringBuilder leftBuf = new StringBuilder();
+        generateValueAccessObj(leftBuf, cc.getLeft(), null, genCtx);
+
+        final boolean primitiveNumeric = genCtx.lastResolvedType != null
+            && (genCtx.lastResolvedType == int.class
+                || genCtx.lastResolvedType == long.class);
+
+        if (primitiveNumeric && genCtx.lastRawChain != null) {
+            // Direct primitive comparison — no boxing, no h.toLong()
+            if (genCtx.lastNullChecks != null) {
+                sb.append("(").append(genCtx.lastNullChecks).append(" ? false : ")
+                  .append(genCtx.lastRawChain).append(op);
+                generateConditionValueNumeric(sb, cc.getRight(), genCtx);
+                sb.append(")");
+            } else {
+                sb.append(genCtx.lastRawChain).append(op);
+                generateConditionValueNumeric(sb, cc.getRight(), genCtx);
+            }
+        } else {
+            // Fallback: h.toLong() conversion
+            sb.append("h.toLong(").append(leftBuf).append(")").append(op);
+            generateConditionValueNumeric(sb, cc.getRight(), genCtx);
         }
     }
 
@@ -959,6 +970,33 @@ public final class LALClassGenerator {
         }
     }
 
+    private void generateStringValueAccess(final StringBuilder sb,
+                                             final LALScriptModel.ValueAccess value,
+                                             final String castType,
+                                             final GenCtx genCtx) {
+        if (castType == null || "String".equals(castType)) {
+            sb.append("h.toStr(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append(")");
+        } else if ("Long".equals(castType)) {
+            sb.append("String.valueOf(h.toLong(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append("))");
+        } else if ("Integer".equals(castType)) {
+            sb.append("String.valueOf(h.toInt(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append("))");
+        } else if ("Boolean".equals(castType)) {
+            sb.append("String.valueOf(h.toBool(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append("))");
+        } else {
+            sb.append("h.toStr(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append(")");
+        }
+    }
+
     private void generateValueAccessObj(final StringBuilder sb,
                                          final LALScriptModel.ValueAccess value,
                                          final String castType,
@@ -975,6 +1013,8 @@ public final class LALClassGenerator {
     private void generateValueAccess(final StringBuilder sb,
                                       final LALScriptModel.ValueAccess value,
                                       final GenCtx genCtx) {
+        genCtx.clearExtraLogResult();
+
         // Handle function call primaries (e.g., tag("LOG_KIND"))
         if (value.getFunctionCallName() != null) {
             if ("tag".equals(value.getFunctionCallName())
@@ -1092,9 +1132,10 @@ public final class LALClassGenerator {
                         boxType = "Integer";
                     }
                 } else {
-                    // Fall back to getAt for unknown sub-fields
-                    current = H + ".getAt(" + current + ", \""
-                        + escapeJava(name) + "\")";
+                    throw new IllegalArgumentException(
+                        "Unknown log field: log." + name
+                            + ". Supported fields: " + LOG_GETTERS.keySet()
+                            + ", traceContext." + TRACE_CONTEXT_GETTERS.keySet());
                 }
             } else if (seg instanceof LALScriptModel.MethodSegment) {
                 current = appendMethodSegment(current, (LALScriptModel.MethodSegment) seg);
@@ -1120,16 +1161,21 @@ public final class LALClassGenerator {
         }
 
         // Collect leading field segments
-        final List<String> fieldKeys = new ArrayList<>();
+        final List<LALScriptModel.FieldSegment> fieldSegments = new ArrayList<>();
         int methodStart = -1;
         for (int i = 0; i < chain.size(); i++) {
             final LALScriptModel.ValueAccessSegment seg = chain.get(i);
             if (seg instanceof LALScriptModel.FieldSegment) {
-                fieldKeys.add(((LALScriptModel.FieldSegment) seg).getName());
+                fieldSegments.add((LALScriptModel.FieldSegment) seg);
             } else {
                 methodStart = i;
                 break;
             }
+        }
+
+        final List<String> fieldKeys = new ArrayList<>();
+        for (final LALScriptModel.FieldSegment fs : fieldSegments) {
+            fieldKeys.add(fs.getName());
         }
 
         String current;
@@ -1147,14 +1193,18 @@ public final class LALClassGenerator {
                 break;
             case NONE:
                 if (genCtx.extraLogType != null) {
-                    current = generateExtraLogAccess(fieldKeys, genCtx.extraLogType);
+                    current = generateExtraLogAccess(fieldSegments, genCtx.extraLogType,
+                        genCtx);
                 } else {
-                    // Fallback to runtime getAt
-                    current = "h.ctx().parsed()";
-                    for (final String key : fieldKeys) {
-                        current = H + ".getAt(" + current + ", \""
-                            + escapeJava(key) + "\")";
-                    }
+                    throw new IllegalStateException(
+                        "LAL rule accesses parsed.* fields ("
+                            + String.join(".", fieldKeys)
+                            + ") but type is unknown — no parser (json/yaml/text), "
+                            + "no extraLogType in YAML config, and no "
+                            + "LALSourceTypeProvider SPI registered for this layer. "
+                            + "Either add a parser to the DSL, declare extraLogType "
+                            + "in the YAML config, or register an SPI provider in "
+                            + "the receiver plugin.");
                 }
                 break;
             default:
@@ -1170,10 +1220,10 @@ public final class LALClassGenerator {
                     current = appendMethodSegment(current,
                         (LALScriptModel.MethodSegment) seg);
                 } else if (seg instanceof LALScriptModel.FieldSegment) {
-                    final String name =
-                        ((LALScriptModel.FieldSegment) seg).getName();
-                    current = H + ".getAt(" + current + ", \""
-                        + escapeJava(name) + "\")";
+                    throw new IllegalArgumentException(
+                        "Field access after method call is not supported: ."
+                            + ((LALScriptModel.FieldSegment) seg).getName()
+                            + " — all field segments must precede method calls.");
                 }
             }
         }
@@ -1196,72 +1246,82 @@ public final class LALClassGenerator {
         return call.toString();
     }
 
-    private String generateExtraLogAccess(final List<String> fieldKeys,
-                                           final String extraLogTypeName) {
-        if (fieldKeys.isEmpty()) {
+    private String generateExtraLogAccess(
+            final List<LALScriptModel.FieldSegment> fieldSegments,
+            final Class<?> extraLogType,
+            final GenCtx genCtx) {
+        if (fieldSegments.isEmpty()) {
             return "h.ctx().extraLog()";
         }
 
-        try {
-            final Class<?> rootType = Class.forName(extraLogTypeName);
-            final StringBuilder accessSb = new StringBuilder();
-            accessSb.append("((").append(extraLogTypeName)
-                     .append(") h.ctx().extraLog())");
+        final String typeName = extraLogType.getName();
+        final StringBuilder chainSb = new StringBuilder();
+        chainSb.append("((").append(typeName)
+               .append(") h.ctx().extraLog())");
 
-            Class<?> currentType = rootType;
-            boolean lastIsPrimitive = false;
-            String lastPrimitiveType = null;
+        final List<String> nullChecks = new ArrayList<>();
+        Class<?> currentType = extraLogType;
+        boolean lastIsPrimitive = false;
+        String lastPrimitiveType = null;
 
-            for (final String field : fieldKeys) {
-                final String getterName = "get" + Character.toUpperCase(field.charAt(0))
-                    + field.substring(1);
-                try {
-                    final java.lang.reflect.Method getter =
-                        currentType.getMethod(getterName);
-                    accessSb.append(".").append(getterName).append("()");
-                    currentType = getter.getReturnType();
-                    lastIsPrimitive = currentType.isPrimitive();
-                    if (lastIsPrimitive) {
-                        if (currentType == long.class) {
-                            lastPrimitiveType = "Long";
-                        } else if (currentType == int.class) {
-                            lastPrimitiveType = "Integer";
-                        } else if (currentType == boolean.class) {
-                            lastPrimitiveType = "Boolean";
-                        } else if (currentType == double.class) {
-                            lastPrimitiveType = "Double";
-                        } else if (currentType == float.class) {
-                            lastPrimitiveType = "Float";
-                        }
-                    }
-                } catch (NoSuchMethodException e) {
-                    // Try hasXxx for protobuf wrapper presence check
-                    log.warn("Cannot resolve getter {}.{}() — falling back to "
-                        + "runtime reflection", currentType.getSimpleName(), getterName);
-                    // Fallback: wrap what we have so far in getAt calls
-                    String current = accessSb.toString();
-                    for (int i = fieldKeys.indexOf(field); i < fieldKeys.size(); i++) {
-                        current = H + ".getAt(" + current + ", \""
-                            + escapeJava(fieldKeys.get(i)) + "\")";
-                    }
-                    return current;
+        for (final LALScriptModel.FieldSegment seg : fieldSegments) {
+            final String field = seg.getName();
+            final String getterName = "get" + Character.toUpperCase(field.charAt(0))
+                + field.substring(1);
+
+            // ?. means: check the chain so far for null before calling this getter
+            if (seg.isSafeNav()) {
+                nullChecks.add(chainSb.toString() + " == null");
+            }
+
+            try {
+                final java.lang.reflect.Method getter =
+                    currentType.getMethod(getterName);
+                chainSb.append(".").append(getterName).append("()");
+                currentType = getter.getReturnType();
+                lastIsPrimitive = currentType.isPrimitive();
+                if (lastIsPrimitive) {
+                    lastPrimitiveType = boxTypeName(currentType);
                 }
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException(
+                    "Cannot resolve getter " + currentType.getSimpleName()
+                        + "." + getterName + "() for extraLogType "
+                        + typeName + ". Check the field path in the LAL rule.");
             }
-
-            if (lastIsPrimitive && lastPrimitiveType != null) {
-                return lastPrimitiveType + ".valueOf(" + accessSb.toString() + ")";
-            }
-            return accessSb.toString();
-        } catch (ClassNotFoundException e) {
-            log.warn("Cannot load extraLogType class '{}' — falling back to "
-                + "runtime reflection", extraLogTypeName);
-            String current = "h.ctx().parsed()";
-            for (final String key : fieldKeys) {
-                current = H + ".getAt(" + current + ", \""
-                    + escapeJava(key) + "\")";
-            }
-            return current;
         }
+
+        // Store metadata for callers that can optimize (e.g., numeric comparisons)
+        genCtx.lastResolvedType = currentType;
+        genCtx.lastRawChain = chainSb.toString();
+        genCtx.lastNullChecks = nullChecks.isEmpty()
+            ? null : String.join(" || ", nullChecks);
+
+        // Default return: boxed + null-checked (safe for all callers)
+        String result = chainSb.toString();
+        if (lastIsPrimitive && lastPrimitiveType != null) {
+            result = lastPrimitiveType + ".valueOf(" + result + ")";
+        }
+
+        if (!nullChecks.isEmpty()) {
+            return "(" + genCtx.lastNullChecks + " ? null : " + result + ")";
+        }
+        return result;
+    }
+
+    private static String boxTypeName(final Class<?> primitiveType) {
+        if (primitiveType == int.class) {
+            return "Integer";
+        } else if (primitiveType == long.class) {
+            return "Long";
+        } else if (primitiveType == boolean.class) {
+            return "Boolean";
+        } else if (primitiveType == double.class) {
+            return "Double";
+        } else if (primitiveType == float.class) {
+            return "Float";
+        }
+        return null;
     }
 
     private String appendMethodSegment(final String current,

@@ -14,9 +14,10 @@
 # limitations under the License.
 
 rules:
+  # The extra log type (io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry) is
+  # registered via SPI by EnvoyHTTPLALSourceTypeProvider in envoy-metrics-receiver-plugin.
   - name: envoy-als
     layer: MESH
-    extraLogType: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
     dsl: |
       filter {
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)

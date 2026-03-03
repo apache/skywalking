@@ -1,6 +1,7 @@
 ## 10.4.0
 
 #### Project
+* Remove Maven CI-friendly `${revision}` property and `flatten-maven-plugin`; use hardcoded version numbers in all POMs.
 * Introduce OAL V2 engine:
   - Immutable AST models for thread safety and predictable behavior
   - Type-safe enums replacing string-based filter operators

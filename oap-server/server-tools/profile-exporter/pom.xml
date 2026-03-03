@@ -21,12 +21,12 @@
     <parent>
         <artifactId>server-tools</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>${revision}</version>
+        <version>10.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>profile-exporter</artifactId>
-    <version>${revision}</version>
+    <version>10.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

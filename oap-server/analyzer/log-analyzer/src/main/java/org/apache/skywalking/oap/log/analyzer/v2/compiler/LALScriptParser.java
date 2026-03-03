@@ -626,6 +626,21 @@ public final class LALScriptParser {
         if (ctx instanceof LALParser.CondValueAccessContext) {
             final LALParser.CondValueAccessContext va =
                 (LALParser.CondValueAccessContext) ctx;
+            // ANTLR grammar routes NUMBER/NULL/STRING/bool through condValueAccess
+            // (since valueAccessPrimary includes them and condValueAccess has priority).
+            // Detect standalone literals and create proper ConditionValue types.
+            if (va.typeCast() == null
+                && va.valueAccess().valueAccessSegment().isEmpty()) {
+                final LALParser.ValueAccessPrimaryContext primary =
+                    va.valueAccess().valueAccessPrimary();
+                if (primary instanceof LALParser.ValueNumberContext) {
+                    return new NumberConditionValue(Double.parseDouble(
+                        ((LALParser.ValueNumberContext) primary).NUMBER().getText()));
+                }
+                if (primary instanceof LALParser.ValueNullContext) {
+                    return new NullConditionValue();
+                }
+            }
             final String cast = va.typeCast() != null ? extractCastType(va.typeCast()) : null;
             return new ValueAccessConditionValue(visitValueAccess(va.valueAccess()), cast);
         }

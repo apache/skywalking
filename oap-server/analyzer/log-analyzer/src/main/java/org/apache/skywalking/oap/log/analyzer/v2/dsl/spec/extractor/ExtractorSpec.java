@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,7 +56,6 @@ import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,37 +121,17 @@ public class ExtractorSpec extends AbstractSpec {
         }
     }
 
-    public void tag(final ExecutionContext ctx, final Map<String, ?> kv) {
+    public void tag(final ExecutionContext ctx, final String key, final String value) {
         if (ctx.shouldAbort()) {
             return;
         }
-        if (CollectionUtils.isEmpty(kv)) {
-            return;
+        if (isNotBlank(key) && isNotBlank(value)) {
+            ctx.log().setTags(
+                ctx.log().getTags().toBuilder()
+                    .addData(KeyStringValuePair.newBuilder()
+                        .setKey(key).setValue(value).build())
+            );
         }
-        final LogData.Builder logData = ctx.log();
-        logData.setTags(
-            logData.getTags()
-                   .toBuilder()
-                   .addAllData(
-                       kv.entrySet()
-                         .stream()
-                         .filter(it -> isNotBlank(it.getKey()))
-                         .filter(it -> nonNull(it.getValue()) &&
-                             isNotBlank(Objects.toString(it.getValue())))
-                         .map(it -> {
-                             final Object val = it.getValue();
-                             String valStr = Objects.toString(val);
-                             if (Collection.class.isAssignableFrom(val.getClass())) {
-                                 valStr = Joiner.on(",").skipNulls().join((Collection<?>) val);
-                             }
-                             return KeyStringValuePair.newBuilder()
-                                                      .setKey(it.getKey())
-                                                      .setValue(valStr)
-                                                      .build();
-                         })
-                         .collect(Collectors.toList())
-                   )
-        );
     }
 
     public void traceId(final ExecutionContext ctx, final String traceId) {

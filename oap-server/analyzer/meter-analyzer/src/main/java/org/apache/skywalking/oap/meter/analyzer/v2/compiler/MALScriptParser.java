@@ -283,6 +283,9 @@ public final class MALScriptParser {
             if (ctx.boolLiteral() != null) {
                 return new BoolArgument(ctx.boolLiteral().TRUE() != null);
             }
+            if (ctx.NULL() != null) {
+                return new MALExpressionModel.NullArgument();
+            }
             // additiveExpression — nested expression
             return new ExprArgument(visit(ctx.additiveExpression()));
         }
@@ -509,17 +512,21 @@ public final class MALScriptParser {
             if (init instanceof MALExpressionModel.ClosureRegexMatchExpr) {
                 return "String[][]";
             }
+            final List<MALExpressionModel.ClosureChainSegment> segs;
             if (init instanceof ClosureMethodChain) {
-                final ClosureMethodChain chain = (ClosureMethodChain) init;
-                final List<MALExpressionModel.ClosureChainSegment> segs = chain.getSegments();
-                if (!segs.isEmpty()) {
-                    final MALExpressionModel.ClosureChainSegment last =
-                        segs.get(segs.size() - 1);
-                    if (last instanceof MALExpressionModel.ClosureMethodCallSeg
-                            && "split".equals(
-                                ((MALExpressionModel.ClosureMethodCallSeg) last).getName())) {
-                        return "String[]";
-                    }
+                segs = ((ClosureMethodChain) init).getSegments();
+            } else if (init instanceof MALExpressionModel.ClosureExprChain) {
+                segs = ((MALExpressionModel.ClosureExprChain) init).getSegments();
+            } else {
+                segs = Collections.emptyList();
+            }
+            if (!segs.isEmpty()) {
+                final MALExpressionModel.ClosureChainSegment last =
+                    segs.get(segs.size() - 1);
+                if (last instanceof MALExpressionModel.ClosureMethodCallSeg
+                        && "split".equals(
+                            ((MALExpressionModel.ClosureMethodCallSeg) last).getName())) {
+                    return "String[]";
                 }
             }
             return "Object";
@@ -607,6 +614,20 @@ public final class MALScriptParser {
                     ArithmeticOp.DIV,
                     convertClosureExpr(div.closureExpr(1)));
             }
+            if (ctx instanceof MALParser.ClosureUnaryMinusContext) {
+                final MALParser.ClosureUnaryMinusContext um =
+                    (MALParser.ClosureUnaryMinusContext) ctx;
+                final ClosureExpr inner =
+                    convertClosureExprPrimary(um.closureExprPrimary());
+                if (inner instanceof ClosureNumberLiteral) {
+                    return new ClosureNumberLiteral(
+                        -((ClosureNumberLiteral) inner).getValue());
+                }
+                return new ClosureBinaryExpr(
+                    new ClosureNumberLiteral(0),
+                    ArithmeticOp.SUB,
+                    inner);
+            }
             // closurePrimary
             final MALParser.ClosurePrimaryContext primary =
                 (MALParser.ClosurePrimaryContext) ctx;
@@ -616,9 +637,11 @@ public final class MALScriptParser {
         private ClosureExpr convertClosureExprPrimary(
                 final MALParser.ClosureExprPrimaryContext ctx) {
             if (ctx instanceof MALParser.ClosureStringContext) {
-                final String raw =
-                    stripQuotes(((MALParser.ClosureStringContext) ctx).STRING().getText());
-                return expandGString(raw);
+                final MALParser.ClosureStringContext sc =
+                    (MALParser.ClosureStringContext) ctx;
+                final String raw = stripQuotes(sc.STRING().getText());
+                final ClosureExpr base = expandGString(raw);
+                return wrapWithChainAccess(base, sc.closureChainAccess());
             }
             if (ctx instanceof MALParser.ClosureNumberContext) {
                 return new ClosureNumberLiteral(
@@ -633,8 +656,10 @@ public final class MALScriptParser {
                 return new ClosureBoolLiteral(bc.boolLiteral().TRUE() != null);
             }
             if (ctx instanceof MALParser.ClosureParenContext) {
-                return convertClosureExpr(
-                    ((MALParser.ClosureParenContext) ctx).closureExpr());
+                final MALParser.ClosureParenContext pc =
+                    (MALParser.ClosureParenContext) ctx;
+                final ClosureExpr base = convertClosureExpr(pc.closureExpr());
+                return wrapWithChainAccess(base, pc.closureChainAccess());
             }
             if (ctx instanceof MALParser.ClosureMapContext) {
                 final MALParser.ClosureMapLiteralContext mapCtx =
@@ -671,6 +696,26 @@ public final class MALScriptParser {
             }
 
             return new ClosureMethodChain(target, segments);
+        }
+
+        private ClosureExpr wrapWithChainAccess(
+                final ClosureExpr base,
+                final List<MALParser.ClosureChainAccessContext> accesses) {
+            if (accesses == null || accesses.isEmpty()) {
+                return base;
+            }
+            final List<ClosureChainSegment> segments = new ArrayList<>();
+            for (final MALParser.ClosureChainAccessContext acc : accesses) {
+                if (acc.closureChainSegment() != null) {
+                    final boolean isSafeNav = acc.safeNav() != null;
+                    segments.add(convertClosureChainSegment(
+                        acc.closureChainSegment(), isSafeNav));
+                } else if (acc.closureExpr() != null) {
+                    segments.add(new ClosureIndexAccess(
+                        convertClosureExpr(acc.closureExpr())));
+                }
+            }
+            return new MALExpressionModel.ClosureExprChain(base, segments);
         }
 
         private ClosureChainSegment convertClosureChainSegment(

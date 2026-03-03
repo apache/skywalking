@@ -57,7 +57,7 @@ public class DSL {
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
                          final String dsl,
-                         final String extraLogType) throws ModuleStartException {
+                         final Class<?> extraLogType) throws ModuleStartException {
         try {
             final LALClassGenerator generator = new LALClassGenerator();
             generator.setExtraLogType(extraLogType);

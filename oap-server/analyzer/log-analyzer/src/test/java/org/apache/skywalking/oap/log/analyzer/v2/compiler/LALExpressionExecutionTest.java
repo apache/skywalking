@@ -24,8 +24,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 import com.google.protobuf.Message;
@@ -39,6 +41,7 @@ import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
+import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
@@ -140,6 +143,7 @@ class LALExpressionExecutionTest {
                     final String ruleName = rule.get("name");
                     final String dsl = rule.get("dsl");
                     final String ruleLayer = rule.get("layer");
+                    final String extraLogType = rule.get("extraLogType");
                     if (ruleName == null || dsl == null) {
                         continue;
                     }
@@ -153,7 +157,7 @@ class LALExpressionExecutionTest {
                         category + "/" + baseName + " | " + ruleName,
                         () -> executeAndAssert(
                             generator, filterSpec, ruleName,
-                            dsl, ruleLayer, input)
+                            dsl, ruleLayer, extraLogType, input)
                     ));
                 }
             }
@@ -167,7 +171,16 @@ class LALExpressionExecutionTest {
             final String ruleName,
             final String dsl,
             final String ruleLayer,
+            final String extraLogType,
             final Map<String, Object> input) throws Exception {
+        if (extraLogType != null) {
+            generator.setExtraLogType(Class.forName(extraLogType));
+        } else if (ruleLayer != null) {
+            // Resolve via LALSourceTypeProvider SPI
+            generator.setExtraLogType(spiExtraLogTypes().get(ruleLayer));
+        } else {
+            generator.setExtraLogType(null);
+        }
         final LalExpression expr = generator.compile(dsl);
         final LogData.Builder logData = buildLogData(input);
         if (ruleLayer != null) {
@@ -385,6 +398,21 @@ class LALExpressionExecutionTest {
             .ignoringUnknownFields()
             .merge(protoJson, builder);
         return builder.build();
+    }
+
+    // ==================== SPI lookup ====================
+
+    private Map<String, Class<?>> spiTypes;
+
+    private Map<String, Class<?>> spiExtraLogTypes() {
+        if (spiTypes == null) {
+            spiTypes = new HashMap<>();
+            for (final LALSourceTypeProvider p :
+                    ServiceLoader.load(LALSourceTypeProvider.class)) {
+                spiTypes.put(p.layer().name(), p.extraLogType());
+            }
+        }
+        return spiTypes;
     }
 
     // ==================== FilterSpec setup ====================

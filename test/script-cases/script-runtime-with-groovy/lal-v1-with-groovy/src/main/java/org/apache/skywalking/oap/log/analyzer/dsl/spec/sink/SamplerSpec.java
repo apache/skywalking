@@ -62,6 +62,21 @@ public class SamplerSpec extends AbstractSpec {
     }
 
     @SuppressWarnings("unused")
+    public void rateLimit(final String id, @DelegatesTo(RateLimitingSampler.class) final Closure<?> cl) {
+        if (BINDING.get().shouldAbort()) {
+            return;
+        }
+
+        final Sampler sampler = rateLimitSamplersByString.computeIfAbsent(
+            id, $ -> new RateLimitingSampler(rlsResetHandler).start());
+
+        cl.setDelegate(sampler);
+        cl.call();
+
+        sampleWith(sampler);
+    }
+
+    @SuppressWarnings("unused")
     public void rateLimit(final String id, final Consumer<RateLimitingSampler> consumer) {
         if (BINDING.get().shouldAbort()) {
             return;

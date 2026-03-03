@@ -21,8 +21,6 @@ package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -33,14 +31,5 @@ public abstract class AbstractSpec {
     private final ModuleManager moduleManager;
 
     private final LogAnalyzerModuleConfig moduleConfig;
-
-    public String tag(final ExecutionContext ctx, final String key) {
-        return ctx.log().getTags().getDataList()
-                .stream()
-                .filter(data -> key.equals(data.getKey()))
-                .map(KeyStringValuePair::getValue)
-                .findFirst()
-                .orElse("");
-    }
 
 }

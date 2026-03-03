@@ -89,14 +89,17 @@ class MalComparisonTest {
         final String expression = rule.fullExpression;
 
         // ---- V1: Groovy path (original packages) ----
-        org.apache.skywalking.oap.meter.analyzer.dsl.Expression v1Expr = null;
-        org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext v1Ctx = null;
+        final org.apache.skywalking.oap.meter.analyzer.dsl.Expression v1Expr;
+        final org.apache.skywalking.oap.meter.analyzer.dsl.ExpressionParsingContext v1Ctx;
         try {
             v1Expr = org.apache.skywalking.oap.meter.analyzer.dsl.DSL.parse(
                 metricName, expression);
             v1Ctx = v1Expr.parse();
         } catch (Exception e) {
-            // V1 failed - skip comparison
+            final Throwable cause = e.getCause() != null ? e.getCause() : e;
+            fail(metricName + ": v1 (Groovy) failed — "
+                + cause.getClass().getSimpleName() + ": " + cause.getMessage());
+            return;
         }
 
         // ---- V2: ANTLR4 + Javassist (.v2. packages) ----
@@ -120,12 +123,6 @@ class MalComparisonTest {
         }
 
         // ---- Compare metadata ----
-        if (v1Ctx == null && v2Meta == null) {
-            return;
-        }
-        if (v1Ctx == null) {
-            return;
-        }
         if (v2Meta == null) {
             fail(metricName + ": v2 compile failed but v1 succeeded — " + v2Error);
             return;
@@ -717,13 +714,7 @@ class MalComparisonTest {
                 if (name == null || exp == null) {
                     continue;
                 }
-                String fullExp = exp;
-                if (!expPrefix.isEmpty()) {
-                    fullExp = expPrefix + "." + fullExp;
-                }
-                if (!expSuffix.isEmpty()) {
-                    fullExp = fullExp + "." + expSuffix;
-                }
+                final String fullExp = formatExp(expPrefix, expSuffix, exp);
                 malRules.add(new MalRule(name, fullExp, inputConfig, metricPrefix, file));
             }
             if (!malRules.isEmpty()) {
@@ -744,6 +735,32 @@ class MalComparisonTest {
             }
         }
         return null;
+    }
+
+    /**
+     * Replicates the production {@code MetricConvert.formatExp()} logic:
+     * inserts {@code expPrefix} after the metric name (first dot-segment),
+     * and appends {@code expSuffix} after the whole expression.
+     */
+    private static String formatExp(final String expPrefix, final String expSuffix,
+                                    final String exp) {
+        String ret = exp;
+        if (!expPrefix.isEmpty()) {
+            final int dot = exp.indexOf('.');
+            if (dot >= 0) {
+                ret = String.format("(%s.%s)", exp.substring(0, dot), expPrefix);
+                final String after = exp.substring(dot + 1);
+                if (!after.isEmpty()) {
+                    ret = String.format("(%s.%s)", ret, after);
+                }
+            } else {
+                ret = String.format("(%s.%s)", exp, expPrefix);
+            }
+        }
+        if (!expSuffix.isEmpty()) {
+            ret = String.format("(%s).%s", ret, expSuffix);
+        }
+        return ret;
     }
 
     private static class MalRule {

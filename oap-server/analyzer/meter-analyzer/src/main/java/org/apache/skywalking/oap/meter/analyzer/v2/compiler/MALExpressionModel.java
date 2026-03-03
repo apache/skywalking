@@ -228,6 +228,12 @@ public final class MALExpressionModel {
     }
 
     /**
+     * Null literal argument.
+     */
+    public static final class NullArgument implements Argument {
+    }
+
+    /**
      * Closure expression: {@code {tags -> tags.key = "val"}}
      */
     @Getter
@@ -404,6 +410,22 @@ public final class MALExpressionModel {
         public ClosureMethodChain(final String target,
                                   final List<ClosureChainSegment> segments) {
             this.target = target;
+            this.segments = Collections.unmodifiableList(segments);
+        }
+    }
+
+    /**
+     * Method chain on a non-identifier base expression:
+     * {@code "str".toString()}, {@code (expr).split(...)}.
+     */
+    @Getter
+    public static final class ClosureExprChain implements ClosureExpr {
+        private final ClosureExpr base;
+        private final List<ClosureChainSegment> segments;
+
+        public ClosureExprChain(final ClosureExpr base,
+                                final List<ClosureChainSegment> segments) {
+            this.base = base;
             this.segments = Collections.unmodifiableList(segments);
         }
     }

@@ -27,17 +27,22 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
+import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
+import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
+import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
@@ -86,34 +91,52 @@ class LalComparisonTest {
     private void compareExecution(final LalRule rule) throws Exception {
         final String ruleName = rule.name;
         final String dsl = rule.dsl;
-        final ModuleManager manager = buildMockModuleManager();
+
         final LogData testLog = buildTestLogData(dsl);
+
+        // Build proto extraLog from input data if available
+        final Message extraLog = buildExtraLog(rule.inputData);
 
         // ---- V1: Groovy path ----
         // v1 uses original packages: org.apache.skywalking.oap.log.analyzer.dsl.*
-        org.apache.skywalking.oap.log.analyzer.dsl.Binding v1Ctx = null;
+        final ModuleManager v1Manager = buildMockModuleManager(true);
+        final org.apache.skywalking.oap.log.analyzer.dsl.Binding v1Ctx;
         try {
             final org.apache.skywalking.oap.log.analyzer.dsl.DSL v1Dsl =
                 org.apache.skywalking.oap.log.analyzer.dsl.DSL.of(
-                    manager,
+                    v1Manager,
                     new org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig(),
                     dsl);
             disableSinkListeners(v1Dsl);
 
             v1Ctx = new org.apache.skywalking.oap.log.analyzer.dsl.Binding().log(testLog);
+            if (extraLog != null) {
+                v1Ctx.extraLog(extraLog);
+            }
             v1Dsl.bind(v1Ctx);
             v1Dsl.evaluate();
         } catch (Exception e) {
-            // V1 failed — skip comparison
+            final Throwable cause = e.getCause() != null ? e.getCause() : e;
+            fail(ruleName + ": v1 (Groovy) failed — "
+                + cause.getClass().getSimpleName() + ": " + cause.getMessage());
+            return;
         }
 
         // ---- V2: ANTLR4 + Javassist path ----
         // v2 uses .v2. packages: org.apache.skywalking.oap.log.analyzer.v2.dsl.*
+        final ModuleManager v2Manager = buildMockModuleManager(false);
         org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext v2Ctx = null;
         String v2Error = null;
         try {
             final LALClassGenerator generator = new LALClassGenerator();
-            generator.setExtraLogType(rule.extraLogType);
+            // Resolve extraLogType: explicit config > SPI by layer > null
+            if (rule.extraLogType != null) {
+                generator.setExtraLogType(Class.forName(rule.extraLogType));
+            } else if (rule.layer != null) {
+                generator.setExtraLogType(spiExtraLogTypes().get(rule.layer));
+            } else {
+                generator.setExtraLogType(null);
+            }
             if (rule.sourceFile != null) {
                 final String baseName = rule.sourceFile.getName()
                     .replaceFirst("\\.(yaml|yml)$", "");
@@ -127,10 +150,13 @@ class LalComparisonTest {
 
             final org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec v2FilterSpec =
                 new org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec(
-                    manager, new LogAnalyzerModuleConfig());
+                    v2Manager, new LogAnalyzerModuleConfig());
             disableSinkListenersOnSpec(v2FilterSpec);
 
             v2Ctx = new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext().log(testLog);
+            if (extraLog != null) {
+                v2Ctx.extraLog(extraLog);
+            }
 
             v2Expr.execute(v2FilterSpec, v2Ctx);
         } catch (Exception e) {
@@ -139,13 +165,6 @@ class LalComparisonTest {
         }
 
         // ---- Compare ----
-        if (v1Ctx == null && v2Ctx == null) {
-            return;
-        }
-        if (v1Ctx == null) {
-            // V1 failed but v2 succeeded — v2 is more capable, OK
-            return;
-        }
         if (v2Ctx == null) {
             fail(ruleName + ": v2 execution failed but v1 succeeded — " + v2Error);
             return;
@@ -174,15 +193,27 @@ class LalComparisonTest {
             ruleName + ": tags mismatch");
     }
 
-    private ModuleManager buildMockModuleManager() {
+    private ModuleManager buildMockModuleManager(final boolean isV1) {
         final ModuleManager manager = mock(ModuleManager.class);
         setInternalField(manager, "isInPrepareStage", false);
         when(manager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
 
+        // v1 and v2 have different LogAnalyzerModuleProvider classes that ExtractorSpec casts to.
+        // Each path needs its own manager with the correct provider type.
         final ModuleProviderHolder logAnalyzerHolder = mock(ModuleProviderHolder.class);
-        final LogAnalyzerModuleProvider logAnalyzerProvider = mock(LogAnalyzerModuleProvider.class);
-        when(logAnalyzerProvider.getMetricConverts()).thenReturn(Collections.emptyList());
-        when(logAnalyzerHolder.provider()).thenReturn(logAnalyzerProvider);
+        if (isV1) {
+            final org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider
+                provider = mock(
+                    org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider.class);
+            when(provider.getMetricConverts()).thenReturn(Collections.emptyList());
+            when(logAnalyzerHolder.provider()).thenReturn(provider);
+        } else {
+            final org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider
+                provider = mock(
+                    org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider.class);
+            when(provider.getMetricConverts()).thenReturn(Collections.emptyList());
+            when(logAnalyzerHolder.provider()).thenReturn(provider);
+        }
         when(manager.find(LogAnalyzerModule.NAME)).thenReturn(logAnalyzerHolder);
 
         when(manager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
@@ -195,6 +226,15 @@ class LalComparisonTest {
             .getService(ConfigService.class)
             .getSearchableLogsTags())
             .thenReturn("");
+        final NamingControl namingControl = mock(NamingControl.class);
+        when(namingControl.formatServiceName(anyString()))
+            .thenAnswer(inv -> inv.getArgument(0));
+        when(namingControl.formatInstanceName(anyString()))
+            .thenAnswer(inv -> inv.getArgument(0));
+        when(namingControl.formatEndpointName(anyString(), anyString()))
+            .thenAnswer(inv -> inv.getArgument(1));
+        when(manager.find(CoreModule.NAME).provider().getService(NamingControl.class))
+            .thenReturn(namingControl);
         return manager;
     }
 
@@ -202,16 +242,27 @@ class LalComparisonTest {
         final LogData.Builder builder = LogData.newBuilder()
             .setService("test-service")
             .setServiceInstance("test-instance")
-            .setTimestamp(System.currentTimeMillis());
+            .setTimestamp(System.currentTimeMillis())
+            .setTraceContext(TraceContext.newBuilder()
+                .setTraceId("test-trace-id-123")
+                .setTraceSegmentId("test-segment-id-456")
+                .setSpanId(1));
 
         if (dsl.contains("json")) {
             builder.setBody(LogDataBody.newBuilder()
                 .setJson(JSONLog.newBuilder()
                     .setJson("{\"level\":\"ERROR\",\"msg\":\"test\","
                         + "\"layer\":\"GENERAL\",\"service\":\"test-svc\","
+                        + "\"instance\":\"test-inst\",\"endpoint\":\"test-ep\","
                         + "\"time\":\"1234567890\","
                         + "\"id\":\"slow-1\",\"statement\":\"SELECT 1\","
-                        + "\"query_time\":500}")));
+                        + "\"query_time\":500,\"code\":200,"
+                        + "\"env\":\"prod\",\"region\":\"us-east\","
+                        + "\"skip\":\"false\","
+                        + "\"data\":{\"name\":\"test-value\"},"
+                        + "\"latency\":100,\"uri\":\"/api/test\","
+                        + "\"reason\":\"SLOW\",\"pid\":\"proc-1\","
+                        + "\"dpid\":\"proc-2\",\"dp\":\"CLIENT\"}")));
         }
 
         if (dsl.contains("LOG_KIND")) {
@@ -311,6 +362,18 @@ class LalComparisonTest {
             if (rules == null) {
                 continue;
             }
+
+            // Load matching .input.data file if present
+            final String baseName = file.getName()
+                .replaceFirst("\\.(yaml|yml)$", "");
+            final File inputDataFile = new File(file.getParent(),
+                baseName + ".input.data");
+            Map<String, Map<String, Object>> inputData = null;
+            if (inputDataFile.exists()) {
+                inputData = yaml.load(
+                    Files.readString(inputDataFile.toPath()));
+            }
+
             final List<LalRule> lalRules = new ArrayList<>();
             for (final Map<String, String> rule : rules) {
                 final String name = rule.get("name");
@@ -319,7 +382,11 @@ class LalComparisonTest {
                     continue;
                 }
                 final String extraLogType = rule.get("extraLogType");
-                lalRules.add(new LalRule(name, dslStr, extraLogType, file));
+                final String layer = rule.get("layer");
+                final Map<String, Object> ruleInput = inputData != null
+                    ? inputData.get(name) : null;
+                lalRules.add(new LalRule(
+                    name, dslStr, extraLogType, layer, ruleInput, file));
             }
             if (!lalRules.isEmpty()) {
                 final String relative = lalDir.relativize(file.toPath()).toString();
@@ -359,17 +426,69 @@ class LalComparisonTest {
         }
     }
 
+    // ==================== Proto extraLog builder ====================
+
+    @SuppressWarnings("unchecked")
+    private static Message buildExtraLog(
+            final Map<String, Object> inputData) throws Exception {
+        if (inputData == null) {
+            return null;
+        }
+        final Map<String, String> extraLog =
+            (Map<String, String>) inputData.get("extra-log");
+        if (extraLog == null) {
+            return null;
+        }
+
+        final String protoClass = extraLog.get("proto-class");
+        final String protoJson = extraLog.get("proto-json");
+        if (protoClass == null || protoJson == null) {
+            return null;
+        }
+
+        final Class<?> clazz = Class.forName(protoClass);
+        final Message.Builder builder = (Message.Builder)
+            clazz.getMethod("newBuilder").invoke(null);
+        JsonFormat.parser()
+            .ignoringUnknownFields()
+            .merge(protoJson, builder);
+        return builder.build();
+    }
+
+    // ==================== SPI lookup ====================
+
+    private Map<String, Class<?>> spiTypes;
+
+    private Map<String, Class<?>> spiExtraLogTypes() {
+        if (spiTypes == null) {
+            spiTypes = new HashMap<>();
+            for (final LALSourceTypeProvider p :
+                    ServiceLoader.load(LALSourceTypeProvider.class)) {
+                spiTypes.put(p.layer().name(), p.extraLogType());
+            }
+        }
+        return spiTypes;
+    }
+
+    // ==================== Inner classes ====================
+
     private static class LalRule {
         final String name;
         final String dsl;
         final String extraLogType;
+        final String layer;
+        final Map<String, Object> inputData;
         final File sourceFile;
 
         LalRule(final String name, final String dsl,
-                final String extraLogType, final File sourceFile) {
+                final String extraLogType, final String layer,
+                final Map<String, Object> inputData,
+                final File sourceFile) {
             this.name = name;
             this.dsl = dsl;
             this.extraLogType = extraLogType;
+            this.layer = layer;
+            this.inputData = inputData;
             this.sourceFile = sourceFile;
         }
     }

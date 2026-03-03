@@ -25,7 +25,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>server-library</artifactId>
-        <version>${revision}</version>
+        <version>10.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>library-async-profiler-jfr-parser</artifactId>

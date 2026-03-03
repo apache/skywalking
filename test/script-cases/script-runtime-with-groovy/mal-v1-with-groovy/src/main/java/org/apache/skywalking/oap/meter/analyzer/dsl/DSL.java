@@ -75,6 +75,7 @@ public final class DSL {
                          .add(Map.class)
                          .add(List.class)
                          .add(Array.class)
+                         .add(String[].class)
                          .add(K8sRetagType.class)
                          .add(DetectPoint.class)
                          .add(Layer.class)
