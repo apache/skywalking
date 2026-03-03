@@ -537,19 +537,24 @@ class LALClassGeneratorTest {
         final String source = generator.generateSource(dsl);
         final String fqcn =
             "io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry";
-        // Direct getter chains, not getAt
+        // Proto field access uses _p local variable, not inline cast
         assertTrue(source.contains(
-            "((" + fqcn + ") h.ctx().extraLog()).getResponse()"),
-            "Expected direct getter for parsed.response but got: " + source);
-        assertTrue(source.contains(
-            "((" + fqcn + ") h.ctx().extraLog()).getCommonProperties()"),
-            "Expected direct getter for parsed.commonProperties but got: " + source);
+            fqcn + " _p = (" + fqcn + ") h.ctx().extraLog()"),
+            "Expected _p local variable for extraLog cast but got: " + source);
+        // Intermediate fields cached in _tN local variables
+        assertTrue(source.contains("_p.getResponse()"),
+            "Expected _p.getResponse() via cached variable but got: " + source);
+        assertTrue(source.contains("_p.getCommonProperties()"),
+            "Expected _p.getCommonProperties() via cached variable but got: " + source);
         assertFalse(source.contains("getAt"),
             "Should NOT contain getAt calls but got: " + source);
-        // Safe navigation: null checks with == null
-        assertTrue(source.contains("== null"),
+        // Safe navigation: null checks with == null on local variables
+        assertTrue(source.contains("_p == null ? null :"),
             "Expected null checks for ?. safe navigation but got: " + source);
-        // Numeric comparison: direct primitive, no h.toLong() boxing
+        // Dedup: _tN variables declared once and reused
+        assertTrue(source.contains("_t0") && source.contains("_t1"),
+            "Expected _tN local variables for chain dedup but got: " + source);
+        // Numeric comparison: direct primitive via _tN variable, no h.toLong()
         assertTrue(source.contains(".getValue() < 400"),
             "Expected direct primitive comparison without boxing but got: " + source);
         assertFalse(source.contains("h.toLong"),

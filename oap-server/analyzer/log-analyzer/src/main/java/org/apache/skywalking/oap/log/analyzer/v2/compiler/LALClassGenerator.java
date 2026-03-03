@@ -95,6 +95,15 @@ public final class LALClassGenerator {
         String lastNullChecks;
         String lastRawChain;
 
+        // Per-method proto field variable caching (NONE + extraLogType only).
+        // Maps chain key ("response", "response.responseCode") to variable name ("_t0", "_t1").
+        // Enables dedup: the same chain accessed multiple times reuses the same variable.
+        final Map<String, String> protoVars = new HashMap<>();
+        final List<String[]> protoLvtVars = new ArrayList<>();
+        final StringBuilder protoVarDecls = new StringBuilder();
+        int protoVarCounter;
+        boolean usedProtoAccess;
+
         GenCtx(final ParserType parserType, final Class<?> extraLogType) {
             this.parserType = parserType;
             this.extraLogType = extraLogType;
@@ -109,6 +118,36 @@ public final class LALClassGenerator {
             lastResolvedType = null;
             lastNullChecks = null;
             lastRawChain = null;
+        }
+
+        void resetProtoVars() {
+            protoVars.clear();
+            protoLvtVars.clear();
+            protoVarDecls.setLength(0);
+            protoVarCounter = 0;
+            usedProtoAccess = false;
+        }
+
+        Object[] saveProtoVarState() {
+            return new Object[]{
+                new HashMap<>(protoVars),
+                new ArrayList<>(protoLvtVars),
+                protoVarDecls.toString(),
+                protoVarCounter,
+                usedProtoAccess
+            };
+        }
+
+        @SuppressWarnings("unchecked")
+        void restoreProtoVarState(final Object[] state) {
+            protoVars.clear();
+            protoVars.putAll((Map<String, String>) state[0]);
+            protoLvtVars.clear();
+            protoLvtVars.addAll((List<String[]>) state[1]);
+            protoVarDecls.setLength(0);
+            protoVarDecls.append((String) state[2]);
+            protoVarCounter = (Integer) state[3];
+            usedProtoAccess = (Boolean) state[4];
         }
     }
 
@@ -279,11 +318,19 @@ public final class LALClassGenerator {
 
         final javassist.CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
         ctClass.addMethod(execMethod);
-        addLocalVariableTable(execMethod, className, new String[][]{
-            {"filterSpec", "L" + FILTER_SPEC.replace('.', '/') + ";"},
-            {"ctx", "L" + EXEC_CTX.replace('.', '/') + ";"},
-            {"h", "L" + H.replace('.', '/') + ";"}
-        });
+
+        // Build LVT for execute(): params + h + optional _p and proto vars
+        final List<String[]> execLvt = new ArrayList<>();
+        execLvt.add(new String[]{"filterSpec", "L" + FILTER_SPEC.replace('.', '/') + ";"});
+        execLvt.add(new String[]{"ctx", "L" + EXEC_CTX.replace('.', '/') + ";"});
+        execLvt.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
+        if (genCtx.usedProtoAccess && genCtx.extraLogType != null) {
+            execLvt.add(new String[]{"_p",
+                "L" + genCtx.extraLogType.getName().replace('.', '/') + ";"});
+            execLvt.addAll(genCtx.protoLvtVars);
+        }
+        addLocalVariableTable(execMethod, className,
+            execLvt.toArray(new String[0][]));
 
         writeClassFile(ctClass);
 
@@ -313,15 +360,28 @@ public final class LALClassGenerator {
 
     private String generateExecuteMethod(final LALScriptModel model,
                                           final GenCtx genCtx) {
+        genCtx.resetProtoVars();
+
+        // Generate body first so proto var declarations are collected
+        final StringBuilder bodyContent = new StringBuilder();
+        for (final LALScriptModel.FilterStatement stmt : model.getStatements()) {
+            generateFilterStatement(bodyContent, stmt, genCtx);
+        }
+
         final StringBuilder sb = new StringBuilder();
         sb.append("public void execute(").append(FILTER_SPEC)
           .append(" filterSpec, ").append(EXEC_CTX).append(" ctx) {\n");
         sb.append("  ").append(H).append(" h = new ").append(H).append("(ctx);\n");
 
-        for (final LALScriptModel.FilterStatement stmt : model.getStatements()) {
-            generateFilterStatement(sb, stmt, genCtx);
+        // Insert _p + proto var declarations if any proto field access was used
+        if (genCtx.usedProtoAccess && genCtx.extraLogType != null) {
+            final String elTypeName = genCtx.extraLogType.getName();
+            sb.append("  ").append(elTypeName).append(" _p = (")
+              .append(elTypeName).append(") h.ctx().extraLog();\n");
+            sb.append(genCtx.protoVarDecls);
         }
 
+        sb.append(bodyContent);
         sb.append("}\n");
         return sb.toString();
     }
@@ -382,21 +442,41 @@ public final class LALClassGenerator {
                                           final LALScriptModel.ExtractorBlock block,
                                           final GenCtx genCtx) {
         final String methodName = genCtx.nextMethodName("extractor");
-        final StringBuilder body = new StringBuilder();
-        body.append("private void ").append(methodName).append("(")
-            .append(EXTRACTOR_SPEC).append(" _e, ").append(H).append(" h) {\n");
+        final Object[] savedState = genCtx.saveProtoVarState();
+        genCtx.resetProtoVars();
 
+        // Generate body first to collect proto var declarations
+        final StringBuilder bodyContent = new StringBuilder();
         final List<LALScriptModel.FilterStatement> extractorStmts = new ArrayList<>();
         for (final LALScriptModel.ExtractorStatement es : block.getStatements()) {
             extractorStmts.add((LALScriptModel.FilterStatement) es);
         }
-        generateExtractorBody(body, extractorStmts, genCtx);
+        generateExtractorBody(bodyContent, extractorStmts, genCtx);
 
+        // Assemble method with declarations before body
+        final StringBuilder body = new StringBuilder();
+        body.append("private void ").append(methodName).append("(")
+            .append(EXTRACTOR_SPEC).append(" _e, ").append(H).append(" h) {\n");
+
+        final List<String[]> lvtVars = new ArrayList<>();
+        lvtVars.add(new String[]{"_e", "L" + EXTRACTOR_SPEC.replace('.', '/') + ";"});
+        lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
+
+        if (genCtx.usedProtoAccess && genCtx.extraLogType != null) {
+            final String elTypeName = genCtx.extraLogType.getName();
+            body.append("  ").append(elTypeName).append(" _p = (")
+                .append(elTypeName).append(") h.ctx().extraLog();\n");
+            body.append(genCtx.protoVarDecls);
+            lvtVars.add(new String[]{"_p", "L" + elTypeName.replace('.', '/') + ";"});
+            lvtVars.addAll(genCtx.protoLvtVars);
+        }
+
+        body.append(bodyContent);
         body.append("}\n");
-        genCtx.privateMethods.add(new PrivateMethod(body.toString(), new String[][]{
-            {"_e", "L" + EXTRACTOR_SPEC.replace('.', '/') + ";"},
-            {"h", "L" + H.replace('.', '/') + ";"}
-        }));
+        genCtx.privateMethods.add(new PrivateMethod(
+            body.toString(), lvtVars.toArray(new String[0][])));
+
+        genCtx.restoreProtoVarState(savedState);
 
         sb.append("  if (!ctx.shouldAbort()) {\n");
         sb.append("    ").append(methodName).append("(filterSpec.extractor(), h);\n");
@@ -674,21 +754,41 @@ public final class LALClassGenerator {
                                      final LALScriptModel.SinkBlock sink,
                                      final GenCtx genCtx) {
         final String methodName = genCtx.nextMethodName("sink");
-        final StringBuilder body = new StringBuilder();
-        body.append("private void ").append(methodName).append("(")
-            .append(FILTER_SPEC).append(" _f, ").append(H).append(" h) {\n");
+        final Object[] savedState = genCtx.saveProtoVarState();
+        genCtx.resetProtoVars();
 
+        // Generate body first to collect proto var declarations
+        final StringBuilder bodyContent = new StringBuilder();
         final List<LALScriptModel.FilterStatement> sinkStmts = new ArrayList<>();
         for (final LALScriptModel.SinkStatement ss : sink.getStatements()) {
             sinkStmts.add((LALScriptModel.FilterStatement) ss);
         }
-        generateSinkBody(body, sinkStmts, genCtx);
+        generateSinkBody(bodyContent, sinkStmts, genCtx);
 
+        // Assemble method with declarations before body
+        final StringBuilder body = new StringBuilder();
+        body.append("private void ").append(methodName).append("(")
+            .append(FILTER_SPEC).append(" _f, ").append(H).append(" h) {\n");
+
+        final List<String[]> lvtVars = new ArrayList<>();
+        lvtVars.add(new String[]{"_f", "L" + FILTER_SPEC.replace('.', '/') + ";"});
+        lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
+
+        if (genCtx.usedProtoAccess && genCtx.extraLogType != null) {
+            final String elTypeName = genCtx.extraLogType.getName();
+            body.append("  ").append(elTypeName).append(" _p = (")
+                .append(elTypeName).append(") h.ctx().extraLog();\n");
+            body.append(genCtx.protoVarDecls);
+            lvtVars.add(new String[]{"_p", "L" + elTypeName.replace('.', '/') + ";"});
+            lvtVars.addAll(genCtx.protoLvtVars);
+        }
+
+        body.append(bodyContent);
         body.append("}\n");
-        genCtx.privateMethods.add(new PrivateMethod(body.toString(), new String[][]{
-            {"_f", "L" + FILTER_SPEC.replace('.', '/') + ";"},
-            {"h", "L" + H.replace('.', '/') + ";"}
-        }));
+        genCtx.privateMethods.add(new PrivateMethod(
+            body.toString(), lvtVars.toArray(new String[0][])));
+
+        genCtx.restoreProtoVarState(savedState);
 
         sb.append("  if (!ctx.shouldAbort()) {\n");
         sb.append("    ").append(methodName).append("(filterSpec, h);\n");
@@ -1246,67 +1346,117 @@ public final class LALClassGenerator {
         return call.toString();
     }
 
+    /**
+     * Generates proto getter chain using local variables for readability and dedup.
+     *
+     * <p>Instead of deeply nested ternaries like:
+     * <pre>
+     *   ((Type) h.ctx().extraLog()).getA() == null ? null
+     *     : ((Type) h.ctx().extraLog()).getA().getB()
+     * </pre>
+     * generates sequential local variable declarations in {@code genCtx.protoVarDecls}:
+     * <pre>
+     *   TypeA _t0 = _p == null ? null : _p.getA();
+     *   TypeB _t1 = _t0 == null ? null : _t0.getB();
+     * </pre>
+     * and returns a simple variable reference ({@code _t1}).
+     *
+     * <p>Repeated access to the same chain prefix reuses existing variables (dedup).
+     */
     private String generateExtraLogAccess(
             final List<LALScriptModel.FieldSegment> fieldSegments,
             final Class<?> extraLogType,
             final GenCtx genCtx) {
+        genCtx.usedProtoAccess = true;
+
         if (fieldSegments.isEmpty()) {
-            return "h.ctx().extraLog()";
+            return "_p";
         }
 
         final String typeName = extraLogType.getName();
-        final StringBuilder chainSb = new StringBuilder();
-        chainSb.append("((").append(typeName)
-               .append(") h.ctx().extraLog())");
-
-        final List<String> nullChecks = new ArrayList<>();
+        final StringBuilder chainKey = new StringBuilder();
+        String prevVar = "_p";
         Class<?> currentType = extraLogType;
-        boolean lastIsPrimitive = false;
-        String lastPrimitiveType = null;
+        boolean prevCanBeNull = true;
 
-        for (final LALScriptModel.FieldSegment seg : fieldSegments) {
+        for (int i = 0; i < fieldSegments.size(); i++) {
+            final LALScriptModel.FieldSegment seg = fieldSegments.get(i);
             final String field = seg.getName();
             final String getterName = "get" + Character.toUpperCase(field.charAt(0))
                 + field.substring(1);
 
-            // ?. means: check the chain so far for null before calling this getter
-            if (seg.isSafeNav()) {
-                nullChecks.add(chainSb.toString() + " == null");
-            }
-
+            final java.lang.reflect.Method getter;
             try {
-                final java.lang.reflect.Method getter =
-                    currentType.getMethod(getterName);
-                chainSb.append(".").append(getterName).append("()");
-                currentType = getter.getReturnType();
-                lastIsPrimitive = currentType.isPrimitive();
-                if (lastIsPrimitive) {
-                    lastPrimitiveType = boxTypeName(currentType);
-                }
+                getter = currentType.getMethod(getterName);
             } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException(
                     "Cannot resolve getter " + currentType.getSimpleName()
                         + "." + getterName + "() for extraLogType "
                         + typeName + ". Check the field path in the LAL rule.");
             }
+            final Class<?> returnType = getter.getReturnType();
+
+            if (chainKey.length() > 0) {
+                chainKey.append(".");
+            }
+            chainKey.append(field);
+            final String key = chainKey.toString();
+            final boolean isLast = i == fieldSegments.size() - 1;
+
+            // Primitive final segment: return inline expression, no variable
+            if (isLast && returnType.isPrimitive()) {
+                final String rawAccess = prevVar + "." + getterName + "()";
+                genCtx.lastResolvedType = returnType;
+                genCtx.lastRawChain = rawAccess;
+                final String boxName = boxTypeName(returnType);
+                if (seg.isSafeNav() && prevCanBeNull) {
+                    genCtx.lastNullChecks = prevVar + " == null";
+                    return "(" + prevVar + " == null ? null : "
+                        + boxName + ".valueOf(" + rawAccess + "))";
+                } else {
+                    genCtx.lastNullChecks = null;
+                    return boxName + ".valueOf(" + rawAccess + ")";
+                }
+            }
+
+            // Reuse existing variable (dedup)
+            final String existingVar = genCtx.protoVars.get(key);
+            if (existingVar != null) {
+                prevVar = existingVar;
+                currentType = returnType;
+                prevCanBeNull = true;
+                continue;
+            }
+
+            // Create new local variable declaration
+            final String newVar = "_t" + genCtx.protoVarCounter++;
+            final String returnTypeName = returnType.getName();
+            if (seg.isSafeNav() && prevCanBeNull) {
+                genCtx.protoVarDecls.append("  ").append(returnTypeName)
+                    .append(" ").append(newVar).append(" = ")
+                    .append(prevVar).append(" == null ? null : ")
+                    .append(prevVar).append(".").append(getterName).append("();\n");
+                prevCanBeNull = true;
+            } else {
+                genCtx.protoVarDecls.append("  ").append(returnTypeName)
+                    .append(" ").append(newVar).append(" = ")
+                    .append(prevVar).append(".").append(getterName).append("();\n");
+                prevCanBeNull = !returnType.isPrimitive();
+            }
+            genCtx.protoVars.put(key, newVar);
+            genCtx.protoLvtVars.add(new String[]{
+                newVar, "L" + returnTypeName.replace('.', '/') + ";"
+            });
+
+            prevVar = newVar;
+            currentType = returnType;
         }
 
-        // Store metadata for callers that can optimize (e.g., numeric comparisons)
+        // Non-primitive final result — null checks are in declarations
         genCtx.lastResolvedType = currentType;
-        genCtx.lastRawChain = chainSb.toString();
-        genCtx.lastNullChecks = nullChecks.isEmpty()
-            ? null : String.join(" || ", nullChecks);
-
-        // Default return: boxed + null-checked (safe for all callers)
-        String result = chainSb.toString();
-        if (lastIsPrimitive && lastPrimitiveType != null) {
-            result = lastPrimitiveType + ".valueOf(" + result + ")";
-        }
-
-        if (!nullChecks.isEmpty()) {
-            return "(" + genCtx.lastNullChecks + " ? null : " + result + ")";
-        }
-        return result;
+        genCtx.lastRawChain = prevVar;
+        genCtx.lastNullChecks = null;
+        return prevVar;
     }
 
     private static String boxTypeName(final Class<?> primitiveType) {
