@@ -31,5 +31,5 @@ import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
  */
 @FunctionalInterface
 public interface LalExpression {
-    void execute(FilterSpec filterSpec, Binding binding);
+    void execute(FilterSpec filterSpec, ExecutionContext ctx);
 }

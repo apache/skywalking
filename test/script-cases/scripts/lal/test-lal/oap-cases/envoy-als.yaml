@@ -16,6 +16,7 @@
 rules:
   - name: envoy-als
     layer: MESH
+    extraLogType: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
     dsl: |
       filter {
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)

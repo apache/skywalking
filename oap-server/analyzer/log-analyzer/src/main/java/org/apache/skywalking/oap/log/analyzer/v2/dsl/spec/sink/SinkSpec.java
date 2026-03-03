@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.sink;
 
-import java.util.function.Consumer;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -34,24 +34,22 @@ public class SinkSpec extends AbstractSpec {
         sampler = new SamplerSpec(moduleManager(), moduleConfig());
     }
 
-    public void sampler(final Consumer<SamplerSpec> consumer) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        consumer.accept(sampler);
+    public SamplerSpec sampler() {
+        return sampler;
     }
 
-    public void enforcer() {
-        if (BINDING.get().shouldAbort()) {
+    public void enforcer(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
             return;
         }
-        BINDING.get().save();
+        ctx.save();
     }
 
-    public void dropper() {
-        if (BINDING.get().shouldAbort()) {
+    public void dropper(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
             return;
         }
-        BINDING.get().drop();
+        ctx.drop();
     }
+
 }

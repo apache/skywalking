@@ -9,17 +9,17 @@ LAL DSL string
   → LALScriptParser.parse(dsl)                 [ANTLR4 lexer/parser → listener]
   → LALScriptModel (immutable AST)
   → LALClassGenerator.compileFromModel(model)
-      Phase 1: collectConsumers(model)   — pre-scan for blocks needing Consumer callbacks
-      Phase 2: compileConsumerClass()    — generate each consumer as separate Javassist class
-      Phase 3: classPool.makeClass()     — create main class implementing LalExpression
-      Phase 4: generateExecuteMethod()   — emit Java source referencing this._consumerN fields
-      Phase 5: ctClass.toClass(LalExpressionPackageHolder.class) + wire consumer fields
+      1. detectParserType(model)     — compile-time data source analysis (JSON/YAML/TEXT/NONE)
+      2. generateExecuteMethod()     — emit execute() + private methods (_extractor, _sink)
+      3. classPool.makeClass()       — single class implementing LalExpression
+      4. addLocalVariableTable()     — named LVT entries for all methods
+      5. ctClass.toClass()           — load into JVM
   → LalExpression instance
 ```
 
 The generated class implements:
 ```java
-void execute(FilterSpec filterSpec, Binding binding)
+void execute(FilterSpec filterSpec, ExecutionContext ctx)
 ```
 
 ## File Structure
@@ -35,8 +35,16 @@ oap-server/analyzer/log-analyzer/
     LALClassGenerator.java              — Javassist code generator
     rt/
       LalExpressionPackageHolder.java   — Class loading anchor (empty marker)
-      BindingAware.java                 — Interface for consumers needing Binding access
-      LalRuntimeHelper.java             — Static helpers called by generated code
+      LalRuntimeHelper.java             — Instance-based helper called by generated code
+
+  src/main/java/.../dsl/
+    LalExpression.java                  — Functional interface: execute(FilterSpec, ExecutionContext)
+    ExecutionContext.java               — Per-log execution state (log, parsed, flags)
+    DSL.java                            — Wraps compiled expression + FilterSpec
+    spec/filter/FilterSpec.java         — Top-level filter spec (all methods take ctx explicitly)
+    spec/extractor/ExtractorSpec.java   — Extractor field setters (all methods take ctx explicitly)
+    spec/sink/SinkSpec.java             — Sink spec (save/drop/sample)
+    spec/sink/SamplerSpec.java          — Rate-limit sampler
 
   src/test/java/.../compiler/
     LALScriptParserTest.java            — 20 parser tests
@@ -52,99 +60,118 @@ All v2 classes live under `org.apache.skywalking.oap.log.analyzer.v2.*` to avoid
 |-----------|---------------|
 | Parser/Model/Generator | `org.apache.skywalking.oap.log.analyzer.v2.compiler` |
 | Generated classes | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpr_<N>` |
-| Consumer classes | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpr_<N>_C<M>` |
 | Package holder | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackageHolder` |
-| Binding aware | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.BindingAware` |
 | Runtime helper | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper` |
 | Functional interface | `org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression` |
 
-`<N>` is a global `AtomicInteger` counter. `<M>` is the consumer index within the script.
+`<N>` is a global `AtomicInteger` counter.
 
-## Consumer Pattern (BindingAware)
+## Single Class with Private Methods
 
-LAL's FilterSpec API uses `Consumer` callbacks: `filterSpec.extractor(Consumer<ExtractorSpec>)`, `filterSpec.sink(Consumer<SinkSpec>)`, etc. Since Javassist cannot compile anonymous inner classes, consumers are pre-compiled as separate classes.
+The generator produces a single class per LAL script. Extractor and sink blocks become private methods called directly from `execute()` — no Consumer classes, no callback indirection.
 
-Each consumer class implements both `java.util.function.Consumer` and `BindingAware`:
-- `BindingAware.setBinding(Binding)` — called before each FilterSpec method to inject the current Binding
-- `Consumer.accept(Object)` — casts to the specific Spec type and executes the block body
+Method naming: `_extractor`, `_extractor_2`, `_extractor_3` (no `_0` suffix for single methods).
 
-The main class's `execute()` method emits:
-```java
-((BindingAware) this._consumer0).setBinding(binding);
-filterSpec.extractor(this._consumer0);
+Sub-blocks (slowSql, sampledTrace, metrics, sampler, rateLimit) are inlined within their parent method.
+
+## Explicit Context Passing (No ThreadLocal)
+
+All spec methods take `ExecutionContext ctx` as an explicit parameter — there is no `BINDING` ThreadLocal or `bind()` method. The `execute()` method receives `ctx` directly and passes it through:
+
+- `execute(FilterSpec filterSpec, ExecutionContext ctx)` — entry point
+- `filterSpec.json(ctx)`, `filterSpec.text(ctx)`, `filterSpec.sink(ctx)` — parser/sink calls
+- `_e.service(h.ctx(), ...)`, `_e.tag(h.ctx(), ...)` — extractor calls via `h.ctx()`
+- `_f.sampler().rateLimit(h.ctx(), ...)` — sink calls via `h.ctx()`
+
+The generated `execute()` method guards `_extractor()` and `_sink()` calls with `if (!ctx.shouldAbort())`, matching v1 Groovy behavior where `extractor {}` and `sink {}` closures check the abort flag before running their body. `finalizeSink(ctx)` also checks the flag. Individual spec methods inside each block additionally check `ctx.shouldAbort()` as a defense-in-depth measure.
+
+## LocalVariableTable (LVT)
+
+All generated methods include a `LocalVariableTable` attribute for debugger/decompiler readability. Without LVT, tools show `var0`, `var1`, `var2`, `var3` instead of named variables.
+
+| Method | Slot 0 | Slot 1 | Slot 2 | Slot 3 |
+|--------|--------|--------|--------|--------|
+| `execute()` | `this` | `filterSpec` | `ctx` | `h` |
+| `_extractor()` | `this` | `_e` | `h` | — |
+| `_sink()` | `this` | `_f` | `h` | — |
+
+LVT entries are added via `PrivateMethod` inner class which carries both source code and variable descriptors.
+
+## Compile-Time Data Source Analysis
+
+The generator detects the parser type from the AST at compile time and generates typed value access:
+
+| Parser Type | LAL Example | Generated Code |
+|---|---|---|
+| JSON/YAML | `parsed.service` | `h.mapVal("service")` |
+| JSON/YAML nested | `parsed.a.b` | `h.mapVal("a", "b")` |
+| TEXT (regexp) | `parsed.level` | `h.group("level")` |
+| NONE + extraLogType | `parsed.response.code` | `((ExtraLogType) h.ctx().extraLog()).getResponse().getCode()` |
+| NONE (fallback) | `parsed.x` | `LalRuntimeHelper.getAt(ctx.parsed(), "x")` |
+| log fields | `log.service` | `h.ctx().log().getService()` |
+| log trace | `log.traceContext.traceId` | `h.ctx().log().getTraceContext().getTraceId()` |
+| tags | `tag("KEY")` | `h.tagValue("KEY")` |
+
+### extraLogType
+
+For LAL rules that process typed protobuf extra logs (e.g., envoy-als), declare `extraLogType` in the YAML config:
+
+```yaml
+rules:
+  - name: envoy-als
+    layer: MESH
+    extraLogType: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
+    dsl: |
+      filter { ... }
 ```
 
-Consumer traversal order in `collectConsumers()` must exactly match the order in `generateFilterStatement()`.
-
-## Javassist Constraints
-
-- **No anonymous inner classes**: All `Consumer` callbacks pre-compiled as separate `CtClass` instances.
-- **No lambda expressions**: Same workaround as above.
-- **Spec class packages**: Parser specs are in `dsl.spec.parser.*` (not `dsl.spec.extractor.*`):
-  - `spec.parser.TextParserSpec`, `spec.parser.JsonParserSpec`, `spec.parser.YamlParserSpec`
-  - `spec.extractor.ExtractorSpec`
-  - `spec.extractor.slowsql.SlowSqlSpec`, `spec.extractor.sampledtrace.SampledTraceSpec`
-  - `spec.sink.SinkSpec`, `spec.sink.SamplerSpec`
+The compiler resolves getter chains at compile time using `Class.forName(extraLogType)`. If `extraLogType` is null and no parser is present, a warning is logged and runtime reflection (`getAt`) is used as fallback.
 
 ## Example
 
 **Input**: `filter { json {} extractor { service parsed.service as String } sink {} }`
 
-Three classes are generated:
+One class is generated:
 
-1. **`LalExpr_0_C0`** — Consumer for extractor block:
-   ```java
-   // implements Consumer, BindingAware
-   public void accept(Object arg) {
-     ExtractorSpec _t = (ExtractorSpec) arg;
-     _t.service(LalRuntimeHelper.toStr(LalRuntimeHelper.getAt(binding.parsed(), "service")));
-   }
-   ```
+```java
+public class LalExpr_0 implements LalExpression {
+    public void execute(FilterSpec filterSpec, ExecutionContext ctx) {
+        LalRuntimeHelper h = new LalRuntimeHelper(ctx);
+        filterSpec.json(ctx);
+        if (!ctx.shouldAbort()) {
+            _extractor(filterSpec.extractor(), h);
+        }
+        filterSpec.sink(ctx);
+    }
+    private void _extractor(ExtractorSpec _e, LalRuntimeHelper h) {
+        _e.service(h.ctx(), h.toStr(h.mapVal("service")));
+    }
+}
+```
 
-2. **`LalExpr_0`** — Main class implementing `LalExpression`:
-   ```java
-   public Consumer _consumer0;  // wired after toClass()
+## Runtime Helper (LalRuntimeHelper)
 
-   public void execute(FilterSpec filterSpec, Binding binding) {
-     filterSpec.json();
-     ((BindingAware) this._consumer0).setBinding(binding);
-     filterSpec.extractor(this._consumer0);
-     filterSpec.sink();
-   }
-   ```
+Instance-based helper created at the start of `execute()`, holds the `ExecutionContext`.
 
-**Consumer allocation rules**:
-- `json {}` with no `abortOnFailure` → no consumer, emits `filterSpec.json()`
-- `json { abortOnFailure }` → allocates a consumer
-- `text { regexp '...' }` → allocates a consumer
-- `text {}` with no regexp → no consumer, emits `filterSpec.text()`
-- `extractor { ... }` → always allocates a consumer
-- `sink {}` empty → no consumer, emits `filterSpec.sink()`
-- `sink { enforcer {} }` → allocates a consumer
+**Data source methods:**
+- `mapVal(key)`, `mapVal(k1, k2)`, `mapVal(k1, k2, k3)` — JSON/YAML map access
+- `group(name)` — text regexp named group
+- `tagValue(key)` — log tag lookup
+- `ctx()` — access to ExecutionContext (for `h.ctx().log()` proto getters)
+
+**Type conversion:** `toStr()`, `toLong()`, `toInt()`, `toBool()`
+
+**Boolean evaluation:** `isTrue()`, `isNotEmpty()`
+
+**Safe navigation:** `toString()`, `trim()`
+
+**Legacy static:** `getAt(Object, String)` — kept for fallback when no parser or extraLogType
 
 ## Null-Safe String Conversion
 
-Generated code calls `LalRuntimeHelper.toStr()` instead of `String.valueOf()` for casting parsed values to String.
+Generated code calls `h.toStr()` instead of `String.valueOf()` for casting parsed values to String.
 This preserves Java `null` for missing fields (matching Groovy's `null as String` → `null` behavior),
 whereas `String.valueOf(null)` would produce the string `"null"`.
-
-## Runtime Helpers (LalRuntimeHelper)
-
-All type coercion and field access logic lives in `LalRuntimeHelper` as `public static` methods,
-called by generated code via FQCN. This avoids duplicating helper methods in every generated class.
-
-| Method | Purpose |
-|--------|---------|
-| `getAt(Object, String)` | Property/map access on parsed log data (`Binding.Parsed`, `Map`, or reflective field) |
-| `toLong(Object)` | Number/String → `long` |
-| `toInt(Object)` | Number/String → `int` |
-| `toStr(Object)` | Null-safe `String.valueOf()` (returns `null` for null input) |
-| `toBool(Object)` | Boolean coercion |
-| `isTrue(Object)` | Boolean truthiness (null → false, Boolean → value, String → parseBoolean) |
-| `isNotEmpty(Object)` | String non-emptiness (null → false, String → !isEmpty, Object → !toString().isEmpty) |
-| `toString(Object)` | Null-safe toString for `?.toString()` safe navigation |
-| `trim(Object)` | Null-safe trim for `?.trim()` safe navigation |
-| `tagValue(Binding, String)` | Log tag lookup via protobuf `KeyStringValuePair` |
 
 ## Data-Driven Execution Tests
 
@@ -165,5 +192,5 @@ Each `.input.data` entry specifies `body-type`, `body`, optional `tags`, and `ex
 
 All within this module (grammar, compiler, and runtime are merged):
 - ANTLR4 grammar → generates lexer/parser at build time
-- `LalExpression`, `Binding`, `FilterSpec`, all Spec classes — in `dsl` package of this module
+- `LalExpression`, `ExecutionContext`, `FilterSpec`, all Spec classes — in `dsl` package of this module
 - `javassist` — bytecode generation

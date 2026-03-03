@@ -27,4 +27,6 @@ public class LALConfig {
     private String dsl;
 
     private String layer;
+
+    private String extraLogType;
 }

@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.sink;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.sink.sampler.RateLimitingSampler;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.sink.sampler.Sampler;
@@ -41,28 +41,27 @@ public class SamplerSpec extends AbstractSpec {
         rlsResetHandler = new RateLimitingSampler.ResetHandler();
     }
 
-    @SuppressWarnings("unused")
-    public void rateLimit(final String id, final Consumer<RateLimitingSampler> consumer) {
-        if (BINDING.get().shouldAbort()) {
+    public void rateLimit(final ExecutionContext ctx, final String id, final int rpm) {
+        if (ctx.shouldAbort()) {
             return;
         }
 
         final Sampler sampler = rateLimitSamplersByString.computeIfAbsent(
             id, $ -> new RateLimitingSampler(rlsResetHandler).start());
 
-        consumer.accept((RateLimitingSampler) sampler);
+        ((RateLimitingSampler) sampler).rpm(rpm);
 
-        sampleWith(sampler);
+        sampleWith(ctx, sampler);
     }
 
-    private void sampleWith(final Sampler sampler) {
-        if (BINDING.get().shouldAbort()) {
+    private void sampleWith(final ExecutionContext ctx, final Sampler sampler) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (sampler.sample()) {
-            BINDING.get().save();
+            ctx.save();
         } else {
-            BINDING.get().drop();
+            ctx.drop();
         }
     }
 

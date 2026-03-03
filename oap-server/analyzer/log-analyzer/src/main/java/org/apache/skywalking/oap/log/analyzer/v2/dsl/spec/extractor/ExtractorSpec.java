@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.sampledtrace.SampledTraceSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.slowsql.SlowSqlSpec;
@@ -97,45 +97,41 @@ public class ExtractorSpec extends AbstractSpec {
         sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
-    @SuppressWarnings("unused")
-    public void service(final String service) {
-        if (BINDING.get().shouldAbort()) {
+    public void service(final ExecutionContext ctx, final String service) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(service)) {
-            BINDING.get().log().setService(service);
+            ctx.log().setService(service);
         }
     }
 
-    @SuppressWarnings("unused")
-    public void instance(final String instance) {
-        if (BINDING.get().shouldAbort()) {
+    public void instance(final ExecutionContext ctx, final String instance) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(instance)) {
-            BINDING.get().log().setServiceInstance(instance);
+            ctx.log().setServiceInstance(instance);
         }
     }
 
-    @SuppressWarnings("unused")
-    public void endpoint(final String endpoint) {
-        if (BINDING.get().shouldAbort()) {
+    public void endpoint(final ExecutionContext ctx, final String endpoint) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(endpoint)) {
-            BINDING.get().log().setEndpoint(endpoint);
+            ctx.log().setEndpoint(endpoint);
         }
     }
 
-    @SuppressWarnings("unused")
-    public void tag(final Map<String, ?> kv) {
-        if (BINDING.get().shouldAbort()) {
+    public void tag(final ExecutionContext ctx, final Map<String, ?> kv) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (CollectionUtils.isEmpty(kv)) {
             return;
         }
-        final LogData.Builder logData = BINDING.get().log();
+        final LogData.Builder logData = ctx.log();
         logData.setTags(
             logData.getTags()
                    .toBuilder()
@@ -161,53 +157,49 @@ public class ExtractorSpec extends AbstractSpec {
         );
     }
 
-    @SuppressWarnings("unused")
-    public void traceId(final String traceId) {
-        if (BINDING.get().shouldAbort()) {
+    public void traceId(final ExecutionContext ctx, final String traceId) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(traceId)) {
-            final LogData.Builder logData = BINDING.get().log();
+            final LogData.Builder logData = ctx.log();
             final TraceContext.Builder traceContext = logData.getTraceContext().toBuilder();
             traceContext.setTraceId(traceId);
             logData.setTraceContext(traceContext);
         }
     }
 
-    @SuppressWarnings("unused")
-    public void segmentId(final String segmentId) {
-        if (BINDING.get().shouldAbort()) {
+    public void segmentId(final ExecutionContext ctx, final String segmentId) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(segmentId)) {
-            final LogData.Builder logData = BINDING.get().log();
+            final LogData.Builder logData = ctx.log();
             final TraceContext.Builder traceContext = logData.getTraceContext().toBuilder();
             traceContext.setTraceSegmentId(segmentId);
             logData.setTraceContext(traceContext);
         }
     }
 
-    @SuppressWarnings("unused")
-    public void spanId(final String spanId) {
-        if (BINDING.get().shouldAbort()) {
+    public void spanId(final ExecutionContext ctx, final String spanId) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(spanId)) {
-            final LogData.Builder logData = BINDING.get().log();
+            final LogData.Builder logData = ctx.log();
             final TraceContext.Builder traceContext = logData.getTraceContext().toBuilder();
             traceContext.setSpanId(Integer.parseInt(spanId));
             logData.setTraceContext(traceContext);
         }
     }
 
-    @SuppressWarnings("unused")
-    public void timestamp(final String timestamp) {
-        timestamp(timestamp, null);
+    public void timestamp(final ExecutionContext ctx, final String timestamp) {
+        timestamp(ctx, timestamp, null);
     }
 
-    @SuppressWarnings("unused")
-    public void timestamp(final String timestamp, final String formatPattern) {
-        if (BINDING.get().shouldAbort()) {
+    public void timestamp(final ExecutionContext ctx, final String timestamp,
+                           final String formatPattern) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (StringUtil.isEmpty(timestamp)) {
@@ -216,40 +208,42 @@ public class ExtractorSpec extends AbstractSpec {
 
         if (StringUtil.isEmpty(formatPattern)) {
             if (StringUtils.isNumeric(timestamp)) {
-                BINDING.get().log().setTimestamp(Long.parseLong(timestamp));
+                ctx.log().setTimestamp(Long.parseLong(timestamp));
             }
         } else {
             SimpleDateFormat format = new SimpleDateFormat(formatPattern);
             try {
-                BINDING.get().log().setTimestamp(format.parse(timestamp).getTime());
+                ctx.log().setTimestamp(format.parse(timestamp).getTime());
             } catch (ParseException e) {
                 // ignore
             }
         }
     }
 
-    @SuppressWarnings("unused")
-    public void layer(final String layer) {
-        if (BINDING.get().shouldAbort()) {
+    public void layer(final ExecutionContext ctx, final String layer) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(layer)) {
-            final LogData.Builder logData = BINDING.get().log();
-            logData.setLayer(layer);
+            ctx.log().setLayer(layer);
         }
     }
 
-    public void metrics(final Consumer<SampleBuilder> consumer) {
-        if (BINDING.get().shouldAbort()) {
+    public SampleBuilder prepareMetrics(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
+            return null;
+        }
+        return new SampleBuilder();
+    }
+
+    public void submitMetrics(final ExecutionContext ctx, final SampleBuilder builder) {
+        if (ctx.shouldAbort() || builder == null) {
             return;
         }
-        final SampleBuilder builder = new SampleBuilder();
-        consumer.accept(builder);
-
         final Sample sample = builder.build();
         final SampleFamily sampleFamily = SampleFamilyBuilder.newBuilder(sample).build();
 
-        final Optional<List<SampleFamily>> possibleMetricsContainer = BINDING.get().metricsContainer();
+        final Optional<List<SampleFamily>> possibleMetricsContainer = ctx.metricsContainer();
 
         if (possibleMetricsContainer.isPresent()) {
             possibleMetricsContainer.get().add(sampleFamily);
@@ -262,68 +256,87 @@ public class ExtractorSpec extends AbstractSpec {
         }
     }
 
-    public void slowSql(final Consumer<SlowSqlSpec> consumer) {
-        if (BINDING.get().shouldAbort()) {
+    public SampledTraceSpec sampledTraceSpec() {
+        return sampledTrace;
+    }
+
+    public SlowSqlSpec slowSqlSpec() {
+        return slowSql;
+    }
+
+    public void prepareSampledTrace(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
             return;
         }
-        LogData.Builder log = BINDING.get().log();
+        final LogData.Builder log = ctx.log();
+        final SampledTraceBuilder builder = new SampledTraceBuilder(namingControl);
+        builder.setLayer(log.getLayer());
+        builder.setTimestamp(log.getTimestamp());
+        builder.setServiceName(log.getService());
+        builder.setServiceInstanceName(log.getServiceInstance());
+        builder.setTraceId(log.getTraceContext().getTraceId());
+        ctx.sampledTrace(builder);
+    }
+
+    public void submitSampledTrace(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
+            return;
+        }
+        final SampledTraceBuilder builder = ctx.sampledTraceBuilder();
+        if (builder == null) {
+            return;
+        }
+        builder.validate();
+        final Record record = builder.toRecord();
+        final ISource entity = builder.toEntity();
+        RecordStreamProcessor.getInstance().in(record);
+        sourceReceiver.receive(entity);
+    }
+
+    public void prepareSlowSql(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
+            return;
+        }
+        final LogData.Builder log = ctx.log();
         if (log.getLayer() == null
             || log.getService() == null
             || log.getTimestamp() < 1) {
             LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
             return;
         }
-        DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
+        final DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
         builder.setLayer(Layer.nameOf(log.getLayer()));
-
         builder.setServiceName(log.getService());
+        ctx.databaseSlowStatement(builder);
+    }
 
-        BINDING.get().databaseSlowStatement(builder);
-
-        consumer.accept(slowSql);
-
+    public void submitSlowSql(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
+            return;
+        }
+        final DatabaseSlowStatementBuilder builder = ctx.databaseSlowStatement();
+        if (builder == null) {
+            return;
+        }
         if (builder.getId() == null
             || builder.getLatency() < 1
             || builder.getStatement() == null) {
             LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
             return;
         }
-
-        long timeBucketForDB = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Second);
+        final LogData.Builder log = ctx.log();
+        final long timeBucketForDB = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Second);
         builder.setTimeBucket(timeBucketForDB);
         builder.setTimestamp(log.getTimestamp());
-
         builder.prepare();
         sourceReceiver.receive(builder.toDatabaseSlowStatement());
 
-        ServiceMeta serviceMeta = new ServiceMeta();
+        final ServiceMeta serviceMeta = new ServiceMeta();
         serviceMeta.setName(builder.getServiceName());
         serviceMeta.setLayer(builder.getLayer());
-        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
+        final long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
         serviceMeta.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceMeta);
-    }
-
-    public void sampledTrace(final Consumer<SampledTraceSpec> consumer) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        LogData.Builder log = BINDING.get().log();
-        SampledTraceBuilder builder = new SampledTraceBuilder(namingControl);
-        builder.setLayer(log.getLayer());
-        builder.setTimestamp(log.getTimestamp());
-        builder.setServiceName(log.getService());
-        builder.setServiceInstanceName(log.getServiceInstance());
-        builder.setTraceId(log.getTraceContext().getTraceId());
-        BINDING.get().sampledTrace(builder);
-
-        consumer.accept(sampledTrace);
-
-        builder.validate();
-        final Record record = builder.toRecord();
-        final ISource entity = builder.toEntity();
-        RecordStreamProcessor.getInstance().in(record);
-        sourceReceiver.receive(entity);
     }
 
     public static class SampleBuilder {

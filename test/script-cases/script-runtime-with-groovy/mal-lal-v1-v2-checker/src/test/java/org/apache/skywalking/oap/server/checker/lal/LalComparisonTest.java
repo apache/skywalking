@@ -91,7 +91,7 @@ class LalComparisonTest {
 
         // ---- V1: Groovy path ----
         // v1 uses original packages: org.apache.skywalking.oap.log.analyzer.dsl.*
-        org.apache.skywalking.oap.log.analyzer.dsl.Binding v1Binding = null;
+        org.apache.skywalking.oap.log.analyzer.dsl.Binding v1Ctx = null;
         try {
             final org.apache.skywalking.oap.log.analyzer.dsl.DSL v1Dsl =
                 org.apache.skywalking.oap.log.analyzer.dsl.DSL.of(
@@ -100,8 +100,8 @@ class LalComparisonTest {
                     dsl);
             disableSinkListeners(v1Dsl);
 
-            v1Binding = new org.apache.skywalking.oap.log.analyzer.dsl.Binding().log(testLog);
-            v1Dsl.bind(v1Binding);
+            v1Ctx = new org.apache.skywalking.oap.log.analyzer.dsl.Binding().log(testLog);
+            v1Dsl.bind(v1Ctx);
             v1Dsl.evaluate();
         } catch (Exception e) {
             // V1 failed — skip comparison
@@ -109,10 +109,11 @@ class LalComparisonTest {
 
         // ---- V2: ANTLR4 + Javassist path ----
         // v2 uses .v2. packages: org.apache.skywalking.oap.log.analyzer.v2.dsl.*
-        org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding v2Binding = null;
+        org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext v2Ctx = null;
         String v2Error = null;
         try {
             final LALClassGenerator generator = new LALClassGenerator();
+            generator.setExtraLogType(rule.extraLogType);
             if (rule.sourceFile != null) {
                 final String baseName = rule.sourceFile.getName()
                     .replaceFirst("\\.(yaml|yml)$", "");
@@ -129,36 +130,35 @@ class LalComparisonTest {
                     manager, new LogAnalyzerModuleConfig());
             disableSinkListenersOnSpec(v2FilterSpec);
 
-            v2Binding = new org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding().log(testLog);
-            v2FilterSpec.bind(v2Binding);
+            v2Ctx = new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext().log(testLog);
 
-            v2Expr.execute(v2FilterSpec, v2Binding);
+            v2Expr.execute(v2FilterSpec, v2Ctx);
         } catch (Exception e) {
             final Throwable cause = e.getCause() != null ? e.getCause() : e;
             v2Error = cause.getClass().getSimpleName() + ": " + cause.getMessage();
         }
 
         // ---- Compare ----
-        if (v1Binding == null && v2Binding == null) {
+        if (v1Ctx == null && v2Ctx == null) {
             return;
         }
-        if (v1Binding == null) {
+        if (v1Ctx == null) {
             // V1 failed but v2 succeeded — v2 is more capable, OK
             return;
         }
-        if (v2Binding == null) {
+        if (v2Ctx == null) {
             fail(ruleName + ": v2 execution failed but v1 succeeded — " + v2Error);
             return;
         }
 
         // Compare binding state
-        assertEquals(v1Binding.shouldAbort(), v2Binding.shouldAbort(),
+        assertEquals(v1Ctx.shouldAbort(), v2Ctx.shouldAbort(),
             ruleName + ": shouldAbort mismatch");
-        assertEquals(v1Binding.shouldSave(), v2Binding.shouldSave(),
+        assertEquals(v1Ctx.shouldSave(), v2Ctx.shouldSave(),
             ruleName + ": shouldSave mismatch");
 
-        final LogData.Builder v1Log = v1Binding.log();
-        final LogData.Builder v2Log = v2Binding.log();
+        final LogData.Builder v1Log = v1Ctx.log();
+        final LogData.Builder v2Log = v2Ctx.log();
 
         assertEquals(v1Log.getService(), v2Log.getService(),
             ruleName + ": service mismatch");
@@ -318,7 +318,8 @@ class LalComparisonTest {
                 if (name == null || dslStr == null) {
                     continue;
                 }
-                lalRules.add(new LalRule(name, dslStr, file));
+                final String extraLogType = rule.get("extraLogType");
+                lalRules.add(new LalRule(name, dslStr, extraLogType, file));
             }
             if (!lalRules.isEmpty()) {
                 final String relative = lalDir.relativize(file.toPath()).toString();
@@ -361,11 +362,14 @@ class LalComparisonTest {
     private static class LalRule {
         final String name;
         final String dsl;
+        final String extraLogType;
         final File sourceFile;
 
-        LalRule(final String name, final String dsl, final File sourceFile) {
+        LalRule(final String name, final String dsl,
+                final String extraLogType, final File sourceFile) {
             this.name = name;
             this.dsl = dsl;
+            this.extraLogType = extraLogType;
             this.sourceFile = sourceFile;
         }
     }

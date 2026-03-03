@@ -94,9 +94,9 @@ class LALClassGeneratorTest {
             "filter { json {} sink {} }");
         assertNotNull(source);
         org.junit.jupiter.api.Assertions.assertTrue(
-            source.contains("filterSpec.json()"));
+            source.contains("filterSpec.json(ctx)"));
         org.junit.jupiter.api.Assertions.assertTrue(
-            source.contains("filterSpec.sink()"));
+            source.contains("filterSpec.sink(ctx)"));
     }
 
     // ==================== Error handling tests ====================
@@ -154,7 +154,7 @@ class LALClassGeneratorTest {
             + "  }\n"
             + "}");
         // Should use tagValue helper, not emit null
-        assertTrue(source.contains("tagValue(binding, \"LOG_KIND\")"),
+        assertTrue(source.contains("h.tagValue(\"LOG_KIND\")"),
             "Expected tagValue call but got: " + source);
         assertTrue(source.contains("SLOW_SQL"));
     }
@@ -211,9 +211,9 @@ class LALClassGeneratorTest {
             + "  }\n"
             + "}");
         // Safe method calls should emit specific helpers, not generic safeCall
-        assertTrue(source.contains("LalRuntimeHelper.toString("),
+        assertTrue(source.contains("h.toString("),
             "Expected toString helper for safe nav method but got: " + source);
-        assertTrue(source.contains("LalRuntimeHelper.isNotEmpty("),
+        assertTrue(source.contains("h.isNotEmpty("),
             "Expected isNotEmpty for ExprCondition but got: " + source);
     }
 

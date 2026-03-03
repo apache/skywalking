@@ -35,9 +35,8 @@ import org.apache.skywalking.oap.server.core.source.Log;
 /**
  * Mutable property storage for a single LAL script execution cycle.
  *
- * <p>A new Binding is created for each incoming log in
- * {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogFilterListener#parse}.
- * It carries all per-log state through the compiled LAL pipeline:
+ * <p>A new ExecutionContext is created for each incoming log. It carries all
+ * per-log state through the compiled LAL pipeline:
  * <ul>
  *   <li>{@code log} — the incoming {@code LogData.Builder}</li>
  *   <li>{@code parsed} — structured data extracted by json/text/yaml parsers</li>
@@ -45,12 +44,8 @@ import org.apache.skywalking.oap.server.core.source.Log;
  *   <li>{@code metrics_container} — optional list for LAL-extracted metrics (log-MAL)</li>
  *   <li>{@code log_container} — optional container for the built {@code Log} source object</li>
  * </ul>
- *
- * <p>The Binding is injected into {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec}
- * via a ThreadLocal ({@code BINDING}), so all Spec methods ({@code FilterSpec}, {@code ExtractorSpec},
- * {@code SinkSpec}) can access the current log data without explicit parameter passing.
  */
-public class Binding {
+public class ExecutionContext {
     public static final String KEY_LOG = "log";
     public static final String KEY_PARSED = "parsed";
     public static final String KEY_SAVE = "save";
@@ -62,7 +57,7 @@ public class Binding {
 
     private final Map<String, Object> properties = new HashMap<>();
 
-    public Binding() {
+    public ExecutionContext() {
         setProperty(KEY_PARSED, new Parsed());
     }
 
@@ -74,17 +69,16 @@ public class Binding {
         return properties.get(name);
     }
 
-    public Binding log(final LogData.Builder log) {
+    public ExecutionContext log(final LogData.Builder log) {
         setProperty(KEY_LOG, log);
         setProperty(KEY_SAVE, true);
         setProperty(KEY_ABORT, false);
         setProperty(KEY_METRICS_CONTAINER, null);
         setProperty(KEY_LOG_CONTAINER, null);
-        parsed().log = log;
         return this;
     }
 
-    public Binding log(final LogData log) {
+    public ExecutionContext log(final LogData log) {
         return log(log.toBuilder());
     }
 
@@ -92,7 +86,7 @@ public class Binding {
         return (LogData.Builder) getProperty(KEY_LOG);
     }
 
-    public Binding extraLog(final Message extraLog) {
+    public ExecutionContext extraLog(final Message extraLog) {
         parsed().extraLog = extraLog;
         return this;
     }
@@ -101,12 +95,12 @@ public class Binding {
         return parsed().getExtraLog();
     }
 
-    public Binding parsed(final Matcher parsed) {
+    public ExecutionContext parsed(final Matcher parsed) {
         parsed().matcher = parsed;
         return this;
     }
 
-    public Binding parsed(final Map<String, Object> parsed) {
+    public ExecutionContext parsed(final Map<String, Object> parsed) {
         parsed().map = parsed;
         return this;
     }
@@ -119,7 +113,7 @@ public class Binding {
         return (DatabaseSlowStatementBuilder) getProperty(KEY_DATABASE_SLOW_STATEMENT);
     }
 
-    public Binding databaseSlowStatement(final DatabaseSlowStatementBuilder databaseSlowStatementBuilder) {
+    public ExecutionContext databaseSlowStatement(final DatabaseSlowStatementBuilder databaseSlowStatementBuilder) {
         setProperty(KEY_DATABASE_SLOW_STATEMENT, databaseSlowStatementBuilder);
         return this;
     }
@@ -128,17 +122,17 @@ public class Binding {
         return (SampledTraceBuilder) getProperty(KEY_SAMPLED_TRACE);
     }
 
-    public Binding sampledTrace(final SampledTraceBuilder sampledTraceBuilder) {
+    public ExecutionContext sampledTrace(final SampledTraceBuilder sampledTraceBuilder) {
         setProperty(KEY_SAMPLED_TRACE, sampledTraceBuilder);
         return this;
     }
 
-    public Binding save() {
+    public ExecutionContext save() {
         setProperty(KEY_SAVE, true);
         return this;
     }
 
-    public Binding drop() {
+    public ExecutionContext drop() {
         setProperty(KEY_SAVE, false);
         return this;
     }
@@ -147,7 +141,7 @@ public class Binding {
         return (boolean) getProperty(KEY_SAVE);
     }
 
-    public Binding abort() {
+    public ExecutionContext abort() {
         setProperty(KEY_ABORT, true);
         return this;
     }
@@ -156,7 +150,7 @@ public class Binding {
         return (boolean) getProperty(KEY_ABORT);
     }
 
-    public Binding metricsContainer(final List<SampleFamily> container) {
+    public ExecutionContext metricsContainer(final List<SampleFamily> container) {
         setProperty(KEY_METRICS_CONTAINER, container);
         return this;
     }
@@ -166,7 +160,7 @@ public class Binding {
         return Optional.ofNullable((List<SampleFamily>) getProperty(KEY_METRICS_CONTAINER));
     }
 
-    public Binding logContainer(final AtomicReference<Log> container) {
+    public ExecutionContext logContainer(final AtomicReference<Log> container) {
         setProperty(KEY_LOG_CONTAINER, container);
         return this;
     }
@@ -184,9 +178,6 @@ public class Binding {
         private Map<String, Object> map;
 
         @Getter
-        private Message.Builder log;
-
-        @Getter
         private Message extraLog;
 
         public Object getAt(final String key) {
@@ -198,9 +189,6 @@ public class Binding {
                 return result;
             }
             if (extraLog != null && (result = getField(extraLog, key)) != null) {
-                return result;
-            }
-            if (log != null && (result = getField(log, key)) != null) {
                 return result;
             }
             return null;

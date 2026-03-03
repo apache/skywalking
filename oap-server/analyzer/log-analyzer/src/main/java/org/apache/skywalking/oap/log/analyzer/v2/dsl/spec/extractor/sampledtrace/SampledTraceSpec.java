@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.sampledtrace;
 
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
@@ -31,74 +32,68 @@ public class SampledTraceSpec extends AbstractSpec {
         super(moduleManager, moduleConfig);
     }
 
-    public void latency(final Long latency) {
-        if (BINDING.get().shouldAbort()) {
+    public void latency(final ExecutionContext ctx, final Long latency) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(latency)) {
-            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
-            sampledTraceBuilder.setLatency(latency);
+            ctx.sampledTraceBuilder().setLatency(latency);
         }
     }
 
-    public void uri(final String uri) {
-        if (BINDING.get().shouldAbort()) {
+    public void uri(final ExecutionContext ctx, final String uri) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(uri)) {
-            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
-            sampledTraceBuilder.setUri(uri);
+            ctx.sampledTraceBuilder().setUri(uri);
         }
     }
 
-    public void reason(final String reason) {
-        if (BINDING.get().shouldAbort()) {
+    public void reason(final ExecutionContext ctx, final String reason) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(reason)) {
-            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
-            sampledTraceBuilder.setReason(SampledTraceBuilder.Reason.valueOf(reason.toUpperCase()));
+            ctx.sampledTraceBuilder().setReason(
+                SampledTraceBuilder.Reason.valueOf(reason.toUpperCase()));
         }
     }
 
-    public void processId(final String id) {
-        if (BINDING.get().shouldAbort()) {
+    public void processId(final ExecutionContext ctx, final String id) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(id)) {
-            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
-            sampledTraceBuilder.setProcessId(id);
+            ctx.sampledTraceBuilder().setProcessId(id);
         }
     }
 
-    public void destProcessId(final String id) {
-        if (BINDING.get().shouldAbort()) {
+    public void destProcessId(final ExecutionContext ctx, final String id) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(id)) {
-            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
-            sampledTraceBuilder.setDestProcessId(id);
+            ctx.sampledTraceBuilder().setDestProcessId(id);
         }
     }
 
-    public void detectPoint(String detectPoint) {
-        if (BINDING.get().shouldAbort()) {
+    public void detectPoint(final ExecutionContext ctx, final String detectPoint) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(detectPoint)) {
             final DetectPoint point = DetectPoint.valueOf(detectPoint.toUpperCase());
-            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
-            sampledTraceBuilder.setDetectPoint(point);
+            ctx.sampledTraceBuilder().setDetectPoint(point);
         }
     }
 
-    public void componentId(final int id) {
-        if (BINDING.get().shouldAbort()) {
+    public void componentId(final ExecutionContext ctx, final int id) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (id > 0) {
-            final SampledTraceBuilder sampledTraceBuilder = BINDING.get().sampledTraceBuilder();
-            sampledTraceBuilder.setComponentId(id);
+            ctx.sampledTraceBuilder().setComponentId(id);
         }
     }
 

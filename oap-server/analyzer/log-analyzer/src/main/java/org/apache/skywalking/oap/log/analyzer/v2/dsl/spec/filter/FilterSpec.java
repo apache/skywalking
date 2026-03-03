@@ -26,15 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.ExtractorSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.JsonParserSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.TextParserSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.YamlParserSpec;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.sink.SamplerSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.sink.SinkSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogSinkListenerFactory;
@@ -51,22 +50,8 @@ import org.slf4j.LoggerFactory;
  * The top-level runtime API that compiled LAL expressions invoke.
  *
  * <p>A compiled {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression}
- * calls methods on this class in the order defined by the LAL script:
- * <ol>
- *   <li><b>Parser</b>: {@code json()}, {@code text()}, or {@code yaml()} — parses the log body
- *       into structured data stored in {@link Binding#parsed()}.</li>
- *   <li><b>Extractor</b>: {@code extractor(Consumer)} — extracts service name, layer, tags,
- *       metrics, slow SQL, sampled traces, etc.</li>
- *   <li><b>Sink</b>: {@code sink()} or {@code sink(Consumer)} — materializes the log into
- *       storage via {@link LogSinkListenerFactory} instances (RecordSinkListener,
- *       TrafficSinkListener), unless the log has been dropped or aborted.</li>
- * </ol>
- *
- * <p>All methods read the current log data from the ThreadLocal {@code BINDING}
- * (inherited from {@link AbstractSpec}), which is set by
- * {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL#bind(Binding)} before each execution.
- * Every method checks {@code shouldAbort()} first and short-circuits if a previous
- * step aborted the pipeline.
+ * calls methods on this class in the order defined by the LAL script.
+ * All methods receive an explicit {@link ExecutionContext} parameter — no ThreadLocal state.
  */
 public class FilterSpec extends AbstractSpec {
     private static final Logger LOGGER = LoggerFactory.getLogger(FilterSpec.class);
@@ -106,112 +91,72 @@ public class FilterSpec extends AbstractSpec {
         sink = new SinkSpec(moduleManager(), moduleConfig());
     }
 
-    public void text(final Consumer<TextParserSpec> consumer) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        consumer.accept(textParser);
-    }
-
-    public void text() {
-        if (BINDING.get().shouldAbort()) {
+    public void text(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
             return;
         }
     }
 
-    public void json(final Consumer<JsonParserSpec> consumer) {
-        if (BINDING.get().shouldAbort()) {
+    public void textWithRegexp(final ExecutionContext ctx, final String regexp) {
+        if (ctx.shouldAbort()) {
             return;
         }
-        consumer.accept(jsonParser);
-        doJson();
+        textParser.regexp(ctx, regexp);
     }
 
-    public void json() {
-        if (BINDING.get().shouldAbort()) {
+    public void json(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
             return;
         }
-        doJson();
-    }
-
-    private void doJson() {
-        final LogData.Builder logData = BINDING.get().log();
+        final LogData.Builder logData = ctx.log();
         try {
             final Map<String, Object> parsed = jsonParser.create().readValue(
                 logData.getBody().getJson().getJson(), parsedType
             );
-            BINDING.get().parsed(parsed);
+            ctx.parsed(parsed);
         } catch (final Exception e) {
             if (jsonParser.abortOnFailure()) {
-                BINDING.get().abort();
+                ctx.abort();
             }
         }
     }
 
-    public void yaml(final Consumer<YamlParserSpec> consumer) {
-        if (BINDING.get().shouldAbort()) {
+    public void yaml(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
             return;
         }
-        consumer.accept(yamlParser);
-        doYaml();
-    }
-
-    public void yaml() {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        doYaml();
-    }
-
-    private void doYaml() {
-        final LogData.Builder logData = BINDING.get().log();
+        final LogData.Builder logData = ctx.log();
         try {
             final Map<String, Object> parsed = yamlParser.create().load(
                 logData.getBody().getYaml().getYaml()
             );
-            BINDING.get().parsed(parsed);
+            ctx.parsed(parsed);
         } catch (final Exception e) {
             if (yamlParser.abortOnFailure()) {
-                BINDING.get().abort();
+                ctx.abort();
             }
         }
     }
 
-    public void extractor(final Consumer<ExtractorSpec> consumer) {
-        if (BINDING.get().shouldAbort()) {
+    public void sink(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
             return;
         }
-        consumer.accept(extractor);
+        doSink(ctx);
     }
 
-    public void sink(final Consumer<SinkSpec> consumer) {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        consumer.accept(sink);
-        doSink();
-    }
+    private void doSink(final ExecutionContext ctx) {
+        final LogData.Builder logData = ctx.log();
+        final Message extraLog = ctx.extraLog();
 
-    public void sink() {
-        if (BINDING.get().shouldAbort()) {
-            return;
-        }
-        doSink();
-    }
-
-    private void doSink() {
-        final Binding b = BINDING.get();
-        final LogData.Builder logData = b.log();
-        final Message extraLog = b.extraLog();
-
-        if (!b.shouldSave()) {
+        if (!ctx.shouldSave()) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Log is dropped: {}", TextFormat.shortDebugString(logData));
             }
             return;
         }
 
-        final Optional<AtomicReference<Log>> container = BINDING.get().logContainer();
+        final Optional<AtomicReference<Log>> container = ctx.logContainer();
         if (container.isPresent()) {
             sinkListenerFactories.stream()
                      .map(LogSinkListenerFactory::create)
@@ -228,7 +173,32 @@ public class FilterSpec extends AbstractSpec {
         }
     }
 
-    public void abort() {
-        BINDING.get().abort();
+    // ==================== Direct-access APIs for flattened generated code ====================
+
+    public ExtractorSpec extractor() {
+        return extractor;
+    }
+
+    public SamplerSpec sampler() {
+        return sink.sampler();
+    }
+
+    public void abort(final ExecutionContext ctx) {
+        ctx.abort();
+    }
+
+    public void enforcer(final ExecutionContext ctx) {
+        sink.enforcer(ctx);
+    }
+
+    public void dropper(final ExecutionContext ctx) {
+        sink.dropper(ctx);
+    }
+
+    public void finalizeSink(final ExecutionContext ctx) {
+        if (ctx.shouldAbort()) {
+            return;
+        }
+        doSink(ctx);
     }
 }

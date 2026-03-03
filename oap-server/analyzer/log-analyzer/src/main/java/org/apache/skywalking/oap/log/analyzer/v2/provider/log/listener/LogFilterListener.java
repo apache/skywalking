@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
@@ -46,7 +46,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  *
  * <p>Two-phase execution (called by {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.LogAnalyzer}):
  * <ol>
- *   <li>{@link #parse} — creates a fresh {@link Binding} with the current log data
+ *   <li>{@link #parse} — creates a fresh {@link ExecutionContext} with the current log data
  *       and binds it to every DSL instance (sets the ThreadLocal in each Spec).</li>
  *   <li>{@link #build} — calls {@link DSL#evaluate()} on every DSL instance,
  *       which invokes the compiled {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression}
@@ -80,7 +80,7 @@ public class LogFilterListener implements LogAnalysisListener {
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
-        dsls.forEach(dsl -> dsl.bind(new Binding().log(logData.build())
+        dsls.forEach(dsl -> dsl.bind(new ExecutionContext().log(logData.build())
                                                   .extraLog(extraLog)));
         return this;
     }
@@ -98,7 +98,7 @@ public class LogFilterListener implements LogAnalysisListener {
             for (final LALConfig c : configList) {
                 Layer layer = Layer.nameOf(c.getLayer());
                 Map<String, DSL> dsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
-                if (dsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl())) != null) {
+                if (dsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl(), c.getExtraLogType())) != null) {
                     throw new ModuleStartException("Layer " + layer.name() + " has already set " + c.getName() + " rule.");
                 }
             }

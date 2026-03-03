@@ -36,7 +36,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.Binding;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
@@ -68,7 +68,7 @@ import static org.mockito.Mockito.when;
  * corresponding {@code .input.data} files in the {@code test-lal/}
  * directory tree. For each rule that has a matching input entry,
  * compiles the DSL via {@link LALClassGenerator}, executes it against
- * a real {@link FilterSpec} + {@link Binding}, and asserts on the
+ * a real {@link FilterSpec} + {@link ExecutionContext}, and asserts on the
  * expected state defined in the {@code expect} block.
  */
 class LALExpressionExecutionTest {
@@ -173,17 +173,16 @@ class LALExpressionExecutionTest {
         if (ruleLayer != null) {
             logData.setLayer(ruleLayer);
         }
-        final Binding binding = new Binding();
-        binding.log(logData);
+        final ExecutionContext ctx = new ExecutionContext();
+        ctx.log(logData);
 
         // Set proto extraLog if specified
         final Message extraLog = buildExtraLog(input);
         if (extraLog != null) {
-            binding.extraLog(extraLog);
+            ctx.extraLog(extraLog);
         }
 
-        filterSpec.bind(binding);
-        expr.execute(filterSpec, binding);
+        expr.execute(filterSpec, ctx);
 
         // Assert expected values
         @SuppressWarnings("unchecked")
@@ -199,45 +198,45 @@ class LALExpressionExecutionTest {
 
             switch (key) {
                 case "service":
-                    assertEquals(expected, binding.log().getService(),
+                    assertEquals(expected, ctx.log().getService(),
                         ruleName + ": service mismatch");
                     break;
                 case "instance":
                     assertEquals(expected,
-                        binding.log().getServiceInstance(),
+                        ctx.log().getServiceInstance(),
                         ruleName + ": serviceInstance mismatch");
                     break;
                 case "endpoint":
-                    assertEquals(expected, binding.log().getEndpoint(),
+                    assertEquals(expected, ctx.log().getEndpoint(),
                         ruleName + ": endpoint mismatch");
                     break;
                 case "layer":
-                    assertEquals(expected, binding.log().getLayer(),
+                    assertEquals(expected, ctx.log().getLayer(),
                         ruleName + ": layer mismatch");
                     break;
                 case "save":
                     assertEquals(Boolean.parseBoolean(expected),
-                        binding.shouldSave(),
+                        ctx.shouldSave(),
                         ruleName + ": shouldSave mismatch");
                     break;
                 case "abort":
                     assertEquals(Boolean.parseBoolean(expected),
-                        binding.shouldAbort(),
+                        ctx.shouldAbort(),
                         ruleName + ": shouldAbort mismatch");
                     break;
                 case "timestamp":
                     assertEquals(Long.parseLong(expected),
-                        binding.log().getTimestamp(),
+                        ctx.log().getTimestamp(),
                         ruleName + ": timestamp mismatch");
                     break;
                 default:
                     if (key.startsWith("sampledTrace.")) {
                         assertSampledTrace(
-                            ruleName, key, expected, binding);
+                            ruleName, key, expected, ctx);
                     } else if (key.startsWith("tag.")) {
                         final String tagKey = key.substring(4);
                         final List<KeyStringValuePair> tags =
-                            binding.log().getTags().getDataList();
+                            ctx.log().getTags().getDataList();
                         assertTrue(tags.stream().anyMatch(
                             t -> tagKey.equals(t.getKey())
                                 && expected.equals(t.getValue())),
@@ -258,9 +257,9 @@ class LALExpressionExecutionTest {
             final String ruleName,
             final String key,
             final String expected,
-            final Binding binding) {
+            final ExecutionContext ctx) {
         final SampledTraceBuilder builder =
-            binding.sampledTraceBuilder();
+            ctx.sampledTraceBuilder();
         assertTrue(builder != null,
             ruleName + ": sampledTraceBuilder is null"
                 + " but expected " + key + "=" + expected);

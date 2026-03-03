@@ -34,38 +34,34 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  * config file under {@code lal/}. Instances are compiled once at startup and
  * reused for every incoming log.
  *
- * <p>Compilation ({@link #of}):
- * <pre>
- *   LAL DSL string (e.g., "filter { json {} extractor { service ... } sink {} }")
- *     → LALClassGenerator.compile(dsl)
- *       → ANTLR4 parse → AST → Javassist bytecode → LalExpression class
- *     → new FilterSpec(moduleManager, config)
- *     → DSL(expression, filterSpec)
- * </pre>
- *
- * <p>Runtime (per-log execution by {@link org.apache.skywalking.oap.log.analyzer.provider.log.listener.LogFilterListener}):
+ * <p>Runtime (per-log execution):
  * <ol>
- *   <li>{@link #bind(Binding)} — sets the current log data into the {@link FilterSpec}
- *       via a ThreadLocal, making it available to all Spec methods.</li>
+ *   <li>{@link #bind(ExecutionContext)} — stores the current execution context.</li>
  *   <li>{@link #evaluate()} — invokes the compiled {@link LalExpression#execute},
- *       which calls FilterSpec methods (json/text/yaml, extractor, sink) in the
- *       order defined by the LAL script.</li>
+ *       passing the {@link FilterSpec} and {@link ExecutionContext} explicitly.</li>
  * </ol>
  */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class DSL {
-    private static final LALClassGenerator GENERATOR = new LALClassGenerator();
-
     private final LalExpression expression;
     private final FilterSpec filterSpec;
-    private Binding binding;
+    private ExecutionContext ctx;
 
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
                          final String dsl) throws ModuleStartException {
+        return of(moduleManager, config, dsl, null);
+    }
+
+    public static DSL of(final ModuleManager moduleManager,
+                         final LogAnalyzerModuleConfig config,
+                         final String dsl,
+                         final String extraLogType) throws ModuleStartException {
         try {
-            final LalExpression expression = GENERATOR.compile(dsl);
+            final LALClassGenerator generator = new LALClassGenerator();
+            generator.setExtraLogType(extraLogType);
+            final LalExpression expression = generator.compile(dsl);
             final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
             return new DSL(expression, filterSpec);
         } catch (Exception e) {
@@ -74,12 +70,11 @@ public class DSL {
         }
     }
 
-    public void bind(final Binding binding) {
-        this.binding = binding;
-        this.filterSpec.bind(binding);
+    public void bind(final ExecutionContext ctx) {
+        this.ctx = ctx;
     }
 
     public void evaluate() {
-        expression.execute(filterSpec, binding);
+        expression.execute(filterSpec, ctx);
     }
 }

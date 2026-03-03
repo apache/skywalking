@@ -18,10 +18,10 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.slowsql;
 
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import static java.util.Objects.nonNull;
@@ -33,33 +33,31 @@ public class SlowSqlSpec extends AbstractSpec {
         super(moduleManager, moduleConfig);
     }
 
-    public void latency(final Long latency) {
-        if (BINDING.get().shouldAbort()) {
+    public void latency(final ExecutionContext ctx, final Long latency) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(latency)) {
-            final DatabaseSlowStatementBuilder databaseSlowStatementBuilder = BINDING.get().databaseSlowStatement();
-            databaseSlowStatementBuilder.setLatency(latency);
+            ctx.databaseSlowStatement().setLatency(latency);
         }
     }
 
-    public void statement(final String statement) {
-        if (BINDING.get().shouldAbort()) {
+    public void statement(final ExecutionContext ctx, final String statement) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(statement)) {
-            final DatabaseSlowStatementBuilder databaseSlowStatementBuilder = BINDING.get().databaseSlowStatement();
-            databaseSlowStatementBuilder.setStatement(statement);
+            ctx.databaseSlowStatement().setStatement(statement);
         }
     }
 
-    public void id(final String id) {
-        if (BINDING.get().shouldAbort()) {
+    public void id(final ExecutionContext ctx, final String id) {
+        if (ctx.shouldAbort()) {
             return;
         }
         if (nonNull(id)) {
-            final DatabaseSlowStatementBuilder databaseSlowStatementBuilder = BINDING.get().databaseSlowStatement();
-            databaseSlowStatementBuilder.setId(id);
+            ctx.databaseSlowStatement().setId(id);
         }
     }
+
 }

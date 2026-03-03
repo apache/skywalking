@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -30,22 +31,21 @@ public class TextParserSpec extends AbstractParserSpec {
         super(moduleManager, moduleConfig);
     }
 
-    @SuppressWarnings("unused")
-    public void regexp(final String regexp) {
-        regexp(Pattern.compile(regexp));
+    public void regexp(final ExecutionContext ctx, final String regexp) {
+        regexp(ctx, Pattern.compile(regexp));
     }
 
-    public void regexp(final Pattern pattern) {
-        if (BINDING.get().shouldAbort()) {
+    public void regexp(final ExecutionContext ctx, final Pattern pattern) {
+        if (ctx.shouldAbort()) {
             return;
         }
-        final LogData.Builder log = BINDING.get().log();
+        final LogData.Builder log = ctx.log();
         final Matcher matcher = pattern.matcher(log.getBody().getText().getText());
         final boolean matched = matcher.find();
         if (matched) {
-            BINDING.get().parsed(matcher);
+            ctx.parsed(matcher);
         } else if (abortOnFailure()) {
-            BINDING.get().abort();
+            ctx.abort();
         }
     }
 
