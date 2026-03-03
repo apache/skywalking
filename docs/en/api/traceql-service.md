@@ -17,7 +17,7 @@ The expression supported by TraceQL is composed of the following parts (expressi
   - [x] `resource.service.name` - Service name (scoped)
   - [x] `span.<tags>` - Any span tags with scope (e.g., `span.http.method`, `span.http.status_code`, etc.)
 - [x] **Intrinsic Fields**: Built-in trace fields
-  - [x] `duration` - Trace duration with comparison operators
+  - [x] `duration` - Trace duration with comparison operators (supports units: us/µs, ms, s, m, h. Default unit: microseconds. Minimum: microseconds, Maximum: hours)
   - [x] `name` - Span name
   - [x] `status` - Span status
   - [ ] `kind` - Span kind
@@ -38,12 +38,19 @@ Here are some typical TraceQL expressions used in SkyWalking:
 {resource.service.name="frontend"}
 ```
 ```traceql
-# Query traces by duration (greater than)
-{duration>100ms}
+# Query traces by duration (greater than) - supports various time units
+{duration>100ms}      # 100 milliseconds
+{duration>1s}         # 1 second
+{duration>100us}      # 100 microseconds (minimum unit)
+{duration>1h}         # 1 hour (maximum unit)
 ```
 ```traceql
 # Query traces by duration (less than)
 {duration<1s}
+```
+```traceql
+# Query traces by duration range
+{duration>100ms && duration<10s}
 ```
 ```traceql
 # Query traces with complex conditions
@@ -57,6 +64,13 @@ Here are some typical TraceQL expressions used in SkyWalking:
 # Query traces by status
 {status="STATUS_CODE_OK"}
 ```
+
+**Duration Units**:
+- `us` or `µs` - Microseconds (default unit, minimum precision)
+- `ms` - Milliseconds
+- `s` - Seconds
+- `m` - Minutes
+- `h` - Hours (maximum unit)
 
 ### Supported Scopes
 TraceQL supports the following attribute scopes (scope with [✅] is implemented in SkyWalking):

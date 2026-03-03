@@ -83,7 +83,7 @@ STRING_LITERAL: '"' (~["\\\r\n] | '\\' .)* '"'
 NUMBER: DIGIT+ ('.' DIGIT+)? ([eE][+-]? DIGIT+)?;
 
 // Duration literals (e.g., 100ms, 1s, 1m, 1h)
-DURATION_LITERAL: NUMBER ('ns' | 'us' | 'µs' | 'ms' | 's' | 'm' | 'h');
+DURATION_LITERAL: NUMBER ('us' | 'µs' | 'ms' | 's' | 'm' | 'h');
 
 // Whitespace
 WS: [ \t\r\n]+ -> skip;

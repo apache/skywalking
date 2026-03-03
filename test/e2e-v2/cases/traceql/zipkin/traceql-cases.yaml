@@ -15,46 +15,46 @@
 
 cases:
   # Build info
-  - query: curl -s http://${oap_host}:${oap_3200}/zipkin/api/status/buildinfo
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/status/buildinfo
     expected: expected/buildinfo.yml
 
   # Search tags v1
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search/tags?start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))"
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/search/tags -d 'start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/search-tags-v1.yml
 
   # Search tags v2
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/v2/search/tags?start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))"
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/v2/search/tags -d 'start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/search-tags-v2.yml
 
   # Search tag values for service name
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/v2/search/tag/resource.service.name/values?start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))"
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/v2/search/tag/resource.service.name/values -d 'start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/tag-values-service.yml
 
   # Search tag values for status
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/v2/search/tag/status/values?start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))"
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/v2/search/tag/status/values -d 'start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/tag-values-status.yml
 
   # Search tag values for http.method
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/v2/search/tag/span.http.method/values?start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))"
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/v2/search/tag/span.http.method/values -d 'start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/tag-values-http-method.yml
 
   # Search traces with service name filter using TraceQL
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bresource.service.name%3D%22frontend%22%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=10"
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/search -d 'q={resource.service.name="frontend"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
     expected: expected/search-traces-by-service.yml
 
   # Search traces with duration filter using TraceQL
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bduration%3E1us%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=10"
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/search -d 'q={duration>1us}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
     expected: expected/search-traces-by-duration.yml
 
   # Search traces with complex TraceQL query
-  - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bresource.service.name%3D%22frontend%22%20%26%26%20span.http.method%3D%22GET%22%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=10"
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/search -d 'q={resource.service.name="frontend" && span.http.method="GET"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
     expected: expected/search-traces-complex.yml
 
   # Query trace by ID (JSON format)
   - query: |
-      TRACE_ID=$(curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bresource.service.name%3D%22frontend%22%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=1" | jq -r '.traces[0].traceID // empty')
+      TRACE_ID=$(curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/search -d 'q={resource.service.name="frontend"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=1' | jq -r '.traces[0].traceID // empty')
       if [ -n "$TRACE_ID" ]; then
-        curl -s "http://${oap_host}:${oap_3200}/zipkin/api/v2/traces/${TRACE_ID}" -H "Accept: application/json"
+        curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/v2/traces/${TRACE_ID} -H "Accept: application/json"
       else
         echo '{"error": "no trace found"}'
       fi
@@ -62,9 +62,9 @@ cases:
 
   # Query trace by ID (Protobuf format - verify content type)
   - query: |
-      TRACE_ID=$(curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bresource.service.name%3D%22frontend%22%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=1" | jq -r '.traces[0].traceID // empty')
+      TRACE_ID=$(curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/search -d 'q={resource.service.name="frontend"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=1' | jq -r '.traces[0].traceID // empty')
       if [ -n "$TRACE_ID" ]; then
-        curl -s -I "http://${oap_host}:${oap_3200}/zipkin/api/v2/traces/${TRACE_ID}" -H "Accept: application/protobuf" | grep -i content-type || echo "Content-Type: application/protobuf"
+        curl -X GET -I http://${oap_host}:${oap_3200}/zipkin/api/v2/traces/${TRACE_ID} -H "Accept: application/protobuf" 2>/dev/null | grep -i "content-type:" || echo "Content-Type: application/protobuf"
       else
         echo '{"error": "no trace found"}'
       fi

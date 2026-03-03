@@ -168,8 +168,6 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseRe
             double value = Double.parseDouble(numPart);
 
             switch (unitPart) {
-                case "ns":
-                    return (long) (value / 1000); // Convert to microseconds
                 case "us":
                 case "µs":
                     return (long) value;
