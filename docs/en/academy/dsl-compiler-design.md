@@ -42,7 +42,7 @@ Phase 3: Javassist Bytecode Generation
 | OAL | Extends metrics function class (e.g., `LongAvgMetrics`) | `id()`, `serialize()`, `deserialize()`, plus dispatcher `dispatch(source)` |
 | MAL metric | `MalExpression` | `SampleFamily run(Map<String, SampleFamily> samples)` |
 | MAL filter | `Predicate<Map<String, String>>` | `boolean test(Map<String, String> tags)` |
-| LAL | `LalExpression` | `void execute(FilterSpec filterSpec, Binding binding)` |
+| LAL | `LalExpression` | `void execute(FilterSpec filterSpec, ExecutionContext ctx)` |
 | Hierarchy | `BiFunction<Service, Service, Boolean>` | `Boolean apply(Service upper, Service lower)` |
 
 OAL is the most complex -- it generates **three classes per metric** (metrics class with storage annotations,
@@ -65,8 +65,9 @@ classes at build time; these are then used at runtime to parse DSL strings.
 
 Javassist compiles Java source strings into bytecode but has limitations that shape the code generation:
 
-- **No anonymous inner classes or lambdas** -- Callback-based APIs (e.g., LAL's `filterSpec.extractor(Consumer)`)
-  require pre-compiling each callback as a separate `CtClass` implementing the needed interface.
+- **No anonymous inner classes or lambdas** -- Callback-based APIs require workarounds.
+  LAL uses private methods called directly from `execute()` instead of Consumer callbacks.
+  OAL pre-compiles callbacks as separate `CtClass` instances where needed.
 - **No generics in method bodies** -- Generated source uses raw types with explicit casts.
 - **Class loading anchor** -- Each DSL uses a `PackageHolder` marker class so that
   `ctClass.toClass(PackageHolder.class)` loads the generated class into the correct module/package
@@ -151,19 +152,12 @@ The checker mechanism:
         For `increase()`/`rate()` expressions, the `CounterWindow` is primed with an initial run before
         comparing the second run's output.
    - **LAL**: Runtime execution comparison -- both v1 and v2 execute with mock LogData,
-     then compare Binding state (service, layer, tags, abort/save flags).
+     then compare execution state (service, layer, tags, abort/save flags).
+     For rules requiring extraLog (e.g., envoy-als), mock proto data is built from `.input.data` files
+     and the `LALSourceTypeProvider` SPI resolves the proto type per layer.
      Test scripts include both copies of production configs (`oap-cases/`) and
      dedicated feature-coverage rules (`feature-cases/`).
    - **Hierarchy**: Compare `BiFunction` evaluation with test Service pairs
 
 This ensures 100% behavioral parity. The Groovy v1 modules are **test-only dependencies** -- they are not
 included in the OAP distribution.
-
-#### Current Checker Results
-
-| Checker | Expressions Tested | Status |
-|---------|-------------------|--------|
-| MAL metric expressions | 1,187 | All pass (metadata + runtime execution) |
-| MAL filter expressions | 29 | All pass |
-| LAL scripts | 29 | All pass |
-| Hierarchy rules | 22 | All pass |

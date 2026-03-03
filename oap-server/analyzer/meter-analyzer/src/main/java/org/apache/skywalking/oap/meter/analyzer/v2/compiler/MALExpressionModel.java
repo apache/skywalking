@@ -28,7 +28,7 @@ import lombok.Getter;
  * <pre>
  *   metric_name.tagEqual("k","v").sum(["tag"]).rate("PT1M").service(["svc"], Layer.GENERAL)
  *   (metric1 + metric2) * 100
- *   metric.tag({tags -> tags.key = "val"}).histogram().histogram_percentile([50,75,90,95,99])
+ *   metric.tag({tags -&gt; tags.key = "val"}).histogram().histogram_percentile([50,75,90,95,99])
  * </pre>
  */
 public final class MALExpressionModel {

@@ -208,6 +208,7 @@ public final class MALClassGenerator {
      * @param metricName the metric name (used in the generated class name)
      * @param expression the MAL expression string
      * @return a MalExpression instance
+     * @throws Exception if parsing or compilation fails
      */
     public MalExpression compile(final String metricName,
                                  final String expression) throws Exception {
@@ -228,6 +229,7 @@ public final class MALClassGenerator {
      *
      * @param filterExpression e.g. {@code "{ tags -> tags.job_name == 'mysql-monitoring' }"}
      * @return a MalFilter instance
+     * @throws Exception if parsing or compilation fails
      */
     @SuppressWarnings("unchecked")
     public MalFilter compileFilter(final String filterExpression) throws Exception {
@@ -298,6 +300,11 @@ public final class MALClassGenerator {
 
     /**
      * Compiles from a pre-parsed AST model.
+     *
+     * @param metricName the metric name (used in the generated class name)
+     * @param ast the pre-parsed AST model
+     * @return a MalExpression instance
+     * @throws Exception if compilation fails
      */
     public MalExpression compileFromModel(final String metricName,
                                           final MALExpressionModel.Expr ast) throws Exception {
