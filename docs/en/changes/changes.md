@@ -134,6 +134,7 @@
   (up to 200 on-demand threads) because HTTP handlers block on long storage/DB queries.
 * Add the spring-ai components and the GenAI layer.
 * Bump up netty to 4.2.10.Final.
+* Bump up log4j to 2.25.3 and jackson to 2.18.5.
 
 #### UI
 * Fix the missing icon in new native trace view.
