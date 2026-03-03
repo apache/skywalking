@@ -42,7 +42,7 @@ public class ClusterManagerMetricsAdapterTest {
 
     @SneakyThrows
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         Field helperMapField = FieldsHelper.class.getDeclaredField("HELPER_MAP");
         helperMapField.setAccessible(true);
         ((Map<?, ?>) helperMapField.get(null)).clear();
