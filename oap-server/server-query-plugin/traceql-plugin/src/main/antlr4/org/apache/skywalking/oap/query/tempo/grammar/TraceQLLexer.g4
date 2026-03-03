@@ -29,9 +29,10 @@ NIL:         'nil';
 // Scope selectors
 RESOURCE:    'resource';
 SPAN:        'span';
-INTRINSIC:   'intrinsic';
-EVENT:       'event';
-LINK:        'link';
+// Not support yet
+//INTRINSIC:   'intrinsic';
+//EVENT:       'event';
+//LINK:        'link';
 
 // Operators
 DOT:         '.';
@@ -50,8 +51,9 @@ LT:          '<';
 LTE:         '<=';
 GT:          '>';
 GTE:         '>=';
-RE:          '=~';  // Regex match
-NRE:         '!~';  // Regex not match
+// Not support yet
+//RE:          '=~';  // Regex match
+//NRE:         '!~';  // Regex not match
 
 // Arithmetic operators
 PLUS:        '+';

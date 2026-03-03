@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.query.traceql.parser;
+package org.apache.skywalking.oap.query.traceql.rt;
 
 import lombok.Data;
 import java.util.HashMap;

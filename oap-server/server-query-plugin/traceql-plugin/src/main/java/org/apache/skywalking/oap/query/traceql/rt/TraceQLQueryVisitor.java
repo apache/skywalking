@@ -16,26 +16,28 @@
  *
  */
 
-package org.apache.skywalking.oap.query.traceql.parser;
+package org.apache.skywalking.oap.query.traceql.rt;
 
 import org.apache.skywalking.oap.query.tempo.grammar.TraceQLParser;
 import org.apache.skywalking.oap.query.tempo.grammar.TraceQLParserBaseVisitor;
+import org.apache.skywalking.oap.query.traceql.exception.IllegalExpressionException;
+import org.apache.skywalking.oap.server.core.Const;
 
 /**
  * TraceQL query visitor to extract query parameters.
  */
-public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryParams> {
+public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseResult> {
 
-    private TraceQLQueryParams params = new TraceQLQueryParams();
+    private final TraceQLQueryParams params = new TraceQLQueryParams();
 
     @Override
-    public TraceQLQueryParams visitQuery(TraceQLParser.QueryContext ctx) {
+    public TraceQLParseResult visitQuery(TraceQLParser.QueryContext ctx) {
         visitChildren(ctx);
-        return params;
+        return TraceQLParseResult.of(params);
     }
 
     @Override
-    public TraceQLQueryParams visitAttributeFilterExpr(TraceQLParser.AttributeFilterExprContext ctx) {
+    public TraceQLParseResult visitAttributeFilterExpr(TraceQLParser.AttributeFilterExprContext ctx) {
         String attribute = extractAttributeName(ctx.attribute());
         String operator = ctx.operator().getText();
         String value = extractStaticValue(ctx.staticValue());
@@ -65,18 +67,22 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryPa
     }
 
     @Override
-    public TraceQLQueryParams visitIntrinsicFilterExpr(TraceQLParser.IntrinsicFilterExprContext ctx) {
+    public TraceQLParseResult visitIntrinsicFilterExpr(TraceQLParser.IntrinsicFilterExprContext ctx) {
         String field = ctx.intrinsicField().getText();
         String operator = ctx.operator().getText();
         String value = extractStaticValue(ctx.staticValue());
 
         // Handle intrinsic fields
         if ("duration".equals(field)) {
-            long durationMicros = parseDuration(value);
-            if (">".equals(operator) || ">=".equals(operator)) {
-                params.setMinDuration(durationMicros);
-            } else if ("<".equals(operator) || "<=".equals(operator)) {
-                params.setMaxDuration(durationMicros);
+            try {
+                long durationMicros = parseDuration(value);
+                if (">".equals(operator) || ">=".equals(operator)) {
+                    params.setMinDuration(durationMicros);
+                } else if ("<".equals(operator) || "<=".equals(operator)) {
+                    params.setMaxDuration(durationMicros);
+                }
+            } catch (IllegalExpressionException e) {
+                throw new IllegalArgumentException(e.getMessage());
             }
         } else if ("name".equals(field)) {
             // name is the span name
@@ -104,7 +110,7 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryPa
             TraceQLParser.ScopedAttributeContext scopedCtx = (TraceQLParser.ScopedAttributeContext) ctx;
             String scope = scopedCtx.scope().getText();
             String identifier = extractDottedIdentifier(scopedCtx.dottedIdentifier());
-            return scope + "." + identifier;
+            return scope + Const.POINT + identifier;
         }
         return "";
     }
@@ -119,7 +125,7 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryPa
         // Join all IDENTIFIER tokens with dots
         return ctx.IDENTIFIER().stream()
             .map(node -> node.getText())
-            .reduce((a, b) -> a + "." + b)
+            .reduce((a, b) -> a + Const.POINT + b)
             .orElse("");
     }
 
@@ -149,9 +155,9 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryPa
      * @param duration Duration string (e.g., "100ms", "1s", "1m")
      * @return Duration in microseconds
      */
-    private long parseDuration(String duration) {
+    public static long parseDuration(String duration) throws IllegalExpressionException {
         if (duration == null || duration.isEmpty()) {
-            return 0;
+            throw new IllegalExpressionException("Duration string cannot be null or empty");
         }
 
         // Extract numeric value and unit
@@ -180,7 +186,7 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLQueryPa
                     return (long) value;
             }
         } catch (NumberFormatException e) {
-            return 0;
+            throw new IllegalExpressionException("Duration string cannot be null or empty.");
         }
     }
 

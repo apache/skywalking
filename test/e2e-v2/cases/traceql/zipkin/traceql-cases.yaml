@@ -42,7 +42,7 @@ cases:
   - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bresource.service.name%3D%22frontend%22%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=10"
     expected: expected/search-traces-by-service.yml
 
-  # Search traces with duration filter using TraceQL %26%26duration%3C100ms
+  # Search traces with duration filter using TraceQL
   - query: curl -s "http://${oap_host}:${oap_3200}/zipkin/api/search?q=%7Bduration%3E1us%7D&start=$(($(($(date +%s)-1800))))&end=$(($(date +%s)))&limit=10"
     expected: expected/search-traces-by-duration.yml
 

@@ -38,10 +38,13 @@ import org.apache.skywalking.oap.query.traceql.entity.SearchResponse;
 import org.apache.skywalking.oap.query.traceql.entity.TagNamesResponse;
 import org.apache.skywalking.oap.query.traceql.entity.TagNamesV2Response;
 import org.apache.skywalking.oap.query.traceql.entity.TagValuesResponse;
-import org.apache.skywalking.oap.query.traceql.parser.TraceQLQueryParams;
-import org.apache.skywalking.oap.query.traceql.parser.TraceQLQueryParser;
+import org.apache.skywalking.oap.query.traceql.exception.IllegalExpressionException;
+import org.apache.skywalking.oap.query.traceql.rt.TraceQLParseResult;
+import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
+import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParser;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
 import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
@@ -53,6 +56,8 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.joda.time.DateTime;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
+
+import static org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryVisitor.parseDuration;
 
 public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
     private final ZipkinQueryHandler zipkinQueryHandler;
@@ -94,90 +99,99 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                                       Optional<Long> start,
                                       Optional<Long> end,
                                       Optional<Integer> spss) throws IOException {
-        QueryRequest.Builder queryRequestBuilder = QueryRequest.newBuilder();
+        try {
+            QueryRequest.Builder queryRequestBuilder = QueryRequest.newBuilder();
 
-        // Set end timestamp (convert from seconds to milliseconds)
-        long endTsMillis = end.isPresent() ? end.get() * 1000 : System.currentTimeMillis();
-        queryRequestBuilder.endTs(endTsMillis);
+            // Set end timestamp (convert from seconds to milliseconds)
+            long endTsMillis = end.isPresent() ? end.get() * 1000 : System.currentTimeMillis();
+            queryRequestBuilder.endTs(endTsMillis);
 
-        // Calculate lookback
-        long lookbackMillis;
-        if (start.isPresent()) {
-            long startTsMillis = start.get() * 1000;
-            lookbackMillis = endTsMillis - startTsMillis;
-        } else {
-            lookbackMillis = zipkinQueryConfig.getLookback();
-        }
-        queryRequestBuilder.lookback(lookbackMillis);
-
-        Duration duration = new Duration();
-        duration.setStep(Step.SECOND);
-        DateTime endTime = new DateTime(endTsMillis);
-        DateTime startTime = endTime.minus(org.joda.time.Duration.millis(lookbackMillis));
-        duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
-        duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
-
-        if (query.isPresent() && !query.get().isEmpty()) {
-            TraceQLQueryParams traceQLParams = TraceQLQueryParser.extractParams(query.get());
-
-            // Apply TraceQL parameters
-            if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
-                queryRequestBuilder.serviceName(traceQLParams.getServiceName());
+            // Calculate lookback
+            long lookbackMillis;
+            if (start.isPresent()) {
+                long startTsMillis = start.get() * 1000;
+                lookbackMillis = endTsMillis - startTsMillis;
+            } else {
+                lookbackMillis = zipkinQueryConfig.getLookback();
             }
-            if (StringUtil.isNotBlank(traceQLParams.getSpanName())) {
-                queryRequestBuilder.spanName(traceQLParams.getSpanName());
-            }
+            queryRequestBuilder.lookback(lookbackMillis);
 
-            // Use duration from TraceQL
-            if (traceQLParams.getMinDuration() != null) {
-                queryRequestBuilder.minDuration(traceQLParams.getMinDuration());
-            } else if (minDuration.isPresent()) {
-                queryRequestBuilder.minDuration(parseDurationToMicros(minDuration.get()));
-            }
+            Duration duration = new Duration();
+            duration.setStep(Step.SECOND);
+            DateTime endTime = new DateTime(endTsMillis);
+            DateTime startTime = endTime.minus(org.joda.time.Duration.millis(lookbackMillis));
+            duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
+            duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
+            if (query.isPresent() && !query.get().isEmpty()) {
+                TraceQLParseResult parseResult = TraceQLQueryParser.extractParams(query.get());
 
-            if (traceQLParams.getMaxDuration() != null) {
-                queryRequestBuilder.maxDuration(traceQLParams.getMaxDuration());
-            } else if (maxDuration.isPresent()) {
-                queryRequestBuilder.maxDuration(parseDurationToMicros(maxDuration.get()));
-            }
+                if (parseResult.hasError()) {
+                    return badRequestResponse(parseResult.getErrorInfo());
+                }
 
-            Map<String, String> annotationQuery = new HashMap<>();
-            if (CollectionUtils.isNotEmpty(traceQLParams.getTags())) {
-                annotationQuery.putAll(traceQLParams.getTags());
-            }
+                TraceQLQueryParams traceQLParams = parseResult.getParams();
 
-            if (StringUtil.isNotBlank(traceQLParams.getStatus())) {
-                Set<String> tagKeys = tagAutoCompleteQueryService.queryTagAutocompleteKeys(
-                    TagType.ZIPKIN,
-                    duration
-                );
-                if (tagKeys.contains("error")) {
-                    annotationQuery.put("error", "");
-                } else if (tagKeys.contains("otel.status_code")) {
-                    annotationQuery.put("otel.status_code", traceQLParams.getStatus());
+                // Apply TraceQL parameters
+                if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
+                    queryRequestBuilder.serviceName(traceQLParams.getServiceName());
+                }
+                if (StringUtil.isNotBlank(traceQLParams.getSpanName())) {
+                    queryRequestBuilder.spanName(traceQLParams.getSpanName());
+                }
+
+                // Use duration from TraceQL
+                if (traceQLParams.getMinDuration() != null) {
+                    queryRequestBuilder.minDuration(traceQLParams.getMinDuration());
+                } else if (minDuration.isPresent()) {
+                    queryRequestBuilder.minDuration(parseDuration(minDuration.get()));
+                }
+
+                if (traceQLParams.getMaxDuration() != null) {
+                    queryRequestBuilder.maxDuration(traceQLParams.getMaxDuration());
+                } else if (maxDuration.isPresent()) {
+                    queryRequestBuilder.maxDuration(parseDuration(maxDuration.get()));
+                }
+
+                Map<String, String> annotationQuery = new HashMap<>();
+                if (CollectionUtils.isNotEmpty(traceQLParams.getTags())) {
+                    annotationQuery.putAll(traceQLParams.getTags());
+                }
+
+                if (StringUtil.isNotBlank(traceQLParams.getStatus())) {
+                    Set<String> tagKeys = tagAutoCompleteQueryService.queryTagAutocompleteKeys(
+                        TagType.ZIPKIN,
+                        duration
+                    );
+                    if (tagKeys.contains("error")) {
+                        annotationQuery.put("error", "");
+                    } else if (tagKeys.contains("otel.status_code")) {
+                        annotationQuery.put("otel.status_code", traceQLParams.getStatus());
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(annotationQuery)) {
+                    queryRequestBuilder.annotationQuery(annotationQuery);
+                }
+            } else {
+                parseTagsParameter(tags, queryRequestBuilder);
+
+                if (minDuration.isPresent()) {
+                    queryRequestBuilder.minDuration(parseDuration(minDuration.get()));
+                }
+
+                if (maxDuration.isPresent()) {
+                    queryRequestBuilder.maxDuration(parseDuration(maxDuration.get()));
                 }
             }
-            if (CollectionUtils.isNotEmpty(annotationQuery)) {
-                queryRequestBuilder.annotationQuery(annotationQuery);
-            }
-        } else {
-            parseTagsParameter(tags, queryRequestBuilder);
 
-            if (minDuration.isPresent()) {
-                queryRequestBuilder.minDuration(parseDurationToMicros(minDuration.get()));
-            }
+            queryRequestBuilder.limit(limit.orElse(20));
+            QueryRequest queryRequest = queryRequestBuilder.build();
 
-            if (maxDuration.isPresent()) {
-                queryRequestBuilder.maxDuration(parseDurationToMicros(maxDuration.get()));
-            }
+            List<List<zipkin2.Span>> traces = zipkinQueryHandler.getTraces(queryRequest, duration);
+            SearchResponse response = ZipkinOTLPConverter.convertToSearchResponse(traces);
+            return successResponse(response);
+        } catch (IllegalExpressionException | IllegalArgumentException e) {
+            return badRequestResponse(e.getMessage());
         }
-
-        queryRequestBuilder.limit(limit.orElse(20));
-        QueryRequest queryRequest = queryRequestBuilder.build();
-
-        List<List<zipkin2.Span>> traces = zipkinQueryHandler.getTraces(queryRequest, duration);
-        SearchResponse response = ZipkinOTLPConverter.convertToSearchResponse(traces);
-        return successResponse(response);
     }
 
     @Override
@@ -262,7 +276,11 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
             return successResponse(response);
         }
         if (query.isPresent() && !query.get().isEmpty()) {
-            TraceQLQueryParams traceQLParams = TraceQLQueryParser.extractParams(query.get());
+            TraceQLParseResult parseResult = TraceQLQueryParser.extractParams(query.get());
+            if (parseResult.hasError()) {
+                return badRequestResponse(parseResult.getErrorInfo());
+            }
+            TraceQLQueryParams traceQLParams = parseResult.getParams();
             if (tagName.equals("name")) {
                 TagValuesResponse serviceNameRsp = new TagValuesResponse();
                 if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
@@ -275,7 +293,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                 return successResponse(serviceNameRsp);
             }
         }
-        return HttpResponse.ofJson("Unsupported tag value query");
+        return badRequestResponse("Unsupported tag value query.");
     }
 
     /**
@@ -307,7 +325,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
         if (tags.isPresent() && !tags.get().isEmpty()) {
             String[] tagPairs = tags.get().split(" ");
             for (String tagPair : tagPairs) {
-                String[] kv = tagPair.split("=");
+                String[] kv = tagPair.split(Const.EQUAL);
                 if (kv.length == 2) {
                     String key = kv[0].trim();
                     String value = kv[1].trim();
@@ -318,36 +336,6 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * Parse duration string to microseconds.
-     */
-    private Long parseDurationToMicros(String durationStr) {
-        if (durationStr == null || durationStr.isEmpty()) {
-            throw new IllegalArgumentException("Duration string cannot be null or empty");
-        }
-
-        try {
-            durationStr = durationStr.trim();
-
-            if (durationStr.endsWith("ms")) {
-                long millis = Long.parseLong(durationStr.substring(0, durationStr.length() - 2));
-                return millis * 1000;
-            } else if (durationStr.endsWith("s")) {
-                long seconds = Long.parseLong(durationStr.substring(0, durationStr.length() - 1));
-                return seconds * 1_000_000;
-            } else if (durationStr.endsWith("m")) {
-                long minutes = Long.parseLong(durationStr.substring(0, durationStr.length() - 1));
-                return minutes * 60_000_000;
-            } else if (durationStr.endsWith("us") || durationStr.endsWith("µs")) {
-                return Long.parseLong(durationStr.substring(0, durationStr.length() - 2));
-            } else {
-                return Long.parseLong(durationStr);
-            }
-        } catch (NumberFormatException e) {
-            return null;
         }
     }
 

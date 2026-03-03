@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.query.tempo.parser;
 
-import org.apache.skywalking.oap.query.traceql.parser.TraceQLQueryParams;
-import org.apache.skywalking.oap.query.traceql.parser.TraceQLQueryParser;
+import org.apache.skywalking.oap.query.traceql.rt.TraceQLParseResult;
+import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
+import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Test TraceQL parser.
@@ -32,28 +35,40 @@ public class TraceQLQueryParserTest {
     @Test
     public void testUnscopedServiceName() {
         String query = "{.service.name=\"frontend\"}";
-        TraceQLQueryParams params = TraceQLQueryParser.extractParams(query);
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
         assertEquals("frontend", params.getServiceName());
     }
 
     @Test
     public void testScopedServiceName() {
         String query = "{resource.service.name=\"backend\"}";
-        TraceQLQueryParams params = TraceQLQueryParser.extractParams(query);
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
         assertEquals("backend", params.getServiceName());
     }
 
     @Test
     public void testDurationFilter() {
         String query = "{duration > 100ms}";
-        TraceQLQueryParams params = TraceQLQueryParser.extractParams(query);
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
         assertEquals(100000L, params.getMinDuration()); // 100ms = 100000 microseconds
     }
 
     @Test
     public void testComplexQuery() {
         String query = "{.service.name=\"myservice\" && duration > 1s && .http.status_code=\"200\"}";
-        TraceQLQueryParams params = TraceQLQueryParser.extractParams(query);
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
         assertEquals("myservice", params.getServiceName());
         assertEquals(1000000L, params.getMinDuration()); // 1s = 1000000 microseconds
         assertEquals("200", params.getHttpStatusCode());
@@ -62,7 +77,10 @@ public class TraceQLQueryParserTest {
     @Test
     public void testHttpAttributes() {
         String query = "{.http.method=\"GET\" && .http.url=\"/api/test\"}";
-        TraceQLQueryParams params = TraceQLQueryParser.extractParams(query);
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
         assertEquals("GET", params.getTags().get("http.method"));
         assertEquals("/api/test", params.getTags().get("http.url"));
     }
@@ -71,14 +89,20 @@ public class TraceQLQueryParserTest {
     public void testScopedHttpAttributes() {
         // Test that span.http.method is stored as http.method (scope prefix removed)
         String query = "{span.http.method=\"POST\"}";
-        TraceQLQueryParams params = TraceQLQueryParser.extractParams(query);
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
         assertEquals("POST", params.getTags().get("http.method"));
     }
 
     @Test
     public void testNameIntrinsicField() {
         String query = "{name=\"HTTP GET\"}";
-        TraceQLQueryParams params = TraceQLQueryParser.extractParams(query);
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
         assertEquals("HTTP GET", params.getSpanName());
     }
 
@@ -87,7 +111,10 @@ public class TraceQLQueryParserTest {
         // Test the exact query from user:
         // {span.http.method="GET" && resource.service.name="frontend" && duration>100ms && name="HTTP GET" && duration<10ms && status="ok"}
         String query = "{span.http.method=\"GET\" && resource.service.name=\"frontend\" && duration>100ms && name=\"HTTP GET\" && duration<10ms && status=\"ok\"}";
-        TraceQLQueryParams params = TraceQLQueryParser.extractParams(query);
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
 
         // Check service name
         assertEquals("frontend", params.getServiceName());

@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.query.traceql.parser;
+package org.apache.skywalking.oap.query.traceql.rt;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -51,9 +51,13 @@ public class TraceQLQueryParser {
      * @param query TraceQL query string
      * @return TraceQL query parameters
      */
-    public static TraceQLQueryParams extractParams(String query) {
-        ParseTree tree = parse(query);
-        TraceQLQueryVisitor visitor = new TraceQLQueryVisitor();
-        return visitor.visit(tree);
+    public static TraceQLParseResult extractParams(String query) {
+        try {
+            ParseTree tree = parse(query);
+            TraceQLQueryVisitor visitor = new TraceQLQueryVisitor();
+            return visitor.visit(tree);
+        } catch (Throwable t) {
+            return TraceQLParseResult.error("Failed to parse TraceQL: " + t.getMessage());
+        }
     }
 }

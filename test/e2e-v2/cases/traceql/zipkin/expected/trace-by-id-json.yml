@@ -25,7 +25,7 @@ trace:
         {{- contains .scopeSpans }}
         - scope:
             name: zipkin-tracer
-            version: "1.0.0"
+            version: "0.1.0"
           spans:
             {{- contains .spans }}
             - traceId: {{ notEmpty .traceId }}
@@ -73,7 +73,7 @@ trace:
         {{- contains .scopeSpans }}
         - scope:
             name: zipkin-tracer
-            version: "1.0.0"
+            version: "0.1.0"
           spans:
             {{- contains .spans }}
             - traceId: {{ notEmpty .traceId }}

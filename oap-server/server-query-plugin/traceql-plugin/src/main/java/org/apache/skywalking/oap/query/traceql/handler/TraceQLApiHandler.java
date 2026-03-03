@@ -33,11 +33,16 @@ import java.io.IOException;
 import java.util.Optional;
 import org.apache.commons.codec.DecoderException;
 import org.apache.skywalking.oap.query.traceql.entity.BuildInfoResponse;
+import org.apache.skywalking.oap.query.traceql.entity.ErrorResponse;
 import org.apache.skywalking.oap.query.traceql.entity.QueryResponse;
 
 /**
  * Handler for Grafana Tempo API endpoints.
  * Implements the Tempo API specification for trace querying and search.
+ *
+ * Error Handling:
+ * - 200 OK: Successful request
+ * - 400 Bad Request: Invalid request parameters (malformed TraceQL query, invalid duration format, etc.)
  */
 public abstract class TraceQLApiHandler {
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -317,6 +322,33 @@ public abstract class TraceQLApiHandler {
                            .build(),
             HttpData.ofUtf8(MAPPER.writeValueAsString(response))
         );
+    }
+
+    /**
+     * Create an error response with appropriate HTTP status code.
+     *
+     * @param status HTTP status code
+     * @param message Error message
+     * @return HTTP response with error details
+     */
+    protected HttpResponse errorResponse(HttpStatus status, String message) throws JsonProcessingException {
+        ErrorResponse error = ErrorResponse.builder()
+            .error(message)
+            .build();
+        return HttpResponse.of(
+            ResponseHeaders.builder(status)
+                           .contentType(MediaType.JSON)
+                           .build(),
+            HttpData.ofUtf8(MAPPER.writeValueAsString(error))
+        );
+    }
+
+    /**
+     * Create a 400 Bad Request error response.
+     * Used for invalid request parameters like malformed TraceQL queries.
+     */
+    protected HttpResponse badRequestResponse(String message) throws JsonProcessingException {
+        return errorResponse(HttpStatus.BAD_REQUEST, message);
     }
 }
 
