@@ -132,7 +132,7 @@ public class RulesReader {
     }
 
     private void readHooksConfig(Rules rules) {
-        Map hooks = (Map) yamlData.getOrDefault("hooks", Collections.EMPTY_MAP);
+        Map hooks = (Map) yamlData.getOrDefault("hooks", Collections.emptyMap());
         if (CollectionUtils.isEmpty(hooks)) {
             return;
         }

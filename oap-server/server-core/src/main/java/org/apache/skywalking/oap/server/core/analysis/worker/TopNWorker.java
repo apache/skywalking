@@ -87,7 +87,7 @@ public class TopNWorker extends PersistenceWorker<TopN> {
         long now = System.currentTimeMillis();
         if (now - lastReportTimestamp <= reportPeriod) {
             // Only do report in its own report period.
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         lastReportTimestamp = now;
 
