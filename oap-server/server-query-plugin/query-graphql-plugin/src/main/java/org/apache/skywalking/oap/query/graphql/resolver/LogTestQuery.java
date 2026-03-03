@@ -78,8 +78,7 @@ public class LogTestQuery implements GraphQLQueryResolver {
         ctx.logContainer(new AtomicReference<>());
         ctx.metricsContainer(new ArrayList<>());
 
-        dsl.bind(ctx);
-        dsl.evaluate();
+        dsl.evaluate(ctx);
 
         final LogTestResponse.LogTestResponseBuilder builder = LogTestResponse.builder();
         ctx.logContainer().map(AtomicReference::get).ifPresent(it -> {

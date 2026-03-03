@@ -32,21 +32,14 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  *
  * <p>One DSL instance is created per LAL rule entry defined in a {@code .yaml}
  * config file under {@code lal/}. Instances are compiled once at startup and
- * reused for every incoming log.
- *
- * <p>Runtime (per-log execution):
- * <ol>
- *   <li>{@link #bind(ExecutionContext)} — stores the current execution context.</li>
- *   <li>{@link #evaluate()} — invokes the compiled {@link LalExpression#execute},
- *       passing the {@link FilterSpec} and {@link ExecutionContext} explicitly.</li>
- * </ol>
+ * reused for every incoming log. This class is immutable and thread-safe —
+ * per-log state is passed as a parameter to {@link #evaluate(ExecutionContext)}.
  */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class DSL {
     private final LalExpression expression;
     private final FilterSpec filterSpec;
-    private ExecutionContext ctx;
 
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
@@ -70,11 +63,7 @@ public class DSL {
         }
     }
 
-    public void bind(final ExecutionContext ctx) {
-        this.ctx = ctx;
-    }
-
-    public void evaluate() {
+    public void evaluate(final ExecutionContext ctx) {
         expression.execute(filterSpec, ctx);
     }
 }

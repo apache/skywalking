@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
 import com.google.protobuf.Message;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -64,26 +64,33 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  * and organizes them by {@link Layer}.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class LogFilterListener implements LogAnalysisListener {
-    private final Collection<DSL> dsls;
+    private final List<DSL> dsls;
+    private List<ExecutionContext> contexts;
+
+    LogFilterListener(final Collection<DSL> dsls) {
+        this.dsls = new ArrayList<>(dsls);
+    }
 
     @Override
     public void build() {
-        dsls.forEach(dsl -> {
+        for (int i = 0; i < dsls.size(); i++) {
             try {
-                dsl.evaluate();
+                dsls.get(i).evaluate(contexts.get(i));
             } catch (final Exception e) {
-                log.warn("Failed to evaluate dsl: {}", dsl, e);
+                log.warn("Failed to evaluate dsl: {}", dsls.get(i), e);
             }
-        });
+        }
     }
 
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
-        dsls.forEach(dsl -> dsl.bind(new ExecutionContext().log(logData.build())
-                                                  .extraLog(extraLog)));
+        final LogData log = logData.build();
+        contexts = new ArrayList<>(dsls.size());
+        for (int i = 0; i < dsls.size(); i++) {
+            contexts.add(new ExecutionContext().log(log).extraLog(extraLog));
+        }
         return this;
     }
 
