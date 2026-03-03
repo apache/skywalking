@@ -161,9 +161,9 @@ public final class MALClassGenerator {
         }
     }
 
-    private void addRunLocalVariableTable(final javassist.CtMethod method,
-                                          final String className,
-                                          final int tempCount) {
+    private void addLocalVariableTable(final javassist.CtMethod method,
+                                       final String className,
+                                       final String[][] vars) {
         try {
             final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
             final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
@@ -172,28 +172,34 @@ public final class MALClassGenerator {
             }
             final javassist.bytecode.ConstPool cp = mi.getConstPool();
             final int len = code.getCodeLength();
-            final String sfDesc = "L" + SF.replace('.', '/') + ";";
 
             final javassist.bytecode.LocalVariableAttribute lva =
                 new javassist.bytecode.LocalVariableAttribute(cp);
             lva.addEntry(0, len,
                 cp.addUtf8Info("this"),
                 cp.addUtf8Info("L" + className.replace('.', '/') + ";"), 0);
-            lva.addEntry(0, len,
-                cp.addUtf8Info("samples"),
-                cp.addUtf8Info("Ljava/util/Map;"), 1);
-            lva.addEntry(0, len,
-                cp.addUtf8Info(RUN_VAR),
-                cp.addUtf8Info(sfDesc), 2);
-            for (int i = 0; i < tempCount; i++) {
+            for (int i = 0; i < vars.length; i++) {
                 lva.addEntry(0, len,
-                    cp.addUtf8Info("_t" + i),
-                    cp.addUtf8Info(sfDesc), 3 + i);
+                    cp.addUtf8Info(vars[i][0]),
+                    cp.addUtf8Info(vars[i][1]), i + 1);
             }
             code.getAttributes().add(lva);
         } catch (Exception e) {
             log.warn("Failed to add LocalVariableTable: {}", e.getMessage());
         }
+    }
+
+    private void addRunLocalVariableTable(final javassist.CtMethod method,
+                                          final String className,
+                                          final int tempCount) {
+        final String sfDesc = "L" + SF.replace('.', '/') + ";";
+        final String[][] vars = new String[2 + tempCount][];
+        vars[0] = new String[]{"samples", "Ljava/util/Map;"};
+        vars[1] = new String[]{RUN_VAR, sfDesc};
+        for (int i = 0; i < tempCount; i++) {
+            vars[2 + i] = new String[]{"_t" + i, sfDesc};
+        }
+        addLocalVariableTable(method, className, vars);
     }
 
     /**
@@ -276,7 +282,12 @@ public final class MALClassGenerator {
             log.debug("MAL compileFilter test():\n{}", filterBody);
         }
 
-        ctClass.addMethod(CtNewMethod.make(filterBody, ctClass));
+        final javassist.CtMethod testMethod =
+            CtNewMethod.make(filterBody, ctClass);
+        ctClass.addMethod(testMethod);
+        addLocalVariableTable(testMethod, className, new String[][]{
+            {paramName, "Ljava/util/Map;"}
+        });
 
         writeClassFile(ctClass);
 
@@ -344,7 +355,15 @@ public final class MALClassGenerator {
         final javassist.CtMethod runMethod = CtNewMethod.make(runBody, ctClass);
         ctClass.addMethod(runMethod);
         addRunLocalVariableTable(runMethod, className, runTempCounter);
-        ctClass.addMethod(CtNewMethod.make(metadataBody, ctClass));
+        final javassist.CtMethod metaMethod =
+            CtNewMethod.make(metadataBody, ctClass);
+        ctClass.addMethod(metaMethod);
+        addLocalVariableTable(metaMethod, className, new String[][]{
+            {"_samples", "Ljava/util/List;"},
+            {"_scopeLabels", "Ljava/util/Set;"},
+            {"_aggLabels", "Ljava/util/Set;"},
+            {"_pct", "[I"}
+        });
 
         writeClassFile(ctClass);
 
@@ -489,7 +508,12 @@ public final class MALClassGenerator {
             if (log.isDebugEnabled()) {
                 log.debug("ForEach closure body:\n{}", sb);
             }
-            ctClass.addMethod(CtNewMethod.make(sb.toString(), ctClass));
+            final javassist.CtMethod m = CtNewMethod.make(sb.toString(), ctClass);
+            ctClass.addMethod(m);
+            addLocalVariableTable(m, className, new String[][]{
+                {elementParam, "Ljava/lang/String;"},
+                {tagsParam, "Ljava/util/Map;"}
+            });
         } else if (isPropertiesExtractor) {
             // PropertiesExtractor: Map<String,String> apply(Map<String,String> tags)
             // Body is typically a single map literal expression
@@ -525,10 +549,19 @@ public final class MALClassGenerator {
             }
             sb.append("}\n");
 
-            ctClass.addMethod(CtNewMethod.make(sb.toString(), ctClass));
-            ctClass.addMethod(CtNewMethod.make(
+            final javassist.CtMethod applyMap =
+                CtNewMethod.make(sb.toString(), ctClass);
+            ctClass.addMethod(applyMap);
+            addLocalVariableTable(applyMap, className, new String[][]{
+                {paramName, "Ljava/util/Map;"}
+            });
+            final javassist.CtMethod applyObj = CtNewMethod.make(
                 "public Object apply(Object o) { return apply((java.util.Map) o); }",
-                ctClass));
+                ctClass);
+            ctClass.addMethod(applyObj);
+            addLocalVariableTable(applyObj, className, new String[][]{
+                {"o", "Ljava/lang/Object;"}
+            });
         } else if (DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
             // DecorateFunction: void accept(MeterEntity)
             // Closure param operates on MeterEntity bean properties (getters/setters).
@@ -547,7 +580,13 @@ public final class MALClassGenerator {
             if (log.isDebugEnabled()) {
                 log.debug("Decorate closure body:\n{}", sb);
             }
-            ctClass.addMethod(CtNewMethod.make(sb.toString(), ctClass));
+            final javassist.CtMethod acceptMethod =
+                CtNewMethod.make(sb.toString(), ctClass);
+            ctClass.addMethod(acceptMethod);
+            addLocalVariableTable(acceptMethod, className, new String[][]{
+                {"_arg", "Ljava/lang/Object;"},
+                {paramName, "L" + METER_ENTITY_FQCN.replace('.', '/') + ";"}
+            });
         } else {
             // TagFunction: Map<String,String> apply(Map<String,String> tags)
             final String paramName = params.isEmpty() ? "it" : params.get(0);
@@ -562,10 +601,19 @@ public final class MALClassGenerator {
             sb.append("}\n");
 
             // Also add the Object apply(Object) bridge method
-            ctClass.addMethod(CtNewMethod.make(sb.toString(), ctClass));
-            ctClass.addMethod(CtNewMethod.make(
+            final javassist.CtMethod tagApply =
+                CtNewMethod.make(sb.toString(), ctClass);
+            ctClass.addMethod(tagApply);
+            addLocalVariableTable(tagApply, className, new String[][]{
+                {paramName, "Ljava/util/Map;"}
+            });
+            final javassist.CtMethod tagBridge = CtNewMethod.make(
                 "public Object apply(Object o) { return apply((java.util.Map) o); }",
-                ctClass));
+                ctClass);
+            ctClass.addMethod(tagBridge);
+            addLocalVariableTable(tagBridge, className, new String[][]{
+                {"o", "Ljava/lang/Object;"}
+            });
         }
 
         writeClassFile(ctClass);
