@@ -35,6 +35,7 @@ public class ZipkinQueryProvider extends ModuleProvider {
     public static final String NAME = "default";
     private ZipkinQueryConfig config;
     private HTTPServer httpServer;
+    public ZipkinQueryHandler zipkinQueryHandler;
 
     @Override
     public String name() {
@@ -63,7 +64,8 @@ public class ZipkinQueryProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-
+        zipkinQueryHandler = new ZipkinQueryHandler(config, getManager());
+        this.registerServiceImplementation(ZipkinQueryHandler.class, zipkinQueryHandler);
     }
 
     @Override
@@ -79,8 +81,7 @@ public class ZipkinQueryProvider extends ModuleProvider {
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.setBlockingTaskName("zipkin-query-http");
         httpServer.initialize();
-        httpServer.addHandler(
-            new ZipkinQueryHandler(config, getManager()),
+        httpServer.addHandler(zipkinQueryHandler,
             Collections.singletonList(HttpMethod.GET)
         );
     }

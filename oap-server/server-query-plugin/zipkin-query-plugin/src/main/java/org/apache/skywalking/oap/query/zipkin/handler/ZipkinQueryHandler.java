@@ -74,6 +74,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryV2DAO;
 import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
 import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -95,7 +96,8 @@ import static com.linecorp.armeria.common.MediaType.ANY_TEXT_TYPE;
  * Reference from zipkin2.server.internal.ZipkinQueryApiV2 for the API consistent.
  */
 @ExceptionHandler(ZipkinQueryExceptionHandler.class)
-public class ZipkinQueryHandler {
+public class ZipkinQueryHandler implements Service {
+    @Getter
     private final ZipkinQueryConfig config;
     private final ModuleManager moduleManager;
     private IZipkinQueryDAO zipkinQueryDAO;

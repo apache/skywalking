@@ -499,6 +499,8 @@ traceQL:
   default:
     restHost: ${SW_TRACEQL_REST_HOST:0.0.0.0}
     restPort: ${SW_TRACEQL_REST_PORT:3200}
+    enableDatasourceZipkin: ${SW_TRACEQL_ENABLE_DATASOURCE_ZIPKIN:false}
+    enableDatasourceSkywalking: ${SW_TRACEQL_ENABLE_DATASOURCE_SKYWALKING:false}
     restContextPathZipkin: ${SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN:/zipkin}
     restContextPathSkywalking: ${SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING:/skywalking}
     restIdleTimeOut: ${SW_TRACEQL_REST_IDLE_TIMEOUT:30000}

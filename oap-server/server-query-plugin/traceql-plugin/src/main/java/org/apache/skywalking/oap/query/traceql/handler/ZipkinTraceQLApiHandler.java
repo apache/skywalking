@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.query.traceql.rt.TraceQLParseResult;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParser;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
+import org.apache.skywalking.oap.query.zipkin.ZipkinQueryModule;
 import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -69,8 +70,11 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
         this.tagAutoCompleteQueryService = moduleManager.find(CoreModule.NAME)
                                                         .provider()
                                                         .getService(TagAutoCompleteQueryService.class);
-        this.zipkinQueryConfig = new ZipkinQueryConfig();
-        this.zipkinQueryHandler = new ZipkinQueryHandler(zipkinQueryConfig, moduleManager);
+        // Get ZipkinQueryHandler from ZipkinQueryModule service
+        this.zipkinQueryHandler = moduleManager.find(ZipkinQueryModule.NAME)
+                                               .provider()
+                                               .getService(ZipkinQueryHandler.class);
+        this.zipkinQueryConfig = zipkinQueryHandler.getConfig();
     }
 
     @Override

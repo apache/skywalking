@@ -27,6 +27,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class TraceQLConfig extends ModuleConfig {
     private String restHost;
     private int restPort;
+    private boolean enableDatasourceZipkin;
+    private boolean enableDatasourceSkywalking;
     private String restContextPathZipkin;
     private String restContextPathSkywalking;
     private long restIdleTimeOut = 30000;

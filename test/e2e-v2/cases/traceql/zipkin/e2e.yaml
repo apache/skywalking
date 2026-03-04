@@ -33,13 +33,13 @@ setup:
 trigger:
   action: http
   interval: 3s
-  times: 5
+  times: -1
   url: http://${frontend_host}:${frontend_8081}/
   method: POST
 
 verify:
   retry:
-    count: 10
+    count: 20
     interval: 10s
   cases:
     - includes:

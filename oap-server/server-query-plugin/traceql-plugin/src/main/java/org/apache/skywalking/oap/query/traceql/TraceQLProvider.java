@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.query.traceql;
 
 import com.linecorp.armeria.common.HttpMethod;
-import java.util.Arrays;
+import java.util.Collections;
 import org.apache.skywalking.oap.query.traceql.handler.SkyWalkingTraceQLApiHandler;
 import org.apache.skywalking.oap.query.traceql.handler.ZipkinTraceQLApiHandler;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -79,24 +79,27 @@ public class TraceQLProvider extends ModuleProvider {
 
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
-
-        // Register Zipkin-compatible Tempo API handler with /zipkin context path
-        httpServer.addHandler(
-            new ZipkinTraceQLApiHandler(getManager()),
-            Arrays.asList(HttpMethod.POST, HttpMethod.GET),
-            config.getRestContextPathZipkin()
-        );
-
-        // Register SkyWalking-compatible Tempo API handler with /skywalking context path
-        httpServer.addHandler(
-            new SkyWalkingTraceQLApiHandler(getManager()),
-            Arrays.asList(HttpMethod.POST, HttpMethod.GET),
-            config.getRestContextPathSkywalking()
-        );
     }
 
     @Override
     public void notifyAfterCompleted() {
+        if (config.isEnableDatasourceZipkin()) {
+            // Register Zipkin-compatible Tempo API handler with /zipkin context path
+            httpServer.addHandler(
+                new ZipkinTraceQLApiHandler(getManager()),
+                Collections.singletonList(HttpMethod.GET),
+                config.getRestContextPathZipkin()
+            );
+        }
+
+        if (config.isEnableDatasourceSkywalking()) {
+            // Register SkyWalking-compatible Tempo API handler with /skywalking context path
+            httpServer.addHandler(
+                new SkyWalkingTraceQLApiHandler(getManager()),
+                Collections.singletonList(HttpMethod.GET),
+                config.getRestContextPathSkywalking()
+            );
+        }
         if (!RunningMode.isInitMode()) {
             httpServer.start();
         }

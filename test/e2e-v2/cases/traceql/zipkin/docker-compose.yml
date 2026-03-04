@@ -34,7 +34,7 @@ services:
       SW_RECEIVER_ZIPKIN: default
       # Enable TraceQL API
       SW_TRACEQL: default
-      SW_RECEIVER_TEMPO_ZIPKIN: /zipkin
+      SW_TRACEQL_ENABLE_DATASOURCE_ZIPKIN: "true"
     expose:
       - 9411
     ports:
