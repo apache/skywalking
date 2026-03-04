@@ -190,6 +190,12 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
         }
 
         public boolean match(final Service upper, final Service lower) {
+            if (log.isDebugEnabled()) {
+                log.debug("[Hierarchy] rule={}, class={}, upper=[{}, {}], lower=[{}, {}]",
+                    name, matcher.getClass().getName(),
+                    upper.getName(), upper.getShortName(),
+                    lower.getName(), lower.getShortName());
+            }
             return matcher.apply(upper, lower);
         }
     }

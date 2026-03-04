@@ -165,6 +165,17 @@ public class Analyzer {
                 return;
             }
         }
+        if (log.isDebugEnabled()) {
+            final StringBuilder sb = new StringBuilder();
+            input.forEach((k, v) -> {
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append(k).append('(').append(v.samples.length).append(" samples)");
+            });
+            log.debug("[MAL] metric={}, class={}, input=[{}]",
+                metricName, expression.generatedClassName(), sb);
+        }
         Result r = expression.run(input);
         if (!r.isSuccess()) {
             return;

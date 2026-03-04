@@ -35,7 +35,9 @@ import org.apache.skywalking.oap.meter.analyzer.v2.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter;
+import org.apache.skywalking.oap.server.core.WorkPath;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Generates {@link MalExpression} implementation classes from
@@ -67,6 +69,9 @@ public final class MALClassGenerator {
 
     public MALClassGenerator() {
         this(createClassPool());
+        if (StringUtil.isNotEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"))) {
+            classOutputDir = new File(WorkPath.getPath().getParentFile(), "mal-rt");
+        }
     }
 
     private static ClassPool createClassPool() {

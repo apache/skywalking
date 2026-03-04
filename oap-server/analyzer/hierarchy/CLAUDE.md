@@ -110,6 +110,17 @@ Four rule types are defined in `hierarchy-definition.yml`:
 | `lower-short-name-remove-namespace` | `{ (u, l) -> { if (l.shortName.lastIndexOf(".") > 0) { return u.name == l.shortName.substring(0, l.shortName.lastIndexOf(".")); } return false; } }` |
 | `lower-short-name-with-fqdn` | `{ (u, l) -> u.shortName == l.shortName.concat("." + u.shortName) }` |
 
+## Debug Output
+
+When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
+
+```
+{skywalking}/hierarchy-rt/
+  *.class          - Generated HierarchyRule .class files
+```
+
+This is the same env variable used by OAL. Useful for debugging code generation issues. In tests, use `setClassOutputDir(dir)` instead.
+
 ## Dependencies
 
 Grammar, compiler, and runtime are merged into this module:

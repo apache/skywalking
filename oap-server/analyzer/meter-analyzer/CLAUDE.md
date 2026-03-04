@@ -103,6 +103,17 @@ Two classes are generated:
 
 Metadata is extracted statically from the AST at compile time by `MALClassGenerator.extractMetadata()`. No ThreadLocal, no dry-run execution. The `Analyzer` calls `expression.metadata()` to get sample names, scope type, aggregation labels, downsampling, histogram/percentile info.
 
+## Debug Output
+
+When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
+
+```
+{skywalking}/mal-rt/
+  *.class          - Generated MalExpression and closure .class files
+```
+
+This is the same env variable used by OAL. Useful for debugging code generation issues or comparing V1 vs V2 output. In tests, use `setClassOutputDir(dir)` instead.
+
 ## Dependencies
 
 All within this module (grammar, compiler, and runtime are merged):

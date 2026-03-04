@@ -32,6 +32,8 @@ import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackageHolder;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
+import org.apache.skywalking.oap.server.core.WorkPath;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Generates {@link LalExpression} implementation classes from
@@ -151,6 +153,9 @@ public final class LALClassGenerator {
 
     public LALClassGenerator() {
         this(ClassPool.getDefault());
+        if (StringUtil.isNotEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"))) {
+            classOutputDir = new File(WorkPath.getPath().getParentFile(), "lal-rt");
+        }
     }
 
     public LALClassGenerator(final ClassPool classPool) {

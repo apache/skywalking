@@ -28,7 +28,9 @@ import javassist.CtClass;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.WorkPath;
 import org.apache.skywalking.oap.server.core.config.v2.compiler.hierarchy.rule.rt.HierarchyRulePackageHolder;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 
 /**
@@ -52,6 +54,9 @@ public final class HierarchyRuleClassGenerator {
 
     public HierarchyRuleClassGenerator() {
         this(ClassPool.getDefault());
+        if (StringUtil.isNotEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"))) {
+            classOutputDir = new File(WorkPath.getPath().getParentFile(), "hierarchy-rt");
+        }
     }
 
     public HierarchyRuleClassGenerator(final ClassPool classPool) {

@@ -119,7 +119,7 @@ public class LogFilterListener implements LogAnalysisListener {
                 Class<?> resolvedType = resolveExtraLogType(c, spiTypes.get(layer));
 
                 final Map<String, DSL> layerDsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
-                if (layerDsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl(), resolvedType)) != null) {
+                if (layerDsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl(), resolvedType, c.getName())) != null) {
                     throw new ModuleStartException("Layer " + layer.name() + " has already set " + c.getName() + " rule.");
                 }
             }

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.log.analyzer.v2.dsl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
@@ -38,25 +39,28 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class DSL {
+    private final String ruleName;
     private final LalExpression expression;
     private final FilterSpec filterSpec;
 
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
                          final String dsl) throws ModuleStartException {
-        return of(moduleManager, config, dsl, null);
+        return of(moduleManager, config, dsl, null, "unknown");
     }
 
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
                          final String dsl,
-                         final Class<?> extraLogType) throws ModuleStartException {
+                         final Class<?> extraLogType,
+                         final String ruleName) throws ModuleStartException {
         try {
             final LALClassGenerator generator = new LALClassGenerator();
             generator.setExtraLogType(extraLogType);
+            generator.setClassNameHint(ruleName);
             final LalExpression expression = generator.compile(dsl);
             final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
-            return new DSL(expression, filterSpec);
+            return new DSL(ruleName, expression, filterSpec);
         } catch (Exception e) {
             throw new ModuleStartException(
                 "Failed to compile LAL expression: " + dsl, e);
@@ -64,6 +68,13 @@ public class DSL {
     }
 
     public void evaluate(final ExecutionContext ctx) {
+        if (log.isDebugEnabled()) {
+            final LogData.Builder logData = ctx.log();
+            log.debug("[LAL] rule={}, class={}, service={}, instance={}, endpoint={}, bodyType={}",
+                ruleName, expression.getClass().getName(),
+                logData.getService(), logData.getServiceInstance(),
+                logData.getEndpoint(), logData.getBody().getContentCase());
+        }
         expression.execute(filterSpec, ctx);
     }
 }

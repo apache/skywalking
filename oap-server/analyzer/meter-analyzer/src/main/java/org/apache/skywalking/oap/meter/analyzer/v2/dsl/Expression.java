@@ -47,6 +47,10 @@ public class Expression {
         this.expression = expression;
     }
 
+    public String generatedClassName() {
+        return expression.getClass().getName();
+    }
+
     /**
      * Returns compile-time metadata extracted from the expression AST.
      */

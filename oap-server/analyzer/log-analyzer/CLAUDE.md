@@ -194,6 +194,17 @@ test/script-cases/scripts/lal/test-lal/
 Each `.input.data` entry specifies `body-type`, `body`, optional `tags`, and `expect` assertions
 (service, instance, endpoint, layer, tags, abort, save, timestamp, sampledTrace fields).
 
+## Debug Output
+
+When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
+
+```
+{skywalking}/lal-rt/
+  *.class          - Generated LalExpression .class files
+```
+
+This is the same env variable used by OAL. Useful for debugging code generation issues or comparing V1 vs V2 output. In tests, use `setClassOutputDir(dir)` instead.
+
 ## Dependencies
 
 All within this module (grammar, compiler, and runtime are merged):
