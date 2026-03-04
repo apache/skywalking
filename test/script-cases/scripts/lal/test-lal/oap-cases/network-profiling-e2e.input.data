@@ -1,0 +1,43 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Mock input data for network-profiling-e2e.yaml rules.
+# This is the e2e override rule with string concatenation for URI
+# and .split(":")[index].endsWith() for process resolution.
+# Uses non-empty process_ids to avoid ProcessRegistry dependency.
+
+network-profiling-slow-trace:
+  body-type: json
+  body: '{"latency":100,"uri":"/api/test","trace_provider":"skywalking","reason":"slow","client_process":{"process_id":"e2e-client","local":true,"address":"10.1.0.1:80"},"server_process":{"process_id":"e2e-server","local":false,"address":"10.1.0.2:443"},"detect_point":"server","component":"http","ssl":true,"service":"e2e-svc","serviceInstance":"e2e-inst"}'
+  service: e2e-test-svc
+  instance: e2e-test-instance
+  trace-id: trace-e2e-001
+  timestamp: 1609459400000
+  tags:
+    LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+  expect:
+    save: true
+    abort: false
+    sampledTrace.traceId: trace-e2e-001
+    sampledTrace.serviceName: e2e-test-svc
+    sampledTrace.serviceInstanceName: e2e-test-instance
+    sampledTrace.timestamp: 1609459400000
+    sampledTrace.latency: 100
+    sampledTrace.uri: skywalking-/api/test
+    sampledTrace.reason: SLOW
+    sampledTrace.processId: e2e-client
+    sampledTrace.destProcessId: e2e-server
+    sampledTrace.detectPoint: SERVER
+    sampledTrace.componentId: 129

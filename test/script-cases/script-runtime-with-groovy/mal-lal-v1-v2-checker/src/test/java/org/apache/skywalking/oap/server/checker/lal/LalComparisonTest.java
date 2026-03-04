@@ -35,7 +35,9 @@ import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
+import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
@@ -53,8 +55,11 @@ import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -92,7 +97,7 @@ class LalComparisonTest {
         final String ruleName = rule.name;
         final String dsl = rule.dsl;
 
-        final LogData testLog = buildTestLogData(dsl);
+        final LogData testLog = buildLogData(rule.inputData, dsl);
 
         // Build proto extraLog from input data if available
         final Message extraLog = buildExtraLog(rule.inputData);
@@ -191,6 +196,61 @@ class LalComparisonTest {
             ruleName + ": timestamp mismatch");
         assertEquals(v1Log.getTags(), v2Log.getTags(),
             ruleName + ": tags mismatch");
+
+        // Compare sampledTrace builder state
+        // v1 Groovy Binding throws MissingPropertyException if sampledTrace was never set
+        SampledTraceBuilder v1St = null;
+        try {
+            v1St = v1Ctx.sampledTraceBuilder();
+        } catch (Exception ignored) {
+            // Not set — rule has no sampledTrace block
+        }
+        final SampledTraceBuilder v2St = v2Ctx.sampledTraceBuilder();
+        if (v1St != null || v2St != null) {
+            if (v1St == null) {
+                fail(ruleName + ": v1 has no sampledTrace but v2 does");
+            }
+            if (v2St == null) {
+                fail(ruleName + ": v2 has no sampledTrace but v1 does");
+            }
+            // Fields set by prepareSampledTrace() from log context
+            assertEquals(v1St.getTraceId(), v2St.getTraceId(),
+                ruleName + ": sampledTrace.traceId mismatch");
+            assertEquals(v1St.getServiceName(), v2St.getServiceName(),
+                ruleName + ": sampledTrace.serviceName mismatch");
+            assertEquals(v1St.getServiceInstanceName(), v2St.getServiceInstanceName(),
+                ruleName + ": sampledTrace.serviceInstanceName mismatch");
+            assertEquals(v1St.getLayer(), v2St.getLayer(),
+                ruleName + ": sampledTrace.layer mismatch");
+            assertEquals(v1St.getTimestamp(), v2St.getTimestamp(),
+                ruleName + ": sampledTrace.timestamp mismatch");
+
+            // Verify traceId came from the log (not empty/fabricated)
+            assertEquals(testLog.getTraceContext().getTraceId(),
+                v2St.getTraceId(),
+                ruleName + ": sampledTrace.traceId should match log traceId");
+
+            // Fields set by DSL closure body
+            assertEquals(v1St.getLatency(), v2St.getLatency(),
+                ruleName + ": sampledTrace.latency mismatch");
+            assertEquals(v1St.getUri(), v2St.getUri(),
+                ruleName + ": sampledTrace.uri mismatch");
+            assertEquals(v1St.getReason(), v2St.getReason(),
+                ruleName + ": sampledTrace.reason mismatch");
+            assertEquals(v1St.getProcessId(), v2St.getProcessId(),
+                ruleName + ": sampledTrace.processId mismatch");
+            assertEquals(v1St.getDestProcessId(), v2St.getDestProcessId(),
+                ruleName + ": sampledTrace.destProcessId mismatch");
+            assertEquals(v1St.getDetectPoint(), v2St.getDetectPoint(),
+                ruleName + ": sampledTrace.detectPoint mismatch");
+            assertEquals(v1St.getComponentId(), v2St.getComponentId(),
+                ruleName + ": sampledTrace.componentId mismatch");
+
+            // Verify v2 actually dispatched the trace via sourceReceiver.receive()
+            final SourceReceiver v2Receiver = v2Manager.find(CoreModule.NAME)
+                .provider().getService(SourceReceiver.class);
+            verify(v2Receiver, atLeastOnce()).receive(any());
+        }
     }
 
     private ModuleManager buildMockModuleManager(final boolean isV1) {
@@ -238,7 +298,62 @@ class LalComparisonTest {
         return manager;
     }
 
-    private LogData buildTestLogData(final String dsl) {
+    @SuppressWarnings("unchecked")
+    private LogData buildLogData(final Map<String, Object> inputData,
+                                 final String dsl) {
+        if (inputData == null) {
+            return buildSyntheticLogData(dsl);
+        }
+
+        final LogData.Builder builder = LogData.newBuilder();
+
+        final String service = (String) inputData.get("service");
+        if (service != null) {
+            builder.setService(service);
+        }
+
+        final String instance = (String) inputData.get("instance");
+        if (instance != null) {
+            builder.setServiceInstance(instance);
+        }
+
+        final String traceId = (String) inputData.get("trace-id");
+        if (traceId != null) {
+            builder.setTraceContext(TraceContext.newBuilder().setTraceId(traceId));
+        }
+
+        final Object tsObj = inputData.get("timestamp");
+        if (tsObj != null) {
+            builder.setTimestamp(Long.parseLong(String.valueOf(tsObj)));
+        }
+
+        final String bodyType = (String) inputData.get("body-type");
+        final String body = (String) inputData.get("body");
+
+        if ("json".equals(bodyType) && body != null) {
+            builder.setBody(LogDataBody.newBuilder()
+                .setJson(JSONLog.newBuilder().setJson(body)));
+        } else if ("text".equals(bodyType) && body != null) {
+            builder.setBody(LogDataBody.newBuilder()
+                .setText(TextLog.newBuilder().setText(body)));
+        }
+
+        final Map<String, String> tags =
+            (Map<String, String>) inputData.get("tags");
+        if (tags != null && !tags.isEmpty()) {
+            final LogTags.Builder tagsBuilder = LogTags.newBuilder();
+            for (final Map.Entry<String, String> tag : tags.entrySet()) {
+                tagsBuilder.addData(KeyStringValuePair.newBuilder()
+                    .setKey(tag.getKey())
+                    .setValue(tag.getValue()));
+            }
+            builder.setTags(tagsBuilder);
+        }
+
+        return builder.build();
+    }
+
+    private LogData buildSyntheticLogData(final String dsl) {
         final LogData.Builder builder = LogData.newBuilder()
             .setService("test-service")
             .setServiceInstance("test-instance")

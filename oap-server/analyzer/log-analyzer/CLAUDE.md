@@ -32,7 +32,9 @@ oap-server/analyzer/log-analyzer/
   src/main/java/.../compiler/
     LALScriptParser.java                — ANTLR4 facade: DSL string → AST
     LALScriptModel.java                 — Immutable AST model classes
-    LALClassGenerator.java              — Javassist code generator
+    LALClassGenerator.java              — Public API, execute method codegen, class scaffolding
+    LALBlockCodegen.java                — Extractor/sink/condition/value-access codegen
+    LALCodegenHelper.java               — Static utility methods and shared constants
     rt/
       LalExpressionPackageHolder.java   — Class loading anchor (empty marker)
       LalRuntimeHelper.java             — Instance-based helper called by generated code

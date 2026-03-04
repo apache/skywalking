@@ -30,6 +30,10 @@ network-profiling-slow-trace:
   expect:
     save: true
     abort: false
+    sampledTrace.traceId: trace-k8s-002
+    sampledTrace.serviceName: k8s-test-svc
+    sampledTrace.serviceInstanceName: k8s-test-instance
+    sampledTrace.timestamp: 1609459300000
     sampledTrace.latency: 350
     sampledTrace.uri: /k8s/endpoint
     sampledTrace.reason: STATUS_5XX

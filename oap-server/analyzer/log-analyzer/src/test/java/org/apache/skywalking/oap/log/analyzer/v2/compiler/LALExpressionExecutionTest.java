@@ -312,6 +312,28 @@ class LALExpressionExecutionTest {
                     ruleName
                         + ": sampledTrace.componentId mismatch");
                 break;
+            case "traceId":
+                assertEquals(expected, builder.getTraceId(),
+                    ruleName + ": sampledTrace.traceId mismatch");
+                break;
+            case "serviceName":
+                assertEquals(expected, builder.getServiceName(),
+                    ruleName
+                        + ": sampledTrace.serviceName mismatch");
+                break;
+            case "serviceInstanceName":
+                assertEquals(expected,
+                    builder.getServiceInstanceName(),
+                    ruleName
+                        + ": sampledTrace.serviceInstanceName"
+                        + " mismatch");
+                break;
+            case "timestamp":
+                assertEquals(Long.parseLong(expected),
+                    builder.getTimestamp(),
+                    ruleName
+                        + ": sampledTrace.timestamp mismatch");
+                break;
             default:
                 throw new IllegalArgumentException(
                     ruleName + ": unknown sampledTrace field: "

@@ -148,6 +148,10 @@ sampled-trace-basic:
   timestamp: 1609459200000
   expect:
     save: true
+    sampledTrace.traceId: trace-basic-001
+    sampledTrace.serviceName: trace-svc
+    sampledTrace.serviceInstanceName: trace-inst
+    sampledTrace.timestamp: 1609459200000
     sampledTrace.latency: 150
     sampledTrace.uri: /test
     sampledTrace.reason: SLOW

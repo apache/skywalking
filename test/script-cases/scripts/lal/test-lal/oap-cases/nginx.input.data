@@ -22,3 +22,11 @@ nginx-access-log:
     LOG_KIND: NGINX_ACCESS_LOG
   expect:
     tag.http.status_code: "200"
+
+nginx-error-log:
+  body-type: text
+  body: '2021/01/01 00:00:00 [error] 123#123: test error message'
+  tags:
+    LOG_KIND: NGINX_ERROR_LOG
+  expect:
+    tag.level: error

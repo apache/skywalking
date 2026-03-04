@@ -30,6 +30,10 @@ network-profiling-slow-trace:
   expect:
     save: true
     abort: false
+    sampledTrace.traceId: trace-mesh-001
+    sampledTrace.serviceName: mesh-test-svc
+    sampledTrace.serviceInstanceName: mesh-test-instance
+    sampledTrace.timestamp: 1609459200000
     sampledTrace.latency: 200
     sampledTrace.uri: /mesh/api
     sampledTrace.reason: SLOW

@@ -25,3 +25,27 @@ envoy-als:
     proto-json: '{"response":{"responseCode":500},"commonProperties":{"upstreamCluster":"outbound|80||backend.default.svc"}}'
   expect:
     tag.status.code: "500"
+
+network-profiling-slow-trace:
+  body-type: json
+  body: '{"latency":200,"uri":"/mesh/api","reason":"slow","client_process":{"process_id":"client-proc-1","local":false,"address":"10.0.0.1:8080"},"server_process":{"process_id":"server-proc-2","local":true,"address":"10.0.0.2:9090"},"detect_point":"client","component":"http","ssl":false}'
+  service: mesh-envoy-svc
+  instance: mesh-envoy-instance
+  trace-id: trace-envoy-mesh-001
+  timestamp: 1609459200000
+  tags:
+    LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+  expect:
+    save: true
+    abort: false
+    sampledTrace.traceId: trace-envoy-mesh-001
+    sampledTrace.serviceName: mesh-envoy-svc
+    sampledTrace.serviceInstanceName: mesh-envoy-instance
+    sampledTrace.timestamp: 1609459200000
+    sampledTrace.latency: 200
+    sampledTrace.uri: /mesh/api
+    sampledTrace.reason: SLOW
+    sampledTrace.processId: client-proc-1
+    sampledTrace.destProcessId: server-proc-2
+    sampledTrace.detectPoint: CLIENT
+    sampledTrace.componentId: 49
