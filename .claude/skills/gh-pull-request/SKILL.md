@@ -1,7 +1,6 @@
 ---
 name: gh-pull-request
 description: Verify, commit, and push changes on a PR branch. Runs pre-flight checks (compile, checkstyle, license headers) before every push. Also creates the PR if one doesn't exist yet.
-argument-hint: "[issue-number]"
 ---
 
 # PR Branch Workflow
