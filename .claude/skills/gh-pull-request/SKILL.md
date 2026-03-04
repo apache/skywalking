@@ -1,16 +1,16 @@
 ---
 name: gh-pull-request
-description: Create a GitHub pull request for the current branch. Runs pre-flight checks (compile, checkstyle, license headers), commits, pushes, and creates the PR using the project PR template.
+description: Verify, commit, and push changes on a PR branch. Runs pre-flight checks (compile, checkstyle, license headers) before every push. Also creates the PR if one doesn't exist yet.
 argument-hint: "[issue-number]"
 ---
 
-# Create Pull Request
+# PR Branch Workflow
 
-Create a GitHub pull request for the current branch with pre-flight validation.
+Run pre-flight checks, commit, push, and optionally create a PR.
 
 ## Pre-flight checks
 
-Before committing and pushing, run these checks and fix any failures:
+Run these checks before every commit+push and fix any failures:
 
 ### 1. Compile and checkstyle
 
@@ -33,11 +33,29 @@ license-eye header check
 
 If invalid files are found, fix with `license-eye header fix` and re-check.
 
-## Create the PR
+## Commit and push
+
+After checks pass, commit and push:
+
+```bash
+git add <files>
+git commit -m "<message>"
+git push -u origin <branch-name>
+```
 
 ### Branch strategy
 - **Never work directly on master branch**
 - If on master, create a new branch first: `git checkout -b feature/<name>` or `git checkout -b fix/<name>`
+
+## Create PR (if not yet created)
+
+Check whether a PR already exists for the current branch:
+
+```bash
+gh pr view --json number 2>/dev/null
+```
+
+If no PR exists, create one:
 
 ### PR title
 Summarize the changes concisely. Examples:
@@ -80,10 +98,9 @@ Key template sections — uncomment the relevant one:
 - [ ] Update the [`CHANGES` log](https://github.com/apache/skywalking/blob/master/docs/en/changes/changes.md).
 ```
 
-### Push and create PR
+### Create command
 
 ```bash
-git push -u origin <branch-name>
 gh pr create --title "<title>" --body "$(cat <<'EOF'
 <PR body from template>
 EOF

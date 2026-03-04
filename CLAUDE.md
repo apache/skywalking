@@ -228,7 +228,7 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 
 ## Submitting Pull Requests
 
-Use the `/gh-pull-request` skill, which runs pre-flight checks (compile, checkstyle, license headers) and creates the PR using the project template.
+Use the `/gh-pull-request` skill for committing and pushing to a PR branch. It runs pre-flight checks (compile, checkstyle, license headers) before every push, and creates the PR if one doesn't exist yet.
 
 ## Tips for AI Assistants
 
