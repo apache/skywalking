@@ -370,7 +370,6 @@ condition
     : condition AND condition                     # condAnd
     | condition OR condition                      # condOr
     | NOT condition                               # condNot
-    | L_PAREN condition R_PAREN                   # condParen
     | conditionExpr DEQ conditionExpr             # condEq
     | conditionExpr NEQ conditionExpr             # condNeq
     | conditionExpr GT conditionExpr              # condGt
@@ -382,6 +381,7 @@ condition
 
 conditionExpr
     : valueAccess typeCast?                       # condValueAccess
+    | L_PAREN condition R_PAREN                   # condParenGroup
     | STRING                                      # condString
     | NUMBER                                      # condNumber
     | boolValue                                   # condBool
@@ -398,6 +398,10 @@ conditionExpr
 //   ProcessRegistry.generateVirtualLocalProcess(...)
 
 valueAccess
+    : valueAccessTerm (PLUS valueAccessTerm)*
+    ;
+
+valueAccessTerm
     : valueAccessPrimary (valueAccessSegment)*
     ;
 
@@ -411,6 +415,7 @@ valueAccessPrimary
     | boolValue                                   # valueBool
     | NULL                                        # valueNull
     | functionInvocation                          # valueFunctionCall
+    | L_PAREN valueAccess typeCast? R_PAREN       # valueParen
     ;
 
 valueAccessSegment
@@ -418,6 +423,7 @@ valueAccessSegment
     | QUESTION DOT anyIdentifier                  # segmentSafeField
     | DOT functionInvocation                      # segmentMethod
     | QUESTION DOT functionInvocation             # segmentSafeMethod
+    | L_BRACKET NUMBER R_BRACKET                  # segmentIndex
     ;
 
 functionInvocation

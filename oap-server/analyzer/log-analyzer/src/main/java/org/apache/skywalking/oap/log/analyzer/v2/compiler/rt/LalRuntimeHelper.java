@@ -275,6 +275,22 @@ public final class LalRuntimeHelper {
         return !obj.toString().isEmpty();
     }
 
+    /**
+     * Primitive boolean overload — needed when chained methods (e.g.
+     * {@code .endsWith()}) return primitive {@code boolean} which Javassist
+     * cannot auto-box to match {@code isNotEmpty(Object)}.
+     */
+    public boolean isNotEmpty(final boolean value) {
+        return value;
+    }
+
+    /**
+     * Primitive boolean overload for {@link #isTrue(Object)}.
+     */
+    public boolean isTrue(final boolean value) {
+        return value;
+    }
+
     // ==================== Safe navigation ====================
 
     /**

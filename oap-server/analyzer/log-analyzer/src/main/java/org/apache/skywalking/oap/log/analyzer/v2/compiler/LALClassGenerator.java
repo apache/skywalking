@@ -1115,6 +1115,25 @@ public final class LALClassGenerator {
                                       final GenCtx genCtx) {
         genCtx.clearExtraLogResult();
 
+        // Handle string concatenation (term1 + term2 + ...)
+        if (!value.getConcatParts().isEmpty()) {
+            sb.append("(\"\" + ");
+            for (int i = 0; i < value.getConcatParts().size(); i++) {
+                if (i > 0) {
+                    sb.append(" + ");
+                }
+                generateValueAccess(sb, value.getConcatParts().get(i), genCtx);
+            }
+            sb.append(")");
+            return;
+        }
+
+        // Handle parenthesized expression: (innerExpr as Type).chain...
+        if (value.getParenInner() != null) {
+            generateParenAccess(sb, value, genCtx);
+            return;
+        }
+
         // Handle function call primaries (e.g., tag("LOG_KIND"))
         if (value.getFunctionCallName() != null) {
             if ("tag".equals(value.getFunctionCallName())
@@ -1172,6 +1191,48 @@ public final class LALClassGenerator {
         }
         // Treat as parsed ref
         generateParsedAccess(sb, chain, genCtx);
+    }
+
+    // ==================== Parenthesized expression ====================
+
+    /**
+     * Generates code for parenthesized expressions with optional cast and
+     * chained method/index segments.
+     * E.g. {@code (parsed.address as String).split(":")[0].endsWith(".1")}
+     */
+    private void generateParenAccess(final StringBuilder sb,
+                                      final LALScriptModel.ValueAccess value,
+                                      final GenCtx genCtx) {
+        // Generate the inner expression with cast
+        final String castType = value.getParenCast();
+        final StringBuilder inner = new StringBuilder();
+        if (castType != null) {
+            generateCastedValueAccess(inner, value.getParenInner(), castType, genCtx);
+        } else {
+            generateValueAccess(inner, value.getParenInner(), genCtx);
+        }
+
+        // Apply chain segments (methods, fields, index access)
+        String current = inner.toString();
+        for (final LALScriptModel.ValueAccessSegment seg : value.getChain()) {
+            if (seg instanceof LALScriptModel.MethodSegment) {
+                current = appendMethodSegment(current,
+                    (LALScriptModel.MethodSegment) seg);
+            } else if (seg instanceof LALScriptModel.IndexSegment) {
+                current = current + "["
+                    + ((LALScriptModel.IndexSegment) seg).getIndex() + "]";
+            } else if (seg instanceof LALScriptModel.FieldSegment) {
+                final LALScriptModel.FieldSegment fs =
+                    (LALScriptModel.FieldSegment) seg;
+                if (fs.isSafeNav()) {
+                    current = "(" + current + " == null ? null : "
+                        + current + "." + fs.getName() + ")";
+                } else {
+                    current = current + "." + fs.getName();
+                }
+            }
+        }
+        sb.append(current);
     }
 
     // ==================== Log access (direct proto getters) ====================
@@ -1260,7 +1321,7 @@ public final class LALClassGenerator {
             return;
         }
 
-        // Collect leading field segments
+        // Collect leading field segments (stop at method/index)
         final List<LALScriptModel.FieldSegment> fieldSegments = new ArrayList<>();
         int methodStart = -1;
         for (int i = 0; i < chain.size(); i++) {
@@ -1312,18 +1373,19 @@ public final class LALClassGenerator {
                 break;
         }
 
-        // Apply remaining method segments
+        // Apply remaining method/index segments
         if (methodStart >= 0) {
             for (int i = methodStart; i < chain.size(); i++) {
                 final LALScriptModel.ValueAccessSegment seg = chain.get(i);
                 if (seg instanceof LALScriptModel.MethodSegment) {
                     current = appendMethodSegment(current,
                         (LALScriptModel.MethodSegment) seg);
+                } else if (seg instanceof LALScriptModel.IndexSegment) {
+                    current = current + "["
+                        + ((LALScriptModel.IndexSegment) seg).getIndex() + "]";
                 } else if (seg instanceof LALScriptModel.FieldSegment) {
-                    throw new IllegalArgumentException(
-                        "Field access after method call is not supported: ."
-                            + ((LALScriptModel.FieldSegment) seg).getName()
-                            + " — all field segments must precede method calls.");
+                    current = current + "."
+                        + ((LALScriptModel.FieldSegment) seg).getName();
                 }
             }
         }

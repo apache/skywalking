@@ -63,6 +63,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.TextPar
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.ValueAccess;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.ValueAccessConditionValue;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.ValueAccessSegment;
+import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.IndexSegment;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.YamlParser;
 
 /**
@@ -549,9 +550,6 @@ public final class LALScriptParser {
             return new NotCondition(
                 visitCondition(((LALParser.CondNotContext) ctx).condition()));
         }
-        if (ctx instanceof LALParser.CondParenContext) {
-            return visitCondition(((LALParser.CondParenContext) ctx).condition());
-        }
         if (ctx instanceof LALParser.CondEqContext) {
             final LALParser.CondEqContext eq = (LALParser.CondEqContext) ctx;
             return makeComparison(eq.conditionExpr(0), CompareOp.EQ, eq.conditionExpr(1));
@@ -629,10 +627,11 @@ public final class LALScriptParser {
             // ANTLR grammar routes NUMBER/NULL/STRING/bool through condValueAccess
             // (since valueAccessPrimary includes them and condValueAccess has priority).
             // Detect standalone literals and create proper ConditionValue types.
-            if (va.typeCast() == null
-                && va.valueAccess().valueAccessSegment().isEmpty()) {
+            final LALParser.ValueAccessContext vaCtx = va.valueAccess();
+            if (va.typeCast() == null && vaCtx.valueAccessTerm().size() == 1
+                    && vaCtx.valueAccessTerm(0).valueAccessSegment().isEmpty()) {
                 final LALParser.ValueAccessPrimaryContext primary =
-                    va.valueAccess().valueAccessPrimary();
+                    vaCtx.valueAccessTerm(0).valueAccessPrimary();
                 if (primary instanceof LALParser.ValueNumberContext) {
                     return new NumberConditionValue(Double.parseDouble(
                         ((LALParser.ValueNumberContext) primary).NUMBER().getText()));
@@ -642,7 +641,13 @@ public final class LALScriptParser {
                 }
             }
             final String cast = va.typeCast() != null ? extractCastType(va.typeCast()) : null;
-            return new ValueAccessConditionValue(visitValueAccess(va.valueAccess()), cast);
+            return new ValueAccessConditionValue(visitValueAccess(vaCtx), cast);
+        }
+        if (ctx instanceof LALParser.CondParenGroupContext) {
+            // (condition) used as a value — e.g. in: if ((x == y)) { ... }
+            // Wrap as a ValueAccess containing the paren expression text
+            return new ValueAccessConditionValue(
+                new ValueAccess(List.of(ctx.getText()), false, false, List.of()), null);
         }
         // condBool, condFunctionCall
         return new StringConditionValue(ctx.getText());
@@ -666,6 +671,10 @@ public final class LALScriptParser {
                 List.of(), funcName, funcArgs);
             return new ExprCondition(va, null);
         }
+        if (ctx instanceof LALParser.CondParenGroupContext) {
+            return visitCondition(
+                ((LALParser.CondParenGroupContext) ctx).condition());
+        }
         return new ExprCondition(
             new ValueAccess(List.of(ctx.getText()), false, false, List.of()), null);
     }
@@ -673,6 +682,23 @@ public final class LALScriptParser {
     // ==================== Value access ====================
 
     private static ValueAccess visitValueAccess(final LALParser.ValueAccessContext ctx) {
+        final List<LALParser.ValueAccessTermContext> terms = ctx.valueAccessTerm();
+        if (terms.size() == 1) {
+            return visitValueAccessTerm(terms.get(0));
+        }
+        // Multiple terms joined by PLUS — string concatenation
+        final List<ValueAccess> parts = new ArrayList<>();
+        for (final LALParser.ValueAccessTermContext term : terms) {
+            parts.add(visitValueAccessTerm(term));
+        }
+        return new ValueAccess(
+            List.of("concat"), false, false, false, false, false,
+            List.of(), null, null,
+            parts, null, null);
+    }
+
+    private static ValueAccess visitValueAccessTerm(
+            final LALParser.ValueAccessTermContext ctx) {
         final List<String> segments = new ArrayList<>();
         boolean parsedRef = false;
         boolean logRef = false;
@@ -681,6 +707,8 @@ public final class LALScriptParser {
         boolean numberLiteral = false;
         String functionCallName = null;
         List<LALScriptModel.FunctionArg> functionCallArgs = null;
+        ValueAccess parenInner = null;
+        String parenCast = null;
 
         final LALParser.ValueAccessPrimaryContext primary = ctx.valueAccessPrimary();
         if (primary instanceof LALParser.ValueParsedContext) {
@@ -707,6 +735,13 @@ public final class LALScriptParser {
             functionCallName = fi.functionName().getText();
             functionCallArgs = visitFunctionArgs(fi);
             segments.add(fi.getText());
+        } else if (primary instanceof LALParser.ValueParenContext) {
+            final LALParser.ValueParenContext parenCtx =
+                (LALParser.ValueParenContext) primary;
+            parenInner = visitValueAccess(parenCtx.valueAccess());
+            parenCast = parenCtx.typeCast() != null
+                ? extractCastType(parenCtx.typeCast()) : null;
+            segments.add("paren");
         } else {
             segments.add(primary.getText());
         }
@@ -735,12 +770,18 @@ public final class LALScriptParser {
                 segments.add(fi.functionName().getText() + "()");
                 chain.add(new LALScriptModel.MethodSegment(
                     fi.functionName().getText(), visitFunctionArgs(fi), true));
+            } else if (seg instanceof LALParser.SegmentIndexContext) {
+                final int index = Integer.parseInt(
+                    ((LALParser.SegmentIndexContext) seg).NUMBER().getText());
+                segments.add("[" + index + "]");
+                chain.add(new IndexSegment(index));
             }
         }
 
         return new ValueAccess(segments, parsedRef, logRef,
             processRegistryRef, stringLiteral, numberLiteral,
-            chain, functionCallName, functionCallArgs);
+            chain, functionCallName, functionCallArgs,
+            List.of(), parenInner, parenCast);
     }
 
     private static List<LALScriptModel.FunctionArg> visitFunctionArgs(
@@ -782,7 +823,8 @@ public final class LALScriptParser {
     }
 
     private static String resolveValueAsString(final LALParser.ValueAccessContext ctx) {
-        final LALParser.ValueAccessPrimaryContext primary = ctx.valueAccessPrimary();
+        final LALParser.ValueAccessPrimaryContext primary =
+            ctx.valueAccessTerm(0).valueAccessPrimary();
         if (primary instanceof LALParser.ValueStringContext) {
             return stripQuotes(((LALParser.ValueStringContext) primary).STRING().getText());
         }

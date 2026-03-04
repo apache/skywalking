@@ -379,13 +379,17 @@ public final class LALScriptModel {
         private final List<ValueAccessSegment> chain;
         private final String functionCallName;
         private final List<FunctionArg> functionCallArgs;
+        private final List<ValueAccess> concatParts;
+        private final ValueAccess parenInner;
+        private final String parenCast;
 
         public ValueAccess(final List<String> segments,
                            final boolean parsedRef,
                            final boolean logRef,
                            final List<ValueAccessSegment> chain) {
             this(segments, parsedRef, logRef, false, false, false,
-                chain, null, Collections.emptyList());
+                chain, null, Collections.emptyList(),
+                Collections.emptyList(), null, null);
         }
 
         public ValueAccess(final List<String> segments,
@@ -397,6 +401,24 @@ public final class LALScriptModel {
                            final List<ValueAccessSegment> chain,
                            final String functionCallName,
                            final List<FunctionArg> functionCallArgs) {
+            this(segments, parsedRef, logRef, processRegistryRef,
+                stringLiteral, numberLiteral, chain,
+                functionCallName, functionCallArgs,
+                Collections.emptyList(), null, null);
+        }
+
+        public ValueAccess(final List<String> segments,
+                           final boolean parsedRef,
+                           final boolean logRef,
+                           final boolean processRegistryRef,
+                           final boolean stringLiteral,
+                           final boolean numberLiteral,
+                           final List<ValueAccessSegment> chain,
+                           final String functionCallName,
+                           final List<FunctionArg> functionCallArgs,
+                           final List<ValueAccess> concatParts,
+                           final ValueAccess parenInner,
+                           final String parenCast) {
             this.segments = Collections.unmodifiableList(segments);
             this.parsedRef = parsedRef;
             this.logRef = logRef;
@@ -408,6 +430,10 @@ public final class LALScriptModel {
             this.functionCallName = functionCallName;
             this.functionCallArgs = functionCallArgs != null
                 ? Collections.unmodifiableList(functionCallArgs) : Collections.emptyList();
+            this.concatParts = concatParts != null
+                ? Collections.unmodifiableList(concatParts) : Collections.emptyList();
+            this.parenInner = parenInner;
+            this.parenCast = parenCast;
         }
 
         public String toPathString() {
@@ -452,6 +478,15 @@ public final class LALScriptModel {
             this.arguments = arguments != null
                 ? Collections.unmodifiableList(arguments) : Collections.emptyList();
             this.safeNav = safeNav;
+        }
+    }
+
+    @Getter
+    public static final class IndexSegment implements ValueAccessSegment {
+        private final int index;
+
+        public IndexSegment(final int index) {
+            this.index = index;
         }
     }
 
