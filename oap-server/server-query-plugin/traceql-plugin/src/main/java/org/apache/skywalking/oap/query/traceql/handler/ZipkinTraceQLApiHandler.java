@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.DecoderException;
 import org.apache.skywalking.oap.query.traceql.converter.ZipkinOTLPConverter;
 import org.apache.skywalking.oap.query.traceql.entity.OtlpTraceResponse;
@@ -61,7 +60,6 @@ import zipkin2.storage.QueryRequest;
 
 import static org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryVisitor.parseDuration;
 
-@Slf4j
 public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
     private final ZipkinQueryHandler zipkinQueryHandler;
     private final ZipkinQueryConfig zipkinQueryConfig;
@@ -191,11 +189,8 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
 
             queryRequestBuilder.limit(limit.orElse(20));
             QueryRequest queryRequest = queryRequestBuilder.build();
-            log.info(query.get());
-            log.info(queryRequest.toString());
             List<List<zipkin2.Span>> traces = zipkinQueryHandler.getTraces(queryRequest, duration);
             SearchResponse response = ZipkinOTLPConverter.convertToSearchResponse(traces);
-            log.info(response.toString());
             return successResponse(response);
         } catch (IllegalExpressionException | IllegalArgumentException e) {
             return badRequestResponse(e.getMessage());
