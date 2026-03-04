@@ -8,6 +8,18 @@ argument-hint: "[all|backend|javadoc|checkstyle|module-name]"
 
 Build the project and run static checks matching CI.
 
+## Prerequisites
+
+- JDK 11, 17, or 21 (LTS versions)
+- Maven 3.6+ (use `./mvnw` wrapper)
+
+## Maven profiles
+
+- `backend` (default): Builds OAP server modules
+- `ui` (default): Builds web application
+- `dist` (default): Creates distribution packages
+- `all`: Builds everything including submodule initialization
+
 ## Commands by argument
 
 ### `all` or no argument — full CI build

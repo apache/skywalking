@@ -38,49 +38,6 @@ skywalking/
 └── tools/                         # Development tools
 ```
 
-## Build System
-
-### Prerequisites
-- JDK 11, 17, or 21 (LTS versions)
-- Maven 3.6+
-- Git (with submodule support)
-
-### Common Build Commands
-
-```bash
-# Clone with submodules
-git clone --recurse-submodules https://github.com/apache/skywalking.git
-
-# Or initialize submodules after clone
-git submodule init && git submodule update
-
-# Full build (skip tests)
-./mvnw clean package -Dmaven.test.skip
-
-# Build backend only
-./mvnw package -Pbackend,dist
-# or: make build.backend
-
-# Build UI only
-./mvnw package -Pui,dist
-# or: make build.ui
-
-# Run tests
-./mvnw test
-
-# Run integration tests
-./mvnw integration-test
-
-# Build with all profiles
-./mvnw clean package -Pall -Dmaven.test.skip
-```
-
-### Maven Profiles
-- `backend` (default): Builds OAP server modules
-- `ui` (default): Builds web application
-- `dist` (default): Creates distribution packages
-- `all`: Builds everything including submodule initialization
-
 ## Architecture & Key Concepts
 
 ### Module System
