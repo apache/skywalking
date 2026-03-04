@@ -120,7 +120,7 @@ public class LogTestQueryTest {
                            "  extractor {\n" +
                            "    metrics {\n" +
                            "      timestamp log.timestamp as Long\n" +
-                           "      labels level: parsed.level, service: log.service, instance: log.serviceInstance\n" +
+                           "      labels service: log.service, instance: log.serviceInstance\n" +
                            "      name 'log_count'\n" +
                            "      value 1\n" +
                            "    }\n" +

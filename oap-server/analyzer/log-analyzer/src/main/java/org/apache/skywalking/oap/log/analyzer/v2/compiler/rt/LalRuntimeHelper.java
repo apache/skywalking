@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
  * <p>Created once per {@code execute()} call, holds the {@link ExecutionContext}
  * and provides data-source-specific access and type conversion methods.
  *
- * <h3>Data Source Methods</h3>
+ * <h2>Data Source Methods</h2>
  *
  * <p><b>1. JSON/YAML map data</b> — used when the LAL script has a {@code json {}} or
  * {@code yaml {}} parser. The parsed body is stored in {@code ctx.parsed().getMap()}.
@@ -63,7 +63,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
  * Not accessed through this helper; the compiler generates typed cast + getter
  * chains like {@code ((HTTPAccessLogEntry) h.ctx().extraLog()).getResponse()}.
  *
- * <h3>Type Conversion Methods</h3>
+ * <h2>Type Conversion Methods</h2>
  *
  * <p>Convert parsed values (typically {@code Object}) to typed values for
  * spec method calls.
@@ -74,13 +74,13 @@ import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
  *   // LAL:  parsed.code as Integer      →  Integer.valueOf(h.toInt(h.mapVal("code")))
  * </pre>
  *
- * <h3>Safe Navigation Methods</h3>
+ * <h2>Safe Navigation Methods</h2>
  * <pre>
  *   // LAL:  parsed?.x?.toString()       →  h.toString(h.mapVal("x"))
  *   // LAL:  parsed?.x?.trim()           →  h.trim(h.mapVal("x"))
  * </pre>
  *
- * <h3>Boolean Evaluation Methods</h3>
+ * <h2>Boolean Evaluation Methods</h2>
  * <pre>
  *   // LAL if-condition:  if (parsed.flag)        →  h.isTrue(h.mapVal("flag"))
  *   // LAL if-condition:  if (parsed.name)        →  h.isNotEmpty(h.mapVal("name"))

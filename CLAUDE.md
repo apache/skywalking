@@ -182,6 +182,36 @@ public class XxxModuleProvider extends ModuleProvider {
 Java, XML, and YAML/YML files must include the Apache 2.0 license header (see `HEADER` file).
 JSON and Markdown files are excluded (JSON doesn't support comments, see `.licenserc.yaml`).
 
+### Javadoc
+
+CI runs `./mvnw javadoc:javadoc` which **fails the build on errors** (not warnings).
+
+**Running javadoc locally:**
+```bash
+# Full javadoc check (must clean first to avoid stale delombok cache)
+./mvnw clean javadoc:javadoc -Dmaven.test.skip -q
+
+# Single module
+./mvnw clean javadoc:javadoc -pl oap-server/analyzer/log-analyzer -Dmaven.test.skip -q
+```
+
+**Reading javadoc output — errors vs warnings:**
+
+Maven prefixes all javadoc output with `[ERROR]`, but the actual severity is in the message after the line number. Only lines containing `error:` fail the build; lines with `warning:` do not.
+
+```
+[ERROR] Foo.java:42: error: bad use of '>'        ← ACTUAL ERROR (must fix)
+[ERROR] Foo.java:50: warning: no @param for <T>   ← WARNING (does not fail build)
+```
+
+**Common javadoc errors and fixes:**
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `bad use of '>'` | Bare `>` in javadoc HTML (e.g., `->` in `<pre>` blocks) | Use `{@code ->}` or `-&gt;` |
+| heading out of sequence: `<H3>` | `<h3>` in class javadoc (implicit `<h1>`) | Use `<h2>` for top-level subsections |
+| reference not found | `{@link Foo#bar()}` with wrong signature | Match exact parameter types: `{@link Foo#bar(ArgType)}` |
+
 ### JDK 11 Compatibility
 
 All code must be compatible with JDK 11 (LTS). The project supports JDK 11, 17, and 21.

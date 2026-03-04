@@ -74,7 +74,7 @@ import static java.util.Objects.requireNonNull;
  *                                             JDK &lt;25: Armeria default (unchanged)
  * </pre>
  *
- * <h3>Event loop: {@code min(5, cores)}, shared</h3>
+ * <h2>Event loop: {@code min(5, cores)}, shared</h2>
  * <pre>
  *   cores:    2    4    8   10   24
  *   threads:  2    4    5    5    5
@@ -83,7 +83,7 @@ import static java.util.Objects.requireNonNull;
  * HTTP servers means 7 * cores * 2 = 140 threads on 10-core — far more than needed for
  * HTTP traffic. All servers share one {@link EventLoopGroup} with min(5, cores) threads.
  *
- * <h3>Blocking executor: Armeria default on JDK &lt;25, virtual threads on JDK 25+</h3>
+ * <h2>Blocking executor: Armeria default on JDK &lt;25, virtual threads on JDK 25+</h2>
  * On JDK &lt;25, Armeria's default cached pool (up to 200 on-demand threads) is kept
  * unchanged. HTTP handlers block on storage/DB queries (BanyanDB, Elasticsearch) which
  * can take 10ms–seconds. A bounded pool would cause request queuing and UI timeouts

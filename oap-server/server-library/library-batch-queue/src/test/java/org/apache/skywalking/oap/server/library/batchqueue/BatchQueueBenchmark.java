@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
  * <p>Run with: mvn test -pl oap-server/server-library/library-batch-queue
  *           -Dtest=BatchQueueBenchmark -DfailIfNoTests=false
  *
- * <h3>Reference results (Apple M3 Max, 128 GB RAM, macOS 26.2, JDK 17)</h3>
+ * <h2>Reference results (Apple M3 Max, 128 GB RAM, macOS 26.2, JDK 17)</h2>
  *
  * <p><b>Fixed partitions (typeHash selector):</b>
  * <pre>

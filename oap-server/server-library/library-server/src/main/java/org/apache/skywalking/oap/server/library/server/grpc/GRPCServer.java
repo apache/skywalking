@@ -90,7 +90,7 @@ import org.apache.skywalking.oap.server.library.util.VirtualThreads;
  *                                                   JDK &lt;25: gRPC default (unchanged)
  * </pre>
  *
- * <h3>Worker event loop: {@code cores}, shared by gRPC (default, unchanged)</h3>
+ * <h2>Worker event loop: {@code cores}, shared by gRPC (default, unchanged)</h2>
  * <pre>
  *   cores:    2    4    8   10   24
  *   threads:  2    4    8   10   24
