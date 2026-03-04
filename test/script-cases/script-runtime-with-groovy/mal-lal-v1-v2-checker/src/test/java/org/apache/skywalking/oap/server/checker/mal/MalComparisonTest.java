@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableMap;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
@@ -442,6 +444,9 @@ class MalComparisonTest {
 
         for (final String sampleName : meta.getSamples()) {
             final Map<String, String> labels = new HashMap<>();
+            for (final String label : meta.getScopeLabels()) {
+                labels.put(label, inferLabelValue(label, tagEqualLabels));
+            }
             for (final String label : meta.getAggregationLabels()) {
                 labels.put(label, inferLabelValue(label, tagEqualLabels));
             }
@@ -498,6 +503,9 @@ class MalComparisonTest {
 
         for (final String sampleName : meta.getSamples()) {
             final Map<String, String> labels = new HashMap<>();
+            for (final String label : meta.getScopeLabels()) {
+                labels.put(label, inferLabelValue(label, tagEqualLabels));
+            }
             for (final String label : meta.getAggregationLabels()) {
                 labels.put(label, inferLabelValue(label, tagEqualLabels));
             }
@@ -566,6 +574,53 @@ class MalComparisonTest {
                     + " (v1=" + v1Sorted[i].getValue()
                     + ", v2=" + v2Sorted[i].getValue() + ")");
         }
+
+        // Compare MeterEntity output (service/instance/endpoint names)
+        compareMeterEntities(metricName, v1Sf, v2Sf);
+    }
+
+    private static void compareMeterEntities(
+            final String metricName,
+            final org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily v1Sf,
+            final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily v2Sf) {
+        final Map<MeterEntity, ?> v1Entities = v1Sf.context.getMeterSamples();
+        final Map<MeterEntity, ?> v2Entities = v2Sf.context.getMeterSamples();
+
+        if (v1Entities.isEmpty() && v2Entities.isEmpty()) {
+            return;
+        }
+
+        assertEquals(v1Entities.size(), v2Entities.size(),
+            metricName + ": MeterEntity count mismatch (v1="
+                + v1Entities.size() + ", v2=" + v2Entities.size() + ")");
+
+        final List<String> v1EntityDescs = v1Entities.keySet().stream()
+            .map(e -> describeEntity(e))
+            .sorted()
+            .collect(Collectors.toList());
+        final List<String> v2EntityDescs = v2Entities.keySet().stream()
+            .map(e -> describeEntity(e))
+            .sorted()
+            .collect(Collectors.toList());
+
+        assertEquals(v1EntityDescs, v2EntityDescs,
+            metricName + ": MeterEntity mismatch");
+    }
+
+    private static String describeEntity(final MeterEntity entity) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(entity.getScopeType().name());
+        sb.append("|svc=").append(entity.getServiceName());
+        if (entity.getInstanceName() != null && !entity.getInstanceName().isEmpty()) {
+            sb.append("|inst=").append(entity.getInstanceName());
+        }
+        if (entity.getEndpointName() != null && !entity.getEndpointName().isEmpty()) {
+            sb.append("|ep=").append(entity.getEndpointName());
+        }
+        if (entity.getLayer() != null) {
+            sb.append("|layer=").append(entity.getLayer().name());
+        }
+        return sb.toString();
     }
 
     private static org.apache.skywalking.oap.meter.analyzer.dsl.Sample[] sortV1Samples(

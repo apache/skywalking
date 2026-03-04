@@ -1789,6 +1789,31 @@ public final class MALClassGenerator {
             }
         }
 
+        // Validate decorate() usage: must be after service(), not after
+        // instance()/endpoint()/etc., and not with histogram metrics
+        boolean hasDecorate = false;
+        for (final List<MALExpressionModel.MethodCall> chain : allChains) {
+            for (final MALExpressionModel.MethodCall mc : chain) {
+                if ("decorate".equals(mc.getName())) {
+                    hasDecorate = true;
+                    break;
+                }
+            }
+            if (hasDecorate) {
+                break;
+            }
+        }
+        if (hasDecorate) {
+            if (scopeType != null && scopeType != ScopeType.SERVICE) {
+                throw new IllegalStateException(
+                    "decorate() should be invoked after service()");
+            }
+            if (isHistogram) {
+                throw new IllegalStateException(
+                    "decorate() not supported for histogram metrics");
+            }
+        }
+
         return new ExpressionMetadata(
             new ArrayList<>(sampleNames),
             scopeType,
