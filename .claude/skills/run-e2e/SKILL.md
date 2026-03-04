@@ -99,10 +99,10 @@ If files are found, warn the user and suggest rebuilding before running.
 
 ```bash
 # Rebuild OAP
-./mvnw clean package -Pall -Dmaven.test.skip && make docker
+./mvnw clean flatten:flatten package -Pall -Dmaven.test.skip && make docker
 
 # Rebuild test services
-./mvnw -f test/e2e-v2/java-test-service/pom.xml clean package
+./mvnw -f test/e2e-v2/java-test-service/pom.xml clean flatten:flatten package
 ```
 
 ### 4. Run the E2E test

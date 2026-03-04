@@ -25,7 +25,7 @@ Build the project and run static checks matching CI.
 ### `all` or no argument — full CI build
 
 ```bash
-./mvnw clean install javadoc:javadoc -B -q -Pall \
+./mvnw clean flatten:flatten install javadoc:javadoc -B -q -Pall \
   -Dmaven.test.skip \
   -Dcheckstyle.skip \
   -Dgpg.skip
@@ -34,7 +34,7 @@ Build the project and run static checks matching CI.
 ### `backend` — backend only (faster)
 
 ```bash
-./mvnw clean package -Pbackend,dist -Dmaven.test.skip
+./mvnw clean flatten:flatten package -Pbackend,dist -Dmaven.test.skip
 ```
 
 ### `javadoc` — javadoc check only
@@ -42,7 +42,7 @@ Build the project and run static checks matching CI.
 Javadoc requires delombok output, so `install` must run first:
 
 ```bash
-./mvnw clean install javadoc:javadoc -B -q -Pall \
+./mvnw clean flatten:flatten install javadoc:javadoc -B -q -Pall \
   -Dmaven.test.skip \
   -Dcheckstyle.skip \
   -Dgpg.skip
@@ -59,7 +59,7 @@ Running `javadoc:javadoc` alone without `install` will miss errors because `${de
 ### Module name — single module build
 
 ```bash
-./mvnw clean package -pl oap-server/analyzer/<module-name> -Dmaven.test.skip
+./mvnw clean flatten:flatten package -pl oap-server/analyzer/<module-name> -Dmaven.test.skip
 ```
 
 ## Reading javadoc output
@@ -96,7 +96,7 @@ The generated javadoc page uses `<h1>` for the class name and `<h3>` for member 
 CI uses JDK 11 on Linux. The `dist-tar` job runs:
 
 ```bash
-./mvnw clean install javadoc:javadoc -B -q -Pall \
+./mvnw clean flatten:flatten install javadoc:javadoc -B -q -Pall \
   -Dmaven.test.skip \
   -Dcheckstyle.skip \
   -Dgpg.skip

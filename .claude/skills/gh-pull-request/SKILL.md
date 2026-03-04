@@ -18,7 +18,7 @@ Run these checks before every commit+push and fix any failures:
 ./mvnw -B -q clean checkstyle:check
 
 # Full build (compile + javadoc)
-./mvnw clean install javadoc:javadoc -B -q -Pall \
+./mvnw clean flatten:flatten install javadoc:javadoc -B -q -Pall \
   -Dmaven.test.skip \
   -Dcheckstyle.skip \
   -Dgpg.skip
