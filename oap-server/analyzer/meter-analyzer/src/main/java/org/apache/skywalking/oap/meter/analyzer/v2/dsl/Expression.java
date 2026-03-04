@@ -58,7 +58,7 @@ public class Expression {
         final ExpressionMetadata metadata = expression.metadata();
         if (metadata.getScopeType() == null) {
             throw new ExpressionParsingException(
-                literal + ": one of service(), instance() or endpoint() should be invoke");
+                literal + ": one of service(), instance() or endpoint() should be invoked");
         }
         if (log.isDebugEnabled()) {
             log.debug("\"{}\" is parsed", literal);

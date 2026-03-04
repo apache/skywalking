@@ -16,34 +16,38 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.v2.dsl.EntityDescription;
+package org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity;
 
+import java.util.List;
 import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
-
-import java.util.List;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Getter
 @RequiredArgsConstructor
 @ToString
-public class ProcessEntityDescription implements EntityDescription {
-    private final ScopeType scopeType = ScopeType.PROCESS;
-    private final List<String> serviceKeys;
-    private final List<String> serviceInstanceKeys;
-    private final List<String> processKeys;
-    private final String layerKey;
+public class ServiceRelationEntityDescription implements EntityDescription {
+    private final ScopeType scopeType = ScopeType.SERVICE_RELATION;
+    private final List<String> sourceServiceKeys;
+    private final List<String> destServiceKeys;
+    private final DetectPoint detectPoint;
+    private final Layer layer;
     private final String delimiter;
+    private final String componentIdKey;
 
     @Override
     public List<String> getLabelKeys() {
-        return ImmutableList.<String>builder()
-            .addAll(serviceKeys)
-            .addAll(serviceInstanceKeys)
-            .addAll(processKeys)
-            .add(layerKey)
-            .build();
+        final ImmutableList.Builder<String> builder = ImmutableList.<String>builder()
+            .addAll(this.sourceServiceKeys)
+            .addAll(this.destServiceKeys);
+        if (StringUtil.isNotEmpty(componentIdKey)) {
+            builder.add(componentIdKey);
+        }
+        return builder.build();
     }
 }

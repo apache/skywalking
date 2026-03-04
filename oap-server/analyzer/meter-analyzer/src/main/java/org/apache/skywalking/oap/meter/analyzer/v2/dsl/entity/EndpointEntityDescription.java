@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.v2.dsl.EntityDescription;
+package org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity;
 
 import java.util.List;
 import java.util.stream.Collectors;

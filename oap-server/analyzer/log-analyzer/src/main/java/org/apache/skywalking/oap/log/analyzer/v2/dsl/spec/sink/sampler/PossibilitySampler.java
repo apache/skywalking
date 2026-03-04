@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.sink.sampler;
 
-import io.netty.util.internal.ThreadLocalRandom;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

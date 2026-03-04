@@ -50,10 +50,10 @@ oap-server/analyzer/hierarchy/
 
 | Component | Package / Name |
 |-----------|---------------|
-| Parser/Model/Generator | `org.apache.skywalking.oap.server.core.config.compiler` |
-| Generated classes | `org.apache.skywalking.oap.server.core.config.compiler.hierarchy.rule.rt.HierarchyRule_<N>` |
-| Package holder | `org.apache.skywalking.oap.server.core.config.compiler.hierarchy.rule.rt.HierarchyRulePackageHolder` |
-| SPI provider | `org.apache.skywalking.oap.server.core.config.compiler.CompiledHierarchyRuleProvider` |
+| Parser/Model/Generator | `org.apache.skywalking.oap.server.core.config.v2.compiler` |
+| Generated classes | `org.apache.skywalking.oap.server.core.config.v2.compiler.hierarchy.rule.rt.HierarchyRule_<N>` |
+| Package holder | `org.apache.skywalking.oap.server.core.config.v2.compiler.hierarchy.rule.rt.HierarchyRulePackageHolder` |
+| SPI provider | `org.apache.skywalking.oap.server.core.config.v2.compiler.CompiledHierarchyRuleProvider` |
 | Service type | `org.apache.skywalking.oap.server.core.query.type.Service` (in server-core) |
 
 `<N>` is a global `AtomicInteger` counter.

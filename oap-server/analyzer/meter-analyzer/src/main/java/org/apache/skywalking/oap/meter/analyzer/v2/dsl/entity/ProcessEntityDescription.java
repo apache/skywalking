@@ -16,26 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.v2.dsl.EntityDescription;
+package org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+
+import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
 @ToString
-public class ServiceEntityDescription implements EntityDescription {
-    private final ScopeType scopeType = ScopeType.SERVICE;
+public class ProcessEntityDescription implements EntityDescription {
+    private final ScopeType scopeType = ScopeType.PROCESS;
     private final List<String> serviceKeys;
-    private final Layer layer;
+    private final List<String> serviceInstanceKeys;
+    private final List<String> processKeys;
+    private final String layerKey;
     private final String delimiter;
 
     @Override
     public List<String> getLabelKeys() {
-        return serviceKeys;
+        return ImmutableList.<String>builder()
+            .addAll(serviceKeys)
+            .addAll(serviceInstanceKeys)
+            .addAll(processKeys)
+            .add(layerKey)
+            .build();
     }
 }

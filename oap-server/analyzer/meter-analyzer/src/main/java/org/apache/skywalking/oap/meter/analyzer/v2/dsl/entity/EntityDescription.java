@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.v2.dsl.EntityDescription;
+package org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity;
 
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;

@@ -8,6 +8,13 @@
   - Precise error location reporting with file, line, and column numbers
   - Clean separation between parsing and code generation phases
   - Enhanced testability with models that can be constructed without parsing
+* Introduce MAL/LAL/Hierarchy V2 engine — replace Groovy-based DSL runtime with ANTLR4 parser + Javassist bytecode generation:
+  - Remove Groovy runtime dependency from OAP backend
+  - Fail-fast compilation at startup — syntax and type errors are caught immediately instead of at first execution
+  - Thread-safe generated classes with no ThreadLocal or shared mutable state
+  - Immutable AST models for all three DSLs (MAL, LAL, Hierarchy rules)
+  - Explicit context passing replaces Groovy binding/closure capture
+  - v1 (Groovy) and v2 (ANTLR4+Javassist) cross-version checker validates behavioral equivalence across 1,290+ expressions
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.
@@ -66,8 +73,6 @@
   | HttpClient-SelectorManager            | 4                  | 2 | SharedKubernetesClient                      |
   | Schedulers + others                   | ~24                | ~24 | Mostly unchanged                            |
   | **Total (OAP threads)**               | **150+**           | **~72** | **~50% reduction, stable in high payload.** |
-
-* Replace PowerMock Whitebox with standard Java Reflection in `server-library`, `server-core`, and `server-configuration` to support JDK 25+.
 
 #### OAP Server
 
@@ -136,6 +141,7 @@
 * Add the spring-ai components and the GenAI layer.
 * Bump up netty to 4.2.10.Final.
 * Bump up log4j to 2.25.3 and jackson to 2.18.5.
+* Replace PowerMock Whitebox with standard Java Reflection in `server-library`, `server-core`, and `server-configuration` to support JDK 25+.
 
 #### UI
 * Fix the missing icon in new native trace view.

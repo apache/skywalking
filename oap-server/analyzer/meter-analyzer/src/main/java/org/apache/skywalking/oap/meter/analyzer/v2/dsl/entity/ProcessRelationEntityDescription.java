@@ -16,33 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.v2.dsl.EntityDescription;
+package org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.google.common.collect.ImmutableList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+
+import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
 @ToString
-public class InstanceEntityDescription implements EntityDescription {
-    private final ScopeType scopeType = ScopeType.SERVICE_INSTANCE;
+public class ProcessRelationEntityDescription implements EntityDescription {
+    private final ScopeType scopeType = ScopeType.PROCESS_RELATION;
     private final List<String> serviceKeys;
     private final List<String> instanceKeys;
-    private final Layer layer;
-    private final String serviceDelimiter;
-    private final String instanceDelimiter;
-    private final Function<Map<String, String>, Map<String, String>> propertiesExtractor;
+    private final String sourceProcessIdKey;
+    private final String destProcessIdKey;
+    private final String detectPointKey;
+    private final String componentKey;
+    private final String delimiter;
 
     @Override
     public List<String> getLabelKeys() {
-        return Stream.concat(this.serviceKeys.stream(), this.instanceKeys.stream()).collect(Collectors.toList());
+        return ImmutableList.<String>builder()
+                .addAll(serviceKeys)
+                .addAll(instanceKeys)
+                .add(detectPointKey, sourceProcessIdKey, destProcessIdKey, componentKey).build();
     }
 }
