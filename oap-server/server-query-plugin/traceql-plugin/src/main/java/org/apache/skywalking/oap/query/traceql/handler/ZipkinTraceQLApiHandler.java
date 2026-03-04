@@ -195,6 +195,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
             log.info(queryRequest.toString());
             List<List<zipkin2.Span>> traces = zipkinQueryHandler.getTraces(queryRequest, duration);
             SearchResponse response = ZipkinOTLPConverter.convertToSearchResponse(traces);
+            log.info(response.toString());
             return successResponse(response);
         } catch (IllegalExpressionException | IllegalArgumentException e) {
             return badRequestResponse(e.getMessage());
