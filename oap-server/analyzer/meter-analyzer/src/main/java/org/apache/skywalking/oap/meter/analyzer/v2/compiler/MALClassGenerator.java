@@ -981,6 +981,7 @@ public final class MALClassGenerator {
         "valueGreaterEqual", "valueLess", "valueLessEqual"
     );
 
+
     private void generateMethodChain(final StringBuilder sb,
                                      final List<MALExpressionModel.MethodCall> chain) {
         for (final MALExpressionModel.MethodCall mc : chain) {
@@ -1506,25 +1507,43 @@ public final class MALClassGenerator {
                 beanMode);
             sb.append(")");
         } else {
-            // General chain: build in a local buffer to support safe navigation
+            // General chain: build in a local buffer to support safe navigation.
+            // The first FieldAccess/IndexAccess is a map .get() returning String.
+            // After that, method calls may return other types (e.g., split() →
+            // String[]), so subsequent IndexAccess uses array syntax [(int) index].
             final StringBuilder local = new StringBuilder();
             local.append(resolvedTarget);
+            boolean pastMapAccess = false;
             for (final MALExpressionModel.ClosureChainSegment seg : segs) {
                 if (seg instanceof MALExpressionModel.ClosureFieldAccess) {
-                    final String prior = local.toString();
-                    local.setLength(0);
-                    local.append("(String) ").append(prior).append(".get(\"")
-                      .append(escapeJava(
-                          ((MALExpressionModel.ClosureFieldAccess) seg).getName()))
-                      .append("\")");
+                    final String name = ((MALExpressionModel.ClosureFieldAccess) seg)
+                        .getName();
+                    if (!pastMapAccess) {
+                        final String prior = local.toString();
+                        local.setLength(0);
+                        local.append("((String) ").append(prior).append(".get(\"")
+                          .append(escapeJava(name)).append("\"))");
+                        pastMapAccess = true;
+                    } else {
+                        local.append('.').append(name);
+                    }
                 } else if (seg instanceof MALExpressionModel.ClosureIndexAccess) {
-                    final String prior2 = local.toString();
-                    local.setLength(0);
-                    local.append("(String) ").append(prior2).append(".get(");
-                    generateClosureExpr(local,
-                        ((MALExpressionModel.ClosureIndexAccess) seg).getIndex(), paramName,
-                        beanMode);
-                    local.append(")");
+                    if (!pastMapAccess) {
+                        final String prior2 = local.toString();
+                        local.setLength(0);
+                        local.append("((String) ").append(prior2).append(".get(");
+                        generateClosureExpr(local,
+                            ((MALExpressionModel.ClosureIndexAccess) seg).getIndex(),
+                            paramName, beanMode);
+                        local.append("))");
+                        pastMapAccess = true;
+                    } else {
+                        local.append("[(int) ");
+                        generateClosureExpr(local,
+                            ((MALExpressionModel.ClosureIndexAccess) seg).getIndex(),
+                            paramName, beanMode);
+                        local.append(']');
+                    }
                 } else if (seg instanceof MALExpressionModel.ClosureMethodCallSeg) {
                     final MALExpressionModel.ClosureMethodCallSeg mc =
                         (MALExpressionModel.ClosureMethodCallSeg) seg;
@@ -1607,11 +1626,15 @@ public final class MALClassGenerator {
                 ((MALExpressionModel.ClosureNot) cond).getInner(), paramName, beanMode);
             sb.append(")");
         } else if (cond instanceof MALExpressionModel.ClosureExprCondition) {
-            sb.append("(");
-            generateClosureExpr(sb,
-                ((MALExpressionModel.ClosureExprCondition) cond).getExpr(), paramName,
-                beanMode);
-            sb.append(" != null)");
+            final MALExpressionModel.ClosureExpr condExpr =
+                ((MALExpressionModel.ClosureExprCondition) cond).getExpr();
+            if (isBooleanExpression(condExpr)) {
+                generateClosureExpr(sb, condExpr, paramName, beanMode);
+            } else {
+                sb.append("(");
+                generateClosureExpr(sb, condExpr, paramName, beanMode);
+                sb.append(" != null)");
+            }
         } else if (cond instanceof MALExpressionModel.ClosureInCondition) {
             final MALExpressionModel.ClosureInCondition ic =
                 (MALExpressionModel.ClosureInCondition) cond;
@@ -1955,6 +1978,37 @@ public final class MALClassGenerator {
             return ((MALExpressionModel.ClosureStringLiteral) expr).getValue();
         }
         return null;
+    }
+
+    /**
+     * Checks whether a closure expression returns {@code boolean} by inspecting
+     * the last method call in the chain against {@link String} method signatures.
+     * MAL closure params are always {@code Map<String, String>}, so chained
+     * methods operate on {@code String}.
+     */
+    private static boolean isBooleanExpression(final MALExpressionModel.ClosureExpr expr) {
+        String lastMethodName = null;
+        if (expr instanceof MALExpressionModel.ClosureMethodChain) {
+            final List<MALExpressionModel.ClosureChainSegment> segs =
+                ((MALExpressionModel.ClosureMethodChain) expr).getSegments();
+            for (int i = segs.size() - 1; i >= 0; i--) {
+                if (segs.get(i) instanceof MALExpressionModel.ClosureMethodCallSeg) {
+                    lastMethodName =
+                        ((MALExpressionModel.ClosureMethodCallSeg) segs.get(i)).getName();
+                    break;
+                }
+            }
+        }
+        if (lastMethodName == null) {
+            return false;
+        }
+        for (final java.lang.reflect.Method m : String.class.getMethods()) {
+            if (m.getName().equals(lastMethodName)
+                    && m.getReturnType() == boolean.class) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String escapeJava(final String s) {

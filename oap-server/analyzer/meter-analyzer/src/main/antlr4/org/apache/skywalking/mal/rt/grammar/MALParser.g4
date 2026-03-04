@@ -207,14 +207,17 @@ closureConditionPrimary
     ;
 
 closureExpr
-    : closureExpr compOp closureExpr QUESTION closureExpr COLON closureExpr   # closureTernaryComp
-    | closureExpr QUESTION closureExpr COLON closureExpr           # closureTernary
-    | closureExpr QUESTION COLON closureExpr                       # closureElvis
-    | closureExpr REGEX_MATCH REGEX_LITERAL                        # closureRegexMatch
+    // In ANTLR4 left-recursive rules, alternatives listed FIRST have the
+    // HIGHEST precedence (tightest binding).  Order: MUL/DIV > ADD/SUB >
+    // regex > ternary/elvis (loosest).
+    : closureExpr STAR closureExpr                                 # closureMul
+    | closureExpr SLASH closureExpr                                # closureDiv
     | closureExpr PLUS closureExpr                                 # closureAdd
     | closureExpr MINUS closureExpr                                # closureSub
-    | closureExpr STAR closureExpr                                 # closureMul
-    | closureExpr SLASH closureExpr                                # closureDiv
+    | closureExpr REGEX_MATCH REGEX_LITERAL                        # closureRegexMatch
+    | closureExpr compOp closureExpr QUESTION closureExpr COLON closureExpr   # closureTernaryComp
+    | closureExpr QUESTION closureExpr COLON closureExpr           # closureTernary
+    | closureExpr QUESTION COLON closureExpr                       # closureElvis
     | MINUS closureExprPrimary                                      # closureUnaryMinus
     | closureExprPrimary                                           # closurePrimary
     ;
