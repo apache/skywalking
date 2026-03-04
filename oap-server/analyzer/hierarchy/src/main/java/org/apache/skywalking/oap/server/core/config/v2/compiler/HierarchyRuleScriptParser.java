@@ -33,7 +33,7 @@ import org.apache.skywalking.hierarchy.rt.grammar.HierarchyRuleParserBaseVisitor
  *
  * <pre>
  *   HierarchyRuleModel model = HierarchyRuleScriptParser.parse(
- *       "{ (u, l) -> u.name == l.name }");
+ *       "{ (u, l) -&gt; u.name == l.name }");
  * </pre>
  */
 public final class HierarchyRuleScriptParser {

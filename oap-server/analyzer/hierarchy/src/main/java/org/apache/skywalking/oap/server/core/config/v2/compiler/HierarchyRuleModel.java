@@ -25,8 +25,8 @@ import lombok.Getter;
  * Immutable AST model for hierarchy matching rule expressions.
  * Represents parsed expressions like:
  * <pre>
- *   { (u, l) -> u.name == l.name }
- *   { (u, l) -> { if(l.shortName.lastIndexOf('.') > 0) return ...; return false; } }
+ *   { (u, l) -&gt; u.name == l.name }
+ *   { (u, l) -&gt; { if(l.shortName.lastIndexOf('.') &gt; 0) return ...; return false; } }
  * </pre>
  */
 @Getter

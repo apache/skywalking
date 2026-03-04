@@ -73,6 +73,12 @@ git submodule init && git submodule update
 
 # Build with all profiles
 ./mvnw clean package -Pall -Dmaven.test.skip
+
+# Build distribution tar + javadoc (same as CI)
+./mvnw clean install javadoc:javadoc -B -q -Pall \
+  -Dmaven.test.skip \
+  -Dcheckstyle.skip \
+  -Dgpg.skip
 ```
 
 ### Maven Profiles
