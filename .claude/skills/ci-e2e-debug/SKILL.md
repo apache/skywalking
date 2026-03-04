@@ -1,5 +1,7 @@
 ---
+name: ci-e2e-debug
 description: Download and inspect CI e2e test logs from GitHub Actions artifacts. Use when investigating e2e test failures in CI.
+argument-hint: "<RUN_ID or GitHub Actions URL>"
 ---
 
 # CI E2E Debug Skill

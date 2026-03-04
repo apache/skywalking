@@ -228,40 +228,7 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 
 ## Submitting Pull Requests
 
-### Branch Strategy
-- **Never work directly on master branch**
-- Create a new branch for your changes: `git checkout -b feature/your-feature-name` or `git checkout -b fix/your-fix-name`
-- Keep branch names descriptive and concise
-
-### PR Title
-Summarize the changes in the PR title. Examples:
-- `Fix BanyanDB query timeout issue`
-- `Add support for OpenTelemetry metrics`
-- `Improve documentation structure`
-
-### PR Description
-Follow the PR template in `.github/PULL_REQUEST_TEMPLATE`. Key requirements:
-
-**For Bug Fixes:**
-- Add unit test to verify the fix
-- Explain briefly why the bug exists and how to fix it
-
-**For New Features:**
-- Link to design doc if non-trivial
-- Update documentation
-- Add tests (UT, IT, E2E)
-- Attach screenshots if UI related
-
-**For Performance Improvements:**
-- Add benchmark for the improvement
-- Include benchmark results
-- Link to theory proof or discussion articles
-
-**Always:**
-- Reference related issue: `Closes #<issue number>`
-- Update [`CHANGES` log](https://github.com/apache/skywalking/blob/master/docs/en/changes/changes.md)
-- Add `copilot` as a reviewer for AI-assisted code review
-- Do NOT add AI assistant as co-author. Code responsibility is on the committer's hands.
+Use the `/gh-pull-request` skill, which runs pre-flight checks (compile, checkstyle, license headers) and creates the PR using the project template.
 
 ## Tips for AI Assistants
 
@@ -275,4 +242,3 @@ Follow the PR template in `.github/PULL_REQUEST_TEMPLATE`. Key requirements:
 8. **Test both unit and integration**: Different test patterns for different scopes
 9. **Documentation is rendered via markdown**: When reviewing docs, consider how they will be rendered by a markdown engine
 10. **Relative paths in docs are valid**: Relative file paths (e.g., `../../../oap-server/...`) in documentation work both in the repo and on the documentation website, supported by website build tooling
-11. **Read PR template before creating PR**: Always read `.github/PULL_REQUEST_TEMPLATE` and use its exact format with checkboxes, not a custom summary

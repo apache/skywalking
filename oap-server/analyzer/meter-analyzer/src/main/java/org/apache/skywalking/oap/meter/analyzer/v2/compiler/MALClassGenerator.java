@@ -981,7 +981,6 @@ public final class MALClassGenerator {
         "valueGreaterEqual", "valueLess", "valueLessEqual"
     );
 
-
     private void generateMethodChain(final StringBuilder sb,
                                      final List<MALExpressionModel.MethodCall> chain) {
         for (final MALExpressionModel.MethodCall mc : chain) {
