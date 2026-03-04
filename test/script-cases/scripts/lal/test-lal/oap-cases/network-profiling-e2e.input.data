@@ -16,28 +16,31 @@
 # Mock input data for network-profiling-e2e.yaml rules.
 # This is the e2e override rule with string concatenation for URI
 # and .split(":")[index].endsWith() for process resolution.
-# Uses non-empty process_ids to avoid ProcessRegistry dependency.
+#
+# Mirrors real e2e input: server_process.process_id is empty, triggering
+# ProcessRegistry.generateVirtualProcess() fallback. Both v1 and v2 must
+# produce the same destProcessId and successfully call submitSampledTrace()
+# → builder.toRecord() → RecordStreamProcessor.getInstance().in(record).
 
 network-profiling-slow-trace:
   body-type: json
-  body: '{"latency":100,"uri":"/api/test","trace_provider":"skywalking","reason":"slow","client_process":{"process_id":"e2e-client","local":true,"address":"10.1.0.1:80"},"server_process":{"process_id":"e2e-server","local":false,"address":"10.1.0.2:443"},"detect_point":"server","component":"http","ssl":true,"service":"e2e-svc","serviceInstance":"e2e-inst"}'
-  service: e2e-test-svc
-  instance: e2e-test-instance
-  trace-id: trace-e2e-001
-  timestamp: 1609459400000
+  body: '{"latency":1001,"uri":"/provider","trace_provider":"skywalking","reason":"slow","client_process":{"process_id":"0c106e314ae0dae7cb655c3835ca77c890caedd78f51971ff60e5919805109f9","local":false,"address":""},"server_process":{"process_id":"","local":false,"address":"10.96.79.185:80"},"detect_point":"client","component":"http","ssl":false,"status":200}'
+  service: service
+  instance: test-instance
+  trace-id: ee615aee17b111f195abba5e9985b671
+  timestamp: 1772618841553
   tags:
     LOG_KIND: NET_PROFILING_SAMPLED_TRACE
   expect:
     save: true
     abort: false
-    sampledTrace.traceId: trace-e2e-001
-    sampledTrace.serviceName: e2e-test-svc
-    sampledTrace.serviceInstanceName: e2e-test-instance
-    sampledTrace.timestamp: 1609459400000
-    sampledTrace.latency: 100
-    sampledTrace.uri: skywalking-/api/test
+    sampledTrace.traceId: ee615aee17b111f195abba5e9985b671
+    sampledTrace.serviceName: service
+    sampledTrace.serviceInstanceName: test-instance
+    sampledTrace.timestamp: 1772618841553
+    sampledTrace.latency: 1001
+    sampledTrace.uri: skywalking-/provider
     sampledTrace.reason: SLOW
-    sampledTrace.processId: e2e-client
-    sampledTrace.destProcessId: e2e-server
-    sampledTrace.detectPoint: SERVER
-    sampledTrace.componentId: 129
+    sampledTrace.processId: 0c106e314ae0dae7cb655c3835ca77c890caedd78f51971ff60e5919805109f9
+    sampledTrace.detectPoint: CLIENT
+    sampledTrace.componentId: 49

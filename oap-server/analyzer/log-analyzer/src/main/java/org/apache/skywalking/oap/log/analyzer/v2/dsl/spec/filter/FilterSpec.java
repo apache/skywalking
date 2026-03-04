@@ -40,7 +40,6 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogSinkLi
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.RecordSinkListener;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.TrafficSinkListener;
 import org.apache.skywalking.oap.server.core.source.Log;
-
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
@@ -91,12 +90,21 @@ public class FilterSpec extends AbstractSpec {
         sink = new SinkSpec(moduleManager(), moduleConfig());
     }
 
+    /**
+     * LAL {@code text {}} — no-op body parser, body is available as raw text.
+     * Parsed data is not populated; use {@code log.body} to access raw content.
+     */
     public void text(final ExecutionContext ctx) {
         if (ctx.shouldAbort()) {
             return;
         }
     }
 
+    /**
+     * LAL {@code text { regexp '...' }} — applies a named-group regexp to the
+     * log body text. Matched groups are stored in {@code ctx.parsed().getMatcher()}
+     * and accessed via {@code parsed.groupName} in the LAL script.
+     */
     public void textWithRegexp(final ExecutionContext ctx, final String regexp) {
         if (ctx.shouldAbort()) {
             return;
@@ -104,6 +112,14 @@ public class FilterSpec extends AbstractSpec {
         textParser.regexp(ctx, regexp);
     }
 
+    /**
+     * LAL {@code json {}} — parses {@code LogData.body.json.json} into a
+     * {@code Map<String, Object>} and stores it in {@code ctx.parsed()}.
+     * LogData proto fields (service, serviceInstance, endpoint, layer, timestamp)
+     * are also added to the map via {@code putIfAbsent}, so body values take
+     * priority while proto fields serve as fallback — matching v1 Groovy
+     * {@code Binding.Parsed.getAt(key)} behavior.
+     */
     public void json(final ExecutionContext ctx) {
         if (ctx.shouldAbort()) {
             return;
@@ -113,6 +129,7 @@ public class FilterSpec extends AbstractSpec {
             final Map<String, Object> parsed = jsonParser.create().readValue(
                 logData.getBody().getJson().getJson(), parsedType
             );
+            addLogDataFields(parsed, logData);
             ctx.parsed(parsed);
         } catch (final Exception e) {
             if (jsonParser.abortOnFailure()) {
@@ -121,6 +138,11 @@ public class FilterSpec extends AbstractSpec {
         }
     }
 
+    /**
+     * LAL {@code yaml {}} — parses {@code LogData.body.yaml.yaml} into a
+     * {@code Map<String, Object>} and stores it in {@code ctx.parsed()}.
+     * LogData proto fields are added the same way as {@link #json(ExecutionContext)}.
+     */
     public void yaml(final ExecutionContext ctx) {
         if (ctx.shouldAbort()) {
             return;
@@ -130,6 +152,7 @@ public class FilterSpec extends AbstractSpec {
             final Map<String, Object> parsed = yamlParser.create().load(
                 logData.getBody().getYaml().getYaml()
             );
+            addLogDataFields(parsed, logData);
             ctx.parsed(parsed);
         } catch (final Exception e) {
             if (yamlParser.abortOnFailure()) {
@@ -138,6 +161,10 @@ public class FilterSpec extends AbstractSpec {
         }
     }
 
+    /**
+     * LAL {@code sink {}} — persists the log via sink listeners if the log
+     * was not dropped or aborted.
+     */
     public void sink(final ExecutionContext ctx) {
         if (ctx.shouldAbort()) {
             return;
@@ -200,5 +227,30 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
         doSink(ctx);
+    }
+
+    /**
+     * Add LogData proto fields to the parsed map so that {@code parsed.service},
+     * {@code parsed.serviceInstance}, etc. resolve correctly — matching v1 Groovy
+     * {@code Binding.Parsed.getAt(key)} fallback behavior.
+     * Uses {@code putIfAbsent} so body-parsed values take priority.
+     */
+    private static void addLogDataFields(final Map<String, Object> parsed,
+                                         final LogData.Builder logData) {
+        putIfNotEmpty(parsed, "service", logData.getService());
+        putIfNotEmpty(parsed, "serviceInstance", logData.getServiceInstance());
+        putIfNotEmpty(parsed, "endpoint", logData.getEndpoint());
+        putIfNotEmpty(parsed, "layer", logData.getLayer());
+        final long ts = logData.getTimestamp();
+        if (ts > 0) {
+            parsed.putIfAbsent("timestamp", ts);
+        }
+    }
+
+    private static void putIfNotEmpty(final Map<String, Object> parsed,
+                                      final String key, final String value) {
+        if (value != null && !value.isEmpty()) {
+            parsed.putIfAbsent(key, value);
+        }
     }
 }

@@ -499,8 +499,9 @@ class LALClassGeneratorTest {
 
     @Test
     void compileEnvoyAlsAbortRuleFailsWithoutExtraLogType() {
-        // envoy-als pattern has no parser (json/yaml/text) — requires extraLogType
-        assertThrows(IllegalStateException.class, () -> generator.compile(
+        // envoy-als pattern has no parser (json/yaml/text) — falls back to LogData
+        // but LogData.Builder doesn't have getResponse(), so compile fails
+        assertThrows(IllegalArgumentException.class, () -> generator.compile(
             "filter {\n"
             + "  if (parsed?.response?.responseCode?.value as Integer < 400"
             + " && !parsed?.commonProperties?.responseFlags?.toString()?.trim()) {\n"
@@ -514,6 +515,31 @@ class LALClassGeneratorTest {
             + "  }\n"
             + "  sink {}\n"
             + "}"));
+    }
+
+    @Test
+    void compileNoParserFallsBackToLogDataProto() throws Exception {
+        // No parser (json/yaml/text) and no extraLogType — should use LogData.Builder
+        final String dsl =
+            "filter {\n"
+            + "  extractor {\n"
+            + "    service parsed.service as String\n"
+            + "    instance parsed.serviceInstance as String\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        final String source = generator.generateSource(dsl);
+        // Should generate getter chains on h.ctx().log()
+        assertTrue(source.contains("h.ctx().log().getService()"),
+            "Expected h.ctx().log().getService() but got: " + source);
+        assertTrue(source.contains("h.ctx().log().getServiceInstance()"),
+            "Expected h.ctx().log().getServiceInstance() but got: " + source);
+        // No _p variable (LogData doesn't need it)
+        assertFalse(source.contains("_p"),
+            "Should NOT have _p variable for LogData fallback but got: " + source);
+        // Verify it compiles
+        final LalExpression expr = generator.compile(dsl);
+        assertNotNull(expr);
     }
 
     @Test

@@ -43,7 +43,7 @@ oap-server/analyzer/meter-analyzer/
 
   src/test/java/.../compiler/
     MALScriptParserTest.java          — 20 parser tests
-    MALClassGeneratorTest.java        — 28 generator tests
+    MALClassGeneratorTest.java        — 32 generator tests
 ```
 
 ## Package & Class Naming

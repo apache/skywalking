@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 
 /**
  * Static code-generation methods for LAL extractor, sink, condition, and
@@ -70,12 +71,15 @@ final class LALBlockCodegen {
         lvtVars.add(new String[]{"_e", "L" + EXTRACTOR_SPEC.replace('.', '/') + ";"});
         lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
 
-        if (genCtx.usedProtoAccess && genCtx.extraLogType != null) {
-            final String elTypeName = genCtx.extraLogType.getName();
-            body.append("  ").append(elTypeName).append(" _p = (")
-                .append(elTypeName).append(") h.ctx().extraLog();\n");
+        if (genCtx.usedProtoAccess) {
+            if (genCtx.extraLogType != null) {
+                final String elTypeName = genCtx.extraLogType.getName();
+                body.append("  ").append(elTypeName).append(" _p = (")
+                    .append(elTypeName).append(") h.ctx().extraLog();\n");
+                lvtVars.add(new String[]{"_p",
+                    "L" + elTypeName.replace('.', '/') + ";"});
+            }
             body.append(genCtx.protoVarDecls);
-            lvtVars.add(new String[]{"_p", "L" + elTypeName.replace('.', '/') + ";"});
             lvtVars.addAll(genCtx.protoLvtVars);
         }
 
@@ -382,12 +386,15 @@ final class LALBlockCodegen {
         lvtVars.add(new String[]{"_f", "L" + FILTER_SPEC.replace('.', '/') + ";"});
         lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
 
-        if (genCtx.usedProtoAccess && genCtx.extraLogType != null) {
-            final String elTypeName = genCtx.extraLogType.getName();
-            body.append("  ").append(elTypeName).append(" _p = (")
-                .append(elTypeName).append(") h.ctx().extraLog();\n");
+        if (genCtx.usedProtoAccess) {
+            if (genCtx.extraLogType != null) {
+                final String elTypeName = genCtx.extraLogType.getName();
+                body.append("  ").append(elTypeName).append(" _p = (")
+                    .append(elTypeName).append(") h.ctx().extraLog();\n");
+                lvtVars.add(new String[]{"_p",
+                    "L" + elTypeName.replace('.', '/') + ";"});
+            }
             body.append(genCtx.protoVarDecls);
-            lvtVars.add(new String[]{"_p", "L" + elTypeName.replace('.', '/') + ";"});
             lvtVars.addAll(genCtx.protoLvtVars);
         }
 
@@ -942,17 +949,11 @@ final class LALBlockCodegen {
             case NONE:
                 if (genCtx.extraLogType != null) {
                     current = generateExtraLogAccess(fieldSegments, genCtx.extraLogType,
-                        genCtx);
+                        "_p", true, genCtx);
                 } else {
-                    throw new IllegalStateException(
-                        "LAL rule accesses parsed.* fields ("
-                            + String.join(".", fieldKeys)
-                            + ") but type is unknown — no parser (json/yaml/text), "
-                            + "no extraLogType in YAML config, and no "
-                            + "LALSourceTypeProvider SPI registered for this layer. "
-                            + "Either add a parser to the DSL, declare extraLogType "
-                            + "in the YAML config, or register an SPI provider in "
-                            + "the receiver plugin.");
+                    // No parser and no extraLogType — fall back to LogData proto
+                    current = generateExtraLogAccess(fieldSegments, LogData.Builder.class,
+                        "h.ctx().log()", false, genCtx);
                 }
                 break;
             default:
@@ -982,19 +983,21 @@ final class LALBlockCodegen {
 
     static String generateExtraLogAccess(
             final List<LALScriptModel.FieldSegment> fieldSegments,
-            final Class<?> extraLogType,
+            final Class<?> rootType,
+            final String rootExpr,
+            final boolean rootCanBeNull,
             final LALClassGenerator.GenCtx genCtx) {
         genCtx.usedProtoAccess = true;
 
         if (fieldSegments.isEmpty()) {
-            return "_p";
+            return rootExpr;
         }
 
-        final String typeName = extraLogType.getName();
+        final String typeName = rootType.getName();
         final StringBuilder chainKey = new StringBuilder();
-        String prevVar = "_p";
-        Class<?> currentType = extraLogType;
-        boolean prevCanBeNull = true;
+        String prevVar = rootExpr;
+        Class<?> currentType = rootType;
+        boolean prevCanBeNull = rootCanBeNull;
 
         for (int i = 0; i < fieldSegments.size(); i++) {
             final LALScriptModel.FieldSegment seg = fieldSegments.get(i);
@@ -1008,7 +1011,7 @@ final class LALBlockCodegen {
             } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException(
                     "Cannot resolve getter " + currentType.getSimpleName()
-                        + "." + getterName + "() for extraLogType "
+                        + "." + getterName + "() for type "
                         + typeName + ". Check the field path in the LAL rule.");
             }
             final Class<?> returnType = getter.getReturnType();

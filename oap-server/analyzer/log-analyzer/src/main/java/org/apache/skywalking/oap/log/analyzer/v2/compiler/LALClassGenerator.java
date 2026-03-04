@@ -312,9 +312,11 @@ public final class LALClassGenerator {
         execLvt.add(new String[]{"filterSpec", "L" + FILTER_SPEC.replace('.', '/') + ";"});
         execLvt.add(new String[]{"ctx", "L" + EXEC_CTX.replace('.', '/') + ";"});
         execLvt.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
-        if (genCtx.usedProtoAccess && genCtx.extraLogType != null) {
-            execLvt.add(new String[]{"_p",
-                "L" + genCtx.extraLogType.getName().replace('.', '/') + ";"});
+        if (genCtx.usedProtoAccess) {
+            if (genCtx.extraLogType != null) {
+                execLvt.add(new String[]{"_p",
+                    "L" + genCtx.extraLogType.getName().replace('.', '/') + ";"});
+            }
             execLvt.addAll(genCtx.protoLvtVars);
         }
         addLocalVariableTable(execMethod, className,
@@ -362,10 +364,12 @@ public final class LALClassGenerator {
         sb.append("  ").append(H).append(" h = new ").append(H).append("(ctx);\n");
 
         // Insert _p + proto var declarations if any proto field access was used
-        if (genCtx.usedProtoAccess && genCtx.extraLogType != null) {
-            final String elTypeName = genCtx.extraLogType.getName();
-            sb.append("  ").append(elTypeName).append(" _p = (")
-              .append(elTypeName).append(") h.ctx().extraLog();\n");
+        if (genCtx.usedProtoAccess) {
+            if (genCtx.extraLogType != null) {
+                final String elTypeName = genCtx.extraLogType.getName();
+                sb.append("  ").append(elTypeName).append(" _p = (")
+                  .append(elTypeName).append(") h.ctx().extraLog();\n");
+            }
             sb.append(genCtx.protoVarDecls);
         }
 

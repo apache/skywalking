@@ -50,7 +50,7 @@ oap-server/analyzer/log-analyzer/
 
   src/test/java/.../compiler/
     LALScriptParserTest.java            — 20 parser tests
-    LALClassGeneratorTest.java          — 35 generator tests
+    LALClassGeneratorTest.java          — 37 generator tests
     LALExpressionExecutionTest.java     — 27 data-driven execution tests (from YAML + .input.data)
 ```
 
@@ -109,7 +109,7 @@ The generator detects the parser type from the AST at compile time and generates
 | JSON/YAML nested | `parsed.a.b` | `h.mapVal("a", "b")` |
 | TEXT (regexp) | `parsed.level` | `h.group("level")` |
 | NONE + extraLogType | `parsed.response.code` | `((ExtraLogType) h.ctx().extraLog()).getResponse().getCode()` |
-| NONE + no type | `parsed.x` | **Compile error — fails boot** |
+| NONE + no extraLogType | `parsed.service` | `h.ctx().log().getService()` (LogData.Builder fallback) |
 | log fields | `log.service` | `h.ctx().log().getService()` |
 | log trace | `log.traceContext.traceId` | `h.ctx().log().getTraceContext().getTraceId()` |
 | tags | `tag("KEY")` | `h.tagValue("KEY")` |
@@ -121,7 +121,7 @@ For LAL rules with no DSL parser (`json{}`/`yaml{}`/`text{}`), the compiler need
 1. **DSL parser** (`json{}`, `yaml{}`, `text{}`) — parser wins, extraLogType is ignored
 2. **Explicit `extraLogType`** in YAML rule config — FQCN string, resolved via `Class.forName()`
 3. **`LALSourceTypeProvider` SPI** — default extraLogType for a layer, discovered via `ServiceLoader`
-4. **Compile error** — if none of the above and the rule accesses `parsed.*`, boot fails
+4. **`LogData.Builder` fallback** — if none of the above, `parsed.*` generates getter chains on `LogData.Builder` with compile-time reflection validation. Fields not found on `LogData.Builder` cause `IllegalArgumentException` at boot.
 
 The SPI interface is in `org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider`. Receiver plugins implement it and register in `META-INF/services/`. Example: `EnvoyHTTPLALSourceTypeProvider` registers `HTTPAccessLogEntry` for `Layer.MESH`.
 
@@ -164,6 +164,14 @@ Instance-based helper created at the start of `execute()`, holds the `ExecutionC
 **Boolean evaluation:** `isTrue()`, `isNotEmpty()`
 
 **Safe navigation:** `toString()`, `trim()`
+
+## JSON/YAML LogData Field Population
+
+When `json{}` or `yaml{}` parses the log body, `FilterSpec` also adds LogData proto fields
+(`service`, `serviceInstance`, `endpoint`, `layer`, `timestamp`) to the parsed map via
+`putIfAbsent`. Body-parsed values take priority; proto fields serve as fallback. This matches
+v1 Groovy `Binding.Parsed.getAt(key)` behavior where `parsed.service` falls back to
+`LogData.getService()` when the JSON body doesn't contain a `service` key.
 
 ## Null-Safe String Conversion
 

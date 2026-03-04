@@ -38,6 +38,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
@@ -54,6 +55,7 @@ import org.junit.jupiter.api.TestFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -245,6 +247,16 @@ class LalComparisonTest {
                 ruleName + ": sampledTrace.detectPoint mismatch");
             assertEquals(v1St.getComponentId(), v2St.getComponentId(),
                 ruleName + ": sampledTrace.componentId mismatch");
+
+            // Verify builder.toRecord() produces valid Record for RecordStreamProcessor
+            // (submitSampledTrace already called validate + toRecord + RecordStreamProcessor.in
+            // during execution; this explicitly confirms toRecord consistency)
+            final Record v1Record = v1St.toRecord();
+            final Record v2Record = v2St.toRecord();
+            assertNotNull(v1Record, ruleName + ": v1 toRecord() returned null");
+            assertNotNull(v2Record, ruleName + ": v2 toRecord() returned null");
+            assertEquals(v1Record.getClass(), v2Record.getClass(),
+                ruleName + ": toRecord() type mismatch");
 
             // Verify v2 actually dispatched the trace via sourceReceiver.receive()
             final SourceReceiver v2Receiver = v2Manager.find(CoreModule.NAME)

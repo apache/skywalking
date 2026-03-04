@@ -64,7 +64,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 public class ExtractorSpec extends AbstractSpec {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SlowSqlSpec.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtractorSpec.class);
 
     private final List<MetricConvert> metricConverts;
 
