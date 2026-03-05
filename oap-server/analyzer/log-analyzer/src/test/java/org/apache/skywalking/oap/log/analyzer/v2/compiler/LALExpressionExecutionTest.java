@@ -54,13 +54,22 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.library.kubernetes.ObjectID;
+import org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -75,6 +84,35 @@ import static org.mockito.Mockito.when;
  * expected state defined in the {@code expect} block.
  */
 class LALExpressionExecutionTest {
+
+    private static MockedStatic<K8sInfoRegistry> K8S_MOCK;
+    private static MockedStatic<MetricsStreamProcessor> MSP_MOCK;
+
+    @BeforeAll
+    static void setupMocks() {
+        // Mock K8sInfoRegistry for ProcessRegistry.generateVirtualRemoteProcess()
+        final K8sInfoRegistry mockK8s = mock(K8sInfoRegistry.class);
+        when(mockK8s.findPodByIP(anyString())).thenReturn(ObjectID.EMPTY);
+        when(mockK8s.findServiceByIP(anyString())).thenReturn(ObjectID.EMPTY);
+        K8S_MOCK = Mockito.mockStatic(K8sInfoRegistry.class);
+        K8S_MOCK.when(K8sInfoRegistry::getInstance).thenReturn(mockK8s);
+
+        // Mock MetricsStreamProcessor for ProcessRegistry.generateVirtualProcess()
+        final MetricsStreamProcessor mockMsp = mock(MetricsStreamProcessor.class);
+        doNothing().when(mockMsp).in(any());
+        MSP_MOCK = Mockito.mockStatic(MetricsStreamProcessor.class);
+        MSP_MOCK.when(MetricsStreamProcessor::getInstance).thenReturn(mockMsp);
+    }
+
+    @AfterAll
+    static void teardownMocks() {
+        if (K8S_MOCK != null) {
+            K8S_MOCK.close();
+        }
+        if (MSP_MOCK != null) {
+            MSP_MOCK.close();
+        }
+    }
 
     @TestFactory
     Collection<DynamicTest> lalExecutionTests() throws Exception {
@@ -132,7 +170,7 @@ class LALExpressionExecutionTest {
                 final String inputContent =
                     Files.readString(inputDataFile.toPath());
                 @SuppressWarnings("unchecked")
-                final Map<String, Map<String, Object>> inputData =
+                final Map<String, Object> inputData =
                     yaml.load(inputContent);
                 if (inputData == null) {
                     continue;
@@ -147,18 +185,38 @@ class LALExpressionExecutionTest {
                     if (ruleName == null || dsl == null) {
                         continue;
                     }
-                    final Map<String, Object> input =
-                        inputData.get(ruleName);
-                    if (input == null) {
+                    final Object ruleInput = inputData.get(ruleName);
+                    if (ruleInput == null) {
                         continue;
                     }
 
-                    tests.add(DynamicTest.dynamicTest(
-                        category + "/" + baseName + " | " + ruleName,
-                        () -> executeAndAssert(
-                            generator, filterSpec, ruleName,
-                            dsl, ruleLayer, extraLogType, input)
-                    ));
+                    if (ruleInput instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        final List<Map<String, Object>> inputs =
+                            (List<Map<String, Object>>) ruleInput;
+                        for (int i = 0; i < inputs.size(); i++) {
+                            final Map<String, Object> input = inputs.get(i);
+                            final int idx = i;
+                            tests.add(DynamicTest.dynamicTest(
+                                category + "/" + baseName + " | "
+                                    + ruleName + " [" + idx + "]",
+                                () -> executeAndAssert(
+                                    generator, filterSpec,
+                                    ruleName + " [" + idx + "]",
+                                    dsl, ruleLayer, extraLogType, input)
+                            ));
+                        }
+                    } else {
+                        @SuppressWarnings("unchecked")
+                        final Map<String, Object> input =
+                            (Map<String, Object>) ruleInput;
+                        tests.add(DynamicTest.dynamicTest(
+                            category + "/" + baseName + " | " + ruleName,
+                            () -> executeAndAssert(
+                                generator, filterSpec, ruleName,
+                                dsl, ruleLayer, extraLogType, input)
+                        ));
+                    }
                 }
             }
         }

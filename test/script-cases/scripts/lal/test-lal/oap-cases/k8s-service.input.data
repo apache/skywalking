@@ -60,8 +60,8 @@ network-profiling-slow-trace:
       sampledTrace.latency: 200
       sampledTrace.uri: /k8s/api
       sampledTrace.reason: SLOW
-      sampledTrace.processId: mock-process-id
-      sampledTrace.destProcessId: mock-process-id
+      # processId/destProcessId omitted: virtual process IDs depend on ProcessRegistry
+      # implementation (mock vs production). Validated via v1-v2 comparison in checker test.
       sampledTrace.detectPoint: CLIENT
       sampledTrace.componentId: 49
 
@@ -83,8 +83,8 @@ network-profiling-slow-trace:
       sampledTrace.latency: 100
       sampledTrace.uri: /k8s/tcp
       sampledTrace.reason: SLOW
-      sampledTrace.processId: mock-process-id
-      sampledTrace.destProcessId: mock-process-id
+      # processId/destProcessId omitted: virtual process IDs depend on ProcessRegistry
+      # implementation (mock vs production). Validated via v1-v2 comparison in checker test.
       sampledTrace.detectPoint: CLIENT
       sampledTrace.componentId: 130
 
