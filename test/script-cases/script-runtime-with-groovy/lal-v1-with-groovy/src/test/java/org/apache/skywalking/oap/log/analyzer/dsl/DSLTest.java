@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -197,7 +197,7 @@ public class DSLTest {
 
     @BeforeEach
     public void setup() {
-        Whitebox.setInternalState(manager, "isInPrepareStage", false);
+        ReflectUtil.setInternalState(manager, "isInPrepareStage", false);
         when(manager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
         ModuleProviderHolder logAnalyzerHolder = mock(ModuleProviderHolder.class);
         LogAnalyzerModuleProvider logAnalyzerProvider = mock(LogAnalyzerModuleProvider.class);
@@ -220,8 +220,8 @@ public class DSLTest {
     @MethodSource("data")
     public void testDslStaticCompile(String name, String script) throws ModuleStartException {
         final DSL dsl = DSL.of(manager, new LogAnalyzerModuleConfig(), script);
-        Whitebox.setInternalState(
-            Whitebox.getInternalState(dsl, "filterSpec"), "sinkListenerFactories", Collections.emptyList()
+        ReflectUtil.setInternalState(
+            ReflectUtil.getInternalState(dsl, "filterSpec"), "sinkListenerFactories", Collections.emptyList()
         );
 
         dsl.bind(new Binding().log(LogData.newBuilder().build()));

@@ -45,7 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -69,8 +69,8 @@ public class ProfileSnapshotExporterTest {
     public void init() throws IOException {
         CoreModule coreModule = Mockito.spy(CoreModule.class);
         StorageModule storageModule = Mockito.spy(StorageModule.class);
-        Whitebox.setInternalState(coreModule, "loadedProvider", moduleProvider);
-        Whitebox.setInternalState(storageModule, "loadedProvider", moduleProvider);
+        ReflectUtil.setInternalState(coreModule, "loadedProvider", moduleProvider);
+        ReflectUtil.setInternalState(storageModule, "loadedProvider", moduleProvider);
         Mockito.when(moduleManager.find(CoreModule.NAME)).thenReturn(coreModule);
         Mockito.when(moduleManager.find(StorageModule.NAME)).thenReturn(storageModule);
         final ProfileTaskQueryService taskQueryService = new ProfileTaskQueryService(moduleManager, coreModuleConfig);

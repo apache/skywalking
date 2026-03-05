@@ -45,7 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,12 +91,12 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
 
         // prepare the context
         meterSystem = Mockito.spy(new MeterSystem(moduleManager));
-        Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
+        ReflectUtil.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
                                   Mockito.spy(MetricsStreamProcessor.getInstance()));
         doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
         CoreModule coreModule = Mockito.spy(CoreModule.class);
 
-        Whitebox.setInternalState(coreModule, "loadedProvider", moduleProvider);
+        ReflectUtil.setInternalState(coreModule, "loadedProvider", moduleProvider);
         when(moduleManager.find(CoreModule.NAME)).thenReturn(coreModule);
         when(moduleProvider.getService(MeterSystem.class)).thenReturn(meterSystem);
 
@@ -106,7 +106,7 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
         map.put("avgLabeled", AvgLabeledFunction.class);
         map.put("avgHistogram", AvgHistogramFunction.class);
         map.put("avgHistogramPercentile", AvgHistogramPercentileFunction.class);
-        Whitebox.setInternalState(meterSystem, "functionRegister", map);
+        ReflectUtil.setInternalState(meterSystem, "functionRegister", map);
         super.setupMetrics();
     }
 

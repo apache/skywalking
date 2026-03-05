@@ -157,7 +157,6 @@
         <project.build.outputTimestamp>1715298980</project.build.outputTimestamp>
 
         <!-- Compiling and test stages tools. -->
-        <powermock.version>2.0.9</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>5.9.2</junit.version>
         <mockito-core.version>5.11.0</mockito-core.version>
@@ -229,11 +228,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-reflect</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
         </dependency>
@@ -304,12 +298,6 @@
                 <scope>test</scope>
             </dependency>
 
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-reflect</artifactId>
-                <version>${powermock.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>

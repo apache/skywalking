@@ -42,7 +42,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,7 +69,7 @@ public class AnalyzerTest {
         // Fix for JDK 25 / Mockito 5: Prevent double-spying on the singleton
         MetricsStreamProcessor instance = MetricsStreamProcessor.getInstance();
         if (!Mockito.mockingDetails(instance).isMock()) {
-            Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR", Mockito.spy(instance));
+            ReflectUtil.setInternalState(MetricsStreamProcessor.class, "PROCESSOR", Mockito.spy(instance));
         }
         doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
 

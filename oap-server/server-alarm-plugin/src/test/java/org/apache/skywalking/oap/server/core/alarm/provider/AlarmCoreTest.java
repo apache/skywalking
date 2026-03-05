@@ -22,7 +22,7 @@ import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -51,7 +51,7 @@ public class AlarmCoreTest {
         emptyRules.setRules(new ArrayList<>(0));
         AlarmCore core = new AlarmCore(new AlarmRulesWatcher(emptyRules, null, null));
 
-        Map<String, List<RunningRule>> runningContext = Whitebox.getInternalState(core, "runningContext");
+        Map<String, List<RunningRule>> runningContext = ReflectUtil.getInternalState(core, "runningContext");
 
         List<RunningRule> rules = new ArrayList<>(1);
         RunningRule mockRule = mock(RunningRule.class);

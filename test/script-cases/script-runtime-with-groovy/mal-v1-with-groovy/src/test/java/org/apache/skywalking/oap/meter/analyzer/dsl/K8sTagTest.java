@@ -43,7 +43,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -237,10 +237,10 @@ public class K8sTagTest {
     @SneakyThrows
     @BeforeEach
     public void setup() {
-        Whitebox.setInternalState(KubernetesServices.class, "INSTANCE",
+        ReflectUtil.setInternalState(KubernetesServices.class, "INSTANCE",
                                   Mockito.mock(KubernetesServices.class)
         );
-        Whitebox.setInternalState(KubernetesPods.class, "INSTANCE",
+        ReflectUtil.setInternalState(KubernetesPods.class, "INSTANCE",
                                   Mockito.mock(KubernetesPods.class)
         );
 

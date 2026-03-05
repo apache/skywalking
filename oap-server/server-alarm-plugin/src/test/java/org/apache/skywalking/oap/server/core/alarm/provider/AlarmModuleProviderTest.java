@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -73,7 +73,7 @@ public class AlarmModuleProviderTest {
 
         NotifyHandler handler = mock(NotifyHandler.class);
 
-        Whitebox.setInternalState(moduleProvider, "notifyHandler", handler);
+        ReflectUtil.setInternalState(moduleProvider, "notifyHandler", handler);
         moduleProvider.notifyAfterCompleted();
     }
 

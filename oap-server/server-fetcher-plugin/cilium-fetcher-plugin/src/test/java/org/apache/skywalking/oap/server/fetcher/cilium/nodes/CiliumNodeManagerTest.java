@@ -29,7 +29,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,8 +114,8 @@ public class CiliumNodeManagerTest {
                      List<RemoteInstance> allOAPInstances,
                      List<CiliumNode> allCiliumNodes,
                      List<CiliumNode> shouldMonitorNodeBySelf) {
-        Whitebox.setInternalState(ciliumNodeManager, "remoteInstances", allOAPInstances);
-        Whitebox.setInternalState(ciliumNodeManager, "allNodes", allCiliumNodes);
+        ReflectUtil.setInternalState(ciliumNodeManager, "remoteInstances", allOAPInstances);
+        ReflectUtil.setInternalState(ciliumNodeManager, "allNodes", allCiliumNodes);
         ciliumNodeManager.refreshUsingNodes();
         final List<CiliumNode> nodes = nodeUpdateListener.getNodes();
         nodes.sort(Comparator.comparing(CiliumNode::getAddress));

@@ -41,7 +41,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -79,7 +79,7 @@ public class ClusterModuleConsulProviderFunctionalIT {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                 .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        ReflectUtil.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         consulAddress = container.getHost() + ":" + container.getMappedPort(8500);
     }
@@ -220,7 +220,7 @@ public class ClusterModuleConsulProviderFunctionalIT {
         assertEquals(2,  queryRemoteNodes(providerB, 2).size());
 
         // unregister A
-        Consul client = Whitebox.getInternalState(providerA, "client");
+        Consul client = ReflectUtil.getInternalState(providerA, "client");
         AgentClient agentClient = client.agentClient();
         agentClient.deregister(instanceA.getAddress().toString());
 
