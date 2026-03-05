@@ -28,14 +28,14 @@ public class ProcessRegistry {
     public static final String REMOTE_VIRTUAL_PROCESS = "UNKNOWN_REMOTE";
 
     public static String generateVirtualLocalProcess(String service, String instance) {
-        return "mock-virtual-local-process";
+        return "mock-process-id";
     }
 
     public static String generateVirtualRemoteProcess(String service, String instance, String remoteAddress) {
-        return "mock-virtual-remote-process";
+        return "mock-process-id";
     }
 
     public static String generateVirtualProcess(String service, String instance, String processName) {
-        return "mock-virtual-process";
+        return "mock-process-id";
     }
 }
