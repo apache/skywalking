@@ -220,9 +220,8 @@ public class DSLTest {
     @MethodSource("data")
     public void testDslStaticCompile(String name, String script) throws ModuleStartException {
         final DSL dsl = DSL.of(manager, new LogAnalyzerModuleConfig(), script);
-        ReflectUtil.setInternalState(
-            ReflectUtil.getInternalState(dsl, "filterSpec"), "sinkListenerFactories", Collections.emptyList()
-        );
+        final Object filterSpec = ReflectUtil.getInternalState(dsl, "filterSpec");
+        ReflectUtil.setInternalState(filterSpec, "sinkListenerFactories", Collections.emptyList());
 
         dsl.bind(new Binding().log(LogData.newBuilder().build()));
         dsl.evaluate();

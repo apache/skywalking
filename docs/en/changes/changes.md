@@ -141,7 +141,7 @@
 * Add the spring-ai components and the GenAI layer.
 * Bump up netty to 4.2.10.Final.
 * Bump up log4j to 2.25.3 and jackson to 2.18.5.
-* Replace PowerMock Whitebox with standard Java Reflection in `server-library`, `server-core`, and `server-configuration` to support JDK 25+.
+* Remove PowerMock dependency. Replace `Whitebox` with `ReflectUtil` (standard Java reflection + `sun.misc.Unsafe` for final fields) across all modules to support JDK 25+.
 * Support TraceQL and Tempo API for Zipkin trace query.
 
 #### UI
