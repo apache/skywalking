@@ -74,6 +74,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryV2DAO;
 import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
 import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -95,7 +96,8 @@ import static com.linecorp.armeria.common.MediaType.ANY_TEXT_TYPE;
  * Reference from zipkin2.server.internal.ZipkinQueryApiV2 for the API consistent.
  */
 @ExceptionHandler(ZipkinQueryExceptionHandler.class)
-public class ZipkinQueryHandler {
+public class ZipkinQueryHandler implements Service {
+    @Getter
     private final ZipkinQueryConfig config;
     private final ModuleManager moduleManager;
     private IZipkinQueryDAO zipkinQueryDAO;
@@ -160,10 +162,14 @@ public class ZipkinQueryHandler {
 
     @Get("/api/v2/services")
     @Blocking
-    public AggregatedHttpResponse getServiceNames() throws IOException {
-        List<String> serviceNames = getZipkinQueryDAO().getServiceNames();
+    public AggregatedHttpResponse getServiceNamesHTTP() throws IOException {
+        List<String> serviceNames = getServiceNames();
         serviceCount = serviceNames.size();
        return cachedResponse(serviceCount > 3, serviceNames);
+    }
+
+    public List<String> getServiceNames() throws IOException {
+        return getZipkinQueryDAO().getServiceNames();
     }
 
     @Get("/api/v2/remoteServices")
@@ -175,14 +181,18 @@ public class ZipkinQueryHandler {
 
     @Get("/api/v2/spans")
     @Blocking
-    public AggregatedHttpResponse getSpanNames(@Param("serviceName") String serviceName) throws IOException {
-        List<String> spanNames = getZipkinQueryDAO().getSpanNames(serviceName);
+    public AggregatedHttpResponse getSpanNamesHTTP(@Param("serviceName") String serviceName) throws IOException {
+        List<String> spanNames = getSpanNames(serviceName);
         return cachedResponse(serviceCount > 3, spanNames);
+    }
+
+    public List<String> getSpanNames(String serviceName) throws IOException {
+        return getZipkinQueryDAO().getSpanNames(serviceName);
     }
 
     @Get("/api/v2/trace/{traceId}")
     @Blocking
-    public AggregatedHttpResponse getTraceById(@Param("traceId") String traceId) throws IOException {
+    public AggregatedHttpResponse getTraceByIdHTTP(@Param("traceId") String traceId) throws IOException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan debuggingSpan = null;
         try {
@@ -196,26 +206,9 @@ public class ZipkinQueryHandler {
             if (StringUtil.isEmpty(traceId)) {
                 return AggregatedHttpResponse.of(BAD_REQUEST, ANY_TEXT_TYPE, "traceId is empty or null");
             }
-            IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
-            List<Span> trace;
-            if (supportTraceV2) {
-                List<SpanWrapper> wrappedTrace = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTraceV2(
-                    Span.normalizeTraceId(traceId.trim()), null);
-                TraceV2 traceV2 = buildTraceV2(wrappedTrace);
-                trace = traceV2.getSpans();
-                appendEventsDebuggable(trace, traceV2.getEvents());
-            } else {
-                trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()), null);
-                if (CollectionUtils.isEmpty(trace)) {
-                    return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
-                }
-                List<SpanAttachedEventRecord> eventRecords = getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(
-                    SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(Span.normalizeTraceId(traceId.trim())), null);
-                List<SpanAttachedEvent> events = new ArrayList<>(eventRecords.size());
-                for (SpanAttachedEventRecord eventRecord : eventRecords) {
-                    events.add(SpanAttachedEvent.parseFrom(eventRecord.getDataBinary()));
-                }
-                appendEventsDebuggable(trace, events);
+            List<Span> trace = getTraceById(traceId);
+            if (CollectionUtils.isEmpty(trace)) {
+                return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
             }
             return response(SpanBytesEncoder.JSON_V2.encodeList(trace));
         } finally {
@@ -225,9 +218,34 @@ public class ZipkinQueryHandler {
         }
     }
 
+    public List<Span> getTraceById(String traceId) throws IOException {
+        IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
+        List<Span> trace;
+        if (supportTraceV2) {
+            List<SpanWrapper> wrappedTrace = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTraceV2(
+                Span.normalizeTraceId(traceId.trim()), null);
+            TraceV2 traceV2 = buildTraceV2(wrappedTrace);
+            trace = traceV2.getSpans();
+            appendEventsDebuggable(trace, traceV2.getEvents());
+        } else {
+            trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()), null);
+            if (CollectionUtils.isEmpty(trace)) {
+                return trace;
+            }
+            List<SpanAttachedEventRecord> eventRecords = getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(
+                SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(Span.normalizeTraceId(traceId.trim())), null);
+            List<SpanAttachedEvent> events = new ArrayList<>(eventRecords.size());
+            for (SpanAttachedEventRecord eventRecord : eventRecords) {
+                events.add(SpanAttachedEvent.parseFrom(eventRecord.getDataBinary()));
+            }
+            appendEventsDebuggable(trace, events);
+        }
+        return trace;
+    }
+
     @Get("/api/v2/traces")
     @Blocking
-    public AggregatedHttpResponse getTraces(
+    public AggregatedHttpResponse getTracesHTTP(
         @Param("serviceName") Optional<String> serviceName,
         @Param("remoteServiceName") Optional<String> remoteServiceName,
         @Param("spanName") Optional<String> spanName,
@@ -265,26 +283,31 @@ public class ZipkinQueryHandler {
             DateTime startTime = endTime.minus(org.joda.time.Duration.millis(queryRequest.lookback()));
             duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
             duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
-            IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
-            List<List<Span>> traces;
-            if (supportTraceV2) {
-                traces = new ArrayList<>();
-                List<List<SpanWrapper>> wrappedTraces = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTracesV2(queryRequest, duration);
-                for (List<SpanWrapper> wrappedTrace : wrappedTraces) {
-                    TraceV2 traceV2 =  buildTraceV2(wrappedTrace);
-                    traces.add(traceV2.getSpans());
-                    appendEventsDebuggable(traceV2.getSpans(), traceV2.events);
-                }
-            } else {
-                traces = zipkinQueryDAO.getTracesDebuggable(queryRequest, duration);
-                appendEventsToTracesDebuggable(traces);
-            }
+            List<List<Span>> traces = getTraces(queryRequest, duration);
             return response(encodeTraces(traces));
         } finally {
             if (traceContext != null && debuggingSpan != null) {
                 traceContext.stopSpan(debuggingSpan);
             }
         }
+    }
+
+    public List<List<Span>> getTraces(QueryRequest queryRequest, Duration duration) throws IOException {
+        IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
+        List<List<Span>> traces;
+        if (supportTraceV2) {
+            traces = new ArrayList<>();
+            List<List<SpanWrapper>> wrappedTraces = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTracesV2(queryRequest, duration);
+            for (List<SpanWrapper> wrappedTrace : wrappedTraces) {
+                TraceV2 traceV2 =  buildTraceV2(wrappedTrace);
+                traces.add(traceV2.getSpans());
+                appendEventsDebuggable(traceV2.getSpans(), traceV2.events);
+            }
+        } else {
+            traces = zipkinQueryDAO.getTracesDebuggable(queryRequest, duration);
+            appendEventsToTracesDebuggable(traces);
+        }
+        return traces;
     }
 
     @Get("/api/v2/traceMany")

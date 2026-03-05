@@ -70,6 +70,7 @@ header:
     - '**/mockito-extensions/**'
     - 'oap-server/server-library/library-async-profiler-jfr-parser'
     - 'docs/en/changes/changes.tpl'
+    - 'oap-server/server-query-plugin/traceql-plugin/src/main/proto/tempopb/tempo.proto'
 
   comment: on-failure
 
