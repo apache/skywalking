@@ -159,8 +159,8 @@ expected:
         layer: MYSQL
     samples:
       - labels:
-          command: insert
           host_name: 'mysql::test-host'
+          command: insert
           service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_commands_select_rate:
@@ -171,8 +171,8 @@ expected:
         layer: MYSQL
     samples:
       - labels:
-          command: select
           host_name: 'mysql::test-host'
+          command: select
           service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_commands_delete_rate:
@@ -183,8 +183,8 @@ expected:
         layer: MYSQL
     samples:
       - labels:
-          command: delete
           host_name: 'mysql::test-host'
+          command: delete
           service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_commands_update_rate:
@@ -195,8 +195,8 @@ expected:
         layer: MYSQL
     samples:
       - labels:
-          command: update
           host_name: 'mysql::test-host'
+          command: update
           service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_qps:
@@ -218,8 +218,8 @@ expected:
         layer: MYSQL
     samples:
       - labels:
-          command: rollback
           host_name: 'mysql::test-host'
+          command: rollback
           service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_threads_connected:

@@ -38,7 +38,7 @@ expected:
       - labels:
           app: test-app
           secret_name: test-cert
-        value: -1.772712733E9
+        value: -1.772717076E9
   envoy_service_listener_ssl_ca_expiration_seconds:
     entities:
       - scope: SERVICE
@@ -48,7 +48,7 @@ expected:
       - labels:
           app: test-app
           secret_name: test-cert
-        value: -1.772712733E9
+        value: -1.772717076E9
   envoy_instance_cluster_ssl_ca_expiration_seconds:
     entities:
       - scope: SERVICE_INSTANCE
@@ -60,7 +60,7 @@ expected:
           app: test-app
           instance: test-instance
           secret_name: test-cert
-        value: -1.772712733E9
+        value: -1.772717076E9
   envoy_instance_listener_ssl_ca_expiration_seconds:
     entities:
       - scope: SERVICE_INSTANCE
@@ -72,4 +72,4 @@ expected:
           app: test-app
           instance: test-instance
           secret_name: test-cert
-        value: -1.772712733E9
+        value: -1.772717076E9

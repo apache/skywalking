@@ -561,11 +561,13 @@ class MalComparisonTest {
         final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> v2Data =
             buildV2MockData(metricName, expression, v2Meta);
 
-        // V1 run
+        // V1 run — v1 is production-verified; if it fails, the mock data is wrong
         org.apache.skywalking.oap.meter.analyzer.dsl.Result v1Result;
         try {
             v1Result = v1Expr.run(v1Data);
         } catch (Exception e) {
+            fail(metricName + ": v1 runtime failed with auto-generated data — "
+                + e.getClass().getSimpleName() + ": " + e.getMessage());
             return;
         }
 

@@ -91,8 +91,8 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
           NodeName: test-node
+          cluster: 'aws-eks-cluster::null'
         value: 100.0
   eks_cluster_node_cpu_utilization:
     entities:
@@ -102,8 +102,8 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
           NodeName: test-node
+          cluster: 'aws-eks-cluster::null'
         value: 100.0
   eks_cluster_node_memory_utilization:
     entities:
@@ -113,8 +113,8 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
           NodeName: test-node
+          cluster: 'aws-eks-cluster::null'
         value: 100.0
   eks_cluster_node_net_rx_bytes:
     entities:
@@ -124,8 +124,8 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
           NodeName: test-node
+          cluster: 'aws-eks-cluster::null'
         value: 100.0
   eks_cluster_node_net_rx_error:
     entities:
@@ -135,8 +135,8 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
           NodeName: test-node
+          cluster: 'aws-eks-cluster::null'
         value: 100.0
   eks_cluster_node_net_tx_bytes:
     entities:
@@ -146,8 +146,8 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
           NodeName: test-node
+          cluster: 'aws-eks-cluster::null'
         value: 100.0
   eks_cluster_node_net_tx_error:
     entities:
@@ -157,8 +157,8 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
           NodeName: test-node
+          cluster: 'aws-eks-cluster::null'
         value: 100.0
   eks_cluster_node_disk_io_write:
     entities:
