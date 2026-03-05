@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -283,12 +285,9 @@ public final class MALClassGenerator {
         final List<MALClosureCodegen.ClosureInfo> closures = new ArrayList<>();
         cc.collectClosures(ast, closures);
 
-        // Generate closure classes first, named by purpose (tag/forEach/instance/decorate)
-        // Defer detach until after main class is compiled so types remain in ClassPool
-        final List<CtClass> pendingDetach = new ArrayList<>();
-        final List<Object> closureInstances = new ArrayList<>();
+        // Build closure field names and determine interface types
         final List<String> closureFieldNames = new ArrayList<>();
-        final List<String> closureClassNames = new ArrayList<>();
+        final List<String> closureInterfaceTypes = new ArrayList<>();
         final java.util.Map<String, Integer> closureNameCounts = new java.util.HashMap<>();
         for (int i = 0; i < closures.size(); i++) {
             final String purpose = closures.get(i).methodName;
@@ -296,22 +295,26 @@ public final class MALClassGenerator {
             closureNameCounts.put(purpose, count + 1);
             final String suffix = count == 0 ? purpose : purpose + "_" + (count + 1);
             closureFieldNames.add("_" + suffix);
-            final String closureName = dedupClassName(className + "$" + suffix);
-            closureClassNames.add(closureName);
-            final Object instance = cc.compileClosureClass(
-                closureName, closures.get(i), pendingDetach);
-            closureInstances.add(instance);
+            closureInterfaceTypes.add(closures.get(i).interfaceType);
         }
 
         final CtClass ctClass = classPool.makeClass(className);
         ctClass.addInterface(classPool.get(
             "org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression"));
 
-        // Add closure fields with actual types
+        // Add closure fields typed as functional interfaces (not concrete closure classes)
         for (int i = 0; i < closures.size(); i++) {
             ctClass.addField(javassist.CtField.make(
-                "public " + closureClassNames.get(i) + " "
+                "public " + closureInterfaceTypes.get(i) + " "
                     + closureFieldNames.get(i) + ";", ctClass));
+        }
+
+        // Add closure bodies as methods on the main class
+        final List<String> closureMethodNames = new ArrayList<>();
+        for (int i = 0; i < closures.size(); i++) {
+            final String methodName = cc.addClosureMethod(
+                ctClass, closureFieldNames.get(i), closures.get(i));
+            closureMethodNames.add(methodName);
         }
 
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
@@ -345,17 +348,24 @@ public final class MALClassGenerator {
 
         final Class<?> clazz = ctClass.toClass(MalExpressionPackageHolder.class);
         ctClass.detach();
-        for (final CtClass ct : pendingDetach) {
-            ct.detach();
-        }
         final MalExpression instance = (MalExpression) clazz.getDeclaredConstructor()
             .newInstance();
 
-        // Set closure fields via reflection
-        for (int i = 0; i < closureInstances.size(); i++) {
-            final java.lang.reflect.Field field =
-                clazz.getField(closureFieldNames.get(i));
-            field.set(instance, closureInstances.get(i));
+        // Wire closure fields via LambdaMetafactory — creates functional interface
+        // instances from method handles pointing to the closure methods on this class.
+        // No separate .class files are produced (same mechanism as javac lambdas).
+        if (!closures.isEmpty()) {
+            final MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
+                clazz, MethodHandles.lookup());
+            for (int i = 0; i < closures.size(); i++) {
+                final MALCodegenHelper.ClosureTypeInfo typeInfo =
+                    MALCodegenHelper.getClosureTypeInfo(closureInterfaceTypes.get(i));
+                final MethodHandle mh = lookup.findVirtual(
+                    clazz, closureMethodNames.get(i), typeInfo.methodType);
+                final Object func = MALCodegenHelper.createLambda(
+                    lookup, typeInfo, mh, clazz, instance);
+                clazz.getField(closureFieldNames.get(i)).set(instance, func);
+            }
         }
 
         return instance;

@@ -428,6 +428,8 @@ catalog:
                 path: "/en/guides/how-to-bump-up-zipkin"
           - name: "I18n"
             path: "/en/guides/i18n"
+          - name: "Claude Code Skills"
+            path: "/en/guides/claude-code-skills"
   - name: "SWIP"
     path: "/en/swip/readme"
   - name: "Changelog"

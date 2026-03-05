@@ -53,7 +53,7 @@ Running `javadoc:javadoc` alone without `install` will miss errors because `${de
 ### `checkstyle` — checkstyle only
 
 ```bash
-./mvnw -B -q clean checkstyle:check
+./mvnw -B -q clean flatten:flatten checkstyle:check
 ```
 
 ### Module name — single module build
@@ -105,5 +105,5 @@ CI uses JDK 11 on Linux. The `dist-tar` job runs:
 The `code-style` job runs:
 
 ```bash
-./mvnw -B -q clean checkstyle:check
+./mvnw -B -q clean flatten:flatten checkstyle:check
 ```
