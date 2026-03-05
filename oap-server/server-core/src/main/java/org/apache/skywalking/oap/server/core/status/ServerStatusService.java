@@ -105,7 +105,7 @@ public class ServerStatusService implements Service {
                                 Properties properties = (Properties) value;
                                 properties.forEach((k, v) -> {
                                     String configKey = moduleName + "." + providerName + "." + key + "." + k;
-                                    String configValue = maskConfigValue(configKey, v.toString(), keywords);
+                                    String configValue = maskConfigValue(k.toString(), v.toString(), keywords);
                                     configList.put(configKey, configValue);
                                 });
                             } else {
