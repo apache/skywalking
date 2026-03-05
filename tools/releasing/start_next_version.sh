@@ -48,11 +48,11 @@ git clone --recurse-submodules -j4 --depth 1 https://github.com/apache/skywalkin
 echo "Checking out the release branch ${RELEASE_VERSION}-release..."
 git checkout -b ${RELEASE_VERSION}-release
 
-echo "Setting the next release version ${NEXT_RELEASE_VERSION} in all pom.xml files..."
-./mvnw versions:set -DnewVersion=${NEXT_RELEASE_VERSION}-SNAPSHOT -DgenerateBackupPoms=false
+echo "Setting the next release version ${NEXT_RELEASE_VERSION} in pom.xml..."
+./mvnw versions:set-property -DgenerateBackupPoms=false -Dproperty=revision -DnewVersion=${NEXT_RELEASE_VERSION}-SNAPSHOT
 
 echo "Committing the pom.xml changes..."
-git add -A '**/pom.xml' pom.xml
+git add pom.xml
 git commit -m "Update the next release version to ${NEXT_RELEASE_VERSION}-SNAPSHOT"
 
 echo "Moving the changelog file..."
