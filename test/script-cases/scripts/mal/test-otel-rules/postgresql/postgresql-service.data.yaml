@@ -48,6 +48,12 @@ input:
     - labels:
         service_instance_id: test-instance
         host_name: test-host
+        state: active
+      value: 100.0
+    - labels:
+        service_instance_id: test-instance
+        host_name: test-host
+        state: idle
       value: 100.0
   pg_stat_database_xact_commit:
     - labels:
@@ -130,49 +136,233 @@ input:
         host_name: test-host
       value: 100.0
 expected:
-  fetched_rows_rate:
-    min_samples: 1
-  deleted_rows_rate:
-    min_samples: 1
-  inserted_rows_rate:
-    min_samples: 1
-  updated_rows_rate:
-    min_samples: 1
-  returned_rows_rate:
-    min_samples: 1
-  locks_count:
-    min_samples: 1
-  active_sessions:
-    min_samples: 1
-  idle_sessions:
-    min_samples: 1
-  committed_transactions_rate:
-    min_samples: 1
-  rolled_back_transactions_rate:
-    min_samples: 1
-  cache_hit_rate:
-    min_samples: 1
-  temporary_files_rate:
-    min_samples: 1
-  checkpoint_write_time_rate:
-    min_samples: 1
-  checkpoint_sync_time_rate:
-    min_samples: 1
-  checkpoint_req_rate:
-    min_samples: 1
-  checkpoints_timed_rate:
-    min_samples: 1
-  conflicts_rate:
-    min_samples: 1
-  deadlocks_rate:
-    min_samples: 1
-  buffers_checkpoint:
-    min_samples: 1
-  buffers_clean:
-    min_samples: 1
-  buffers_backend_fsync:
-    min_samples: 1
-  buffers_alloc:
-    min_samples: 1
-  buffers_backend:
-    min_samples: 1
+  meter_pg_fetched_rows_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_deleted_rows_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_inserted_rows_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_updated_rows_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_returned_rows_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_locks_count:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_pg_active_sessions:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_pg_idle_sessions:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_pg_committed_transactions_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_rolled_back_transactions_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_cache_hit_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 50.0
+  meter_pg_temporary_files_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_checkpoint_write_time_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_checkpoint_sync_time_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_checkpoint_req_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_checkpoints_timed_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_conflicts_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_deadlocks_rate:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_buffers_checkpoint:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_buffers_clean:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_buffers_backend_fsync:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_buffers_alloc:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_buffers_backend:
+    entities:
+      - scope: SERVICE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0

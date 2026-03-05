@@ -18,6 +18,7 @@ input:
     - labels:
         host_name: test-host
         service_instance_id: test-instance
+        group: test-value
       value: 100.0
   banyandb_stream_tst_total_written:
     - labels:
@@ -27,43 +28,61 @@ input:
   banyandb_system_memory_state:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
+        kind: total
+      value: 100.0
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+        kind: used
       value: 100.0
   banyandb_system_disk:
     - labels:
         host_name: test-host
         service_instance_id: test-instance
+        kind: used
+      value: 100.0
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+        kind: total
       value: 100.0
   banyandb_liaison_grpc_total_started:
     - labels:
         method: query
         host_name: test-host
         service_instance_id: test-instance
+        group: test-value
       value: 100.0
   banyandb_system_cpu_num:
     - labels:
-        method: query
+        method: test-value
         host_name: test-host
         service_instance_id: test-instance
       value: 100.0
   banyandb_liaison_grpc_total_err:
     - labels:
+        method: query
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   banyandb_liaison_grpc_total_stream_msg_sent_err:
     - labels:
+        method: query
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   banyandb_liaison_grpc_total_stream_msg_received_err:
     - labels:
+        method: query
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   banyandb_queue_sub_total_msg_sent_err:
     - labels:
+        method: query
         host_name: test-host
-      value: 100.0
-  tags:
-    - labels:
-        host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   banyandb_liaison_grpc_total_registry_started:
     - labels:
@@ -78,19 +97,31 @@ input:
   process_cpu_seconds_total:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   process_resident_memory_bytes:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
+        kind: total
       value: 100.0
   banyandb_system_net_state:
     - labels:
         host_name: test-host
         service_instance_id: test-instance
+        kind: bytes_recv
+      value: 100.0
+    - labels:
+        host_name: test-host
+        service_instance_id: test-instance
+        kind: bytes_sent
       value: 100.0
   banyandb_liaison_grpc_total_latency:
     - labels:
+        group: test-value
         host_name: test-host
+        service_instance_id: test-instance
+        method: query
       value: 100.0
   banyandb_measure_total_file_elements:
     - labels:
@@ -100,19 +131,30 @@ input:
       value: 100.0
   banyandb_measure_total_merge_loop_started:
     - labels:
+        group: test-value
         host_name: test-host
+        service_instance_id: test-instance
+        type: file
       value: 100.0
   banyandb_measure_total_merge_latency:
     - labels:
+        group: test-value
         host_name: test-host
+        service_instance_id: test-instance
+        type: file
       value: 100.0
   banyandb_measure_total_merged_parts:
     - labels:
+        group: test-value
         host_name: test-host
+        service_instance_id: test-instance
+        type: file
       value: 100.0
   banyandb_measure_inverted_index_total_updates:
     - labels:
+        group: test-value
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   banyandb_stream_storage_inverted_index_total_term_searchers_started:
     - labels:
@@ -134,7 +176,9 @@ input:
       value: 100.0
   banyandb_stream_tst_inverted_index_total_term_searchers_started:
     - labels:
+        group: test-value
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   banyandb_stream_tst_inverted_index_total_doc_count:
     - labels:
@@ -143,53 +187,239 @@ input:
         service_instance_id: test-instance
       value: 100.0
 expected:
-  write_rate:
-    min_samples: 1
-  total_memory:
-    min_samples: 1
-  disk_usage:
-    min_samples: 1
-  query_rate:
-    min_samples: 1
-  total_cpu:
-    min_samples: 1
-  write_and_query_errors_rate:
-    min_samples: 1
-  etcd_operation_rate:
-    min_samples: 1
-  active_instance:
-    min_samples: 1
-  cpu_usage:
-    min_samples: 1
-  rss_memory_usage:
-    min_samples: 1
-  disk_usage_all:
-    min_samples: 1
-  network_usage_recv:
-    min_samples: 1
-  network_usage_sent:
-    min_samples: 1
-  storage_write_rate:
-    min_samples: 1
-  query_latency:
-    min_samples: 1
-  total_data:
-    min_samples: 1
-  merge_file_data:
-    min_samples: 1
-  merge_file_latency:
-    min_samples: 1
-  merge_file_partitions:
-    min_samples: 1
-  series_write_rate:
-    min_samples: 1
-  series_term_search_rate:
-    min_samples: 1
-  total_series:
-    min_samples: 1
-  stream_write_rate:
-    min_samples: 1
-  term_search_rate:
-    min_samples: 1
-  total_document:
-    min_samples: 1
+  meter_banyandb_write_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_total_memory:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+        value: 100.0
+  meter_banyandb_disk_usage:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_banyandb_query_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          method: query
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_banyandb_total_cpu:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          method: test-value
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_banyandb_write_and_query_errors_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_etcd_operation_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_active_instance:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_banyandb_cpu_usage:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_rss_memory_usage:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 1000.0
+  meter_banyandb_disk_usage_all:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 1000.0
+  meter_banyandb_network_usage_recv:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_network_usage_sent:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_storage_write_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_query_latency:
+    error: 'v1 not-success'
+  meter_banyandb_total_data:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 100.0
+  meter_banyandb_merge_file_data:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_merge_file_latency:
+    error: 'v1 not-success'
+  meter_banyandb_merge_file_partitions:
+    error: 'v1 not-success'
+  meter_banyandb_series_write_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_series_term_search_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_total_series:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 100.0
+  meter_banyandb_stream_write_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_term_search_rate:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 0.0
+  meter_banyandb_total_document:
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 100.0

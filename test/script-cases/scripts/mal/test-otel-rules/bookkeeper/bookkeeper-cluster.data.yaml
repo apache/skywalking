@@ -65,23 +65,103 @@ input:
         node: test-node
       value: 100.0
 expected:
-  bookie_ledgers_count:
-    min_samples: 1
-  bookie_ledger_writable_dirs:
-    min_samples: 1
-  bookie_ledger_dir_data_bookkeeper_ledgers_usage:
-    min_samples: 1
-  bookie_entries_count:
-    min_samples: 1
-  bookie_write_cache_size:
-    min_samples: 1
-  bookie_write_cache_count:
-    min_samples: 1
-  bookie_read_cache_size:
-    min_samples: 1
-  bookie_read_cache_count:
-    min_samples: 1
-  bookie_write_rate:
-    min_samples: 1
-  bookie_read_rate:
-    min_samples: 1
+  meter_bookkeeper_bookie_ledgers_count:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_bookie_ledger_writable_dirs:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_bookie_entries_count:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_bookie_write_cache_size:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_bookie_write_cache_count:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_bookie_read_cache_size:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_bookie_read_cache_count:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_bookie_write_rate:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_bookkeeper_bookie_read_rate:
+    entities:
+      - scope: SERVICE
+        service: 'bookkeeper::test-cluster'
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 0.0

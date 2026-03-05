@@ -18,21 +18,55 @@ input:
     - labels:
         cluster: test-cluster
         remove: test-value
+        resource: cpu
+      value: 1.0
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+        resource: memory
+      value: 1.0
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+        resource: ephemeral_storage
       value: 1.0
   kube_node_status_allocatable:
     - labels:
         cluster: test-cluster
         remove: test-value
+        resource: cpu
+      value: 1.0
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+        resource: memory
+      value: 1.0
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+        resource: ephemeral_storage
       value: 1.0
   kube_pod_container_resource_requests:
     - labels:
         cluster: test-cluster
         remove: test-value
+        resource: cpu
+      value: 1.0
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+        resource: memory
       value: 1.0
   kube_pod_container_resource_limits:
     - labels:
         cluster: test-cluster
         remove: test-value
+        resource: cpu
+      value: 1.0
+    - labels:
+        cluster: test-cluster
+        remove: test-value
+        resource: memory
       value: 1.0
   kube_node_info:
     - labels:
@@ -43,8 +77,9 @@ input:
     - labels:
         cluster: test-cluster
         node: test-node
-        condition: Available
+        condition: test-value
         remove: test-value
+        status: 'true'
       value: 1.0
   kube_namespace_labels:
     - labels:
@@ -62,7 +97,7 @@ input:
         deployment: test-value
         namespace: test-namespace
         condition: Available
-        status: 'true'
+        status: active
         remove: test-value
       value: 1.0
   kube_deployment_spec_replicas:
@@ -122,53 +157,245 @@ input:
         remove: test-value
       value: 1.0
 expected:
-  cpu_cores:
-    min_samples: 1
-  cpu_cores_allocatable:
-    min_samples: 1
-  cpu_cores_requests:
-    min_samples: 1
-  cpu_cores_limits:
-    min_samples: 1
-  memory_total:
-    min_samples: 1
-  memory_allocatable:
-    min_samples: 1
-  memory_requests:
-    min_samples: 1
-  memory_limits:
-    min_samples: 1
-  storage_total:
-    min_samples: 1
-  storage_allocatable:
-    min_samples: 1
-  node_total:
-    min_samples: 1
-  node_status:
-    min_samples: 1
-  namespace_total:
-    min_samples: 1
-  deployment_total:
-    min_samples: 1
-  deployment_status:
-    min_samples: 1
-  deployment_spec_replicas:
-    min_samples: 1
-  statefulset_total:
-    min_samples: 1
-  daemonset_total:
-    min_samples: 1
-  service_total:
-    min_samples: 1
-  service_pod_status:
-    min_samples: 1
-  pod_total:
-    min_samples: 1
-  pod_status_not_running:
-    min_samples: 1
-  container_total:
-    min_samples: 1
-  pod_status_waiting:
-    min_samples: 1
-  pod_status_terminated:
-    min_samples: 1
+  k8s_cluster_cpu_cores:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1000.0
+  k8s_cluster_cpu_cores_allocatable:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1000.0
+  k8s_cluster_cpu_cores_requests:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1000.0
+  k8s_cluster_cpu_cores_limits:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1000.0
+  k8s_cluster_memory_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_memory_allocatable:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_memory_requests:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_memory_limits:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_storage_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_storage_allocatable:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_node_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_node_status:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+          node: test-node
+          condition: test-value
+        value: 1.0
+  k8s_cluster_namespace_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_deployment_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_deployment_status:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          namespace: test-namespace
+          cluster: 'k8s-cluster::test-cluster'
+          deployment: test-value
+          status: active
+        value: 1.0
+  k8s_cluster_deployment_spec_replicas:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          namespace: test-namespace
+          cluster: 'k8s-cluster::test-cluster'
+          deployment: test-value
+        value: 1.0
+  k8s_cluster_statefulset_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_daemonset_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_service_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_service_pod_status:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          phase: test-value
+          cluster: 'k8s-cluster::test-cluster'
+          service: test-service
+        value: 1.0
+  k8s_cluster_pod_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_pod_status_not_running:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          pod: test-pod
+          phase: test-value
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_container_total:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          cluster: 'k8s-cluster::test-cluster'
+        value: 1.0
+  k8s_cluster_pod_status_waiting:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          container: test-container
+          cluster: 'k8s-cluster::test-cluster'
+          reason: test-value
+          pod: test-pod
+        value: 1.0
+  k8s_cluster_pod_status_terminated:
+    entities:
+      - scope: SERVICE
+        service: 'k8s-cluster::test-cluster'
+        layer: K8S
+    samples:
+      - labels:
+          container: test-container
+          cluster: 'k8s-cluster::test-cluster'
+          reason: test-value
+          pod: test-pod
+        value: 1.0

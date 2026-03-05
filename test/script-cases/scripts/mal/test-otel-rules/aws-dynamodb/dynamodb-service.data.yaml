@@ -16,68 +16,253 @@
 input:
   dynamodb:
     - labels:
-        host_name: test-host
-        cloud_account_id: 123456789
       value: 100.0
-  tags:
+  amazonaws_com_AWS_DynamoDB_AccountMaxWrites:
     - labels:
-        host_name: test-host
-        cloud_account_id: 123456789
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_AccountMaxReads:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_AccountMaxTableLevelWrites:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_AccountMaxTableLevelReads:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_MaxProvisionedTableWriteCapacityUtilization:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_MaxProvisionedTableReadCapacityUtilization:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_AccountProvisionedReadCapacityUtilization:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_AccountProvisionedWriteCapacityUtilization:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ConsumedWriteCapacityUnits:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ConsumedReadCapacityUnits:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ProvisionedReadCapacityUnits:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ProvisionedWriteCapacityUnits:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ReturnedItemCount:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_TimeToLiveDeletedItemCount:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ThrottledRequests:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ReadThrottleEvents:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_WriteThrottleEvents:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_SystemErrors:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_UserErrors:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ConditionalCheckFailedRequests:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_TransactionConflict:
+    - labels:
       value: 100.0
 expected:
-  account_max_writes:
-    min_samples: 1
-  account_max_reads:
-    min_samples: 1
-  account_max_table_level_writes:
-    min_samples: 1
-  account_max_table_level_reads:
-    min_samples: 1
-  max_provisioned_write_capacity_utilization:
-    min_samples: 1
-  max_provisioned_read_capacity_utilization:
-    min_samples: 1
-  account_provisioned_read_capacity_utilization:
-    min_samples: 1
-  account_provisioned_write_capacity_utilization:
-    min_samples: 1
-  consumed_write_capacity_units:
-    min_samples: 1
-  consumed_read_capacity_units:
-    min_samples: 1
-  provisioned_read_capacity_units:
-    min_samples: 1
-  provisioned_write_capacity_units:
-    min_samples: 1
-  get_successful_request_latency:
-    min_samples: 1
-  put_successful_request_latency:
-    min_samples: 1
-  query_successful_request_latency:
-    min_samples: 1
-  scan_successful_request_latency:
-    min_samples: 1
-  scan_returned_item_count:
-    min_samples: 1
-  query_returned_item_count:
-    min_samples: 1
-  time_to_live_deleted_item_count:
-    min_samples: 1
-  read_throttled_requests:
-    min_samples: 1
-  write_throttled_requests:
-    min_samples: 1
-  read_throttle_events:
-    min_samples: 1
-  write_throttle_events:
-    min_samples: 1
-  read_system_errors:
-    min_samples: 1
-  write_system_errors:
-    min_samples: 1
-  user_errors:
-    min_samples: 1
-  conditional_check_failed_requests:
-    min_samples: 1
-  transaction_conflict:
-    min_samples: 1
+  aws_dynamodb_account_max_writes:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_account_max_reads:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_account_max_table_level_writes:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_account_max_table_level_reads:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_max_provisioned_write_capacity_utilization:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_max_provisioned_read_capacity_utilization:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_account_provisioned_read_capacity_utilization:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_account_provisioned_write_capacity_utilization:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_consumed_write_capacity_units:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_consumed_read_capacity_units:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_provisioned_read_capacity_units:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_provisioned_write_capacity_units:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_get_successful_request_latency:
+    error: 'v1 not-success'
+  aws_dynamodb_put_successful_request_latency:
+    error: 'v1 not-success'
+  aws_dynamodb_query_successful_request_latency:
+    error: 'v1 not-success'
+  aws_dynamodb_scan_successful_request_latency:
+    error: 'v1 not-success'
+  aws_dynamodb_scan_returned_item_count:
+    error: 'v1 not-success'
+  aws_dynamodb_query_returned_item_count:
+    error: 'v1 not-success'
+  aws_dynamodb_time_to_live_deleted_item_count:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_read_throttled_requests:
+    error: 'v1 not-success'
+  aws_dynamodb_write_throttled_requests:
+    error: 'v1 not-success'
+  aws_dynamodb_read_throttle_events:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_write_throttle_events:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_read_system_errors:
+    error: 'v1 not-success'
+  aws_dynamodb_write_system_errors:
+    error: 'v1 not-success'
+  aws_dynamodb_user_errors:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_conditional_check_failed_requests:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_transaction_conflict:
+    entities:
+      - scope: SERVICE
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0

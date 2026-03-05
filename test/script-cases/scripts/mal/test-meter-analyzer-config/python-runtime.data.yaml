@@ -16,65 +16,92 @@
 input:
   instance_pvm_process_cpu_utilization:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_pvm_process_mem_utilization:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_pvm_total_cpu_utilization:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_pvm_total_mem_utilization:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_pvm_gc_g0:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_pvm_gc_g1:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_pvm_gc_g2:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_pvm_gc_time:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_pvm_thread_active_count:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
 expected:
-  instance_pvm_process_cpu_utilization:
-    min_samples: 1
-  instance_pvm_process_mem_utilization:
-    min_samples: 1
-  instance_pvm_total_cpu_utilization:
-    min_samples: 1
-  instance_pvm_total_mem_utilization:
-    min_samples: 1
-  instance_pvm_gc_g0:
-    min_samples: 1
-  instance_pvm_gc_g1:
-    min_samples: 1
-  instance_pvm_gc_g2:
-    min_samples: 1
-  instance_pvm_gc_time:
-    min_samples: 1
-  instance_pvm_thread_active_count:
-    min_samples: 1
+  meter_instance_pvm_process_cpu_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_pvm_process_mem_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_pvm_total_cpu_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_pvm_total_mem_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_pvm_gc_g0:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_pvm_gc_g1:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_pvm_gc_g2:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_pvm_gc_time:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_instance_pvm_thread_active_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0

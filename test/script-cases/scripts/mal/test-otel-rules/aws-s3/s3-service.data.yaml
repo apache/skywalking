@@ -75,23 +75,103 @@ input:
         BucketName: test-value
       value: 100.0
 expected:
-  4xx:
-    min_samples: 1
-  5xx:
-    min_samples: 1
-  downloaded_bytes:
-    min_samples: 1
-  uploaded_bytes:
-    min_samples: 1
-  request_latency:
-    min_samples: 1
-  first_latency_bytes:
-    min_samples: 1
-  all_requests:
-    min_samples: 1
-  put_requests:
-    min_samples: 1
-  get_requests:
-    min_samples: 1
-  delete_requests:
-    min_samples: 1
+  aws_s3_4xx:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 100.0
+  aws_s3_5xx:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 100.0
+  aws_s3_downloaded_bytes:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 100.0
+  aws_s3_uploaded_bytes:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 100.0
+  aws_s3_request_latency:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 1.0
+  aws_s3_first_latency_bytes:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 1.0
+  aws_s3_all_requests:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 100.0
+  aws_s3_put_requests:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 100.0
+  aws_s3_get_requests:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 100.0
+  aws_s3_delete_requests:
+    entities:
+      - scope: SERVICE
+        service: 'aws-s3::test-value'
+        layer: AWS_S3
+    samples:
+      - labels:
+          bucket: 'aws-s3::test-value'
+          BucketName: test-value
+        value: 100.0

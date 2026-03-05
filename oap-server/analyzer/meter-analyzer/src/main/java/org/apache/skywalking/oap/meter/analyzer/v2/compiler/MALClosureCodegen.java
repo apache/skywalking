@@ -477,6 +477,13 @@ final class MALClosureCodegen {
                 }
             }
             sb.append(local);
+        } else if (expr instanceof MALExpressionModel.ClosureExprCondition) {
+            // A bare condition expression used as a statement (e.g., tags.remove('x')
+            // parsed as closureCondition → conditionExpr).  Unwrap and emit the inner
+            // expression directly — this is a side-effect call, not a boolean test.
+            generateClosureExpr(sb,
+                ((MALExpressionModel.ClosureExprCondition) expr).getExpr(),
+                paramName, beanMode);
         }
     }
 

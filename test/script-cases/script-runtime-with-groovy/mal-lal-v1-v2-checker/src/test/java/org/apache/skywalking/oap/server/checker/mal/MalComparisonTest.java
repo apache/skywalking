@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -34,11 +35,16 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -58,6 +64,56 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 @Slf4j
 class MalComparisonTest {
+
+    private static MockedStatic<org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry> V1_K8S_MOCK;
+    private static MockedStatic<org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry> V2_K8S_MOCK;
+
+    static {
+        final org.apache.skywalking.oap.server.core.config.NamingControl namingControl =
+            Mockito.mock(org.apache.skywalking.oap.server.core.config.NamingControl.class);
+        Mockito.when(namingControl.formatServiceName(org.mockito.ArgumentMatchers.anyString()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(namingControl.formatInstanceName(org.mockito.ArgumentMatchers.anyString()))
+            .thenAnswer(invocation -> invocation.getArgument(0));
+        Mockito.when(namingControl.formatEndpointName(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString()))
+            .thenAnswer(invocation -> invocation.getArgument(1));
+        MeterEntity.setNamingControl(namingControl);
+
+        // Mock K8s metadata for retagByK8sMeta rules (pod→service lookup)
+        final org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry mockV1K8s =
+            Mockito.mock(org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry.class);
+        Mockito.when(mockV1K8s.findServiceName(
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString()))
+            .thenAnswer(inv -> inv.<String>getArgument(1) + "." + inv.<String>getArgument(0));
+        V1_K8S_MOCK = Mockito.mockStatic(
+            org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry.class);
+        V1_K8S_MOCK.when(
+                org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry::getInstance)
+            .thenReturn(mockV1K8s);
+
+        final org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry mockV2K8s =
+            Mockito.mock(org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry.class);
+        Mockito.when(mockV2K8s.findServiceName(
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString()))
+            .thenAnswer(inv -> inv.<String>getArgument(1) + "." + inv.<String>getArgument(0));
+        V2_K8S_MOCK = Mockito.mockStatic(
+            org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry.class);
+        V2_K8S_MOCK.when(
+                org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry::getInstance)
+            .thenReturn(mockV2K8s);
+    }
+
+    @AfterAll
+    static void teardownK8sMocks() {
+        if (V1_K8S_MOCK != null) {
+            V1_K8S_MOCK.close();
+        }
+        if (V2_K8S_MOCK != null) {
+            V2_K8S_MOCK.close();
+        }
+    }
 
     private static final Pattern TAG_EQUAL_PATTERN =
         Pattern.compile("\\.tagEqual\\s*\\(\\s*'([^']+)'\\s*,\\s*'([^']+)'\\s*\\)");
@@ -200,12 +256,13 @@ class MalComparisonTest {
         final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> v2Data =
             buildV2MockDataFromInput(inputSection);
 
-        // V1 run
+        // V1 run — v1 is production-verified; if it fails, the test data is wrong
         org.apache.skywalking.oap.meter.analyzer.dsl.Result v1Result;
         try {
             v1Result = v1Expr.run(v1Data);
         } catch (Exception e) {
-            log.warn("{}: v1 runtime failed with input data — {}", metricName, e.getMessage());
+            fail(metricName + ": v1 runtime failed with input data — "
+                + e.getClass().getSimpleName() + ": " + e.getMessage());
             return;
         }
 
@@ -261,18 +318,125 @@ class MalComparisonTest {
                                   final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily v2Sf,
                                   final boolean v2Success,
                                   final Map<String, Object> expected) {
-        if (expected.containsKey("min_samples")) {
-            final int minSamples = ((Number) expected.get("min_samples")).intValue();
-            if (minSamples > 0) {
-                if (!v2Success) {
-                    log.warn("{}: expected min_samples={} but v2 returned EMPTY"
-                        + " (input data may need enrichment)", metricName, minSamples);
-                } else if (v2Sf.samples.length < minSamples) {
-                    log.warn("{}: expected min_samples={} but got {}",
-                        metricName, minSamples, v2Sf.samples.length);
+        // Rules with error marker — v1 couldn't produce output; skip strict validation
+        if (expected.containsKey("error")) {
+            return;
+        }
+
+        // Rich expected: entities + samples → hard assertions
+        final List<Map<String, Object>> expectedEntities =
+            (List<Map<String, Object>>) expected.get("entities");
+        final List<Map<String, Object>> expectedSamples =
+            (List<Map<String, Object>>) expected.get("samples");
+
+        if (expectedEntities != null || expectedSamples != null) {
+            // EMPTY is a hard failure when rich expected data exists
+            assertTrue(v2Success, metricName + ": v2 returned EMPTY but rich expected data exists");
+            assertNotNull(v2Sf, metricName + ": v2 SampleFamily is null");
+        }
+
+        // Validate entities (MeterEntity from context)
+        if (expectedEntities != null && !expectedEntities.isEmpty()) {
+            final Map<MeterEntity, ?> meterSamples = v2Sf.context.getMeterSamples();
+            assertNotNull(meterSamples, metricName + ": no MeterEntity output");
+
+            final List<String> actualEntityDescs = meterSamples.keySet().stream()
+                .map(MalComparisonTest::describeEntity)
+                .sorted()
+                .collect(Collectors.toList());
+
+            final List<String> expectedEntityDescs = expectedEntities.stream()
+                .map(MalComparisonTest::describeExpectedEntity)
+                .sorted()
+                .collect(Collectors.toList());
+
+            assertEquals(expectedEntityDescs.size(), actualEntityDescs.size(),
+                metricName + ": entity count mismatch — expected "
+                    + expectedEntityDescs + " but got " + actualEntityDescs);
+
+            for (int i = 0; i < expectedEntityDescs.size(); i++) {
+                assertEquals(expectedEntityDescs.get(i), actualEntityDescs.get(i),
+                    metricName + ": entity[" + i + "] mismatch");
+            }
+        }
+
+        // Validate samples (labels + values)
+        if (expectedSamples != null && !expectedSamples.isEmpty()) {
+            final org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample[] actualSorted =
+                sortV2Samples(v2Sf.samples);
+
+            assertEquals(expectedSamples.size(), actualSorted.length,
+                metricName + ": expected " + expectedSamples.size()
+                    + " samples but got " + actualSorted.length);
+
+            // Sort expected by labels string for consistent comparison
+            final List<Map<String, Object>> sortedExpected = new ArrayList<>(expectedSamples);
+            sortedExpected.sort((a, b) -> {
+                final String aLabels = String.valueOf(a.get("labels"));
+                final String bLabels = String.valueOf(b.get("labels"));
+                return aLabels.compareTo(bLabels);
+            });
+
+            for (int i = 0; i < sortedExpected.size(); i++) {
+                final Map<String, Object> expSample = sortedExpected.get(i);
+                final org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample actSample =
+                    actualSorted[i];
+
+                // Compare labels
+                final Map<String, Object> rawExpLabels =
+                    (Map<String, Object>) expSample.get("labels");
+                if (rawExpLabels != null) {
+                    final Map<String, String> expLabels = new LinkedHashMap<>();
+                    for (final Map.Entry<String, Object> le : rawExpLabels.entrySet()) {
+                        expLabels.put(le.getKey(),
+                            le.getValue() == null ? "" : String.valueOf(le.getValue()));
+                    }
+                    assertEquals(expLabels, actSample.getLabels(),
+                        metricName + ": sample[" + i + "] labels mismatch");
+                }
+
+                // Compare values with tolerance
+                // For time()-dependent expressions (large magnitudes), use relative tolerance
+                if (expSample.containsKey("value")) {
+                    final double expValue = ((Number) expSample.get("value")).doubleValue();
+                    final double actValue = actSample.getValue();
+                    final double tolerance = Math.abs(expValue) > 1e6
+                        ? Math.abs(expValue) * 0.01 : 0.001;
+                    assertEquals(expValue, actValue, tolerance,
+                        metricName + ": sample[" + i + "] value mismatch"
+                            + " (expected=" + expValue + ", actual=" + actValue + ")");
                 }
             }
         }
+
+        // Legacy min_samples (soft check for backwards compatibility)
+        if (expected.containsKey("min_samples")) {
+            final int minSamples = ((Number) expected.get("min_samples")).intValue();
+            if (minSamples > 0 && v2Success) {
+                assertTrue(v2Sf.samples.length >= minSamples,
+                    metricName + ": expected min_samples=" + minSamples
+                        + " but got " + v2Sf.samples.length);
+            }
+        }
+    }
+
+    private static String describeExpectedEntity(final Map<String, Object> entity) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(entity.getOrDefault("scope", "SERVICE"));
+        sb.append("|svc=").append(entity.getOrDefault("service", ""));
+        final Object inst = entity.get("instance");
+        if (inst != null && !inst.toString().isEmpty()) {
+            sb.append("|inst=").append(inst);
+        }
+        final Object ep = entity.get("endpoint");
+        if (ep != null && !ep.toString().isEmpty()) {
+            sb.append("|ep=").append(ep);
+        }
+        final Object layer = entity.get("layer");
+        if (layer != null) {
+            sb.append("|layer=").append(layer);
+        }
+        return sb.toString();
     }
 
     // ==================== Build mock data from .data.yaml ====================
@@ -610,7 +774,8 @@ class MalComparisonTest {
     private static String describeEntity(final MeterEntity entity) {
         final StringBuilder sb = new StringBuilder();
         sb.append(entity.getScopeType().name());
-        sb.append("|svc=").append(entity.getServiceName());
+        final String svc = entity.getServiceName();
+        sb.append("|svc=").append(svc == null ? "" : svc);
         if (entity.getInstanceName() != null && !entity.getInstanceName().isEmpty()) {
             sb.append("|inst=").append(entity.getInstanceName());
         }
@@ -763,14 +928,18 @@ class MalComparisonTest {
 
             final String yamlName = prefix + "/" + file.getName();
             final List<MalRule> malRules = new ArrayList<>();
+            final Map<String, Integer> nameCount = new HashMap<>();
             for (final Map<String, String> rule : rules) {
                 final String name = rule.get("name");
                 final String exp = rule.get("exp");
                 if (name == null || exp == null) {
                     continue;
                 }
+                // Disambiguate duplicate rule names within the same file
+                final int count = nameCount.merge(name, 1, Integer::sum);
+                final String uniqueName = count > 1 ? name + "_" + count : name;
                 final String fullExp = formatExp(expPrefix, expSuffix, exp);
-                malRules.add(new MalRule(name, fullExp, inputConfig, metricPrefix, file));
+                malRules.add(new MalRule(uniqueName, fullExp, inputConfig, metricPrefix, file));
             }
             if (!malRules.isEmpty()) {
                 result.put(yamlName, malRules);

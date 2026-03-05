@@ -22,5 +22,16 @@ input:
         status: active
       value: 100.0
 expected:
-  datasource:
-    min_samples: 1
+  meter_datasource:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          name: test-name
+          status: active
+        value: 100.0

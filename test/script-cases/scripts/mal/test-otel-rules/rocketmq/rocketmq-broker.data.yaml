@@ -35,11 +35,47 @@ input:
         broker: test-broker
       value: 100.0
 expected:
-  produce_tps:
-    min_samples: 1
-  consume_qps:
-    min_samples: 1
-  producer_message_size:
-    min_samples: 1
-  consumer_message_size:
-    min_samples: 1
+  meter_rocketmq_broker_produce_tps:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rocketmq::test-cluster'
+        instance: test-broker
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_broker_consume_qps:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rocketmq::test-cluster'
+        instance: test-broker
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_broker_producer_message_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rocketmq::test-cluster'
+        instance: test-broker
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_broker_consumer_message_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rocketmq::test-cluster'
+        instance: test-broker
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0

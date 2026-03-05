@@ -138,49 +138,264 @@ input:
         node: test-node
       value: 100.0
 expected:
-  thread_executor_completed:
-    min_samples: 1
-  thread_executor_tasks_completed:
-    min_samples: 1
-  thread_executor_tasks_rejected:
-    min_samples: 1
-  thread_executor_tasks_failed:
-    min_samples: 1
-  high_priority_threads:
-    min_samples: 1
-  read_thread_pool_threads:
-    min_samples: 1
-  high_priority_thread_max_queue_size:
-    min_samples: 1
-  read_thread_pool_max_queue_size:
-    min_samples: 1
-  jvm_memory_used:
-    min_samples: 1
-  jvm_memory_committed:
-    min_samples: 1
-  jvm_memory_init:
-    min_samples: 1
-  jvm_memory_pool_used:
-    min_samples: 1
-  jvm_memory_pool_committed:
-    min_samples: 1
-  jvm_memory_pool_init:
-    min_samples: 1
-  jvm_buffer_pool_used_bytes:
-    min_samples: 1
-  jvm_buffer_pool_capacity_bytes:
-    min_samples: 1
-  jvm_buffer_pool_used_buffers:
-    min_samples: 1
-  jvm_gc_collection_seconds_count:
-    min_samples: 1
-  jvm_gc_collection_seconds_sum:
-    min_samples: 1
-  jvm_threads_current:
-    min_samples: 1
-  jvm_threads_daemon:
-    min_samples: 1
-  jvm_threads_peak:
-    min_samples: 1
-  jvm_threads_deadlocked:
-    min_samples: 1
+  meter_bookkeeper_node_thread_executor_completed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_thread_executor_tasks_completed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_thread_executor_tasks_rejected:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_thread_executor_tasks_failed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_high_priority_threads:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_read_thread_pool_threads:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_high_priority_thread_max_queue_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_read_thread_pool_max_queue_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_memory_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_memory_committed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_memory_init:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_memory_pool_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          pool: PS_Eden_Space
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_memory_pool_committed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          pool: PS_Eden_Space
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_memory_pool_init:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          pool: PS_Eden_Space
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_buffer_pool_used_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          pool: PS_Eden_Space
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_buffer_pool_capacity_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          pool: PS_Eden_Space
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_buffer_pool_used_buffers:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          pool: PS_Eden_Space
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_gc_collection_seconds_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          gc: PS Scavenge
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_gc_collection_seconds_sum:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          gc: PS Scavenge
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_threads_current:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_threads_daemon:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_threads_peak:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_bookkeeper_node_jvm_threads_deadlocked:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'bookkeeper::test-cluster'
+        instance: test-node
+        layer: BOOKKEEPER
+    samples:
+      - labels:
+          cluster: 'bookkeeper::test-cluster'
+          node: test-node
+        value: 100.0

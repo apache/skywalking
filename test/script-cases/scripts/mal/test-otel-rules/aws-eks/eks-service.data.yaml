@@ -14,31 +14,79 @@
 # limitations under the License.
 
 input:
-  eks:
-    - labels:
-        cluster: test-cluster
-        ClusterName: test-value
-      value: 100.0
   cluster:
     - labels:
-        cluster: test-cluster
-        ClusterName: test-value
       value: 100.0
-  tags:
+  pod_cpu_utilization:
     - labels:
-        cluster: test-cluster
-        ClusterName: test-value
+      value: 100.0
+  pod_memory_utilization:
+    - labels:
+      value: 100.0
+  pod_network_rx_bytes:
+    - labels:
+      value: 100.0
+  pod_network_rx_errors:
+    - labels:
+      value: 100.0
+  pod_network_tx_bytes:
+    - labels:
+      value: 100.0
+  pod_network_tx_errors:
+    - labels:
       value: 100.0
 expected:
-  pod_cpu_utilization:
-    min_samples: 1
-  pod_memory_utilization:
-    min_samples: 1
-  pod_net_rx_bytes:
-    min_samples: 1
-  pod_net_rx_error:
-    min_samples: 1
-  pod_net_tx_bytes:
-    min_samples: 1
-  pod_net_tx_error:
-    min_samples: 1
+  eks_cluster_service_pod_cpu_utilization:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_service_pod_memory_utilization:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_service_pod_net_rx_bytes:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_service_pod_net_rx_error:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_service_pod_net_tx_bytes:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_service_pod_net_tx_error:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0

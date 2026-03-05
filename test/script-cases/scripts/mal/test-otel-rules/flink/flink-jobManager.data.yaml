@@ -33,10 +33,7 @@ input:
   flink_jobmanager_Status_JVM_CPU_Load:
     - labels:
         cluster: test-cluster
-      value: 100.0
-  tags:
-    - labels:
-        cluster: test-cluster
+        jobManager_node: test-value
       value: 100.0
   flink_jobmanager_Status_JVM_CPU_Time:
     - labels:
@@ -109,41 +106,189 @@ input:
         jobManager_node: test-value
       value: 100.0
 expected:
-  running_job_number:
-    min_samples: 1
-  taskManagers_registered_number:
-    min_samples: 1
-  taskManagers_slots_total:
-    min_samples: 1
-  taskManagers_slots_available:
-    min_samples: 1
-  jvm_cpu_load:
-    min_samples: 1
-  jvm_cpu_time:
-    min_samples: 1
-  jvm_memory_heap_used:
-    min_samples: 1
-  jvm_memory_heap_available:
-    min_samples: 1
-  jvm_memory_nonHeap_used:
-    min_samples: 1
-  jvm_memory_nonHeap_available:
-    min_samples: 1
-  jvm_thread_count:
-    min_samples: 1
-  jvm_memory_metaspace_used:
-    min_samples: 1
-  jvm_memory_metaspace_available:
-    min_samples: 1
-  jvm_g1_young_generation_count:
-    min_samples: 1
-  jvm_g1_old_generation_count:
-    min_samples: 1
-  jvm_g1_young_generation_time:
-    min_samples: 1
-  jvm_g1_old_generation_time:
-    min_samples: 1
-  jvm_all_garbageCollector_count:
-    min_samples: 1
-  jvm_all_garbageCollector_time:
-    min_samples: 1
+  meter_flink_jobManager_running_job_number:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_jobManager_taskManagers_registered_number:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_jobManager_taskManagers_slots_total:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_jobManager_taskManagers_slots_available:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_jobManager_jvm_cpu_load:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100000.0
+  meter_flink_jobManager_jvm_cpu_time:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_memory_heap_used:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_jobManager_jvm_memory_heap_available:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_memory_nonHeap_used:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_jobManager_jvm_memory_nonHeap_available:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_thread_count:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_jobManager_jvm_memory_metaspace_used:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_jobManager_jvm_memory_metaspace_available:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_g1_young_generation_count:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_g1_old_generation_count:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_g1_young_generation_time:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_g1_old_generation_time:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_all_garbageCollector_count:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_jobManager_jvm_all_garbageCollector_time:
+    entities:
+      - scope: SERVICE
+        service: 'flink::test-cluster'
+        layer: FLINK
+    samples:
+      - labels:
+          jobManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0

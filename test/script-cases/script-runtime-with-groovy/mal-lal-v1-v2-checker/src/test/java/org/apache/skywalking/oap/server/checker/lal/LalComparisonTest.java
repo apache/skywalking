@@ -263,6 +263,131 @@ class LalComparisonTest {
                 .provider().getService(SourceReceiver.class);
             verify(v2Receiver, atLeastOnce()).receive(any());
         }
+
+        // ---- Validate expected section ----
+        if (rule.inputData != null) {
+            @SuppressWarnings("unchecked")
+            final Map<String, Object> expect =
+                (Map<String, Object>) rule.inputData.get("expect");
+            if (expect != null) {
+                validateExpected(ruleName, v2Ctx, v2Log, expect);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void validateExpected(final String ruleName,
+                                  final org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext ctx,
+                                  final LogData.Builder logBuilder,
+                                  final Map<String, Object> expect) {
+        for (final Map.Entry<String, Object> entry : expect.entrySet()) {
+            final String key = entry.getKey();
+            final String expected = String.valueOf(entry.getValue());
+
+            switch (key) {
+                case "save":
+                    assertEquals(Boolean.parseBoolean(expected), ctx.shouldSave(),
+                        ruleName + ": expect.save mismatch");
+                    break;
+                case "abort":
+                    assertEquals(Boolean.parseBoolean(expected), ctx.shouldAbort(),
+                        ruleName + ": expect.abort mismatch");
+                    break;
+                case "service":
+                    assertEquals(expected, logBuilder.getService(),
+                        ruleName + ": expect.service mismatch");
+                    break;
+                case "instance":
+                    assertEquals(expected, logBuilder.getServiceInstance(),
+                        ruleName + ": expect.instance mismatch");
+                    break;
+                case "endpoint":
+                    assertEquals(expected, logBuilder.getEndpoint(),
+                        ruleName + ": expect.endpoint mismatch");
+                    break;
+                case "layer":
+                    assertEquals(expected, logBuilder.getLayer(),
+                        ruleName + ": expect.layer mismatch");
+                    break;
+                case "timestamp":
+                    assertEquals(Long.parseLong(expected), logBuilder.getTimestamp(),
+                        ruleName + ": expect.timestamp mismatch");
+                    break;
+                default:
+                    if (key.startsWith("tag.")) {
+                        final String tagKey = key.substring(4);
+                        final String actual = logBuilder.getTags().getDataList().stream()
+                            .filter(kv -> kv.getKey().equals(tagKey))
+                            .map(KeyStringValuePair::getValue)
+                            .findFirst().orElse("");
+                        assertEquals(expected, actual,
+                            ruleName + ": expect." + key + " mismatch");
+                    } else if (key.startsWith("sampledTrace.")) {
+                        final String field = key.substring("sampledTrace.".length());
+                        final SampledTraceBuilder st = ctx.sampledTraceBuilder();
+                        assertNotNull(st, ruleName + ": expect sampledTrace but builder is null");
+                        validateSampledTraceField(ruleName, field, expected, st);
+                    }
+                    break;
+            }
+        }
+    }
+
+    private void validateSampledTraceField(final String ruleName,
+                                           final String field, final String expected,
+                                           final SampledTraceBuilder st) {
+        switch (field) {
+            case "traceId":
+                assertEquals(expected, st.getTraceId(),
+                    ruleName + ": expect.sampledTrace.traceId mismatch");
+                break;
+            case "serviceName":
+                assertEquals(expected, st.getServiceName(),
+                    ruleName + ": expect.sampledTrace.serviceName mismatch");
+                break;
+            case "serviceInstanceName":
+                assertEquals(expected, st.getServiceInstanceName(),
+                    ruleName + ": expect.sampledTrace.serviceInstanceName mismatch");
+                break;
+            case "timestamp":
+                assertEquals(Long.parseLong(expected), st.getTimestamp(),
+                    ruleName + ": expect.sampledTrace.timestamp mismatch");
+                break;
+            case "latency":
+                assertEquals(Integer.parseInt(expected), st.getLatency(),
+                    ruleName + ": expect.sampledTrace.latency mismatch");
+                break;
+            case "uri":
+                assertEquals(expected, st.getUri(),
+                    ruleName + ": expect.sampledTrace.uri mismatch");
+                break;
+            case "reason":
+                assertNotNull(st.getReason(),
+                    ruleName + ": expect.sampledTrace.reason is null");
+                assertEquals(expected, st.getReason().name(),
+                    ruleName + ": expect.sampledTrace.reason mismatch");
+                break;
+            case "processId":
+                assertEquals(expected, st.getProcessId(),
+                    ruleName + ": expect.sampledTrace.processId mismatch");
+                break;
+            case "destProcessId":
+                assertEquals(expected, st.getDestProcessId(),
+                    ruleName + ": expect.sampledTrace.destProcessId mismatch");
+                break;
+            case "detectPoint":
+                assertNotNull(st.getDetectPoint(),
+                    ruleName + ": expect.sampledTrace.detectPoint is null");
+                assertEquals(expected, st.getDetectPoint().name(),
+                    ruleName + ": expect.sampledTrace.detectPoint mismatch");
+                break;
+            case "componentId":
+                assertEquals(Integer.parseInt(expected), st.getComponentId(),
+                    ruleName + ": expect.sampledTrace.componentId mismatch");
+                break;
+            default:
+                break;
+        }
     }
 
     private ModuleManager buildMockModuleManager(final boolean isV1) {
@@ -510,11 +635,25 @@ class LalComparisonTest {
                 }
                 final String extraLogType = rule.get("extraLogType");
                 final String layer = rule.get("layer");
-                final Map<String, Object> ruleInput = inputData != null
+
+                final Object ruleInput = inputData != null
                     ? inputData.get(name) : null;
-                lalRules.add(new LalRule(
-                    name, dslStr, extraLogType, layer, ruleInput, file));
+
+                if (ruleInput instanceof List) {
+                    final List<Map<String, Object>> inputs =
+                        (List<Map<String, Object>>) ruleInput;
+                    for (int i = 0; i < inputs.size(); i++) {
+                        lalRules.add(new LalRule(
+                            name + " [" + i + "]", dslStr, extraLogType, layer,
+                            inputs.get(i), file));
+                    }
+                } else {
+                    lalRules.add(new LalRule(
+                        name, dslStr, extraLogType, layer,
+                        (Map<String, Object>) ruleInput, file));
+                }
             }
+
             if (!lalRules.isEmpty()) {
                 final String relative = lalDir.relativize(file.toPath()).toString();
                 result.put("lal/" + relative, lalRules);

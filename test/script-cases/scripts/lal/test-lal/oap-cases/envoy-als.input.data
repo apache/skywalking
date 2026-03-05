@@ -18,34 +18,94 @@
 # not JSON body. The proto-json is parsed via protobuf JsonFormat.
 
 envoy-als:
-  body-type: none
-  service: test-mesh-svc
-  extra-log:
-    proto-class: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
-    proto-json: '{"response":{"responseCode":500},"commonProperties":{"upstreamCluster":"outbound|80||backend.default.svc"}}'
-  expect:
-    tag.status.code: "500"
+  - service: test-mesh-svc
+    body-type: none
+    extra-log:
+      proto-class: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
+      proto-json: '{"response":{"responseCode":500},"commonProperties":{"upstreamCluster":"outbound|80||backend.default.svc"}}'
+    expect:
+      tag.status.code: "500"
+      save: true
+      abort: false
+
+  - service: test-mesh-svc-abort
+    body-type: none
+    extra-log:
+      proto-class: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
+      proto-json: '{"response":{"responseCode":200},"commonProperties":{"upstreamCluster":"outbound|80||backend.default.svc"}}'
+    expect:
+      save: true
+      abort: true
+
+  - service: test-mesh-svc-with-flags
+    body-type: none
+    extra-log:
+      proto-class: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
+      proto-json: '{"response":{"responseCode":200},"commonProperties":{"upstreamCluster":"outbound|80||backend.default.svc","responseFlags":{"upstreamConnectionFailure":true}}}'
+    expect:
+      save: true
+      abort: false
+      tag.response.flag: "upstream_connection_failure: true\n"
 
 network-profiling-slow-trace:
-  body-type: json
-  body: '{"latency":200,"uri":"/mesh/api","reason":"slow","client_process":{"process_id":"client-proc-1","local":false,"address":"10.0.0.1:8080"},"server_process":{"process_id":"server-proc-2","local":true,"address":"10.0.0.2:9090"},"detect_point":"client","component":"http","ssl":false}'
-  service: mesh-envoy-svc
-  instance: mesh-envoy-instance
-  trace-id: trace-envoy-mesh-001
-  timestamp: 1609459200000
-  tags:
-    LOG_KIND: NET_PROFILING_SAMPLED_TRACE
-  expect:
-    save: true
-    abort: false
-    sampledTrace.traceId: trace-envoy-mesh-001
-    sampledTrace.serviceName: mesh-envoy-svc
-    sampledTrace.serviceInstanceName: mesh-envoy-instance
-    sampledTrace.timestamp: 1609459200000
-    sampledTrace.latency: 200
-    sampledTrace.uri: /mesh/api
-    sampledTrace.reason: SLOW
-    sampledTrace.processId: client-proc-1
-    sampledTrace.destProcessId: server-proc-2
-    sampledTrace.detectPoint: CLIENT
-    sampledTrace.componentId: 49
+  - body-type: json
+    body: '{"latency":200,"uri":"/mesh/api","reason":"slow","client_process":{"process_id":"client-proc-1","local":false,"address":"10.0.0.1:8080"},"server_process":{"process_id":"server-proc-2","local":true,"address":"10.0.0.2:9090"},"detect_point":"client","component":"http","ssl":false}'
+    service: mesh-envoy-svc
+    instance: mesh-envoy-instance
+    trace-id: trace-envoy-mesh-001
+    timestamp: 1609459200000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.traceId: trace-envoy-mesh-001
+      sampledTrace.processId: client-proc-1
+      sampledTrace.destProcessId: server-proc-2
+      sampledTrace.componentId: 49
+
+  - body-type: json
+    body: '{"latency":500,"uri":"/mesh/api/ssl","reason":"slow","client_process":{"process_id":"","local":true,"address":"127.0.0.1:8080"},"server_process":{"process_id":"","local":false,"address":"10.0.0.3:9090"},"detect_point":"server","component":"http","ssl":true}'
+    service: mesh-envoy-svc-ssl
+    instance: mesh-envoy-instance-ssl
+    trace-id: trace-envoy-mesh-002
+    timestamp: 1609459300000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.traceId: trace-envoy-mesh-002
+      sampledTrace.processId: mock-process-id
+      sampledTrace.destProcessId: mock-process-id
+      sampledTrace.componentId: 129
+
+  - body-type: json
+    body: '{"latency":100,"uri":"/mesh/api/tcp","reason":"slow","client_process":{"process_id":"","local":false,"address":"10.0.0.4:8080"},"server_process":{"process_id":"","local":false,"address":"10.0.0.5:9090"},"detect_point":"client","component":"tcp","ssl":true}'
+    service: mesh-envoy-svc-tcp-ssl
+    instance: mesh-envoy-instance-tcp-ssl
+    trace-id: trace-envoy-mesh-003
+    timestamp: 1609459400000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.processId: mock-process-id
+      sampledTrace.destProcessId: mock-process-id
+      sampledTrace.componentId: 130
+
+  - body-type: json
+    body: '{"latency":50,"uri":"/mesh/api/other","reason":"slow","client_process":{"process_id":"","local":false,"address":"10.0.0.6:8080"},"server_process":{"process_id":"","local":false,"address":"10.0.0.7:9090"},"detect_point":"client","component":"other","ssl":false}'
+    service: mesh-envoy-svc-other
+    instance: mesh-envoy-instance-other
+    trace-id: trace-envoy-mesh-004
+    timestamp: 1609459500000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.processId: mock-process-id
+      sampledTrace.destProcessId: mock-process-id
+      sampledTrace.componentId: 110

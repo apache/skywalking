@@ -55,19 +55,83 @@ input:
         broker: test-broker
       value: 100.0
 expected:
-  under_replicated_partitions:
-    min_samples: 1
-  offline_partitions_count:
-    min_samples: 1
-  partition_count:
-    min_samples: 1
-  leader_count:
-    min_samples: 1
-  active_controller_count:
-    min_samples: 1
-  leader_election_rate:
-    min_samples: 1
-  unclean_leader_elections_per_second:
-    min_samples: 1
-  max_lag:
-    min_samples: 1
+  meter_kafka_under_replicated_partitions:
+    entities:
+      - scope: SERVICE
+        service: 'kafka::test-cluster'
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+        value: 100.0
+  meter_kafka_offline_partitions_count:
+    entities:
+      - scope: SERVICE
+        service: 'kafka::test-cluster'
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+        value: 100.0
+  meter_kafka_partition_count:
+    entities:
+      - scope: SERVICE
+        service: 'kafka::test-cluster'
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+        value: 100.0
+  meter_kafka_leader_count:
+    entities:
+      - scope: SERVICE
+        service: 'kafka::test-cluster'
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+        value: 100.0
+  meter_kafka_active_controller_count:
+    entities:
+      - scope: SERVICE
+        service: 'kafka::test-cluster'
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+        value: 100.0
+  meter_kafka_leader_election_rate:
+    entities:
+      - scope: SERVICE
+        service: 'kafka::test-cluster'
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+        value: 0.0
+  meter_kafka_unclean_leader_elections_per_second:
+    entities:
+      - scope: SERVICE
+        service: 'kafka::test-cluster'
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+        value: 0.0
+  meter_kafka_max_lag:
+    entities:
+      - scope: SERVICE
+        service: 'kafka::test-cluster'
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+        value: 100.0

@@ -18,19 +18,85 @@ input:
     - labels:
         app: test-app
         cluster_name: test-cluster
+        metrics_name: cluster.outbound.test-cluster.upstream_cx_active
+      value: 100.0
+    - labels:
+        app: test-app
+        cluster_name: test-cluster
+        metrics_name: testupstream_cx_total
+      value: 100.0
+    - labels:
+        app: test-app
+        cluster_name: test-cluster
+        metrics_name: cluster.outbound.test-cluster.upstream_rq_active
+      value: 100.0
+    - labels:
+        app: test-app
+        cluster_name: test-cluster
+        metrics_name: testupstream_rq_total
+      value: 100.0
+    - labels:
+        app: test-app
+        cluster_name: test-cluster
+        metrics_name: cluster.outbound.test-cluster.upstream_rq_pending_active
+      value: 100.0
+    - labels:
+        app: test-app
+        cluster_name: test-cluster
+        metrics_name: cluster.outbound.test-cluster.lb_healthy_panic
+      value: 100.0
+    - labels:
+        app: test-app
+        cluster_name: test-cluster
+        metrics_name: cluster.outbound.test-cluster.upstream_cx_none_healthy
       value: 100.0
 expected:
-  cluster_up_cx_active:
-    min_samples: 1
-  cluster_up_cx_incr:
-    min_samples: 1
-  cluster_up_rq_active:
-    min_samples: 1
-  cluster_up_rq_incr:
-    min_samples: 1
-  cluster_up_rq_pending_active:
-    min_samples: 1
-  cluster_lb_healthy_panic_incr:
-    min_samples: 1
-  cluster_up_cx_none_healthy_incr:
-    min_samples: 1
+  envoy_sr_cluster_up_cx_active:
+    entities:
+      - scope: SERVICE_RELATION
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          cluster_name: test-cluster
+        value: 100.0
+  envoy_sr_cluster_up_cx_incr:
+    error: 'v1 not-success'
+  envoy_sr_cluster_up_rq_active:
+    entities:
+      - scope: SERVICE_RELATION
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          cluster_name: test-cluster
+        value: 100.0
+  envoy_sr_cluster_up_rq_incr:
+    error: 'v1 not-success'
+  envoy_sr_cluster_up_rq_pending_active:
+    entities:
+      - scope: SERVICE_RELATION
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          cluster_name: test-cluster
+        value: 100.0
+  envoy_sr_cluster_lb_healthy_panic_incr:
+    entities:
+      - scope: SERVICE_RELATION
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          cluster_name: test-cluster
+        value: 0.0
+  envoy_sr_cluster_up_cx_none_healthy_incr:
+    entities:
+      - scope: SERVICE_RELATION
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          cluster_name: test-cluster
+        value: 0.0

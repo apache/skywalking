@@ -113,23 +113,123 @@ input:
         ApiName: test-value
       value: 100.0
 expected:
-  4xx:
-    min_samples: 1
-  5xx:
-    min_samples: 1
-  data_processed:
-    min_samples: 1
-  4xx:
-    min_samples: 1
-  5xx:
-    min_samples: 1
-  cache_hit_rate:
-    min_samples: 1
-  cache_miss_rate:
-    min_samples: 1
-  count:
-    min_samples: 1
-  integration_latency:
-    min_samples: 1
-  latency:
-    min_samples: 1
+  aws_gateway_service_4xx:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_service_5xx:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_service_data_processed:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_service_4xx_2:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_service_5xx_2:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_service_cache_hit_rate:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_service_cache_miss_rate:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_service_count:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_service_integration_latency:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0
+  aws_gateway_service_latency:
+    entities:
+      - scope: SERVICE
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0

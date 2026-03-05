@@ -19,21 +19,57 @@ input:
         app: test-app
         secret_name: test-secret
         instance: test-instance
-        metrics_name: cluster.ssl.certificate.test-cert.expiration_unix_time_seconds
+        metrics_name: cluster.outbound.test-cluster.ssl.certificate.test-cert.expiration_unix_time_seconds
       value: 100.0
   envoy_listener_metrics:
     - labels:
         app: test-app
         secret_name: test-secret
         instance: test-instance
-        metrics_name: cluster.ssl.certificate.test-cert.expiration_unix_time_seconds
+        metrics_name: cluster.outbound.test-cluster.ssl.certificate.test-cert.expiration_unix_time_seconds
       value: 100.0
 expected:
-  service_cluster_ssl_ca_expiration_seconds:
-    min_samples: 1
-  service_listener_ssl_ca_expiration_seconds:
-    min_samples: 1
-  instance_cluster_ssl_ca_expiration_seconds:
-    min_samples: 1
-  instance_listener_ssl_ca_expiration_seconds:
-    min_samples: 1
+  envoy_service_cluster_ssl_ca_expiration_seconds:
+    entities:
+      - scope: SERVICE
+        service: test-app
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          secret_name: test-cert
+        value: -1.772703078E9
+  envoy_service_listener_ssl_ca_expiration_seconds:
+    entities:
+      - scope: SERVICE
+        service: test-app
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          secret_name: test-cert
+        value: -1.772703078E9
+  envoy_instance_cluster_ssl_ca_expiration_seconds:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-app
+        instance: test-instance
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          instance: test-instance
+          secret_name: test-cert
+        value: -1.772703078E9
+  envoy_instance_listener_ssl_ca_expiration_seconds:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-app
+        instance: test-instance
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          instance: test-instance
+          secret_name: test-cert
+        value: -1.772703078E9

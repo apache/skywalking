@@ -14,24 +14,75 @@
 # limitations under the License.
 
 input:
-  tags:
+  nginx_http_requests_total:
     - labels:
-        service: test-service
+      value: 100.0
+  nginx_http_latency:
+    - labels:
+      value: 100.0
+  nginx_http_size_bytes:
+    - labels:
+      value: 100.0
+  nginx_http_connections:
+    - labels:
       value: 100.0
 expected:
-  http_requests:
-    min_samples: 1
-  http_latency:
-    min_samples: 1
-  http_bandwidth:
-    min_samples: 1
-  http_connections:
-    min_samples: 1
-  http_status:
-    min_samples: 1
-  http_requests_increment:
-    min_samples: 1
-  http_4xx_requests_increment:
-    min_samples: 1
-  http_5xx_requests_increment:
-    min_samples: 1
+  meter_nginx_instance_http_requests:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'nginx::null'
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::null'
+          service_instance_id: 
+        value: 0.0
+  meter_nginx_instance_http_latency:
+    error: 'v1 not-success'
+  meter_nginx_instance_http_bandwidth:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'nginx::null'
+        layer: NGINX
+    samples:
+      - labels:
+          type: 
+          service: 'nginx::null'
+          service_instance_id: 
+        value: 0.0
+  meter_nginx_instance_http_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'nginx::null'
+        layer: NGINX
+    samples:
+      - labels:
+          state: 
+          service: 'nginx::null'
+          service_instance_id: 
+        value: 100.0
+  meter_nginx_instance_http_status:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'nginx::null'
+        layer: NGINX
+    samples:
+      - labels:
+          status: 
+          service: 'nginx::null'
+          service_instance_id: 
+        value: 0.0
+  meter_nginx_instance_http_requests_increment:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'nginx::null'
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::null'
+          service_instance_id: 
+        value: 0.0
+  meter_nginx_instance_http_4xx_requests_increment:
+    error: 'v1 not-success'
+  meter_nginx_instance_http_5xx_requests_increment:
+    error: 'v1 not-success'

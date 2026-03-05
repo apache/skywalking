@@ -16,11 +16,17 @@
 input:
   control_last_status_by_service:
     - labels:
-        service: test-service
         service_name: test-service
-        service_namespace: test-ns
-        cluster_name: test-cluster
       value: 100.0
 expected:
-  last_status_by_service:
-    min_samples: 1
+  meter_control_last_status_by_service:
+    entities:
+      - scope: SERVICE
+        service: '-|test-service|null|null|-'
+        layer: MESH
+    samples:
+      - labels:
+          service: '-|test-service|null|null|-'
+          control_bundle: 
+          control_name: 
+        value: 100.0

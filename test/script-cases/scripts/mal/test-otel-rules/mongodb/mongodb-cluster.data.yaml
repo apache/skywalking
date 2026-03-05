@@ -25,22 +25,28 @@ input:
     - labels:
         cluster: test-cluster
         rs_nm: test-value
+        cl_role: test-value
         database: test-value
         service_instance_id: test-instance
         set: test-value
+        rs_state: 1
       value: 100.0
   mongodb_dbstats_collections:
     - labels:
         cluster: test-cluster
         rs_nm: test-value
+        cl_role: test-value
         database: test-value
         service_instance_id: test-instance
         set: test-value
+        rs_state: 1
       value: 100.0
   mongodb_dbstats_objects:
     - labels:
         cluster: test-cluster
         rs_nm: test-value
+        cl_role: test-value
+        database: test-value
         set: test-value
       value: 100.0
   mongodb_ss_metrics_document:
@@ -65,6 +71,7 @@ input:
         service_instance_id: test-instance
         rs_nm: test-value
         set: test-value
+        conn_type: current
       value: 100.0
   mongodb_ss_metrics_cursor_open:
     - labels:
@@ -78,6 +85,7 @@ input:
     - labels:
         cluster: test-cluster
         rs_nm: test-value
+        state: active
         set: test-value
       value: 100.0
   mongodb_dbstats_indexSize:
@@ -85,41 +93,156 @@ input:
         cluster: test-cluster
         database: test-value
         service_instance_id: test-instance
+        cl_role: test-value
         rs_nm: test-value
         set: test-value
+        rs_state: 1
       value: 100.0
   mongodb_dbstats_indexes:
     - labels:
         cluster: test-cluster
         database: test-value
         service_instance_id: test-instance
+        cl_role: test-value
         rs_nm: test-value
         set: test-value
+        rs_state: 1
       value: 100.0
 expected:
-  uptime:
-    min_samples: 1
-  data_size:
-    min_samples: 1
-  collection_count:
-    min_samples: 1
-  object_count:
-    min_samples: 1
-  document_avg_qps:
-    min_samples: 1
-  operation_avg_qps:
-    min_samples: 1
-  connections:
-    min_samples: 1
-  cursor_avg:
-    min_samples: 1
-  repl_lag:
-    min_samples: 1
-  db_data_size:
-    min_samples: 1
-  db_index_size:
-    min_samples: 1
-  db_collection_count:
-    min_samples: 1
-  db_index_count:
-    min_samples: 1
+  meter_mongodb_cluster_uptime:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_cluster_data_size:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          rs_nm: test-value
+        value: 100.0
+  meter_mongodb_cluster_collection_count:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          rs_nm: test-value
+        value: 100.0
+  meter_mongodb_cluster_object_count:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          rs_nm: test-value
+        value: 100.0
+  meter_mongodb_cluster_document_avg_qps:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          doc_op_type: test-value
+          service_instance_id: test-instance
+        value: 0.0
+  meter_mongodb_cluster_operation_avg_qps:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          legacy_op_type: test-value
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_mongodb_cluster_connections:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_cluster_cursor_avg:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          csr_type: test-value
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_cluster_repl_lag:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          rs_nm: test-value
+        value: 100.0
+  meter_mongodb_cluster_db_data_size:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          database: test-value
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_cluster_db_index_size:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          database: test-value
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_cluster_db_collection_count:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          database: test-value
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_cluster_db_index_count:
+    entities:
+      - scope: SERVICE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          database: test-value
+          service_instance_id: test-instance
+        value: 100.0

@@ -99,35 +99,183 @@ input:
         node: test-node
       value: 100.0
 expected:
-  active_connections:
-    min_samples: 1
-  total_connections:
-    min_samples: 1
-  connection_create_success_count:
-    min_samples: 1
-  connection_create_fail_count:
-    min_samples: 1
-  connection_closed_total_count:
-    min_samples: 1
-  jvm_memory_used:
-    min_samples: 1
-  jvm_memory_committed:
-    min_samples: 1
-  jvm_memory_init:
-    min_samples: 1
-  jvm_memory_pool_used:
-    min_samples: 1
-  jvm_buffer_pool_used_bytes:
-    min_samples: 1
-  jvm_gc_collection_seconds_count:
-    min_samples: 1
-  jvm_gc_collection_seconds_sum:
-    min_samples: 1
-  jvm_threads_current:
-    min_samples: 1
-  jvm_threads_daemon:
-    min_samples: 1
-  jvm_threads_peak:
-    min_samples: 1
-  jvm_threads_deadlocked:
-    min_samples: 1
+  meter_pulsar_broker_active_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_total_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_connection_create_success_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_connection_create_fail_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_connection_closed_total_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_memory_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_memory_committed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_memory_init:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_memory_pool_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          pool: PS_Eden_Space
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_buffer_pool_used_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          pool: PS_Eden_Space
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_gc_collection_seconds_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          gc: PS Scavenge
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_pulsar_broker_jvm_gc_collection_seconds_sum:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          gc: PS Scavenge
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_pulsar_broker_jvm_threads_current:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_threads_daemon:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_threads_peak:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_broker_jvm_threads_deadlocked:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'pulsar::test-cluster'
+        instance: test-node
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0

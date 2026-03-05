@@ -105,13 +105,123 @@ input:
         le: '1000'
       value: 50.0
 expected:
-  http_bandwidth:
-    min_samples: 1
-  http_status:
-    min_samples: 1
-  kong_latency:
-    min_samples: 1
-  request_latency:
-    min_samples: 1
-  upstream_latency:
-    min_samples: 1
+  meter_kong_endpoint_http_bandwidth:
+    entities:
+      - scope: ENDPOINT
+        service: 'kong::test-host'
+        endpoint: test-route
+        layer: KONG
+    samples:
+      - labels:
+          host_name: 'kong::test-host'
+          direction: in
+          route: test-route
+        value: 0.0
+  meter_kong_endpoint_http_status:
+    entities:
+      - scope: ENDPOINT
+        service: 'kong::test-host'
+        endpoint: test-route
+        layer: KONG
+    samples:
+      - labels:
+          host_name: 'kong::test-host'
+          route: test-route
+          code: 200
+        value: 0.0
+  meter_kong_endpoint_kong_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'kong::test-host'
+        endpoint: test-route
+        layer: KONG
+    samples:
+      - labels:
+          le: 100000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 20.0
+      - labels:
+          le: 1000000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 50.0
+      - labels:
+          le: 250000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 30.0
+      - labels:
+          le: 50000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 10.0
+      - labels:
+          le: 500000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 40.0
+  meter_kong_endpoint_request_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'kong::test-host'
+        endpoint: test-route
+        layer: KONG
+    samples:
+      - labels:
+          le: 100000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 20.0
+      - labels:
+          le: 1000000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 50.0
+      - labels:
+          le: 250000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 30.0
+      - labels:
+          le: 50000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 10.0
+      - labels:
+          le: 500000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 40.0
+  meter_kong_endpoint_upstream_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'kong::test-host'
+        endpoint: test-route
+        layer: KONG
+    samples:
+      - labels:
+          le: 100000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 20.0
+      - labels:
+          le: 1000000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 50.0
+      - labels:
+          le: 250000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 30.0
+      - labels:
+          le: 50000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 10.0
+      - labels:
+          le: 500000
+          host_name: 'kong::test-host'
+          route: test-route
+        value: 40.0

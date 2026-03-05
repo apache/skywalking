@@ -133,23 +133,171 @@ input:
         service_instance_id: test-instance
       value: 50.0
 expected:
-  http_bandwidth:
-    min_samples: 1
-  http_status:
-    min_samples: 1
-  nginx_metric_errors_total:
-    min_samples: 1
-  datastore_reachable:
-    min_samples: 1
-  http_requests:
-    min_samples: 1
-  nginx_connections_total:
-    min_samples: 1
-  nginx_timers:
-    min_samples: 1
-  kong_latency:
-    min_samples: 1
-  request_latency:
-    min_samples: 1
-  upstream_latency:
-    min_samples: 1
+  meter_kong_service_http_bandwidth:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          service_instance_id: test-instance
+          route: test-route
+          host_name: 'kong::test-host'
+          direction: in
+        value: 0.0
+  meter_kong_service_http_status:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+          code: 200
+        value: 0.0
+  meter_kong_service_nginx_metric_errors_total:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_kong_service_datastore_reachable:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_kong_service_http_requests:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_kong_service_nginx_connections_total:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+          state: active
+        value: 0.0
+  meter_kong_service_nginx_timers:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+          state: active
+        value: 100.0
+  meter_kong_service_kong_latency:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          le: 100000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 20.0
+      - labels:
+          le: 1000000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 50.0
+      - labels:
+          le: 250000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 30.0
+      - labels:
+          le: 50000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 10.0
+      - labels:
+          le: 500000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 40.0
+  meter_kong_service_request_latency:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          le: 100000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 20.0
+      - labels:
+          le: 1000000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 50.0
+      - labels:
+          le: 250000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 30.0
+      - labels:
+          le: 50000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 10.0
+      - labels:
+          le: 500000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 40.0
+  meter_kong_service_upstream_latency:
+    entities:
+      - scope: SERVICE
+        service: 'kong::test-host'
+        layer: KONG
+    samples:
+      - labels:
+          le: 100000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 20.0
+      - labels:
+          le: 1000000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 50.0
+      - labels:
+          le: 250000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 30.0
+      - labels:
+          le: 50000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 10.0
+      - labels:
+          le: 500000
+          host_name: 'kong::test-host'
+          service_instance_id: test-instance
+        value: 40.0

@@ -172,6 +172,7 @@ input:
         host_name: test-host
         level: ERROR
         gc: PS Scavenge
+        dimensionality: minute
       value: 100.0
   metrics_aggregation_queue_used_percentage:
     - labels:
@@ -319,6 +320,28 @@ input:
         host_name: test-host
         gc: PS Scavenge
         level: ERROR
+        state: RUNNABLE
+      value: 100.0
+    - labels:
+        service: test-service
+        host_name: test-host
+        gc: PS Scavenge
+        level: ERROR
+        state: BLOCKED
+      value: 100.0
+    - labels:
+        service: test-service
+        host_name: test-host
+        gc: PS Scavenge
+        level: ERROR
+        state: WAITING
+      value: 100.0
+    - labels:
+        service: test-service
+        host_name: test-host
+        gc: PS Scavenge
+        level: ERROR
+        state: TIMED_WAITING
       value: 100.0
   jvm_classes_loaded:
     - labels:
@@ -696,103 +719,821 @@ input:
         level: ERROR
       value: 50.0
 expected:
-  instance_cpu_percentage:
-    min_samples: 1
-  instance_jvm_memory_bytes_used:
-    min_samples: 1
-  instance_jvm_buffer_pool_bytes_used:
-    min_samples: 1
-  instance_jvm_gc_count:
-    min_samples: 1
-  instance_jvm_gc_time:
-    min_samples: 1
-  instance_trace_count:
-    min_samples: 1
-  instance_trace_latency_percentile:
-    min_samples: 1
-  instance_trace_analysis_error_count:
-    min_samples: 1
-  instance_spans_dropped_count:
-    min_samples: 1
-  instance_mesh_count:
-    min_samples: 1
-  instance_mesh_latency_percentile:
-    min_samples: 1
-  instance_mesh_analysis_error_count:
-    min_samples: 1
-  instance_metrics_aggregation:
-    min_samples: 1
-  instance_metrics_aggregation_queue_used_per_ten_thousand:
-    min_samples: 1
-  instance_persistence_execute_percentile:
-    min_samples: 1
-  instance_persistence_prepare_percentile:
-    min_samples: 1
-  instance_persistence_error_count:
-    min_samples: 1
-  instance_persistence_execute_count:
-    min_samples: 1
-  instance_persistence_prepare_count:
-    min_samples: 1
-  instance_metrics_persistent_cache:
-    min_samples: 1
-  instance_metrics_persistent_collection_cached_size:
-    min_samples: 1
-  jvm_thread_live_count:
-    min_samples: 1
-  jvm_thread_daemon_count:
-    min_samples: 1
-  jvm_thread_peak_count:
-    min_samples: 1
-  jvm_thread_runnable_count:
-    min_samples: 1
-  jvm_thread_blocked_count:
-    min_samples: 1
-  jvm_thread_waiting_count:
-    min_samples: 1
-  jvm_thread_timed_waiting_count:
-    min_samples: 1
-  jvm_class_loaded_count:
-    min_samples: 1
-  jvm_class_total_unloaded_count:
-    min_samples: 1
-  jvm_class_total_loaded_count:
-    min_samples: 1
-  instance_k8s_als_count:
-    min_samples: 1
-  instance_k8s_als_drop:
-    min_samples: 1
-  instance_k8s_als_latency_percentile:
-    min_samples: 1
-  instance_k8s_als_streams:
-    min_samples: 1
-  instance_k8s_als_error_streams:
-    min_samples: 1
-  otel_metrics_received:
-    min_samples: 1
-  otel_logs_received:
-    min_samples: 1
-  otel_spans_received:
-    min_samples: 1
-  otel_spans_dropped:
-    min_samples: 1
-  otel_metrics_latency_percentile:
-    min_samples: 1
-  otel_logs_latency_percentile:
-    min_samples: 1
-  otel_spans_latency_percentile:
-    min_samples: 1
-  graphql_query_latency_percentile:
-    min_samples: 1
-  instance_graphql_query_count:
-    min_samples: 1
-  instance_graphql_query_error_count:
-    min_samples: 1
-  instance_watermark_circuit_breaker_break_count:
-    min_samples: 1
-  instance_watermark_circuit_breaker_recover_count:
-    min_samples: 1
-  elasticsearch_write_latency_percentile:
-    min_samples: 1
-  banyandb_write_latency_percentile:
-    min_samples: 1
+  meter_oap_instance_cpu_percentage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_jvm_memory_bytes_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          area: heap
+        value: 100.0
+  meter_oap_instance_jvm_buffer_pool_bytes_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          pool: PS_Eden_Space
+        value: 100.0
+  meter_oap_instance_jvm_gc_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          gc: young_gc_count
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_jvm_gc_time:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          gc: young_gc_time
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_trace_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+        value: 0.0
+  meter_oap_instance_trace_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+          le: 50000
+        value: 0.0
+  meter_oap_instance_trace_analysis_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+        value: 0.0
+  meter_oap_instance_spans_dropped_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+        value: 0.0
+  meter_oap_instance_mesh_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_mesh_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 50000
+        value: 0.0
+  meter_oap_instance_mesh_analysis_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_metrics_aggregation:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          level: ERROR
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_metrics_aggregation_queue_used_per_ten_thousand:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          level: ERROR
+          slot: test-value
+        value: 10000.0
+  meter_oap_instance_persistence_execute_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 50000
+        value: 0.0
+  meter_oap_instance_persistence_prepare_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 50000
+        value: 0.0
+  meter_oap_instance_persistence_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_persistence_execute_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_persistence_prepare_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_metrics_persistent_cache:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          status: active
+        value: 0.0
+  meter_oap_instance_metrics_persistent_collection_cached_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          dimensionality: minute
+          kind: test-kind
+          metricName: test-metric
+        value: 100.0
+  meter_oap_jvm_thread_live_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_thread_daemon_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_thread_peak_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_thread_runnable_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_thread_blocked_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_thread_waiting_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_thread_timed_waiting_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_class_loaded_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_class_total_unloaded_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_jvm_class_total_loaded_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 100.0
+  meter_oap_instance_k8s_als_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_k8s_als_drop:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_k8s_als_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 50000
+        value: 0.0
+  meter_oap_instance_k8s_als_streams:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_k8s_als_error_streams:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_otel_metrics_received:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_otel_logs_received:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_otel_spans_received:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_otel_spans_dropped:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_otel_metrics_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 50000
+        value: 0.0
+  meter_oap_otel_logs_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 50000
+        value: 0.0
+  meter_oap_otel_spans_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 50000
+        value: 0.0
+  meter_oap_graphql_query_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: 50000
+        value: 0.0
+  meter_oap_instance_graphql_query_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_graphql_query_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 0.0
+  meter_oap_instance_watermark_circuit_breaker_break_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          listener: test-listener
+          event: test-event
+        value: 100.0
+  meter_oap_instance_watermark_circuit_breaker_recover_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          listener: test-listener
+        value: 100.0
+  meter_oap_elasticsearch_write_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          operation: test-op
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          operation: test-op
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          operation: test-op
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          operation: test-op
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          operation: test-op
+          le: 50000
+        value: 0.0
+  meter_oap_banyandb_write_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          catalog: test-catalog
+          operation: test-op
+          le: 1000000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          catalog: test-catalog
+          operation: test-op
+          le: 100000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          catalog: test-catalog
+          operation: test-op
+          le: 250000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          catalog: test-catalog
+          operation: test-op
+          le: 500000
+        value: 0.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          catalog: test-catalog
+          operation: test-op
+          le: 50000
+        value: 0.0

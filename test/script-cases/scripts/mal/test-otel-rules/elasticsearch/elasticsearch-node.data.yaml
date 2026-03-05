@@ -38,16 +38,29 @@ input:
     - labels:
         cluster: test-cluster
         name: test-name
+        area: non-heap
+      value: 100.0
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        area: heap
       value: 100.0
   elasticsearch_jvm_memory_max_bytes:
     - labels:
         cluster: test-cluster
         name: test-name
+        area: heap
       value: 100.0
   elasticsearch_jvm_memory_committed_bytes:
     - labels:
         cluster: test-cluster
         name: test-name
+        area: non-heap
+      value: 100.0
+    - labels:
+        cluster: test-cluster
+        name: test-name
+        area: heap
       value: 100.0
   elasticsearch_jvm_memory_pool_peak_used_bytes:
     - labels:
@@ -75,18 +88,17 @@ input:
   elasticsearch_os_load1:
     - labels:
         cluster: test-cluster
-      value: 100.0
-  tags:
-    - labels:
-        cluster: test-cluster
+        name: test-name
       value: 100.0
   elasticsearch_os_load5:
     - labels:
         cluster: test-cluster
+        name: test-name
       value: 100.0
   elasticsearch_os_load15:
     - labels:
         cluster: test-cluster
+        name: test-name
       value: 100.0
   elasticsearch_indices_translog_operations:
     - labels:
@@ -254,101 +266,537 @@ input:
         name: test-name
       value: 100.0
 expected:
-  rules:
-    min_samples: 1
-  open_file_count:
-    min_samples: 1
-  all_disk_free_space:
-    min_samples: 1
-  jvm_memory_used:
-    min_samples: 1
-  jvm_memory_nonheap_used:
-    min_samples: 1
-  jvm_memory_heap_used:
-    min_samples: 1
-  jvm_memory_heap_max:
-    min_samples: 1
-  jvm_memory_nonheap_committed:
-    min_samples: 1
-  jvm_memory_heap_committed:
-    min_samples: 1
-  jvm_memory_pool_peak_used:
-    min_samples: 1
-  jvm_gc_count:
-    min_samples: 1
-  jvm_gc_time:
-    min_samples: 1
-  process_cpu_percent:
-    min_samples: 1
-  os_cpu_percent:
-    min_samples: 1
-  os_load1:
-    min_samples: 1
-  os_load5:
-    min_samples: 1
-  os_load15:
-    min_samples: 1
-  indices_translog_operations:
-    min_samples: 1
-  indices_translog_size:
-    min_samples: 1
-  breakers_tripped:
-    min_samples: 1
-  breakers_estimated_size:
-    min_samples: 1
-  disk_usage_percent:
-    min_samples: 1
-  disk_usage:
-    min_samples: 1
-  disk_io_read_bytes:
-    min_samples: 1
-  disk_io_write_bytes:
-    min_samples: 1
-  network_send_bytes:
-    min_samples: 1
-  network_receive_bytes:
-    min_samples: 1
-  indices_search_query_total_req_rate:
-    min_samples: 1
-  indices_search_query_time_seconds_proc_rate:
-    min_samples: 1
-  indices_search_fetch_total_req_rate:
-    min_samples: 1
-  indices_search_fetch_time_seconds:
-    min_samples: 1
-  indices_indexing_index_total_req_rate:
-    min_samples: 1
-  indices_indexing_index_total_proc_rate:
-    min_samples: 1
-  indices_merges_total_req_rate:
-    min_samples: 1
-  indices_refresh_total_req_rate:
-    min_samples: 1
-  indices_flush_total_req_rate:
-    min_samples: 1
-  indices_get_exists_total_req_rate:
-    min_samples: 1
-  indices_get_missing_total_req_rate:
-    min_samples: 1
-  indices_get_total_req_rate:
-    min_samples: 1
-  indices_indexing_delete_total_req_rate:
-    min_samples: 1
-  indices_search_scroll_total_req_rate:
-    min_samples: 1
-  indices_search_suggest_total_req_rate:
-    min_samples: 1
-  indices_docs:
-    min_samples: 1
-  indices_docs_deleted_total:
-    min_samples: 1
-  indices_docs_deleted:
-    min_samples: 1
-  indices_merges_docs_total:
-    min_samples: 1
-  indices_merges_total_size_bytes_total:
-    min_samples: 1
-  segment_count:
-    min_samples: 1
-  segment_memory:
-    min_samples: 1
+  meter_elasticsearch_node_rules:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+          es_master_node: test-value
+          es_ingest_node: test-value
+          es_client_node: test-value
+          es_data_node: test-value
+        value: 100.0
+  meter_elasticsearch_node_open_file_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_all_disk_free_space:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_jvm_memory_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 200.0
+  meter_elasticsearch_node_jvm_memory_nonheap_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_jvm_memory_heap_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_jvm_memory_heap_max:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_jvm_memory_nonheap_committed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_jvm_memory_heap_committed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_jvm_memory_pool_peak_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          pool: PS_Eden_Space
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_jvm_gc_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          gc: PS Scavenge
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_jvm_gc_time:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          gc: PS Scavenge
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_process_cpu_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_os_cpu_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_os_load1:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 10000.0
+  meter_elasticsearch_node_os_load5:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 10000.0
+  meter_elasticsearch_node_os_load15:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 10000.0
+  meter_elasticsearch_node_indices_translog_operations:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_translog_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_breakers_tripped:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          breaker: test-value
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_breakers_estimated_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          breaker: test-value
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_disk_usage_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+          mount: test-value
+        value: -0.0
+  meter_elasticsearch_node_disk_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+          mount: test-value
+        value: 0.0
+  meter_elasticsearch_node_disk_io_read_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+          mount: test-value
+        value: 0.0
+  meter_elasticsearch_node_disk_io_write_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+          mount: test-value
+        value: 0.0
+  meter_elasticsearch_node_network_send_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_network_receive_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_search_query_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_search_query_time_seconds_proc_rate:
+    error: 'v1 not-success'
+  meter_elasticsearch_node_indices_search_fetch_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_search_fetch_time_seconds:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_indexing_index_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_indexing_index_total_proc_rate:
+    error: 'v1 not-success'
+  meter_elasticsearch_node_indices_merges_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_refresh_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_flush_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_get_exists_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_get_missing_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_get_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_indexing_delete_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_search_scroll_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_search_suggest_total_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_docs:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_indices_docs_deleted_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_indices_docs_deleted:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_merges_docs_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_indices_merges_total_size_bytes_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.0
+  meter_elasticsearch_node_segment_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_node_segment_memory:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0

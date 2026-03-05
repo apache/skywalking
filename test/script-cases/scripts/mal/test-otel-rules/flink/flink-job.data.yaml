@@ -95,33 +95,173 @@ input:
         operator_name: test-value
       value: 100.0
 expected:
-  restart_number:
-    min_samples: 1
-  runningTime:
-    min_samples: 1
-  restartingTime:
-    min_samples: 1
-  cancellingTime:
-    min_samples: 1
-  checkpoints_total:
-    min_samples: 1
-  checkpoints_failed:
-    min_samples: 1
-  checkpoints_completed:
-    min_samples: 1
-  checkpoints_inProgress:
-    min_samples: 1
-  lastCheckpointSize:
-    min_samples: 1
-  lastCheckpointDuration:
-    min_samples: 1
-  currentEmitEventTimeLag:
-    min_samples: 1
-  numRecordsIn:
-    min_samples: 1
-  numRecordsOut:
-    min_samples: 1
-  numBytesInPerSecond:
-    min_samples: 1
-  numBytesOutPerSecond:
-    min_samples: 1
+  meter_flink_job_restart_number:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_runningTime:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_restartingTime:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_cancellingTime:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_checkpoints_total:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_checkpoints_failed:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_checkpoints_completed:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_checkpoints_inProgress:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_lastCheckpointSize:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_lastCheckpointDuration:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_currentEmitEventTimeLag:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          operator_name: test-value
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_numRecordsIn:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          operator_name: test-value
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_numRecordsOut:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          operator_name: test-value
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_numBytesInPerSecond:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          operator_name: test-value
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_job_numBytesOutPerSecond:
+    entities:
+      - scope: ENDPOINT
+        service: 'flink::test-cluster'
+        endpoint: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          cluster: 'flink::test-cluster'
+          operator_name: test-value
+          flink_job_name: test-value
+        value: 100.0

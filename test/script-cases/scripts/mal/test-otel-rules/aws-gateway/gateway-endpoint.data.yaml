@@ -17,8 +17,6 @@ input:
   amazonaws_com_AWS_ApiGateway_4xx_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -26,8 +24,6 @@ input:
   amazonaws_com_AWS_ApiGateway_5xx_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -35,8 +31,6 @@ input:
   amazonaws_com_AWS_ApiGateway_DataProcessed_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -44,8 +38,6 @@ input:
   amazonaws_com_AWS_ApiGateway_4XXError_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -53,8 +45,6 @@ input:
   amazonaws_com_AWS_ApiGateway_5XXError_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -62,8 +52,6 @@ input:
   amazonaws_com_AWS_ApiGateway_CacheHitCount_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -71,8 +59,6 @@ input:
   amazonaws_com_AWS_ApiGateway_CacheHitCount_count:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -80,8 +66,6 @@ input:
   amazonaws_com_AWS_ApiGateway_CacheMissCount_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -89,8 +73,6 @@ input:
   amazonaws_com_AWS_ApiGateway_CacheMissCount_count:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -98,8 +80,6 @@ input:
   amazonaws_com_AWS_ApiGateway_Count:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -107,8 +87,6 @@ input:
   amazonaws_com_AWS_ApiGateway_IntegrationLatency_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -116,8 +94,6 @@ input:
   amazonaws_com_AWS_ApiGateway_IntegrationLatency_count:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -125,8 +101,6 @@ input:
   amazonaws_com_AWS_ApiGateway_Latency_sum:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
@@ -134,30 +108,128 @@ input:
   amazonaws_com_AWS_ApiGateway_Latency_count:
     - labels:
         service_name: test-service
-        Method: test-value
-        Resource: test-value
         ApiId: test-value
         Stage: test-value
         ApiName: test-value
       value: 100.0
 expected:
-  4xx:
-    min_samples: 1
-  5xx:
-    min_samples: 1
-  DataProcessed:
-    min_samples: 1
-  4xx:
-    min_samples: 1
-  5xx:
-    min_samples: 1
-  cache_hit_rate:
-    min_samples: 1
-  cache_miss_rate:
-    min_samples: 1
-  count:
-    min_samples: 1
-  integration_latency:
-    min_samples: 1
-  latency:
-    min_samples: 1
+  aws_gateway_endpoint_4xx:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_5xx:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_DataProcessed:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_4xx_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_5xx_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_cache_hit_rate:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0
+  aws_gateway_endpoint_cache_miss_rate:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0
+  aws_gateway_endpoint_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_integration_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0
+  aws_gateway_endpoint_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Stage: test-value
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0

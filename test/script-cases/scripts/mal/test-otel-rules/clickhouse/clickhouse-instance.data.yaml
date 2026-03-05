@@ -17,13 +17,8 @@ input:
   ClickHouseMetrics_VersionInteger:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_OSCPUVirtualTimeMicroseconds:
-    - labels:
-        host_name: test-host
-      value: 100.0
-  tags:
     - labels:
         host_name: test-host
       value: 100.0
@@ -42,286 +37,562 @@ input:
   ClickHouseAsyncMetrics_Uptime:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_FileOpen:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_TCPConnection:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_MySQLConnection:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_HTTPConnection:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_InterserverConnection:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_PostgreSQLConnection:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_NetworkReceiveBytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_NetworkSendBytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_Query:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_SelectQuery:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_InsertQuery:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_QueryTimeMicroseconds:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_SelectQueryTimeMicroseconds:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_InsertQueryTimeMicroseconds:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_OtherQueryTimeMicroseconds:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_SlowRead:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_InsertedRows:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_InsertedBytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_DelayedInserts:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_ReplicatedChecks:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_ReplicatedFetch:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_ReplicatedSend:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_Merge:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_MergedRows:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_MergedUncompressedBytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_Move:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_PartsActive:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_PartMutation:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_KafkaMessagesRead:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_KafkaWrites:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_KafkaConsumers:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_KafkaProducers:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_ZooKeeperSession:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_ZooKeeperWatch:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_ZooKeeperBytesSent:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseProfileEvents_ZooKeeperBytesReceived:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_KeeperAliveConnections:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
   ClickHouseMetrics_KeeperOutstandingRequets:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
       value: 100.0
 expected:
-  instance_version:
-    min_samples: 1
-  instance_cpu_usage:
-    min_samples: 1
-  instance_memory_usage:
-    min_samples: 1
-  instance_memory_available:
-    min_samples: 1
-  instance_uptime:
-    min_samples: 1
-  instance_file_open:
-    min_samples: 1
-  instance_tcp_connections:
-    min_samples: 1
-  instance_mysql_connections:
-    min_samples: 1
-  instance_http_connections:
-    min_samples: 1
-  instance_interserver_connections:
-    min_samples: 1
-  instance_postgresql_connections:
-    min_samples: 1
-  instance_network_receive_bytes:
-    min_samples: 1
-  instance_network_send_bytes:
-    min_samples: 1
-  instance_query:
-    min_samples: 1
-  instance_query_select:
-    min_samples: 1
-  instance_query_insert:
-    min_samples: 1
-  instance_query_select_rate:
-    min_samples: 1
-  instance_query_insert_rate:
-    min_samples: 1
-  instance_querytime_microseconds:
-    min_samples: 1
-  instance_querytime_select_microseconds:
-    min_samples: 1
-  instance_querytime_insert_microseconds:
-    min_samples: 1
-  instance_querytime_other_microseconds:
-    min_samples: 1
-  instance_query_slow:
-    min_samples: 1
-  instance_inserted_rows:
-    min_samples: 1
-  instance_inserted_bytes:
-    min_samples: 1
-  instance_delayed_inserts:
-    min_samples: 1
-  instance_replicated_checks:
-    min_samples: 1
-  instance_replicated_fetch:
-    min_samples: 1
-  instance_replicated_send:
-    min_samples: 1
-  instance_background_merge:
-    min_samples: 1
-  instance_merge_rows:
-    min_samples: 1
-  instance_merge_uncompressed_bytes:
-    min_samples: 1
-  instance_move:
-    min_samples: 1
-  instance_parts_active:
-    min_samples: 1
-  instance_mutations:
-    min_samples: 1
-  instance_kafka_messages_read:
-    min_samples: 1
-  instance_kafka_writes:
-    min_samples: 1
-  instance_kafka_consumers:
-    min_samples: 1
-  instance_kafka_producers:
-    min_samples: 1
-  instance_zookeeper_session:
-    min_samples: 1
-  instance_zookeeper_watch:
-    min_samples: 1
-  instance_zookeeper_bytes_sent:
-    min_samples: 1
-  instance_zookeeper_bytes_received:
-    min_samples: 1
-  instance_keeper_connections_alive:
-    min_samples: 1
-  instance_keeper_outstanding_requests:
-    min_samples: 1
+  meter_clickhouse_instance_version:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_cpu_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_memory_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_memory_available:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_uptime:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_file_open:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_tcp_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_mysql_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_http_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_interserver_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_postgresql_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_network_receive_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_network_send_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_query:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_query_select:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_query_insert:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_query_select_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_query_insert_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_querytime_microseconds:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_querytime_select_microseconds:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_querytime_insert_microseconds:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_querytime_other_microseconds:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_query_slow:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_inserted_rows:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_inserted_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_delayed_inserts:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_replicated_checks:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_replicated_fetch:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_replicated_send:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_background_merge:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_merge_rows:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_merge_uncompressed_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_move:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_parts_active:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_mutations:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_kafka_messages_read:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_kafka_writes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_kafka_consumers:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_kafka_producers:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_zookeeper_session:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_zookeeper_watch:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_zookeeper_bytes_sent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_zookeeper_bytes_received:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 0.0
+  meter_clickhouse_instance_keeper_connections_alive:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0
+  meter_clickhouse_instance_keeper_outstanding_requests:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'clickhouse::test-host'
+        layer: CLICKHOUSE
+    samples:
+      - labels:
+          host_name: 'clickhouse::test-host'
+        value: 100.0

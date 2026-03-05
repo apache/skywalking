@@ -17,63 +17,54 @@ input:
   pg_settings_shared_buffers_bytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_settings_effective_cache_size_bytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_settings_maintenance_work_mem_bytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_settings_work_mem_bytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_settings_seq_page_cost:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_settings_random_page_cost:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_settings_max_wal_size_bytes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_settings_max_parallel_workers:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_settings_max_worker_processes:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
@@ -125,6 +116,14 @@ input:
         host_name: test-host
         service_instance_id: test-instance
         mode: user
+        state: active
+      value: 100.0
+    - labels:
+        datname: test-value
+        host_name: test-host
+        service_instance_id: test-instance
+        mode: user
+        state: idle
       value: 100.0
   pg_stat_database_xact_commit:
     - labels:
@@ -164,28 +163,24 @@ input:
   pg_stat_bgwriter_checkpoint_write_time_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_stat_bgwriter_checkpoint_sync_time_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_stat_bgwriter_checkpoints_req_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_stat_bgwriter_checkpoints_timed_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
@@ -206,100 +201,397 @@ input:
   pg_stat_bgwriter_buffers_checkpoint_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_stat_bgwriter_buffers_clean_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_stat_bgwriter_buffers_backend_fsync_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_stat_bgwriter_buffers_alloc_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
   pg_stat_bgwriter_buffers_backend_total:
     - labels:
         host_name: test-host
-        service_instance_id: test-instance
         mode: user
         datname: test-value
       value: 100.0
 expected:
-  instance_shared_buffers:
-    min_samples: 1
-  instance_effective_cache:
-    min_samples: 1
-  instance_maintenance_work_mem:
-    min_samples: 1
-  instance_work_mem:
-    min_samples: 1
-  instance_seq_page_cost:
-    min_samples: 1
-  instance_random_page_cost:
-    min_samples: 1
-  instance_max_wal_size:
-    min_samples: 1
-  instance_max_parallel_workers:
-    min_samples: 1
-  instance_max_worker_processes:
-    min_samples: 1
-  instance_fetched_rows_rate:
-    min_samples: 1
-  instance_deleted_rows_rate:
-    min_samples: 1
-  instance_inserted_rows_rate:
-    min_samples: 1
-  instance_updated_rows_rate:
-    min_samples: 1
-  instance_returned_rows_rate:
-    min_samples: 1
-  instance_locks_count:
-    min_samples: 1
-  instance_active_sessions:
-    min_samples: 1
-  instance_idle_sessions:
-    min_samples: 1
-  instance_committed_transactions_rate:
-    min_samples: 1
-  instance_rolled_back_transactions_rate:
-    min_samples: 1
-  instance_cache_hit_rate:
-    min_samples: 1
-  instance_temporary_files_rate:
-    min_samples: 1
-  instance_checkpoint_write_time_rate:
-    min_samples: 1
-  instance_checkpoint_sync_time_rate:
-    min_samples: 1
-  instance_checkpoint_req_rate:
-    min_samples: 1
-  instance_checkpoints_timed_rate:
-    min_samples: 1
-  instance_conflicts_rate:
-    min_samples: 1
-  instance_deadlocks_rate:
-    min_samples: 1
-  instance_buffers_checkpoint:
-    min_samples: 1
-  instance_buffers_clean:
-    min_samples: 1
-  instance_buffers_backend_fsync:
-    min_samples: 1
-  instance_buffers_alloc:
-    min_samples: 1
-  instance_buffers_backend:
-    min_samples: 1
+  meter_pg_instance_shared_buffers:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_effective_cache:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_maintenance_work_mem:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_work_mem:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_seq_page_cost:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_random_page_cost:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_max_wal_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_max_parallel_workers:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_max_worker_processes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 100.0
+  meter_pg_instance_fetched_rows_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_deleted_rows_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_inserted_rows_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_updated_rows_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_returned_rows_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_locks_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: 'test-value:user'
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_pg_instance_active_sessions:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_pg_instance_idle_sessions:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_pg_instance_committed_transactions_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_rolled_back_transactions_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_cache_hit_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 50.0
+  meter_pg_instance_temporary_files_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_checkpoint_write_time_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0
+  meter_pg_instance_checkpoint_sync_time_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0
+  meter_pg_instance_checkpoint_req_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0
+  meter_pg_instance_checkpoints_timed_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0
+  meter_pg_instance_conflicts_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_deadlocks_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        instance: test-instance
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          datname: test-value
+          host_name: 'postgresql::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_pg_instance_buffers_checkpoint:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0
+  meter_pg_instance_buffers_clean:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0
+  meter_pg_instance_buffers_backend_fsync:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0
+  meter_pg_instance_buffers_alloc:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0
+  meter_pg_instance_buffers_backend:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'postgresql::test-host'
+        layer: POSTGRESQL
+    samples:
+      - labels:
+          mode: user
+          datname: test-value
+          host_name: 'postgresql::test-host'
+        value: 0.0

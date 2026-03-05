@@ -17,8 +17,9 @@ input:
   istio_build:
     - labels:
         cluster: test-cluster
-        app: istiod
+        app: test-app
         tag: 1.19.0
+        component: pilot
       value: 100.0
   process_virtual_memory_bytes:
     - labels:
@@ -58,7 +59,7 @@ input:
   pilot_xds_pushes:
     - labels:
         cluster: test-cluster
-        app: istiod
+        app: test-app
         type: lds
       value: 100.0
   pilot_xds_cds_reject:
@@ -109,27 +110,27 @@ input:
   pilot_proxy_convergence_time:
     - labels:
         cluster: test-cluster
-        app: istiod
+        app: test-app
         le: '50'
       value: 10.0
     - labels:
         cluster: test-cluster
-        app: istiod
+        app: test-app
         le: '100'
       value: 20.0
     - labels:
         cluster: test-cluster
-        app: istiod
+        app: test-app
         le: '250'
       value: 30.0
     - labels:
         cluster: test-cluster
-        app: istiod
+        app: test-app
         le: '500'
       value: 40.0
     - labels:
         cluster: test-cluster
-        app: istiod
+        app: test-app
         le: '1000'
       value: 50.0
   pilot_conflict_inbound_listener:
@@ -188,63 +189,326 @@ input:
         app: istiod
       value: 100.0
 expected:
-  pilot_version:
-    min_samples: 1
-  virtual_memory:
-    min_samples: 1
-  resident_memory:
-    min_samples: 1
-  go_alloc:
-    min_samples: 1
-  go_heap_inuse:
-    min_samples: 1
-  go_stack_inuse:
-    min_samples: 1
-  cpu:
-    min_samples: 1
-  go_goroutines:
-    min_samples: 1
-  pilot_xds_pushes:
-    min_samples: 1
-  pilot_xds_cds_reject:
-    min_samples: 1
-  pilot_xds_eds_reject:
-    min_samples: 1
-  pilot_xds_rds_reject:
-    min_samples: 1
-  pilot_xds_lds_reject:
-    min_samples: 1
-  pilot_xds_write_timeout:
-    min_samples: 1
-  pilot_total_xds_internal_errors:
-    min_samples: 1
-  pilot_total_xds_rejects:
-    min_samples: 1
-  pilot_xds_push_context_errors:
-    min_samples: 1
-  pilot_xds_push_timeout:
-    min_samples: 1
-  pilot_proxy_push_percentile:
-    min_samples: 1
-  pilot_conflict_il:
-    min_samples: 1
-  pilot_conflict_ol_http_tcp:
-    min_samples: 1
-  pilot_conflict_ol_tcp_tcp:
-    min_samples: 1
-  pilot_conflict_ol_tcp_http:
-    min_samples: 1
-  pilot_virt_services:
-    min_samples: 1
-  pilot_services:
-    min_samples: 1
-  pilot_xds:
-    min_samples: 1
-  galley_validation_passed:
-    min_samples: 1
-  galley_validation_failed:
-    min_samples: 1
-  sidecar_injection_success_total:
-    min_samples: 1
-  sidecar_injection_failure_total:
-    min_samples: 1
+  meter_istio_pilot_version:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.test-app'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: test-app
+          cluster: 'istio-ctrl::test-cluster'
+          tag: 1.19.0
+        value: 100.0
+  meter_istio_virtual_memory:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_resident_memory:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_go_alloc:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_go_heap_inuse:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_go_stack_inuse:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_cpu:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_go_goroutines:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_xds_pushes:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.test-app'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: test-app
+          type: lds
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_pilot_xds_cds_reject:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_xds_eds_reject:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_xds_rds_reject:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_xds_lds_reject:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_xds_write_timeout:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_pilot_total_xds_internal_errors:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_pilot_total_xds_rejects:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_pilot_xds_push_context_errors:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_pilot_xds_push_timeout:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_pilot_proxy_push_percentile:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.test-app'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: test-app
+          cluster: 'istio-ctrl::test-cluster'
+          le: 1000000
+        value: 0.0
+      - labels:
+          app: test-app
+          cluster: 'istio-ctrl::test-cluster'
+          le: 100000
+        value: 0.0
+      - labels:
+          app: test-app
+          cluster: 'istio-ctrl::test-cluster'
+          le: 250000
+        value: 0.0
+      - labels:
+          app: test-app
+          cluster: 'istio-ctrl::test-cluster'
+          le: 500000
+        value: 0.0
+      - labels:
+          app: test-app
+          cluster: 'istio-ctrl::test-cluster'
+          le: 50000
+        value: 0.0
+  meter_istio_pilot_conflict_il:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_conflict_ol_http_tcp:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_conflict_ol_tcp_tcp:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_conflict_ol_tcp_http:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_virt_services:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_services:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_pilot_xds:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 100.0
+  meter_istio_galley_validation_passed:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_galley_validation_failed:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_sidecar_injection_success_total:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0
+  meter_istio_sidecar_injection_failure_total:
+    entities:
+      - scope: SERVICE
+        service: 'istio-ctrl::test-cluster.istiod'
+        layer: MESH_CP
+    samples:
+      - labels:
+          app: istiod
+          cluster: 'istio-ctrl::test-cluster'
+        value: 0.0

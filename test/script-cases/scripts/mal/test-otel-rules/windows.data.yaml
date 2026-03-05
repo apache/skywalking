@@ -21,19 +21,15 @@ input:
       value: 100.0
   windows_cs_physical_memory_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   windows_os_physical_memory_free_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   windows_os_virtual_memory_free_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   windows_os_virtual_memory_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   windows_logical_disk_read_bytes_total:
     - labels:
@@ -52,27 +48,100 @@ input:
         node_identifier_host_name: test-host
       value: 100.0
 expected:
-  cpu_total_percentage:
-    min_samples: 1
-  cpu_average_used:
-    min_samples: 1
-  memory_total:
-    min_samples: 1
-  memory_available:
-    min_samples: 1
-  memory_used:
-    min_samples: 1
-  memory_virtual_memory_free:
-    min_samples: 1
-  memory_virtual_memory_total:
-    min_samples: 1
-  memory_virtual_memory_percentage:
-    min_samples: 1
-  disk_read:
-    min_samples: 1
-  disk_written:
-    min_samples: 1
-  network_receive:
-    min_samples: 1
-  network_transmit:
-    min_samples: 1
+  meter_win_cpu_total_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_win_cpu_average_used:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+          mode: user
+        value: 0.0
+  meter_win_memory_total:
+    entities:
+      - scope: SERVICE
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+        value: 100.0
+  meter_win_memory_available:
+    entities:
+      - scope: SERVICE
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+        value: 100.0
+  meter_win_memory_used:
+    entities:
+      - scope: SERVICE
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+        value: 0.0
+  meter_win_memory_virtual_memory_free:
+    entities:
+      - scope: SERVICE
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+        value: 100.0
+  meter_win_memory_virtual_memory_total:
+    entities:
+      - scope: SERVICE
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+        value: 100.0
+  meter_win_memory_virtual_memory_percentage:
+    entities:
+      - scope: SERVICE
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+        value: -0.0
+  meter_win_disk_read:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_win_disk_written:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_win_network_receive:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_win_network_transmit:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0

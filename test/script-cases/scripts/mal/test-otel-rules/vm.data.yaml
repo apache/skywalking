@@ -30,27 +30,21 @@ input:
       value: 100.0
   node_memory_MemTotal_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_memory_MemAvailable_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_memory_Buffers_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_memory_Cached_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_memory_SwapFree_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_memory_SwapTotal_bytes:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_filesystem_avail_bytes:
     - labels:
@@ -80,72 +74,197 @@ input:
       value: 100.0
   node_netstat_Tcp_CurrEstab:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_sockstat_TCP_tw:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_sockstat_TCP_alloc:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_sockstat_sockets_used:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_sockstat_UDP_inuse:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
   node_filefd_allocated:
     - labels:
-        node_identifier_host_name: test-host
       value: 100.0
 expected:
-  cpu_total_percentage:
-    min_samples: 1
-  cpu_average_used:
-    min_samples: 1
-  cpu_load1:
-    min_samples: 1
-  cpu_load5:
-    min_samples: 1
-  cpu_load15:
-    min_samples: 1
-  memory_total:
-    min_samples: 1
-  memory_available:
-    min_samples: 1
-  memory_used:
-    min_samples: 1
-  memory_buff_cache:
-    min_samples: 1
-  memory_swap_free:
-    min_samples: 1
-  memory_swap_total:
-    min_samples: 1
-  memory_swap_percentage:
-    min_samples: 1
-  filesystem_percentage:
-    min_samples: 1
-  disk_read:
-    min_samples: 1
-  disk_written:
-    min_samples: 1
-  network_receive:
-    min_samples: 1
-  network_transmit:
-    min_samples: 1
-  tcp_curr_estab:
-    min_samples: 1
-  tcp_tw:
-    min_samples: 1
-  tcp_alloc:
-    min_samples: 1
-  sockets_used:
-    min_samples: 1
-  udp_inuse:
-    min_samples: 1
-  filefd_allocated:
-    min_samples: 1
+  meter_vm_cpu_total_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_vm_cpu_average_used:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+          mode: user
+        value: 0.0
+  meter_vm_cpu_load1:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 10000.0
+  meter_vm_cpu_load5:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 10000.0
+  meter_vm_cpu_load15:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 10000.0
+  meter_vm_memory_total:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_memory_available:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_memory_used:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 0.0
+  meter_vm_memory_buff_cache:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 200.0
+  meter_vm_memory_swap_free:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_memory_swap_total:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_memory_swap_percentage:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: -0.0
+  meter_vm_filesystem_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+          mountpoint: /
+        value: -0.0
+  meter_vm_disk_read:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_vm_disk_written:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_vm_network_receive:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_vm_network_transmit:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 0.0
+  meter_vm_tcp_curr_estab:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_tcp_tw:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_tcp_alloc:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_sockets_used:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_udp_inuse:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0
+  meter_vm_filefd_allocated:
+    entities:
+      - scope: SERVICE
+        layer: OS_LINUX
+    samples:
+      - labels:
+        value: 100.0

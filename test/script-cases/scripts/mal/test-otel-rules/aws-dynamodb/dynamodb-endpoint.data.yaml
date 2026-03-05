@@ -16,50 +16,145 @@
 input:
   dynamodb:
     - labels:
-        host_name: test-host
-        cloud_account_id: 123456789
       value: 100.0
-  tags:
+  amazonaws_com_AWS_DynamoDB_ConsumedWriteCapacityUnits:
     - labels:
-        host_name: test-host
-        cloud_account_id: 123456789
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ConsumedReadCapacityUnits:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ProvisionedReadCapacityUnits:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ProvisionedWriteCapacityUnits:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ReturnedItemCount:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_TimeToLiveDeletedItemCount:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ThrottledRequests:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ReadThrottleEvents:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_WriteThrottleEvents:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_SystemErrors:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ConditionalCheckFailedRequests:
+    - labels:
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_TransactionConflict:
+    - labels:
       value: 100.0
 expected:
-  endpoint_consumed_write_capacity_units:
-    min_samples: 1
-  endpoint_consumed_read_capacity_units:
-    min_samples: 1
-  endpoint_provisioned_read_capacity_units:
-    min_samples: 1
-  endpoint_provisioned_write_capacity_units:
-    min_samples: 1
-  endpoint_get_successful_request_latency:
-    min_samples: 1
-  endpoint_put_successful_request_latency:
-    min_samples: 1
-  endpoint_query_successful_request_latency:
-    min_samples: 1
-  endpoint_scan_successful_request_latency:
-    min_samples: 1
-  endpoint_scan_returned_item_count:
-    min_samples: 1
-  endpoint_query_returned_item_count:
-    min_samples: 1
-  endpoint_time_to_live_deleted_item_count:
-    min_samples: 1
-  endpoint_read_throttled_requests:
-    min_samples: 1
-  endpoint_write_throttled_requests:
-    min_samples: 1
-  endpoint_read_throttle_events:
-    min_samples: 1
-  endpoint_write_throttle_events:
-    min_samples: 1
-  endpoint_read_system_errors:
-    min_samples: 1
-  endpoint_write_system_errors:
-    min_samples: 1
-  endpoint_conditional_check_failed_requests:
-    min_samples: 1
-  endpoint_transaction_conflict:
-    min_samples: 1
+  aws_dynamodb_endpoint_consumed_write_capacity_units:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_endpoint_consumed_read_capacity_units:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_endpoint_provisioned_read_capacity_units:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_endpoint_provisioned_write_capacity_units:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_endpoint_get_successful_request_latency:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_put_successful_request_latency:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_query_successful_request_latency:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_scan_successful_request_latency:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_scan_returned_item_count:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_query_returned_item_count:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_time_to_live_deleted_item_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_endpoint_read_throttled_requests:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_write_throttled_requests:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_read_throttle_events:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_endpoint_write_throttle_events:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_endpoint_read_system_errors:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_write_system_errors:
+    error: 'v1 not-success'
+  aws_dynamodb_endpoint_conditional_check_failed_requests:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0
+  aws_dynamodb_endpoint_transaction_conflict:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::null'
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          host_name: 'aws-dynamodb::null'
+        value: 100.0

@@ -22,5 +22,16 @@ input:
         service: test-service
       value: 100.0
 expected:
-  thread_pool:
-    min_samples: 1
+  meter_thread_pool:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          metric_type: test-metric
+          pool_name: test-value
+          instance: test-instance
+          service: test-service
+        value: 100.0

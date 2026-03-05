@@ -16,93 +16,132 @@
 input:
   instance_ruby_cpu_usage_percent:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_memory_rss_mb:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_memory_usage_percent:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_gc_count_total:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_gc_minor_count_total:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_gc_major_count_total:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_gc_time_total:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_heap_usage_percent:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_thread_count_active:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_thread_count_running:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_total_allocated_objects:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_heap_live_slots_count:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   instance_ruby_heap_available_slots_count:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
 expected:
-  instance_ruby_cpu_usage_percent:
-    min_samples: 1
-  instance_ruby_memory_rss_mb:
-    min_samples: 1
-  instance_ruby_memory_usage_percent:
-    min_samples: 1
-  instance_ruby_gc_count_total:
-    min_samples: 1
-  instance_ruby_gc_minor_count_total:
-    min_samples: 1
-  instance_ruby_gc_major_count_total:
-    min_samples: 1
-  instance_ruby_gc_time_total:
-    min_samples: 1
-  instance_ruby_heap_usage_percent:
-    min_samples: 1
-  instance_ruby_thread_count_active:
-    min_samples: 1
-  instance_ruby_thread_count_running:
-    min_samples: 1
-  instance_ruby_total_allocated_objects:
-    min_samples: 1
-  instance_ruby_heap_live_slots_count:
-    min_samples: 1
-  instance_ruby_heap_available_slots_count:
-    min_samples: 1
+  meter_instance_ruby_cpu_usage_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_ruby_memory_rss_mb:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_ruby_memory_usage_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_ruby_gc_count_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_instance_ruby_gc_minor_count_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_instance_ruby_gc_major_count_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_instance_ruby_gc_time_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_instance_ruby_heap_usage_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_ruby_thread_count_active:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_ruby_thread_count_running:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_ruby_total_allocated_objects:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_ruby_heap_live_slots_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_ruby_heap_available_slots_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0

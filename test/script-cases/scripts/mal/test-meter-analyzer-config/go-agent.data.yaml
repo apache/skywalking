@@ -75,17 +75,105 @@ input:
         instance: test-instance
       value: 50.0
 expected:
-  sw_go_created_tracing_context_count:
-    min_samples: 1
-  sw_go_finished_tracing_context_count:
-    min_samples: 1
-  sw_go_created_ignored_context_count:
-    min_samples: 1
-  sw_go_finished_ignored_context_count:
-    min_samples: 1
-  sw_go_possible_leaked_context_count:
-    min_samples: 1
-  sw_go_interceptor_error_count:
-    min_samples: 1
-  sw_go_tracing_context_execution_time_percentile:
-    min_samples: 1
+  meter_sw_go_created_tracing_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_GO_AGENT
+    samples:
+      - labels:
+          created_by: test-creator
+          service: test-service
+          instance: test-instance
+        value: 0.0
+  meter_sw_go_finished_tracing_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_GO_AGENT
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+        value: 0.0
+  meter_sw_go_created_ignored_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_GO_AGENT
+    samples:
+      - labels:
+          created_by: test-creator
+          service: test-service
+          instance: test-instance
+        value: 0.0
+  meter_sw_go_finished_ignored_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_GO_AGENT
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+        value: 0.0
+  meter_sw_go_possible_leaked_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_GO_AGENT
+    samples:
+      - labels:
+          source: test-source
+          service: test-service
+          instance: test-instance
+        value: 0.0
+  meter_sw_go_interceptor_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_GO_AGENT
+    samples:
+      - labels:
+          plugin_name: test-plugin
+          service: test-service
+          instance: test-instance
+        value: 0.0
+  meter_sw_go_tracing_context_execution_time_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_GO_AGENT
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: 1000000
+        value: 50.0
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: 100000
+        value: 20.0
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: 250000
+        value: 30.0
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: 500000
+        value: 40.0
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: 50000
+        value: 10.0

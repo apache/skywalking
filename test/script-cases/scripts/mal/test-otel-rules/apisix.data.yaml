@@ -14,63 +14,251 @@
 # limitations under the License.
 
 input:
-  tags:
+  apisix_nginx_http_current_connections:
     - labels:
-        service_name: test-service
-        skywalking_service: test-sw-service
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_http_requests_total:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_bandwidth:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_http_status:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_http_latency:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_shared_dict_capacity_bytes:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_shared_dict_free_space_bytes:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_etcd_modify_indexes:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_etcd_reachable:
+    - labels:
         route: test-route
         node: test-node
       value: 100.0
 expected:
-  sv_http_connections:
-    min_samples: 1
-  sv_http_requests:
-    min_samples: 1
-  sv_bandwidth_unmatched:
-    min_samples: 1
-  sv_http_status_unmatched:
-    min_samples: 1
-  sv_http_latency_unmatched:
-    min_samples: 1
-  sv_bandwidth_matched:
-    min_samples: 1
-  sv_http_status_matched:
-    min_samples: 1
-  sv_http_latency_matched:
-    min_samples: 1
-  instance_shared_dict_capacity_bytes:
-    min_samples: 1
-  instance_shared_dict_free_space_bytes:
-    min_samples: 1
-  instance_etcd_indexes:
-    min_samples: 1
-  instance_etcd_reachable:
-    min_samples: 1
-  instance_http_connections:
-    min_samples: 1
-  instance_http_requests:
-    min_samples: 1
-  instance_bandwidth_matched:
-    min_samples: 1
-  instance_http_status_matched:
-    min_samples: 1
-  instance_http_latency_matched:
-    min_samples: 1
-  instance_bandwidth_unmatched:
-    min_samples: 1
-  instance_http_status_unmatched:
-    min_samples: 1
-  instance_http_latency_unmatched:
-    min_samples: 1
-  endpoint_http_status:
-    min_samples: 1
-  endpoint_bandwidth:
-    min_samples: 1
-  endpoint_http_latency:
-    min_samples: 1
-  endpoint_http_status:
-    min_samples: 1
-  endpoint_bandwidth:
-    min_samples: 1
-  endpoint_http_latency:
-    min_samples: 1
+  meter_apisix_sv_http_connections:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          state: 
+          service_name: 'APISIX::APISIX'
+          node: test-node
+        value: 100.0
+  meter_apisix_sv_http_requests:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          service_instance_id: 
+          service_name: 'APISIX::APISIX'
+          node: test-node
+        value: 0.0
+  meter_apisix_sv_bandwidth_unmatched:
+    error: 'v1 not-success'
+  meter_apisix_sv_http_status_unmatched:
+    error: 'v1 not-success'
+  meter_apisix_sv_http_latency_unmatched:
+    error: 'v1 not-success'
+  meter_apisix_sv_bandwidth_matched:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: 
+          service_name: 'APISIX::APISIX'
+          node: test-node
+        value: 0.0
+  meter_apisix_sv_http_status_matched:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          code: 
+          service_name: 'APISIX::APISIX'
+          node: test-node
+        value: 0.0
+  meter_apisix_sv_http_latency_matched:
+    error: 'v1 not-success'
+  meter_apisix_instance_shared_dict_capacity_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          name: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 100.0
+  meter_apisix_instance_shared_dict_free_space_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          name: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 100.0
+  meter_apisix_instance_etcd_indexes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          key: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 100.0
+  meter_apisix_instance_etcd_reachable:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          node: test-node
+          service_name: 'APISIX::APISIX'
+          route: test-route
+        value: 100.0
+  meter_apisix_instance_http_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          state: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 100.0
+  meter_apisix_instance_http_requests:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          node: test-node
+          service_name: 'APISIX::APISIX'
+          route: test-route
+        value: 0.0
+  meter_apisix_instance_bandwidth_matched:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 0.0
+  meter_apisix_instance_http_status_matched:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          code: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 0.0
+  meter_apisix_instance_http_latency_matched:
+    error: 'v1 not-success'
+  meter_apisix_instance_bandwidth_unmatched:
+    error: 'v1 not-success'
+  meter_apisix_instance_http_status_unmatched:
+    error: 'v1 not-success'
+  meter_apisix_instance_http_latency_unmatched:
+    error: 'v1 not-success'
+  meter_apisix_endpoint_http_status:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: route/test-route
+        layer: APISIX
+    samples:
+      - labels:
+          code: 
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+        value: 0.0
+  meter_apisix_endpoint_bandwidth:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: route/test-route
+        layer: APISIX
+    samples:
+      - labels:
+          type: 
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+        value: 0.0
+  meter_apisix_endpoint_http_latency:
+    error: 'v1 not-success'
+  meter_apisix_endpoint_http_status_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: upstream/test-node
+        layer: APISIX
+    samples:
+      - labels:
+          code: 
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+        value: 0.0
+  meter_apisix_endpoint_bandwidth_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: upstream/test-node
+        layer: APISIX
+    samples:
+      - labels:
+          type: 
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+        value: 0.0
+  meter_apisix_endpoint_http_latency_2:
+    error: 'v1 not-success'

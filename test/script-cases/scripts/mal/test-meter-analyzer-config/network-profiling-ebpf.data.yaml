@@ -16,63 +16,25 @@
 input:
   rover_net_p_client_write_counts_counter:
     - labels:
-        service: test-service
-        instance: test-instance
-        side: client
-        client_process_id: ""
-        server_process_id: ""
-        component: "110"
-        protocol: tcp
-        is_ssl: "false"
-        client_local: "false"
-        client_address: "10.0.0.5:8080"
-        client_process_id: ""
-        server_local: "false"
-        server_address: "10.0.0.6:9090"
-        server_process_id: ""
+      value: 100.0
+  SUM_PER_MIN:
+    - labels:
       value: 100.0
   rover_net_p_client_write_bytes_counter:
     - labels:
-        service: test-service
-        instance: test-instance
-        side: client
-        client_process_id: ""
-        server_process_id: ""
-        component: "110"
-        protocol: tcp
-        is_ssl: "false"
-        client_local: "false"
-        client_address: "10.0.0.5:8080"
-        server_local: "false"
-        server_address: "10.0.0.6:9090"
-      value: 2048.0
+      value: 100.0
   rover_net_p_client_write_exe_time_counter:
     - labels:
-        service: test-service
-        instance: test-instance
-        side: client
-        client_process_id: ""
-        server_process_id: ""
-        component: "110"
-        protocol: tcp
-        is_ssl: "false"
-        client_local: "false"
-        client_address: "10.0.0.5:8080"
-        server_local: "false"
-        server_address: "10.0.0.6:9090"
-      value: 50.0
+      value: 100.0
   rover_net_p_client_read_counts_counter:
     - labels:
-        service: test-service
-        instance: test-instance
-        side: client
-        client_process_id: ""
-        server_process_id: ""
-        component: "110"
-        protocol: tcp
-        is_ssl: "false"
-        client_local: "false"
-        client_address: "10.0.0.5:8080"
-        server_local: "false"
-        server_address: "10.0.0.6:9090"
-      value: 80.0
+      value: 100.0
+expected:
+  client_write_cpm:
+    min_samples: 1
+  client_write_total_bytes:
+    min_samples: 1
+  client_write_avg_exe_time:
+    min_samples: 1
+  client_read_cpm:
+    min_samples: 1

@@ -21,7 +21,26 @@ input:
         service_instance_id: test-instance
       value: 100.0
 expected:
-  service_error_log_count:
-    min_samples: 1
-  instance_error_log_count:
-    min_samples: 1
+  meter_nginx_service_error_log_count:
+    entities:
+      - scope: SERVICE
+        service: test-service
+        layer: NGINX
+    samples:
+      - labels:
+          level: ERROR
+          service: test-service
+          service_instance_id: test-instance
+        value: 100.0
+  meter_nginx_instance_error_log_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: NGINX
+    samples:
+      - labels:
+          level: ERROR
+          service: test-service
+          service_instance_id: test-instance
+        value: 100.0

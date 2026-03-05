@@ -56,10 +56,7 @@ input:
   rocketmq_brokeruntime_commitlog_disk_ratio:
     - labels:
         cluster: test-cluster
-      value: 100.0
-  tags:
-    - labels:
-        cluster: test-cluster
+        brokerIP: test-value
       value: 100.0
   rocketmq_brokeruntime_pull_threadpoolqueue_headwait_timemills:
     - labels:
@@ -78,33 +75,145 @@ input:
         broker: test-broker
       value: 100.0
 expected:
-  messages_produced_today:
-    min_samples: 1
-  messages_consumed_today:
-    min_samples: 1
-  total_producer_tps:
-    min_samples: 1
-  total_consumer_tps:
-    min_samples: 1
-  producer_message_size:
-    min_samples: 1
-  consumer_message_size:
-    min_samples: 1
-  messages_produced_until_yesterday:
-    min_samples: 1
-  messages_consumed_until_yesterday:
-    min_samples: 1
-  max_consumer_latency:
-    min_samples: 1
-  max_commitLog_disk_ratio:
-    min_samples: 1
-  commitLog_disk_ratio:
-    min_samples: 1
-  pull_threadPool_queue_head_wait_time:
-    min_samples: 1
-  send_threadPool_queue_head_wait_time:
-    min_samples: 1
-  topic_count:
-    min_samples: 1
-  broker_count:
-    min_samples: 1
+  meter_rocketmq_cluster_messages_produced_today:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 0.0
+  meter_rocketmq_cluster_messages_consumed_today:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 0.0
+  meter_rocketmq_cluster_total_producer_tps:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_cluster_total_consumer_tps:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_cluster_producer_message_size:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_cluster_consumer_message_size:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_cluster_messages_produced_until_yesterday:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_cluster_messages_consumed_until_yesterday:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_cluster_max_consumer_latency:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+          broker: test-broker
+          group: test-value
+        value: 100.0
+  meter_rocketmq_cluster_max_commitLog_disk_ratio:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          brokerIP: test-value
+        value: 10000.0
+  meter_rocketmq_cluster_commitLog_disk_ratio:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          brokerIP: test-value
+        value: 10000.0
+  meter_rocketmq_cluster_pull_threadPool_queue_head_wait_time:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          brokerIP: test-value
+        value: 100.0
+  meter_rocketmq_cluster_send_threadPool_queue_head_wait_time:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          brokerIP: test-value
+        value: 100.0
+  meter_rocketmq_cluster_topic_count:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 1.0
+  meter_rocketmq_cluster_broker_count:
+    entities:
+      - scope: SERVICE
+        service: 'rocketmq::test-cluster'
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+        value: 1.0

@@ -16,163 +16,232 @@
 input:
   http_server_requests_count:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   http_server_requests_sum:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jdbc_connections_active:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jdbc_connections_idle:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jdbc_connections_max:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_classes_loaded:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_classes_unloaded:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_gc_pause_count:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_gc_pause_sum:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_memory_committed:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_memory_max:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_memory_used:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_threads_daemon:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_threads_live:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   jvm_threads_peak:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   process_cpu_usage:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   system_cpu_usage:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   system_load_average_1m:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   tomcat_sessions_active_current:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   tomcat_sessions_active_max:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   tomcat_sessions_rejected:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   process_files_max:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
   process_files_open:
     - labels:
-        service: test-service
-        instance: test-instance
       value: 100.0
 expected:
-  http_server_requests_count:
-    min_samples: 1
-  http_server_requests_duration:
-    min_samples: 1
-  jdbc_connections_active:
-    min_samples: 1
-  jdbc_connections_idle:
-    min_samples: 1
-  jdbc_connections_max:
-    min_samples: 1
-  jvm_classes_loaded:
-    min_samples: 1
-  jvm_classes_unloaded:
-    min_samples: 1
-  jvm_gc_pause_count:
-    min_samples: 1
-  jvm_gc_pause_duration:
-    min_samples: 1
-  jvm_memory_committed:
-    min_samples: 1
-  jvm_memory_max:
-    min_samples: 1
-  jvm_memory_used:
-    min_samples: 1
-  jvm_threads_daemon:
-    min_samples: 1
-  jvm_threads_live:
-    min_samples: 1
-  jvm_threads_peak:
-    min_samples: 1
-  process_cpu_usage:
-    min_samples: 1
-  system_cpu_usage:
-    min_samples: 1
-  system_load_average_1m:
-    min_samples: 1
-  tomcat_sessions_active_current:
-    min_samples: 1
-  tomcat_sessions_active_max:
-    min_samples: 1
-  tomcat_sessions_rejected:
-    min_samples: 1
-  process_files_max:
-    min_samples: 1
-  process_files_open:
-    min_samples: 1
+  meter_http_server_requests_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_http_server_requests_duration:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_jdbc_connections_active:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jdbc_connections_idle:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jdbc_connections_max:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jvm_classes_loaded:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jvm_classes_unloaded:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_jvm_gc_pause_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_jvm_gc_pause_duration:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_jvm_memory_committed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jvm_memory_max:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jvm_memory_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jvm_threads_daemon:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jvm_threads_live:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_jvm_threads_peak:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_process_cpu_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 10000.0
+  meter_system_cpu_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 10000.0
+  meter_system_load_average_1m:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_tomcat_sessions_active_current:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_tomcat_sessions_active_max:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_tomcat_sessions_rejected:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 0.0
+  meter_process_files_max:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_process_files_open:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0

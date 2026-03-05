@@ -87,33 +87,157 @@ input:
         service_instance_id: test-instance
       value: 100.0
 expected:
-  uptime:
-    min_samples: 1
-  connected_clients:
-    min_samples: 1
-  blocked_clients:
-    min_samples: 1
-  memory_used_bytes:
-    min_samples: 1
-  memory_max_bytes:
-    min_samples: 1
-  total_commands_rate:
-    min_samples: 1
-  hit_rate:
-    min_samples: 1
-  net_input_bytes_total:
-    min_samples: 1
-  net_output_bytes_total:
-    min_samples: 1
-  db_keys:
-    min_samples: 1
-  expired_keys_total:
-    min_samples: 1
-  evicted_keys_total:
-    min_samples: 1
-  commands_duration:
-    min_samples: 1
-  commands_total:
-    min_samples: 1
-  commands_duration_seconds_total_rate:
-    min_samples: 1
+  meter_redis_uptime:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_connected_clients:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_blocked_clients:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_memory_used_bytes:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_memory_max_bytes:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_total_commands_rate:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          cmd: get
+          service_instance_id: test-instance
+        value: 0.0
+  meter_redis_hit_rate:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 50.0
+  meter_redis_net_input_bytes_total:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_redis_net_output_bytes_total:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_redis_db_keys:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_expired_keys_total:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_evicted_keys_total:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_commands_duration:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          cmd: get
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_commands_total:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          cmd: get
+          service_instance_id: test-instance
+        value: 100.0
+  meter_redis_commands_duration_seconds_total_rate:
+    entities:
+      - scope: SERVICE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          cmd: get
+          service_instance_id: test-instance
+        value: 0.0

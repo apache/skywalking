@@ -54,25 +54,128 @@ input:
         group: test-value
       value: 100.0
 expected:
-  max_producer_message_size:
-    min_samples: 1
-  max_consumer_message_size:
-    min_samples: 1
-  consumer_latency:
-    min_samples: 1
-  producer_tps:
-    min_samples: 1
-  consumer_group_tps:
-    min_samples: 1
-  producer_offset:
-    min_samples: 1
-  consumer_group_offset:
-    min_samples: 1
-  producer_message_size:
-    min_samples: 1
-  consumer_message_size:
-    min_samples: 1
-  consumer_group_count:
-    min_samples: 1
-  broker_count:
-    min_samples: 1
+  meter_rocketmq_topic_max_producer_message_size:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+        value: 100.0
+  meter_rocketmq_topic_max_consumer_message_size:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+          group: test-value
+        value: 100.0
+  meter_rocketmq_topic_consumer_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+          group: test-value
+        value: 100.0
+  meter_rocketmq_topic_producer_tps:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+        value: 100.0
+  meter_rocketmq_topic_consumer_group_tps:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+        value: 100.0
+  meter_rocketmq_topic_producer_offset:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+        value: 100.0
+  meter_rocketmq_topic_consumer_group_offset:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+          group: test-value
+        value: 100.0
+  meter_rocketmq_topic_producer_message_size:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+        value: 100.0
+  meter_rocketmq_topic_consumer_message_size:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+          group: test-value
+        value: 100.0
+  meter_rocketmq_topic_consumer_group_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+        value: 1.0
+  meter_rocketmq_topic_broker_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'rocketmq::test-cluster'
+        endpoint: test-topic
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          cluster: 'rocketmq::test-cluster'
+          topic: test-topic
+        value: 1.0

@@ -75,27 +75,123 @@ input:
         node: test-node
       value: 100.0
 expected:
-  total_topics:
-    min_samples: 1
-  total_subscriptions:
-    min_samples: 1
-  total_producers:
-    min_samples: 1
-  total_consumers:
-    min_samples: 1
-  message_rate_in:
-    min_samples: 1
-  message_rate_out:
-    min_samples: 1
-  throughput_in:
-    min_samples: 1
-  throughput_out:
-    min_samples: 1
-  storage_size:
-    min_samples: 1
-  storage_logical_size:
-    min_samples: 1
-  storage_write_rate:
-    min_samples: 1
-  storage_read_rate:
-    min_samples: 1
+  meter_pulsar_total_topics:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_total_subscriptions:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_total_producers:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_total_consumers:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_message_rate_in:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_message_rate_out:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_throughput_in:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_throughput_out:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_storage_size:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_storage_logical_size:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_storage_write_rate:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_pulsar_storage_read_rate:
+    entities:
+      - scope: SERVICE
+        service: 'pulsar::test-cluster'
+        layer: PULSAR
+    samples:
+      - labels:
+          cluster: 'pulsar::test-cluster'
+          node: test-node
+        value: 100.0

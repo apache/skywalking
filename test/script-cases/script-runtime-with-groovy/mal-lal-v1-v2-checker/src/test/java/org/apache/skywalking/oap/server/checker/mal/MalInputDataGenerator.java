@@ -178,12 +178,25 @@ public final class MalInputDataGenerator {
 
         // Collect all sample names and labels across all rules in this file
         final Map<String, Set<String>> sampleLabels = new LinkedHashMap<>();
-        final Map<String, Map<String, String>> tagEqualConstraints = new LinkedHashMap<>();
-        final Map<String, String> tagMatchConstraints = new LinkedHashMap<>();
+        // sampleName -> label -> {all distinct tagEqual values across all rules}
+        final Map<String, Map<String, Set<String>>> perSampleTagEqual = new LinkedHashMap<>();
+        // sampleName -> label -> [all tagMatch patterns across all rules]
+        final Map<String, Map<String, List<String>>> perSampleTagMatch = new LinkedHashMap<>();
+        // Global tagEqual for expSuffix (applies to all samples)
+        final Map<String, Set<String>> globalTagEqualValues = new LinkedHashMap<>();
+        // Global tagMatch from expSuffix
+        final Map<String, List<String>> globalTagMatch = new LinkedHashMap<>();
         final Set<String> closureAccessedLabels = new LinkedHashSet<>();
         final List<String> metricNames = new ArrayList<>();
         boolean anyHistogram = false;
         double valueForEqual = 100.0;
+
+        // Extract constraints from expSuffix (applies to all samples)
+        if (!expSuffix.isEmpty()) {
+            extractTagEqualAllValues(expSuffix, globalTagEqualValues);
+            extractTagMatchAllPatterns(expSuffix, globalTagMatch);
+            extractClosureAccessedLabels(expSuffix, closureAccessedLabels);
+        }
 
         for (final Map<String, String> rule : rules) {
             final String name = rule.get("name");
@@ -191,20 +204,21 @@ public final class MalInputDataGenerator {
             if (name == null || exp == null) {
                 continue;
             }
+            metricNames.add(name);
+
             String fullExp = exp;
             if (!expPrefix.isEmpty()) {
                 fullExp = expPrefix + "." + fullExp;
             }
-            if (!expSuffix.isEmpty()) {
-                fullExp = fullExp + "." + expSuffix;
-            }
-            metricNames.add(name);
 
+            // Compile to get metadata (sample names, labels)
+            Set<String> ruleSamples = new LinkedHashSet<>();
             try {
                 final MalExpression compiled = generator.compile(name, fullExp);
                 final ExpressionMetadata meta = compiled.metadata();
 
                 for (final String sample : meta.getSamples()) {
+                    ruleSamples.add(sample);
                     final Set<String> labels = sampleLabels.computeIfAbsent(
                         sample, k -> new LinkedHashSet<>());
                     labels.addAll(meta.getAggregationLabels());
@@ -218,14 +232,47 @@ public final class MalInputDataGenerator {
                 extractSampleNamesFromText(fullExp, sampleLabels);
             }
 
-            // Extract constraints from expression text
-            extractTagEqualConstraints(fullExp, tagEqualConstraints);
-            extractTagMatchConstraints(fullExp, tagMatchConstraints);
-            extractClosureAccessedLabels(fullExp, closureAccessedLabels);
-            extractTagNotEqualNullLabels(fullExp, closureAccessedLabels);
+            // Extract per-rule tagEqual constraints and associate with this rule's samples
+            final Map<String, Set<String>> ruleTagEqual = new LinkedHashMap<>();
+            extractTagEqualAllValues(exp, ruleTagEqual);
+            for (final String sample : ruleSamples) {
+                final Map<String, Set<String>> sampleTe =
+                    perSampleTagEqual.computeIfAbsent(sample, k -> new LinkedHashMap<>());
+                for (final Map.Entry<String, Set<String>> te : ruleTagEqual.entrySet()) {
+                    sampleTe.computeIfAbsent(te.getKey(), k -> new LinkedHashSet<>())
+                        .addAll(te.getValue());
+                }
+            }
+
+            // Extract per-rule tagMatch — infer a matching value for each label and
+            // treat it as a multi-value entry (like tagEqual) so that each rule gets
+            // a sample variant with the right tagMatch value.
+            final Map<String, List<String>> ruleTagMatch = new LinkedHashMap<>();
+            extractTagMatchAllPatterns(exp, ruleTagMatch);
+            for (final Map.Entry<String, List<String>> tm : ruleTagMatch.entrySet()) {
+                final String matchLabel = tm.getKey();
+                final String inferredValue = generateMatchingValue(
+                    matchLabel, tm.getValue(), name);
+                for (final String sample : ruleSamples) {
+                    // Add as multi-value (like tagEqual)
+                    perSampleTagEqual.computeIfAbsent(sample, k -> new LinkedHashMap<>())
+                        .computeIfAbsent(matchLabel, k -> new LinkedHashSet<>())
+                        .add(inferredValue);
+                    // Also keep patterns for inferLabelValue fallback
+                    perSampleTagMatch.computeIfAbsent(sample, k -> new LinkedHashMap<>())
+                        .computeIfAbsent(matchLabel, k -> new ArrayList<>())
+                        .addAll(tm.getValue());
+                }
+            }
+
+            // Extract tagNotEqual (non-null) and tagNotMatch labels
+            extractClosureAccessedLabels(exp, closureAccessedLabels);
+            extractTagNotEqualNullLabels(exp, closureAccessedLabels);
+            extractTagNotEqualLabels(exp, ruleSamples, sampleLabels);
+            extractTagNotMatchLabels(exp, ruleSamples, sampleLabels);
 
             // Check for valueEqual
-            final Matcher veMatch = VALUE_EQUAL_PATTERN.matcher(fullExp);
+            final Matcher veMatch = VALUE_EQUAL_PATTERN.matcher(exp);
             if (veMatch.find()) {
                 valueForEqual = Double.parseDouble(veMatch.group(1));
             }
@@ -235,9 +282,25 @@ public final class MalInputDataGenerator {
             return null;
         }
 
-        // Add closure-accessed labels to all samples
-        for (final Set<String> labels : sampleLabels.values()) {
+        // Merge all constraint labels into each sample
+        for (final Map.Entry<String, Set<String>> entry : sampleLabels.entrySet()) {
+            final String sampleName = entry.getKey();
+            final Set<String> labels = entry.getValue();
             labels.addAll(closureAccessedLabels);
+            // Add global tagEqual labels (from expSuffix)
+            labels.addAll(globalTagEqualValues.keySet());
+            // Add global tagMatch labels (from expSuffix)
+            labels.addAll(globalTagMatch.keySet());
+            // Add per-sample tagEqual labels
+            final Map<String, Set<String>> sampleTe = perSampleTagEqual.get(sampleName);
+            if (sampleTe != null) {
+                labels.addAll(sampleTe.keySet());
+            }
+            // Add per-sample tagMatch labels
+            final Map<String, List<String>> sampleTm = perSampleTagMatch.get(sampleName);
+            if (sampleTm != null) {
+                labels.addAll(sampleTm.keySet());
+            }
         }
 
         // Build the YAML content
@@ -251,6 +314,31 @@ public final class MalInputDataGenerator {
 
             sb.append("  ").append(yamlKey(sampleName)).append(":\n");
 
+            // Build effective constraints for THIS sample
+            final Map<String, Set<String>> sampleTe = perSampleTagEqual.get(sampleName);
+            final Map<String, Set<String>> effectiveTagEqual = new LinkedHashMap<>(globalTagEqualValues);
+            if (sampleTe != null) {
+                for (final Map.Entry<String, Set<String>> te : sampleTe.entrySet()) {
+                    effectiveTagEqual.computeIfAbsent(te.getKey(), k -> new LinkedHashSet<>())
+                        .addAll(te.getValue());
+                }
+            }
+            final Map<String, List<String>> sampleTm = perSampleTagMatch.get(sampleName);
+            final Map<String, List<String>> effectiveTagMatch = new LinkedHashMap<>(globalTagMatch);
+            if (sampleTm != null) {
+                for (final Map.Entry<String, List<String>> tm : sampleTm.entrySet()) {
+                    effectiveTagMatch.computeIfAbsent(tm.getKey(), k -> new ArrayList<>())
+                        .addAll(tm.getValue());
+                }
+            }
+            final Map<String, Set<String>> multiValueLabels = new LinkedHashMap<>();
+            for (final String label : labels) {
+                final Set<String> vals = effectiveTagEqual.get(label);
+                if (vals != null && vals.size() > 1) {
+                    multiValueLabels.put(label, vals);
+                }
+            }
+
             if (anyHistogram && labels.contains("le")) {
                 // Generate multiple samples with cumulative le bucket values
                 double cumulativeValue = 0;
@@ -262,19 +350,32 @@ public final class MalInputDataGenerator {
                             sb.append("        le: '").append(le).append("'\n");
                         } else {
                             final String value = inferLabelValue(
-                                label, sampleName, tagEqualConstraints,
-                                tagMatchConstraints);
+                                label, sampleName, effectiveTagEqual,
+                                effectiveTagMatch);
                             sb.append("        ").append(yamlKey(label))
                                 .append(": ").append(yamlValue(value)).append("\n");
                         }
                     }
                     sb.append("      value: ").append(cumulativeValue).append("\n");
                 }
+            } else if (!multiValueLabels.isEmpty()) {
+                // Generate one sample per combination of multi-value tagEqual labels
+                final List<Map<String, String>> variants =
+                    buildLabelVariants(labels, multiValueLabels,
+                        sampleName, effectiveTagEqual, effectiveTagMatch);
+                for (final Map<String, String> variant : variants) {
+                    sb.append("    - labels:\n");
+                    for (final Map.Entry<String, String> le : variant.entrySet()) {
+                        sb.append("        ").append(yamlKey(le.getKey()))
+                            .append(": ").append(yamlValue(le.getValue())).append("\n");
+                    }
+                    sb.append("      value: ").append(valueForEqual).append("\n");
+                }
             } else {
                 sb.append("    - labels:\n");
                 for (final String label : labels) {
                     final String value = inferLabelValue(
-                        label, sampleName, tagEqualConstraints, tagMatchConstraints);
+                        label, sampleName, effectiveTagEqual, effectiveTagMatch);
                     sb.append("        ").append(yamlKey(label))
                         .append(": ").append(yamlValue(value)).append("\n");
                 }
@@ -306,20 +407,59 @@ public final class MalInputDataGenerator {
         }
     }
 
-    private void extractTagEqualConstraints(final String expression,
-                                            final Map<String, Map<String, String>> constraints) {
+    private void extractTagEqualAllValues(final String expression,
+                                          final Map<String, Set<String>> allValues) {
         final Matcher m = TAG_EQUAL_PATTERN.matcher(expression);
         while (m.find()) {
-            constraints.computeIfAbsent("_global", k -> new LinkedHashMap<>())
-                .put(m.group(1), m.group(2));
+            allValues.computeIfAbsent(m.group(1), k -> new LinkedHashSet<>())
+                .add(m.group(2));
         }
     }
 
-    private void extractTagMatchConstraints(final String expression,
-                                            final Map<String, String> constraints) {
+    /**
+     * Build label variant maps for samples that need multiple tagEqual values.
+     * Produces one map per distinct value of each multi-value label.
+     */
+    private List<Map<String, String>> buildLabelVariants(
+            final Set<String> allLabels,
+            final Map<String, Set<String>> multiValueLabels,
+            final String sampleName,
+            final Map<String, Set<String>> tagEqualAllValues,
+            final Map<String, List<String>> tagMatchPatterns) {
+        // Start with a single base variant containing all non-multi-value labels
+        List<Map<String, String>> variants = new ArrayList<>();
+        final Map<String, String> base = new LinkedHashMap<>();
+        for (final String label : allLabels) {
+            if (!multiValueLabels.containsKey(label)) {
+                base.put(label, inferLabelValue(
+                    label, sampleName, tagEqualAllValues, tagMatchPatterns));
+            }
+        }
+        variants.add(base);
+
+        // For each multi-value label, expand: each existing variant × each value
+        for (final Map.Entry<String, Set<String>> mvEntry : multiValueLabels.entrySet()) {
+            final String label = mvEntry.getKey();
+            final Set<String> values = mvEntry.getValue();
+            final List<Map<String, String>> expanded = new ArrayList<>();
+            for (final Map<String, String> existing : variants) {
+                for (final String val : values) {
+                    final Map<String, String> copy = new LinkedHashMap<>(existing);
+                    copy.put(label, val);
+                    expanded.add(copy);
+                }
+            }
+            variants = expanded;
+        }
+        return variants;
+    }
+
+    private void extractTagMatchAllPatterns(final String expression,
+                                            final Map<String, List<String>> patterns) {
         final Matcher m = TAG_MATCH_PATTERN.matcher(expression);
         while (m.find()) {
-            constraints.put(m.group(1), m.group(2));
+            patterns.computeIfAbsent(m.group(1), k -> new ArrayList<>())
+                .add(m.group(2));
         }
     }
 
@@ -348,19 +488,44 @@ public final class MalInputDataGenerator {
         }
     }
 
+    private void extractTagNotEqualLabels(final String expression,
+                                          final Set<String> ruleSamples,
+                                          final Map<String, Set<String>> sampleLabels) {
+        final Matcher m = TAG_NOT_EQUAL_PATTERN.matcher(expression);
+        while (m.find()) {
+            final String label = m.group(1);
+            for (final String sample : ruleSamples) {
+                sampleLabels.computeIfAbsent(sample, k -> new LinkedHashSet<>()).add(label);
+            }
+        }
+    }
+
+    private void extractTagNotMatchLabels(final String expression,
+                                          final Set<String> ruleSamples,
+                                          final Map<String, Set<String>> sampleLabels) {
+        final Matcher m = TAG_NOT_MATCH_PATTERN.matcher(expression);
+        while (m.find()) {
+            final String label = m.group(1);
+            for (final String sample : ruleSamples) {
+                sampleLabels.computeIfAbsent(sample, k -> new LinkedHashSet<>()).add(label);
+            }
+        }
+    }
+
     String inferLabelValue(final String label,
                            final String sampleName,
-                           final Map<String, Map<String, String>> tagEqualConstraints,
-                           final Map<String, String> tagMatchConstraints) {
-        // Check tagEqual constraints first
-        final Map<String, String> globals = tagEqualConstraints.get("_global");
-        if (globals != null && globals.containsKey(label)) {
-            return globals.get(label);
+                           final Map<String, Set<String>> tagEqualAllValues,
+                           final Map<String, List<String>> tagMatchPatterns) {
+        // Check tagEqual constraints — use first value (for single-value labels)
+        final Set<String> eqVals = tagEqualAllValues.get(label);
+        if (eqVals != null && !eqVals.isEmpty()) {
+            return eqVals.iterator().next();
         }
 
-        // Check tagMatch constraints — generate a matching value
-        if (tagMatchConstraints.containsKey(label)) {
-            return generateMatchingValue(label, tagMatchConstraints.get(label), sampleName);
+        // Check tagMatch constraints — generate a value matching ALL patterns
+        final List<String> patterns = tagMatchPatterns.get(label);
+        if (patterns != null && !patterns.isEmpty()) {
+            return generateMatchingValue(label, patterns, sampleName);
         }
 
         // Known label patterns
@@ -533,27 +698,18 @@ public final class MalInputDataGenerator {
     }
 
     /**
-     * Generate a value that matches the given tagMatch regex pattern.
+     * Generate a value that matches ALL given tagMatch regex patterns for a label.
      */
-    private String generateMatchingValue(final String label, final String pattern,
+    private String generateMatchingValue(final String label, final List<String> patterns,
                                          final String sampleName) {
-        // Handle common patterns
+        // Handle common multi-pattern label cases
         if ("metrics_name".equals(label)) {
-            if (pattern.contains("ssl") && pattern.contains("expiration")) {
-                // envoy-ca pattern: .*ssl.*expiration_unix_time_seconds
-                return "cluster.ssl.certificate.test-cert.expiration_unix_time_seconds";
-            }
-            if (pattern.contains("membership_healthy")) {
-                return "cluster.test-cluster.membership_healthy";
-            }
-            if (pattern.contains("membership_total")) {
-                return "cluster.test-cluster.membership_total";
-            }
-            // Generic: try to make it match
-            return pattern.replace(".*", "test").replace(".+", "test");
+            return generateMetricsNameValue(patterns);
         }
+
+        // For single pattern, use simple matching
+        final String pattern = patterns.get(0);
         if ("gc".equals(label)) {
-            // GC names in tagMatch: PS Scavenge|Copy|ParNew|...
             if (pattern.contains("PS Scavenge")) {
                 return "PS Scavenge";
             }
@@ -576,6 +732,60 @@ public final class MalInputDataGenerator {
             return stripped.split("\\|")[0];
         }
         return stripped;
+    }
+
+    private String generateMetricsNameValue(final List<String> patterns) {
+        // Envoy metrics_name patterns combine prefix matching with suffix matching
+        // e.g., [".+membership_healthy", "cluster.outbound.+|cluster.inbound.+"]
+        // Need a value matching ALL patterns simultaneously
+
+        // Collect suffix/content requirements and prefix requirements
+        String prefix = "cluster.outbound.test-cluster";
+        String suffix = "";
+
+        for (final String p : patterns) {
+            if (p.contains("ssl") && p.contains("expiration")) {
+                return "cluster.outbound.test-cluster.ssl.certificate.test-cert.expiration_unix_time_seconds";
+            }
+            if (p.contains("membership_healthy")) {
+                suffix = ".membership_healthy";
+            } else if (p.contains("membership_total")) {
+                suffix = ".membership_total";
+            } else if (p.contains("cx_active")) {
+                suffix = ".upstream_cx_active";
+            } else if (p.contains("cx_connect_fail")) {
+                suffix = ".upstream_cx_connect_fail";
+            } else if (p.contains("rq_active")) {
+                suffix = ".upstream_rq_active";
+            } else if (p.contains("rq_pending_active")) {
+                suffix = ".upstream_rq_pending_active";
+            } else if (p.contains("lb_healthy_panic")) {
+                suffix = ".lb_healthy_panic";
+            } else if (p.contains("cx_none_healthy")) {
+                suffix = ".upstream_cx_none_healthy";
+            } else if (p.contains("cluster.outbound") || p.contains("cluster.inbound")) {
+                // Prefix pattern — already handled
+                prefix = "cluster.outbound.test-cluster";
+            }
+        }
+
+        if (!suffix.isEmpty()) {
+            return prefix + suffix;
+        }
+
+        // Fallback: try to satisfy all patterns
+        for (final String p : patterns) {
+            final String stripped = p
+                .replace(".*", "test")
+                .replace(".+", "test")
+                .replace("(", "").replace(")", "")
+                .replace("^", "").replace("$", "");
+            if (stripped.contains("|")) {
+                return stripped.split("\\|")[0];
+            }
+            return stripped;
+        }
+        return "test-metric";
     }
 
     private static boolean isKeyword(final String name) {

@@ -57,19 +57,85 @@ input:
         service: test-service
       value: 100.0
 expected:
-  service_receive_event_count:
-    min_samples: 1
-  service_fetch_event_count:
-    min_samples: 1
-  service_queue_input_count:
-    min_samples: 1
-  service_send_event_count:
-    min_samples: 1
-  service_queue_total_capacity:
-    min_samples: 1
-  service_queue_used_count:
-    min_samples: 1
-  service_server_cpu_utilization:
-    min_samples: 1
-  service_grpc_connect_count:
-    min_samples: 1
+  satellite_service_receive_event_count:
+    entities:
+      - scope: SERVICE
+        service: 'satellite::test-service'
+        layer: SO11Y_SATELLITE
+    samples:
+      - labels:
+          pipe: test-pipe
+          service: 'satellite::test-service'
+          status: active
+        value: 0.0
+  satellite_service_fetch_event_count:
+    entities:
+      - scope: SERVICE
+        service: 'satellite::test-service'
+        layer: SO11Y_SATELLITE
+    samples:
+      - labels:
+          pipe: test-pipe
+          service: 'satellite::test-service'
+          status: active
+        value: 0.0
+  satellite_service_queue_input_count:
+    entities:
+      - scope: SERVICE
+        service: 'satellite::test-service'
+        layer: SO11Y_SATELLITE
+    samples:
+      - labels:
+          pipe: test-pipe
+          service: 'satellite::test-service'
+          status: active
+        value: 0.0
+  satellite_service_send_event_count:
+    entities:
+      - scope: SERVICE
+        service: 'satellite::test-service'
+        layer: SO11Y_SATELLITE
+    samples:
+      - labels:
+          pipe: test-pipe
+          service: 'satellite::test-service'
+          status: active
+        value: 0.0
+  satellite_service_queue_total_capacity:
+    entities:
+      - scope: SERVICE
+        service: 'satellite::test-service'
+        layer: SO11Y_SATELLITE
+    samples:
+      - labels:
+          pipeline: test-pipeline
+          service: 'satellite::test-service'
+        value: 100.0
+  satellite_service_queue_used_count:
+    entities:
+      - scope: SERVICE
+        service: 'satellite::test-service'
+        layer: SO11Y_SATELLITE
+    samples:
+      - labels:
+          pipeline: test-pipeline
+          service: 'satellite::test-service'
+        value: 100.0
+  satellite_service_server_cpu_utilization:
+    entities:
+      - scope: SERVICE
+        service: 'satellite::test-service'
+        layer: SO11Y_SATELLITE
+    samples:
+      - labels:
+          service: 'satellite::test-service'
+        value: 100.0
+  satellite_service_grpc_connect_count:
+    entities:
+      - scope: SERVICE
+        service: 'satellite::test-service'
+        layer: SO11Y_SATELLITE
+    samples:
+      - labels:
+          service: 'satellite::test-service'
+        value: 100.0

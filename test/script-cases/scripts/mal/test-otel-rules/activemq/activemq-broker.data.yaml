@@ -129,45 +129,255 @@ input:
         destinationName: test-destination
       value: 100.0
 expected:
-  uptime:
-    min_samples: 1
-  state:
-    min_samples: 1
-  current_connections:
-    min_samples: 1
-  current_producer_count:
-    min_samples: 1
-  current_consumer_count:
-    min_samples: 1
-  producer_count:
-    min_samples: 1
-  consumer_count:
-    min_samples: 1
-  enqueue_count:
-    min_samples: 1
-  dequeue_count:
-    min_samples: 1
-  enqueue_rate:
-    min_samples: 1
-  dequeue_rate:
-    min_samples: 1
-  memory_percent_usage:
-    min_samples: 1
-  memory_usage:
-    min_samples: 1
-  memory_limit:
-    min_samples: 1
-  store_percent_usage:
-    min_samples: 1
-  store_limit:
-    min_samples: 1
-  temp_percent_usage:
-    min_samples: 1
-  temp_limit:
-    min_samples: 1
-  average_message_size:
-    min_samples: 1
-  max_message_size:
-    min_samples: 1
-  queue_size:
-    min_samples: 1
+  meter_activemq_broker_uptime:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_state:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_current_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_current_producer_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_current_consumer_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_producer_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_activemq_broker_consumer_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_activemq_broker_enqueue_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_activemq_broker_dequeue_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_activemq_broker_enqueue_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_activemq_broker_dequeue_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 0.0
+  meter_activemq_broker_memory_percent_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_memory_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_memory_limit:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_store_percent_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_store_limit:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_temp_percent_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_temp_limit:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_average_message_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_max_message_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_activemq_broker_queue_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'activemq::test-cluster'
+        instance: test-broker
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          brokerName: test-broker
+          cluster: 'activemq::test-cluster'
+          destinationName: test-destination
+        value: 100.0

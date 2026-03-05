@@ -140,47 +140,223 @@ input:
         node: test-node
       value: 100.0
 expected:
-  memory_available_before_publisher_blocked:
-    min_samples: 1
-  disk_space_available_before_publisher_blocked:
-    min_samples: 1
-  file_descriptors_available:
-    min_samples: 1
-  tcp_socket_available:
-    min_samples: 1
-  message_ready_delivered_consumers:
-    min_samples: 1
-  message_unacknowledged_delivered_consumers:
-    min_samples: 1
-  messages_published:
-    min_samples: 1
-  messages_confirmed:
-    min_samples: 1
-  messages_routed:
-    min_samples: 1
-  messages_unconfirmed:
-    min_samples: 1
-  messages_unroutable_dropped:
-    min_samples: 1
-  messages_unroutable_returned:
-    min_samples: 1
-  queues:
-    min_samples: 1
-  queues_declared_total:
-    min_samples: 1
-  queues_created_total:
-    min_samples: 1
-  queues_deleted_total:
-    min_samples: 1
-  channels:
-    min_samples: 1
-  channels_opened_total:
-    min_samples: 1
-  channels_closed_total:
-    min_samples: 1
-  connections:
-    min_samples: 1
-  connections_opened_total:
-    min_samples: 1
-  connections_closed_total:
-    min_samples: 1
+  meter_rabbitmq_memory_available_before_publisher_blocked:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_disk_space_available_before_publisher_blocked:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_file_descriptors_available:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_tcp_socket_available:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_message_ready_delivered_consumers:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_message_unacknowledged_delivered_consumers:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_messages_published:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_messages_confirmed:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_messages_routed:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_messages_unconfirmed:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_messages_unroutable_dropped:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_messages_unroutable_returned:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_queues:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_queues_declared_total:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_queues_created_total:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_queues_deleted_total:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_channels:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_channels_opened_total:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_channels_closed_total:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_connections:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_connections_opened_total:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_connections_closed_total:
+    entities:
+      - scope: SERVICE
+        service: 'rabbitmq::test-cluster'
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0

@@ -23,11 +23,23 @@ input:
     - labels:
         cluster: test-cluster
         service: test-service
+        resource: cpu
+      value: 1.0
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        resource: memory
       value: 1.0
   kube_pod_container_resource_limits:
     - labels:
         cluster: test-cluster
         service: test-service
+        resource: cpu
+      value: 1.0
+    - labels:
+        cluster: test-cluster
+        service: test-service
+        resource: memory
       value: 1.0
   kube_pod_status_phase:
     - labels:
@@ -71,25 +83,106 @@ input:
         pod: test-pod
       value: 1.0
 expected:
-  pod_total:
-    min_samples: 1
-  cpu_cores_requests:
-    min_samples: 1
-  cpu_cores_limits:
-    min_samples: 1
-  memory_requests:
-    min_samples: 1
-  memory_limits:
-    min_samples: 1
-  pod_status:
-    min_samples: 1
-  pod_status_waiting:
-    min_samples: 1
-  pod_status_terminated:
-    min_samples: 1
-  pod_status_restarts_total:
-    min_samples: 1
-  pod_cpu_usage:
-    min_samples: 1
-  pod_memory_usage:
-    min_samples: 1
+  k8s_service_pod_total:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+        value: 1.0
+  k8s_service_cpu_cores_requests:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+        value: 1000.0
+  k8s_service_cpu_cores_limits:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+        value: 1000.0
+  k8s_service_memory_requests:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+        value: 1.0
+  k8s_service_memory_limits:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+        value: 1.0
+  k8s_service_pod_status:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+          pod: test-pod
+          phase: test-value
+        value: 1.0
+  k8s_service_pod_status_waiting:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+          pod: test-pod
+          container: test-container
+          reason: test-value
+        value: 1.0
+  k8s_service_pod_status_terminated:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+          pod: test-pod
+          container: test-container
+          reason: test-value
+        value: 1.0
+  k8s_service_pod_status_restarts_total:
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+          pod: test-pod
+        value: 1.0
+  k8s_service_pod_cpu_usage:
+    error: 'v1 not-success'
+  k8s_service_pod_memory_usage:
+    error: 'v1 not-success'

@@ -14,51 +14,217 @@
 # limitations under the License.
 
 input:
-  eks:
-    - labels:
-        cluster: test-cluster
-        ClusterName: test-value
-      value: 100.0
   cluster:
     - labels:
-        cluster: test-cluster
-        ClusterName: test-value
       value: 100.0
-  tags:
+  pod_number_of_containers:
     - labels:
-        cluster: test-cluster
-        ClusterName: test-value
+      value: 100.0
+  node_cpu_utilization:
+    - labels:
+      value: 100.0
+  node_memory_utilization:
+    - labels:
+      value: 100.0
+  node_network_rx_bytes:
+    - labels:
+      value: 100.0
+  node_network_rx_errors:
+    - labels:
+      value: 100.0
+  node_network_tx_bytes:
+    - labels:
+      value: 100.0
+  node_network_tx_errors:
+    - labels:
+      value: 100.0
+  node_diskio_io_service_bytes_write:
+    - labels:
+      value: 100.0
+  node_diskio_io_service_bytes_read:
+    - labels:
+      value: 100.0
+  node_filesystem_utilization:
+    - labels:
+      value: 100.0
+  pod_cpu_utilization:
+    - labels:
+      value: 100.0
+  pod_memory_utilization:
+    - labels:
+      value: 100.0
+  pod_network_rx_bytes:
+    - labels:
+      value: 100.0
+  pod_network_rx_errors:
+    - labels:
+      value: 100.0
+  pod_network_tx_bytes:
+    - labels:
+      value: 100.0
+  pod_network_tx_errors:
+    - labels:
       value: 100.0
 expected:
-  pod_number:
-    min_samples: 1
-  cpu_utilization:
-    min_samples: 1
-  memory_utilization:
-    min_samples: 1
-  net_rx_bytes:
-    min_samples: 1
-  net_rx_error:
-    min_samples: 1
-  net_tx_bytes:
-    min_samples: 1
-  net_tx_error:
-    min_samples: 1
-  disk_io_write:
-    min_samples: 1
-  disk_io_read:
-    min_samples: 1
-  fs_utilization:
-    min_samples: 1
-  pod_cpu_utilization:
-    min_samples: 1
-  pod_memory_utilization:
-    min_samples: 1
-  pod_net_rx_bytes:
-    min_samples: 1
-  pod_net_rx_error:
-    min_samples: 1
-  pod_net_tx_bytes:
-    min_samples: 1
-  pod_net_tx_error:
-    min_samples: 1
+  eks_cluster_node_pod_number:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_node_cpu_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_node_memory_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_node_net_rx_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_node_net_rx_error:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_node_net_tx_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_node_net_tx_error:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          cluster: 'aws-eks-cluster::null'
+        value: 100.0
+  eks_cluster_node_disk_io_write:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          device: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0
+  eks_cluster_node_disk_io_read:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          device: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0
+  eks_cluster_node_fs_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          device: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0
+  eks_cluster_node_pod_cpu_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0
+  eks_cluster_node_pod_memory_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0
+  eks_cluster_node_pod_net_rx_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0
+  eks_cluster_node_pod_net_rx_error:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0
+  eks_cluster_node_pod_net_tx_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0
+  eks_cluster_node_pod_net_tx_error:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::null'
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::null'
+          NodeName: 
+        value: 100.0

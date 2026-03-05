@@ -22,5 +22,16 @@ input:
         pod: test-pod
       value: 100.0
 expected:
-  pod_instance_status:
-    min_samples: 1
+  k8s_service_instance_pod_instance_status:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'test-cluster::test-pod.test-namespace'
+        instance: test-pod
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          namespace: test-namespace
+          service: test-pod.test-namespace
+          pod: test-pod
+        value: 100.0
