@@ -41,7 +41,9 @@ class MalInputDataGeneratorTest {
             "test-meter-analyzer-config",
             "test-otel-rules",
             "test-envoy-metrics-rules",
-            "test-log-mal-rules"
+            "test-log-mal-rules",
+            "test-telegraf-rules",
+            "test-zabbix-rules"
         };
 
         int totalGenerated = 0;

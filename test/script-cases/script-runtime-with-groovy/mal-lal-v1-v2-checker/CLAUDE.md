@@ -1,0 +1,98 @@
+# MAL/LAL/Hierarchy v1-v2 Comparison Checker
+
+Cross-version comparison tests that validate v2 (ANTLR4+Javassist) DSL compilers produce identical results to v1 (Groovy) compilers.
+
+## Test Classes
+
+| Class | Tests | Description |
+|-------|-------|-------------|
+| `MalComparisonTest` | ~1268 | Compiles and executes all MAL rules from 6 script directories |
+| `LalComparisonTest` | 35 | Compiles and executes all LAL rules from script directories |
+| `MalFilterComparisonTest` | 31 | Validates MAL filter operations (tagEqual, tagNotEqual, etc.) |
+| `MalInputDataGeneratorTest` | 1 | Generates `.data.yaml` companion files for MAL rules |
+| `MalExpectedDataGeneratorTest` | 1 | Generates expected sections in `.data.yaml` from v1 output |
+
+## How It Works
+
+For each DSL expression:
+1. Compile with v1 (Groovy) and v2 (ANTLR4+Javassist)
+2. Compare compile-time metadata (sample names, scope type, aggregation labels, etc.)
+3. Execute both with identical mock input data
+4. Assert output samples match (entities, labels, values)
+5. Validate against expected data in `.data.yaml` / `.input.data`
+
+## Script Directories (MAL)
+
+All under `test/script-cases/scripts/mal/`:
+
+| Directory | Source | Rules |
+|-----------|--------|-------|
+| `test-meter-analyzer-config` | `server-starter/.../meter-analyzer-config/` | ~17 configs |
+| `test-otel-rules` | `server-starter/.../otel-rules/` | ~73 service configs |
+| `test-envoy-metrics-rules` | `server-starter/.../envoy-metrics-rules/` | 3 configs |
+| `test-log-mal-rules` | `server-starter/.../log-mal-rules/` | 2 configs |
+| `test-telegraf-rules` | `server-starter/.../telegraf-rules/` | 1 config (vm.yaml) |
+| `test-zabbix-rules` | `server-starter/.../zabbix-rules/` | 1 config (agent.yaml) |
+
+## Input Data Mock Principles
+
+### MAL (.data.yaml files)
+
+Each MAL rule YAML has a companion `.data.yaml` with `input` and `expected` sections.
+
+**Input section:**
+- Every metric referenced in expressions must have samples
+- Label variants must cover all filter operations (tagEqual, tagNotEqual, tagMatch)
+- Labels used in `service(['host'])` / `instance(['service'], ['instance'])` must be present
+- Numeric YAML keys (e.g., zabbix `1`, `2`) → use `String.valueOf()` in Java code
+
+**Expected section:**
+- Auto-generated from v1 (Groovy) execution output — v1 is the trusted baseline
+- Rich assertions: entities (scope/service/instance/endpoint/layer), samples (labels/value)
+- `error: 'v1 not-success'` means input data is broken — fix input, don't skip
+- EMPTY results are hard failures
+
+**YAML key variants:**
+- Standard rules use `metricsRules` key
+- Zabbix rules use `metrics` key (both are handled by the collector)
+
+### LAL (.input.data files)
+
+Each LAL rule YAML has a companion `.input.data` with per-rule test entries.
+
+**Entry structure:** service, body-type, body, optional tags/extra-log, expect assertions.
+
+**Expect assertions:** save, abort, service, instance, endpoint, layer, tag.*, sampledTrace.*
+
+**Proto-typed rules:** Use `extra-log.proto-class` + `extra-log.proto-json` for protobuf extraLog.
+
+### Hierarchy
+
+No data files — Service mock objects are built inline in test code.
+
+## Generators
+
+### MalInputDataGenerator
+
+Extracts metric names and label requirements from compiled AST metadata. Generates `.data.yaml` input sections automatically. Run via `MalInputDataGeneratorTest` — skips files that already exist.
+
+### MalExpectedDataGenerator
+
+Runs v1 engine on input data and captures output as expected baseline. Run via `MalExpectedDataGeneratorTest` — updates the `expected:` section in existing `.data.yaml` files.
+
+## Adding New Rules
+
+1. Copy the production YAML to the appropriate `test-*` directory
+2. Run `MalInputDataGeneratorTest` to generate the `.data.yaml`
+3. Review input data — add missing label variants for filters
+4. Run `MalExpectedDataGeneratorTest` to generate expected sections
+5. Run `MalComparisonTest` to verify all tests pass
+6. Check for `error: 'v1 not-success'` in expected — fix input data
+
+## Duplicate Rule Names
+
+Some production configs (e.g., apisix.yaml) have duplicate rule names for route-based vs node-based variants. The collector disambiguates with `_2` suffix (e.g., `endpoint_http_status` → `endpoint_http_status_2`).
+
+## K8s Mocking
+
+Rules using `retagByK8sMeta` require K8s registry mocks. Both v1 and v2 K8sInfoRegistry are mocked via `Mockito.mockStatic()` in `@BeforeAll`. Mock `findServiceName(ns, pod)` returns `pod.ns`.

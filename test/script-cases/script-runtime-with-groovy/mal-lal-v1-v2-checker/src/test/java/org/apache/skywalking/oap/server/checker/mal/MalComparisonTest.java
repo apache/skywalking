@@ -383,12 +383,12 @@ class MalComparisonTest {
                     actualSorted[i];
 
                 // Compare labels
-                final Map<String, Object> rawExpLabels =
-                    (Map<String, Object>) expSample.get("labels");
+                final Map<?, ?> rawExpLabels =
+                    (Map<?, ?>) expSample.get("labels");
                 if (rawExpLabels != null) {
                     final Map<String, String> expLabels = new LinkedHashMap<>();
-                    for (final Map.Entry<String, Object> le : rawExpLabels.entrySet()) {
-                        expLabels.put(le.getKey(),
+                    for (final Map.Entry<?, ?> le : rawExpLabels.entrySet()) {
+                        expLabels.put(String.valueOf(le.getKey()),
                             le.getValue() == null ? "" : String.valueOf(le.getValue()));
                     }
                     assertEquals(expLabels, actSample.getLabels(),
@@ -459,9 +459,10 @@ class MalComparisonTest {
                 final Map<String, String> labels = new HashMap<>();
                 final Object rawLabels = sampleDef.get("labels");
                 if (rawLabels instanceof Map) {
-                    for (final Map.Entry<String, Object> le :
-                            ((Map<String, Object>) rawLabels).entrySet()) {
-                        labels.put(le.getKey(), String.valueOf(le.getValue()));
+                    for (final Map.Entry<?, ?> le :
+                            ((Map<?, ?>) rawLabels).entrySet()) {
+                        labels.put(String.valueOf(le.getKey()),
+                            le.getValue() == null ? "" : String.valueOf(le.getValue()));
                     }
                 }
                 final double value = ((Number) sampleDef.get("value")).doubleValue();
@@ -500,9 +501,10 @@ class MalComparisonTest {
                 final Map<String, String> labels = new HashMap<>();
                 final Object rawLabels = sampleDef.get("labels");
                 if (rawLabels instanceof Map) {
-                    for (final Map.Entry<String, Object> le :
-                            ((Map<String, Object>) rawLabels).entrySet()) {
-                        labels.put(le.getKey(), String.valueOf(le.getValue()));
+                    for (final Map.Entry<?, ?> le :
+                            ((Map<?, ?>) rawLabels).entrySet()) {
+                        labels.put(String.valueOf(le.getKey()),
+                            le.getValue() == null ? "" : String.valueOf(le.getValue()));
                     }
                 }
                 final double value = ((Number) sampleDef.get("value")).doubleValue();
@@ -863,7 +865,9 @@ class MalComparisonTest {
             "test-meter-analyzer-config",
             "test-otel-rules",
             "test-envoy-metrics-rules",
-            "test-log-mal-rules"
+            "test-log-mal-rules",
+            "test-telegraf-rules",
+            "test-zabbix-rules"
         };
 
         final Path scriptsDir = findScriptsDir("mal");
@@ -901,7 +905,8 @@ class MalComparisonTest {
             }
             final String content = Files.readString(file.toPath());
             final Map<String, Object> config = yaml.load(content);
-            if (config == null || !config.containsKey("metricsRules")) {
+            if (config == null
+                || (!config.containsKey("metricsRules") && !config.containsKey("metrics"))) {
                 continue;
             }
             final Object rawSuffix = config.get("expSuffix");
@@ -911,8 +916,12 @@ class MalComparisonTest {
             final Object rawMetricPrefix = config.get("metricPrefix");
             final String metricPrefix = rawMetricPrefix instanceof String
                 ? (String) rawMetricPrefix : null;
-            final List<Map<String, String>> rules =
+            // Support both "metricsRules" (standard) and "metrics" (zabbix)
+            List<Map<String, String>> rules =
                 (List<Map<String, String>>) config.get("metricsRules");
+            if (rules == null) {
+                rules = (List<Map<String, String>>) config.get("metrics");
+            }
             if (rules == null) {
                 continue;
             }

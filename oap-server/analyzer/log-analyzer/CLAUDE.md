@@ -194,6 +194,56 @@ test/script-cases/scripts/lal/test-lal/
 Each `.input.data` entry specifies `body-type`, `body`, optional `tags`, and `expect` assertions
 (service, instance, endpoint, layer, tags, abort, save, timestamp, sampledTrace fields).
 
+## LAL Input Data Mock Principles
+
+LAL test data lives in `.input.data` files alongside rule YAML files under `test/script-cases/scripts/lal/`. Each entry describes one log to process and the expected output.
+
+### Input Entry Structure
+
+```yaml
+rule-name:
+  - service: test-svc               # LogData.service
+    instance: test-inst              # LogData.serviceInstance (optional)
+    body-type: json|yaml|text|none   # How to parse the body
+    body: '{"key": "value"}'         # Log body string
+    trace-id: trace-001              # Trace context (optional)
+    timestamp: 1609459200000         # LogData.timestamp (optional)
+    tags:                            # LogData tags (optional)
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    extra-log:                       # For proto-typed rules (e.g., envoy-als)
+      proto-class: io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry
+      proto-json: '{"response":{"responseCode":500}}'
+    expect:                          # Expected output assertions
+      save: true                     # SinkSpec.save() called
+      abort: false                   # Not aborted
+      service: expected-svc          # Extracted service name
+      layer: MESH                    # Extracted layer
+      tag.status.code: "500"         # Extracted tag value
+      sampledTrace.traceId: trace-001  # SampledTrace field
+```
+
+### Principles
+
+1. **`body-type` determines parsing**: `json` → `json{}` block, `text` → `text{}` block, `none` → proto extraLog or raw LogData access.
+2. **`extra-log` for proto types**: When rules access `parsed.*` on protobuf types (e.g., `HTTPAccessLogEntry`), provide `proto-class` and `proto-json`. The test harness parses via `JsonFormat`.
+3. **`expect` section is mandatory**: Every entry must have `expect` with at least `save` and `abort`.
+4. **Enum fields as strings**: Fields like `sampledTrace.reason` and `sampledTrace.detectPoint` are enums. Expected values use enum names (e.g., `slow`, `client`) compared via `.name()`.
+5. **Tag assertions**: `tag.KEY` in expect asserts extracted tag values (e.g., `tag.status.code: "500"`).
+6. **SampledTrace assertions**: `sampledTrace.FIELD` asserts fields on `NativeSampledTrace` (traceId, processId, destProcessId, componentId, etc.).
+7. **v1 is the truth**: Both v1 (Groovy) and v2 (ANTLR4) must produce identical results. If v1 produces different output than expected, the expected data has a bug.
+
+### Directory Structure
+
+```
+test/script-cases/scripts/lal/test-lal/
+  oap-cases/                     — copies of shipped LAL configs
+    default.yaml / default.input.data
+    envoy-als.yaml / envoy-als.input.data
+    ...
+  feature-cases/
+    execution-basic.yaml / execution-basic.input.data  — LAL feature tests
+```
+
 ## Debug Output
 
 When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:

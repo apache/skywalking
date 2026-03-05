@@ -86,7 +86,9 @@ public final class MalInputDataGenerator {
         "test-meter-analyzer-config",
         "test-otel-rules",
         "test-envoy-metrics-rules",
-        "test-log-mal-rules"
+        "test-log-mal-rules",
+        "test-telegraf-rules",
+        "test-zabbix-rules"
     };
 
     private final MALClassGenerator generator = new MALClassGenerator();
@@ -161,7 +163,8 @@ public final class MalInputDataGenerator {
         final Yaml yaml = new Yaml();
         final String content = Files.readString(yamlFile.toPath());
         final Map<String, Object> config = yaml.load(content);
-        if (config == null || !config.containsKey("metricsRules")) {
+        if (config == null
+            || (!config.containsKey("metricsRules") && !config.containsKey("metrics"))) {
             return null;
         }
 
@@ -170,8 +173,12 @@ public final class MalInputDataGenerator {
         final Object rawSuffix = config.get("expSuffix");
         final String expSuffix = rawSuffix instanceof String ? (String) rawSuffix : "";
 
-        final List<Map<String, String>> rules =
+        // Support both "metricsRules" (standard) and "metrics" (zabbix)
+        List<Map<String, String>> rules =
             (List<Map<String, String>>) config.get("metricsRules");
+        if (rules == null) {
+            rules = (List<Map<String, String>>) config.get("metrics");
+        }
         if (rules == null || rules.isEmpty()) {
             return null;
         }

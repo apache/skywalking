@@ -110,6 +110,17 @@ Four rule types are defined in `hierarchy-definition.yml`:
 | `lower-short-name-remove-namespace` | `{ (u, l) -> { if (l.shortName.lastIndexOf(".") > 0) { return u.name == l.shortName.substring(0, l.shortName.lastIndexOf(".")); } return false; } }` |
 | `lower-short-name-with-fqdn` | `{ (u, l) -> u.shortName == l.shortName.concat("." + u.shortName) }` |
 
+## Hierarchy Input Data Mock Principles
+
+Hierarchy rules are simpler than MAL/LAL — they take two `Service` objects and return a boolean. The test data is implicit in the test code rather than YAML files.
+
+### Principles
+
+1. **Service objects are the input**: Each rule receives `(Service upper, Service lower)` and returns whether they match. Test data is built programmatically with `Service.builder().name("...").shortName("...").build()`.
+2. **Four rule patterns**: See "Rule Patterns" above. Tests cover all four with various `name`/`shortName` combinations.
+3. **v1-v2 comparison**: The checker test (`HierarchyComparisonTest` in `mal-lal-v1-v2-checker`) compiles each rule with both v1 (Groovy) and v2 (ANTLR4), runs them on the same `Service` pairs, and asserts identical results.
+4. **No `.data.yaml` files**: Hierarchy rules are purely functional (two inputs → boolean), so mock data is inline in tests.
+
 ## Debug Output
 
 When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:

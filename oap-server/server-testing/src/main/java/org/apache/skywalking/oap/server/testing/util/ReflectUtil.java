@@ -19,11 +19,27 @@ package org.apache.skywalking.oap.server.testing.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * Reflection utilities for test code. Replaces {@code org.powermock.reflect.Whitebox}.
+ *
+ * <p>Uses {@code sun.misc.Unsafe} to write {@code static final} fields, which standard
+ * reflection cannot modify on JDK 12+.
  */
 public final class ReflectUtil {
+
+    private static final sun.misc.Unsafe UNSAFE;
+
+    static {
+        try {
+            final Field f = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            f.setAccessible(true);
+            UNSAFE = (sun.misc.Unsafe) f.get(null);
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private ReflectUtil() {
     }
@@ -34,25 +50,37 @@ public final class ReflectUtil {
     public static void setInternalState(final Object target, final String fieldName,
                                         final Object value) {
         final Field field = findField(target.getClass(), fieldName);
-        field.setAccessible(true);
-        try {
-            field.set(target, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to set field '" + fieldName + "'", e);
+        if (Modifier.isFinal(field.getModifiers())) {
+            final long offset = UNSAFE.objectFieldOffset(field);
+            UNSAFE.putObject(target, offset, value);
+        } else {
+            field.setAccessible(true);
+            try {
+                field.set(target, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Failed to set field '" + fieldName + "'", e);
+            }
         }
     }
 
     /**
      * Set a static field value on a class, searching up the class hierarchy.
+     * Uses {@code Unsafe} for final fields since {@code Field.set()} is blocked on JDK 12+.
      */
     public static void setInternalState(final Class<?> clazz, final String fieldName,
                                         final Object value) {
         final Field field = findField(clazz, fieldName);
-        field.setAccessible(true);
-        try {
-            field.set(null, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to set static field '" + fieldName + "'", e);
+        if (Modifier.isFinal(field.getModifiers())) {
+            final Object base = UNSAFE.staticFieldBase(field);
+            final long offset = UNSAFE.staticFieldOffset(field);
+            UNSAFE.putObject(base, offset, value);
+        } else {
+            field.setAccessible(true);
+            try {
+                field.set(null, value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Failed to set static field '" + fieldName + "'", e);
+            }
         }
     }
 

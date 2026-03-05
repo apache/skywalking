@@ -50,7 +50,9 @@ public final class MalExpectedDataGenerator {
         "test-meter-analyzer-config",
         "test-otel-rules",
         "test-envoy-metrics-rules",
-        "test-log-mal-rules"
+        "test-log-mal-rules",
+        "test-telegraf-rules",
+        "test-zabbix-rules"
     };
 
     private long timestampCounter = System.currentTimeMillis();
@@ -193,7 +195,8 @@ public final class MalExpectedDataGenerator {
             throws IOException {
         final Yaml yaml = new Yaml();
         final Map<String, Object> config = yaml.load(Files.readString(yamlFile.toPath()));
-        if (config == null || !config.containsKey("metricsRules")) {
+        if (config == null
+            || (!config.containsKey("metricsRules") && !config.containsKey("metrics"))) {
             return false;
         }
 
@@ -205,8 +208,12 @@ public final class MalExpectedDataGenerator {
         final String metricPrefix = rawMetricPrefix instanceof String
             ? (String) rawMetricPrefix : null;
 
-        final List<Map<String, String>> rules =
+        // Support both "metricsRules" (standard) and "metrics" (zabbix)
+        List<Map<String, String>> rules =
             (List<Map<String, String>>) config.get("metricsRules");
+        if (rules == null) {
+            rules = (List<Map<String, String>>) config.get("metrics");
+        }
         if (rules == null || rules.isEmpty()) {
             return false;
         }
@@ -409,9 +416,10 @@ public final class MalExpectedDataGenerator {
                 final Map<String, String> labels = new HashMap<>();
                 final Object rawLabels = sampleDef.get("labels");
                 if (rawLabels instanceof Map) {
-                    for (final Map.Entry<String, Object> le :
-                            ((Map<String, Object>) rawLabels).entrySet()) {
-                        labels.put(le.getKey(), String.valueOf(le.getValue()));
+                    for (final Map.Entry<?, ?> le :
+                            ((Map<?, ?>) rawLabels).entrySet()) {
+                        labels.put(String.valueOf(le.getKey()),
+                            le.getValue() == null ? "" : String.valueOf(le.getValue()));
                     }
                 }
                 final double value = ((Number) sampleDef.get("value")).doubleValue();
