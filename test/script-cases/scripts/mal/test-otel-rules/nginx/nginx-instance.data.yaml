@@ -16,26 +16,31 @@
 input:
   nginx_http_requests_total:
     - labels:
+        service_instance_id: test-instance
       value: 100.0
   nginx_http_latency:
     - labels:
+        service_instance_id: test-instance
       value: 100.0
   nginx_http_size_bytes:
     - labels:
+        service_instance_id: test-instance
       value: 100.0
   nginx_http_connections:
     - labels:
+        service_instance_id: test-instance
       value: 100.0
 expected:
   meter_nginx_instance_http_requests:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'nginx::null'
+        instance: test-instance
         layer: NGINX
     samples:
       - labels:
           service: 'nginx::null'
-          service_instance_id: 
+          service_instance_id: test-instance
         value: 0.0
   meter_nginx_instance_http_latency:
     error: 'v1 not-success'
@@ -43,44 +48,48 @@ expected:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'nginx::null'
+        instance: test-instance
         layer: NGINX
     samples:
       - labels:
           type: 
           service: 'nginx::null'
-          service_instance_id: 
+          service_instance_id: test-instance
         value: 0.0
   meter_nginx_instance_http_connections:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'nginx::null'
+        instance: test-instance
         layer: NGINX
     samples:
       - labels:
           state: 
           service: 'nginx::null'
-          service_instance_id: 
+          service_instance_id: test-instance
         value: 100.0
   meter_nginx_instance_http_status:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'nginx::null'
+        instance: test-instance
         layer: NGINX
     samples:
       - labels:
           status: 
           service: 'nginx::null'
-          service_instance_id: 
+          service_instance_id: test-instance
         value: 0.0
   meter_nginx_instance_http_requests_increment:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'nginx::null'
+        instance: test-instance
         layer: NGINX
     samples:
       - labels:
           service: 'nginx::null'
-          service_instance_id: 
+          service_instance_id: test-instance
         value: 0.0
   meter_nginx_instance_http_4xx_requests_increment:
     error: 'v1 not-success'

@@ -16,92 +16,119 @@
 input:
   instance_pvm_process_cpu_utilization:
     - labels:
+        instance: test-instance
       value: 100.0
   instance_pvm_process_mem_utilization:
     - labels:
+        instance: test-instance
       value: 100.0
   instance_pvm_total_cpu_utilization:
     - labels:
+        instance: test-instance
       value: 100.0
   instance_pvm_total_mem_utilization:
     - labels:
+        instance: test-instance
       value: 100.0
   instance_pvm_gc_g0:
     - labels:
+        instance: test-instance
       value: 100.0
   instance_pvm_gc_g1:
     - labels:
+        instance: test-instance
       value: 100.0
   instance_pvm_gc_g2:
     - labels:
+        instance: test-instance
       value: 100.0
   instance_pvm_gc_time:
     - labels:
+        instance: test-instance
       value: 100.0
   instance_pvm_thread_active_count:
     - labels:
+        instance: test-instance
       value: 100.0
 expected:
   meter_instance_pvm_process_cpu_utilization:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 100.0
   meter_instance_pvm_process_mem_utilization:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 100.0
   meter_instance_pvm_total_cpu_utilization:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 100.0
   meter_instance_pvm_total_mem_utilization:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 100.0
   meter_instance_pvm_gc_g0:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 100.0
   meter_instance_pvm_gc_g1:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 100.0
   meter_instance_pvm_gc_g2:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 100.0
   meter_instance_pvm_gc_time:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 0.0
   meter_instance_pvm_thread_active_count:
     entities:
       - scope: SERVICE_INSTANCE
+        instance: test-instance
         layer: GENERAL
     samples:
       - labels:
+          instance: test-instance
         value: 100.0

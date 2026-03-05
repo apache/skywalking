@@ -81,6 +81,12 @@ public final class MalInputDataGenerator {
         Pattern.compile("tags\\['([^']+)'\\]");
     private static final Pattern VALUE_EQUAL_PATTERN =
         Pattern.compile("\\.valueEqual\\s*\\(\\s*([0-9.]+)\\s*\\)");
+    // Extracts labels from entity functions: instance(['a'], ['b'], Layer.X)
+    // Matches each ['label'] argument in service/instance/endpoint/process calls
+    private static final Pattern ENTITY_FUNC_PATTERN =
+        Pattern.compile("\\.(service|instance|endpoint|process|serviceRelation|processRelation)\\s*\\(");
+    private static final Pattern STRING_LIST_ARG_PATTERN =
+        Pattern.compile("\\[\\s*'([^']+)'\\s*\\]");
 
     private static final String[] DIRS = {
         "test-meter-analyzer-config",
@@ -203,6 +209,7 @@ public final class MalInputDataGenerator {
             extractTagEqualAllValues(expSuffix, globalTagEqualValues);
             extractTagMatchAllPatterns(expSuffix, globalTagMatch);
             extractClosureAccessedLabels(expSuffix, closureAccessedLabels);
+            extractEntityFunctionLabels(expSuffix, closureAccessedLabels);
         }
 
         for (final Map<String, String> rule : rules) {
@@ -484,6 +491,38 @@ public final class MalInputDataGenerator {
         final Matcher m2 = CLOSURE_TAG_BRACKET_PATTERN.matcher(expression);
         while (m2.find()) {
             labels.add(m2.group(1));
+        }
+    }
+
+    /**
+     * Extract label names from entity function arguments in expSuffix.
+     * Entity functions like {@code instance(['host_name'], ['service_instance_id'], Layer.MYSQL)}
+     * use {@code ['label']} arguments to identify which input labels map to entity fields.
+     * These labels must be present in all input samples.
+     */
+    private void extractEntityFunctionLabels(final String expression,
+                                             final Set<String> labels) {
+        final Matcher funcMatcher = ENTITY_FUNC_PATTERN.matcher(expression);
+        while (funcMatcher.find()) {
+            // Find the matching closing paren for this entity function call
+            final int argsStart = funcMatcher.end();
+            int depth = 1;
+            int argsEnd = argsStart;
+            for (int i = argsStart; i < expression.length() && depth > 0; i++) {
+                final char c = expression.charAt(i);
+                if (c == '(') {
+                    depth++;
+                } else if (c == ')') {
+                    depth--;
+                }
+                argsEnd = i;
+            }
+            final String argsStr = expression.substring(argsStart, argsEnd);
+            // Extract all ['label'] arguments within the function call
+            final Matcher labelMatcher = STRING_LIST_ARG_PATTERN.matcher(argsStr);
+            while (labelMatcher.find()) {
+                labels.add(labelMatcher.group(1));
+            }
         }
     }
 

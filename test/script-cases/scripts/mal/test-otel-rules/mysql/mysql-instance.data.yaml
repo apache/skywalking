@@ -17,10 +17,12 @@ input:
   mysql_global_status_uptime:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   mysql_global_variables_innodb_buffer_pool_size:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   mysql_global_variables_max_connections:
     - labels:
@@ -30,31 +32,38 @@ input:
   mysql_global_variables_thread_cache_size:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   mysql_global_status_commands_total:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
         command: insert
       value: 100.0
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
         command: select
       value: 100.0
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
         command: delete
       value: 100.0
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
         command: update
       value: 100.0
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
         command: rollback
       value: 100.0
   mysql_global_status_queries:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   mysql_global_status_threads_connected:
     - labels:
@@ -64,50 +73,61 @@ input:
   mysql_global_status_threads_created:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   mysql_global_status_threads_running:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   mysql_global_status_threads_cached:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   mysql_global_status_aborted_connects:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
   mysql_global_status_connection_errors_total:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
         error: max_connection
       value: 100.0
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
         error: internal
       value: 100.0
   mysql_global_status_slow_queries:
     - labels:
         host_name: test-host
+        service_instance_id: test-instance
       value: 100.0
 expected:
   meter_mysql_instance_uptime:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_innodb_buffer_pool_size:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_max_connections:
     entities:
@@ -124,69 +144,83 @@ expected:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_commands_insert_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
-          host_name: 'mysql::test-host'
           command: insert
+          host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_commands_select_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
-          host_name: 'mysql::test-host'
           command: select
+          host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_commands_delete_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
-          host_name: 'mysql::test-host'
           command: delete
+          host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_commands_update_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
-          host_name: 'mysql::test-host'
           command: update
+          host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_qps:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_tps:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
-          host_name: 'mysql::test-host'
           command: rollback
+          host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 0.0
   meter_mysql_instance_threads_connected:
     entities:
@@ -203,37 +237,45 @@ expected:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_threads_running:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_threads_cached:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_connects_aborted:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_connects_available:
     entities:
@@ -250,28 +292,34 @@ expected:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           error: max_connection
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_connection_errors_internal:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           error: internal
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 100.0
   meter_mysql_instance_slow_queries_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: 'mysql::test-host'
+        instance: test-instance
         layer: MYSQL
     samples:
       - labels:
           host_name: 'mysql::test-host'
+          service_instance_id: test-instance
         value: 0.0
