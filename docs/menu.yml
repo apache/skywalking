@@ -346,6 +346,8 @@ catalog:
             path: "/en/api/promql-service"
           - name: "LogQL APIs"
             path: "/en/api/logql-service"
+          - name: "TraceQL APIs"
+            path: "/en/api/traceql-service"
           - name: "Health Check API"
             path: "/en/api/health-check"
           - name: "Status APIs"

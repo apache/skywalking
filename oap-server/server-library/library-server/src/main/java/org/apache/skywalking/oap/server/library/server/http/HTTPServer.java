@@ -214,6 +214,24 @@ public class HTTPServer implements Server {
         this.allowedMethods.addAll(httpMethods);
     }
 
+    /**
+     * @param handler        Specific service provider.
+     * @param httpMethods    Register the http methods which the handler service accepts. Other methods respond "405, Method Not Allowed".
+     * @param pathPrefix     Path prefix for the handler, e.g., "/zipkin" or "/skywalking"
+     */
+    public void addHandler(Object handler, List<HttpMethod> httpMethods, String pathPrefix) {
+        requireNonNull(allowedMethods, "allowedMethods");
+        log.info(
+            "Bind handler {} into http server {}:{} with path prefix {}",
+            handler.getClass().getSimpleName(), config.getHost(), config.getPort(), pathPrefix
+        );
+
+        sb.annotatedService()
+          .pathPrefix(pathPrefix)
+          .build(handler);
+        this.allowedMethods.addAll(httpMethods);
+    }
+
     @Override
     public void start() {
         sb.build().start().join();
