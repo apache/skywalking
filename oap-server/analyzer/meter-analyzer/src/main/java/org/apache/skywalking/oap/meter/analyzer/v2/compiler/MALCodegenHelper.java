@@ -102,14 +102,18 @@ final class MALCodegenHelper {
     // ---- Static utility methods ----
 
     static String sanitizeName(final String name) {
-        final StringBuilder sb = new StringBuilder(name.length());
+        if (name == null || name.isEmpty()) {
+            return "Generated";
+        }
+        final StringBuilder sb = new StringBuilder(name.length() + 1);
+        if (!Character.isJavaIdentifierStart(name.charAt(0))) {
+            sb.append('_');
+        }
         for (int i = 0; i < name.length(); i++) {
             final char c = name.charAt(i);
-            sb.append(i == 0
-                ? (Character.isJavaIdentifierStart(c) ? c : '_')
-                : (Character.isJavaIdentifierPart(c) ? c : '_'));
+            sb.append(Character.isJavaIdentifierPart(c) ? c : '_');
         }
-        return sb.length() == 0 ? "Generated" : sb.toString();
+        return sb.toString();
     }
 
     static String escapeJava(final String s) {

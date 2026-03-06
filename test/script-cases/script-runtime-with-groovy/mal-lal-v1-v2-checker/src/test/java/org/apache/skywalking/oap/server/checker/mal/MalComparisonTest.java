@@ -130,9 +130,29 @@ class MalComparisonTest {
         final List<DynamicTest> tests = new ArrayList<>();
         final Map<String, List<MalRule>> yamlRules = loadAllMalYamlFiles();
 
+        // Compile v2 filter once per source file — generates .class into generated-classes/
+        final java.util.Set<File> compiledFilters = new java.util.HashSet<>();
+
         for (final Map.Entry<String, List<MalRule>> entry : yamlRules.entrySet()) {
             final String yamlFile = entry.getKey();
             for (final MalRule rule : entry.getValue()) {
+                // Compile v2 filter once per source file (generates .class file)
+                if (rule.filter != null && rule.sourceFile != null
+                        && compiledFilters.add(rule.sourceFile)) {
+                    final String baseName = rule.sourceFile.getName()
+                        .replaceFirst("\\.(yaml|yml)$", "");
+                    final int filterLine = findFilterLine(rule.sourceFile);
+                    final MALClassGenerator filterGen = new MALClassGenerator();
+                    filterGen.setClassOutputDir(new java.io.File(
+                        rule.sourceFile.getParent(),
+                        baseName + ".generated-classes"));
+                    filterGen.setClassNameHint(baseName + "_filter");
+                    filterGen.setYamlSource(filterLine > 0
+                        ? rule.sourceFile.getName() + ":" + filterLine
+                        : rule.sourceFile.getName());
+                    filterGen.compileFilter(rule.filter);
+                }
+
                 // Compile v2 once per metric — compilation is independent of input data
                 org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression v2Expr = null;
                 ExpressionMetadata v2Meta = null;
@@ -167,6 +187,9 @@ class MalComparisonTest {
                 rule.sourceFile.getParent(),
                 baseName + ".generated-classes"));
             generator.setClassNameHint(rule.name);
+            generator.setYamlSource(rule.lineNo > 0
+                ? rule.sourceFile.getName() + ":" + rule.lineNo
+                : rule.sourceFile.getName());
         }
         return generator.compile(rule.name, rule.fullExpression);
     }
@@ -223,7 +246,8 @@ class MalComparisonTest {
                 (Map<String, Object>) rule.inputConfig.get("expected");
             if (inputSection != null) {
                 compareExecutionWithInput(
-                    rule, v1Expr, v2MalExpr, v2Meta, inputSection, expectedSection);
+                    rule, v1Expr, v2MalExpr, v2Meta,
+                    inputSection, expectedSection);
                 return;
             }
         }
@@ -1007,6 +1031,9 @@ class MalComparisonTest {
             final Object rawMetricPrefix = config.get("metricPrefix");
             final String metricPrefix = rawMetricPrefix instanceof String
                 ? (String) rawMetricPrefix : null;
+            final Object rawFilter = config.get("filter");
+            final String filter = rawFilter instanceof String
+                ? ((String) rawFilter).trim() : null;
             // Support both "metricsRules" (standard) and "metrics" (zabbix)
             List<Map<String, String>> rules =
                 (List<Map<String, String>>) config.get("metricsRules");
@@ -1029,6 +1056,8 @@ class MalComparisonTest {
             final String yamlName = prefix + "/" + file.getName();
             final List<MalRule> malRules = new ArrayList<>();
             final Map<String, Integer> nameCount = new HashMap<>();
+            // Build line number index: find "name: <value>" lines
+            final String[] lines = content.split("\n");
             for (final Map<String, String> rule : rules) {
                 final String name = rule.get("name");
                 final String exp = rule.get("exp");
@@ -1039,7 +1068,14 @@ class MalComparisonTest {
                 final int count = nameCount.merge(name, 1, Integer::sum);
                 final String uniqueName = count > 1 ? name + "_" + count : name;
                 final String fullExp = formatExp(expPrefix, expSuffix, exp);
-                malRules.add(new MalRule(uniqueName, fullExp, inputConfig, metricPrefix, file));
+                // Extract top-level dir name (e.g., "test-otel-rules") from prefix
+                final String dirName = prefix.contains("/")
+                    ? prefix.substring(0, prefix.indexOf('/')) : prefix;
+                // Find line number of this rule's "name:" in YAML
+                final int lineNo = findRuleLine(lines, name, count);
+                malRules.add(new MalRule(
+                    uniqueName, fullExp, inputConfig, metricPrefix,
+                    file, filter, dirName, lineNo));
             }
             if (!malRules.isEmpty()) {
                 result.put(yamlName, malRules);
@@ -1059,6 +1095,46 @@ class MalComparisonTest {
             }
         }
         return null;
+    }
+
+    /**
+     * Find the 1-based line number of the {@code filter:} field in a YAML file.
+     */
+    private static int findFilterLine(final File yamlFile) {
+        try {
+            final String[] lines = Files.readString(yamlFile.toPath()).split("\n");
+            for (int i = 0; i < lines.length; i++) {
+                if (lines[i].trim().startsWith("filter:")) {
+                    return i + 1;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return 0;
+    }
+
+    /**
+     * Find the 1-based line number of the Nth occurrence of {@code name: <value>} in the YAML.
+     */
+    private static int findRuleLine(final String[] lines, final String name,
+                                    final int occurrence) {
+        int found = 0;
+        for (int i = 0; i < lines.length; i++) {
+            String trimmed = lines[i].trim();
+            // Strip YAML list prefix "- "
+            if (trimmed.startsWith("- ")) {
+                trimmed = trimmed.substring(2);
+            }
+            if (trimmed.equals("name: " + name)
+                    || trimmed.equals("name: '" + name + "'")
+                    || trimmed.equals("name: \"" + name + "\"")) {
+                found++;
+                if (found == occurrence) {
+                    return i + 1;
+                }
+            }
+        }
+        return 0;
     }
 
     /**
@@ -1093,15 +1169,22 @@ class MalComparisonTest {
         final Map<String, Object> inputConfig;
         final String metricPrefix;
         final File sourceFile;
+        final String filter;
+        final String dirName;
+        final int lineNo;
 
         MalRule(final String name, final String fullExpression,
                 final Map<String, Object> inputConfig, final String metricPrefix,
-                final File sourceFile) {
+                final File sourceFile, final String filter, final String dirName,
+                final int lineNo) {
             this.name = name;
             this.fullExpression = fullExpression;
             this.inputConfig = inputConfig;
             this.metricPrefix = metricPrefix;
             this.sourceFile = sourceFile;
+            this.filter = filter;
+            this.dirName = dirName;
+            this.lineNo = lineNo;
         }
     }
 }

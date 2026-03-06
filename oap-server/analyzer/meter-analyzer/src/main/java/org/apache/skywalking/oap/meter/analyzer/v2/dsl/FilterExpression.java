@@ -37,9 +37,20 @@ public class FilterExpression {
     private final MalFilter malFilter;
 
     public FilterExpression(final String literal) {
+        this(literal, null);
+    }
+
+    public FilterExpression(final String literal, final String filterNameHint) {
         this.literal = literal;
         try {
-            this.malFilter = GENERATOR.compileFilter(literal);
+            if (filterNameHint != null) {
+                GENERATOR.setClassNameHint(filterNameHint);
+            }
+            try {
+                this.malFilter = GENERATOR.compileFilter(literal);
+            } finally {
+                GENERATOR.setClassNameHint(null);
+            }
         } catch (Exception e) {
             throw new IllegalStateException(
                 "Failed to compile MAL filter expression: " + literal, e);

@@ -372,6 +372,8 @@ public final class MALClassGenerator {
             {paramName, "Ljava/util/Map;"}
         });
         addLineNumberTable(testMethod, 2); // slot 0=this, 1=samples
+        setSourceFile(ctClass, formatSourceFileName(
+            classNameHint != null ? classNameHint : "filter"));
 
         writeClassFile(ctClass);
 

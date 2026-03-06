@@ -58,6 +58,17 @@ public interface MetricRuleConfig {
         return null;
     }
 
+    /**
+     * Returns the config path (directory) from which this config was loaded
+     * (e.g., {@code "otel-rules"}, {@code "envoy-metrics-rules"}).
+     * Used to build deterministic filter class names.
+     *
+     * @return config path, or {@code null} if unknown.
+     */
+    default String getConfigPath() {
+        return null;
+    }
+
     interface RuleConfig {
         /**
          * Get definition metrics name

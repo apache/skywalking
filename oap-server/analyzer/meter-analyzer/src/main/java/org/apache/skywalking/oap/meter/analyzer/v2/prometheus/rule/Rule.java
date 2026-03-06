@@ -31,6 +31,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Rule implements MetricRuleConfig {
     private String name;
+    private String configPath;
     private String metricPrefix;
     private String expSuffix;
     private String expPrefix;
