@@ -76,7 +76,6 @@ services:
       - 12800
       - 9412
     environment:
-      SW_OTEL_RECEIVER_ENABLED_HANDLERS: otlp-metrics,otlp-logs,otlp-traces
       SW_RECEIVER_ZIPKIN: default
       SW_QUERY_ZIPKIN: default
 

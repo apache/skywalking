@@ -150,6 +150,7 @@
 * Support TraceQL and Tempo API for Zipkin trace query.
 * Remove `initExp` from MAL configuration. It was an internal Groovy startup validation mechanism, not an end-user feature. The v2 ANTLR4 compiler performs fail-fast validation at startup natively.
 * Update hierarchy rule documentation: `auto-matching-rules` in `hierarchy-definition.yml` no longer use Groovy scripts. Rules now use a dedicated expression grammar supporting property access, String methods, if/else, comparisons, and logical operators. All shipped rules are fully compatible.
+* Activate `otlp-traces` handler in `receiver-otel` by default.
 
 #### UI
 * Fix the missing icon in new native trace view.
