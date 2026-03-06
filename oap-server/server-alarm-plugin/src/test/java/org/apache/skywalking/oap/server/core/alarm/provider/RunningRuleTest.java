@@ -42,7 +42,7 @@ import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -88,12 +88,12 @@ public class RunningRuleTest {
 
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
 
-        Map<AlarmEntity, RunningRule.Window> windows = Whitebox.getInternalState(runningRule, "windows");
+        Map<AlarmEntity, RunningRule.Window> windows = ReflectUtil.getInternalState(runningRule, "windows");
 
         RunningRule.Window window = windows.get(getAlarmEntity(123));
-        LocalDateTime endTime = Whitebox.getInternalState(window, "endTime");
-        int additionalPeriod = Whitebox.getInternalState(window, "additionalPeriod");
-        LinkedList<Metrics> metricsBuffer = Whitebox.getInternalState(window, "values");
+        LocalDateTime endTime = ReflectUtil.getInternalState(window, "endTime");
+        int additionalPeriod = ReflectUtil.getInternalState(window, "additionalPeriod");
+        LinkedList<Metrics> metricsBuffer = ReflectUtil.getInternalState(window, "values");
 
         Assertions.assertTrue(targetTime.equals(endTime.toDateTime()));
         Assertions.assertEquals(5, additionalPeriod);

@@ -1,0 +1,205 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  elasticsearch_cluster_health_status:
+    - labels:
+        cluster: test-cluster
+        color: green
+      value: 1.0
+  elasticsearch_breakers_tripped:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_number_of_nodes:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_number_of_data_nodes:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_number_of_pending_tasks:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_process_cpu_percent:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_jvm_memory_used_bytes:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_jvm_memory_max_bytes:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_process_open_files_count:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_active_primary_shards:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_active_shards:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_initializing_shards:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_delayed_unassigned_shards:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_relocating_shards:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+  elasticsearch_cluster_health_unassigned_shards:
+    - labels:
+        cluster: test-cluster
+      value: 1.0
+expected:
+  meter_elasticsearch_cluster_health_status:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          color: green
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_breakers_tripped:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.5
+  meter_elasticsearch_cluster_nodes:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_data_nodes:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_pending_tasks_total:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_cpu_usage_avg:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_jvm_memory_used_avg:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 100.0
+  meter_elasticsearch_cluster_open_file_count:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_primary_shards_total:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_shards_total:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_initializing_shards_total:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_delayed_unassigned_shards_total:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_relocating_shards_total:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
+  meter_elasticsearch_cluster_unassigned_shards_total:
+    entities:
+      - scope: SERVICE
+        service: 'elasticsearch::test-cluster'
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0

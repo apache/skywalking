@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
-import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;

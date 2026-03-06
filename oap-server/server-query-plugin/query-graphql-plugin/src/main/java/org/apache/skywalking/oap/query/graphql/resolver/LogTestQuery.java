@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
-import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
-import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
-import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
-import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
+import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
 import org.apache.skywalking.oap.query.graphql.GraphQLQueryConfig;
 import org.apache.skywalking.oap.query.graphql.type.LogTestRequest;
 import org.apache.skywalking.oap.query.graphql.type.LogTestResponse;
@@ -69,20 +69,19 @@ public class LogTestQuery implements GraphQLQueryResolver {
                                                      .provider();
         final LogAnalyzerModuleConfig config = provider.getModuleConfig();
         final DSL dsl = DSL.of(moduleManager, config, request.getDsl());
-        final Binding binding = new Binding();
+        final ExecutionContext ctx = new ExecutionContext();
 
         final LogData.Builder log = LogData.newBuilder();
         ProtoBufJsonUtils.fromJSON(request.getLog(), log);
-        binding.log(log);
+        ctx.log(log);
 
-        binding.logContainer(new AtomicReference<>());
-        binding.metricsContainer(new ArrayList<>());
+        ctx.logContainer(new AtomicReference<>());
+        ctx.metricsContainer(new ArrayList<>());
 
-        dsl.bind(binding);
-        dsl.evaluate();
+        dsl.evaluate(ctx);
 
         final LogTestResponse.LogTestResponseBuilder builder = LogTestResponse.builder();
-        binding.logContainer().map(AtomicReference::get).ifPresent(it -> {
+        ctx.logContainer().map(AtomicReference::get).ifPresent(it -> {
             final Log l = new Log();
 
             if (isNotBlank(it.getServiceId())) {
@@ -118,7 +117,7 @@ public class LogTestQuery implements GraphQLQueryResolver {
 
             builder.log(l);
         });
-        binding.metricsContainer().ifPresent(it -> {
+        ctx.metricsContainer().ifPresent(it -> {
             final List<Metrics> samples =
                 it.stream()
                   .flatMap(s -> Arrays.stream(s.samples))

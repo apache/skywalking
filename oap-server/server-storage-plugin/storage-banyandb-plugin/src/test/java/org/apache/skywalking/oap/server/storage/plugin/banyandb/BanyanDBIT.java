@@ -65,7 +65,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -115,7 +115,7 @@ public class BanyanDBIT {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        ReflectUtil.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         log.info("create BanyanDB client and try to connect");
         config = new BanyanDBConfigLoader(provider).loadConfig();

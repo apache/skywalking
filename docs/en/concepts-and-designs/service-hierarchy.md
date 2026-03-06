@@ -45,7 +45,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### GENERAL On K8S_SERVICE
 - Rule name: `lower-short-name-remove-ns`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }`
 - Description: GENERAL.service.shortName == K8S_SERVICE.service.shortName without namespace
 - Matched Example:
   - GENERAL.service.name: `agent::songs`
@@ -53,7 +53,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### GENERAL On APISIX
 - Rule name: `lower-short-name-remove-ns`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }`
 - Description: GENERAL.service.shortName == APISIX.service.shortName without namespace
 - Matched Example:
   - GENERAL.service.name: `agent::frontend`
@@ -62,7 +62,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### VIRTUAL_DATABASE On MYSQL
 - Rule name: `lower-short-name-with-fqdn`
-- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Matching expression: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
 - Description: VIRTUAL_DATABASE.service.shortName remove port == MYSQL.service.shortName with fqdn suffix
 - Matched Example:
   - VIRTUAL_DATABASE.service.name: `mysql.skywalking-showcase.svc.cluster.local:3306`
@@ -70,7 +70,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### VIRTUAL_DATABASE On POSTGRESQL
 - Rule name: `lower-short-name-with-fqdn`
-- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Matching expression: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
 - Description: VIRTUAL_DATABASE.service.shortName remove port == POSTGRESQL.service.shortName with fqdn suffix
 - Matched Example:
   - VIRTUAL_DATABASE.service.name: `psql.skywalking-showcase.svc.cluster.local:5432`
@@ -78,7 +78,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### VIRTUAL_DATABASE On CLICKHOUSE
 - Rule name: `lower-short-name-with-fqdn`
-- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Matching expression: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
 - Description: VIRTUAL_DATABASE.service.shortName remove port == CLICKHOUSE.service.shortName with fqdn suffix
 - Matched Example:
   - VIRTUAL_DATABASE.service.name: `clickhouse.skywalking-showcase.svc.cluster.local:8123`
@@ -87,7 +87,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### VIRTUAL_MQ On ROCKETMQ
 - Rule name: `lower-short-name-with-fqdn`
-- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Matching expression: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
 - Description: VIRTUAL_MQ.service.shortName remove port == ROCKETMQ.service.shortName with fqdn suffix
 - Matched Example:
   - VIRTUAL_MQ.service.name: `rocketmq.skywalking-showcase.svc.cluster.local:9876`
@@ -95,7 +95,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### VIRTUAL_MQ On RABBITMQ
 - Rule name: `lower-short-name-with-fqdn`
-- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Matching expression: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
 - Description: VIRTUAL_MQ.service.shortName remove port == RABBITMQ.service.shortName with fqdn suffix
 - Matched Example:
   - VIRTUAL_MQ.service.name: `rabbitmq.skywalking-showcase.svc.cluster.local:5672`
@@ -103,7 +103,7 @@ If you want to customize it according to your own needs, please refer to [Servic
   -
 #### VIRTUAL_MQ On KAFKA
 - Rule name: `lower-short-name-with-fqdn`
-- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Matching expression: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
 - Description: VIRTUAL_MQ.service.shortName remove port == KAFKA.service.shortName with fqdn suffix
 - Matched Example:
   - VIRTUAL_MQ.service.name: `kafka.skywalking-showcase.svc.cluster.local:9092`
@@ -111,7 +111,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### VIRTUAL_MQ On PULSAR
 - Rule name: `lower-short-name-with-fqdn`
-- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Matching expression: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
 - Description: VIRTUAL_MQ.service.shortName remove port == PULSAR.service.shortName with fqdn suffix
 - Matched Example:
   - VIRTUAL_MQ.service.name: `pulsar.skywalking-showcase.svc.cluster.local:6650`
@@ -119,7 +119,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### MESH On MESH_DP
 - Rule name: `name` 
-- Groovy script: `{ (u, l) -> u.name == l.name }`
+- Matching expression: `{ (u, l) -> u.name == l.name }`
 - Description: MESH.service.name == MESH_DP.service.name
 - Matched Example: 
     - MESH.service.name: `mesh-svr::songs.sample-services`
@@ -127,7 +127,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### MESH On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: MESH.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example: 
     - MESH.service.name: `mesh-svr::songs.sample-services`
@@ -135,7 +135,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### MESH_DP On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: MESH_DP.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example: 
     - MESH_DP.service.name: `mesh-svr::songs.sample-services`
@@ -143,7 +143,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### MYSQL On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: MYSQL.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example: 
     - MYSQL.service.name: `mysql::mysql.skywalking-showcase`
@@ -151,7 +151,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### POSTGRESQL On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: POSTGRESQL.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example: 
     - POSTGRESQL.service.name: `postgresql::psql.skywalking-showcase`
@@ -159,7 +159,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### CLICKHOUSE On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: CLICKHOUSE.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
   - CLICKHOUSE.service.name: `clickhouse::clickhouse.skywalking-showcase`
@@ -167,7 +167,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### NGINX On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: NGINX.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example: 
     - NGINX.service.name: `nginx::nginx.skywalking-showcase`
@@ -175,7 +175,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### APISIX On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: APISIX.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example: 
     - APISIX.service.name: `APISIX::frontend.sample-services`
@@ -183,7 +183,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### ROCKETMQ On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: ROCKETMQ.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
   - ROCKETMQ.service.name: `rocketmq::rocketmq.skywalking-showcase`
@@ -191,7 +191,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### RABBITMQ On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: RABBITMQ.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
   - RABBITMQ.service.name: `rabbitmq::rabbitmq.skywalking-showcase`
@@ -199,7 +199,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### KAFKA On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: KAFKA.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
   - KAFKA.service.name: `kafka::kafka.skywalking-showcase`
@@ -207,7 +207,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### PULSAR On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: PULSAR.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
   - PULSAR.service.name: `pulsar::pulsar.skywalking-showcase`
@@ -215,7 +215,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### SO11Y_OAP On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: SO11Y_OAP.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
   - SO11Y_OAP.service.name: `demo-oap.skywalking-showcase`
@@ -223,7 +223,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 
 #### KONG On K8S_SERVICE
 - Rule name: `short-name`
-- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: KONG.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
   - KONG.service.name: `kong::kong.skywalking-showcase`

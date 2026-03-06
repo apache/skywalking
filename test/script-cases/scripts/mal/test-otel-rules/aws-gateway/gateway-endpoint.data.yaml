@@ -1,0 +1,293 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  amazonaws_com_AWS_ApiGateway_4xx_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_5xx_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_DataProcessed_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_4XXError_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_5XXError_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_CacheHitCount_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_CacheHitCount_count:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_CacheMissCount_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_CacheMissCount_count:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_Count:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_IntegrationLatency_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_IntegrationLatency_count:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_Latency_sum:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+  amazonaws_com_AWS_ApiGateway_Latency_count:
+    - labels:
+        service_name: test-service
+        ApiId: test-value
+        Stage: test-value
+        ApiName: test-value
+        Method: GET
+        Resource: /test-resource
+      value: 100.0
+expected:
+  aws_gateway_endpoint_4xx:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_5xx:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_DataProcessed:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_4xx_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_5xx_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_cache_hit_rate:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0
+  aws_gateway_endpoint_cache_miss_rate:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0
+  aws_gateway_endpoint_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 100.0
+  aws_gateway_endpoint_integration_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0
+  aws_gateway_endpoint_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-api-gateway::test-value:test-value'
+        endpoint: 'GET:/test-resource'
+        layer: AWS_GATEWAY
+    samples:
+      - labels:
+          Resource: /test-resource
+          Stage: test-value
+          Method: GET
+          ApiName: test-value
+          ApiId: test-value
+          service_name: 'aws-api-gateway::test-value:test-value'
+        value: 1.0

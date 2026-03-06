@@ -56,7 +56,7 @@ import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetrics;
 import org.apache.skywalking.library.kubernetes.ObjectID;
-import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
+import org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;

@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -45,7 +45,7 @@ public class AgentConfigurationsWatcherTest {
 
     @Test
     public void testConfigModifyEvent() throws IOException {
-        AgentConfigurationsTable agentConfigurationsTable = Whitebox.getInternalState(
+        AgentConfigurationsTable agentConfigurationsTable = ReflectUtil.getInternalState(
             agentConfigurationsWatcher, "agentConfigurationsTable");
         assertTrue(agentConfigurationsTable.getAgentConfigurationsCache().isEmpty());
 
@@ -58,7 +58,7 @@ public class AgentConfigurationsWatcherTest {
             ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        AgentConfigurationsTable modifyAgentConfigurationsTable = Whitebox.getInternalState(
+        AgentConfigurationsTable modifyAgentConfigurationsTable = ReflectUtil.getInternalState(
             agentConfigurationsWatcher, "agentConfigurationsTable");
         Map<String, AgentConfigurations> configurationCache = modifyAgentConfigurationsTable.getAgentConfigurationsCache();
         Assertions.assertEquals(2, configurationCache.size());
@@ -90,7 +90,7 @@ public class AgentConfigurationsWatcherTest {
         Reader reader = ResourceUtils.read("agent-dynamic-configuration.yml");
         agentConfigurationsWatcher = spy(new AgentConfigurationsWatcher(null));
 
-        Whitebox.setInternalState(
+        ReflectUtil.setInternalState(
             agentConfigurationsWatcher, "agentConfigurationsTable",
             new AgentConfigurationsReader(reader).readAgentConfigurationsTable()
         );
@@ -98,7 +98,7 @@ public class AgentConfigurationsWatcherTest {
         agentConfigurationsWatcher.notify(
             new ConfigChangeWatcher.ConfigChangeEvent("whatever", ConfigChangeWatcher.EventType.DELETE));
 
-        AgentConfigurationsTable agentConfigurationsTable = Whitebox.getInternalState(
+        AgentConfigurationsTable agentConfigurationsTable = ReflectUtil.getInternalState(
             agentConfigurationsWatcher, "agentConfigurationsTable");
         Map<String, AgentConfigurations> configurationCache = agentConfigurationsTable.getAgentConfigurationsCache();
 

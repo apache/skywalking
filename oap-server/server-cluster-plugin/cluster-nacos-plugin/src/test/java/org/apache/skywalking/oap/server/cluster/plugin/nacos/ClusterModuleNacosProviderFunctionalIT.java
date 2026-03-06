@@ -43,7 +43,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -78,7 +78,7 @@ public class ClusterModuleNacosProviderFunctionalIT {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        ReflectUtil.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         nacosAddress = container.getHost() + ":" + container.getMappedPort(8848);
         Integer nacosPortOffset = container.getMappedPort(9848) - container.getMappedPort(8848);
@@ -219,7 +219,7 @@ public class ClusterModuleNacosProviderFunctionalIT {
         assertEquals(2, queryRemoteNodes(providerB, 2).size());
 
         // deregister A
-        NamingService namingServiceA = Whitebox.getInternalState(coordinatorA, "namingService");
+        NamingService namingServiceA = ReflectUtil.getInternalState(coordinatorA, "namingService");
         namingServiceA.deregisterInstance(serviceName, addressA.getHost(), addressA.getPort());
 
         // only B

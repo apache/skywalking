@@ -27,9 +27,9 @@ import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterSingleValue;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
-import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
-import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class MeterProcessor {
     private final MeterProcessService processService;
 
     /**
-     * All of meters has been read. Using it to process groovy script.
+     * All of meters has been read. Using it to process MAL expressions.
      */
     private final Map<String, List<SampleBuilder>> meters = new HashMap<>();
 

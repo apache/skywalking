@@ -1,0 +1,55 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+
+filter: "{ tags -> {tags.cloud_provider == 'aws' && tags.Namespace == 'AWS/S3' } }"
+expSuffix: tag({tags -> tags.bucket = 'aws-s3::' + tags.BucketName}).service(['bucket'], Layer.AWS_S3)
+metricPrefix: aws_s3
+metricsRules:
+  - name: 4xx
+    exp: amazonaws_com_AWS_S3_4xxErrors_sum.downsampling(SUM)
+  - name: 5xx
+    exp: amazonaws_com_AWS_S3_5xxErrors_sum.downsampling(SUM)
+  - name: downloaded_bytes
+    exp: amazonaws_com_AWS_S3_BytesDownloaded_sum.downsampling(SUM)
+  - name: uploaded_bytes
+    exp: amazonaws_com_AWS_S3_BytesUploaded_sum.downsampling(SUM)
+  - name: request_latency
+    exp: amazonaws_com_AWS_S3_TotalRequestLatency_sum.div(amazonaws_com_AWS_S3_TotalRequestLatency_count)
+  - name: first_latency_bytes
+    exp: amazonaws_com_AWS_S3_FirstByteLatency_sum.div(amazonaws_com_AWS_S3_FirstByteLatency_count)
+  - name: all_requests
+    exp: amazonaws_com_AWS_S3_AllRequests_sum.downsampling(SUM)
+  - name: put_requests
+    exp: amazonaws_com_AWS_S3_PutRequests_sum.downsampling(SUM)
+  - name: get_requests
+    exp: amazonaws_com_AWS_S3_GetRequests_sum.downsampling(SUM)
+  - name: delete_requests
+    exp: amazonaws_com_AWS_S3_DeleteRequests_sum.downsampling(SUM)

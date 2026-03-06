@@ -1,0 +1,89 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Mock input data for mesh-dp.yaml rules.
+# Covers all conditional branches: process resolution (explicit, local, remote),
+# component types (http, tcp, other), and SSL combinations.
+
+network-profiling-slow-trace:
+  # Case 1: HTTP + no SSL, explicit process IDs (componentId 49)
+  - body-type: json
+    body: '{"latency":200,"uri":"/mesh/api","reason":"slow","client_process":{"process_id":"client-proc-1","local":false,"address":"10.0.0.1:8080"},"server_process":{"process_id":"server-proc-2","local":true,"address":"10.0.0.2:9090"},"detect_point":"client","component":"http","ssl":false}'
+    service: mesh-test-svc
+    instance: mesh-test-instance
+    trace-id: trace-mesh-001
+    timestamp: 1609459200000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.traceId: trace-mesh-001
+      sampledTrace.serviceName: mesh-test-svc
+      sampledTrace.serviceInstanceName: mesh-test-instance
+      sampledTrace.timestamp: 1609459200000
+      sampledTrace.latency: 200
+      sampledTrace.uri: /mesh/api
+      sampledTrace.reason: SLOW
+      sampledTrace.processId: client-proc-1
+      sampledTrace.destProcessId: server-proc-2
+      sampledTrace.detectPoint: CLIENT
+      sampledTrace.componentId: 49
+
+  # Case 2: HTTP + SSL, virtual local/remote process IDs (componentId 129)
+  - body-type: json
+    body: '{"latency":500,"uri":"/mesh/api/ssl","reason":"slow","client_process":{"process_id":"","local":true,"address":"127.0.0.1:8080"},"server_process":{"process_id":"","local":false,"address":"10.0.0.3:9090"},"detect_point":"server","component":"http","ssl":true}'
+    service: mesh-test-svc-ssl
+    instance: mesh-test-instance-ssl
+    trace-id: trace-mesh-002
+    timestamp: 1609459300000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.traceId: trace-mesh-002
+      # processId/destProcessId: virtual IDs from ProcessRegistry mock.
+      # Validated via v1-v2 comparison (not asserted here).
+      sampledTrace.componentId: 129
+      sampledTrace.detectPoint: SERVER
+
+  # Case 3: non-HTTP + SSL (componentId 130), both remote
+  - body-type: json
+    body: '{"latency":100,"uri":"/mesh/api/tcp","reason":"slow","client_process":{"process_id":"","local":false,"address":"10.0.0.4:8080"},"server_process":{"process_id":"","local":false,"address":"10.0.0.5:9090"},"detect_point":"client","component":"tcp","ssl":true}'
+    service: mesh-test-svc-tcp-ssl
+    instance: mesh-test-instance-tcp-ssl
+    trace-id: trace-mesh-003
+    timestamp: 1609459400000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.componentId: 130
+
+  # Case 4: non-HTTP + no SSL (componentId 110), both remote
+  - body-type: json
+    body: '{"latency":50,"uri":"/mesh/api/other","reason":"slow","client_process":{"process_id":"","local":false,"address":"10.0.0.6:8080"},"server_process":{"process_id":"","local":false,"address":"10.0.0.7:9090"},"detect_point":"client","component":"other","ssl":false}'
+    service: mesh-test-svc-other
+    instance: mesh-test-instance-other
+    trace-id: trace-mesh-004
+    timestamp: 1609459500000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.componentId: 110

@@ -43,7 +43,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.List;
 
@@ -289,7 +289,7 @@ public class NotifyHandlerTest {
 
         when(core.findRunningRule(anyString())).thenReturn(Lists.newArrayList(rule));
 
-        Whitebox.setInternalState(notifyHandler, "core", core);
+        ReflectUtil.setInternalState(notifyHandler, "core", core);
     }
 
     public abstract static class MockMetrics extends Metrics implements WithMetadata {

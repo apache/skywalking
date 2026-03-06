@@ -35,7 +35,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.Collection;
 import java.util.List;
@@ -64,9 +64,9 @@ public class ClusterModuleConsulProviderTest {
     @BeforeEach
     public void before() {
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        ReflectUtil.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         provider.setManager(moduleManager);
-        Whitebox.setInternalState(provider, "config", new ClusterModuleConsulConfig());
+        ReflectUtil.setInternalState(provider, "config", new ClusterModuleConsulConfig());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ClusterModuleConsulProviderTest {
     public void prepare() throws Exception {
         ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
         consulConfig.setHostPort("10.0.0.1:1000,10.0.0.2:1001");
-        Whitebox.setInternalState(provider, "config", consulConfig);
+        ReflectUtil.setInternalState(provider, "config", consulConfig);
 
         Consul consulClient = mock(Consul.class);
         Consul.Builder builder = mock(Consul.Builder.class);
@@ -119,7 +119,7 @@ public class ClusterModuleConsulProviderTest {
     public void prepareSingle() throws Exception {
         ClusterModuleConsulConfig consulConfig = new ClusterModuleConsulConfig();
         consulConfig.setHostPort("10.0.0.1:1000");
-        Whitebox.setInternalState(provider, "config", consulConfig);
+        ReflectUtil.setInternalState(provider, "config", consulConfig);
 
         Consul consulClient = mock(Consul.class);
         Consul.Builder builder = mock(Consul.Builder.class);

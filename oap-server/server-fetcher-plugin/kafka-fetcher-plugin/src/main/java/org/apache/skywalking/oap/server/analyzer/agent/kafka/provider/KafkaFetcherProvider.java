@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.KafkaFetcherHandlerRegister;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherModule;

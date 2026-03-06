@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.library.util.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ClusterManagerMetricsAdapter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.HashMap;
 
@@ -42,7 +42,7 @@ public class ClusterManagerMetricsAdapterTest {
     @SneakyThrows
     @BeforeEach
     public void setUp() {
-        Whitebox.setInternalState(FieldsHelper.forClass(this.getClass()), "initialized", false);
+        ReflectUtil.setInternalState(FieldsHelper.forClass(this.getClass()), "initialized", false);
         EnvoyMetricReceiverConfig config = new EnvoyMetricReceiverConfig();
         clusterManagerMetricsAdapter = new ClusterManagerMetricsAdapter(config);
         FieldsHelper.forClass(config.serviceMetaInfoFactory().clazz()).init("metadata-service-mapping.yaml");

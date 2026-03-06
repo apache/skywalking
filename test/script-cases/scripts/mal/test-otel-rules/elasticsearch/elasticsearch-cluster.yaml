@@ -1,0 +1,72 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'elasticsearch-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'elasticsearch::' + tags.cluster}).service(['cluster'], Layer.ELASTICSEARCH)
+metricPrefix: meter_elasticsearch_cluster
+metricsRules:
+  # cluster health
+  - name: health_status
+    exp: elasticsearch_cluster_health_status.tagNotEqual('cluster','unknown_cluster').valueEqual(1).sum(['cluster' , 'color'])
+  # elasticsearch_breakers_tripped
+  - name: breakers_tripped
+    exp: elasticsearch_breakers_tripped.tagNotEqual('cluster','unknown_cluster').sum(['cluster']).increase('PT1M')
+  # cluster nodes
+  - name: nodes
+    exp: elasticsearch_cluster_health_number_of_nodes.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+  # cluster data nodes
+  - name: data_nodes
+    exp: elasticsearch_cluster_health_number_of_data_nodes.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+  # pending tasks total
+  - name: pending_tasks_total
+    exp: elasticsearch_cluster_health_number_of_pending_tasks.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+  # cpu usage avg
+  - name: cpu_usage_avg
+    exp: elasticsearch_process_cpu_percent.tagNotEqual('cluster','unknown_cluster').avg(['cluster'])
+  # jvm used memory avg
+  - name: jvm_memory_used_avg
+    exp: elasticsearch_jvm_memory_used_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster']) / elasticsearch_jvm_memory_max_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])  * 100
+  # open file count
+  - name: open_file_count
+    exp: elasticsearch_process_open_files_count.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+
+  # shards
+  - name: primary_shards_total
+    exp: elasticsearch_cluster_health_active_primary_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+  - name: shards_total
+    exp: elasticsearch_cluster_health_active_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+  - name: initializing_shards_total
+    exp: elasticsearch_cluster_health_initializing_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+  - name: delayed_unassigned_shards_total
+    exp: elasticsearch_cluster_health_delayed_unassigned_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+  - name: relocating_shards_total
+    exp: elasticsearch_cluster_health_relocating_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
+  - name: unassigned_shards_total
+    exp: elasticsearch_cluster_health_unassigned_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])

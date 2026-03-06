@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.receiver.telegraf.provider;
 
 import com.google.common.base.Splitter;
 import com.linecorp.armeria.common.HttpMethod;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;

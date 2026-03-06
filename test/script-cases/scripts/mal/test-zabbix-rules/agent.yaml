@@ -1,0 +1,89 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+metricPrefix: meter_vm
+expSuffix: service(['host'], Layer.OS_LINUX)
+entities:
+  hostPatterns:
+    - .+
+  labels:
+requiredZabbixItemKeys:
+  # cpu
+  - system.cpu.load[all,avg15]
+  - system.cpu.load[all,avg1]
+  - system.cpu.load[all,avg5]
+  - system.cpu.util[,guest]
+  - system.cpu.util[,guest_nice]
+  - system.cpu.util[,idle]
+  - system.cpu.util[,interrupt]
+  - system.cpu.util[,iowait]
+  - system.cpu.util[,nice]
+  - system.cpu.util[,softirq]
+  - system.cpu.util[,steal]
+  - system.cpu.util[,system]
+  - system.cpu.util[,user]
+  # memory
+  - vm.memory.size[available]
+  - vm.memory.size[pavailable]
+  - vm.memory.size[total]
+  - vm.memory.size[pavailable]
+  # swap
+  - system.swap.size[,free]
+  - system.swap.size[,total]
+  - system.swap.size[,pused]
+  # file
+  - vfs.fs.inode[/,pused]
+  - vfs.fs.size[/,total]
+  - vfs.fs.size[/,used]
+  - vfs.dev.read[,ops,avg1]
+  - vfs.dev.write[,ops,avg1]
+
+metrics:
+  # cpu
+  - name: cpu_load1
+    exp: system_cpu_load.tagEqual('2', 'avg1').avg(['host']) * 100
+  - name: cpu_load5
+    exp: system_cpu_load.tagEqual('2', 'avg5').avg(['host']) * 100
+  - name: cpu_load15
+    exp: system_cpu_load.tagEqual('2', 'avg15').avg(['host']) * 100
+  - name: cpu_average_used
+    exp: system_cpu_util.avg(['2', 'host'])
+  - name: cpu_total_percentage
+    exp: system_cpu_util.tagNotEqual('2', 'idle').sum(['host'])
+  # memory
+  - name: memory_total
+    exp: vm_memory_size.tagEqual('1', 'total').avg(['host'])
+  - name: memory_available
+    exp: vm_memory_size.tagEqual('1', 'available').avg(['host'])
+  - name: memory_used
+    exp: vm_memory_size.tagEqual('1', 'total').avg(['host']) - vm_memory_size.tagEqual('1', 'available').avg(['host'])
+  # swap
+  - name: memory_swap_free
+    exp: system_swap_size.tagEqual('2', 'free').avg(['host'])
+  - name: memory_swap_total
+    exp: system_swap_size.tagEqual('2', 'total').avg(['host'])
+  - name: memory_swap_percentage
+    exp: system_swap_size.tagEqual('2', 'pused')
+  # file
+  - name: filesystem_percentage
+    exp: vfs_fs_inode.tagEqual('2', 'pused').avg(['1', 'host'])
+  - name: vfs_fs_size
+    exp: vfs_fs_size.avg(['1', '2', 'host'])
+  - name: disk_read
+    # `* 1024` is for adapting to `divide 1024` by the VM UI template configuration, which converts `byte`->`kb` because of OTEL/Prometheus Node exporter.
+    exp: vfs_dev_read * 1024
+  - name: disk_written
+    # `* 1024` is for adapting to `divide 1024` by the VM UI template configuration, which converts `byte`->`kb` because of OTEL/Prometheus Node exporter.
+    exp: vfs_dev_write * 1024

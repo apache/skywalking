@@ -19,7 +19,7 @@ package org.apache.skywalking.oap.server.receiver.log.provider;
 
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
-import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;

@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.Optional;
 import java.util.Set;
@@ -232,7 +232,7 @@ public class TraceSamplingPolicyWatcherTest {
         ConfigWatcherRegister register = new ServiceMockConfigWatcherRegister(3);
 
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
-        Whitebox.setInternalState(provider, "moduleConfig", moduleConfig);
+        ReflectUtil.setInternalState(provider, "moduleConfig", moduleConfig);
         provider.getModuleConfig().setTraceSamplingPolicyWatcher(watcher);
         register.registerConfigChangeWatcher(watcher);
         register.start();
@@ -369,7 +369,7 @@ public class TraceSamplingPolicyWatcherTest {
     }
 
     private SamplingPolicy getSamplingPolicy(String service, TraceSamplingPolicyWatcher watcher) {
-        AtomicReference<SamplingPolicySettings> samplingPolicySettings = Whitebox.getInternalState(
+        AtomicReference<SamplingPolicySettings> samplingPolicySettings = ReflectUtil.getInternalState(
             watcher, "samplingPolicySettings");
         return samplingPolicySettings.get().get(service);
     }

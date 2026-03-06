@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
-import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
-import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
+import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;

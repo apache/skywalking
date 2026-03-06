@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import groovy.util.logging.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.profiling.pprof.PprofQueryService;
