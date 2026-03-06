@@ -154,7 +154,7 @@ expected:
       - labels:
           cluster: 'bookkeeper::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_bookkeeper_bookie_read_rate:
     entities:
       - scope: SERVICE
@@ -164,4 +164,4 @@ expected:
       - labels:
           cluster: 'bookkeeper::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0

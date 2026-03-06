@@ -168,7 +168,7 @@ expected:
       - labels:
           taskManager_node: test-value
           cluster: 'flink::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_flink_taskManager_jvm_memory_heap_used:
     entities:
       - scope: SERVICE_INSTANCE
@@ -258,7 +258,7 @@ expected:
           task_name: test-value
           cluster: 'flink::test-cluster'
           flink_job_name: test-value
-        value: 0.0
+        value: 50.0
   meter_flink_taskManager_numRecordsOut:
     entities:
       - scope: SERVICE_INSTANCE
@@ -271,7 +271,7 @@ expected:
           task_name: test-value
           cluster: 'flink::test-cluster'
           flink_job_name: test-value
-        value: 0.0
+        value: 50.0
   meter_flink_taskManager_numBytesInPerSecond:
     entities:
       - scope: SERVICE_INSTANCE

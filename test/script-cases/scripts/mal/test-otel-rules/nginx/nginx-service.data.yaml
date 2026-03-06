@@ -16,73 +16,147 @@
 input:
   nginx_http_requests_total:
     - labels:
+        service: test-service
       value: 100.0
-  nginx_http_latency:
     - labels:
-      value: 100.0
+        service: test-service
+        status: '404'
+      value: 10.0
+    - labels:
+        service: test-service
+        status: '500'
+      value: 5.0
+  nginx_http_latency:
+    - labels: {service: test-service, le: '50'}
+      value: 10.0
+    - labels: {service: test-service, le: '100'}
+      value: 20.0
+    - labels: {service: test-service, le: '250'}
+      value: 30.0
+    - labels: {service: test-service, le: '500'}
+      value: 40.0
+    - labels: {service: test-service, le: '1000'}
+      value: 50.0
   nginx_http_size_bytes:
     - labels:
+        service: test-service
       value: 100.0
   nginx_http_connections:
     - labels:
+        service: test-service
       value: 100.0
 expected:
   meter_nginx_service_http_requests:
     entities:
       - scope: SERVICE
-        service: 'nginx::null'
+        service: 'nginx::test-service'
         layer: NGINX
     samples:
       - labels:
-          service: 'nginx::null'
+          service: 'nginx::test-service'
           service_instance_id: 
-        value: 0.0
+        value: 28.75
   meter_nginx_service_http_latency:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE
+        service: 'nginx::test-service'
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          service_instance_id: 
+          le: '1000000'
+        value: 50.0
+      - labels:
+          service: 'nginx::test-service'
+          service_instance_id: 
+          le: '100000'
+        value: 20.0
+      - labels:
+          service: 'nginx::test-service'
+          service_instance_id: 
+          le: '250000'
+        value: 30.0
+      - labels:
+          service: 'nginx::test-service'
+          service_instance_id: 
+          le: '500000'
+        value: 40.0
+      - labels:
+          service: 'nginx::test-service'
+          service_instance_id: 
+          le: '50000'
+        value: 10.0
   meter_nginx_service_http_bandwidth:
     entities:
       - scope: SERVICE
-        service: 'nginx::null'
+        service: 'nginx::test-service'
         layer: NGINX
     samples:
       - labels:
           type: 
-          service: 'nginx::null'
+          service: 'nginx::test-service'
           service_instance_id: 
-        value: 0.0
+        value: 25.0
   meter_nginx_service_http_connections:
     entities:
       - scope: SERVICE
-        service: 'nginx::null'
+        service: 'nginx::test-service'
         layer: NGINX
     samples:
       - labels:
           state: 
-          service: 'nginx::null'
+          service: 'nginx::test-service'
           service_instance_id: 
         value: 100.0
   meter_nginx_service_http_status:
     entities:
       - scope: SERVICE
-        service: 'nginx::null'
+        service: 'nginx::test-service'
         layer: NGINX
     samples:
       - labels:
           status: 
-          service: 'nginx::null'
+          service: 'nginx::test-service'
           service_instance_id: 
-        value: 0.0
+        value: 25.0
+      - labels:
+          status: '404'
+          service: 'nginx::test-service'
+          service_instance_id: 
+        value: 2.5
+      - labels:
+          status: '500'
+          service: 'nginx::test-service'
+          service_instance_id: 
+        value: 1.25
   meter_nginx_service_http_requests_increment:
     entities:
       - scope: SERVICE
-        service: 'nginx::null'
+        service: 'nginx::test-service'
         layer: NGINX
     samples:
       - labels:
-          service: 'nginx::null'
+          service: 'nginx::test-service'
           service_instance_id: 
-        value: 0.0
+        value: 57.5
   meter_nginx_service_http_4xx_requests_increment:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE
+        service: 'nginx::test-service'
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          service_instance_id: 
+        value: 5.0
   meter_nginx_service_http_5xx_requests_increment:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE
+        service: 'nginx::test-service'
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          service_instance_id: 
+        value: 2.5

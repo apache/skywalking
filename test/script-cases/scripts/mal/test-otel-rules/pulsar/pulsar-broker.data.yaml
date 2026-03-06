@@ -222,7 +222,7 @@ expected:
           gc: PS Scavenge
           cluster: 'pulsar::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_pulsar_broker_jvm_gc_collection_seconds_sum:
     entities:
       - scope: SERVICE_INSTANCE
@@ -234,7 +234,7 @@ expected:
           gc: PS Scavenge
           cluster: 'pulsar::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_pulsar_broker_jvm_threads_current:
     entities:
       - scope: SERVICE_INSTANCE

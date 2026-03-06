@@ -122,7 +122,7 @@ expected:
           host_name: 'redis::test-host'
           cmd: get
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_redis_instance_hit_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -140,7 +140,7 @@ expected:
     samples:
       - labels:
           host_name: 'redis::test-host'
-        value: 0.0
+        value: 25.0
   meter_redis_instance_net_output_bytes_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -149,7 +149,7 @@ expected:
     samples:
       - labels:
           host_name: 'redis::test-host'
-        value: 0.0
+        value: 25.0
   meter_redis_instance_db_keys:
     entities:
       - scope: SERVICE_INSTANCE
@@ -209,4 +209,4 @@ expected:
           host_name: 'redis::test-host'
           cmd: get
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0

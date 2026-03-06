@@ -103,6 +103,12 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
         }
     }
 
+    /**
+     * Discovers a {@link HierarchyRuleProvider} via Java SPI. The provider is registered in
+     * {@code META-INF/services/...HierarchyDefinitionService$HierarchyRuleProvider} by the
+     * hierarchy analyzer module ({@code CompiledHierarchyRuleProvider}).
+     * Takes the first provider found; fails fast if none is on the classpath.
+     */
     private static HierarchyRuleProvider loadProvider() {
         final ServiceLoader<HierarchyRuleProvider> loader =
             ServiceLoader.load(HierarchyRuleProvider.class);
@@ -189,6 +195,14 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
             this.matcher = matcher;
         }
 
+        /**
+         * Evaluates the compiled matching rule against two services.
+         * The {@code matcher} is a Javassist-generated {@code BiFunction} compiled
+         * from the expression in {@code hierarchy-definition.yml} at startup.
+         * If the expression throws at runtime (e.g., NPE from null shortName),
+         * the exception propagates to the caller
+         * ({@link org.apache.skywalking.oap.server.core.hierarchy.HierarchyService}).
+         */
         public boolean match(final Service upper, final Service lower) {
             if (log.isDebugEnabled()) {
                 log.debug("[Hierarchy] rule={}, class={}, upper=[{}, {}], lower=[{}, {}]",

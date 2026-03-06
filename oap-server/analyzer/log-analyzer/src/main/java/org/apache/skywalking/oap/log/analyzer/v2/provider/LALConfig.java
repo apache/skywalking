@@ -29,4 +29,10 @@ public class LALConfig {
     private String layer;
 
     private String extraLogType;
+
+    /**
+     * Source YAML file name (without extension), set during loading by
+     * {@link LALConfigs}. Used for informative stack traces in generated code.
+     */
+    private transient String sourceName;
 }

@@ -162,7 +162,7 @@
         <mockito-core.version>5.11.0</mockito-core.version>
         <system-stubs.version>2.1.4</system-stubs.version>
         <lombok.version>1.18.40</lombok.version>
-        <byte-buddy.version>1.17.0</byte-buddy.version>
+        <byte-buddy.version>1.18.7</byte-buddy.version>
 
         <!-- core lib dependency -->
         <grpc.version>1.70.0</grpc.version>
@@ -200,7 +200,7 @@
         <flatten-plugin-version>1.6.0</flatten-plugin-version>
 
         <skipUTs>false</skipUTs>
-        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+        <argLine>-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${byte-buddy.version}/byte-buddy-agent-${byte-buddy.version}.jar --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 
         <delombok.output.dir>${project.build.directory}/delombok</delombok.output.dir>
     </properties>

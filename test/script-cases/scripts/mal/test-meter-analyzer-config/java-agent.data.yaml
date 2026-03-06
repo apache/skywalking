@@ -87,7 +87,7 @@ expected:
           created_by: test-creator
           service: test-service
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_java_agent_finished_tracing_context_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -98,7 +98,7 @@ expected:
       - labels:
           service: test-service
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_java_agent_created_ignored_context_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -110,7 +110,7 @@ expected:
           created_by: test-creator
           service: test-service
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_java_agent_finished_ignored_context_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -121,7 +121,7 @@ expected:
       - labels:
           service: test-service
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_java_agent_possible_leaked_context_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -133,7 +133,7 @@ expected:
           source: test-source
           service: test-service
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_java_agent_interceptor_error_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -146,7 +146,7 @@ expected:
           inter_type: test-type
           service: test-service
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_java_agent_tracing_context_execution_time_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -157,25 +157,25 @@ expected:
       - labels:
           service: test-service
           instance: test-instance
-          le: 1000000
+          le: '1000000'
         value: 50.0
       - labels:
           service: test-service
           instance: test-instance
-          le: 100000
+          le: '100000'
         value: 20.0
       - labels:
           service: test-service
           instance: test-instance
-          le: 250000
+          le: '250000'
         value: 30.0
       - labels:
           service: test-service
           instance: test-instance
-          le: 500000
+          le: '500000'
         value: 40.0
       - labels:
           service: test-service
           instance: test-instance
-          le: 50000
+          le: '50000'
         value: 10.0

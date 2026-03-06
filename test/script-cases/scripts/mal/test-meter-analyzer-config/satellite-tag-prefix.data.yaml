@@ -67,7 +67,7 @@ expected:
           pipe: test-pipe
           service: 'satellite::test-service'
           status: active
-        value: 0.0
+        value: 50.0
   satellite_service_fetch_event_count:
     entities:
       - scope: SERVICE
@@ -78,7 +78,7 @@ expected:
           pipe: test-pipe
           service: 'satellite::test-service'
           status: active
-        value: 0.0
+        value: 50.0
   satellite_service_queue_input_count:
     entities:
       - scope: SERVICE
@@ -89,7 +89,7 @@ expected:
           pipe: test-pipe
           service: 'satellite::test-service'
           status: active
-        value: 0.0
+        value: 50.0
   satellite_service_send_event_count:
     entities:
       - scope: SERVICE
@@ -100,7 +100,7 @@ expected:
           pipe: test-pipe
           service: 'satellite::test-service'
           status: active
-        value: 0.0
+        value: 50.0
   satellite_service_queue_total_capacity:
     entities:
       - scope: SERVICE

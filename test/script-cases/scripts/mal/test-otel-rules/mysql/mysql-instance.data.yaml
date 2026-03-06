@@ -162,7 +162,7 @@ expected:
           host_name: 'mysql::test-host'
           command: insert
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_instance_commands_select_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -174,7 +174,7 @@ expected:
           host_name: 'mysql::test-host'
           command: select
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_instance_commands_delete_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -186,7 +186,7 @@ expected:
           host_name: 'mysql::test-host'
           command: delete
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_instance_commands_update_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -198,7 +198,7 @@ expected:
           host_name: 'mysql::test-host'
           command: update
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_instance_qps:
     entities:
       - scope: SERVICE_INSTANCE
@@ -209,7 +209,7 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_instance_tps:
     entities:
       - scope: SERVICE_INSTANCE
@@ -221,7 +221,7 @@ expected:
           host_name: 'mysql::test-host'
           command: rollback
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_instance_threads_connected:
     entities:
       - scope: SERVICE_INSTANCE
@@ -322,4 +322,4 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0

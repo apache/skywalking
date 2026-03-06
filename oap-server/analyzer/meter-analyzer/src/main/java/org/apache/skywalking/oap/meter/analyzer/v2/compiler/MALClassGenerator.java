@@ -68,6 +68,7 @@ public final class MALClassGenerator {
     private int closureFieldIndex;
     private File classOutputDir;
     private String classNameHint;
+    private String yamlSource;
 
     public MALClassGenerator() {
         this(createClassPool());
@@ -94,6 +95,10 @@ public final class MALClassGenerator {
 
     public void setClassNameHint(final String hint) {
         this.classNameHint = hint;
+    }
+
+    public void setYamlSource(final String yamlSource) {
+        this.yamlSource = yamlSource;
     }
 
     private String makeClassName(final String defaultPrefix) {
@@ -127,6 +132,112 @@ public final class MALClassGenerator {
             ctClass.toBytecode(out);
         } catch (Exception e) {
             log.warn("Failed to write class file {}: {}", file, e.getMessage());
+        }
+    }
+
+    /**
+     * Adds a {@code LineNumberTable} attribute to the method by scanning
+     * bytecode for store instructions to local variable slots &ge;
+     * {@code firstResultSlot}. Each such store marks the end of a
+     * source-level statement; the following instruction gets the next
+     * sequential line number.
+     *
+     * <p>This gives meaningful line numbers in stack traces even though
+     * the generated Java source is compiled in-memory by Javassist
+     * (which does not produce line numbers on its own).
+     *
+     * @param method          the compiled method
+     * @param firstResultSlot the first local variable slot that holds
+     *                        a generated result variable (stores to
+     *                        earlier slots are parameters and ignored)
+     */
+    void addLineNumberTable(final javassist.CtMethod method,
+                            final int firstResultSlot) {
+        try {
+            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
+            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
+            if (code == null) {
+                return;
+            }
+
+            final List<int[]> entries = new ArrayList<>();
+            int line = 1;
+            boolean nextIsNewLine = true;
+
+            final javassist.bytecode.CodeIterator ci = code.iterator();
+            while (ci.hasNext()) {
+                final int pc = ci.next();
+                if (nextIsNewLine) {
+                    entries.add(new int[]{pc, line++});
+                    nextIsNewLine = false;
+                }
+                final int op = ci.byteAt(pc) & 0xFF;
+                int slot = -1;
+                // Compact store opcodes: istore_0(59)..astore_3(78)
+                if (op >= 59 && op <= 78) {
+                    slot = (op - 59) % 4;
+                }
+                // Wide store opcodes: istore(54)..astore(58)
+                else if (op >= 54 && op <= 58) {
+                    slot = ci.byteAt(pc + 1) & 0xFF;
+                }
+                if (slot >= firstResultSlot) {
+                    nextIsNewLine = true;
+                }
+            }
+
+            if (entries.isEmpty()) {
+                return;
+            }
+
+            // Build LineNumberTable: u2 count, then (u2 start_pc, u2 line_number)[]
+            final javassist.bytecode.ConstPool cp = mi.getConstPool();
+            final byte[] info = new byte[2 + entries.size() * 4];
+            info[0] = (byte) (entries.size() >> 8);
+            info[1] = (byte) entries.size();
+            for (int i = 0; i < entries.size(); i++) {
+                final int off = 2 + i * 4;
+                info[off] = (byte) (entries.get(i)[0] >> 8);
+                info[off + 1] = (byte) entries.get(i)[0];
+                info[off + 2] = (byte) (entries.get(i)[1] >> 8);
+                info[off + 3] = (byte) entries.get(i)[1];
+            }
+            code.getAttributes().add(
+                new javassist.bytecode.AttributeInfo(cp, "LineNumberTable", info));
+        } catch (Exception e) {
+            log.warn("Failed to add LineNumberTable: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Builds the SourceFile name for a generated class. When YAML source info
+     * is available, produces {@code "spring-sleuth[3](metricName.java)"};
+     * otherwise falls back to {@code "metricName.java"}.
+     */
+    private String formatSourceFileName(final String metricName) {
+        final String classFile = metricName + ".java";
+        if (yamlSource != null) {
+            return "(" + yamlSource + ")" + classFile;
+        }
+        return classFile;
+    }
+
+    /**
+     * Sets the {@code SourceFile} attribute of the class to the given name,
+     * replacing the default (class name + ".java"). This makes stack traces
+     * show the metric/rule name instead of the generated class name.
+     */
+    private static void setSourceFile(final CtClass ctClass, final String name) {
+        try {
+            final javassist.bytecode.ClassFile cf = ctClass.getClassFile();
+            final javassist.bytecode.AttributeInfo sf = cf.getAttribute("SourceFile");
+            if (sf != null) {
+                final javassist.bytecode.ConstPool cp = cf.getConstPool();
+                final int idx = cp.addUtf8Info(name);
+                sf.set(new byte[]{(byte) (idx >> 8), (byte) idx});
+            }
+        } catch (Exception e) {
+            // best-effort — ignore
         }
     }
 
@@ -260,6 +371,7 @@ public final class MALClassGenerator {
         addLocalVariableTable(testMethod, className, new String[][]{
             {paramName, "Ljava/util/Map;"}
         });
+        addLineNumberTable(testMethod, 2); // slot 0=this, 1=samples
 
         writeClassFile(ctClass);
 
@@ -334,6 +446,7 @@ public final class MALClassGenerator {
         final javassist.CtMethod runMethod = CtNewMethod.make(runBody, ctClass);
         ctClass.addMethod(runMethod);
         addRunLocalVariableTable(runMethod, className, runTempCounter);
+        addLineNumberTable(runMethod, 2); // slot 2 = sf
         final javassist.CtMethod metaMethod =
             CtNewMethod.make(metadataBody, ctClass);
         ctClass.addMethod(metaMethod);
@@ -343,6 +456,7 @@ public final class MALClassGenerator {
             {"_aggLabels", "Ljava/util/Set;"},
             {"_pct", "[I"}
         });
+        setSourceFile(ctClass, formatSourceFileName(metricName));
 
         writeClassFile(ctClass);
 

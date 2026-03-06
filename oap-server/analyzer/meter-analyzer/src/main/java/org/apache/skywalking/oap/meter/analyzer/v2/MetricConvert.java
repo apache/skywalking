@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Try;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -73,25 +74,35 @@ public class MetricConvert {
 
     public MetricConvert(MetricRuleConfig rule, MeterSystem service) {
         Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
-        this.analyzers = rule.getMetricsRules().stream().map(
-            r -> buildAnalyzer(
-                formatMetricName(rule, r.getName()),
-                rule.getFilter(),
-                formatExp(rule.getExpPrefix(), rule.getExpSuffix(), r.getExp()),
-                service
-            )
+        final String sourceName = rule.getSourceName();
+        final List<? extends MetricRuleConfig.RuleConfig> rules = rule.getMetricsRules();
+        this.analyzers = IntStream.range(0, rules.size()).mapToObj(
+            i -> {
+                final MetricRuleConfig.RuleConfig r = rules.get(i);
+                final String yamlSource = sourceName != null
+                    ? sourceName + ".yaml:" + i : null;
+                return buildAnalyzer(
+                    formatMetricName(rule, r.getName()),
+                    rule.getFilter(),
+                    formatExp(rule.getExpPrefix(), rule.getExpSuffix(), r.getExp()),
+                    service,
+                    yamlSource
+                );
+            }
         ).collect(toList());
     }
 
     Analyzer buildAnalyzer(final String metricsName,
                            final String filter,
                            final String exp,
-                           final MeterSystem service) {
+                           final MeterSystem service,
+                           final String yamlSource) {
         return Analyzer.build(
             metricsName,
             filter,
             exp,
-            service
+            service,
+            yamlSource
         );
     }
 

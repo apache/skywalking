@@ -145,7 +145,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_deleted_rows_rate:
     entities:
       - scope: SERVICE
@@ -155,7 +155,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_inserted_rows_rate:
     entities:
       - scope: SERVICE
@@ -165,7 +165,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_updated_rows_rate:
     entities:
       - scope: SERVICE
@@ -175,7 +175,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_returned_rows_rate:
     entities:
       - scope: SERVICE
@@ -185,7 +185,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_locks_count:
     entities:
       - scope: SERVICE
@@ -225,7 +225,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_rolled_back_transactions_rate:
     entities:
       - scope: SERVICE
@@ -235,7 +235,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_cache_hit_rate:
     entities:
       - scope: SERVICE
@@ -255,7 +255,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_checkpoint_write_time_rate:
     entities:
       - scope: SERVICE
@@ -265,7 +265,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_checkpoint_sync_time_rate:
     entities:
       - scope: SERVICE
@@ -275,7 +275,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_checkpoint_req_rate:
     entities:
       - scope: SERVICE
@@ -285,7 +285,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_checkpoints_timed_rate:
     entities:
       - scope: SERVICE
@@ -295,7 +295,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_conflicts_rate:
     entities:
       - scope: SERVICE
@@ -305,7 +305,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_deadlocks_rate:
     entities:
       - scope: SERVICE
@@ -315,7 +315,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_buffers_checkpoint:
     entities:
       - scope: SERVICE
@@ -325,7 +325,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_buffers_clean:
     entities:
       - scope: SERVICE
@@ -335,7 +335,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_buffers_backend_fsync:
     entities:
       - scope: SERVICE
@@ -345,7 +345,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_buffers_alloc:
     entities:
       - scope: SERVICE
@@ -355,7 +355,7 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_pg_buffers_backend:
     entities:
       - scope: SERVICE
@@ -365,4 +365,4 @@ expected:
       - labels:
           host_name: 'postgresql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0

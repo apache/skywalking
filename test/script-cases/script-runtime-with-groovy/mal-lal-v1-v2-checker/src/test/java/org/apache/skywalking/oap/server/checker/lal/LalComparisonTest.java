@@ -85,24 +85,75 @@ class LalComparisonTest {
         for (final Map.Entry<String, List<LalRule>> entry : yamlRules.entrySet()) {
             final String yamlFile = entry.getKey();
             for (final LalRule rule : entry.getValue()) {
-                tests.add(DynamicTest.dynamicTest(
-                    yamlFile + " | " + rule.name,
-                    () -> compareExecution(rule)
-                ));
+                // Compile v2 once per rule — the expression is stateless
+                org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression v2Expr = null;
+                String v2CompileError = null;
+                try {
+                    v2Expr = compileV2(rule);
+                } catch (Exception e) {
+                    final Throwable cause = e.getCause() != null ? e.getCause() : e;
+                    v2CompileError = cause.getClass().getSimpleName()
+                        + ": " + cause.getMessage();
+                }
+
+                if (rule.inputs.isEmpty()) {
+                    final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression expr = v2Expr;
+                    final String err = v2CompileError;
+                    tests.add(DynamicTest.dynamicTest(
+                        yamlFile + " | " + rule.name,
+                        () -> compareExecution(rule.name, rule.dsl, null, expr, err)
+                    ));
+                } else {
+                    for (int i = 0; i < rule.inputs.size(); i++) {
+                        final int idx = i;
+                        final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression expr = v2Expr;
+                        final String err = v2CompileError;
+                        final String testName = rule.inputs.size() == 1
+                            ? rule.name : rule.name + " [" + i + "]";
+                        tests.add(DynamicTest.dynamicTest(
+                            yamlFile + " | " + testName,
+                            () -> compareExecution(testName, rule.dsl,
+                                rule.inputs.get(idx), expr, err)
+                        ));
+                    }
+                }
             }
         }
 
         return tests;
     }
 
-    private void compareExecution(final LalRule rule) throws Exception {
-        final String ruleName = rule.name;
-        final String dsl = rule.dsl;
+    private org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression compileV2(
+            final LalRule rule) throws Exception {
+        final LALClassGenerator generator = new LALClassGenerator();
+        if (rule.extraLogType != null) {
+            generator.setExtraLogType(Class.forName(rule.extraLogType));
+        } else if (rule.layer != null) {
+            generator.setExtraLogType(spiExtraLogTypes().get(rule.layer));
+        } else {
+            generator.setExtraLogType(null);
+        }
+        if (rule.sourceFile != null) {
+            final String baseName = rule.sourceFile.getName()
+                .replaceFirst("\\.(yaml|yml)$", "");
+            generator.setClassOutputDir(new java.io.File(
+                rule.sourceFile.getParent(),
+                baseName + ".generated-classes"));
+            generator.setClassNameHint(baseName + "_" + rule.name);
+        }
+        return generator.compile(rule.dsl);
+    }
 
-        final LogData testLog = buildLogData(rule.inputData, dsl);
+    private void compareExecution(
+            final String testName, final String dsl,
+            final Map<String, Object> inputData,
+            final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression v2Expr,
+            final String v2CompileError) throws Exception {
+
+        final LogData testLog = buildLogData(inputData, dsl);
 
         // Build proto extraLog from input data if available
-        final Message extraLog = buildExtraLog(rule.inputData);
+        final Message extraLog = buildExtraLog(inputData);
 
         // ---- V1: Groovy path ----
         // v1 uses original packages: org.apache.skywalking.oap.log.analyzer.dsl.*
@@ -124,80 +175,62 @@ class LalComparisonTest {
             v1Dsl.evaluate();
         } catch (Exception e) {
             final Throwable cause = e.getCause() != null ? e.getCause() : e;
-            fail(ruleName + ": v1 (Groovy) failed — "
+            fail(testName + ": v1 (Groovy) failed — "
                 + cause.getClass().getSimpleName() + ": " + cause.getMessage());
             return;
         }
 
         // ---- V2: ANTLR4 + Javassist path ----
-        // v2 uses .v2. packages: org.apache.skywalking.oap.log.analyzer.v2.dsl.*
+        // v2 expression is pre-compiled (one compile per rule, multiple executions)
         final ModuleManager v2Manager = buildMockModuleManager(false);
         org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext v2Ctx = null;
-        String v2Error = null;
-        try {
-            final LALClassGenerator generator = new LALClassGenerator();
-            // Resolve extraLogType: explicit config > SPI by layer > null
-            if (rule.extraLogType != null) {
-                generator.setExtraLogType(Class.forName(rule.extraLogType));
-            } else if (rule.layer != null) {
-                generator.setExtraLogType(spiExtraLogTypes().get(rule.layer));
-            } else {
-                generator.setExtraLogType(null);
-            }
-            if (rule.sourceFile != null) {
-                final String baseName = rule.sourceFile.getName()
-                    .replaceFirst("\\.(yaml|yml)$", "");
-                generator.setClassOutputDir(new java.io.File(
-                    rule.sourceFile.getParent(),
-                    baseName + ".generated-classes"));
-                generator.setClassNameHint(baseName + "_" + ruleName);
-            }
-            final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression v2Expr =
-                generator.compile(dsl);
+        String v2Error = v2CompileError;
+        if (v2Expr != null) {
+            try {
+                final org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec v2FilterSpec =
+                    new org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec(
+                        v2Manager, new LogAnalyzerModuleConfig());
+                disableSinkListenersOnSpec(v2FilterSpec);
 
-            final org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec v2FilterSpec =
-                new org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec(
-                    v2Manager, new LogAnalyzerModuleConfig());
-            disableSinkListenersOnSpec(v2FilterSpec);
+                v2Ctx = new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext().log(testLog);
+                if (extraLog != null) {
+                    v2Ctx.extraLog(extraLog);
+                }
 
-            v2Ctx = new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext().log(testLog);
-            if (extraLog != null) {
-                v2Ctx.extraLog(extraLog);
+                v2Expr.execute(v2FilterSpec, v2Ctx);
+            } catch (Exception e) {
+                final Throwable cause = e.getCause() != null ? e.getCause() : e;
+                v2Error = cause.getClass().getSimpleName() + ": " + cause.getMessage();
             }
-
-            v2Expr.execute(v2FilterSpec, v2Ctx);
-        } catch (Exception e) {
-            final Throwable cause = e.getCause() != null ? e.getCause() : e;
-            v2Error = cause.getClass().getSimpleName() + ": " + cause.getMessage();
         }
 
         // ---- Compare ----
         if (v2Ctx == null) {
-            fail(ruleName + ": v2 execution failed but v1 succeeded — " + v2Error);
+            fail(testName + ": v2 execution failed but v1 succeeded — " + v2Error);
             return;
         }
 
         // Compare binding state
         assertEquals(v1Ctx.shouldAbort(), v2Ctx.shouldAbort(),
-            ruleName + ": shouldAbort mismatch");
+            testName + ": shouldAbort mismatch");
         assertEquals(v1Ctx.shouldSave(), v2Ctx.shouldSave(),
-            ruleName + ": shouldSave mismatch");
+            testName + ": shouldSave mismatch");
 
         final LogData.Builder v1Log = v1Ctx.log();
         final LogData.Builder v2Log = v2Ctx.log();
 
         assertEquals(v1Log.getService(), v2Log.getService(),
-            ruleName + ": service mismatch");
+            testName + ": service mismatch");
         assertEquals(v1Log.getServiceInstance(), v2Log.getServiceInstance(),
-            ruleName + ": serviceInstance mismatch");
+            testName + ": serviceInstance mismatch");
         assertEquals(v1Log.getEndpoint(), v2Log.getEndpoint(),
-            ruleName + ": endpoint mismatch");
+            testName + ": endpoint mismatch");
         assertEquals(v1Log.getLayer(), v2Log.getLayer(),
-            ruleName + ": layer mismatch");
+            testName + ": layer mismatch");
         assertEquals(v1Log.getTimestamp(), v2Log.getTimestamp(),
-            ruleName + ": timestamp mismatch");
+            testName + ": timestamp mismatch");
         assertEquals(v1Log.getTags(), v2Log.getTags(),
-            ruleName + ": tags mismatch");
+            testName + ": tags mismatch");
 
         // Compare sampledTrace builder state
         // v1 Groovy Binding throws MissingPropertyException if sampledTrace was never set
@@ -210,53 +243,53 @@ class LalComparisonTest {
         final SampledTraceBuilder v2St = v2Ctx.sampledTraceBuilder();
         if (v1St != null || v2St != null) {
             if (v1St == null) {
-                fail(ruleName + ": v1 has no sampledTrace but v2 does");
+                fail(testName + ": v1 has no sampledTrace but v2 does");
             }
             if (v2St == null) {
-                fail(ruleName + ": v2 has no sampledTrace but v1 does");
+                fail(testName + ": v2 has no sampledTrace but v1 does");
             }
             // Fields set by prepareSampledTrace() from log context
             assertEquals(v1St.getTraceId(), v2St.getTraceId(),
-                ruleName + ": sampledTrace.traceId mismatch");
+                testName + ": sampledTrace.traceId mismatch");
             assertEquals(v1St.getServiceName(), v2St.getServiceName(),
-                ruleName + ": sampledTrace.serviceName mismatch");
+                testName + ": sampledTrace.serviceName mismatch");
             assertEquals(v1St.getServiceInstanceName(), v2St.getServiceInstanceName(),
-                ruleName + ": sampledTrace.serviceInstanceName mismatch");
+                testName + ": sampledTrace.serviceInstanceName mismatch");
             assertEquals(v1St.getLayer(), v2St.getLayer(),
-                ruleName + ": sampledTrace.layer mismatch");
+                testName + ": sampledTrace.layer mismatch");
             assertEquals(v1St.getTimestamp(), v2St.getTimestamp(),
-                ruleName + ": sampledTrace.timestamp mismatch");
+                testName + ": sampledTrace.timestamp mismatch");
 
             // Verify traceId came from the log (not empty/fabricated)
             assertEquals(testLog.getTraceContext().getTraceId(),
                 v2St.getTraceId(),
-                ruleName + ": sampledTrace.traceId should match log traceId");
+                testName + ": sampledTrace.traceId should match log traceId");
 
             // Fields set by DSL closure body
             assertEquals(v1St.getLatency(), v2St.getLatency(),
-                ruleName + ": sampledTrace.latency mismatch");
+                testName + ": sampledTrace.latency mismatch");
             assertEquals(v1St.getUri(), v2St.getUri(),
-                ruleName + ": sampledTrace.uri mismatch");
+                testName + ": sampledTrace.uri mismatch");
             assertEquals(v1St.getReason(), v2St.getReason(),
-                ruleName + ": sampledTrace.reason mismatch");
+                testName + ": sampledTrace.reason mismatch");
             assertEquals(v1St.getProcessId(), v2St.getProcessId(),
-                ruleName + ": sampledTrace.processId mismatch");
+                testName + ": sampledTrace.processId mismatch");
             assertEquals(v1St.getDestProcessId(), v2St.getDestProcessId(),
-                ruleName + ": sampledTrace.destProcessId mismatch");
+                testName + ": sampledTrace.destProcessId mismatch");
             assertEquals(v1St.getDetectPoint(), v2St.getDetectPoint(),
-                ruleName + ": sampledTrace.detectPoint mismatch");
+                testName + ": sampledTrace.detectPoint mismatch");
             assertEquals(v1St.getComponentId(), v2St.getComponentId(),
-                ruleName + ": sampledTrace.componentId mismatch");
+                testName + ": sampledTrace.componentId mismatch");
 
             // Verify builder.toRecord() produces valid Record for RecordStreamProcessor
             // (submitSampledTrace already called validate + toRecord + RecordStreamProcessor.in
             // during execution; this explicitly confirms toRecord consistency)
             final Record v1Record = v1St.toRecord();
             final Record v2Record = v2St.toRecord();
-            assertNotNull(v1Record, ruleName + ": v1 toRecord() returned null");
-            assertNotNull(v2Record, ruleName + ": v2 toRecord() returned null");
+            assertNotNull(v1Record, testName + ": v1 toRecord() returned null");
+            assertNotNull(v2Record, testName + ": v2 toRecord() returned null");
             assertEquals(v1Record.getClass(), v2Record.getClass(),
-                ruleName + ": toRecord() type mismatch");
+                testName + ": toRecord() type mismatch");
 
             // Verify v2 actually dispatched the trace via sourceReceiver.receive()
             final SourceReceiver v2Receiver = v2Manager.find(CoreModule.NAME)
@@ -265,12 +298,12 @@ class LalComparisonTest {
         }
 
         // ---- Validate expected section ----
-        if (rule.inputData != null) {
+        if (inputData != null) {
             @SuppressWarnings("unchecked")
             final Map<String, Object> expect =
-                (Map<String, Object>) rule.inputData.get("expect");
+                (Map<String, Object>) inputData.get("expect");
             if (expect != null) {
-                validateExpected(ruleName, v2Ctx, v2Log, expect);
+                validateExpected(testName, v2Ctx, v2Log, expect);
             }
         }
     }
@@ -639,19 +672,17 @@ class LalComparisonTest {
                 final Object ruleInput = inputData != null
                     ? inputData.get(name) : null;
 
+                final List<Map<String, Object>> inputs;
                 if (ruleInput instanceof List) {
-                    final List<Map<String, Object>> inputs =
-                        (List<Map<String, Object>>) ruleInput;
-                    for (int i = 0; i < inputs.size(); i++) {
-                        lalRules.add(new LalRule(
-                            name + " [" + i + "]", dslStr, extraLogType, layer,
-                            inputs.get(i), file));
-                    }
+                    inputs = (List<Map<String, Object>>) ruleInput;
+                } else if (ruleInput instanceof Map) {
+                    inputs = Collections.singletonList(
+                        (Map<String, Object>) ruleInput);
                 } else {
-                    lalRules.add(new LalRule(
-                        name, dslStr, extraLogType, layer,
-                        (Map<String, Object>) ruleInput, file));
+                    inputs = Collections.emptyList();
                 }
+                lalRules.add(new LalRule(
+                    name, dslStr, extraLogType, layer, inputs, file));
             }
 
             if (!lalRules.isEmpty()) {
@@ -743,18 +774,18 @@ class LalComparisonTest {
         final String dsl;
         final String extraLogType;
         final String layer;
-        final Map<String, Object> inputData;
+        final List<Map<String, Object>> inputs;
         final File sourceFile;
 
         LalRule(final String name, final String dsl,
                 final String extraLogType, final String layer,
-                final Map<String, Object> inputData,
+                final List<Map<String, Object>> inputs,
                 final File sourceFile) {
             this.name = name;
             this.dsl = dsl;
             this.extraLogType = extraLogType;
             this.layer = layer;
-            this.inputData = inputData;
+            this.inputs = inputs;
             this.sourceFile = sourceFile;
         }
     }

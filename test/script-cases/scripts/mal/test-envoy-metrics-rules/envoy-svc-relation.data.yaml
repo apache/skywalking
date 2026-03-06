@@ -23,7 +23,7 @@ input:
     - labels:
         app: test-app
         cluster_name: test-cluster
-        metrics_name: testupstream_cx_total
+        metrics_name: cluster.outbound.test-cluster.upstream_cx_total
       value: 100.0
     - labels:
         app: test-app
@@ -33,7 +33,7 @@ input:
     - labels:
         app: test-app
         cluster_name: test-cluster
-        metrics_name: testupstream_rq_total
+        metrics_name: cluster.outbound.test-cluster.upstream_rq_total
       value: 100.0
     - labels:
         app: test-app
@@ -61,7 +61,14 @@ expected:
           cluster_name: test-cluster
         value: 100.0
   envoy_sr_cluster_up_cx_incr:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_RELATION
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          cluster_name: test-cluster
+        value: 50.0
   envoy_sr_cluster_up_rq_active:
     entities:
       - scope: SERVICE_RELATION
@@ -72,7 +79,14 @@ expected:
           cluster_name: test-cluster
         value: 100.0
   envoy_sr_cluster_up_rq_incr:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_RELATION
+        layer: MESH_DP
+    samples:
+      - labels:
+          app: test-app
+          cluster_name: test-cluster
+        value: 50.0
   envoy_sr_cluster_up_rq_pending_active:
     entities:
       - scope: SERVICE_RELATION
@@ -90,7 +104,7 @@ expected:
       - labels:
           app: test-app
           cluster_name: test-cluster
-        value: 0.0
+        value: 50.0
   envoy_sr_cluster_up_cx_none_healthy_incr:
     entities:
       - scope: SERVICE_RELATION
@@ -99,4 +113,4 @@ expected:
       - labels:
           app: test-app
           cluster_name: test-cluster
-        value: 0.0
+        value: 50.0

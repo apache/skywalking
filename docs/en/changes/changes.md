@@ -18,6 +18,7 @@
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.
+* Upgrade Byte Buddy to 1.18.7 and configure explicit `-javaagent` for Mockito/Byte Buddy in Surefire to avoid JDK 25 dynamic agent loading warnings.
 * Upgrade Groovy to 5.0.3 in OAP backend.
 * Bump up nodejs to v24.13.0 for the latest UI(booster-ui) compiling.
 * Drop Elasticsearch 7.x (EOL) and OpenSearch 1.x from E2E tests, upgrade all ES tests to 8.18.8, and update skywalking-helm to use ECK 8.18.8.
@@ -147,6 +148,8 @@
 * Bump up log4j to 2.25.3 and jackson to 2.18.5.
 * Remove PowerMock dependency. Replace `Whitebox` with `ReflectUtil` (standard Java reflection + `sun.misc.Unsafe` for final fields) across all modules to support JDK 25+.
 * Support TraceQL and Tempo API for Zipkin trace query.
+* Remove `initExp` from MAL configuration. It was an internal Groovy startup validation mechanism, not an end-user feature. The v2 ANTLR4 compiler performs fail-fast validation at startup natively.
+* Update hierarchy rule documentation: `auto-matching-rules` in `hierarchy-definition.yml` no longer use Groovy scripts. Rules now use a dedicated expression grammar supporting property access, String methods, if/else, comparisons, and logical operators. All shipped rules are fully compatible.
 
 #### UI
 * Fix the missing icon in new native trace view.

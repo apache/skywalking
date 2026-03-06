@@ -56,7 +56,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 0.0
+        value: 2500.0
   meter_win_cpu_average_used:
     entities:
       - scope: SERVICE
@@ -66,7 +66,7 @@ expected:
       - labels:
           node_identifier_host_name: test-host
           mode: user
-        value: 0.0
+        value: 2500.0
   meter_win_memory_total:
     entities:
       - scope: SERVICE
@@ -117,7 +117,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 0.0
+        value: 25.0
   meter_win_disk_written:
     entities:
       - scope: SERVICE
@@ -126,7 +126,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 0.0
+        value: 25.0
   meter_win_network_receive:
     entities:
       - scope: SERVICE

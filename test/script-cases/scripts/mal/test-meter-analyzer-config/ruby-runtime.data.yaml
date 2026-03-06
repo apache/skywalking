@@ -102,7 +102,7 @@ expected:
     samples:
       - labels:
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_instance_ruby_gc_minor_count_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -111,7 +111,7 @@ expected:
     samples:
       - labels:
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_instance_ruby_gc_major_count_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -120,7 +120,7 @@ expected:
     samples:
       - labels:
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_instance_ruby_gc_time_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -129,7 +129,7 @@ expected:
     samples:
       - labels:
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_instance_ruby_heap_usage_percent:
     entities:
       - scope: SERVICE_INSTANCE

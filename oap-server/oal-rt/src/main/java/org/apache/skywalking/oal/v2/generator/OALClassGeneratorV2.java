@@ -257,7 +257,9 @@ public class OALClassGeneratorV2 {
             StringWriter methodEntity = new StringWriter();
             try {
                 configuration.getTemplate("metrics/" + method + ".ftl").process(model, methodEntity);
-                metricsClass.addMethod(CtNewMethod.make(methodEntity.toString(), metricsClass));
+                javassist.CtMethod m = CtNewMethod.make(methodEntity.toString(), metricsClass);
+                metricsClass.addMethod(m);
+                addLineNumberTable(m, 1);
             } catch (Exception e) {
                 log.error("Can't generate method " + method + " for " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
@@ -276,6 +278,8 @@ public class OALClassGeneratorV2 {
 
         annotationsAttribute.addAnnotation(streamAnnotation);
         metricsClassClassFile.addAttribute(annotationsAttribute);
+
+        setSourceFile(metricsClass, formatSourceFileName(model, "Metrics"));
 
         Class targetClass;
         try {
@@ -322,12 +326,16 @@ public class OALClassGeneratorV2 {
                 configuration
                     .getTemplate(storageBuilderFactory.builderTemplate().getTemplatePath() + "/" + method + ".ftl")
                     .process(model, methodEntity);
-                metricsBuilderClass.addMethod(CtNewMethod.make(methodEntity.toString(), metricsBuilderClass));
+                javassist.CtMethod m = CtNewMethod.make(methodEntity.toString(), metricsBuilderClass);
+                metricsBuilderClass.addMethod(m);
+                addLineNumberTable(m, 1);
             } catch (Exception e) {
                 log.error("Can't generate method " + method + " for " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
+
+        setSourceFile(metricsBuilderClass, formatSourceFileName(model, "MetricsBuilder"));
 
         try {
             metricsBuilderClass.toClass(MetricBuilderClassPackageHolder.class);
@@ -377,7 +385,9 @@ public class OALClassGeneratorV2 {
             StringWriter methodEntity = new StringWriter();
             try {
                 configuration.getTemplate("dispatcher/doMetrics.ftl").process(metric, methodEntity);
-                dispatcherClass.addMethod(CtNewMethod.make(methodEntity.toString(), dispatcherClass));
+                javassist.CtMethod m = CtNewMethod.make(methodEntity.toString(), dispatcherClass);
+                dispatcherClass.addMethod(m);
+                addLineNumberTable(m, 1);
             } catch (Exception e) {
                 log.error("Can't generate method do" + metric.getMetricsName() + " for " + className + ".", e);
                 log.error("Method body: {}", methodEntity);
@@ -389,10 +399,25 @@ public class OALClassGeneratorV2 {
         try {
             StringWriter methodEntity = new StringWriter();
             configuration.getTemplate("dispatcher/dispatch.ftl").process(dispatcherContext, methodEntity);
-            dispatcherClass.addMethod(CtNewMethod.make(methodEntity.toString(), dispatcherClass));
+            javassist.CtMethod m = CtNewMethod.make(methodEntity.toString(), dispatcherClass);
+            dispatcherClass.addMethod(m);
+            addLineNumberTable(m, 1);
         } catch (Exception e) {
             log.error("Can't generate method dispatch for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
+        }
+
+        // Use first metric's location for dispatcher SourceFile
+        if (!dispatcherContext.getMetrics().isEmpty()) {
+            final CodeGenModel first = dispatcherContext.getMetrics().get(0);
+            final org.apache.skywalking.oal.v2.model.SourceLocation loc =
+                first.getMetricDefinition().getLocation();
+            final String dispatcherFile = scopeName + "Dispatcher.java";
+            if (loc != null && loc != org.apache.skywalking.oal.v2.model.SourceLocation.UNKNOWN) {
+                setSourceFile(dispatcherClass, "(" + loc.getFileName() + ")" + dispatcherFile);
+            } else {
+                setSourceFile(dispatcherClass, dispatcherFile);
+            }
         }
 
         Class targetClass;
@@ -434,6 +459,96 @@ public class OALClassGeneratorV2 {
                 folder.mkdirs();
             }
             IS_RT_TEMP_FOLDER_INIT_COMPLETED = true;
+        }
+    }
+
+    /**
+     * Builds the SourceFile name for a generated metrics/builder class.
+     * Format: {@code (core.oal:20)ServiceRespTime.java} when location is known,
+     * or {@code ServiceRespTime.java} as fallback.
+     */
+    private String formatSourceFileName(final CodeGenModel model, final String classSuffix) {
+        final String classFile = model.getMetricsName() + classSuffix + ".java";
+        final org.apache.skywalking.oal.v2.model.SourceLocation loc =
+            model.getMetricDefinition().getLocation();
+        if (loc != null && loc != org.apache.skywalking.oal.v2.model.SourceLocation.UNKNOWN) {
+            return "(" + loc.getFileName() + ":" + loc.getLine() + ")" + classFile;
+        }
+        return classFile;
+    }
+
+    /**
+     * Sets the {@code SourceFile} attribute of the class to the given name.
+     */
+    private static void setSourceFile(final CtClass ctClass, final String name) {
+        try {
+            final javassist.bytecode.ClassFile cf = ctClass.getClassFile();
+            final javassist.bytecode.AttributeInfo sf = cf.getAttribute("SourceFile");
+            if (sf != null) {
+                final javassist.bytecode.ConstPool cp = cf.getConstPool();
+                final int idx = cp.addUtf8Info(name);
+                sf.set(new byte[]{(byte) (idx >> 8), (byte) idx});
+            }
+        } catch (Exception e) {
+            // best-effort
+        }
+    }
+
+    /**
+     * Adds a {@code LineNumberTable} attribute by scanning bytecode for
+     * store instructions to local variable slots &ge; {@code firstResultSlot}.
+     */
+    private void addLineNumberTable(final javassist.CtMethod method,
+                                    final int firstResultSlot) {
+        try {
+            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
+            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
+            if (code == null) {
+                return;
+            }
+
+            final java.util.ArrayList<int[]> entries = new java.util.ArrayList<>();
+            int line = 1;
+            boolean nextIsNewLine = true;
+
+            final javassist.bytecode.CodeIterator ci = code.iterator();
+            while (ci.hasNext()) {
+                final int pc = ci.next();
+                if (nextIsNewLine) {
+                    entries.add(new int[]{pc, line++});
+                    nextIsNewLine = false;
+                }
+                final int op = ci.byteAt(pc) & 0xFF;
+                int slot = -1;
+                if (op >= 59 && op <= 78) {
+                    slot = (op - 59) % 4;
+                } else if (op >= 54 && op <= 58) {
+                    slot = ci.byteAt(pc + 1) & 0xFF;
+                }
+                if (slot >= firstResultSlot) {
+                    nextIsNewLine = true;
+                }
+            }
+
+            if (entries.isEmpty()) {
+                return;
+            }
+
+            final javassist.bytecode.ConstPool cp = mi.getConstPool();
+            final byte[] info = new byte[2 + entries.size() * 4];
+            info[0] = (byte) (entries.size() >> 8);
+            info[1] = (byte) entries.size();
+            for (int i = 0; i < entries.size(); i++) {
+                final int off = 2 + i * 4;
+                info[off] = (byte) (entries.get(i)[0] >> 8);
+                info[off + 1] = (byte) entries.get(i)[0];
+                info[off + 2] = (byte) (entries.get(i)[1] >> 8);
+                info[off + 3] = (byte) entries.get(i)[1];
+            }
+            code.getAttributes().add(
+                new javassist.bytecode.AttributeInfo(cp, "LineNumberTable", info));
+        } catch (Exception e) {
+            log.warn("Failed to add LineNumberTable: {}", e.getMessage());
         }
     }
 

@@ -68,6 +68,7 @@ public final class LALClassGenerator {
     private File classOutputDir;
     private String classNameHint;
     private Class<?> extraLogType;
+    private String yamlSource;
 
     // ==================== Parser type detection ====================
 
@@ -174,6 +175,10 @@ public final class LALClassGenerator {
         this.extraLogType = extraLogType;
     }
 
+    public void setYamlSource(final String yamlSource) {
+        this.yamlSource = yamlSource;
+    }
+
     private String makeClassName(final String defaultPrefix) {
         if (classNameHint != null) {
             return dedupClassName(
@@ -207,6 +212,91 @@ public final class LALClassGenerator {
         } catch (Exception e) {
             log.warn("Failed to write class file {}: {}", file, e.getMessage());
         }
+    }
+
+    /**
+     * Adds a {@code LineNumberTable} attribute by scanning bytecode for
+     * store instructions to local variable slots &ge; {@code firstResultSlot}.
+     */
+    private void addLineNumberTable(final javassist.CtMethod method,
+                                    final int firstResultSlot) {
+        try {
+            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
+            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
+            if (code == null) {
+                return;
+            }
+
+            final List<int[]> entries = new ArrayList<>();
+            int line = 1;
+            boolean nextIsNewLine = true;
+
+            final javassist.bytecode.CodeIterator ci = code.iterator();
+            while (ci.hasNext()) {
+                final int pc = ci.next();
+                if (nextIsNewLine) {
+                    entries.add(new int[]{pc, line++});
+                    nextIsNewLine = false;
+                }
+                final int op = ci.byteAt(pc) & 0xFF;
+                int slot = -1;
+                if (op >= 59 && op <= 78) {
+                    slot = (op - 59) % 4;
+                } else if (op >= 54 && op <= 58) {
+                    slot = ci.byteAt(pc + 1) & 0xFF;
+                }
+                if (slot >= firstResultSlot) {
+                    nextIsNewLine = true;
+                }
+            }
+
+            if (entries.isEmpty()) {
+                return;
+            }
+
+            final javassist.bytecode.ConstPool cp = mi.getConstPool();
+            final byte[] info = new byte[2 + entries.size() * 4];
+            info[0] = (byte) (entries.size() >> 8);
+            info[1] = (byte) entries.size();
+            for (int i = 0; i < entries.size(); i++) {
+                final int off = 2 + i * 4;
+                info[off] = (byte) (entries.get(i)[0] >> 8);
+                info[off + 1] = (byte) entries.get(i)[0];
+                info[off + 2] = (byte) (entries.get(i)[1] >> 8);
+                info[off + 3] = (byte) entries.get(i)[1];
+            }
+            code.getAttributes().add(
+                new javassist.bytecode.AttributeInfo(cp, "LineNumberTable", info));
+        } catch (Exception e) {
+            log.warn("Failed to add LineNumberTable: {}", e.getMessage());
+        }
+    }
+
+    private static void setSourceFile(final CtClass ctClass, final String name) {
+        try {
+            final javassist.bytecode.ClassFile cf = ctClass.getClassFile();
+            final javassist.bytecode.AttributeInfo sf = cf.getAttribute("SourceFile");
+            if (sf != null) {
+                final javassist.bytecode.ConstPool cp = cf.getConstPool();
+                final int idx = cp.addUtf8Info(name);
+                sf.set(new byte[]{(byte) (idx >> 8), (byte) idx});
+            }
+        } catch (Exception e) {
+            // best-effort
+        }
+    }
+
+    /**
+     * Builds the SourceFile name for a generated class. When YAML source info
+     * is available, produces {@code "default(ruleName.java)"};
+     * otherwise falls back to {@code "ruleName.java"}.
+     */
+    private String formatSourceFileName(final String ruleName) {
+        final String classFile = ruleName + ".java";
+        if (yamlSource != null) {
+            return "(" + yamlSource + ")" + classFile;
+        }
+        return classFile;
     }
 
     private void addLocalVariableTable(final javassist.CtMethod method,
@@ -307,6 +397,7 @@ public final class LALClassGenerator {
             final javassist.CtMethod ctMethod = CtNewMethod.make(pm.source, ctClass);
             ctClass.addMethod(ctMethod);
             addLocalVariableTable(ctMethod, className, pm.lvtVars);
+            addLineNumberTable(ctMethod, pm.lvtVars.length + 1); // after this + params
         }
 
         final javassist.CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
@@ -326,6 +417,10 @@ public final class LALClassGenerator {
         }
         addLocalVariableTable(execMethod, className,
             execLvt.toArray(new String[0][]));
+        addLineNumberTable(execMethod, 3); // slot 0=this, 1=filterSpec, 2=ctx
+
+        setSourceFile(ctClass, formatSourceFileName(
+            classNameHint != null ? classNameHint : className));
 
         writeClassFile(ctClass);
 

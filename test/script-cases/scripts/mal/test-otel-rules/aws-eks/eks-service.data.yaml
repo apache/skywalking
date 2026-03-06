@@ -16,77 +16,109 @@
 input:
   cluster:
     - labels:
+        ClusterName: test-cluster
+        Service: test-service
       value: 100.0
   pod_cpu_utilization:
     - labels:
+        ClusterName: test-cluster
+        Service: test-service
       value: 100.0
   pod_memory_utilization:
     - labels:
+        ClusterName: test-cluster
+        Service: test-service
       value: 100.0
   pod_network_rx_bytes:
     - labels:
+        ClusterName: test-cluster
+        Service: test-service
       value: 100.0
   pod_network_rx_errors:
     - labels:
+        ClusterName: test-cluster
+        Service: test-service
       value: 100.0
   pod_network_tx_bytes:
     - labels:
+        ClusterName: test-cluster
+        Service: test-service
       value: 100.0
   pod_network_tx_errors:
     - labels:
+        ClusterName: test-cluster
+        Service: test-service
       value: 100.0
 expected:
   eks_cluster_service_pod_cpu_utilization:
     entities:
       - scope: ENDPOINT
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
+        endpoint: test-service
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          Service: test-service
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_service_pod_memory_utilization:
     entities:
       - scope: ENDPOINT
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
+        endpoint: test-service
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          Service: test-service
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_service_pod_net_rx_bytes:
     entities:
       - scope: ENDPOINT
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
+        endpoint: test-service
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          Service: test-service
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_service_pod_net_rx_error:
     entities:
       - scope: ENDPOINT
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
+        endpoint: test-service
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          Service: test-service
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_service_pod_net_tx_bytes:
     entities:
       - scope: ENDPOINT
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
+        endpoint: test-service
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          Service: test-service
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_service_pod_net_tx_error:
     entities:
       - scope: ENDPOINT
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
+        endpoint: test-service
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          Service: test-service
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0

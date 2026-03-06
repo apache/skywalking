@@ -140,14 +140,14 @@ expected:
         layer: GENERAL
     samples:
       - labels:
-        value: 0.0
+        value: 50.0
   meter_instance_golang_gc_count:
     entities:
       - scope: SERVICE_INSTANCE
         layer: GENERAL
     samples:
       - labels:
-        value: 0.0
+        value: 50.0
   meter_instance_golang_os_threads_num:
     entities:
       - scope: SERVICE_INSTANCE
@@ -182,7 +182,7 @@ expected:
         layer: GENERAL
     samples:
       - labels:
-        value: 0.0
+        value: 50.0
   meter_instance_golang_gc_count_labeled:
     entities:
       - scope: SERVICE_INSTANCE
@@ -194,7 +194,7 @@ expected:
           service: test-service
           instance: test-instance
           type: cds
-        value: 0.0
+        value: 50.0
   meter_instance_golang_heap_alloc_objects:
     entities:
       - scope: SERVICE_INSTANCE
@@ -208,14 +208,14 @@ expected:
         layer: GENERAL
     samples:
       - labels:
-        value: 0.0
+        value: 50.0
   meter_instance_golang_heap_frees_objects:
     entities:
       - scope: SERVICE_INSTANCE
         layer: GENERAL
     samples:
       - labels:
-        value: 0.0
+        value: 50.0
   meter_instance_golang_memory_heap_labeled:
     entities:
       - scope: SERVICE_INSTANCE
@@ -258,7 +258,7 @@ expected:
         layer: GENERAL
     samples:
       - labels:
-        value: 0.0
+        value: 50.0
   meter_instance_golang_gc_heap_goal:
     entities:
       - scope: SERVICE_INSTANCE

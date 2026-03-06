@@ -16,25 +16,98 @@
 input:
   rover_net_p_client_write_counts_counter:
     - labels:
-      value: 100.0
-  SUM_PER_MIN:
-    - labels:
+        service: test-service
+        instance: test-instance
+        side: client
+        client_process_id: proc-1
+        server_process_id: proc-2
+        protocol: http
+        is_ssl: 'false'
       value: 100.0
   rover_net_p_client_write_bytes_counter:
     - labels:
+        service: test-service
+        instance: test-instance
+        side: client
+        client_process_id: proc-1
+        server_process_id: proc-2
+        protocol: http
+        is_ssl: 'false'
       value: 100.0
   rover_net_p_client_write_exe_time_counter:
     - labels:
+        service: test-service
+        instance: test-instance
+        side: client
+        client_process_id: proc-1
+        server_process_id: proc-2
+        protocol: http
+        is_ssl: 'false'
       value: 100.0
   rover_net_p_client_read_counts_counter:
     - labels:
+        service: test-service
+        instance: test-instance
+        side: client
+        client_process_id: proc-1
+        server_process_id: proc-2
+        protocol: http
+        is_ssl: 'false'
       value: 100.0
 expected:
-  client_write_cpm:
-    min_samples: 1
-  client_write_total_bytes:
-    min_samples: 1
-  client_write_avg_exe_time:
-    min_samples: 1
-  client_read_cpm:
-    min_samples: 1
+  process_relation_client_write_cpm:
+    entities:
+      - scope: PROCESS_RELATION
+        service: test-service
+        instance: test-instance
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          side: client
+          client_process_id: proc-1
+          server_process_id: proc-2
+          component: '49'
+        value: 100.0
+  process_relation_client_write_total_bytes:
+    entities:
+      - scope: PROCESS_RELATION
+        service: test-service
+        instance: test-instance
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          side: client
+          client_process_id: proc-1
+          server_process_id: proc-2
+          component: '49'
+        value: 100.0
+  process_relation_client_write_avg_exe_time:
+    entities:
+      - scope: PROCESS_RELATION
+        service: test-service
+        instance: test-instance
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          side: client
+          client_process_id: proc-1
+          server_process_id: proc-2
+          component: '49'
+        value: 100.0
+  process_relation_client_read_cpm:
+    entities:
+      - scope: PROCESS_RELATION
+        service: test-service
+        instance: test-instance
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          side: client
+          client_process_id: proc-1
+          server_process_id: proc-2
+          component: '49'
+        value: 100.0

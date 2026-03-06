@@ -209,7 +209,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_messages_confirmed:
     entities:
       - scope: SERVICE
@@ -219,7 +219,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_messages_routed:
     entities:
       - scope: SERVICE
@@ -229,7 +229,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_messages_unconfirmed:
     entities:
       - scope: SERVICE
@@ -249,7 +249,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_messages_unroutable_returned:
     entities:
       - scope: SERVICE
@@ -259,7 +259,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_queues:
     entities:
       - scope: SERVICE
@@ -279,7 +279,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_queues_created_total:
     entities:
       - scope: SERVICE
@@ -289,7 +289,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_queues_deleted_total:
     entities:
       - scope: SERVICE
@@ -299,7 +299,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_channels:
     entities:
       - scope: SERVICE
@@ -319,7 +319,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_channels_closed_total:
     entities:
       - scope: SERVICE
@@ -329,7 +329,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_connections:
     entities:
       - scope: SERVICE
@@ -349,7 +349,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0
   meter_rabbitmq_connections_closed_total:
     entities:
       - scope: SERVICE
@@ -359,4 +359,4 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 25.0

@@ -37,7 +37,23 @@ public final class DSL {
      * @return Expression object could be executed.
      */
     public static Expression parse(final String metricName, final String expression) {
+        return parse(metricName, expression, null);
+    }
+
+    /**
+     * Parse string literal to Expression object with YAML source info for
+     * stack trace diagnostics.
+     *
+     * @param metricName the name of metric defined in mal rule
+     * @param expression string literal represents the DSL expression.
+     * @param yamlSource YAML source identifier (e.g., "spring-sleuth[3]"), or null.
+     * @return Expression object could be executed.
+     */
+    public static Expression parse(final String metricName,
+                                   final String expression,
+                                   final String yamlSource) {
         try {
+            GENERATOR.setYamlSource(yamlSource);
             final MalExpression malExpr = GENERATOR.compile(metricName, expression);
             return new Expression(metricName, expression, malExpr);
         } catch (Exception e) {

@@ -16,103 +16,118 @@
 input:
   cluster:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
   cluster_node_count:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
   cluster_failed_node_count:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
   namespace_number_of_running_pods:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
   service_number_of_running_pods:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
   node_network_rx_dropped:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
   node_network_rx_errors:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
   node_network_tx_dropped:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
   node_network_tx_errors:
     - labels:
+        ClusterName: test-cluster
       value: 100.0
 expected:
   eks_cluster_node_count:
     entities:
       - scope: SERVICE
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_failed_node_count:
     entities:
       - scope: SERVICE
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_namespace_count:
     entities:
       - scope: SERVICE
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
         layer: AWS_EKS
     samples:
       - labels:
           Namespace: 
-          cluster: 'aws-eks-cluster::null'
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_service_count:
     entities:
       - scope: SERVICE
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
         layer: AWS_EKS
     samples:
       - labels:
           Service: 
-          cluster: 'aws-eks-cluster::null'
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_net_rx_dropped:
     entities:
       - scope: SERVICE
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_net_rx_error:
     entities:
       - scope: SERVICE
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_net_tx_dropped:
     entities:
       - scope: SERVICE
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0
   eks_cluster_net_tx_error:
     entities:
       - scope: SERVICE
-        service: 'aws-eks-cluster::null'
+        service: 'aws-eks-cluster::test-cluster'
         layer: AWS_EKS
     samples:
       - labels:
-          cluster: 'aws-eks-cluster::null'
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
         value: 100.0

@@ -16,59 +16,143 @@
 input:
   nginx_http_requests_total:
     - labels:
+        service: test-service
+        route: /test-route
       value: 100.0
-  nginx_http_latency:
     - labels:
-      value: 100.0
+        service: test-service
+        route: /test-route
+        status: '404'
+      value: 10.0
+    - labels:
+        service: test-service
+        route: /test-route
+        status: '500'
+      value: 5.0
+  nginx_http_latency:
+    - labels: {service: test-service, route: /test-route, le: '50'}
+      value: 10.0
+    - labels: {service: test-service, route: /test-route, le: '100'}
+      value: 20.0
+    - labels: {service: test-service, route: /test-route, le: '250'}
+      value: 30.0
+    - labels: {service: test-service, route: /test-route, le: '500'}
+      value: 40.0
+    - labels: {service: test-service, route: /test-route, le: '1000'}
+      value: 50.0
   nginx_http_size_bytes:
     - labels:
+        service: test-service
+        route: /test-route
       value: 100.0
 expected:
   meter_nginx_endpoint_http_requests:
     entities:
       - scope: ENDPOINT
-        service: 'nginx::null'
+        service: 'nginx::test-service'
+        endpoint: /test-route
         layer: NGINX
     samples:
       - labels:
-          service: 'nginx::null'
-          route: 
-        value: 0.0
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 28.75
   meter_nginx_endpoint_http_latency:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '1000000'
+        value: 50.0
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '100000'
+        value: 20.0
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '250000'
+        value: 30.0
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '500000'
+        value: 40.0
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '50000'
+        value: 10.0
   meter_nginx_endpoint_http_bandwidth:
     entities:
       - scope: ENDPOINT
-        service: 'nginx::null'
+        service: 'nginx::test-service'
+        endpoint: /test-route
         layer: NGINX
     samples:
       - labels:
           type: 
-          service: 'nginx::null'
-          route: 
-        value: 0.0
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 25.0
   meter_nginx_endpoint_http_status:
     entities:
       - scope: ENDPOINT
-        service: 'nginx::null'
+        service: 'nginx::test-service'
+        endpoint: /test-route
         layer: NGINX
     samples:
       - labels:
           status: 
-          service: 'nginx::null'
-          route: 
-        value: 0.0
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 25.0
+      - labels:
+          status: '404'
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 2.5
+      - labels:
+          status: '500'
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 1.25
   meter_nginx_endpoint_http_requests_increment:
     entities:
       - scope: ENDPOINT
-        service: 'nginx::null'
+        service: 'nginx::test-service'
+        endpoint: /test-route
         layer: NGINX
     samples:
       - labels:
-          service: 'nginx::null'
-          route: 
-        value: 0.0
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 57.5
   meter_nginx_endpoint_http_4xx_requests_increment:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 5.0
   meter_nginx_endpoint_http_5xx_requests_increment:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 2.5

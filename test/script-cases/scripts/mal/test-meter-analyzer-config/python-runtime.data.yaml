@@ -122,7 +122,7 @@ expected:
     samples:
       - labels:
           instance: test-instance
-        value: 0.0
+        value: 50.0
   meter_instance_pvm_thread_active_count:
     entities:
       - scope: SERVICE_INSTANCE

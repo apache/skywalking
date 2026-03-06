@@ -75,12 +75,14 @@ input:
         cluster: test-cluster
         service: test-service
         pod: test-pod
+        container: test-container
       value: 1.0
   container_memory_working_set_bytes:
     - labels:
         cluster: test-cluster
         service: test-service
         pod: test-pod
+        container: test-container
       value: 1.0
 expected:
   k8s_service_pod_total:
@@ -183,6 +185,24 @@ expected:
           pod: test-pod
         value: 1.0
   k8s_service_pod_cpu_usage:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+          pod: test-pod
+        value: 0.0
   k8s_service_pod_memory_usage:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE
+        service: 'test-cluster::test-service'
+        layer: K8S_SERVICE
+    samples:
+      - labels:
+          cluster: test-cluster
+          service: test-service
+          pod: test-pod
+        value: 1.0

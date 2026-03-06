@@ -97,43 +97,43 @@ input:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        delayedOperation: test-value
+        delayedOperation: Produce
       value: 100.0
   jvm_gc_collection_seconds_count:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        gc: PS Scavenge
+        gc: G1 Young Generation
       value: 100.0
   kafka_network_requestmetrics_requests_total:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        request: test-value
+        request: Produce
       value: 100.0
   kafka_network_requestmetrics_requestqueuetimems_count:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        request: test-value
+        request: Produce
       value: 100.0
   kafka_network_requestmetrics_remotetimems_count:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        request: test-value
+        request: Produce
       value: 100.0
   kafka_network_requestmetrics_responsequeuetimems_count:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        request: test-value
+        request: Produce
       value: 100.0
   kafka_network_requestmetrics_responsesendtimems_count:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        request: test-value
+        request: Produce
       value: 100.0
   kafka_network_socketserver_networkprocessoravgidlepercent:
     - labels:
@@ -163,7 +163,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 2500.0
   meter_kafka_broker_memory_usage_percentage:
     entities:
       - scope: SERVICE_INSTANCE
@@ -186,7 +186,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_bytes_in_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -197,7 +197,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_bytes_out_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -208,7 +208,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_replication_bytes_in_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -219,7 +219,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_replication_bytes_out_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -230,7 +230,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_under_replicated_partitions:
     entities:
       - scope: SERVICE_INSTANCE
@@ -285,7 +285,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_isr_expands_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -296,7 +296,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_max_lag:
     entities:
       - scope: SERVICE_INSTANCE
@@ -309,19 +309,89 @@ expected:
           cluster: 'kafka::test-cluster'
         value: 100.0
   meter_kafka_broker_purgatory_size:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'kafka::test-cluster'
+        instance: test-broker
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          delayedOperation: Produce
+        value: 100.0
   meter_kafka_broker_garbage_collector_count:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'kafka::test-cluster'
+        instance: test-broker
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          gc: G1 Young Generation
+          cluster: 'kafka::test-cluster'
+        value: 25.0
   meter_kafka_broker_requests_per_second:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'kafka::test-cluster'
+        instance: test-broker
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          request: Produce
+        value: 25.0
   meter_kafka_broker_request_queue_time_ms:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'kafka::test-cluster'
+        instance: test-broker
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          request: Produce
+        value: 25.0
   meter_kafka_broker_remote_time_ms:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'kafka::test-cluster'
+        instance: test-broker
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          request: Produce
+        value: 25.0
   meter_kafka_broker_response_queue_time_ms:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'kafka::test-cluster'
+        instance: test-broker
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          request: Produce
+        value: 25.0
   meter_kafka_broker_response_send_time_ms:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'kafka::test-cluster'
+        instance: test-broker
+        layer: KAFKA
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          request: Produce
+        value: 25.0
   meter_kafka_broker_network_processor_avg_idle_percent:
     entities:
       - scope: SERVICE_INSTANCE
@@ -332,7 +402,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 0.0
+        value: 2500.0
   meter_kafka_broker_topic_messages_in_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -356,7 +426,7 @@ expected:
           broker: test-broker
           cluster: 'kafka::test-cluster'
           topic: test-topic
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_topic_bytesin_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -368,7 +438,7 @@ expected:
           broker: test-broker
           cluster: 'kafka::test-cluster'
           topic: test-topic
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_topic_fetch_requests_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -380,7 +450,7 @@ expected:
           broker: test-broker
           cluster: 'kafka::test-cluster'
           topic: test-topic
-        value: 0.0
+        value: 25.0
   meter_kafka_broker_topic_produce_requests_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -392,4 +462,4 @@ expected:
           broker: test-broker
           cluster: 'kafka::test-cluster'
           topic: test-topic
-        value: 0.0
+        value: 25.0

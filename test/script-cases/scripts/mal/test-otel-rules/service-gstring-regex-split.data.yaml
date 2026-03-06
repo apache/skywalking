@@ -24,6 +24,12 @@ expected:
       - scope: SERVICE
         service: '-|test-service|null|null|-'
         layer: MESH
+        attr0: service
+        attr1: '-'
+        attr2: test-service
+        attr3: 'null'
+        attr4: 'null'
+        attr5: '-'
     samples:
       - labels:
           service: '-|test-service|null|null|-'

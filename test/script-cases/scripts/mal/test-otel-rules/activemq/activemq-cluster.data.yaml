@@ -184,7 +184,7 @@ expected:
       - labels:
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_cluster_gc_g1_young_collection_count:
     entities:
       - scope: SERVICE
@@ -194,7 +194,7 @@ expected:
       - labels:
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_cluster_gc_g1_old_collection_time:
     entities:
       - scope: SERVICE
@@ -204,7 +204,7 @@ expected:
       - labels:
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_cluster_gc_g1_young_collection_time:
     entities:
       - scope: SERVICE
@@ -214,7 +214,7 @@ expected:
       - labels:
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_cluster_gc_parallel_old_collection_count:
     entities:
       - scope: SERVICE
@@ -224,7 +224,7 @@ expected:
       - labels:
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_cluster_gc_parallel_young_collection_count:
     entities:
       - scope: SERVICE
@@ -234,7 +234,7 @@ expected:
       - labels:
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_cluster_gc_parallel_old_collection_time:
     entities:
       - scope: SERVICE
@@ -244,7 +244,7 @@ expected:
       - labels:
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_cluster_gc_parallel_young_collection_time:
     entities:
       - scope: SERVICE
@@ -254,7 +254,7 @@ expected:
       - labels:
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_cluster_enqueue_rate:
     entities:
       - scope: SERVICE
@@ -263,7 +263,7 @@ expected:
     samples:
       - labels:
           cluster: 'activemq::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_activemq_cluster_dequeue_rate:
     entities:
       - scope: SERVICE
@@ -272,7 +272,7 @@ expected:
     samples:
       - labels:
           cluster: 'activemq::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_activemq_cluster_dispatch_rate:
     entities:
       - scope: SERVICE
@@ -281,7 +281,7 @@ expected:
     samples:
       - labels:
           cluster: 'activemq::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_activemq_cluster_expired_rate:
     entities:
       - scope: SERVICE
@@ -290,7 +290,7 @@ expected:
     samples:
       - labels:
           cluster: 'activemq::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_activemq_cluster_average_enqueue_time:
     entities:
       - scope: SERVICE

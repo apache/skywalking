@@ -729,7 +729,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 2500.0
   meter_oap_instance_jvm_memory_bytes_used:
     entities:
       - scope: SERVICE_INSTANCE
@@ -765,7 +765,7 @@ expected:
           gc: young_gc_count
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_jvm_gc_time:
     entities:
       - scope: SERVICE_INSTANCE
@@ -777,7 +777,7 @@ expected:
           gc: young_gc_time
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50000.0
   meter_oap_instance_trace_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -789,7 +789,7 @@ expected:
           service: test-service
           host_name: test-host
           protocol: http
-        value: 0.0
+        value: 50.0
   meter_oap_instance_trace_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -801,32 +801,32 @@ expected:
           service: test-service
           host_name: test-host
           protocol: http
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
           protocol: http
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
           protocol: http
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
           protocol: http
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
           protocol: http
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_instance_trace_analysis_error_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -838,7 +838,7 @@ expected:
           service: test-service
           host_name: test-host
           protocol: http
-        value: 0.0
+        value: 50.0
   meter_oap_instance_spans_dropped_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -850,7 +850,7 @@ expected:
           service: test-service
           host_name: test-host
           protocol: http
-        value: 0.0
+        value: 50.0
   meter_oap_instance_mesh_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -861,7 +861,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_mesh_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -872,28 +872,28 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_instance_mesh_analysis_error_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -904,7 +904,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_metrics_aggregation:
     entities:
       - scope: SERVICE_INSTANCE
@@ -916,7 +916,7 @@ expected:
           level: ERROR
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_metrics_aggregation_queue_used_per_ten_thousand:
     entities:
       - scope: SERVICE_INSTANCE
@@ -940,28 +940,28 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_instance_persistence_prepare_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -972,28 +972,28 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_instance_persistence_error_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1004,7 +1004,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_persistence_execute_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1015,7 +1015,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_persistence_prepare_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1026,7 +1026,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_metrics_persistent_cache:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1038,7 +1038,7 @@ expected:
           service: test-service
           host_name: test-host
           status: active
-        value: 0.0
+        value: 50.0
   meter_oap_instance_metrics_persistent_collection_cached_size:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1173,7 +1173,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_k8s_als_drop:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1184,7 +1184,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_k8s_als_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1195,28 +1195,28 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_instance_k8s_als_streams:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1227,7 +1227,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_k8s_als_error_streams:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1238,7 +1238,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_otel_metrics_received:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1249,7 +1249,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_otel_logs_received:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1260,7 +1260,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_otel_spans_received:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1271,7 +1271,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_otel_spans_dropped:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1282,7 +1282,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_otel_metrics_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1293,28 +1293,28 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_otel_logs_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1325,28 +1325,28 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_otel_spans_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1357,28 +1357,28 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_graphql_query_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1389,28 +1389,28 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_instance_graphql_query_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1421,7 +1421,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_graphql_query_error_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1432,7 +1432,7 @@ expected:
       - labels:
           service: test-service
           host_name: test-host
-        value: 0.0
+        value: 50.0
   meter_oap_instance_watermark_circuit_breaker_break_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1469,32 +1469,32 @@ expected:
           service: test-service
           host_name: test-host
           operation: test-op
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
           operation: test-op
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
           operation: test-op
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
           operation: test-op
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
           operation: test-op
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0
   meter_oap_banyandb_write_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1507,33 +1507,33 @@ expected:
           host_name: test-host
           catalog: test-catalog
           operation: test-op
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 25.0
       - labels:
           service: test-service
           host_name: test-host
           catalog: test-catalog
           operation: test-op
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 10.0
       - labels:
           service: test-service
           host_name: test-host
           catalog: test-catalog
           operation: test-op
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 15.0
       - labels:
           service: test-service
           host_name: test-host
           catalog: test-catalog
           operation: test-op
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 20.0
       - labels:
           service: test-service
           host_name: test-host
           catalog: test-catalog
           operation: test-op
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 5.0

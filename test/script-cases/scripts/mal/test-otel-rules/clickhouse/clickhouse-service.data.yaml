@@ -214,7 +214,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_tcp_connections:
     entities:
       - scope: SERVICE
@@ -274,7 +274,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_network_send_bytes:
     entities:
       - scope: SERVICE
@@ -284,7 +284,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_query:
     entities:
       - scope: SERVICE
@@ -294,7 +294,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_query_select:
     entities:
       - scope: SERVICE
@@ -304,7 +304,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_query_insert:
     entities:
       - scope: SERVICE
@@ -314,7 +314,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_query_select_rate:
     entities:
       - scope: SERVICE
@@ -324,7 +324,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_query_insert_rate:
     entities:
       - scope: SERVICE
@@ -334,7 +334,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_querytime_microseconds:
     entities:
       - scope: SERVICE
@@ -344,7 +344,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_querytime_select_microseconds:
     entities:
       - scope: SERVICE
@@ -354,7 +354,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_querytime_insert_microseconds:
     entities:
       - scope: SERVICE
@@ -364,7 +364,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_querytime_other_microseconds:
     entities:
       - scope: SERVICE
@@ -374,7 +374,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_query_slow:
     entities:
       - scope: SERVICE
@@ -384,7 +384,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_inserted_rows:
     entities:
       - scope: SERVICE
@@ -394,7 +394,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_inserted_bytes:
     entities:
       - scope: SERVICE
@@ -404,7 +404,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_delayed_inserts:
     entities:
       - scope: SERVICE
@@ -414,7 +414,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_replicated_checks:
     entities:
       - scope: SERVICE
@@ -464,7 +464,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_merge_uncompressed_bytes:
     entities:
       - scope: SERVICE
@@ -474,7 +474,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_clickhouse_move:
     entities:
       - scope: SERVICE
@@ -514,7 +514,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_kafka_writes:
     entities:
       - scope: SERVICE
@@ -524,7 +524,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_kafka_consumers:
     entities:
       - scope: SERVICE
@@ -574,7 +574,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_zookeeper_bytes_received:
     entities:
       - scope: SERVICE
@@ -584,7 +584,7 @@ expected:
       - labels:
           host_name: 'clickhouse::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_clickhouse_keeper_connections_alive:
     entities:
       - scope: SERVICE

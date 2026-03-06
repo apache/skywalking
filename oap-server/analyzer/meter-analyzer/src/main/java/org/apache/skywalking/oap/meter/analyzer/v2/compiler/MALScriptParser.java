@@ -834,8 +834,55 @@ public final class MALScriptParser {
 
     static String stripQuotes(final String s) {
         if (s.length() >= 2 && (s.charAt(0) == '\'' || s.charAt(0) == '"')) {
-            return s.substring(1, s.length() - 1);
+            return unescapeString(s.substring(1, s.length() - 1));
         }
         return s;
+    }
+
+    /**
+     * Interpret Java/Groovy escape sequences in a string literal body.
+     * ANTLR4 preserves raw source bytes, so {@code "\\|"} yields {@code \\|}
+     * after quote stripping. This method converts it to the logical value
+     * {@code \|} so that codegen's escapeJava round-trips correctly.
+     */
+    private static String unescapeString(final String s) {
+        if (s.indexOf('\\') < 0) {
+            return s;
+        }
+        final StringBuilder sb = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            final char c = s.charAt(i);
+            if (c == '\\' && i + 1 < s.length()) {
+                final char next = s.charAt(i + 1);
+                switch (next) {
+                    case '\\':
+                        sb.append('\\');
+                        break;
+                    case 'n':
+                        sb.append('\n');
+                        break;
+                    case 'r':
+                        sb.append('\r');
+                        break;
+                    case 't':
+                        sb.append('\t');
+                        break;
+                    case '"':
+                        sb.append('"');
+                        break;
+                    case '\'':
+                        sb.append('\'');
+                        break;
+                    default:
+                        // Unknown escape — preserve as-is
+                        sb.append(c).append(next);
+                        break;
+                }
+                i++;
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 }

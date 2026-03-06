@@ -200,7 +200,7 @@ expected:
           brokerName: test-broker
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_broker_consumer_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -212,7 +212,7 @@ expected:
           brokerName: test-broker
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_broker_enqueue_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -224,7 +224,7 @@ expected:
           brokerName: test-broker
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_broker_dequeue_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -236,7 +236,7 @@ expected:
           brokerName: test-broker
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_activemq_broker_enqueue_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -248,7 +248,7 @@ expected:
           brokerName: test-broker
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_activemq_broker_dequeue_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -260,7 +260,7 @@ expected:
           brokerName: test-broker
           cluster: 'activemq::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_activemq_broker_memory_percent_usage:
     entities:
       - scope: SERVICE_INSTANCE

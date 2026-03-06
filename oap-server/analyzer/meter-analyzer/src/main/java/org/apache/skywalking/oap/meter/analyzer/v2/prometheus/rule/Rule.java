@@ -36,4 +36,9 @@ public class Rule implements MetricRuleConfig {
     private String expPrefix;
     private String filter;
     private List<MetricsRule> metricsRules;
+
+    @Override
+    public String getSourceName() {
+        return name;
+    }
 }

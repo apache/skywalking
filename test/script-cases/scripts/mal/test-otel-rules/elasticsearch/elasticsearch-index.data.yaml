@@ -236,9 +236,18 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_indexing_index_total_proc_rate:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'elasticsearch::test-cluster'
+        endpoint: test-value
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+          index: test-value
+        value: 1.0
   meter_elasticsearch_index_stats_search_query_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -249,9 +258,18 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_search_query_total_proc_rate:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'elasticsearch::test-cluster'
+        endpoint: test-value
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+          index: test-value
+        value: 0.25
   meter_elasticsearch_index_stats_merge_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -262,7 +280,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_flush_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -273,7 +291,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_refresh_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -284,7 +302,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_warmer_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -295,7 +313,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_indexing_delete_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -306,7 +324,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_search_fetch_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -317,7 +335,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_search_scroll_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -328,7 +346,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_search_suggest_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -339,7 +357,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_get_total_req_rate:
     entities:
       - scope: ENDPOINT
@@ -350,7 +368,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_merge_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -361,7 +379,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_flush_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -372,7 +390,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_refresh_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -383,7 +401,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_warmer_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -394,7 +412,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_indexing_delete_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -405,7 +423,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_search_fetch_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -416,7 +434,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_search_query_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -427,7 +445,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_search_scroll_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -438,7 +456,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_search_suggest_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -449,7 +467,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_indexing_index_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -460,7 +478,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_get_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -471,7 +489,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_merge_stopped_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -482,7 +500,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_merge_throttle_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -493,7 +511,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_stats_indexing_throttle_time_seconds_total:
     entities:
       - scope: ENDPOINT
@@ -504,15 +522,51 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_search_fetch_avg_time:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'elasticsearch::test-cluster'
+        endpoint: test-value
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+          index: test-value
+        value: 1.0
   meter_elasticsearch_index_search_query_avg_time:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'elasticsearch::test-cluster'
+        endpoint: test-value
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+          index: test-value
+        value: 1.0
   meter_elasticsearch_index_search_scroll_avg_time:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'elasticsearch::test-cluster'
+        endpoint: test-value
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+          index: test-value
+        value: 1.0
   meter_elasticsearch_index_search_suggest_avg_time:
-    error: 'v1 not-success'
+    entities:
+      - scope: ENDPOINT
+        service: 'elasticsearch::test-cluster'
+        endpoint: test-value
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          cluster: 'elasticsearch::test-cluster'
+          index: test-value
+        value: 1.0
   meter_elasticsearch_index_indices_docs_primary:
     entities:
       - scope: ENDPOINT
@@ -534,7 +588,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_indices_store_size_bytes_primary:
     entities:
       - scope: ENDPOINT
@@ -567,7 +621,7 @@ expected:
       - labels:
           cluster: 'elasticsearch::test-cluster'
           index: test-value
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_index_indices_store_size_bytes_total:
     entities:
       - scope: ENDPOINT

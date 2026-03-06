@@ -47,7 +47,12 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 @Slf4j
 public class CompiledHierarchyRuleProvider implements HierarchyDefinitionService.HierarchyRuleProvider {
 
-    private final HierarchyRuleClassGenerator generator = new HierarchyRuleClassGenerator();
+    private final HierarchyRuleClassGenerator generator;
+
+    public CompiledHierarchyRuleProvider() {
+        generator = new HierarchyRuleClassGenerator();
+        generator.setYamlSource("hierarchy-definition.yml");
+    }
 
     @Override
     public Map<String, BiFunction<Service, Service, Boolean>> buildRules(

@@ -219,7 +219,7 @@ expected:
       - labels:
           cluster: 'mongodb::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mongodb_node_op_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -231,7 +231,7 @@ expected:
           cluster: 'mongodb::test-cluster'
           service_instance_id: test-instance
           op_type: test-value
-        value: 0.0
+        value: 25.0
   meter_mongodb_node_latency_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -243,7 +243,7 @@ expected:
           cluster: 'mongodb::test-cluster'
           service_instance_id: test-instance
           op_type: test-value
-        value: 0.0
+        value: 25.0
   meter_mongodb_node_memory_usage:
     entities:
       - scope: SERVICE_INSTANCE
@@ -286,7 +286,7 @@ expected:
     samples:
       - labels:
           cluster: 'mongodb::test-cluster'
-        value: 0.0
+        value: 17.5
   meter_mongodb_node_network_bytes_in:
     entities:
       - scope: SERVICE_INSTANCE
@@ -412,7 +412,7 @@ expected:
           cluster: 'mongodb::test-cluster'
           doc_op_type: test-value
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mongodb_node_operation_qps:
     entities:
       - scope: SERVICE_INSTANCE
@@ -424,7 +424,7 @@ expected:
           legacy_op_type: test-value
           cluster: 'mongodb::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mongodb_node_repl_operation_qps:
     entities:
       - scope: SERVICE_INSTANCE
@@ -436,7 +436,7 @@ expected:
           legacy_op_type: test-value
           cluster: 'mongodb::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mongodb_node_cursor:
     entities:
       - scope: SERVICE_INSTANCE
@@ -478,7 +478,7 @@ expected:
           assert_type: test-value
           cluster: 'mongodb::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_mongodb_node_repl_buffer_count:
     entities:
       - scope: SERVICE_INSTANCE
@@ -526,7 +526,7 @@ expected:
     samples:
       - labels:
           cluster: 'mongodb::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_mongodb_node_write_wait_timeout_num:
     entities:
       - scope: SERVICE_INSTANCE
@@ -535,7 +535,7 @@ expected:
     samples:
       - labels:
           cluster: 'mongodb::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_mongodb_node_write_wait_time:
     entities:
       - scope: SERVICE_INSTANCE
@@ -544,4 +544,4 @@ expected:
     samples:
       - labels:
           cluster: 'mongodb::test-cluster'
-        value: 0.0
+        value: 25.0

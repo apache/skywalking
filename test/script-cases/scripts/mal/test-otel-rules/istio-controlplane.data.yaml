@@ -259,7 +259,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 2500.0
   meter_istio_go_goroutines:
     entities:
       - scope: SERVICE
@@ -330,7 +330,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_istio_pilot_total_xds_internal_errors:
     entities:
       - scope: SERVICE
@@ -340,7 +340,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_istio_pilot_total_xds_rejects:
     entities:
       - scope: SERVICE
@@ -350,7 +350,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_istio_pilot_xds_push_context_errors:
     entities:
       - scope: SERVICE
@@ -360,7 +360,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_istio_pilot_xds_push_timeout:
     entities:
       - scope: SERVICE
@@ -370,7 +370,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_istio_pilot_proxy_push_percentile:
     entities:
       - scope: SERVICE
@@ -380,28 +380,28 @@ expected:
       - labels:
           app: test-app
           cluster: 'istio-ctrl::test-cluster'
-          le: 1000000
-        value: 0.0
+          le: '1000000'
+        value: 12.5
       - labels:
           app: test-app
           cluster: 'istio-ctrl::test-cluster'
-          le: 100000
-        value: 0.0
+          le: '100000'
+        value: 5.0
       - labels:
           app: test-app
           cluster: 'istio-ctrl::test-cluster'
-          le: 250000
-        value: 0.0
+          le: '250000'
+        value: 7.5
       - labels:
           app: test-app
           cluster: 'istio-ctrl::test-cluster'
-          le: 500000
-        value: 0.0
+          le: '500000'
+        value: 10.0
       - labels:
           app: test-app
           cluster: 'istio-ctrl::test-cluster'
-          le: 50000
-        value: 0.0
+          le: '50000'
+        value: 2.5
   meter_istio_pilot_conflict_il:
     entities:
       - scope: SERVICE
@@ -481,7 +481,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_istio_galley_validation_failed:
     entities:
       - scope: SERVICE
@@ -491,7 +491,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_istio_sidecar_injection_success_total:
     entities:
       - scope: SERVICE
@@ -501,7 +501,7 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_istio_sidecar_injection_failure_total:
     entities:
       - scope: SERVICE
@@ -511,4 +511,4 @@ expected:
       - labels:
           app: istiod
           cluster: 'istio-ctrl::test-cluster'
-        value: 0.0
+        value: 25.0

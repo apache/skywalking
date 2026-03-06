@@ -46,7 +46,7 @@ public class DSL {
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
                          final String dsl) throws ModuleStartException {
-        return of(moduleManager, config, dsl, null, "unknown");
+        return of(moduleManager, config, dsl, null, "unknown", null);
     }
 
     public static DSL of(final ModuleManager moduleManager,
@@ -54,10 +54,20 @@ public class DSL {
                          final String dsl,
                          final Class<?> extraLogType,
                          final String ruleName) throws ModuleStartException {
+        return of(moduleManager, config, dsl, extraLogType, ruleName, null);
+    }
+
+    public static DSL of(final ModuleManager moduleManager,
+                         final LogAnalyzerModuleConfig config,
+                         final String dsl,
+                         final Class<?> extraLogType,
+                         final String ruleName,
+                         final String yamlSource) throws ModuleStartException {
         try {
             final LALClassGenerator generator = new LALClassGenerator();
             generator.setExtraLogType(extraLogType);
             generator.setClassNameHint(ruleName);
+            generator.setYamlSource(yamlSource);
             final LalExpression expression = generator.compile(dsl);
             final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
             return new DSL(ruleName, expression, filterSpec);

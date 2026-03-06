@@ -101,7 +101,7 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_commands_select_rate:
     entities:
       - scope: SERVICE
@@ -111,7 +111,7 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_commands_delete_rate:
     entities:
       - scope: SERVICE
@@ -121,7 +121,7 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_commands_update_rate:
     entities:
       - scope: SERVICE
@@ -131,7 +131,7 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_qps:
     entities:
       - scope: SERVICE
@@ -141,7 +141,7 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_tps:
     entities:
       - scope: SERVICE
@@ -151,7 +151,7 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mysql_threads_connected:
     entities:
       - scope: SERVICE
@@ -251,4 +251,4 @@ expected:
       - labels:
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0

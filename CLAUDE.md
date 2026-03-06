@@ -234,6 +234,7 @@ Use the `/gh-pull-request` skill for committing and pushing to a PR branch. It r
 
 1. **Always check submodules**: Protocol changes may require submodule updates
 2. **Generate sources first**: Run `mvnw compile` before analyzing generated code
+3. **Install package**: Use `mvnw flatten:flatten install` to build the precompiler and export generated classes before running tests. ref to [compile skill doc](.claude/skills/compile/SKILL.md)
 3. **Respect checkstyle**: No System.out, no @author, no Chinese characters
 4. **Follow module patterns**: Use existing modules as templates
 5. **Check multiple storage implementations**: Logic may vary by storage type

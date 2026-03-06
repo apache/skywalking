@@ -161,7 +161,7 @@ expected:
       - labels:
           jobManager_node: test-value
           cluster: 'flink::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_flink_jobManager_jvm_memory_heap_used:
     entities:
       - scope: SERVICE
@@ -241,7 +241,7 @@ expected:
       - labels:
           jobManager_node: test-value
           cluster: 'flink::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_flink_jobManager_jvm_g1_old_generation_count:
     entities:
       - scope: SERVICE
@@ -251,7 +251,7 @@ expected:
       - labels:
           jobManager_node: test-value
           cluster: 'flink::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_flink_jobManager_jvm_g1_young_generation_time:
     entities:
       - scope: SERVICE
@@ -261,7 +261,7 @@ expected:
       - labels:
           jobManager_node: test-value
           cluster: 'flink::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_flink_jobManager_jvm_g1_old_generation_time:
     entities:
       - scope: SERVICE
@@ -271,7 +271,7 @@ expected:
       - labels:
           jobManager_node: test-value
           cluster: 'flink::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_flink_jobManager_jvm_all_garbageCollector_count:
     entities:
       - scope: SERVICE
@@ -281,7 +281,7 @@ expected:
       - labels:
           jobManager_node: test-value
           cluster: 'flink::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_flink_jobManager_jvm_all_garbageCollector_time:
     entities:
       - scope: SERVICE
@@ -291,4 +291,4 @@ expected:
       - labels:
           jobManager_node: test-value
           cluster: 'flink::test-cluster'
-        value: 0.0
+        value: 50.0

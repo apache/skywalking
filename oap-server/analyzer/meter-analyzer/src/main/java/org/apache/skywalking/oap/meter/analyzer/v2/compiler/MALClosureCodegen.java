@@ -156,6 +156,7 @@ final class MALClosureCodegen {
                 {elementParam, "Ljava/lang/String;"},
                 {tagsParam, "Ljava/util/Map;"}
             });
+            generator.addLineNumberTable(m, 3); // slot 0=this, 1=element, 2=tags
             return methodName;
         } else if (isPropertiesExtractor) {
             final String methodName = fieldName + "_apply";
@@ -194,6 +195,7 @@ final class MALClosureCodegen {
             generator.addLocalVariableTable(m, className, new String[][]{
                 {paramName, "Ljava/util/Map;"}
             });
+            generator.addLineNumberTable(m, 2); // slot 0=this, 1=it/param
             return methodName;
         } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
             final String methodName = fieldName + "_accept";
@@ -218,6 +220,7 @@ final class MALClosureCodegen {
                 {"_arg", "Ljava/lang/Object;"},
                 {paramName, "L" + MALCodegenHelper.METER_ENTITY_FQCN.replace('.', '/') + ";"}
             });
+            generator.addLineNumberTable(m, 2); // slot 0=this, 1=_arg
             return methodName;
         } else {
             // TagFunction: Map<String,String> apply(Map<String,String> tags)
@@ -238,6 +241,7 @@ final class MALClosureCodegen {
             generator.addLocalVariableTable(m, className, new String[][]{
                 {paramName, "Ljava/util/Map;"}
             });
+            generator.addLineNumberTable(m, 2); // slot 0=this, 1=it/param
             return methodName;
         }
     }

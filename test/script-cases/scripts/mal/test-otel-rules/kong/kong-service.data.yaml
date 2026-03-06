@@ -144,7 +144,7 @@ expected:
           route: test-route
           host_name: 'kong::test-host'
           direction: in
-        value: 0.0
+        value: 25.0
   meter_kong_service_http_status:
     entities:
       - scope: SERVICE
@@ -154,8 +154,8 @@ expected:
       - labels:
           host_name: 'kong::test-host'
           service_instance_id: test-instance
-          code: 200
-        value: 0.0
+          code: '200'
+        value: 25.0
   meter_kong_service_nginx_metric_errors_total:
     entities:
       - scope: SERVICE
@@ -185,7 +185,7 @@ expected:
       - labels:
           host_name: 'kong::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_kong_service_nginx_connections_total:
     entities:
       - scope: SERVICE
@@ -196,7 +196,7 @@ expected:
           host_name: 'kong::test-host'
           service_instance_id: test-instance
           state: active
-        value: 0.0
+        value: 25.0
   meter_kong_service_nginx_timers:
     entities:
       - scope: SERVICE
@@ -215,27 +215,27 @@ expected:
         layer: KONG
     samples:
       - labels:
-          le: 100000
+          le: '100000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 20.0
       - labels:
-          le: 1000000
+          le: '1000000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 50.0
       - labels:
-          le: 250000
+          le: '250000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 30.0
       - labels:
-          le: 50000
+          le: '50000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 10.0
       - labels:
-          le: 500000
+          le: '500000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 40.0
@@ -246,27 +246,27 @@ expected:
         layer: KONG
     samples:
       - labels:
-          le: 100000
+          le: '100000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 20.0
       - labels:
-          le: 1000000
+          le: '1000000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 50.0
       - labels:
-          le: 250000
+          le: '250000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 30.0
       - labels:
-          le: 50000
+          le: '50000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 10.0
       - labels:
-          le: 500000
+          le: '500000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 40.0
@@ -277,27 +277,27 @@ expected:
         layer: KONG
     samples:
       - labels:
-          le: 100000
+          le: '100000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 20.0
       - labels:
-          le: 1000000
+          le: '1000000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 50.0
       - labels:
-          le: 250000
+          le: '250000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 30.0
       - labels:
-          le: 50000
+          le: '50000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 10.0
       - labels:
-          le: 500000
+          le: '500000'
           host_name: 'kong::test-host'
           service_instance_id: test-instance
         value: 40.0

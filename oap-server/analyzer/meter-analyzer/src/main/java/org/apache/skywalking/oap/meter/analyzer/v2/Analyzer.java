@@ -107,7 +107,15 @@ public class Analyzer {
                                  final String filterExpression,
                                  final String expression,
                                  final MeterSystem meterSystem) {
-        Expression e = DSL.parse(metricName, expression);
+        return build(metricName, filterExpression, expression, meterSystem, null);
+    }
+
+    public static Analyzer build(final String metricName,
+                                 final String filterExpression,
+                                 final String expression,
+                                 final MeterSystem meterSystem,
+                                 final String yamlSource) {
+        Expression e = DSL.parse(metricName, expression, yamlSource);
         FilterExpression filter = null;
         if (!Strings.isNullOrEmpty(filterExpression)) {
             filter = new FilterExpression(filterExpression);

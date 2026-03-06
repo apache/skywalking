@@ -116,7 +116,7 @@ expected:
           host_name: 'kong::test-host'
           direction: in
           route: test-route
-        value: 0.0
+        value: 25.0
   meter_kong_endpoint_http_status:
     entities:
       - scope: ENDPOINT
@@ -127,8 +127,8 @@ expected:
       - labels:
           host_name: 'kong::test-host'
           route: test-route
-          code: 200
-        value: 0.0
+          code: '200'
+        value: 25.0
   meter_kong_endpoint_kong_latency:
     entities:
       - scope: ENDPOINT
@@ -137,27 +137,27 @@ expected:
         layer: KONG
     samples:
       - labels:
-          le: 100000
+          le: '100000'
           host_name: 'kong::test-host'
           route: test-route
         value: 20.0
       - labels:
-          le: 1000000
+          le: '1000000'
           host_name: 'kong::test-host'
           route: test-route
         value: 50.0
       - labels:
-          le: 250000
+          le: '250000'
           host_name: 'kong::test-host'
           route: test-route
         value: 30.0
       - labels:
-          le: 50000
+          le: '50000'
           host_name: 'kong::test-host'
           route: test-route
         value: 10.0
       - labels:
-          le: 500000
+          le: '500000'
           host_name: 'kong::test-host'
           route: test-route
         value: 40.0
@@ -169,27 +169,27 @@ expected:
         layer: KONG
     samples:
       - labels:
-          le: 100000
+          le: '100000'
           host_name: 'kong::test-host'
           route: test-route
         value: 20.0
       - labels:
-          le: 1000000
+          le: '1000000'
           host_name: 'kong::test-host'
           route: test-route
         value: 50.0
       - labels:
-          le: 250000
+          le: '250000'
           host_name: 'kong::test-host'
           route: test-route
         value: 30.0
       - labels:
-          le: 50000
+          le: '50000'
           host_name: 'kong::test-host'
           route: test-route
         value: 10.0
       - labels:
-          le: 500000
+          le: '500000'
           host_name: 'kong::test-host'
           route: test-route
         value: 40.0
@@ -201,27 +201,27 @@ expected:
         layer: KONG
     samples:
       - labels:
-          le: 100000
+          le: '100000'
           host_name: 'kong::test-host'
           route: test-route
         value: 20.0
       - labels:
-          le: 1000000
+          le: '1000000'
           host_name: 'kong::test-host'
           route: test-route
         value: 50.0
       - labels:
-          le: 250000
+          le: '250000'
           host_name: 'kong::test-host'
           route: test-route
         value: 30.0
       - labels:
-          le: 50000
+          le: '50000'
           host_name: 'kong::test-host'
           route: test-route
         value: 10.0
       - labels:
-          le: 500000
+          le: '500000'
           host_name: 'kong::test-host'
           route: test-route
         value: 40.0

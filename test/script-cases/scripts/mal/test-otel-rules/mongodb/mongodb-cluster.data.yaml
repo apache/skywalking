@@ -159,7 +159,7 @@ expected:
           cluster: 'mongodb::test-cluster'
           doc_op_type: test-value
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mongodb_cluster_operation_avg_qps:
     entities:
       - scope: SERVICE
@@ -170,7 +170,7 @@ expected:
           legacy_op_type: test-value
           cluster: 'mongodb::test-cluster'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_mongodb_cluster_connections:
     entities:
       - scope: SERVICE

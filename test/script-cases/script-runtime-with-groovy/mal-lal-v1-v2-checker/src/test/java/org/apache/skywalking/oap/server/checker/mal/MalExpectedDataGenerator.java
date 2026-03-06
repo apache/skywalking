@@ -55,6 +55,7 @@ public final class MalExpectedDataGenerator {
         "test-zabbix-rules"
     };
 
+    /** Advance by 2 s per call — must be &gt;1 s (for timeDiff/1000≥1) and &lt;15 s (smallest rate window). */
     private long timestampCounter = System.currentTimeMillis();
     private MockedStatic<org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry> v1K8sMock;
     private MockedStatic<org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry> v2K8sMock;
@@ -254,26 +255,35 @@ public final class MalExpectedDataGenerator {
                 final org.apache.skywalking.oap.meter.analyzer.dsl.Expression v1Expr =
                     org.apache.skywalking.oap.meter.analyzer.dsl.DSL.parse(name, fullExp);
 
-                // Build v1 mock data from input
-                final Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> v1Data =
-                    buildV1MockDataFromInput(inputSection);
+                // Clear CounterWindow before each rule so previous rules' entries
+                // cannot contaminate rate()/increase() calculations
+                org.apache.skywalking.oap.meter.analyzer.dsl.counter.CounterWindow
+                    .INSTANCE.reset();
 
-                // Prime for increase()/rate()
+                // Unique metricName per file+rule to isolate CounterWindow entries
+                final String cwMetricName = yamlFile.getName() + "/" + name;
+
+                // Prime for increase()/rate() with half-values FIRST (older timestamp)
+                // so rate = (value - value*0.5) / dt ≠ 0
                 if (hasIncrease) {
                     try {
-                        v1Expr.run(buildV1MockDataFromInput(inputSection));
+                        v1Expr.run(buildV1MockDataFromInput(inputSection, 0.5, cwMetricName));
                     } catch (Exception ignored) {
                     }
                 }
+
+                // Build v1 mock data from input (full values, newer timestamp)
+                final Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> v1Data =
+                    buildV1MockDataFromInput(inputSection, 1.0, cwMetricName);
 
                 // Run v1
                 final org.apache.skywalking.oap.meter.analyzer.dsl.Result v1Result =
                     v1Expr.run(v1Data);
 
                 if (!v1Result.isSuccess()) {
-                    log.warn("  {} [{}]: v1 returned not-success", yamlFile.getName(), name);
-                    expectations.put(qualifiedName, ExpectedOutput.error("v1 not-success"));
-                    continue;
+                    throw new IllegalStateException(
+                        "v1 returned not-success — fix input data in "
+                            + dataFile.getName());
                 }
 
                 final org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily sf =
@@ -294,7 +304,11 @@ public final class MalExpectedDataGenerator {
                         entity.getServiceName(),
                         entity.getInstanceName(),
                         entity.getEndpointName(),
-                        entity.getLayer() != null ? entity.getLayer().name() : null
+                        entity.getLayer() != null ? entity.getLayer().name() : null,
+                        new String[] {
+                            entity.getAttr0(), entity.getAttr1(), entity.getAttr2(),
+                            entity.getAttr3(), entity.getAttr4(), entity.getAttr5()
+                        }
                     ));
                 }
 
@@ -380,6 +394,12 @@ public final class MalExpectedDataGenerator {
                     if (e.layer != null) {
                         sb.append("        layer: ").append(e.layer).append("\n");
                     }
+                    for (int ai = 0; ai < e.attrs.length; ai++) {
+                        if (e.attrs[ai] != null) {
+                            sb.append("        attr").append(ai).append(": ")
+                                .append(yamlValue(e.attrs[ai])).append("\n");
+                        }
+                    }
                 }
             }
 
@@ -400,10 +420,13 @@ public final class MalExpectedDataGenerator {
 
     @SuppressWarnings("unchecked")
     private Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily>
-            buildV1MockDataFromInput(final Map<String, Object> inputSection) {
+            buildV1MockDataFromInput(final Map<String, Object> inputSection,
+                                     final double valueScale,
+                                     final String metricName) {
         final Map<String, org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily> data =
             new HashMap<>();
-        final long now = timestampCounter++;
+        final long now = timestampCounter;
+        timestampCounter += 2_000;
 
         for (final Map.Entry<String, Object> entry : inputSection.entrySet()) {
             final String sampleName = entry.getKey();
@@ -422,7 +445,8 @@ public final class MalExpectedDataGenerator {
                             le.getValue() == null ? "" : String.valueOf(le.getValue()));
                     }
                 }
-                final double value = ((Number) sampleDef.get("value")).doubleValue();
+                final double value = ((Number) sampleDef.get("value")).doubleValue()
+                    * valueScale;
                 samples.add(org.apache.skywalking.oap.meter.analyzer.dsl.Sample.builder()
                     .name(sampleName)
                     .labels(ImmutableMap.copyOf(labels))
@@ -431,11 +455,13 @@ public final class MalExpectedDataGenerator {
                     .build());
             }
 
-            data.put(sampleName,
+            final org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily sf =
                 org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamilyBuilder
                     .newBuilder(samples.toArray(
                         new org.apache.skywalking.oap.meter.analyzer.dsl.Sample[0]))
-                    .build());
+                    .build();
+            sf.context.setMetricName(metricName);
+            data.put(sampleName, sf);
         }
         return data;
     }
@@ -479,8 +505,16 @@ public final class MalExpectedDataGenerator {
             || value.contains("|") || value.contains(">") || value.contains("%")
             || value.contains("@") || value.contains("`")
             || "true".equals(value) || "false".equals(value)
-            || "null".equals(value) || "yes".equals(value) || "no".equals(value)) {
+            || "null".equals(value) || "yes".equals(value) || "no".equals(value)
+            || "-".equals(value) || "~".equals(value)
+            || value.startsWith("- ") || value.startsWith("? ")) {
             return "'" + value.replace("'", "''") + "'";
+        }
+        // Quote numeric strings so SnakeYAML doesn't parse them as Integer/Double
+        try {
+            Double.parseDouble(value);
+            return "'" + value + "'";
+        } catch (NumberFormatException ignored) {
         }
         return value;
     }
@@ -538,14 +572,16 @@ public final class MalExpectedDataGenerator {
         final String instance;
         final String endpoint;
         final String layer;
+        final String[] attrs;
 
         EntityInfo(final String scope, final String service, final String instance,
-                   final String endpoint, final String layer) {
+                   final String endpoint, final String layer, final String[] attrs) {
             this.scope = scope;
             this.service = service;
             this.instance = instance;
             this.endpoint = endpoint;
             this.layer = layer;
+            this.attrs = attrs;
         }
     }
 

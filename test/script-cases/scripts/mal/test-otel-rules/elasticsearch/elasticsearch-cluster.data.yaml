@@ -94,7 +94,7 @@ expected:
     samples:
       - labels:
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 0.5
   meter_elasticsearch_cluster_nodes:
     entities:
       - scope: SERVICE

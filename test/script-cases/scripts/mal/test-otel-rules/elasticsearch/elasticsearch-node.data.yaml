@@ -392,7 +392,7 @@ expected:
           name: test-name
           gc: PS Scavenge
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_elasticsearch_node_jvm_gc_time:
     entities:
       - scope: SERVICE_INSTANCE
@@ -404,7 +404,7 @@ expected:
           name: test-name
           gc: PS Scavenge
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 50000.0
   meter_elasticsearch_node_process_cpu_percent:
     entities:
       - scope: SERVICE_INSTANCE
@@ -493,7 +493,7 @@ expected:
           name: test-name
           breaker: test-value
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_elasticsearch_node_breakers_estimated_size:
     entities:
       - scope: SERVICE_INSTANCE
@@ -586,9 +586,18 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_search_query_time_seconds_proc_rate:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 0.25
   meter_elasticsearch_node_indices_search_fetch_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -599,7 +608,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_search_fetch_time_seconds:
     entities:
       - scope: SERVICE_INSTANCE
@@ -610,7 +619,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 50.0
   meter_elasticsearch_node_indices_indexing_index_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -621,9 +630,18 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_indexing_index_total_proc_rate:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'elasticsearch::test-cluster'
+        instance: test-name
+        layer: ELASTICSEARCH
+    samples:
+      - labels:
+          name: test-name
+          cluster: 'elasticsearch::test-cluster'
+        value: 1.0
   meter_elasticsearch_node_indices_merges_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -634,7 +652,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_refresh_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -645,7 +663,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_flush_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -656,7 +674,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_get_exists_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -667,7 +685,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_get_missing_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -678,7 +696,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_get_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -689,7 +707,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_indexing_delete_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -700,7 +718,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_search_scroll_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -711,7 +729,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_search_suggest_total_req_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -722,7 +740,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_docs:
     entities:
       - scope: SERVICE_INSTANCE
@@ -755,7 +773,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_merges_docs_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -766,7 +784,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_indices_merges_total_size_bytes_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -777,7 +795,7 @@ expected:
       - labels:
           name: test-name
           cluster: 'elasticsearch::test-cluster'
-        value: 0.0
+        value: 25.0
   meter_elasticsearch_node_segment_count:
     entities:
       - scope: SERVICE_INSTANCE

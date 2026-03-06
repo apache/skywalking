@@ -22,6 +22,7 @@ input:
       value: 100.0
   banyandb_stream_tst_total_written:
     - labels:
+        group: test-value
         host_name: test-host
         service_instance_id: test-instance
       value: 100.0
@@ -196,7 +197,7 @@ expected:
       - labels:
           host_name: 'banyandb::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_banyandb_total_memory:
     entities:
       - scope: SERVICE
@@ -247,7 +248,7 @@ expected:
       - labels:
           host_name: 'banyandb::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 3000.0
   meter_banyandb_etcd_operation_rate:
     entities:
       - scope: SERVICE
@@ -257,7 +258,7 @@ expected:
       - labels:
           host_name: 'banyandb::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 50.0
   meter_banyandb_active_instance:
     entities:
       - scope: SERVICE
@@ -277,7 +278,7 @@ expected:
       - labels:
           host_name: 'banyandb::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 250.0
   meter_banyandb_rss_memory_usage:
     entities:
       - scope: SERVICE
@@ -307,7 +308,7 @@ expected:
       - labels:
           host_name: 'banyandb::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_banyandb_network_usage_sent:
     entities:
       - scope: SERVICE
@@ -317,7 +318,7 @@ expected:
       - labels:
           host_name: 'banyandb::test-host'
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_banyandb_storage_write_rate:
     entities:
       - scope: SERVICE
@@ -328,9 +329,18 @@ expected:
           host_name: 'banyandb::test-host'
           group: test-value
           service_instance_id: test-instance
-        value: 0.0
+        value: 25000.0
   meter_banyandb_query_latency:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 1000.0
   meter_banyandb_total_data:
     entities:
       - scope: SERVICE
@@ -352,11 +362,29 @@ expected:
           host_name: 'banyandb::test-host'
           group: test-value
           service_instance_id: test-instance
-        value: 0.0
+        value: 1500000.0
   meter_banyandb_merge_file_latency:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 1000.0
   meter_banyandb_merge_file_partitions:
-    error: 'v1 not-success'
+    entities:
+      - scope: SERVICE
+        service: 'banyandb::test-host'
+        layer: BANYANDB
+    samples:
+      - labels:
+          host_name: 'banyandb::test-host'
+          group: test-value
+          service_instance_id: test-instance
+        value: 1000.0
   meter_banyandb_series_write_rate:
     entities:
       - scope: SERVICE
@@ -367,7 +395,7 @@ expected:
           host_name: 'banyandb::test-host'
           group: test-value
           service_instance_id: test-instance
-        value: 0.0
+        value: 25000.0
   meter_banyandb_series_term_search_rate:
     entities:
       - scope: SERVICE
@@ -378,7 +406,7 @@ expected:
           host_name: 'banyandb::test-host'
           group: test-value
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_banyandb_total_series:
     entities:
       - scope: SERVICE
@@ -400,7 +428,7 @@ expected:
           host_name: 'banyandb::test-host'
           group: test-value
           service_instance_id: test-instance
-        value: 0.0
+        value: 25.0
   meter_banyandb_term_search_rate:
     entities:
       - scope: SERVICE
@@ -411,7 +439,7 @@ expected:
           host_name: 'banyandb::test-host'
           group: test-value
           service_instance_id: test-instance
-        value: 0.0
+        value: 25000.0
   meter_banyandb_total_document:
     entities:
       - scope: SERVICE
