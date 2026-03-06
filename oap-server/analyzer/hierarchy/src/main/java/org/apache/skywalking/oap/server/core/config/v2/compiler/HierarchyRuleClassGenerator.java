@@ -81,7 +81,7 @@ public final class HierarchyRuleClassGenerator {
 
     public HierarchyRuleClassGenerator() {
         this(ClassPool.getDefault());
-        if (StringUtil.isNotEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"))) {
+        if (StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
             classOutputDir = new File(WorkPath.getPath().getParentFile(), "hierarchy-rt");
         }
     }

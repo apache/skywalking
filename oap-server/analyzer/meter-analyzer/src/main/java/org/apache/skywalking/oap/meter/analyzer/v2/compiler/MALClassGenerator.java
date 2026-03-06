@@ -72,7 +72,7 @@ public final class MALClassGenerator {
 
     public MALClassGenerator() {
         this(createClassPool());
-        if (StringUtil.isNotEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"))) {
+        if (StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
             classOutputDir = new File(WorkPath.getPath().getParentFile(), "mal-rt");
         }
     }

@@ -23,24 +23,24 @@ All paths are relative to the OAP distribution root directory.
 
 ## Dumping Generated Classes
 
-Set the environment variable `SW_OAL_ENGINE_DEBUG` to any non-empty value before starting the OAP server.
+Set the environment variable `SW_DYNAMIC_CLASS_ENGINE_DEBUG` to any non-empty value before starting the OAP server.
 All four DSL compilers check this variable and dump `.class` files to disk when it is set.
 
 ```shell
 # Binary distribution
-export SW_OAL_ENGINE_DEBUG=Y
+export SW_DYNAMIC_CLASS_ENGINE_DEBUG=Y
 bin/oapService.sh
 ```
 
 ```shell
 # Docker
-docker run -e SW_OAL_ENGINE_DEBUG=Y ... apache/skywalking-oap-server
+docker run -e SW_DYNAMIC_CLASS_ENGINE_DEBUG=Y ... apache/skywalking-oap-server
 ```
 
 ```yaml
 # Kubernetes (in container env section)
 env:
-  - name: SW_OAL_ENGINE_DEBUG
+  - name: SW_DYNAMIC_CLASS_ENGINE_DEBUG
     value: "Y"
 ```
 

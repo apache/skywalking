@@ -109,7 +109,7 @@ public class OALClassGeneratorV2 {
      * Constructor with custom ClassPool for test isolation.
      */
     public OALClassGeneratorV2(OALDefine define, ClassPool classPool) {
-        openEngineDebug = StringUtil.isNotEmpty(System.getenv("SW_OAL_ENGINE_DEBUG"));
+        openEngineDebug = StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"));
         this.classPool = classPool;
         oalDefine = define;
 
