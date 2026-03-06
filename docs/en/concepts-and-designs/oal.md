@@ -24,7 +24,7 @@ the changes of those scripts in the runtime.
 If your OAP servers are running in a cluster mode, these script defined metrics should be aligned.
 
 You can set `SW_DYNAMIC_CLASS_ENGINE_DEBUG=Y` at system env to dump generated `.class` files to disk.
-See [Dynamic Code Generation and Debugging](../../operation/dynamic-code-generation-debugging.md) for details.
+See [Dynamic Code Generation and Debugging](../operation/dynamic-code-generation-debugging.md) for details.
 
 ## Grammar
 Scripts should be named `*.oal`

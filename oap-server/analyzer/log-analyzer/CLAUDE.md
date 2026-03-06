@@ -246,7 +246,7 @@ test/script-cases/scripts/lal/test-lal/
 
 ## Debug Output
 
-When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
+When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
 
 ```
 {skywalking}/lal-rt/

@@ -123,7 +123,7 @@ Hierarchy rules are simpler than MAL/LAL — they take two `Service` objects and
 
 ## Debug Output
 
-When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
+When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
 
 ```
 {skywalking}/hierarchy-rt/
