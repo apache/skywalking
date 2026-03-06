@@ -69,7 +69,7 @@ layer-levels:
 
 ### Auto Matching Rules
 - The auto matching rules are defined in the `auto-matching-rules` section.
-- Use Groovy script to define the matching rules, the input parameters are the upper service(u) and the lower service(l) and the return value is a boolean, 
+- The matching rules are expressions where the input parameters are the upper service(u) and the lower service(l) and the return value is a boolean,
 which are used to match the relation between the upper service(u) and the lower service(l) on the different layers.
 - The default matching rules required the service name configured as SkyWalking default and follow the [Showcase](https://github.com/apache/skywalking-showcase).
 If you customized the service name in any layer, you should customize the related matching rules according your service name rules.

@@ -1,0 +1,123 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Mock input data for k8s-service.yaml rules.
+# Covers all branches: process_id resolution (direct/virtual-local/virtual-remote),
+# component+ssl combinations (http+ssl/http/tcp+ssl/other), and LOG_KIND false path.
+
+network-profiling-slow-trace:
+  # [0] Direct process IDs (non-empty), HTTPS (http+ssl=true) → componentId 129
+  - body-type: json
+    body: '{"latency":350,"uri":"/k8s/endpoint","reason":"status_5xx","client_process":{"process_id":"k8s-client-proc","local":true,"address":"10.1.0.1:80"},"server_process":{"process_id":"k8s-server-proc","local":false,"address":"10.1.0.2:443"},"detect_point":"server","component":"http","ssl":true}'
+    service: k8s-test-svc
+    instance: k8s-test-instance
+    trace-id: trace-k8s-001
+    timestamp: 1609459300000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.traceId: trace-k8s-001
+      sampledTrace.serviceName: k8s-test-svc
+      sampledTrace.serviceInstanceName: k8s-test-instance
+      sampledTrace.timestamp: 1609459300000
+      sampledTrace.latency: 350
+      sampledTrace.uri: /k8s/endpoint
+      sampledTrace.reason: STATUS_5XX
+      sampledTrace.processId: k8s-client-proc
+      sampledTrace.destProcessId: k8s-server-proc
+      sampledTrace.detectPoint: SERVER
+      sampledTrace.componentId: 129
+
+  # [1] Virtual local process: client process_id empty + local=true → generateVirtualLocalProcess()
+  #     Virtual remote process: server process_id empty + local=false → generateVirtualRemoteProcess()
+  #     HTTP without SSL → componentId 49
+  - body-type: json
+    body: '{"latency":200,"uri":"/k8s/api","reason":"slow","client_process":{"process_id":"","local":true,"address":"10.1.0.3:8080"},"server_process":{"process_id":"","local":false,"address":"10.1.0.4:9090"},"detect_point":"client","component":"http","ssl":false}'
+    service: k8s-svc-virtual
+    instance: k8s-inst-virtual
+    trace-id: trace-k8s-002
+    timestamp: 1609459400000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.traceId: trace-k8s-002
+      sampledTrace.latency: 200
+      sampledTrace.uri: /k8s/api
+      sampledTrace.reason: SLOW
+      # processId/destProcessId omitted: virtual process IDs depend on ProcessRegistry
+      # implementation (mock vs production). Validated via v1-v2 comparison in checker test.
+      sampledTrace.detectPoint: CLIENT
+      sampledTrace.componentId: 49
+
+  # [2] Virtual remote process: client process_id empty + local=false → generateVirtualRemoteProcess()
+  #     Virtual local process: server process_id empty + local=true → generateVirtualLocalProcess()
+  #     TCP with SSL → componentId 130
+  - body-type: json
+    body: '{"latency":100,"uri":"/k8s/tcp","reason":"slow","client_process":{"process_id":"","local":false,"address":"10.1.0.5:8080"},"server_process":{"process_id":"","local":true,"address":"10.1.0.6:9090"},"detect_point":"client","component":"tcp","ssl":true}'
+    service: k8s-svc-tcp-ssl
+    instance: k8s-inst-tcp-ssl
+    trace-id: trace-k8s-003
+    timestamp: 1609459500000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.traceId: trace-k8s-003
+      sampledTrace.latency: 100
+      sampledTrace.uri: /k8s/tcp
+      sampledTrace.reason: SLOW
+      # processId/destProcessId omitted: virtual process IDs depend on ProcessRegistry
+      # implementation (mock vs production). Validated via v1-v2 comparison in checker test.
+      sampledTrace.detectPoint: CLIENT
+      sampledTrace.componentId: 130
+
+  # [3] Default component: component=other, ssl=false → componentId 110
+  - body-type: json
+    body: '{"latency":50,"uri":"/k8s/other","reason":"slow","client_process":{"process_id":"other-client","local":false,"address":"10.1.0.7:8080"},"server_process":{"process_id":"other-server","local":false,"address":"10.1.0.8:9090"},"detect_point":"server","component":"other","ssl":false}'
+    service: k8s-svc-other
+    instance: k8s-inst-other
+    trace-id: trace-k8s-004
+    timestamp: 1609459600000
+    tags:
+      LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+    expect:
+      save: true
+      abort: false
+      sampledTrace.traceId: trace-k8s-004
+      sampledTrace.latency: 50
+      sampledTrace.uri: /k8s/other
+      sampledTrace.reason: SLOW
+      sampledTrace.processId: other-client
+      sampledTrace.destProcessId: other-server
+      sampledTrace.detectPoint: SERVER
+      sampledTrace.componentId: 110
+
+  # [4] LOG_KIND false path: tag is not NET_PROFILING_SAMPLED_TRACE → no sampledTrace
+  - body-type: json
+    body: '{"latency":300,"uri":"/k8s/normal","reason":"slow","client_process":{"process_id":"proc-a","local":false,"address":"10.1.0.9:80"},"server_process":{"process_id":"proc-b","local":false,"address":"10.1.0.10:443"},"detect_point":"client","component":"http","ssl":true}'
+    service: k8s-svc-normal
+    instance: k8s-inst-normal
+    trace-id: trace-k8s-005
+    timestamp: 1609459700000
+    tags:
+      LOG_KIND: NORMAL_LOG
+    expect:
+      save: true
+      abort: false

@@ -1,0 +1,63 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+
+# ApiId for HTTP APS, ApiName for REST API
+filter: "{ tags -> {tags.cloud_provider == 'aws' && tags.Namespace == 'AWS/ApiGateway' && (tags.ApiId || tags.ApiName) && tags.Stage && !tags.Method && !tags.Resource } }"
+expSuffix: tag({tags -> tags.service_name= tags.ApiId ? 'aws-api-gateway::'+tags.Stage+':'+tags.ApiId:'aws-api-gateway::'+tags.Stage+':'+tags.ApiName  }).service(['service_name'], Layer.AWS_GATEWAY)
+metricPrefix: aws_gateway_service
+metricsRules:
+  # Only for HTTP API
+  - name: 4xx
+    exp: amazonaws_com_AWS_ApiGateway_4xx_sum.downsampling(SUM)
+  - name: 5xx
+    exp: amazonaws_com_AWS_ApiGateway_5xx_sum.downsampling(SUM)
+  - name: data_processed
+    exp: amazonaws_com_AWS_ApiGateway_DataProcessed_sum.downsampling(SUM)
+
+  # Only for REST API
+  - name: 4xx
+    exp: amazonaws_com_AWS_ApiGateway_4XXError_sum.downsampling(SUM)
+  - name: 5xx
+    exp: amazonaws_com_AWS_ApiGateway_5XXError_sum.downsampling(SUM)
+
+  - name: cache_hit_rate
+    exp: amazonaws_com_AWS_ApiGateway_CacheHitCount_sum.div(amazonaws_com_AWS_ApiGateway_CacheHitCount_count).multiply(100)
+  - name: cache_miss_rate
+    exp: amazonaws_com_AWS_ApiGateway_CacheMissCount_sum.div(amazonaws_com_AWS_ApiGateway_CacheMissCount_count).multiply(100)
+
+  # Common metrics for HTTP, REST API
+  - name: count
+    exp: amazonaws_com_AWS_ApiGateway_Count.downsampling(SUM)
+  - name: integration_latency
+    exp: amazonaws_com_AWS_ApiGateway_IntegrationLatency_sum.div(amazonaws_com_AWS_ApiGateway_IntegrationLatency_count)
+  - name: latency
+    exp: amazonaws_com_AWS_ApiGateway_Latency_sum.div(amazonaws_com_AWS_ApiGateway_Latency_count)
+

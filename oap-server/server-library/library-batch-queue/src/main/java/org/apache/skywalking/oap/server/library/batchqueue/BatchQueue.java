@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * A partitioned, self-draining queue with type-based dispatch.
  *
- * <h3>Usage</h3>
+ * <h2>Usage</h2>
  * <pre>
  * BatchQueue queue = BatchQueueManager.create(name, config);
  * queue.addHandler(TypeA.class, handlerA);   // register metric types
@@ -52,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
  * partition array as needed. The thread count is resolved at construction time
  * and remains fixed.
  *
- * <h3>Produce workflow</h3>
+ * <h2>Produce workflow</h2>
  * <pre>
  * produce(data)
  *   |
@@ -68,7 +68,7 @@ import lombok.extern.slf4j.Slf4j;
  *   +-- return true/false
  * </pre>
  *
- * <h3>Consume workflow (drain loop, runs on scheduler threads)</h3>
+ * <h2>Consume workflow (drain loop, runs on scheduler threads)</h2>
  * <pre>
  * scheduleDrain(taskIndex)                  // schedule with adaptive backoff delay
  *   |
@@ -91,11 +91,11 @@ import lombok.extern.slf4j.Slf4j;
  *         +-- finally: scheduleDrain(taskIndex) // re-schedule self
  * </pre>
  *
- * <h3>Adaptive backoff</h3>
+ * <h2>Adaptive backoff</h2>
  * Delay doubles on each consecutive idle cycle: {@code minIdleMs * 2^idleCount},
  * capped at {@code maxIdleMs}. Resets to {@code minIdleMs} on first non-empty drain.
  *
- * <h3>Use case examples</h3>
+ * <h2>Use case examples</h2>
  * <pre>
  * dedicated fixed(1), partitions=1, one consumer  --&gt; I/O queue (gRPC, Kafka, JDBC)
  * dedicated fixed(1), partitions=1, many handlers --&gt; TopN (all types share 1 thread)

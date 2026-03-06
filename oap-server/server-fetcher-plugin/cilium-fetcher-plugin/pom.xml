@@ -49,5 +49,11 @@
       <groupId>com.linecorp.armeria</groupId>
       <artifactId>armeria-grpc</artifactId>
     </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-testing</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
   </dependencies>
 </project>

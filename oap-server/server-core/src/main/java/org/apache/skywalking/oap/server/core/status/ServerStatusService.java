@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.status;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -100,17 +101,41 @@ public class ServerStatusService implements Service {
                 (providerName, providerConfiguration) ->
                     providerConfiguration.getProperties().forEach(
                         (key, value) -> {
-                            for (final String keyword : keywords) {
-                                if (key.toString().toLowerCase().contains(keyword.toLowerCase())) {
-                                    value = "******";
-                                }
+                            if (value instanceof Properties) {
+                                Properties properties = (Properties) value;
+                                properties.forEach((k, v) -> {
+                                    String configKey = moduleName + "." + providerName + "." + key + "." + k;
+                                    String configValue = maskConfigValue(k.toString(), v.toString(), keywords);
+                                    configList.put(configKey, configValue);
+                                });
+                            } else {
+                                String configKey = moduleName + "." + providerName + "." + key;
+                                String configValue = maskConfigValue(key.toString(), value.toString(), keywords);
+                                configList.put(configKey, configValue);
                             }
-                            configList.put(moduleName + "." + providerName + "." + key, value.toString());
                         }
                     )
             );
         }
         return configList;
+    }
+
+    /**
+     * Mask the configuration value if the key contains any masking keyword.
+     *
+     * @param configKey   the configuration key to check
+     * @param configValue the configuration value to mask
+     * @param keywords    the keywords for masking secrets
+     * @return masked value "******" if key matches any keyword, otherwise return the original value
+     */
+    private String maskConfigValue(String configKey, String configValue, String[] keywords) {
+        String lowerConfigKey = configKey.toLowerCase();
+        for (String keyword : keywords) {
+            if (lowerConfigKey.contains(keyword.toLowerCase())) {
+                return "******";
+            }
+        }
+        return configValue;
     }
 
     public static class ConfigList extends HashMap<String, String> {

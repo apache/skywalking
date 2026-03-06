@@ -1,0 +1,294 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  cluster:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  pod_number_of_containers:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_cpu_utilization:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_memory_utilization:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_network_rx_bytes:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_network_rx_errors:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_network_tx_bytes:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_network_tx_errors:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_diskio_io_service_bytes_write:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_diskio_io_service_bytes_read:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  node_filesystem_utilization:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  pod_cpu_utilization:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  pod_memory_utilization:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  pod_network_rx_bytes:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  pod_network_rx_errors:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  pod_network_tx_bytes:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+  pod_network_tx_errors:
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+      value: 100.0
+expected:
+  eks_cluster_node_pod_number:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          NodeName: test-node
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
+        value: 100.0
+  eks_cluster_node_cpu_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          NodeName: test-node
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
+        value: 100.0
+  eks_cluster_node_memory_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          NodeName: test-node
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
+        value: 100.0
+  eks_cluster_node_net_rx_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          NodeName: test-node
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
+        value: 100.0
+  eks_cluster_node_net_rx_error:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          NodeName: test-node
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
+        value: 100.0
+  eks_cluster_node_net_tx_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          NodeName: test-node
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
+        value: 100.0
+  eks_cluster_node_net_tx_error:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          NodeName: test-node
+          ClusterName: test-cluster
+          cluster: 'aws-eks-cluster::test-cluster'
+        value: 100.0
+  eks_cluster_node_disk_io_write:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          device: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0
+  eks_cluster_node_disk_io_read:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          device: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0
+  eks_cluster_node_fs_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          device: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0
+  eks_cluster_node_pod_cpu_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0
+  eks_cluster_node_pod_memory_utilization:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0
+  eks_cluster_node_pod_net_rx_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0
+  eks_cluster_node_pod_net_rx_error:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0
+  eks_cluster_node_pod_net_tx_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0
+  eks_cluster_node_pod_net_tx_error:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'aws-eks-cluster::test-cluster'
+        instance: test-node
+        layer: AWS_EKS
+    samples:
+      - labels:
+          PodName: 
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 100.0

@@ -36,7 +36,7 @@ import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -211,7 +211,7 @@ public class ClusterModuleEtcdProviderFunctionalIT {
         assertEquals(2,  queryRemoteNodes(providerB, 2).size());
 
         // unregister A
-        Client client = Whitebox.getInternalState(coordinatorA, "client");
+        Client client = ReflectUtil.getInternalState(coordinatorA, "client");
         client.close();
 
         // only B
@@ -247,7 +247,7 @@ public class ClusterModuleEtcdProviderFunctionalIT {
             config.setInternalComPort(internalComPort);
         }
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        ReflectUtil.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         ModuleManager manager = mock(ModuleManager.class);
         Mockito.when(manager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
 

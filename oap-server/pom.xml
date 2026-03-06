@@ -51,15 +51,6 @@
         <module>mqe-rt</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>benchmark</id>
-            <modules>
-                <module>microbench</module>
-            </modules>
-        </profile>
-    </profiles>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

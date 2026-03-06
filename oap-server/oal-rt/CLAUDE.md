@@ -88,7 +88,7 @@ model.getMetricsClassName();     // e.g., "LongAvgMetrics"
 
 ## Debug Output
 
-When `SW_OAL_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
+When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
 
 ```
 {skywalking}/oal-rt/

@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.meter.config;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.skywalking.oap.meter.analyzer.MetricRuleConfig;
+import org.apache.skywalking.oap.meter.analyzer.v2.MetricRuleConfig;
 
 import java.util.List;
 
@@ -32,7 +32,6 @@ public class MeterConfig implements MetricRuleConfig {
     private String expPrefix;
     private String filter;
     private List<Rule> metricsRules;
-    private String initExp;
 
     @Data
     @NoArgsConstructor

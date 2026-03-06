@@ -1,0 +1,278 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  cpu_usage_active:
+    - labels:
+        host: test-host
+        cpu: cpu-total
+      value: 100.0
+    - labels:
+        host: test-host
+        cpu: cpu0
+      value: 80.0
+  system_load1:
+    - labels:
+        host: test-host
+      value: 100.0
+  system_load5:
+    - labels:
+        host: test-host
+      value: 100.0
+  system_load15:
+    - labels:
+        host: test-host
+      value: 100.0
+  mem_total:
+    - labels:
+        host: test-host
+      value: 100.0
+  mem_available:
+    - labels:
+        host: test-host
+      value: 100.0
+  mem_used:
+    - labels:
+        host: test-host
+      value: 100.0
+  mem_swap_free:
+    - labels:
+        host: test-host
+      value: 100.0
+  mem_swap_total:
+    - labels:
+        host: test-host
+      value: 100.0
+  disk_used_percent:
+    - labels:
+        host: test-host
+        device: eth0
+      value: 100.0
+  diskio_read_bytes:
+    - labels:
+        host: test-host
+      value: 100.0
+  diskio_write_bytes:
+    - labels:
+        host: test-host
+      value: 100.0
+  net_bytes_recv:
+    - labels:
+        host: test-host
+      value: 100.0
+  net_bytes_sent:
+    - labels:
+        host: test-host
+      value: 100.0
+  netstat_tcp_established:
+    - labels:
+        host: test-host
+      value: 100.0
+  netstat_tcp_time_wait:
+    - labels:
+        host: test-host
+      value: 100.0
+  netstat_tcp_listen:
+    - labels:
+        host: test-host
+      value: 100.0
+  netstat_udp_socket:
+    - labels:
+        host: test-host
+      value: 100.0
+expected:
+  meter_vm_cpu_total_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+          cpu: cpu-total
+        value: 100.0
+  meter_vm_cpu_average_used:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+          cpu: cpu0
+        value: 80.0
+  meter_vm_cpu_load1:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_cpu_load5:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_cpu_load15:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_memory_total:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_memory_available:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_memory_used:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_memory_swap_free:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_memory_swap_total:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_memory_swap_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: -0.0
+  meter_vm_filesystem_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+          device: eth0
+        value: 100.0
+  meter_vm_disk_read:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 25.0
+  meter_vm_disk_written:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 25.0
+  meter_vm_network_receive:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 0.0
+  meter_vm_network_transmit:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 0.0
+  meter_vm_tcp_curr_estab:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_tcp_tw:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_tcp_alloc:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0
+  meter_vm_udp_inuse:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          host: test-host
+        value: 100.0

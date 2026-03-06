@@ -41,7 +41,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -74,7 +74,7 @@ public class ClusterModuleZookeeperProviderFunctionalIT {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        ReflectUtil.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         zkAddress = container.getHost() + ":" + container.getMappedPort(2181);
     }
@@ -210,7 +210,7 @@ public class ClusterModuleZookeeperProviderFunctionalIT {
         assertEquals(2, queryRemoteNodes(providerB, 2).size());
 
         // unregister A
-        ServiceDiscovery<RemoteInstance> discoveryA = Whitebox.getInternalState(providerA, "serviceDiscovery");
+        ServiceDiscovery<RemoteInstance> discoveryA = ReflectUtil.getInternalState(providerA, "serviceDiscovery");
         discoveryA.close();
 
         // only B

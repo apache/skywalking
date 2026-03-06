@@ -52,7 +52,7 @@ public class ZipkinSpan extends Source {
     private String name;
     @Setter
     @Getter
-    private long duration;
+    private long duration; //microseconds
     @Setter
     @Getter
     private String spanId;

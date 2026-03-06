@@ -31,7 +31,7 @@ are cases where you may want the filter chain to stop earlier when specified con
 the remaining filter chain from where it's declared, and all the remaining components won't be executed at all.
 `abort` function serves as a fast-fail mechanism in LAL.
 
-```groovy
+```
 filter {
     if (log.service == "TestingService") { // Don't waste resources on TestingServices
         abort {} // all remaining components won't be executed at all
@@ -67,7 +67,7 @@ We can add tags like following:
 ]
 ``` 
 And we can use this method to get the value of the tag key `TEST_KEY`.
-```groovy
+```
 filter {
     if (tag("TEST_KEY") == "TEST_VALUE") {
          ...   
@@ -95,7 +95,7 @@ See examples below.
 
 #### `json`
 
-```groovy
+```
 filter {
     json {
         abortOnFailure true // this is optional because it's default behaviour
@@ -105,7 +105,7 @@ filter {
 
 #### `yaml`
 
-```groovy
+```
 filter {
     yaml {
         abortOnFailure true // this is optional because it's default behaviour
@@ -123,7 +123,7 @@ For unstructured logs, there are some `text` parsers for use.
 all the captured groups can be used later in the extractors or sinks.
 `regexp` returns a `boolean` indicating whether the log matches the pattern or not.
 
-```groovy
+```
 filter {
     text {
         abortOnFailure true // this is optional because it's default behaviour
@@ -181,7 +181,7 @@ dropped) and is used to associate with traces / metrics.
 not dropped) and is used to associate with traces / metrics.
 
 The parameter of `timestamp` can be a millisecond:
-```groovy
+```
 filter {
     // ... parser
 
@@ -191,7 +191,7 @@ filter {
 }
 ```
 or a datetime string with a specified pattern:
-```groovy
+```
 filter {
     // ... parser
 
@@ -210,9 +210,7 @@ not dropped) and is used to associate with service.
 
 `tag` extracts the tags from the `parsed` result, and set them into the `LogData`. The form of this extractor should look something like this: `tag key1: value, key2: value2`. You may use the properties of `parsed` as both keys and values.
 
-```groovy
-import javax.swing.text.LayeredHighlighter
-
+```
 filter {
     // ... parser
 
@@ -242,7 +240,7 @@ log-analyzer:
 
 Examples are as follows:
 
-```groovy
+```
 filter {
     // ...
     extractor {
@@ -338,7 +336,7 @@ dropped) and is used to associate with TopNDatabaseStatement.
 
 An example of LAL to distinguish slow logs:
 
-```groovy
+```
 filter {
   json{
   }
@@ -386,7 +384,7 @@ An example of JSON sent to OAP is as following:
 ```
 Examples are as follows:
 
-```groovy
+```
 filter {
     json {
     }
@@ -447,7 +445,7 @@ final sampling result. See examples in [Enforcer](#enforcer).
 
 Examples 1, `rateLimit`:
 
-```groovy
+```
 filter {
     // ... parser
 
@@ -469,7 +467,7 @@ filter {
 
 Examples 2, `possibility`:
 
-```groovy
+```
 filter {
     // ... parser
 
@@ -492,7 +490,7 @@ filter {
 Dropper is a special sink, meaning that all logs are dropped without any exception. This is useful when you want to
 drop debugging logs.
 
-```groovy
+```
 filter {
     // ... parser
 
@@ -510,7 +508,7 @@ filter {
 
 Or if you have multiple filters, some of which are for extracting metrics, only one of them has to be persisted.
 
-```groovy
+```
 filter { // filter A: this is for persistence
     // ... parser
 
@@ -539,7 +537,7 @@ Enforcer is another special sink that forcibly samples the log. A typical use ca
 configured a sampler and want to save some logs forcibly, such as to save error logs even if the sampling mechanism
 has been configured.
 
-```groovy
+```
 filter {
     // ... parser
 

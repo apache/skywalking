@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -71,7 +71,7 @@ public class ConsulCoordinatorTest {
         consulConfig.setServiceName(SERVICE_NAME);
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new ConsulCoordinator(manager, consulConfig, consul);
-        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
+        ReflectUtil.setInternalState(coordinator, "healthChecker", healthChecker);
         consulResponse = mock(ConsulResponse.class);
 
         HealthClient healthClient = mock(HealthClient.class);

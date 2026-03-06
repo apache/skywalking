@@ -1,0 +1,359 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  dynamodb:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ConsumedWriteCapacityUnits:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ConsumedReadCapacityUnits:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ProvisionedReadCapacityUnits:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ProvisionedWriteCapacityUnits:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: GetItem
+      value: 100.0
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: PutItem
+      value: 100.0
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: Query
+      value: 100.0
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: Scan
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ReturnedItemCount:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: Scan
+      value: 100.0
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: Query
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_TimeToLiveDeletedItemCount:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ThrottledRequests:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: GetItem
+      value: 100.0
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: PutItem
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ReadThrottleEvents:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_WriteThrottleEvents:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_SystemErrors:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: GetItem
+      value: 100.0
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+        Operation: PutItem
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_ConditionalCheckFailedRequests:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+  amazonaws_com_AWS_DynamoDB_TransactionConflict:
+    - labels:
+        cloud_account_id: test-account
+        TableName: test-table
+      value: 100.0
+expected:
+  aws_dynamodb_endpoint_consumed_write_capacity_units:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_consumed_read_capacity_units:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_provisioned_read_capacity_units:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_provisioned_write_capacity_units:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_get_successful_request_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: GetItem
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_put_successful_request_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: PutItem
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_query_successful_request_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: Query
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_scan_successful_request_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: Scan
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_scan_returned_item_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: Scan
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_query_returned_item_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: Query
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_time_to_live_deleted_item_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_read_throttled_requests:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: GetItem
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_write_throttled_requests:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: PutItem
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_read_throttle_events:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_write_throttle_events:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_read_system_errors:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: GetItem
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_write_system_errors:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          Operation: PutItem
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_conditional_check_failed_requests:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0
+  aws_dynamodb_endpoint_transaction_conflict:
+    entities:
+      - scope: ENDPOINT
+        service: 'aws-dynamodb::test-account'
+        endpoint: test-table
+        layer: AWS_DYNAMODB
+    samples:
+      - labels:
+          cloud_account_id: test-account
+          TableName: test-table
+          host_name: 'aws-dynamodb::test-account'
+        value: 100.0

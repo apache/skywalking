@@ -217,8 +217,8 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-encryption-plugin/2.3.2 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-client/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-core/1.8.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.16.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.16.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.18.5 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.18.5 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.16.0 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.15.2 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.12.0 Apache-2.0
@@ -347,15 +347,14 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.apache.curator/curator-framework/4.3.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-recipes/4.3.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-x-discovery/4.3.0 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.groovy/groovy/5.0.3 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpasyncclient/4.1.5 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient/4.5.13 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore/4.4.16 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore-nio/4.4.16 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/3.4.0 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api/2.17.1 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core/2.17.1 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl/2.17.1 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api/2.25.3 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core/2.25.3 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl/2.25.3 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.yetus/audience-annotations/0.5.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper/3.5.7 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper-jute/3.5.7 Apache-2.0

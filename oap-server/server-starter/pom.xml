@@ -47,6 +47,13 @@
         </dependency>
         <!-- OAL runtime core -->
 
+        <!-- Hierarchy rule compiler (SPI-loaded by server-core) -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>hierarchy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- cluster module -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -233,6 +240,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>logql-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>traceql-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- queryBuild module -->

@@ -81,8 +81,6 @@ parameter is optional.
 ### Meters configuration
 
 ```yaml
-# initExp is the expression that initializes the current configuration file
-initExp: <string>
 # filter the metrics, only those metrics that satisfy this condition will be passed into the `metricsRules` below.
 filter: <closure> # example: '{ tags -> tags.job_name == "vm-monitoring" }'
 # expPrefix is executed before the metrics executes other functions.

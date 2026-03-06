@@ -19,10 +19,10 @@
 package org.apache.skywalking.oap.server.receiver.telegraf;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
-import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonParseException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -108,14 +108,14 @@ public class TelegrafMetricsTest {
 
         // FIX 1: Removed spy() wrapper.
         // We use the instance directly. If it is a Mock (from other tests), using it directly is fine.
-        Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
+        ReflectUtil.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
                 MetricsStreamProcessor.getInstance());
 
         // FIX 2: Changed spy(CoreModule.class) to mock(CoreModule.class)
         // Spying on a Class literal is invalid in modern Mockito.
         CoreModule coreModule = Mockito.mock(CoreModule.class);
 
-        Whitebox.setInternalState(coreModule, "loadedProvider", moduleProvider);
+        ReflectUtil.setInternalState(coreModule, "loadedProvider", moduleProvider);
 
         telegrafServiceHandler = buildTelegrafServiceHandler();
     }

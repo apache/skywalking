@@ -82,7 +82,8 @@ jobs:
       - name: Check Dependencies Licenses
         run: |
           go install github.com/apache/skywalking-eyes/cmd/license-eye@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
-          license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
+          ./mvnw flatten:flatten install -Dmaven.test.skip -Dcheckstyle.skip -Dgpg.skip -q
+          license-eye -v debug dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
           if [ ! -z "$(git diff -U0 ./dist-material/release-docs/LICENSE)" ]; then
             echo "LICENSE file is not updated correctly"
             git diff -U0 ./dist-material/release-docs/LICENSE
@@ -625,6 +626,8 @@ jobs:
             config: test/e2e-v2/cases/promql/e2e.yaml
           - name: LogQL Service
             config: test/e2e-v2/cases/logql/e2e.yaml
+          - name: TraceQL Service Zipkin
+            config: test/e2e-v2/cases/traceql/zipkin/e2e.yaml
           - name: AWS API Gateway
             config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
           - name: Redis Prometheus and Log Collecting

@@ -1,0 +1,46 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Mock input data for network-profiling-e2e.yaml rules.
+# This is the e2e override rule with string concatenation for URI
+# and .split(":")[index].endsWith() for process resolution.
+#
+# Mirrors real e2e input: server_process.process_id is empty, triggering
+# ProcessRegistry.generateVirtualProcess() fallback. Both v1 and v2 must
+# produce the same destProcessId and successfully call submitSampledTrace()
+# → builder.toRecord() → RecordStreamProcessor.getInstance().in(record).
+
+network-profiling-slow-trace:
+  body-type: json
+  body: '{"latency":1001,"uri":"/provider","trace_provider":"skywalking","reason":"slow","client_process":{"process_id":"0c106e314ae0dae7cb655c3835ca77c890caedd78f51971ff60e5919805109f9","local":false,"address":""},"server_process":{"process_id":"","local":false,"address":"10.96.79.185:80"},"detect_point":"client","component":"http","ssl":false,"status":200}'
+  service: service
+  instance: test-instance
+  trace-id: ee615aee17b111f195abba5e9985b671
+  timestamp: 1772618841553
+  tags:
+    LOG_KIND: NET_PROFILING_SAMPLED_TRACE
+  expect:
+    save: true
+    abort: false
+    sampledTrace.traceId: ee615aee17b111f195abba5e9985b671
+    sampledTrace.serviceName: service
+    sampledTrace.serviceInstanceName: test-instance
+    sampledTrace.timestamp: 1772618841553
+    sampledTrace.latency: 1001
+    sampledTrace.uri: skywalking-/provider
+    sampledTrace.reason: SLOW
+    sampledTrace.processId: 0c106e314ae0dae7cb655c3835ca77c890caedd78f51971ff60e5919805109f9
+    sampledTrace.detectPoint: CLIENT
+    sampledTrace.componentId: 49

@@ -50,7 +50,7 @@ import static java.util.Objects.requireNonNull;
  * Armeria-based HTTP server shared by all OAP HTTP endpoints (core-http, receiver-http,
  * promql-http, logql-http, zipkin-query-http, zipkin-http, firehose-http — up to 7 servers).
  *
- * <h3>Thread model</h3>
+ * <h2>Thread model</h2>
  * Armeria uses a two-tier thread model:
  * <ul>
  *   <li><b>Event loop threads</b> — non-blocking I/O multiplexers (epoll/kqueue). Handle
@@ -66,7 +66,7 @@ import static java.util.Objects.requireNonNull;
  * requests spend most of their time (waiting on I/O), while event loop threads just
  * shuttle bytes and are immediately available for the next connection.
  *
- * <h3>Thread policies</h3>
+ * <h2>Thread policies</h2>
  * <pre>
  *                     Armeria default        SkyWalking
  *   Event loop:       cores * 2 per server   min(5, cores) shared across all servers
@@ -74,7 +74,7 @@ import static java.util.Objects.requireNonNull;
  *                                             JDK &lt;25: Armeria default (unchanged)
  * </pre>
  *
- * <h4>Event loop: {@code min(5, cores)}, shared</h4>
+ * <h2>Event loop: {@code min(5, cores)}, shared</h2>
  * <pre>
  *   cores:    2    4    8   10   24
  *   threads:  2    4    5    5    5
@@ -83,7 +83,7 @@ import static java.util.Objects.requireNonNull;
  * HTTP servers means 7 * cores * 2 = 140 threads on 10-core — far more than needed for
  * HTTP traffic. All servers share one {@link EventLoopGroup} with min(5, cores) threads.
  *
- * <h4>Blocking executor: Armeria default on JDK &lt;25, virtual threads on JDK 25+</h4>
+ * <h2>Blocking executor: Armeria default on JDK &lt;25, virtual threads on JDK 25+</h2>
  * On JDK &lt;25, Armeria's default cached pool (up to 200 on-demand threads) is kept
  * unchanged. HTTP handlers block on storage/DB queries (BanyanDB, Elasticsearch) which
  * can take 10ms–seconds. A bounded pool would cause request queuing and UI timeouts
@@ -92,7 +92,7 @@ import static java.util.Objects.requireNonNull;
  * On JDK 25+, virtual threads replace this pool entirely — each blocking request
  * gets its own virtual thread backed by ~cores shared carrier threads.
  *
- * <h3>Comparison with gRPC</h3>
+ * <h2>Comparison with gRPC</h2>
  * gRPC is the primary telemetry ingestion path. HTTP is secondary (UI queries, PromQL,
  * LogQL, and optionally telemetry), so it uses fewer event loop threads.
  * <pre>
@@ -210,6 +210,24 @@ public class HTTPServer implements Server {
         );
 
         sb.annotatedService()
+          .build(handler);
+        this.allowedMethods.addAll(httpMethods);
+    }
+
+    /**
+     * @param handler        Specific service provider.
+     * @param httpMethods    Register the http methods which the handler service accepts. Other methods respond "405, Method Not Allowed".
+     * @param pathPrefix     Path prefix for the handler, e.g., "/zipkin" or "/skywalking"
+     */
+    public void addHandler(Object handler, List<HttpMethod> httpMethods, String pathPrefix) {
+        requireNonNull(allowedMethods, "allowedMethods");
+        log.info(
+            "Bind handler {} into http server {}:{} with path prefix {}",
+            handler.getClass().getSimpleName(), config.getHost(), config.getPort(), pathPrefix
+        );
+
+        sb.annotatedService()
+          .pathPrefix(pathPrefix)
           .build(handler);
         this.allowedMethods.addAll(httpMethods);
     }

@@ -7,9 +7,18 @@
   - Precise error location reporting with file, line, and column numbers
   - Clean separation between parsing and code generation phases
   - Enhanced testability with models that can be constructed without parsing
+* Introduce MAL/LAL/Hierarchy V2 engine — replace Groovy-based DSL runtime with ANTLR4 parser + Javassist bytecode generation:
+  - Remove Groovy runtime dependency from OAP backend
+  - Fail-fast compilation at startup — syntax and type errors are caught immediately instead of at first execution
+  - Thread-safe generated classes with no ThreadLocal or shared mutable state
+  - Immutable AST models for all three DSLs (MAL, LAL, Hierarchy rules)
+  - Explicit context passing replaces Groovy binding/closure capture
+  - v1 (Groovy) and v2 (ANTLR4+Javassist) cross-version checker validates behavioral equivalence across 1,290+ expressions
+  - JMH benchmarks confirm v2 runtime speedups: MAL execute ~6.8x, LAL compile ~39x / execute ~2.8x, Hierarchy execute ~2.6x faster than Groovy v1
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.
+* Upgrade Byte Buddy to 1.18.7 and configure explicit `-javaagent` for Mockito/Byte Buddy in Surefire to avoid JDK 25 dynamic agent loading warnings.
 * Upgrade Groovy to 5.0.3 in OAP backend.
 * Bump up nodejs to v24.13.0 for the latest UI(booster-ui) compiling.
 * Drop Elasticsearch 7.x (EOL) and OpenSearch 1.x from E2E tests, upgrade all ES tests to 8.18.8, and update skywalking-helm to use ECK 8.18.8.
@@ -67,6 +76,8 @@
   | **Total (OAP threads)**               | **150+**           | **~72** | **~50% reduction, stable in high payload.** |
 
 * Replace PowerMock Whitebox with standard Java Reflection in `server-library`, `server-core`, and `server-configuration` to support JDK 25+.
+* Fix `/debugging/config/dump` may leak sensitive information if there are second level properties in the configuration.
+
 
 #### OAP Server
 
@@ -134,6 +145,11 @@
   (up to 200 on-demand threads) because HTTP handlers block on long storage/DB queries.
 * Add the spring-ai components and the GenAI layer.
 * Bump up netty to 4.2.10.Final.
+* Bump up log4j to 2.25.3 and jackson to 2.18.5.
+* Remove PowerMock dependency. Replace `Whitebox` with `ReflectUtil` (standard Java reflection + `sun.misc.Unsafe` for final fields) across all modules to support JDK 25+.
+* Support TraceQL and Tempo API for Zipkin trace query.
+* Remove `initExp` from MAL configuration. It was an internal Groovy startup validation mechanism, not an end-user feature. The v2 ANTLR4 compiler performs fail-fast validation at startup natively.
+* Update hierarchy rule documentation: `auto-matching-rules` in `hierarchy-definition.yml` no longer use Groovy scripts. Rules now use a dedicated expression grammar supporting property access, String methods, if/else, comparisons, and logical operators. All shipped rules are fully compatible.
 
 #### UI
 * Fix the missing icon in new native trace view.

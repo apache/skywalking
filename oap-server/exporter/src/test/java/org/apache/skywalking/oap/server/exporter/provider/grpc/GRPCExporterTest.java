@@ -46,7 +46,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import static org.apache.skywalking.oap.server.core.exporter.ExportEvent.EventType.INCREMENT;
 import static org.mockito.Mockito.when;
@@ -88,8 +88,8 @@ public class GRPCExporterTest {
         serviceRegistry.addService(service);
         blockingStub = MetricExportServiceGrpc.newBlockingStub(channel);
         futureStub = MetricExportServiceGrpc.newStub(channel);
-        Whitebox.setInternalState(exporter, "blockingStub", blockingStub);
-        Whitebox.setInternalState(exporter, "exportServiceFutureStub", futureStub);
+        ReflectUtil.setInternalState(exporter, "blockingStub", blockingStub);
+        ReflectUtil.setInternalState(exporter, "exportServiceFutureStub", futureStub);
         defineMockedStatic = Mockito.mockStatic(DefaultScopeDefine.class);
         when(DefaultScopeDefine.inServiceCatalog(1)).thenReturn(true);
     }
@@ -120,7 +120,7 @@ public class GRPCExporterTest {
         exporter.fetchSubscriptionList();
         ExportEvent event = new ExportEvent(new MockExporterMetrics(), INCREMENT);
         exporter.export(event);
-        List<SubscriptionMetric> subscriptionList = Whitebox.getInternalState(exporter, "subscriptionList");
+        List<SubscriptionMetric> subscriptionList = ReflectUtil.getInternalState(exporter, "subscriptionList");
         Assertions.assertEquals("mock-metrics", subscriptionList.get(0).getMetricName());
         Assertions.assertEquals("int-mock-metrics", subscriptionList.get(1).getMetricName());
         Assertions.assertEquals("long-mock-metrics", subscriptionList.get(2).getMetricName());
@@ -138,7 +138,7 @@ public class GRPCExporterTest {
     @Test
     public void initSubscriptionList() {
         exporter.fetchSubscriptionList();
-        List<SubscriptionMetric> subscriptionList = Whitebox.getInternalState(exporter, "subscriptionList");
+        List<SubscriptionMetric> subscriptionList = ReflectUtil.getInternalState(exporter, "subscriptionList");
         Assertions.assertEquals("mock-metrics", subscriptionList.get(0).getMetricName());
         Assertions.assertEquals("int-mock-metrics", subscriptionList.get(1).getMetricName());
         Assertions.assertEquals("long-mock-metrics", subscriptionList.get(2).getMetricName());

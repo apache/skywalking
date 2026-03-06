@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  * Benchmark comparing throughput with and without partition rebalancing
  * under skewed load simulating OAP L2 persistence.
  *
- * <h3>Scenario: L2 entity-count-driven imbalance</h3>
+ * <h2>Scenario: L2 entity-count-driven imbalance</h2>
  * After L1 merge, each metric type produces one item per unique entity per minute.
  * Endpoint-scoped metrics see many more entities than service-scoped metrics:
  * <pre>
@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Test;
  * The throughput-weighted rebalancer fixes this by reassigning partitions based
  * on observed throughput.
  *
- * <h3>What this benchmark measures</h3>
+ * <h2>What this benchmark measures</h2>
  * <ol>
  *   <li><b>Static vs rebalanced throughput:</b> total consumed items/sec with
  *       BLOCKING strategy and simulated consumer work (~500ns/item). With imbalance,
@@ -61,7 +61,7 @@ import org.junit.jupiter.api.Test;
  *       per-thread load ratio over multiple intervals.</li>
  * </ol>
  *
- * <h3>Results (4 drain threads, 16 producers, 100 types, 500 LCG iters/item)</h3>
+ * <h2>Results (4 drain threads, 16 producers, 100 types, 500 LCG iters/item)</h2>
  * <pre>
  *                     Static          Rebalanced
  *   Throughput:    7,211,794         8,729,310  items/sec
@@ -69,7 +69,7 @@ import org.junit.jupiter.api.Test;
  *   Improvement:                       +21.0%
  * </pre>
  *
- * <h3>Stability (20 sec, sampled every 2 sec after initial rebalance)</h3>
+ * <h2>Stability (20 sec, sampled every 2 sec after initial rebalance)</h2>
  * <pre>
  *   Interval    Throughput      Ratio
  *    0- 2s     8,915,955       1.00x

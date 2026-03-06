@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,9 +49,9 @@ public class ClusterModuleKubernetesProviderTest {
         final var config = new ClusterModuleKubernetesConfig();
         config.setLabelSelector("app=oap");
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        ReflectUtil.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         provider.setManager(moduleManager);
-        Whitebox.setInternalState(provider, "config", config);
+        ReflectUtil.setInternalState(provider, "config", config);
     }
 
     @Test

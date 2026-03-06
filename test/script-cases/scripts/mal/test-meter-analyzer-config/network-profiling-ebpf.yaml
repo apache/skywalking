@@ -1,0 +1,60 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# eBPF e2e test override of network-profiling.yaml
+# (from test/e2e-v2/cases/profiling/ebpf/network/kubernetes-values.yaml)
+# This variant uses .split(':') on map access results — exercises
+# the "method chaining on bracket-accessed Map values" code path.
+expSuffix: |-
+        processRelation('side', ['service'], ['instance'], 'client_process_id', 'server_process_id', 'component')
+expPrefix: |-
+  forEach(['client', 'server'], { prefix, tags ->
+    if (tags[prefix + '_process_id'] != null) {
+      return
+    }
+    if (tags[prefix + '_local'] == 'true'
+      || tags[prefix + '_address'].split(':')[0].endsWith('.1')
+      || tags[prefix + '_address'].split(':')[1] == '11800'
+      || tags[prefix + '_address'].split(':')[1] == '53') {
+      tags[prefix + '_process_id'] = ProcessRegistry.generateVirtualLocalProcess(tags.service, tags.instance)
+      return
+    }
+    tags[prefix + '_process_id'] = ProcessRegistry.generateVirtualProcess(tags.service, tags.instance, 'UNKNOWN_REMOTE')
+  })
+  .forEach(['component'], { key, tags ->
+    String result = ""
+    String protocol = tags['protocol']
+    String ssl = tags['is_ssl']
+    if (protocol == 'http' && ssl == 'true') {
+      result = '129'
+    } else if (protocol == 'http') {
+      result = '49'
+    } else if (ssl == 'true') {
+      result = '130'
+    } else {
+      result = '110'
+    }
+    tags[key] = result
+  })
+metricPrefix: process_relation
+metricsRules:
+  - name: client_write_cpm
+    exp: rover_net_p_client_write_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_write_total_bytes
+    exp: rover_net_p_client_write_bytes_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_write_avg_exe_time
+    exp: rover_net_p_client_write_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: client_read_cpm
+    exp: rover_net_p_client_read_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)

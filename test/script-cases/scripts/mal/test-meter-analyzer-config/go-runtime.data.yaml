@@ -1,0 +1,359 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  instance_golang_heap_alloc:
+    - labels:
+      value: 100.0
+  instance_golang_stack_used:
+    - labels:
+      value: 100.0
+  instance_golang_gc_pause_time:
+    - labels:
+      value: 100.0
+  instance_golang_gc_count:
+    - labels:
+      value: 100.0
+  instance_golang_os_threads_num:
+    - labels:
+      value: 100.0
+  instance_golang_live_goroutines_num:
+    - labels:
+      value: 100.0
+  instance_host_cpu_used_rate:
+    - labels:
+      value: 100.0
+  instance_host_mem_used_rate:
+    - labels:
+      value: 100.0
+  instance_golang_heap_alloc_size:
+    - labels:
+      value: 100.0
+  instance_golang_gc_count_labeled:
+    - labels:
+        service: test-service
+        instance: test-instance
+        type: cds
+      value: 100.0
+  instance_golang_heap_alloc_objects:
+    - labels:
+      value: 100.0
+  instance_golang_heap_frees:
+    - labels:
+      value: 100.0
+  instance_golang_heap_frees_objects:
+    - labels:
+      value: 100.0
+  instance_golang_memory_heap_labeled:
+    - labels:
+        service: test-service
+        instance: test-instance
+        type: cds
+      value: 100.0
+  instance_golang_metadata_mcache_labeled:
+    - labels:
+        service: test-service
+        instance: test-instance
+        type: cds
+      value: 100.0
+  instance_golang_metadata_mspan_labeled:
+    - labels:
+        service: test-service
+        instance: test-instance
+        type: cds
+      value: 100.0
+  instance_golang_cgo_calls:
+    - labels:
+      value: 100.0
+  instance_golang_gc_heap_goal:
+    - labels:
+      value: 100.0
+  instance_golang_gc_heap_objects:
+    - labels:
+      value: 100.0
+  instance_golang_gc_heap_tiny_allocs:
+    - labels:
+      value: 100.0
+  instance_golang_gc_limiter_last_enabled:
+    - labels:
+      value: 100.0
+  instance_golang_gc_stack_starting_size:
+    - labels:
+      value: 100.0
+  instance_golang_memory_metadata_other:
+    - labels:
+      value: 100.0
+  instance_golang_memory_os_stacks:
+    - labels:
+      value: 100.0
+  instance_golang_memory_other:
+    - labels:
+      value: 100.0
+  instance_golang_memory_profiling_buckets:
+    - labels:
+      value: 100.0
+  instance_golang_memory_total:
+    - labels:
+      value: 100.0
+  instance_golang_gc_heap_allocs_by_size:
+    - labels:
+      value: 100.0
+  instance_golang_gc_heap_frees_by_size:
+    - labels:
+      value: 100.0
+  instance_golang_gc_pauses:
+    - labels:
+      value: 100.0
+  instance_golang_sched_latencies:
+    - labels:
+      value: 100.0
+expected:
+  meter_instance_golang_heap_alloc:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_stack_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_gc_pause_time:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 50.0
+  meter_instance_golang_gc_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 50.0
+  meter_instance_golang_os_threads_num:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_live_goroutines_num:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_host_cpu_used_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_host_mem_used_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_heap_alloc_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 50.0
+  meter_instance_golang_gc_count_labeled:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          type: cds
+        value: 50.0
+  meter_instance_golang_heap_alloc_objects:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_heap_frees:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 50.0
+  meter_instance_golang_heap_frees_objects:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 50.0
+  meter_instance_golang_memory_heap_labeled:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          type: cds
+        value: 100.0
+  meter_instance_golang_metadata_mcache_labeled:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          type: cds
+        value: 100.0
+  meter_instance_golang_metadata_mspan_labeled:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          type: cds
+        value: 100.0
+  meter_instance_golang_cgo_calls:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 50.0
+  meter_instance_golang_gc_heap_goal:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_gc_heap_objects:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_gc_heap_tiny_allocs:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_gc_limiter_last_enabled:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_gc_stack_starting_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_memory_metadata_other:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_memory_os_stacks:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_memory_other:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_memory_profiling_buckets:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_memory_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_gc_heap_allocs_by_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_gc_heap_frees_by_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_gc_pauses:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0
+  meter_instance_golang_sched_latencies:
+    entities:
+      - scope: SERVICE_INSTANCE
+        layer: GENERAL
+    samples:
+      - labels:
+        value: 100.0

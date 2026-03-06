@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
 import org.apache.skywalking.oap.query.graphql.GraphQLQueryConfig;
 import org.apache.skywalking.oap.query.graphql.type.LogTestRequest;
 import org.apache.skywalking.oap.query.graphql.type.LogTestResponse;
@@ -120,7 +120,7 @@ public class LogTestQueryTest {
                            "  extractor {\n" +
                            "    metrics {\n" +
                            "      timestamp log.timestamp as Long\n" +
-                           "      labels level: parsed.level, service: log.service, instance: log.serviceInstance\n" +
+                           "      labels service: log.service, instance: log.serviceInstance\n" +
                            "      name 'log_count'\n" +
                            "      value 1\n" +
                            "    }\n" +

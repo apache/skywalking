@@ -1,0 +1,280 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  org_apache_activemq_Broker_ProducerCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_ConsumerCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Topic
+      value: 100.0
+  org_apache_activemq_Broker_QueueSize:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_MemoryUsageByteCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_MemoryPercentUsage:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_EnqueueCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_DequeueCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_AverageEnqueueTime:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_MaxEnqueueTime:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_DispatchCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_ExpiredCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_InFlightCount:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_AverageMessageSize:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+  org_apache_activemq_Broker_MaxMessageSize:
+    - labels:
+        cluster: test-cluster
+        destinationName: test-destination
+        destinationType: Queue
+      value: 100.0
+expected:
+  meter_activemq_destination_producer_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_consumer_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Topic
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_topic_consumer_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_queue_size:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_memory_usage:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_memory_percent_usage:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_enqueue_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_dequeue_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_average_enqueue_time:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_max_enqueue_time:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_dispatch_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_expired_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_inflight_count:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_average_message_size:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0
+  meter_activemq_destination_max_message_size:
+    entities:
+      - scope: ENDPOINT
+        service: 'activemq::test-cluster'
+        endpoint: test-destination
+        layer: ACTIVEMQ
+    samples:
+      - labels:
+          cluster: 'activemq::test-cluster'
+          destinationType: Queue
+          destinationName: test-destination
+        value: 100.0

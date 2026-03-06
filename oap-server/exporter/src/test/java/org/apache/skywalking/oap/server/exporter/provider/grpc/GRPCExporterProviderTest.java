@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
@@ -97,7 +97,7 @@ public class GRPCExporterProviderTest {
         doNothing().when(exporter).fetchSubscriptionList();
 
         grpcExporterProvider.setManager(manager);
-        Whitebox.setInternalState(grpcExporterProvider, "grpcMetricsExporter", exporter);
+        ReflectUtil.setInternalState(grpcExporterProvider, "grpcMetricsExporter", exporter);
         grpcExporterProvider.notifyAfterCompleted();
     }
 

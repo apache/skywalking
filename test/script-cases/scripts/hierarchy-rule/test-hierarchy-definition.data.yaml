@@ -1,0 +1,111 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  name:
+    - description: "exact match"
+      upper: { name: "my-service", shortName: "my-service" }
+      lower: { name: "my-service", shortName: "my-service" }
+      expected: true
+    - description: "mismatch"
+      upper: { name: "svc-a", shortName: "svc-a" }
+      lower: { name: "svc-b", shortName: "svc-b" }
+      expected: false
+    - description: "same shortName different name"
+      upper: { name: "svc-a", shortName: "same" }
+      lower: { name: "svc-b", shortName: "same" }
+      expected: false
+    - description: "empty names"
+      upper: { name: "", shortName: "" }
+      lower: { name: "", shortName: "" }
+      expected: true
+
+  short-name:
+    - description: "exact shortName match"
+      upper: { name: "full-a", shortName: "svc" }
+      lower: { name: "full-b", shortName: "svc" }
+      expected: true
+    - description: "shortName mismatch"
+      upper: { name: "a", shortName: "svc-1" }
+      lower: { name: "b", shortName: "svc-2" }
+      expected: false
+    - description: "same name different shortName"
+      upper: { name: "same", shortName: "short-a" }
+      lower: { name: "same", shortName: "short-b" }
+      expected: false
+    - description: "empty shortNames"
+      upper: { name: "a", shortName: "" }
+      lower: { name: "b", shortName: "" }
+      expected: true
+
+  lower-short-name-remove-ns:
+    - description: "match: svc == svc.namespace"
+      upper: { name: "a", shortName: "svc" }
+      lower: { name: "b", shortName: "svc.namespace" }
+      expected: true
+    - description: "match: app == app.default"
+      upper: { name: "a", shortName: "app" }
+      lower: { name: "b", shortName: "app.default" }
+      expected: true
+    - description: "no dot in lower"
+      upper: { name: "a", shortName: "svc" }
+      lower: { name: "b", shortName: "svc" }
+      expected: false
+    - description: "mismatch prefix"
+      upper: { name: "a", shortName: "other" }
+      lower: { name: "b", shortName: "svc.namespace" }
+      expected: false
+    - description: "dot at position 0"
+      upper: { name: "a", shortName: "" }
+      lower: { name: "b", shortName: ".namespace" }
+      expected: false
+    - description: "multiple dots - uses last"
+      upper: { name: "a", shortName: "svc.ns1" }
+      lower: { name: "b", shortName: "svc.ns1.ns2" }
+      expected: true
+    - description: "empty lower"
+      upper: { name: "a", shortName: "svc" }
+      lower: { name: "b", shortName: "" }
+      expected: false
+
+  lower-short-name-with-fqdn:
+    - description: "match: db.svc.cluster.local:3306 vs db"
+      upper: { name: "a", shortName: "db.svc.cluster.local:3306" }
+      lower: { name: "b", shortName: "db" }
+      expected: true
+    - description: "match: redis.svc.cluster.local:6379 vs redis"
+      upper: { name: "a", shortName: "redis.svc.cluster.local:6379" }
+      lower: { name: "b", shortName: "redis" }
+      expected: true
+    - description: "no colon in upper"
+      upper: { name: "a", shortName: "db" }
+      lower: { name: "b", shortName: "db" }
+      expected: false
+    - description: "wrong fqdn suffix"
+      upper: { name: "a", shortName: "db:3306" }
+      lower: { name: "b", shortName: "other" }
+      expected: false
+    - description: "upper without fqdn"
+      upper: { name: "a", shortName: "db:3306" }
+      lower: { name: "b", shortName: "db" }
+      expected: false
+    - description: "empty upper"
+      upper: { name: "a", shortName: "" }
+      lower: { name: "b", shortName: "db" }
+      expected: false
+    - description: "colon at end"
+      upper: { name: "a", shortName: "db.svc.cluster.local:" }
+      lower: { name: "b", shortName: "db" }
+      expected: true

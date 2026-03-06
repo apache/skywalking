@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -63,7 +63,7 @@ public class BaselineServerTest {
 
         queryService = new BaselineQueryServiceImpl("", 0);
         org.apache.skywalking.apm.baseline.v3.AlarmBaselineServiceGrpc.AlarmBaselineServiceBlockingStub blockingStub = org.apache.skywalking.apm.baseline.v3.AlarmBaselineServiceGrpc.newBlockingStub(channel);
-        Whitebox.setInternalState(queryService, "stub", blockingStub);
+        ReflectUtil.setInternalState(queryService, "stub", blockingStub);
     }
 
     @AfterEach

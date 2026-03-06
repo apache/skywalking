@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -89,8 +89,8 @@ public class ClusterEtcdPluginIT {
         ModuleDefineHolder manager = mock(ModuleDefineHolder.class);
         coordinator = new EtcdCoordinator(manager, etcdConfig);
 
-        client = Whitebox.getInternalState(coordinator, "client");
-        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
+        client = ReflectUtil.getInternalState(coordinator, "client");
+        ReflectUtil.setInternalState(coordinator, "healthChecker", healthChecker);
     }
 
     @Test

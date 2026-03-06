@@ -1,0 +1,377 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  rabbitmq_queue_messages_ready:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_received_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_channels:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_channel_consumers:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_connections:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queues:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_queue_messages_unacked:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_redelivered_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_delivered_consume_auto_ack_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_delivered_consume_manual_ack_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_delivered_get_auto_ack_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_global_messages_delivered_get_manual_ack_total:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  rabbitmq_consumers:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+  erlang_vm_allocators:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+        usage: blocks_size
+      value: 100.0
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+        usage: carriers_size
+      value: 100.0
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+        usage: blocks_size
+        kind: mbcs
+      value: 100.0
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+        usage: carriers_size
+        kind: mbcs
+      value: 100.0
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+        usage: blocks_size
+        kind: mbcs_pool
+      value: 100.0
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+        usage: carriers_size
+        kind: mbcs_pool
+      value: 100.0
+  rabbitmq_process_resident_memory_bytes:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 100.0
+expected:
+  meter_rabbitmq_node_queue_messages_ready:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_incoming_messages:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 25.0
+  meter_rabbitmq_node_publisher_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_node_connections_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_queue_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_unacknowledged_messages:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_outgoing_messages_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 150.0
+  meter_rabbitmq_node_consumer_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_channel_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_allocated_used_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 10000.0
+  meter_rabbitmq_node_allocated_unused_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_node_allocated_used_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 300.0
+  meter_rabbitmq_node_allocated_unused_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 0.0
+  meter_rabbitmq_node_allocated_total_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 300.0
+  meter_rabbitmq_node_process_resident_memory_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_allocated_by_type:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          alloc: test-value
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 300.0
+  meter_rabbitmq_node_allocated_multiblock_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          alloc: test-value
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_allocated_multiblock_unused:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          alloc: test-value
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_allocated_multiblock_pool_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          alloc: test-value
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_allocated_multiblock_pool_unused:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          alloc: test-value
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_allocated_singleblock_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          alloc: test-value
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0
+  meter_rabbitmq_node_allocated_singleblock_unused:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rabbitmq::test-cluster'
+        instance: test-node
+        layer: RABBITMQ
+    samples:
+      - labels:
+          alloc: test-value
+          cluster: 'rabbitmq::test-cluster'
+          node: test-node
+        value: 100.0

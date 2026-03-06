@@ -24,7 +24,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.powermock.reflect.Whitebox;
+import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 public class UninstrumentedGatewaysConfigTest {
     @Test
@@ -32,7 +32,7 @@ public class UninstrumentedGatewaysConfigTest {
         final UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig
             = new UninstrumentedGatewaysConfig(new MockProvider());
         UninstrumentedGatewaysConfig.GatewayInfos gatewayInfos
-            = Whitebox.invokeMethod(uninstrumentedGatewaysConfig, "parseGatewaysFromFile", "gateways.yml");
+            = ReflectUtil.invokeMethod(uninstrumentedGatewaysConfig, "parseGatewaysFromFile", "gateways.yml");
         Assertions.assertEquals(1, gatewayInfos.getGateways().size());
     }
 

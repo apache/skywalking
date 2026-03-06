@@ -44,7 +44,7 @@ import org.apache.skywalking.oap.server.library.util.VirtualThreads;
  * gRPC server backed by Netty. Used by up to 4 OAP server endpoints (core-grpc,
  * receiver-grpc, ebpf-grpc, als-grpc). gRPC is the primary telemetry ingestion path.
  *
- * <h3>Thread model</h3>
+ * <h2>Thread model</h2>
  * gRPC-netty uses a three-tier thread model:
  * <ol>
  *   <li><b>Boss event loop</b> — 1 thread. Accepts TCP connections, creates Netty channels,
@@ -61,7 +61,7 @@ import org.apache.skywalking.oap.server.library.util.VirtualThreads;
  *       between messages the thread returns to the pool.</li>
  * </ol>
  *
- * <h3>Application executor</h3>
+ * <h2>Application executor</h2>
  * gRPC's default application executor is an <b>unbounded {@code CachedThreadPool}</b>
  * ({@code Executors.newCachedThreadPool()}, named {@code grpc-default-executor}).
  * gRPC chose this for safety — application code may block (JDBC, file I/O, synchronized),
@@ -81,7 +81,7 @@ import org.apache.skywalking.oap.server.library.util.VirtualThreads;
  * {@code BatchQueue.produce()} with {@code BLOCKING} strategy which can block the thread
  * — that would freeze the event loop and stall all connections.
  *
- * <h3>Thread policies</h3>
+ * <h2>Thread policies</h2>
  * <pre>
  *                     gRPC default                 SkyWalking
  *   Boss EL:          1, shared                    (unchanged)
@@ -90,7 +90,7 @@ import org.apache.skywalking.oap.server.library.util.VirtualThreads;
  *                                                   JDK &lt;25: gRPC default (unchanged)
  * </pre>
  *
- * <h4>Worker event loop: {@code cores}, shared by gRPC (default, unchanged)</h4>
+ * <h2>Worker event loop: {@code cores}, shared by gRPC (default, unchanged)</h2>
  * <pre>
  *   cores:    2    4    8   10   24
  *   threads:  2    4    8   10   24
@@ -100,7 +100,7 @@ import org.apache.skywalking.oap.server.library.util.VirtualThreads;
  * all {@code NettyServerBuilder} instances that use the default. No custom configuration
  * needed.
  *
- * <h3>Comparison with HTTP (Armeria)</h3>
+ * <h2>Comparison with HTTP (Armeria)</h2>
  * <pre>
  *                     gRPC                                HTTP (Armeria)
  *   Event loop:       cores, shared (gRPC default)        min(5, cores), shared
@@ -111,7 +111,7 @@ import org.apache.skywalking.oap.server.library.util.VirtualThreads;
  * handlers may block on long I/O (storage queries, extension callbacks). On JDK 25+,
  * virtual threads replace both pools.
  *
- * <h3>User-configured thread pool</h3>
+ * <h2>User-configured thread pool</h2>
  * When {@code threadPoolSize > 0} is set via config, it overrides the default with a
  * per-server fixed pool of that size. On JDK 25+ it is ignored — virtual threads
  * are always used.

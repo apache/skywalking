@@ -1,0 +1,113 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+input:
+  rover_net_p_client_write_counts_counter:
+    - labels:
+        service: test-service
+        instance: test-instance
+        side: client
+        client_process_id: proc-1
+        server_process_id: proc-2
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  rover_net_p_client_write_bytes_counter:
+    - labels:
+        service: test-service
+        instance: test-instance
+        side: client
+        client_process_id: proc-1
+        server_process_id: proc-2
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  rover_net_p_client_write_exe_time_counter:
+    - labels:
+        service: test-service
+        instance: test-instance
+        side: client
+        client_process_id: proc-1
+        server_process_id: proc-2
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+  rover_net_p_client_read_counts_counter:
+    - labels:
+        service: test-service
+        instance: test-instance
+        side: client
+        client_process_id: proc-1
+        server_process_id: proc-2
+        protocol: http
+        is_ssl: 'false'
+      value: 100.0
+expected:
+  process_relation_client_write_cpm:
+    entities:
+      - scope: PROCESS_RELATION
+        service: test-service
+        instance: test-instance
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          side: client
+          client_process_id: proc-1
+          server_process_id: proc-2
+          component: '49'
+        value: 100.0
+  process_relation_client_write_total_bytes:
+    entities:
+      - scope: PROCESS_RELATION
+        service: test-service
+        instance: test-instance
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          side: client
+          client_process_id: proc-1
+          server_process_id: proc-2
+          component: '49'
+        value: 100.0
+  process_relation_client_write_avg_exe_time:
+    entities:
+      - scope: PROCESS_RELATION
+        service: test-service
+        instance: test-instance
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          side: client
+          client_process_id: proc-1
+          server_process_id: proc-2
+          component: '49'
+        value: 100.0
+  process_relation_client_read_cpm:
+    entities:
+      - scope: PROCESS_RELATION
+        service: test-service
+        instance: test-instance
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          side: client
+          client_process_id: proc-1
+          server_process_id: proc-2
+          component: '49'
+        value: 100.0
