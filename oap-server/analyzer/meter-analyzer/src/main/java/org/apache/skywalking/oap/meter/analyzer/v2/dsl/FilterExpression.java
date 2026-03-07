@@ -37,19 +37,27 @@ public class FilterExpression {
     private final MalFilter malFilter;
 
     public FilterExpression(final String literal) {
-        this(literal, null);
+        this(literal, null, null);
     }
 
     public FilterExpression(final String literal, final String filterNameHint) {
+        this(literal, filterNameHint, null);
+    }
+
+    public FilterExpression(final String literal,
+                            final String filterNameHint,
+                            final String yamlSource) {
         this.literal = literal;
         try {
             if (filterNameHint != null) {
                 GENERATOR.setClassNameHint(filterNameHint);
             }
+            GENERATOR.setYamlSource(yamlSource);
             try {
                 this.malFilter = GENERATOR.compileFilter(literal);
             } finally {
                 GENERATOR.setClassNameHint(null);
+                GENERATOR.setYamlSource(null);
             }
         } catch (Exception e) {
             throw new IllegalStateException(

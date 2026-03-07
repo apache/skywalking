@@ -90,13 +90,19 @@ class HierarchyRuleComparisonTest {
             .replaceFirst("\\.(yaml|yml)$", "");
         final File classBaseDir = new File(hierarchyYml.getParent().toFile(),
             baseName + ".generated-classes");
+        final String yamlContent = Files.readString(hierarchyYml);
+        final String[] yamlLines = yamlContent.split("\n");
         final HierarchyRuleClassGenerator generator = new HierarchyRuleClassGenerator();
         generator.setClassOutputDir(classBaseDir);
         final java.util.Map<String, BiFunction<Service, Service, Boolean>> v2Rules =
             new java.util.HashMap<>();
         for (final Map.Entry<String, String> entry : ruleExpressions.entrySet()) {
             final String ruleName = entry.getKey();
+            final int lineNo = findRuleLine(yamlLines, ruleName);
             generator.setClassNameHint(ruleName);
+            generator.setYamlSource(lineNo > 0
+                ? hierarchyYml.getFileName().toString() + ":" + lineNo
+                : hierarchyYml.getFileName().toString());
             v2Rules.put(ruleName, generator.compile(ruleName, entry.getValue()));
         }
 
@@ -172,6 +178,19 @@ class HierarchyRuleComparisonTest {
             result.put(ruleName, pairs);
         }
         return result;
+    }
+
+    /**
+     * Find the 1-based line number of {@code ruleName:} in the YAML.
+     */
+    private static int findRuleLine(final String[] lines, final String ruleName) {
+        for (int i = 0; i < lines.length; i++) {
+            final String trimmed = lines[i].trim();
+            if (trimmed.startsWith(ruleName + ":")) {
+                return i + 1;
+            }
+        }
+        return 0;
     }
 
     private Path findHierarchyDefinition() {

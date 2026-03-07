@@ -146,7 +146,7 @@ class MalComparisonTest {
                     filterGen.setClassOutputDir(new java.io.File(
                         rule.sourceFile.getParent(),
                         baseName + ".generated-classes"));
-                    filterGen.setClassNameHint(baseName + "_filter");
+                    filterGen.setClassNameHint("filter");
                     filterGen.setYamlSource(filterLine > 0
                         ? rule.sourceFile.getName() + ":" + filterLine
                         : rule.sourceFile.getName());

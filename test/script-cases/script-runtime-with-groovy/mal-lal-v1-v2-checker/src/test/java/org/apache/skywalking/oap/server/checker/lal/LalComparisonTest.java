@@ -139,7 +139,10 @@ class LalComparisonTest {
             generator.setClassOutputDir(new java.io.File(
                 rule.sourceFile.getParent(),
                 baseName + ".generated-classes"));
-            generator.setClassNameHint(baseName + "_" + rule.name);
+            generator.setClassNameHint(rule.name);
+            generator.setYamlSource(rule.lineNo > 0
+                ? rule.sourceFile.getName() + ":" + rule.lineNo
+                : rule.sourceFile.getName());
         }
         return generator.compile(rule.dsl);
     }
@@ -660,6 +663,8 @@ class LalComparisonTest {
             }
 
             final List<LalRule> lalRules = new ArrayList<>();
+            final String[] lines = content.split("\n");
+            final Map<String, Integer> nameCount = new HashMap<>();
             for (final Map<String, String> rule : rules) {
                 final String name = rule.get("name");
                 final String dslStr = rule.get("dsl");
@@ -668,6 +673,8 @@ class LalComparisonTest {
                 }
                 final String extraLogType = rule.get("extraLogType");
                 final String layer = rule.get("layer");
+                final int count = nameCount.merge(name, 1, Integer::sum);
+                final int lineNo = findRuleLine(lines, name, count);
 
                 final Object ruleInput = inputData != null
                     ? inputData.get(name) : null;
@@ -682,7 +689,7 @@ class LalComparisonTest {
                     inputs = Collections.emptyList();
                 }
                 lalRules.add(new LalRule(
-                    name, dslStr, extraLogType, layer, inputs, file));
+                    name, dslStr, extraLogType, layer, inputs, file, lineNo));
             }
 
             if (!lalRules.isEmpty()) {
@@ -776,17 +783,42 @@ class LalComparisonTest {
         final String layer;
         final List<Map<String, Object>> inputs;
         final File sourceFile;
+        final int lineNo;
 
         LalRule(final String name, final String dsl,
                 final String extraLogType, final String layer,
                 final List<Map<String, Object>> inputs,
-                final File sourceFile) {
+                final File sourceFile, final int lineNo) {
             this.name = name;
             this.dsl = dsl;
             this.extraLogType = extraLogType;
             this.layer = layer;
             this.inputs = inputs;
             this.sourceFile = sourceFile;
+            this.lineNo = lineNo;
         }
+    }
+
+    /**
+     * Find the 1-based line number of the Nth occurrence of {@code name: <value>} in YAML.
+     */
+    private static int findRuleLine(final String[] lines, final String name,
+                                    final int occurrence) {
+        int found = 0;
+        for (int i = 0; i < lines.length; i++) {
+            String trimmed = lines[i].trim();
+            if (trimmed.startsWith("- ")) {
+                trimmed = trimmed.substring(2);
+            }
+            if (trimmed.equals("name: " + name)
+                    || trimmed.equals("name: '" + name + "'")
+                    || trimmed.equals("name: \"" + name + "\"")) {
+                found++;
+                if (found == occurrence) {
+                    return i + 1;
+                }
+            }
+        }
+        return 0;
     }
 }

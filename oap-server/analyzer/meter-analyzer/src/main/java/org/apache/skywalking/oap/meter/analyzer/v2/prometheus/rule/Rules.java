@@ -86,11 +86,7 @@ public class Rules {
                         // Use relativized file path without suffix as the rule name.
                         String relativizePath = root.relativize(pathPointer).toString();
                         String ruleName = relativizePath.substring(0, relativizePath.lastIndexOf("."));
-                        Rule rule = getRulesFromFile(ruleName, pathPointer);
-                        if (rule != null) {
-                            rule.setConfigPath(path);
-                        }
-                        return rule;
+                        return getRulesFromFile(ruleName, pathPointer);
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList()) ;

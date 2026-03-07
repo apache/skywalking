@@ -113,17 +113,10 @@ public class MetricConvert {
         if (Strings.isNullOrEmpty(filterText)) {
             return null;
         }
-        final String configPath = rule.getConfigPath();
         final String sourceName = rule.getSourceName();
-        final StringBuilder hint = new StringBuilder();
-        if (!Strings.isNullOrEmpty(configPath)) {
-            hint.append(configPath).append('_');
-        }
-        if (!Strings.isNullOrEmpty(sourceName)) {
-            hint.append(sourceName).append('_');
-        }
-        hint.append("filter");
-        return new FilterExpression(filterText, hint.toString());
+        final String yamlSource = sourceName != null
+            ? sourceName + ".yaml" : null;
+        return new FilterExpression(filterText, "filter", yamlSource);
     }
 
     private String formatExp(final String expPrefix, String expSuffix, String exp) {
