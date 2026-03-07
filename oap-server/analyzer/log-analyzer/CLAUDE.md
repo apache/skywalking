@@ -61,12 +61,14 @@ All v2 classes live under `org.apache.skywalking.oap.log.analyzer.v2.*` to avoid
 | Component | Package / Name |
 |-----------|---------------|
 | Parser/Model/Generator | `org.apache.skywalking.oap.log.analyzer.v2.compiler` |
-| Generated classes | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpr_<N>` |
+| Generated classes | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.{yamlName}_L{lineNo}_{ruleName}` |
 | Package holder | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackageHolder` |
 | Runtime helper | `org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper` |
 | Functional interface | `org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression` |
 
-`<N>` is a global `AtomicInteger` counter.
+Class names are built from `yamlSource` (file name + line number) and `classNameHint` (rule name).
+Example: `default_L3_default` (rule `default` at line 3 of `default.yaml`).
+Falls back to `LalExpr_<N>` (global counter) when no hint is set.
 
 ## Single Class with Private Methods
 
@@ -131,10 +133,10 @@ A single YAML file can have rules with different input types (e.g., `envoy-als.y
 
 **Input**: `filter { json {} extractor { service parsed.service as String } sink {} }`
 
-One class is generated:
+One class is generated (e.g., `default_L3_my_rule` when `yamlSource=default.yaml:3`):
 
 ```java
-public class LalExpr_0 implements LalExpression {
+public class default_L3_my_rule implements LalExpression {
     public void execute(FilterSpec filterSpec, ExecutionContext ctx) {
         LalRuntimeHelper h = new LalRuntimeHelper(ctx);
         filterSpec.json(ctx);

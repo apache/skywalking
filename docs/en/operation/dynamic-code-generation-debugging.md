@@ -57,9 +57,9 @@ apache-skywalking-apm-bin/
 │   ├── metrics/              ←   e.g., ServiceRespTimeMetrics.class
 │   ├── metrics/builder/      ←   e.g., ServiceRespTimeMetricsBuilder.class
 │   └── dispatcher/           ←   e.g., ServiceDispatcher.class
-├── mal-rt/                   ← Generated MAL classes (e.g., meter_vm_cpu_total_percentage.class)
-├── lal-rt/                   ← Generated LAL classes (e.g., default_default.class)
-└── hierarchy-rt/             ← Generated Hierarchy classes (e.g., name.class)
+├── mal-rt/                   ← Generated MAL classes (e.g., vm_L25_cpu_total_percentage.class, vm_L20_filter.class)
+├── lal-rt/                   ← Generated LAL classes (e.g., default_L3_default.class)
+└── hierarchy-rt/             ← Generated Hierarchy classes (e.g., hierarchy_definition_L88_name.class)
 ```
 
 **Docker** (`/skywalking/`):
@@ -120,30 +120,32 @@ Reading this:
 
 ### Format Per DSL
 
-| DSL | SourceFile Example | How to Read |
-|-----|-------------------|-------------|
-| OAL | `(core.oal:20)ServiceRespTimeMetrics.java` | OAL file `core.oal`, line 20 defines this metric |
-| MAL | `(spring-sleuth.yaml:3)cluster_up_rq_incr.java` | YAML file `spring-sleuth.yaml`, rule index 3 (0-based, the 4th `metricsRules` entry) |
-| LAL | `(default.yaml)default_default.java` | YAML file `default.yaml`, rule named `default_default` |
-| Hierarchy | `(hierarchy-definition.yml)name.java` | Rule `name` in `hierarchy-definition.yml` |
+| DSL | SourceFile Example | Generated Class Name | How to Read |
+|-----|-------------------|---------------------|-------------|
+| OAL | `(core.oal:20)ServiceRespTimeMetrics.java` | `ServiceRespTimeMetrics` | OAL file `core.oal`, line 20 defines this metric |
+| MAL | `(vm.yaml:25)cpu_total_percentage.java` | `vm_L25_cpu_total_percentage` | YAML file `vm.yaml`, line 25, rule `cpu_total_percentage` |
+| MAL filter | `(vm.yaml:20)filter.java` | `vm_L20_filter` | YAML file `vm.yaml`, line 20, filter expression |
+| LAL | `(default.yaml:3)default.java` | `default_L3_default` | YAML file `default.yaml`, line 3, rule `default` |
+| Hierarchy | `(hierarchy-definition.yml:88)name.java` | `hierarchy_definition_L88_name` | Rule `name` at line 88 in `hierarchy-definition.yml` |
 
 **Notes:**
-- The number after `:` in the MAL source prefix is the 0-based index of the rule within the `metricsRules` list in that YAML file.
-- LAL and Hierarchy rules are standalone entries, so the source prefix contains only the YAML file name without a line number.
-- When source information is unavailable, the SourceFile falls back to just `ClassName.java` without the parenthesized prefix.
+- The class name pattern is `{yamlFileName}_L{lineNo}_{ruleName}` for all DSLs (except OAL).
+  The yaml file name and line number from `yamlSource` are combined with the rule name or `filter`.
+- The number after `:` in the SourceFile prefix is the line number in the YAML file where the rule is defined (for MAL in production, this may be a 0-based rule index instead of a line number).
+- When source information is unavailable, the class name falls back to `MalExpr_<N>` / `LalExpr_<N>` / `HierarchyRule_<N>` and the SourceFile to just `ClassName.java` without the parenthesized prefix.
 
 ### Mapping Back to DSL Source
 
-1. **Identify the DSL type** from the package or class suffix:
+1. **Identify the DSL type** from the package or class name:
    - `...metrics.generated.*Metrics` or `...Dispatcher` → OAL
-   - `...meter.analyzer.v2.compiler.rt.MalExpr_*` → MAL
-   - `...log.analyzer.v2.compiler.rt.LalExpr_*` → LAL
-   - `...hierarchy.rule.rt.*` → Hierarchy
+   - `...meter.analyzer.v2.compiler.rt.*` → MAL (class name: `{yamlName}_L{lineNo}_{ruleName}` or `MalExpr_<N>`)
+   - `...log.analyzer.v2.compiler.rt.*` → LAL (class name: `{yamlName}_L{lineNo}_{ruleName}` or `LalExpr_<N>`)
+   - `...hierarchy.rule.rt.*` → Hierarchy (class name: `{yamlName}_L{lineNo}_{ruleName}` or `HierarchyRule_<N>`)
 
-2. **Find the source file** from the parenthesized prefix (e.g., `core.oal`, `spring-sleuth.yaml`).
-   These files are in the `config/` directory.
+2. **Find the source file** from the parenthesized prefix in the SourceFile attribute (e.g., `core.oal`, `vm.yaml`),
+   or from the class name prefix (e.g., `vm_L25_...` → `vm.yaml`). These files are in the `config/` directory.
 
-3. **Locate the rule** using the line number (OAL) or rule index (MAL) or rule name (LAL/Hierarchy).
+3. **Locate the rule** using the line number from the class name (`_L25_`) or the SourceFile prefix (`:25`).
 
 4. **Use the statement number** (after the last `:`) as a rough indicator of which operation within the
    generated method failed. Dump the class (see above) and use `javap -v` to see the exact mapping.
@@ -168,11 +170,11 @@ MAL and LAL errors during metric processing are caught and logged per-expression
 ```
 ERROR o.a.s.o.m.a.v.MetricConvert - Analyze Analyzer{...} error
 java.lang.NullPointerException
-    at ...MalExpr_5.run((vm.yaml:2)meter_vm_cpu_total_percentage.java:5)
+    at ...vm_L25_cpu_total_percentage.run((vm.yaml:25)cpu_total_percentage.java:5)
 ```
 
-This tells you: the error is in `vm.yaml`, rule index 2 (the 3rd `metricsRules` entry),
-metric `meter_vm_cpu_total_percentage`, at statement 5 of the generated `run()` method.
+This tells you: the error is in `vm.yaml`, line 25, metric `cpu_total_percentage`,
+at statement 5 of the generated `run()` method.
 The processing continues for other metrics — a single expression failure does not crash the server.
 
 ### Hierarchy Compilation Failure
