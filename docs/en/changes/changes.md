@@ -16,6 +16,15 @@
   - v1 (Groovy) and v2 (ANTLR4+Javassist) cross-version checker validates behavioral equivalence across 1,290+ expressions
   - JMH benchmarks confirm v2 runtime speedups: MAL execute ~6.8x, LAL compile ~39x / execute ~2.8x, Hierarchy execute ~2.6x faster than Groovy v1
   - Generated class names follow `{yamlFileName}_L{lineNo}_{ruleName}` pattern for all DSLs (MAL/LAL/Hierarchy) for stack trace traceability
+* **Breaking Change** — LAL: remove `slowSql {}` and `sampledTrace {}` sub-DSLs from the grammar. These are replaced by the configurable `outputType` mechanism:
+  - Set `outputType` at the rule level in YAML config to specify the output entity class. Use the short name registered by `LALOutputBuilder` SPI (e.g., `outputType: SlowSQL`, `outputType: SampledTrace`), or a fully qualified class name as fallback.
+  - `LALOutputBuilder` implementations are discovered via `ServiceLoader` and expose a `name()` method for short name resolution. Built-in types: `SlowSQL` (`DatabaseSlowStatementBuilder`), `SampledTrace` (`SampledTraceBuilder`).
+  - Output fields (e.g., `id`, `statement`, `latency`) are now regular field assignments in the extractor block, no longer wrapped in sub-DSL blocks.
+  - Custom output fields are validated against the output type's setters at compile time.
+  - An explicit `sink {}` block is now **required** for data to be persisted. Without `sink {}`, no data is saved — this applies to all LAL rules including those using `outputType`. In v1, `slowSql {}` and `sampledTrace {}` dispatched data as a side-effect inside the extractor; in v2, persistence is always handled by the sink pipeline.
+  - Output type resolution order: per-rule YAML `outputType` (short name via SPI or FQCN) > `LALSourceTypeProvider` SPI default > `Log.class`.
+  - All bundled LAL scripts (`mysql-slowsql.yaml`, `pgsql-slowsql.yaml`, `redis-slowsql.yaml`, `envoy-als.yaml`, `k8s-service.yaml`, `mesh-dp.yaml`) have been updated.
+  - Users with custom LAL scripts using `slowSql {}` or `sampledTrace {}` must migrate to the new syntax. See [LAL documentation](../concepts-and-designs/lal.md#output-type).
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.

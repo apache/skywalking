@@ -270,67 +270,6 @@ class LALClassGeneratorTest {
         assertNotNull(expr);
     }
 
-    // ==================== SlowSql block ====================
-
-    @Test
-    void compileSlowSqlBlock() throws Exception {
-        final LalExpression expr = generator.compile(
-            "filter {\n"
-            + "  json {}\n"
-            + "  extractor {\n"
-            + "    slowSql {\n"
-            + "      id parsed.id as String\n"
-            + "      statement parsed.statement as String\n"
-            + "      latency parsed.query_time as Long\n"
-            + "    }\n"
-            + "  }\n"
-            + "  sink {}\n"
-            + "}");
-        assertNotNull(expr);
-    }
-
-    // ==================== SampledTrace block ====================
-
-    @Test
-    void compileSampledTraceBlock() throws Exception {
-        final LalExpression expr = generator.compile(
-            "filter {\n"
-            + "  json {}\n"
-            + "  extractor {\n"
-            + "    sampledTrace {\n"
-            + "      latency parsed.latency as Long\n"
-            + "      uri parsed.uri as String\n"
-            + "      reason parsed.reason as String\n"
-            + "      detectPoint parsed.detect_point as String\n"
-            + "      componentId 49\n"
-            + "    }\n"
-            + "  }\n"
-            + "  sink {}\n"
-            + "}");
-        assertNotNull(expr);
-    }
-
-    @Test
-    void compileSampledTraceWithIfBlocks() throws Exception {
-        final LalExpression expr = generator.compile(
-            "filter {\n"
-            + "  json {}\n"
-            + "  extractor {\n"
-            + "    sampledTrace {\n"
-            + "      latency parsed.latency as Long\n"
-            + "      if (parsed.client_process.process_id as String != \"\") {\n"
-            + "        processId parsed.client_process.process_id as String\n"
-            + "      } else {\n"
-            + "        processId parsed.fallback as String\n"
-            + "      }\n"
-            + "      detectPoint parsed.detect_point as String\n"
-            + "    }\n"
-            + "  }\n"
-            + "  sink {}\n"
-            + "}");
-        assertNotNull(expr);
-    }
-
     // ==================== Sampler / rateLimit ====================
 
     @Test
@@ -476,29 +415,7 @@ class LALClassGeneratorTest {
     }
 
     @Test
-    void compileSlowSqlProductionRule() throws Exception {
-        final LalExpression expr = generator.compile(
-            "filter {\n"
-            + "  json {}\n"
-            + "  extractor {\n"
-            + "    if (tag(\"LOG_KIND\") == \"SLOW_SQL\") {\n"
-            + "      layer parsed.layer as String\n"
-            + "      service parsed.service as String\n"
-            + "      timestamp parsed.time as String\n"
-            + "      slowSql {\n"
-            + "        id parsed.id as String\n"
-            + "        statement parsed.statement as String\n"
-            + "        latency parsed.query_time as Long\n"
-            + "      }\n"
-            + "    }\n"
-            + "  }\n"
-            + "  sink {}\n"
-            + "}");
-        assertNotNull(expr);
-    }
-
-    @Test
-    void compileEnvoyAlsAbortRuleFailsWithoutExtraLogType() {
+    void compileEnvoyAlsAbortRuleFailsWithoutInputType() {
         // envoy-als pattern has no parser (json/yaml/text) — falls back to LogData
         // but LogData.Builder doesn't have getResponse(), so compile fails
         assertThrows(IllegalArgumentException.class, () -> generator.compile(
@@ -519,7 +436,7 @@ class LALClassGeneratorTest {
 
     @Test
     void compileNoParserFallsBackToLogDataProto() throws Exception {
-        // No parser (json/yaml/text) and no extraLogType — should use LogData.Builder
+        // No parser (json/yaml/text) and no inputType — should use LogData.Builder
         final String dsl =
             "filter {\n"
             + "  extractor {\n"
@@ -543,8 +460,8 @@ class LALClassGeneratorTest {
     }
 
     @Test
-    void compileExtraLogTypeGeneratesDirectGetterCalls() throws Exception {
-        generator.setExtraLogType(
+    void compileInputTypeGeneratesDirectGetterCalls() throws Exception {
+        generator.setInputType(
             io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
         final String dsl =
             "filter {\n"
@@ -566,7 +483,7 @@ class LALClassGeneratorTest {
         // Proto field access uses _p local variable, not inline cast
         assertTrue(source.contains(
             fqcn + " _p = (" + fqcn + ") h.ctx().extraLog()"),
-            "Expected _p local variable for extraLog cast but got: " + source);
+            "Expected _p local variable for inputType cast but got: " + source);
         // Intermediate fields cached in _tN local variables
         assertTrue(source.contains("_p.getResponse()"),
             "Expected _p.getResponse() via cached variable but got: " + source);
@@ -617,32 +534,6 @@ class LALClassGeneratorTest {
     }
 
     @Test
-    void compileElseIfInSampledTrace() throws Exception {
-        final LalExpression expr = generator.compile(
-            "filter {\n"
-            + "  json {}\n"
-            + "  extractor {\n"
-            + "    sampledTrace {\n"
-            + "      latency parsed.latency as Long\n"
-            + "      if (parsed.client_process.process_id as String != \"\") {\n"
-            + "        processId parsed.client_process.process_id as String\n"
-            + "      } else if (parsed.client_process.local as Boolean) {\n"
-            + "        processId ProcessRegistry.generateVirtualLocalProcess("
-            + "parsed.service as String, parsed.serviceInstance as String) as String\n"
-            + "      } else {\n"
-            + "        processId ProcessRegistry.generateVirtualRemoteProcess("
-            + "parsed.service as String, parsed.serviceInstance as String, "
-            + "parsed.client_process.address as String) as String\n"
-            + "      }\n"
-            + "      detectPoint parsed.detect_point as String\n"
-            + "    }\n"
-            + "  }\n"
-            + "  sink {}\n"
-            + "}");
-        assertNotNull(expr);
-    }
-
-    @Test
     void generateSourceElseIfEmitsNestedBranches() {
         final String source = generator.generateSource(
             "filter {\n"
@@ -668,5 +559,69 @@ class LALClassGeneratorTest {
         assertTrue(ifCount >= 2,
             "Expected at least 2 if-conditions for else-if chain but got "
             + ifCount + " in: " + source);
+    }
+
+    @Test
+    void compileOutputFieldAssignment() {
+        final String source = generator.generateSource(
+            "filter {\n"
+                + "  json {}\n"
+                + "  extractor {\n"
+                + "    statement parsed.statement as String\n"
+                + "    latency parsed.latency as Long\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+        assertTrue(source.contains("setOutputField(\"statement\""),
+            "Expected setOutputField for 'statement' but got: " + source);
+        assertTrue(source.contains("setOutputField(\"latency\""),
+            "Expected setOutputField for 'latency' but got: " + source);
+        assertTrue(source.contains("h.toStr("),
+            "Expected toStr() cast for String but got: " + source);
+        assertTrue(source.contains("h.toLong("),
+            "Expected toLong() cast for Long but got: " + source);
+    }
+
+    @Test
+    void compileOutputFieldWithOutputTypeValidation() {
+        generator.setOutputType(TestOutputType.class);
+        final String source = generator.generateSource(
+            "filter {\n"
+                + "  json {}\n"
+                + "  extractor {\n"
+                + "    statement parsed.stmt as String\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+        assertTrue(source.contains("setOutputField(\"statement\""),
+            "Expected setOutputField for 'statement' but got: " + source);
+    }
+
+    @Test
+    void compileOutputFieldWithInvalidSetter() {
+        generator.setOutputType(TestOutputType.class);
+        final Exception ex = assertThrows(RuntimeException.class, () ->
+            generator.generateSource(
+                "filter {\n"
+                    + "  json {}\n"
+                    + "  extractor {\n"
+                    + "    nonExistentField parsed.x as String\n"
+                    + "  }\n"
+                    + "  sink {}\n"
+                    + "}"));
+        assertTrue(ex.getMessage().contains("setNonExistentField"),
+            "Expected error about missing setter but got: " + ex.getMessage());
+    }
+
+    public static class TestOutputType {
+        private String statement;
+
+        public void setStatement(final String statement) {
+            this.statement = statement;
+        }
+
+        public String getStatement() {
+            return statement;
+        }
     }
 }

@@ -62,7 +62,7 @@ Each LAL rule YAML has a companion `.data.yaml` with per-rule test entries.
 
 **Entry structure:** service, body-type, body, optional tags/extra-log, expect assertions.
 
-**Expect assertions:** save, abort, service, instance, endpoint, layer, tag.*, sampledTrace.*
+**Expect assertions:** save, abort, service, instance, endpoint, layer, tag.*
 
 **Proto-typed rules:** Use `extra-log.proto-class` + `extra-log.proto-json` for protobuf extraLog.
 

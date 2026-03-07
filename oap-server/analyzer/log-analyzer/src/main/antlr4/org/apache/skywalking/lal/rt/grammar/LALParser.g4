@@ -25,8 +25,6 @@
 //   json { abortOnFailure true }
 //   extractor { service parsed.service as String; tag 'key': value }
 //   metrics { name "metric_name"; value 1; labels key: val }
-//   slowSql { id parsed.id as String; statement parsed.statement as String; latency parsed.query_time as Long }
-//   sampledTrace { latency parsed.latency as Long; uri parsed.uri as String; ... }
 //   sink { sampler { rateLimit("id") { rpm 6000 } } }
 parser grammar LALParser;
 
@@ -128,9 +126,8 @@ extractorStatement
     | timestampStatement
     | tagStatement
     | metricsBlock
-    | slowSqlBlock
-    | sampledTraceBlock
     | ifStatement
+    | outputFieldStatement
     ;
 
 serviceStatement
@@ -163,6 +160,10 @@ spanIdStatement
 
 timestampStatement
     : TIMESTAMP valueAccess typeCast? (COMMA STRING)?
+    ;
+
+outputFieldStatement
+    : anyIdentifier valueAccess typeCast?
     ;
 
 tagStatement
@@ -213,88 +214,6 @@ labelEntry
 
 metricsValueStatement
     : VALUE valueAccess typeCast?
-    ;
-
-// ==================== Slow SQL block ====================
-
-slowSqlBlock
-    : SLOW_SQL L_BRACE slowSqlContent R_BRACE
-    ;
-
-slowSqlContent
-    : slowSqlStatement*
-    ;
-
-slowSqlStatement
-    : slowSqlIdStatement
-    | slowSqlStatementStatement
-    | slowSqlLatencyStatement
-    ;
-
-slowSqlIdStatement
-    : ID valueAccess typeCast?
-    ;
-
-slowSqlStatementStatement
-    : STATEMENT valueAccess typeCast?
-    ;
-
-slowSqlLatencyStatement
-    : LATENCY valueAccess typeCast?
-    ;
-
-// ==================== Sampled trace block ====================
-
-sampledTraceBlock
-    : SAMPLED_TRACE L_BRACE sampledTraceContent R_BRACE
-    ;
-
-sampledTraceContent
-    : sampledTraceStatement*
-    ;
-
-sampledTraceStatement
-    : sampledTraceLatencyStatement
-    | sampledTraceUriStatement
-    | sampledTraceReasonStatement
-    | sampledTraceProcessIdStatement
-    | sampledTraceDestProcessIdStatement
-    | sampledTraceDetectPointStatement
-    | sampledTraceComponentIdStatement
-    | reportServiceStatement
-    | ifStatement
-    ;
-
-sampledTraceLatencyStatement
-    : LATENCY valueAccess typeCast?
-    ;
-
-sampledTraceUriStatement
-    : URI valueAccess typeCast?
-    ;
-
-sampledTraceReasonStatement
-    : REASON valueAccess typeCast?
-    ;
-
-sampledTraceProcessIdStatement
-    : PROCESS_ID valueAccess typeCast?
-    ;
-
-sampledTraceDestProcessIdStatement
-    : DEST_PROCESS_ID valueAccess typeCast?
-    ;
-
-sampledTraceDetectPointStatement
-    : DETECT_POINT valueAccess typeCast?
-    ;
-
-sampledTraceComponentIdStatement
-    : COMPONENT_ID valueAccess typeCast?
-    ;
-
-reportServiceStatement
-    : REPORT_SERVICE valueAccess typeCast?
     ;
 
 // ==================== Sink block ====================
@@ -360,7 +279,6 @@ ifBody
     : filterStatement*
     | extractorStatement*
     | sinkStatement*
-    | sampledTraceStatement*
     | samplerContent
     ;
 
@@ -461,12 +379,9 @@ anyIdentifier
     : IDENTIFIER
     | SERVICE | INSTANCE | ENDPOINT | LAYER
     | TRACE_ID | SEGMENT_ID | SPAN_ID | TIMESTAMP
-    | TAG | METRICS | SLOW_SQL | SAMPLED_TRACE
+    | TAG | METRICS
     | REGEXP | ABORT_ON_FAILURE
     | NAME | VALUE | LABELS
-    | ID | STATEMENT | LATENCY
-    | URI | REASON | PROCESS_ID | DEST_PROCESS_ID
-    | DETECT_POINT | COMPONENT_ID | REPORT_SERVICE
     | SAMPLER | RATE_LIMIT | RPM | ENFORCER | DROPPER
     | TEXT | JSON | YAML | FILTER | EXTRACTOR | SINK | ABORT
     ;

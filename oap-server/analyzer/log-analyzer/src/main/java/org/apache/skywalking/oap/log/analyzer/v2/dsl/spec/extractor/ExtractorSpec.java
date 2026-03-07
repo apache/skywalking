@@ -33,8 +33,6 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.sampledtrace.SampledTraceSpec;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.slowsql.SlowSqlSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
@@ -42,38 +40,14 @@ import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
-import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.ISource;
-import org.apache.skywalking.oap.server.core.source.ServiceMeta;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
 
 public class ExtractorSpec extends AbstractSpec {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExtractorSpec.class);
-
     private final List<MetricConvert> metricConverts;
-
-    private final SlowSqlSpec slowSql;
-    private final SampledTraceSpec sampledTrace;
-
-    private final NamingControl namingControl;
-
-    private final SourceReceiver sourceReceiver;
 
     public ExtractorSpec(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
@@ -83,15 +57,6 @@ public class ExtractorSpec extends AbstractSpec {
             .find(LogAnalyzerModule.NAME).provider();
 
         metricConverts = provider.getMetricConverts();
-
-        slowSql = new SlowSqlSpec(moduleManager(), moduleConfig());
-        sampledTrace = new SampledTraceSpec(moduleManager(), moduleConfig());
-
-        namingControl = moduleManager.find(CoreModule.NAME)
-                                     .provider()
-                                     .getService(NamingControl.class);
-
-        sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
     public void service(final ExecutionContext ctx, final String service) {
@@ -231,89 +196,6 @@ public class ExtractorSpec extends AbstractSpec {
                             .build()
             ));
         }
-    }
-
-    public SampledTraceSpec sampledTraceSpec() {
-        return sampledTrace;
-    }
-
-    public SlowSqlSpec slowSqlSpec() {
-        return slowSql;
-    }
-
-    public void prepareSampledTrace(final ExecutionContext ctx) {
-        if (ctx.shouldAbort()) {
-            return;
-        }
-        final LogData.Builder log = ctx.log();
-        final SampledTraceBuilder builder = new SampledTraceBuilder(namingControl);
-        builder.setLayer(log.getLayer());
-        builder.setTimestamp(log.getTimestamp());
-        builder.setServiceName(log.getService());
-        builder.setServiceInstanceName(log.getServiceInstance());
-        builder.setTraceId(log.getTraceContext().getTraceId());
-        ctx.sampledTrace(builder);
-    }
-
-    public void submitSampledTrace(final ExecutionContext ctx) {
-        if (ctx.shouldAbort()) {
-            return;
-        }
-        final SampledTraceBuilder builder = ctx.sampledTraceBuilder();
-        if (builder == null) {
-            return;
-        }
-        builder.validate();
-        final Record record = builder.toRecord();
-        final ISource entity = builder.toEntity();
-        RecordStreamProcessor.getInstance().in(record);
-        sourceReceiver.receive(entity);
-    }
-
-    public void prepareSlowSql(final ExecutionContext ctx) {
-        if (ctx.shouldAbort()) {
-            return;
-        }
-        final LogData.Builder log = ctx.log();
-        if (log.getLayer() == null
-            || log.getService() == null
-            || log.getTimestamp() < 1) {
-            LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
-            return;
-        }
-        final DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
-        builder.setLayer(Layer.nameOf(log.getLayer()));
-        builder.setServiceName(log.getService());
-        ctx.databaseSlowStatement(builder);
-    }
-
-    public void submitSlowSql(final ExecutionContext ctx) {
-        if (ctx.shouldAbort()) {
-            return;
-        }
-        final DatabaseSlowStatementBuilder builder = ctx.databaseSlowStatement();
-        if (builder == null) {
-            return;
-        }
-        if (builder.getId() == null
-            || builder.getLatency() < 1
-            || builder.getStatement() == null) {
-            LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
-            return;
-        }
-        final LogData.Builder log = ctx.log();
-        final long timeBucketForDB = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Second);
-        builder.setTimeBucket(timeBucketForDB);
-        builder.setTimestamp(log.getTimestamp());
-        builder.prepare();
-        sourceReceiver.receive(builder.toDatabaseSlowStatement());
-
-        final ServiceMeta serviceMeta = new ServiceMeta();
-        serviceMeta.setName(builder.getServiceName());
-        serviceMeta.setLayer(builder.getLayer());
-        final long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
-        serviceMeta.setTimeBucket(timeBucket);
-        sourceReceiver.receive(serviceMeta);
     }
 
     public static class SampleBuilder {

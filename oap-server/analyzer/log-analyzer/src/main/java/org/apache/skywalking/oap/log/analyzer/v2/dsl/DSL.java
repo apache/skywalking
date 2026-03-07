@@ -24,6 +24,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
@@ -46,30 +47,34 @@ public class DSL {
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
                          final String dsl) throws ModuleStartException {
-        return of(moduleManager, config, dsl, null, "unknown", null);
+        return of(moduleManager, config, dsl, null, null, "unknown", null);
     }
 
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
                          final String dsl,
-                         final Class<?> extraLogType,
+                         final Class<?> inputType,
+                         final Class<?> outputType,
                          final String ruleName) throws ModuleStartException {
-        return of(moduleManager, config, dsl, extraLogType, ruleName, null);
+        return of(moduleManager, config, dsl, inputType, outputType, ruleName, null);
     }
 
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
                          final String dsl,
-                         final Class<?> extraLogType,
+                         final Class<?> inputType,
+                         final Class<?> outputType,
                          final String ruleName,
                          final String yamlSource) throws ModuleStartException {
         try {
             final LALClassGenerator generator = new LALClassGenerator();
-            generator.setExtraLogType(extraLogType);
+            generator.setInputType(inputType);
+            generator.setOutputType(outputType);
             generator.setClassNameHint(ruleName);
             generator.setYamlSource(yamlSource);
             final LalExpression expression = generator.compile(dsl);
-            final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
+            final Class<?> resolvedOutput = outputType != null ? outputType : Log.class;
+            final FilterSpec filterSpec = new FilterSpec(moduleManager, config, resolvedOutput);
             return new DSL(ruleName, expression, filterSpec);
         } catch (Exception e) {
             throw new ModuleStartException(

@@ -17,20 +17,8 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Setter
-@Getter
 @ScopeDeclaration(id = DefaultScopeDefine.LOG, name = "Log")
 public class Log extends AbstractLog {
-
-    private String uniqueId;
-
-    @Override
-    public String getEntityId() {
-        return uniqueId;
-    }
 
     @Override
     public int scope() {
