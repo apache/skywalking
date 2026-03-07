@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -30,6 +31,7 @@ import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 
+@Slf4j
 public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     public static final String NAME = "SlowSQL";
 
@@ -84,7 +86,15 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     @Override
     public void complete(final SourceReceiver sourceReceiver) {
         if (id == null || latency < 1 || statement == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("SlowSQL builder incomplete, skipping dispatch: id={}, latency={}, statement={}",
+                    id, latency, statement);
+            }
             return;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("SlowSQL builder dispatching: service={}, id={}, statement={}, latency={}",
+                serviceName, id, statement, latency);
         }
         prepare();
         sourceReceiver.receive(toDatabaseSlowStatement());

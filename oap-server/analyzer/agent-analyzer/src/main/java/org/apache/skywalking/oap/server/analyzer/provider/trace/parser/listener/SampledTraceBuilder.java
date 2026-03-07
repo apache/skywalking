@@ -112,7 +112,16 @@ public class SampledTraceBuilder implements LALOutputBuilder {
         if (Strings.isNullOrEmpty(traceId) || reason == null
                 || Strings.isNullOrEmpty(processId) || Strings.isNullOrEmpty(destProcessId)
                 || componentId <= 0 || detectPoint == null || timestamp <= 0) {
+            if (log.isDebugEnabled()) {
+                log.debug("SampledTrace builder incomplete, skipping dispatch: traceId={}, reason={}, "
+                        + "processId={}, destProcessId={}, componentId={}, detectPoint={}, timestamp={}",
+                    traceId, reason, processId, destProcessId, componentId, detectPoint, timestamp);
+            }
             return;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("SampledTrace builder dispatching: service={}, traceId={}, uri={}, reason={}",
+                serviceName, traceId, uri, reason);
         }
         validate();
         final Record record = toRecord();

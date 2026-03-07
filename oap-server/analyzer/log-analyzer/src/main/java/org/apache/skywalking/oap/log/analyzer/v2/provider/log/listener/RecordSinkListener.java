@@ -91,7 +91,15 @@ public class RecordSinkListener implements LogSinkListener {
     public void build() {
         if (isBuilderMode) {
             if (builder != null) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("RecordSinkListener invoking builder.complete() on {}",
+                        builder.getClass().getSimpleName());
+                }
                 builder.complete(sourceReceiver);
+            } else {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("RecordSinkListener builder is null, skipping build");
+                }
             }
         } else {
             sourceReceiver.receive(log);
@@ -191,7 +199,15 @@ public class RecordSinkListener implements LogSinkListener {
 
     private void applyOutputFields(final Map<String, Object> outputFields, final Object target) {
         if (outputFields == null || outputFields.isEmpty() || target == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("No output fields to apply: fields={}, target={}",
+                    outputFields, target != null ? target.getClass().getSimpleName() : "null");
+            }
             return;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Applying {} output fields to {}: {}",
+                outputFields.size(), target.getClass().getSimpleName(), outputFields.keySet());
         }
         for (final Map.Entry<String, Object> entry : outputFields.entrySet()) {
             final String fieldName = entry.getKey();
