@@ -19,7 +19,7 @@ For each DSL expression:
 2. Compare compile-time metadata (sample names, scope type, aggregation labels, etc.)
 3. Execute both with identical mock input data
 4. Assert output samples match (entities, labels, values)
-5. Validate against expected data in `.data.yaml` / `.input.data`
+5. Validate against expected data in `.data.yaml`
 
 ## Script Directories (MAL)
 
@@ -56,9 +56,9 @@ Each MAL rule YAML has a companion `.data.yaml` with `input` and `expected` sect
 - Standard rules use `metricsRules` key
 - Zabbix rules use `metrics` key (both are handled by the collector)
 
-### LAL (.input.data files)
+### LAL (.data.yaml files)
 
-Each LAL rule YAML has a companion `.input.data` with per-rule test entries.
+Each LAL rule YAML has a companion `.data.yaml` with per-rule test entries.
 
 **Entry structure:** service, body-type, body, optional tags/extra-log, expect assertions.
 

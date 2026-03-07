@@ -648,11 +648,11 @@ class LalComparisonTest {
                 continue;
             }
 
-            // Load matching .input.data file if present
+            // Load matching .data.yaml file if present
             final String baseName = file.getName()
                 .replaceFirst("\\.(yaml|yml)$", "");
             final File inputDataFile = new File(file.getParent(),
-                baseName + ".input.data");
+                baseName + ".data.yaml");
             Map<String, Map<String, Object>> inputData = null;
             if (inputDataFile.exists()) {
                 inputData = yaml.load(

@@ -126,8 +126,8 @@ public class LalBenchmark {
         final List<Map<String, String>> ruleConfigs =
             (List<Map<String, String>>) config.get("rules");
 
-        // Load envoy-als.input.data
-        final Path inputDataPath = lalYaml.getParent().resolve("envoy-als.input.data");
+        // Load envoy-als.data.yaml
+        final Path inputDataPath = lalYaml.getParent().resolve("envoy-als.data.yaml");
         Map<String, Map<String, Object>> inputData = null;
         if (Files.isRegularFile(inputDataPath)) {
             inputData = yaml.load(Files.readString(inputDataPath));
