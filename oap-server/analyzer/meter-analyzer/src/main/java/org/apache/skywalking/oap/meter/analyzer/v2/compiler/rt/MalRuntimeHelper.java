@@ -59,6 +59,25 @@ public final class MalRuntimeHelper {
      * Reverse division: computes {@code numerator / v} for each sample value {@code v}.
      * Used by generated code for {@code Number / SampleFamily} expressions.
      */
+    /**
+     * Groovy truth check: {@code null → false}, empty string → {@code false},
+     * {@code Boolean.FALSE → false}, everything else → {@code true}.
+     * Used by generated filter code for standalone expressions in boolean context
+     * (e.g., {@code tags.ApiId || tags.ApiName}).
+     */
+    public static boolean isTruthy(final Object value) {
+        if (value == null) {
+            return false;
+        }
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
+        if (value instanceof CharSequence) {
+            return ((CharSequence) value).length() > 0;
+        }
+        return true;
+    }
+
     public static SampleFamily divReverse(final double numerator,
                                           final SampleFamily sf) {
         if (sf == SampleFamily.EMPTY) {

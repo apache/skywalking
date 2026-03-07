@@ -18,6 +18,8 @@ OALLexer.tokens
 .checkstyle
 .externalToolBuilders
 oap-server/oal-grammar/**/gen/
+oap-server/analyzer/log-analyzer/gen/
+oap-server/analyzer/meter-analyzer/gen/
 MQELexer.tokens
 oap-server/mqe-grammar/**/gen/
 PromQLLexer.tokens

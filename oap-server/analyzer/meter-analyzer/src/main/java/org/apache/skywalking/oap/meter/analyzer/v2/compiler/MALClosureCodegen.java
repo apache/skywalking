@@ -761,9 +761,10 @@ final class MALClosureCodegen {
             if (MALCodegenHelper.isBooleanExpression(condExpr)) {
                 generateClosureExpr(sb, condExpr, paramName, beanMode);
             } else {
-                sb.append("(");
+                // Groovy truth: non-null, non-empty string, non-false
+                sb.append(MALCodegenHelper.RUNTIME_HELPER_FQCN).append(".isTruthy(");
                 generateClosureExpr(sb, condExpr, paramName, beanMode);
-                sb.append(" != null)");
+                sb.append(")");
             }
         } else if (cond instanceof MALExpressionModel.ClosureInCondition) {
             final MALExpressionModel.ClosureInCondition ic =

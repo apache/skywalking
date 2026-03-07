@@ -103,9 +103,39 @@ public final class MALClassGenerator {
 
     private String makeClassName(final String defaultPrefix) {
         if (classNameHint != null) {
-            return dedupClassName(PACKAGE_PREFIX + MALCodegenHelper.sanitizeName(classNameHint));
+            return dedupClassName(PACKAGE_PREFIX + buildHintedName());
         }
         return PACKAGE_PREFIX + defaultPrefix + CLASS_COUNTER.getAndIncrement();
+    }
+
+    /**
+     * Builds class name from {@code yamlSource} + {@code classNameHint}.
+     * Pattern: {@code {yamlBaseName}_L{lineNo}_{hint}} when yamlSource is available,
+     * falls back to just {@code {hint}} otherwise.
+     */
+    private String buildHintedName() {
+        final String hint = MALCodegenHelper.sanitizeName(classNameHint);
+        if (yamlSource == null) {
+            return hint;
+        }
+        String yamlBase = yamlSource;
+        String lineNo = null;
+        final int colonIdx = yamlSource.lastIndexOf(':');
+        if (colonIdx > 0) {
+            yamlBase = yamlSource.substring(0, colonIdx);
+            lineNo = yamlSource.substring(colonIdx + 1);
+        }
+        final int dotIdx = yamlBase.lastIndexOf('.');
+        if (dotIdx > 0) {
+            yamlBase = yamlBase.substring(0, dotIdx);
+        }
+        final StringBuilder sb = new StringBuilder();
+        sb.append(MALCodegenHelper.sanitizeName(yamlBase));
+        if (lineNo != null) {
+            sb.append("_L").append(lineNo);
+        }
+        sb.append('_').append(hint);
+        return sb.toString();
     }
 
     private String dedupClassName(final String base) {
@@ -372,6 +402,8 @@ public final class MALClassGenerator {
             {paramName, "Ljava/util/Map;"}
         });
         addLineNumberTable(testMethod, 2); // slot 0=this, 1=samples
+        setSourceFile(ctClass, formatSourceFileName(
+            classNameHint != null ? classNameHint : "filter"));
 
         writeClassFile(ctClass);
 

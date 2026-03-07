@@ -15,6 +15,7 @@
   - Explicit context passing replaces Groovy binding/closure capture
   - v1 (Groovy) and v2 (ANTLR4+Javassist) cross-version checker validates behavioral equivalence across 1,290+ expressions
   - JMH benchmarks confirm v2 runtime speedups: MAL execute ~6.8x, LAL compile ~39x / execute ~2.8x, Hierarchy execute ~2.6x faster than Groovy v1
+  - Generated class names follow `{yamlFileName}_L{lineNo}_{ruleName}` pattern for all DSLs (MAL/LAL/Hierarchy) for stack trace traceability
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.

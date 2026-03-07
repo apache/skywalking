@@ -39,7 +39,7 @@ oap-server/analyzer/meter-analyzer/
     MALCodegenHelper.java             — Static utility methods and shared constants
     rt/
       MalExpressionPackageHolder.java — Class loading anchor (empty marker)
-      MalRuntimeHelper.java           — Static helpers called by generated code (e.g., divReverse)
+      MalRuntimeHelper.java           — Static helpers called by generated code (divReverse, regexMatch, isTruthy)
 
   src/test/java/.../compiler/
     MALScriptParserTest.java          — 20 parser tests
@@ -53,12 +53,15 @@ All v2 classes live under `org.apache.skywalking.oap.meter.analyzer.v2.*` to avo
 | Component | Package / Name |
 |-----------|---------------|
 | Parser/Model/Generator | `org.apache.skywalking.oap.meter.analyzer.v2.compiler` |
-| Generated classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpr_<N>` |
+| Generated classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.{yamlName}_L{lineNo}_{ruleName}` |
+| Filter classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.{yamlName}_L{lineNo}_filter` |
 | Package holder | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder` |
 | Runtime helper | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalRuntimeHelper` |
 | Functional interface | `org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression` |
 
-`<N>` is a global `AtomicInteger` counter.
+Class names are built from `yamlSource` (file name + line number) and `classNameHint` (rule name or `filter`).
+Example: `vm_L25_cpu_total_percentage` (expression), `gateway_service_L33_filter` (filter).
+Falls back to `MalExpr_<N>` (global counter) when no hint is set.
 
 ## Javassist Constraints
 
@@ -96,7 +99,7 @@ public ExpressionMetadata metadata() {
 
 **Input with closure**: `metric.tag({ tags -> tags['k'] = 'v' })`
 
-One class is generated (`MalExpr_0`):
+One class is generated (e.g., `vm_L5_my_metric` when `yamlSource=vm.yaml:5`):
 - Method `_tag_apply(Map tags)` — contains `tags.put("k", "v"); return tags;`
 - Field `_tag` — typed as `TagFunction`, wired via `LambdaMetafactory` after class loading
 - `run()` body calls `metric.tag(this._tag)`

@@ -51,12 +51,14 @@ oap-server/analyzer/hierarchy/
 | Component | Package / Name |
 |-----------|---------------|
 | Parser/Model/Generator | `org.apache.skywalking.oap.server.core.config.v2.compiler` |
-| Generated classes | `org.apache.skywalking.oap.server.core.config.v2.compiler.hierarchy.rule.rt.HierarchyRule_<N>` |
-| Package holder | `org.apache.skywalking.oap.server.core.config.v2.compiler.hierarchy.rule.rt.HierarchyRulePackageHolder` |
+| Generated classes | `...hierarchy.rule.rt.{yamlName}_L{lineNo}_{ruleName}` |
+| Package holder | `...hierarchy.rule.rt.HierarchyRulePackageHolder` |
 | SPI provider | `org.apache.skywalking.oap.server.core.config.v2.compiler.CompiledHierarchyRuleProvider` |
 | Service type | `org.apache.skywalking.oap.server.core.query.type.Service` (in server-core) |
 
-`<N>` is a global `AtomicInteger` counter.
+Class names are built from `yamlSource` (file name + line number) and `classNameHint` (rule name).
+Example: `hierarchy_definition_L88_name` (rule `name` at line 88 of `hierarchy-definition.yml`).
+Falls back to `HierarchyRule_<N>` (global counter) when no hint is set.
 
 ## Code Generation Details
 

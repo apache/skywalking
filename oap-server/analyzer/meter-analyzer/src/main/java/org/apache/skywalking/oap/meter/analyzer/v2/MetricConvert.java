@@ -28,6 +28,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 
@@ -75,6 +76,7 @@ public class MetricConvert {
     public MetricConvert(MetricRuleConfig rule, MeterSystem service) {
         Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
         final String sourceName = rule.getSourceName();
+        final FilterExpression filter = buildFilter(rule);
         final List<? extends MetricRuleConfig.RuleConfig> rules = rule.getMetricsRules();
         this.analyzers = IntStream.range(0, rules.size()).mapToObj(
             i -> {
@@ -83,7 +85,7 @@ public class MetricConvert {
                     ? sourceName + ".yaml:" + i : null;
                 return buildAnalyzer(
                     formatMetricName(rule, r.getName()),
-                    rule.getFilter(),
+                    filter,
                     formatExp(rule.getExpPrefix(), rule.getExpSuffix(), r.getExp()),
                     service,
                     yamlSource
@@ -93,7 +95,7 @@ public class MetricConvert {
     }
 
     Analyzer buildAnalyzer(final String metricsName,
-                           final String filter,
+                           final FilterExpression filter,
                            final String exp,
                            final MeterSystem service,
                            final String yamlSource) {
@@ -104,6 +106,17 @@ public class MetricConvert {
             service,
             yamlSource
         );
+    }
+
+    private static FilterExpression buildFilter(final MetricRuleConfig rule) {
+        final String filterText = rule.getFilter();
+        if (Strings.isNullOrEmpty(filterText)) {
+            return null;
+        }
+        final String sourceName = rule.getSourceName();
+        final String yamlSource = sourceName != null
+            ? sourceName + ".yaml" : null;
+        return new FilterExpression(filterText, "filter", yamlSource);
     }
 
     private String formatExp(final String expPrefix, String expSuffix, String exp) {
