@@ -63,7 +63,7 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- Envoy proto types needed to compile envoy-als LAL rules with extraLogType -->
+        <!-- Envoy proto types needed to compile envoy-als LAL rules with inputType -->
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>receiver-proto</artifactId>

@@ -42,7 +42,6 @@ import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
@@ -181,7 +180,7 @@ class LALExpressionExecutionTest {
                     final String ruleName = rule.get("name");
                     final String dsl = rule.get("dsl");
                     final String ruleLayer = rule.get("layer");
-                    final String extraLogType = rule.get("extraLogType");
+                    final String inputType = rule.get("inputType");
                     if (ruleName == null || dsl == null) {
                         continue;
                     }
@@ -203,7 +202,7 @@ class LALExpressionExecutionTest {
                                 () -> executeAndAssert(
                                     generator, filterSpec,
                                     ruleName + " [" + idx + "]",
-                                    dsl, ruleLayer, extraLogType, input)
+                                    dsl, ruleLayer, inputType, input)
                             ));
                         }
                     } else {
@@ -214,7 +213,7 @@ class LALExpressionExecutionTest {
                             category + "/" + baseName + " | " + ruleName,
                             () -> executeAndAssert(
                                 generator, filterSpec, ruleName,
-                                dsl, ruleLayer, extraLogType, input)
+                                dsl, ruleLayer, inputType, input)
                         ));
                     }
                 }
@@ -229,15 +228,15 @@ class LALExpressionExecutionTest {
             final String ruleName,
             final String dsl,
             final String ruleLayer,
-            final String extraLogType,
+            final String inputType,
             final Map<String, Object> input) throws Exception {
-        if (extraLogType != null) {
-            generator.setExtraLogType(Class.forName(extraLogType));
+        if (inputType != null) {
+            generator.setInputType(Class.forName(inputType));
         } else if (ruleLayer != null) {
             // Resolve via LALSourceTypeProvider SPI
-            generator.setExtraLogType(spiExtraLogTypes().get(ruleLayer));
+            generator.setInputType(spiInputTypes().get(ruleLayer));
         } else {
-            generator.setExtraLogType(null);
+            generator.setInputType(null);
         }
         final LalExpression expr = generator.compile(dsl);
         final LogData.Builder logData = buildLogData(input);
@@ -301,10 +300,7 @@ class LALExpressionExecutionTest {
                         ruleName + ": timestamp mismatch");
                     break;
                 default:
-                    if (key.startsWith("sampledTrace.")) {
-                        assertSampledTrace(
-                            ruleName, key, expected, ctx);
-                    } else if (key.startsWith("tag.")) {
+                    if (key.startsWith("tag.")) {
                         final String tagKey = key.substring(4);
                         final List<KeyStringValuePair> tags =
                             ctx.log().getTags().getDataList();
@@ -319,83 +315,6 @@ class LALExpressionExecutionTest {
                     }
                     break;
             }
-        }
-    }
-
-    // ==================== SampledTrace assertions ====================
-
-    private static void assertSampledTrace(
-            final String ruleName,
-            final String key,
-            final String expected,
-            final ExecutionContext ctx) {
-        final SampledTraceBuilder builder =
-            ctx.sampledTraceBuilder();
-        assertTrue(builder != null,
-            ruleName + ": sampledTraceBuilder is null"
-                + " but expected " + key + "=" + expected);
-
-        final String field = key.substring("sampledTrace.".length());
-        switch (field) {
-            case "latency":
-                assertEquals(Long.parseLong(expected),
-                    builder.getLatency(),
-                    ruleName + ": sampledTrace.latency mismatch");
-                break;
-            case "uri":
-                assertEquals(expected, builder.getUri(),
-                    ruleName + ": sampledTrace.uri mismatch");
-                break;
-            case "reason":
-                assertEquals(expected,
-                    builder.getReason().name(),
-                    ruleName + ": sampledTrace.reason mismatch");
-                break;
-            case "processId":
-                assertEquals(expected, builder.getProcessId(),
-                    ruleName + ": sampledTrace.processId mismatch");
-                break;
-            case "destProcessId":
-                assertEquals(expected, builder.getDestProcessId(),
-                    ruleName + ": sampledTrace.destProcessId mismatch");
-                break;
-            case "detectPoint":
-                assertEquals(expected,
-                    builder.getDetectPoint().name(),
-                    ruleName + ": sampledTrace.detectPoint mismatch");
-                break;
-            case "componentId":
-                assertEquals(Integer.parseInt(expected),
-                    builder.getComponentId(),
-                    ruleName
-                        + ": sampledTrace.componentId mismatch");
-                break;
-            case "traceId":
-                assertEquals(expected, builder.getTraceId(),
-                    ruleName + ": sampledTrace.traceId mismatch");
-                break;
-            case "serviceName":
-                assertEquals(expected, builder.getServiceName(),
-                    ruleName
-                        + ": sampledTrace.serviceName mismatch");
-                break;
-            case "serviceInstanceName":
-                assertEquals(expected,
-                    builder.getServiceInstanceName(),
-                    ruleName
-                        + ": sampledTrace.serviceInstanceName"
-                        + " mismatch");
-                break;
-            case "timestamp":
-                assertEquals(Long.parseLong(expected),
-                    builder.getTimestamp(),
-                    ruleName
-                        + ": sampledTrace.timestamp mismatch");
-                break;
-            default:
-                throw new IllegalArgumentException(
-                    ruleName + ": unknown sampledTrace field: "
-                        + field);
         }
     }
 
@@ -484,12 +403,12 @@ class LALExpressionExecutionTest {
 
     private Map<String, Class<?>> spiTypes;
 
-    private Map<String, Class<?>> spiExtraLogTypes() {
+    private Map<String, Class<?>> spiInputTypes() {
         if (spiTypes == null) {
             spiTypes = new HashMap<>();
             for (final LALSourceTypeProvider p :
                     ServiceLoader.load(LALSourceTypeProvider.class)) {
-                spiTypes.put(p.layer().name(), p.extraLogType());
+                spiTypes.put(p.layer().name(), p.inputType());
             }
         }
         return spiTypes;

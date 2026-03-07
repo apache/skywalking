@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfi
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogSinkListenerFactory;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.RecordSinkListener;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.TrafficSinkListener;
+import org.apache.skywalking.oap.server.core.source.AbstractLog;
 import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -71,13 +72,19 @@ public class FilterSpec extends AbstractSpec {
 
     public FilterSpec(final ModuleManager moduleManager,
                       final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
+        this(moduleManager, moduleConfig, Log.class);
+    }
+
+    public FilterSpec(final ModuleManager moduleManager,
+                      final LogAnalyzerModuleConfig moduleConfig,
+                      final Class<?> outputType) throws ModuleStartException {
         super(moduleManager, moduleConfig);
 
         parsedType = new TypeReference<Map<String, Object>>() {
         };
 
         sinkListenerFactories = Arrays.asList(
-            new RecordSinkListener.Factory(moduleManager(), moduleConfig()),
+            new RecordSinkListener.Factory(moduleManager(), moduleConfig(), outputType),
             new TrafficSinkListener.Factory(moduleManager(), moduleConfig())
         );
 
@@ -183,12 +190,12 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
-        final Optional<AtomicReference<Log>> container = ctx.logContainer();
+        final Optional<AtomicReference<AbstractLog>> container = ctx.logContainer();
         if (container.isPresent()) {
             sinkListenerFactories.stream()
                      .map(LogSinkListenerFactory::create)
                      .filter(it -> it instanceof RecordSinkListener)
-                     .map(it -> it.parse(logData, extraLog))
+                     .map(it -> it.parse(logData, extraLog, ctx))
                      .map(it -> (RecordSinkListener) it)
                      .map(RecordSinkListener::getLog)
                      .findFirst()
@@ -196,7 +203,7 @@ public class FilterSpec extends AbstractSpec {
         } else {
             sinkListenerFactories.stream()
                      .map(LogSinkListenerFactory::create)
-                     .forEach(it -> it.parse(logData, extraLog).build());
+                     .forEach(it -> it.parse(logData, extraLog, ctx).build());
         }
     }
 

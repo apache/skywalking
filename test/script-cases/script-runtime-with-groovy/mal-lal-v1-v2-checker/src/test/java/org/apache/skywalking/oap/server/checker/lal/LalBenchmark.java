@@ -147,13 +147,13 @@ public class LalBenchmark {
             final Map<String, Object> ruleInput =
                 inputData != null ? inputData.get(name) : null;
 
-            // Resolve extraLogType via SPI
-            Class<?> extraLogType = null;
+            // Resolve inputType via SPI
+            Class<?> inputType = null;
             if (layer != null) {
-                extraLogType = spiExtraLogTypes().get(layer);
+                inputType = spiInputTypes().get(layer);
             }
 
-            rules.add(new RuleEntry(name, dsl, layer, extraLogType));
+            rules.add(new RuleEntry(name, dsl, layer, inputType));
             testLogs.add(buildLogData(ruleInput, dsl));
             extraLogs.add(buildExtraLog(ruleInput));
         }
@@ -181,8 +181,8 @@ public class LalBenchmark {
             v1Dsls.add(v1Dsl);
 
             final LALClassGenerator gen = new LALClassGenerator();
-            if (rule.extraLogType != null) {
-                gen.setExtraLogType(rule.extraLogType);
+            if (rule.inputType != null) {
+                gen.setInputType(rule.inputType);
             }
             v2Exprs.add(gen.compile(rule.dsl));
         }
@@ -208,8 +208,8 @@ public class LalBenchmark {
         for (final RuleEntry rule : rules) {
             try {
                 final LALClassGenerator gen = new LALClassGenerator();
-                if (rule.extraLogType != null) {
-                    gen.setExtraLogType(rule.extraLogType);
+                if (rule.inputType != null) {
+                    gen.setInputType(rule.inputType);
                 }
                 bh.consume(gen.compile(rule.dsl));
             } catch (Exception ignored) {
@@ -390,12 +390,12 @@ public class LalBenchmark {
 
     // ==================== SPI lookup ====================
 
-    private Map<String, Class<?>> spiExtraLogTypes() {
+    private Map<String, Class<?>> spiInputTypes() {
         if (spiTypes == null) {
             spiTypes = new HashMap<>();
             for (final LALSourceTypeProvider p :
                     ServiceLoader.load(LALSourceTypeProvider.class)) {
-                spiTypes.put(p.layer().name(), p.extraLogType());
+                spiTypes.put(p.layer().name(), p.inputType());
             }
         }
         return spiTypes;
@@ -478,14 +478,14 @@ public class LalBenchmark {
         final String name;
         final String dsl;
         final String layer;
-        final Class<?> extraLogType;
+        final Class<?> inputType;
 
         RuleEntry(final String name, final String dsl,
-                  final String layer, final Class<?> extraLogType) {
+                  final String layer, final Class<?> inputType) {
             this.name = name;
             this.dsl = dsl;
             this.layer = layer;
-            this.extraLogType = extraLogType;
+            this.inputType = inputType;
         }
     }
 

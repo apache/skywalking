@@ -37,8 +37,6 @@ import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
@@ -46,6 +44,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
@@ -55,13 +54,9 @@ import org.junit.jupiter.api.TestFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -99,21 +94,24 @@ class LalComparisonTest {
                 if (rule.inputs.isEmpty()) {
                     final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression expr = v2Expr;
                     final String err = v2CompileError;
+                    final boolean v2Only = rule.outputType != null;
                     tests.add(DynamicTest.dynamicTest(
                         yamlFile + " | " + rule.name,
-                        () -> compareExecution(rule.name, rule.dsl, null, expr, err)
+                        () -> compareExecution(rule.name, rule.dsl,
+                            null, expr, err, v2Only)
                     ));
                 } else {
                     for (int i = 0; i < rule.inputs.size(); i++) {
                         final int idx = i;
                         final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression expr = v2Expr;
                         final String err = v2CompileError;
+                        final boolean v2Only = rule.outputType != null;
                         final String testName = rule.inputs.size() == 1
                             ? rule.name : rule.name + " [" + i + "]";
                         tests.add(DynamicTest.dynamicTest(
                             yamlFile + " | " + testName,
                             () -> compareExecution(testName, rule.dsl,
-                                rule.inputs.get(idx), expr, err)
+                                rule.inputs.get(idx), expr, err, v2Only)
                         ));
                     }
                 }
@@ -126,12 +124,16 @@ class LalComparisonTest {
     private org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression compileV2(
             final LalRule rule) throws Exception {
         final LALClassGenerator generator = new LALClassGenerator();
-        if (rule.extraLogType != null) {
-            generator.setExtraLogType(Class.forName(rule.extraLogType));
+        if (rule.inputType != null) {
+            generator.setInputType(Class.forName(rule.inputType));
         } else if (rule.layer != null) {
-            generator.setExtraLogType(spiExtraLogTypes().get(rule.layer));
+            generator.setInputType(spiInputTypes().get(rule.layer));
         } else {
-            generator.setExtraLogType(null);
+            generator.setInputType(null);
+        }
+        final Class<?> resolvedOutput = resolveOutputType(rule.outputType);
+        if (resolvedOutput != null) {
+            generator.setOutputType(resolvedOutput);
         }
         if (rule.sourceFile != null) {
             final String baseName = rule.sourceFile.getName()
@@ -151,36 +153,39 @@ class LalComparisonTest {
             final String testName, final String dsl,
             final Map<String, Object> inputData,
             final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression v2Expr,
-            final String v2CompileError) throws Exception {
+            final String v2CompileError,
+            final boolean v2Only) throws Exception {
 
         final LogData testLog = buildLogData(inputData, dsl);
 
         // Build proto extraLog from input data if available
         final Message extraLog = buildExtraLog(inputData);
 
-        // ---- V1: Groovy path ----
-        // v1 uses original packages: org.apache.skywalking.oap.log.analyzer.dsl.*
-        final ModuleManager v1Manager = buildMockModuleManager(true);
-        final org.apache.skywalking.oap.log.analyzer.dsl.Binding v1Ctx;
-        try {
-            final org.apache.skywalking.oap.log.analyzer.dsl.DSL v1Dsl =
-                org.apache.skywalking.oap.log.analyzer.dsl.DSL.of(
-                    v1Manager,
-                    new org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig(),
-                    dsl);
-            disableSinkListeners(v1Dsl);
+        // ---- V1: Groovy path (skipped for v2-only rules like outputType) ----
+        org.apache.skywalking.oap.log.analyzer.dsl.Binding v1Ctx = null;
+        if (!v2Only) {
+            // v1 uses original packages: org.apache.skywalking.oap.log.analyzer.dsl.*
+            final ModuleManager v1Manager = buildMockModuleManager(true);
+            try {
+                final org.apache.skywalking.oap.log.analyzer.dsl.DSL v1Dsl =
+                    org.apache.skywalking.oap.log.analyzer.dsl.DSL.of(
+                        v1Manager,
+                        new org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig(),
+                        dsl);
+                disableSinkListeners(v1Dsl);
 
-            v1Ctx = new org.apache.skywalking.oap.log.analyzer.dsl.Binding().log(testLog);
-            if (extraLog != null) {
-                v1Ctx.extraLog(extraLog);
+                v1Ctx = new org.apache.skywalking.oap.log.analyzer.dsl.Binding().log(testLog);
+                if (extraLog != null) {
+                    v1Ctx.extraLog(extraLog);
+                }
+                v1Dsl.bind(v1Ctx);
+                v1Dsl.evaluate();
+            } catch (Exception e) {
+                final Throwable cause = e.getCause() != null ? e.getCause() : e;
+                fail(testName + ": v1 (Groovy) failed — "
+                    + cause.getClass().getSimpleName() + ": " + cause.getMessage());
+                return;
             }
-            v1Dsl.bind(v1Ctx);
-            v1Dsl.evaluate();
-        } catch (Exception e) {
-            final Throwable cause = e.getCause() != null ? e.getCause() : e;
-            fail(testName + ": v1 (Groovy) failed — "
-                + cause.getClass().getSimpleName() + ": " + cause.getMessage());
-            return;
         }
 
         // ---- V2: ANTLR4 + Javassist path ----
@@ -209,95 +214,33 @@ class LalComparisonTest {
 
         // ---- Compare ----
         if (v2Ctx == null) {
-            fail(testName + ": v2 execution failed but v1 succeeded — " + v2Error);
+            final String context = v2Only ? "v2 execution failed" : "v2 execution failed but v1 succeeded";
+            fail(testName + ": " + context + " — " + v2Error);
             return;
         }
 
-        // Compare binding state
-        assertEquals(v1Ctx.shouldAbort(), v2Ctx.shouldAbort(),
-            testName + ": shouldAbort mismatch");
-        assertEquals(v1Ctx.shouldSave(), v2Ctx.shouldSave(),
-            testName + ": shouldSave mismatch");
+        if (v1Ctx != null) {
+            // Compare binding state
+            assertEquals(v1Ctx.shouldAbort(), v2Ctx.shouldAbort(),
+                testName + ": shouldAbort mismatch");
+            assertEquals(v1Ctx.shouldSave(), v2Ctx.shouldSave(),
+                testName + ": shouldSave mismatch");
 
-        final LogData.Builder v1Log = v1Ctx.log();
-        final LogData.Builder v2Log = v2Ctx.log();
+            final LogData.Builder v1Log = v1Ctx.log();
+            final LogData.Builder v2Log = v2Ctx.log();
 
-        assertEquals(v1Log.getService(), v2Log.getService(),
-            testName + ": service mismatch");
-        assertEquals(v1Log.getServiceInstance(), v2Log.getServiceInstance(),
-            testName + ": serviceInstance mismatch");
-        assertEquals(v1Log.getEndpoint(), v2Log.getEndpoint(),
-            testName + ": endpoint mismatch");
-        assertEquals(v1Log.getLayer(), v2Log.getLayer(),
-            testName + ": layer mismatch");
-        assertEquals(v1Log.getTimestamp(), v2Log.getTimestamp(),
-            testName + ": timestamp mismatch");
-        assertEquals(v1Log.getTags(), v2Log.getTags(),
-            testName + ": tags mismatch");
-
-        // Compare sampledTrace builder state
-        // v1 Groovy Binding throws MissingPropertyException if sampledTrace was never set
-        SampledTraceBuilder v1St = null;
-        try {
-            v1St = v1Ctx.sampledTraceBuilder();
-        } catch (Exception ignored) {
-            // Not set — rule has no sampledTrace block
-        }
-        final SampledTraceBuilder v2St = v2Ctx.sampledTraceBuilder();
-        if (v1St != null || v2St != null) {
-            if (v1St == null) {
-                fail(testName + ": v1 has no sampledTrace but v2 does");
-            }
-            if (v2St == null) {
-                fail(testName + ": v2 has no sampledTrace but v1 does");
-            }
-            // Fields set by prepareSampledTrace() from log context
-            assertEquals(v1St.getTraceId(), v2St.getTraceId(),
-                testName + ": sampledTrace.traceId mismatch");
-            assertEquals(v1St.getServiceName(), v2St.getServiceName(),
-                testName + ": sampledTrace.serviceName mismatch");
-            assertEquals(v1St.getServiceInstanceName(), v2St.getServiceInstanceName(),
-                testName + ": sampledTrace.serviceInstanceName mismatch");
-            assertEquals(v1St.getLayer(), v2St.getLayer(),
-                testName + ": sampledTrace.layer mismatch");
-            assertEquals(v1St.getTimestamp(), v2St.getTimestamp(),
-                testName + ": sampledTrace.timestamp mismatch");
-
-            // Verify traceId came from the log (not empty/fabricated)
-            assertEquals(testLog.getTraceContext().getTraceId(),
-                v2St.getTraceId(),
-                testName + ": sampledTrace.traceId should match log traceId");
-
-            // Fields set by DSL closure body
-            assertEquals(v1St.getLatency(), v2St.getLatency(),
-                testName + ": sampledTrace.latency mismatch");
-            assertEquals(v1St.getUri(), v2St.getUri(),
-                testName + ": sampledTrace.uri mismatch");
-            assertEquals(v1St.getReason(), v2St.getReason(),
-                testName + ": sampledTrace.reason mismatch");
-            assertEquals(v1St.getProcessId(), v2St.getProcessId(),
-                testName + ": sampledTrace.processId mismatch");
-            assertEquals(v1St.getDestProcessId(), v2St.getDestProcessId(),
-                testName + ": sampledTrace.destProcessId mismatch");
-            assertEquals(v1St.getDetectPoint(), v2St.getDetectPoint(),
-                testName + ": sampledTrace.detectPoint mismatch");
-            assertEquals(v1St.getComponentId(), v2St.getComponentId(),
-                testName + ": sampledTrace.componentId mismatch");
-
-            // Verify builder.toRecord() produces valid Record for RecordStreamProcessor
-            // (submitSampledTrace already called validate + toRecord + RecordStreamProcessor.in
-            // during execution; this explicitly confirms toRecord consistency)
-            final Record v1Record = v1St.toRecord();
-            final Record v2Record = v2St.toRecord();
-            assertNotNull(v1Record, testName + ": v1 toRecord() returned null");
-            assertNotNull(v2Record, testName + ": v2 toRecord() returned null");
-            assertEquals(v1Record.getClass(), v2Record.getClass(),
-                testName + ": toRecord() type mismatch");
-
-            // Verify v2 actually dispatched the trace via sourceReceiver.receive()
-            final SourceReceiver v2Receiver = v2Manager.find(CoreModule.NAME)
-                .provider().getService(SourceReceiver.class);
-            verify(v2Receiver, atLeastOnce()).receive(any());
+            assertEquals(v1Log.getService(), v2Log.getService(),
+                testName + ": service mismatch");
+            assertEquals(v1Log.getServiceInstance(), v2Log.getServiceInstance(),
+                testName + ": serviceInstance mismatch");
+            assertEquals(v1Log.getEndpoint(), v2Log.getEndpoint(),
+                testName + ": endpoint mismatch");
+            assertEquals(v1Log.getLayer(), v2Log.getLayer(),
+                testName + ": layer mismatch");
+            assertEquals(v1Log.getTimestamp(), v2Log.getTimestamp(),
+                testName + ": timestamp mismatch");
+            assertEquals(v1Log.getTags(), v2Log.getTags(),
+                testName + ": tags mismatch");
         }
 
         // ---- Validate expected section ----
@@ -306,6 +249,7 @@ class LalComparisonTest {
             final Map<String, Object> expect =
                 (Map<String, Object>) inputData.get("expect");
             if (expect != null) {
+                final LogData.Builder v2Log = v2Ctx.log();
                 validateExpected(testName, v2Ctx, v2Log, expect);
             }
         }
@@ -358,71 +302,16 @@ class LalComparisonTest {
                             .findFirst().orElse("");
                         assertEquals(expected, actual,
                             ruleName + ": expect." + key + " mismatch");
-                    } else if (key.startsWith("sampledTrace.")) {
-                        final String field = key.substring("sampledTrace.".length());
-                        final SampledTraceBuilder st = ctx.sampledTraceBuilder();
-                        assertNotNull(st, ruleName + ": expect sampledTrace but builder is null");
-                        validateSampledTraceField(ruleName, field, expected, st);
+                    } else if (key.startsWith("outputField.")) {
+                        final String fieldName = key.substring("outputField.".length());
+                        final Map<String, Object> outputFields = ctx.outputFields();
+                        final Object actual = outputFields != null
+                            ? outputFields.get(fieldName) : null;
+                        assertEquals(expected, String.valueOf(actual),
+                            ruleName + ": expect." + key + " mismatch");
                     }
                     break;
             }
-        }
-    }
-
-    private void validateSampledTraceField(final String ruleName,
-                                           final String field, final String expected,
-                                           final SampledTraceBuilder st) {
-        switch (field) {
-            case "traceId":
-                assertEquals(expected, st.getTraceId(),
-                    ruleName + ": expect.sampledTrace.traceId mismatch");
-                break;
-            case "serviceName":
-                assertEquals(expected, st.getServiceName(),
-                    ruleName + ": expect.sampledTrace.serviceName mismatch");
-                break;
-            case "serviceInstanceName":
-                assertEquals(expected, st.getServiceInstanceName(),
-                    ruleName + ": expect.sampledTrace.serviceInstanceName mismatch");
-                break;
-            case "timestamp":
-                assertEquals(Long.parseLong(expected), st.getTimestamp(),
-                    ruleName + ": expect.sampledTrace.timestamp mismatch");
-                break;
-            case "latency":
-                assertEquals(Integer.parseInt(expected), st.getLatency(),
-                    ruleName + ": expect.sampledTrace.latency mismatch");
-                break;
-            case "uri":
-                assertEquals(expected, st.getUri(),
-                    ruleName + ": expect.sampledTrace.uri mismatch");
-                break;
-            case "reason":
-                assertNotNull(st.getReason(),
-                    ruleName + ": expect.sampledTrace.reason is null");
-                assertEquals(expected, st.getReason().name(),
-                    ruleName + ": expect.sampledTrace.reason mismatch");
-                break;
-            case "processId":
-                assertEquals(expected, st.getProcessId(),
-                    ruleName + ": expect.sampledTrace.processId mismatch");
-                break;
-            case "destProcessId":
-                assertEquals(expected, st.getDestProcessId(),
-                    ruleName + ": expect.sampledTrace.destProcessId mismatch");
-                break;
-            case "detectPoint":
-                assertNotNull(st.getDetectPoint(),
-                    ruleName + ": expect.sampledTrace.detectPoint is null");
-                assertEquals(expected, st.getDetectPoint().name(),
-                    ruleName + ": expect.sampledTrace.detectPoint mismatch");
-                break;
-            case "componentId":
-                assertEquals(Integer.parseInt(expected), st.getComponentId(),
-                    ruleName + ": expect.sampledTrace.componentId mismatch");
-                break;
-            default:
-                break;
         }
     }
 
@@ -671,7 +560,8 @@ class LalComparisonTest {
                 if (name == null || dslStr == null) {
                     continue;
                 }
-                final String extraLogType = rule.get("extraLogType");
+                final String inputType = rule.get("inputType");
+                final String outputType = rule.get("outputType");
                 final String layer = rule.get("layer");
                 final int count = nameCount.merge(name, 1, Integer::sum);
                 final int lineNo = findRuleLine(lines, name, count);
@@ -689,7 +579,8 @@ class LalComparisonTest {
                     inputs = Collections.emptyList();
                 }
                 lalRules.add(new LalRule(
-                    name, dslStr, extraLogType, layer, inputs, file, lineNo));
+                    name, dslStr, inputType, outputType, layer,
+                    inputs, file, lineNo));
             }
 
             if (!lalRules.isEmpty()) {
@@ -763,15 +654,41 @@ class LalComparisonTest {
 
     private Map<String, Class<?>> spiTypes;
 
-    private Map<String, Class<?>> spiExtraLogTypes() {
+    private Map<String, Class<?>> spiInputTypes() {
         if (spiTypes == null) {
             spiTypes = new HashMap<>();
             for (final LALSourceTypeProvider p :
                     ServiceLoader.load(LALSourceTypeProvider.class)) {
-                spiTypes.put(p.layer().name(), p.extraLogType());
+                spiTypes.put(p.layer().name(), p.inputType());
             }
         }
         return spiTypes;
+    }
+
+    private Map<String, Class<?>> outputBuilderNames;
+
+    private Map<String, Class<?>> outputBuilderNameMap() {
+        if (outputBuilderNames == null) {
+            outputBuilderNames = new HashMap<>();
+            for (final LALOutputBuilder builder :
+                    ServiceLoader.load(LALOutputBuilder.class)) {
+                outputBuilderNames.put(builder.name(), builder.getClass());
+            }
+        }
+        return outputBuilderNames;
+    }
+
+    private Class<?> resolveOutputType(final String outputType) throws ClassNotFoundException {
+        if (outputType == null) {
+            return null;
+        }
+        if (!outputType.contains(".")) {
+            final Class<?> byName = outputBuilderNameMap().get(outputType);
+            if (byName != null) {
+                return byName;
+            }
+        }
+        return Class.forName(outputType);
     }
 
     // ==================== Inner classes ====================
@@ -779,19 +696,22 @@ class LalComparisonTest {
     private static class LalRule {
         final String name;
         final String dsl;
-        final String extraLogType;
+        final String inputType;
+        final String outputType;
         final String layer;
         final List<Map<String, Object>> inputs;
         final File sourceFile;
         final int lineNo;
 
         LalRule(final String name, final String dsl,
-                final String extraLogType, final String layer,
+                final String inputType, final String outputType,
+                final String layer,
                 final List<Map<String, Object>> inputs,
                 final File sourceFile, final int lineNo) {
             this.name = name;
             this.dsl = dsl;
-            this.extraLogType = extraLogType;
+            this.inputType = inputType;
+            this.outputType = outputType;
             this.layer = layer;
             this.inputs = inputs;
             this.sourceFile = sourceFile;

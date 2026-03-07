@@ -33,7 +33,7 @@ public class EnvoyHTTPLALSourceTypeProvider implements LALSourceTypeProvider {
     }
 
     @Override
-    public Class<?> extraLogType() {
+    public Class<?> inputType() {
         return HTTPAccessLogEntry.class;
     }
 }

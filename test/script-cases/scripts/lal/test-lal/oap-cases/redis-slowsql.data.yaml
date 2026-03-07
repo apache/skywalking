@@ -17,10 +17,15 @@
 
 redis-slowsql:
   body-type: json
-  body: '{"layer":"REDIS","service":"redis-svc","time":"1609459200000","id":"slow-redis-1","statement":"GET key","query_time":200}'
+  body: '{"layer":"REDIS","service":"redis::test-cache","time":"1609459200000","id":"slow-003","statement":"KEYS *","query_time":2000}'
   tags:
     LOG_KIND: SLOW_SQL
   expect:
-    service: redis-svc
+    save: true
+    abort: false
     layer: REDIS
-    timestamp: 1609459200000
+    service: redis::test-cache
+    timestamp: "1609459200000"
+    outputField.id: slow-003
+    outputField.statement: "KEYS *"
+    outputField.latency: 2000

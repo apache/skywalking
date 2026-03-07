@@ -21,8 +21,9 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -31,15 +32,20 @@ import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledSlowTr
 import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus4xxTraceRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus5xxTraceRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.ISource;
+import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.ProcessRelation;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 
-@RequiredArgsConstructor
-public class SampledTraceBuilder {
-    private final NamingControl namingControl;
+@Slf4j
+public class SampledTraceBuilder implements LALOutputBuilder {
+    public static final String NAME = "SampledTrace";
+
+    private NamingControl namingControl;
 
     @Setter
     @Getter
@@ -79,6 +85,40 @@ public class SampledTraceBuilder {
     @Setter
     @Getter
     private long timestamp;
+
+    public SampledTraceBuilder() {
+    }
+
+    public SampledTraceBuilder(final NamingControl namingControl) {
+        this.namingControl = namingControl;
+    }
+
+    @Override
+    public String name() {
+        return NAME;
+    }
+
+    @Override
+    public void init(final LogData logData, final NamingControl namingControl) {
+        this.namingControl = namingControl;
+        this.traceId = logData.getTraceContext().getTraceId();
+        this.serviceName = logData.getService();
+        this.serviceInstanceName = logData.getServiceInstance();
+        this.timestamp = logData.getTimestamp();
+    }
+
+    @Override
+    public void complete(final SourceReceiver sourceReceiver) {
+        if (Strings.isNullOrEmpty(traceId) || reason == null
+                || Strings.isNullOrEmpty(processId) || Strings.isNullOrEmpty(destProcessId)
+                || componentId <= 0 || detectPoint == null || timestamp <= 0) {
+            return;
+        }
+        validate();
+        final Record record = toRecord();
+        RecordStreamProcessor.getInstance().in(record);
+        sourceReceiver.receive(toEntity());
+    }
 
     public void validate() {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(traceId), "traceId can't be empty");

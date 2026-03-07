@@ -22,15 +22,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.source.AbstractLog;
+import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
@@ -52,26 +55,71 @@ import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.to
 
 /**
  * RecordSinkListener forwards the log data to the persistence layer with the query required conditions.
+ *
+ * <p>Supports two output paths based on the {@code outputType}:
+ * <ul>
+ *   <li>{@link AbstractLog} subclass — standard log record path: common fields populated from
+ *       LogData, subclass-specific fields via {@link AbstractLog#prepare} and output field assignments</li>
+ *   <li>{@link LALOutputBuilder} implementation — builder path: {@code init()} pre-populates from
+ *       LogData, output fields applied via reflection, {@code complete()} dispatches final source(s)</li>
+ * </ul>
  */
-@RequiredArgsConstructor
 public class RecordSinkListener implements LogSinkListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordSinkListener.class);
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
+    private final Class<?> outputType;
+    private final boolean isBuilderMode;
+
     @Getter
-    private final Log log = new Log();
+    private AbstractLog log;
+    private LALOutputBuilder builder;
+
+    RecordSinkListener(final SourceReceiver sourceReceiver,
+                       final NamingControl namingControl,
+                       final List<String> searchableTagKeys,
+                       final Class<?> outputType) {
+        this.sourceReceiver = sourceReceiver;
+        this.namingControl = namingControl;
+        this.searchableTagKeys = searchableTagKeys;
+        this.outputType = outputType;
+        this.isBuilderMode = LALOutputBuilder.class.isAssignableFrom(outputType);
+    }
 
     @Override
     public void build() {
-        sourceReceiver.receive(log);
-        addAutocompleteTags();
+        if (isBuilderMode) {
+            if (builder != null) {
+                builder.complete(sourceReceiver);
+            }
+        } else {
+            sourceReceiver.receive(log);
+            addAutocompleteTags();
+        }
     }
 
     @Override
     @SneakyThrows
     public LogSinkListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
+        if (isBuilderMode) {
+            return parseBuilder(logData);
+        }
+        return parseAbstractLog(logData, extraLog);
+    }
+
+    @SneakyThrows
+    private LogSinkListener parseBuilder(final LogData.Builder logData) {
+        builder = (LALOutputBuilder) outputType.getDeclaredConstructor().newInstance();
+        builder.init(logData.build(), namingControl);
+        return this;
+    }
+
+    @SneakyThrows
+    private LogSinkListener parseAbstractLog(final LogData.Builder logData,
+                                              final Message extraLog) {
+        log = createOutputSource();
         LogDataBody body = logData.getBody();
         log.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
         // timestamp
@@ -121,7 +169,94 @@ public class RecordSinkListener implements LogSinkListener {
             log.setTagsRawData(logData.getTags().toByteArray());
         }
         log.getTags().addAll(appendSearchableTags(logData));
+
+        // Let the output source class populate its custom fields
+        log.prepare(logData, namingControl);
+
         return this;
+    }
+
+    @Override
+    @SneakyThrows
+    public LogSinkListener parse(final LogData.Builder logData,
+                                 final Message extraLog,
+                                 final ExecutionContext ctx) {
+        parse(logData, extraLog);
+        if (ctx != null) {
+            final Object target = isBuilderMode ? builder : log;
+            applyOutputFields(ctx.outputFields(), target);
+        }
+        return this;
+    }
+
+    private void applyOutputFields(final Map<String, Object> outputFields, final Object target) {
+        if (outputFields == null || outputFields.isEmpty() || target == null) {
+            return;
+        }
+        for (final Map.Entry<String, Object> entry : outputFields.entrySet()) {
+            final String fieldName = entry.getKey();
+            final Object value = entry.getValue();
+            if (value == null) {
+                continue;
+            }
+            final String setterName = "set" + Character.toUpperCase(fieldName.charAt(0))
+                + fieldName.substring(1);
+            try {
+                java.lang.reflect.Method setter = findSetter(target.getClass(), setterName);
+                if (setter != null) {
+                    setter.setAccessible(true);
+                    setter.invoke(target, convertValue(value, setter.getParameterTypes()[0]));
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to set output field '{}' on {}: {}",
+                    fieldName, target.getClass().getSimpleName(), e.getMessage());
+            }
+        }
+    }
+
+    static java.lang.reflect.Method findSetter(final Class<?> clazz, final String name) {
+        for (Class<?> c = clazz; c != null; c = c.getSuperclass()) {
+            for (final java.lang.reflect.Method m : c.getDeclaredMethods()) {
+                if (m.getName().equals(name) && m.getParameterCount() == 1) {
+                    return m;
+                }
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    static Object convertValue(final Object value, final Class<?> targetType) {
+        if (targetType.isInstance(value)) {
+            return value;
+        }
+        final String str = String.valueOf(value);
+        if (targetType == long.class || targetType == Long.class) {
+            return Long.parseLong(str);
+        }
+        if (targetType == int.class || targetType == Integer.class) {
+            return Integer.parseInt(str);
+        }
+        if (targetType == double.class || targetType == Double.class) {
+            return Double.parseDouble(str);
+        }
+        if (targetType == boolean.class || targetType == Boolean.class) {
+            return Boolean.parseBoolean(str);
+        }
+        if (targetType.isEnum()) {
+            return Enum.valueOf((Class<Enum>) targetType, str);
+        }
+        return str;
+    }
+
+    @SuppressWarnings("unchecked")
+    private AbstractLog createOutputSource() {
+        try {
+            return ((Class<? extends AbstractLog>) outputType).getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                "Failed to create output source instance: " + outputType.getName(), e);
+        }
     }
 
     private Collection<Tag> appendSearchableTags(LogData.Builder logData) {
@@ -156,8 +291,15 @@ public class RecordSinkListener implements LogSinkListener {
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
         private final List<String> searchableTagKeys;
+        private final Class<?> outputType;
 
         public Factory(ModuleManager moduleManager, LogAnalyzerModuleConfig moduleConfig) {
+            this(moduleManager, moduleConfig, Log.class);
+        }
+
+        public Factory(ModuleManager moduleManager,
+                       LogAnalyzerModuleConfig moduleConfig,
+                       Class<?> outputType) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME)
                                                .provider()
                                                .getService(SourceReceiver.class);
@@ -168,11 +310,12 @@ public class RecordSinkListener implements LogSinkListener {
                                                        .provider()
                                                        .getService(ConfigService.class);
             this.searchableTagKeys = Arrays.asList(configService.getSearchableLogsTags().split(Const.COMMA));
+            this.outputType = outputType;
         }
 
         @Override
         public RecordSinkListener create() {
-            return new RecordSinkListener(sourceReceiver, namingControl, searchableTagKeys);
+            return new RecordSinkListener(sourceReceiver, namingControl, searchableTagKeys, outputType);
         }
     }
 }

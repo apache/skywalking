@@ -19,16 +19,21 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
+import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 
-@RequiredArgsConstructor
-public class DatabaseSlowStatementBuilder {
-    private final NamingControl namingControl;
+public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
+    public static final String NAME = "SlowSQL";
+
+    private NamingControl namingControl;
 
     @Getter
     @Setter
@@ -54,6 +59,36 @@ public class DatabaseSlowStatementBuilder {
     @Getter
     @Setter
     private long timestamp;
+
+    public DatabaseSlowStatementBuilder() {
+    }
+
+    public DatabaseSlowStatementBuilder(final NamingControl namingControl) {
+        this.namingControl = namingControl;
+    }
+
+    @Override
+    public String name() {
+        return NAME;
+    }
+
+    @Override
+    public void init(final LogData logData, final NamingControl namingControl) {
+        this.namingControl = namingControl;
+        this.serviceName = logData.getService();
+        this.traceId = logData.getTraceContext().getTraceId();
+        this.timestamp = logData.getTimestamp();
+        this.timeBucket = TimeBucket.getTimeBucket(logData.getTimestamp(), DownSampling.Second);
+    }
+
+    @Override
+    public void complete(final SourceReceiver sourceReceiver) {
+        if (id == null || latency < 1 || statement == null) {
+            return;
+        }
+        prepare();
+        sourceReceiver.receive(toDatabaseSlowStatement());
+    }
 
     public void prepare() {
         this.serviceName = namingControl.formatServiceName(serviceName);

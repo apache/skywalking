@@ -114,6 +114,21 @@ public final class LALScriptModel {
         }
     }
 
+    @Getter
+    public static final class OutputFieldAssignment implements ExtractorStatement, FilterStatement {
+        private final String fieldName;
+        private final ValueAccess value;
+        private final String castType;
+
+        public OutputFieldAssignment(final String fieldName,
+                                     final ValueAccess value,
+                                     final String castType) {
+            this.fieldName = fieldName;
+            this.value = value;
+            this.castType = castType;
+        }
+    }
+
     public enum FieldType {
         SERVICE, INSTANCE, ENDPOINT, LAYER,
         TRACE_ID, SEGMENT_ID, SPAN_ID, TIMESTAMP
@@ -161,59 +176,6 @@ public final class LALScriptModel {
             this.value = value;
             this.valueCast = valueCast;
         }
-    }
-
-    @Getter
-    public static final class SlowSqlBlock implements ExtractorStatement, FilterStatement {
-        private final ValueAccess id;
-        private final String idCast;
-        private final ValueAccess statement;
-        private final String statementCast;
-        private final ValueAccess latency;
-        private final String latencyCast;
-
-        public SlowSqlBlock(final ValueAccess id, final String idCast,
-                            final ValueAccess statement, final String statementCast,
-                            final ValueAccess latency, final String latencyCast) {
-            this.id = id;
-            this.idCast = idCast;
-            this.statement = statement;
-            this.statementCast = statementCast;
-            this.latency = latency;
-            this.latencyCast = latencyCast;
-        }
-    }
-
-    @Getter
-    public static final class SampledTraceBlock implements ExtractorStatement, FilterStatement {
-        private final List<SampledTraceStatement> statements;
-
-        public SampledTraceBlock(final List<SampledTraceStatement> statements) {
-            this.statements = Collections.unmodifiableList(statements);
-        }
-    }
-
-    public interface SampledTraceStatement {
-    }
-
-    @Getter
-    public static final class SampledTraceField implements SampledTraceStatement, FilterStatement {
-        private final SampledTraceFieldType fieldType;
-        private final ValueAccess value;
-        private final String castType;
-
-        public SampledTraceField(final SampledTraceFieldType fieldType,
-                                 final ValueAccess value,
-                                 final String castType) {
-            this.fieldType = fieldType;
-            this.value = value;
-            this.castType = castType;
-        }
-    }
-
-    public enum SampledTraceFieldType {
-        LATENCY, URI, REASON, PROCESS_ID, DEST_PROCESS_ID,
-        DETECT_POINT, COMPONENT_ID, REPORT_SERVICE
     }
 
     // ==================== Sink block ====================
@@ -295,7 +257,7 @@ public final class LALScriptModel {
 
     @Getter
     public static final class IfBlock implements FilterStatement, ExtractorStatement,
-            SinkStatement, SampledTraceStatement, SamplerContent {
+            SinkStatement, SamplerContent {
         private final Condition condition;
         private final List<FilterStatement> thenBranch;
         private final List<FilterStatement> elseBranch;
