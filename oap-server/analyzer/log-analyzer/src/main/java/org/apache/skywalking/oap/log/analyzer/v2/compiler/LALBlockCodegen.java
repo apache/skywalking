@@ -356,10 +356,11 @@ final class LALBlockCodegen {
         sb.append("  _o.").append(setterName).append("(");
         final String effectiveCast = resolveEffectiveCast(paramType, field.getCastType());
         if (paramType.isEnum()) {
-            // Auto-convert String to enum: EnumType.valueOf(stringValue)
-            sb.append(paramType.getName()).append(".valueOf(");
+            // Auto-convert String to enum: EnumType.valueOf(stringValue.toUpperCase())
+            // toUpperCase() handles case-insensitive matching (e.g., "slow" → "SLOW")
+            sb.append(paramType.getName()).append(".valueOf(((String) ");
             generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
-            sb.append(")");
+            sb.append(").toUpperCase())");
         } else {
             generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
         }
