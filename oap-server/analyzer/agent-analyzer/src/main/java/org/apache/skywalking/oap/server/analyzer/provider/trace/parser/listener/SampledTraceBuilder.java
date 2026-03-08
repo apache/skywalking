@@ -111,6 +111,9 @@ public class SampledTraceBuilder implements LALOutputBuilder {
         if (this.serviceInstanceName == null) {
             this.serviceInstanceName = logData.getServiceInstance();
         }
+        if (this.layer == null && !logData.getLayer().isEmpty()) {
+            this.layer = logData.getLayer();
+        }
         if (this.timestamp == 0) {
             this.timestamp = logData.getTimestamp();
         }
