@@ -24,8 +24,6 @@ import com.google.protobuf.TextFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
@@ -39,8 +37,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfi
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogSinkListenerFactory;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.RecordSinkListener;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.TrafficSinkListener;
-import org.apache.skywalking.oap.server.core.source.AbstractLog;
-import org.apache.skywalking.oap.server.core.source.Log;
+import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
@@ -72,19 +69,13 @@ public class FilterSpec extends AbstractSpec {
 
     public FilterSpec(final ModuleManager moduleManager,
                       final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
-        this(moduleManager, moduleConfig, Log.class);
-    }
-
-    public FilterSpec(final ModuleManager moduleManager,
-                      final LogAnalyzerModuleConfig moduleConfig,
-                      final Class<?> outputType) throws ModuleStartException {
         super(moduleManager, moduleConfig);
 
         parsedType = new TypeReference<Map<String, Object>>() {
         };
 
         sinkListenerFactories = Arrays.asList(
-            new RecordSinkListener.Factory(moduleManager(), moduleConfig(), outputType),
+            new RecordSinkListener.Factory(moduleManager(), moduleConfig()),
             new TrafficSinkListener.Factory(moduleManager(), moduleConfig())
         );
 
@@ -190,16 +181,17 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
-        final Optional<AtomicReference<AbstractLog>> container = ctx.logContainer();
-        if (container.isPresent()) {
+        if (ctx.shouldCaptureLog()) {
             sinkListenerFactories.stream()
                      .map(LogSinkListenerFactory::create)
                      .filter(it -> it instanceof RecordSinkListener)
                      .map(it -> it.parse(logData, extraLog, ctx))
                      .map(it -> (RecordSinkListener) it)
-                     .map(RecordSinkListener::getLog)
+                     .map(RecordSinkListener::getBuilder)
+                     .filter(it -> it instanceof LogBuilder)
+                     .map(it -> ((LogBuilder) it).toLog())
                      .findFirst()
-                     .ifPresent(log -> container.get().set(log));
+                     .ifPresent(log -> ctx.logContainer(log));
         } else {
             sinkListenerFactories.stream()
                      .map(LogSinkListenerFactory::create)

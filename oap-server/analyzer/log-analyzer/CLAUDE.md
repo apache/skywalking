@@ -149,22 +149,27 @@ Custom fields specific to the output subclass are set via `outputFieldStatement`
 
 ```
 extractor {
-  statement parsed.statement as String    // output field — stored in ctx.outputFields map
+  statement parsed.statement as String    // output field — direct setter on output object
   latency parsed.latency as Long          // output field
   service parsed.service as String        // standard field — handled by ExtractorSpec
 }
 ```
 
 Unknown identifiers in the extractor (not `service`, `instance`, `endpoint`, `layer`, etc.)
-are parsed as `OutputFieldAssignment`. The compiler generates `h.ctx().setOutputField("name", value)`.
+are parsed as `OutputFieldAssignment`. The compiler generates direct setter calls:
+`((OutputType) h.ctx().output()).setFieldName(value)`.
 
-**Compile-time validation**: When `outputType` is set, the compiler validates that a matching
-setter exists on the output type class (e.g., `setStatement(String)` for field `statement`).
+**Output object creation**: The generated `execute()` method creates the output object at the
+start: `h.ctx().setOutput(new OutputType())`. This happens before the extractor runs, so
+output fields are set directly via typed setter calls — no reflection.
+
+**Compile-time validation**: `outputType` must be set for output field assignments. The compiler
+validates that a matching setter exists on the output type class (e.g., `setStatement(String)`).
 If no setter is found, compilation fails with an `IllegalArgumentException` at boot.
 
-**Runtime application**: `RecordSinkListener.parse()` creates the output source via
-`outputType.newInstance()`, populates standard fields from LogData.Builder, then applies
-output fields from `ExecutionContext.outputFields()` via reflection (`applyOutputFields()`).
+**Runtime dispatch**: `RecordSinkListener.parse()` reads the output object from
+`ExecutionContext.output()` (already populated by generated code), calls `init()` for
+builder mode, then `build()` dispatches via `complete()` or `sourceReceiver.receive()`.
 
 Note: `slowSql {}` and `sampledTrace {}` sub-DSLs were removed. Custom output types use
 the `outputType` + output field mechanism instead of dedicated DSL blocks.

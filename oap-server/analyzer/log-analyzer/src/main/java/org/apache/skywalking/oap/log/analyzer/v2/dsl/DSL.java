@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
@@ -73,8 +72,7 @@ public class DSL {
             generator.setClassNameHint(ruleName);
             generator.setYamlSource(yamlSource);
             final LalExpression expression = generator.compile(dsl);
-            final Class<?> resolvedOutput = outputType != null ? outputType : Log.class;
-            final FilterSpec filterSpec = new FilterSpec(moduleManager, config, resolvedOutput);
+            final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
             return new DSL(ruleName, expression, filterSpec);
         } catch (Exception e) {
             throw new ModuleStartException(

@@ -53,7 +53,14 @@ public interface LALOutputBuilder {
 
     /**
      * Validate the builder state and dispatch the final output source(s).
-     * Called after all output fields have been set via reflection.
+     * Called after all output fields have been set.
      */
     void complete(SourceReceiver sourceReceiver);
+
+    /**
+     * Add a tag to the output. Only meaningful for builders that produce
+     * tag-bearing sources (e.g., {@link LogBuilder}). Default is no-op.
+     */
+    default void addTag(final String key, final String value) {
+    }
 }

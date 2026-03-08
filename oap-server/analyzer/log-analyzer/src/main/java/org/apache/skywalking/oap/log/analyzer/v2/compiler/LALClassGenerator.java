@@ -407,7 +407,10 @@ public final class LALClassGenerator {
     public LalExpression compileFromModel(final LALScriptModel model) throws Exception {
         final String className = makeClassName("LalExpr_");
         final ParserType parserType = detectParserType(model.getStatements());
-        final GenCtx genCtx = new GenCtx(parserType, this.inputType, this.outputType);
+        final Class<?> resolvedOutput = this.outputType != null
+            ? this.outputType
+            : org.apache.skywalking.oap.server.core.source.LogBuilder.class;
+        final GenCtx genCtx = new GenCtx(parserType, this.inputType, resolvedOutput);
 
         if (parserType == ParserType.NONE && this.inputType != null) {
             log.info("LAL rule has no parser — using inputType {} for "
@@ -500,6 +503,10 @@ public final class LALClassGenerator {
           .append(" filterSpec, ").append(EXEC_CTX).append(" ctx) {\n");
         sb.append("  ").append(H).append(" h = new ").append(H).append("(ctx);\n");
 
+        // Create the output object and store in ctx before extractor runs
+        sb.append("  h.ctx().setOutput(new ")
+          .append(genCtx.outputType.getName()).append("());\n");
+
         // Insert _p + proto var declarations if any proto field access was used
         if (genCtx.usedProtoAccess) {
             if (genCtx.inputType != null) {
@@ -575,8 +582,11 @@ public final class LALClassGenerator {
      */
     public String generateSource(final String dsl) {
         final LALScriptModel model = LALScriptParser.parse(dsl);
+        final Class<?> resolvedOutput = this.outputType != null
+            ? this.outputType
+            : org.apache.skywalking.oap.server.core.source.LogBuilder.class;
         final GenCtx genCtx = new GenCtx(
-            detectParserType(model.getStatements()), this.inputType, this.outputType);
+            detectParserType(model.getStatements()), this.inputType, resolvedOutput);
         final String execute = generateExecuteMethod(model, genCtx);
         if (genCtx.privateMethods.isEmpty()) {
             return execute;

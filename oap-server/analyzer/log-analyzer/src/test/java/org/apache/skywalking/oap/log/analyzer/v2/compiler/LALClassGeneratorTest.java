@@ -502,9 +502,9 @@ class LALClassGeneratorTest {
             "Expected direct primitive comparison without boxing but got: " + source);
         assertFalse(source.contains("h.toLong"),
             "Should NOT use h.toLong for primitive int comparison but got: " + source);
-        // Single-tag: uses tag(ctx, String, String), not singletonMap
-        assertTrue(source.contains("_e.tag(h.ctx(), \"status.code\""),
-            "Expected tag(ctx, String, String) overload but got: " + source);
+        // Single-tag: uses addTag on output builder
+        assertTrue(source.contains("_o.addTag(\"status.code\""),
+            "Expected _o.addTag(key, value) but got: " + source);
         assertFalse(source.contains("singletonMap"),
             "Should NOT use singletonMap for single tags but got: " + source);
 
@@ -563,6 +563,7 @@ class LALClassGeneratorTest {
 
     @Test
     void compileOutputFieldAssignment() {
+        generator.setOutputType(TestOutputType.class);
         final String source = generator.generateSource(
             "filter {\n"
                 + "  json {}\n"
@@ -572,14 +573,18 @@ class LALClassGeneratorTest {
                 + "  }\n"
                 + "  sink {}\n"
                 + "}");
-        assertTrue(source.contains("setOutputField(\"statement\""),
-            "Expected setOutputField for 'statement' but got: " + source);
-        assertTrue(source.contains("setOutputField(\"latency\""),
-            "Expected setOutputField for 'latency' but got: " + source);
+        assertTrue(source.contains(".setStatement("),
+            "Expected direct setStatement() call but got: " + source);
+        assertTrue(source.contains(".setLatency("),
+            "Expected direct setLatency() call but got: " + source);
         assertTrue(source.contains("h.toStr("),
             "Expected toStr() cast for String but got: " + source);
         assertTrue(source.contains("h.toLong("),
             "Expected toLong() cast for Long but got: " + source);
+        assertTrue(source.contains("h.ctx().output()"),
+            "Expected ctx.output() access but got: " + source);
+        assertTrue(source.contains("h.ctx().setOutput(new"),
+            "Expected output object creation but got: " + source);
     }
 
     @Test
@@ -593,8 +598,8 @@ class LALClassGeneratorTest {
                 + "  }\n"
                 + "  sink {}\n"
                 + "}");
-        assertTrue(source.contains("setOutputField(\"statement\""),
-            "Expected setOutputField for 'statement' but got: " + source);
+        assertTrue(source.contains(".setStatement("),
+            "Expected direct setStatement() call but got: " + source);
     }
 
     @Test
@@ -615,6 +620,7 @@ class LALClassGeneratorTest {
 
     public static class TestOutputType {
         private String statement;
+        private long latency;
 
         public void setStatement(final String statement) {
             this.statement = statement;
@@ -622,6 +628,14 @@ class LALClassGeneratorTest {
 
         public String getStatement() {
             return statement;
+        }
+
+        public void setLatency(final long latency) {
+            this.latency = latency;
+        }
+
+        public long getLatency() {
+            return latency;
         }
     }
 }

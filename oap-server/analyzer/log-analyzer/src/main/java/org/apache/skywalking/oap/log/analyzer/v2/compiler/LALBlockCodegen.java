@@ -83,6 +83,15 @@ final class LALBlockCodegen {
             lvtVars.addAll(genCtx.protoLvtVars);
         }
 
+        // Cast output once if extractor uses the output object
+        if (genCtx.outputType != null && hasOutputAccess(block.getStatements())) {
+            final String outTypeName = genCtx.outputType.getName();
+            body.append("  ").append(outTypeName).append(" _o = (")
+                .append(outTypeName).append(") h.ctx().output();\n");
+            lvtVars.add(new String[]{"_o",
+                "L" + outTypeName.replace('.', '/') + ";"});
+        }
+
         body.append(bodyContent);
         body.append("}\n");
         genCtx.privateMethods.add(new LALClassGenerator.PrivateMethod(
@@ -103,16 +112,7 @@ final class LALBlockCodegen {
             if (stmt instanceof LALScriptModel.FieldAssignment) {
                 final LALScriptModel.FieldAssignment field =
                     (LALScriptModel.FieldAssignment) stmt;
-                sb.append("  _e.").append(field.getFieldType().name().toLowerCase())
-                  .append("(h.ctx(), ");
-                generateCastedValueAccess(sb, field.getValue(),
-                    field.getCastType(), genCtx);
-                if (field.getFormatPattern() != null) {
-                    sb.append(", \"")
-                      .append(LALCodegenHelper.escapeJava(field.getFormatPattern()))
-                      .append("\"");
-                }
-                sb.append(");\n");
+                generateFieldToOutput(sb, field, genCtx);
             } else if (stmt instanceof LALScriptModel.TagAssignment) {
                 generateTagAssignment(sb, (LALScriptModel.TagAssignment) stmt, genCtx);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
@@ -124,6 +124,65 @@ final class LALBlockCodegen {
                     sb, (LALScriptModel.OutputFieldAssignment) stmt, genCtx);
             }
         }
+    }
+
+    private static final String[][] FIELD_TYPE_SETTER_CANDIDATES = {
+        // SERVICE
+        {"setServiceName", "setService"},
+        // INSTANCE
+        {"setServiceInstanceName", "setServiceInstance", "setInstance"},
+        // ENDPOINT
+        {"setEndpoint"},
+        // LAYER
+        {"setLayer"},
+        // TRACE_ID
+        {"setTraceId"},
+        // SEGMENT_ID
+        {"setSegmentId"},
+        // SPAN_ID
+        {"setSpanId"},
+        // TIMESTAMP
+        {"setTimestamp"},
+    };
+
+    private static void generateFieldToOutput(
+            final StringBuilder sb,
+            final LALScriptModel.FieldAssignment field,
+            final LALClassGenerator.GenCtx genCtx) {
+        final String[] candidates =
+            FIELD_TYPE_SETTER_CANDIDATES[field.getFieldType().ordinal()];
+        java.lang.reflect.Method setter = null;
+        for (final String candidate : candidates) {
+            setter = findSetter(genCtx.outputType, candidate);
+            if (setter != null) {
+                break;
+            }
+        }
+        if (setter == null) {
+            throw new IllegalArgumentException(
+                "Output type " + genCtx.outputType.getName()
+                + " has no setter for field '" + field.getFieldType().name().toLowerCase()
+                + "' (tried: " + String.join(", ", candidates) + ")");
+        }
+
+        final Class<?> paramType = setter.getParameterTypes()[0];
+        final String effectiveCast = resolveEffectiveCast(paramType, field.getCastType());
+        sb.append("  _o.").append(setter.getName()).append("(");
+        if (field.getFormatPattern() != null) {
+            // Format pattern provided in LAL script (e.g., timestamp ... , "yyyy/MM/dd HH:mm:ss")
+            sb.append("h.parseTimestamp(");
+            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            sb.append(", \"")
+              .append(LALCodegenHelper.escapeJava(field.getFormatPattern()))
+              .append("\")");
+        } else if (paramType.isEnum()) {
+            sb.append(paramType.getName()).append(".valueOf(");
+            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            sb.append(")");
+        } else {
+            generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
+        }
+        sb.append(");\n");
     }
 
     static void generateIfBlockInExtractor(
@@ -148,14 +207,14 @@ final class LALBlockCodegen {
             final StringBuilder sb,
             final LALScriptModel.MetricsBlock block,
             final LALClassGenerator.GenCtx genCtx) {
-        sb.append("  { ").append(SAMPLE_BUILDER).append(" _b = _e.prepareMetrics(h.ctx());\n");
-        sb.append("  if (_b != null) {\n");
+        sb.append("  { ").append(SAMPLE_BUILDER).append(" _metrics = _e.prepareMetrics(h.ctx());\n");
+        sb.append("  if (_metrics != null) {\n");
         if (block.getName() != null) {
-            sb.append("  _b.name(\"")
+            sb.append("  _metrics.name(\"")
                 .append(LALCodegenHelper.escapeJava(block.getName())).append("\");\n");
         }
         if (block.getTimestampValue() != null) {
-            sb.append("  _b.timestamp(");
+            sb.append("  _metrics.timestamp(");
             generateCastedValueAccess(sb, block.getTimestampValue(),
                 block.getTimestampCast(), genCtx);
             sb.append(");\n");
@@ -170,10 +229,10 @@ final class LALBlockCodegen {
                     entry.getValue().getCastType(), genCtx);
                 sb.append(");\n");
             }
-            sb.append("    _b.labels(_labels); }\n");
+            sb.append("    _metrics.labels(_labels); }\n");
         }
         if (block.getValue() != null) {
-            sb.append("  _b.value(");
+            sb.append("  _metrics.value(");
             if ("Long".equals(block.getValueCast())) {
                 sb.append("(double) h.toLong(");
                 generateValueAccess(sb, block.getValue(), genCtx);
@@ -193,7 +252,7 @@ final class LALBlockCodegen {
             }
             sb.append(");\n");
         }
-        sb.append("  _e.submitMetrics(h.ctx(), _b);\n");
+        sb.append("  _e.submitMetrics(h.ctx(), _metrics);\n");
         sb.append("  } }\n");
     }
 
@@ -204,7 +263,7 @@ final class LALBlockCodegen {
                                        final LALClassGenerator.GenCtx genCtx) {
         for (final Map.Entry<String, LALScriptModel.TagValue> entry
                 : tag.getTags().entrySet()) {
-            sb.append("  _e.tag(h.ctx(), \"")
+            sb.append("  _o.addTag(\"")
               .append(LALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
             generateStringValueAccess(sb, entry.getValue().getValue(),
                 entry.getValue().getCastType(), genCtx);
@@ -214,37 +273,79 @@ final class LALBlockCodegen {
 
     // ==================== Output field assignment ====================
 
+    private static boolean hasOutputAccess(
+            final List<? extends LALScriptModel.ExtractorStatement> stmts) {
+        for (final LALScriptModel.ExtractorStatement stmt : stmts) {
+            if (stmt instanceof LALScriptModel.OutputFieldAssignment
+                    || stmt instanceof LALScriptModel.FieldAssignment
+                    || stmt instanceof LALScriptModel.TagAssignment) {
+                return true;
+            }
+            if (stmt instanceof LALScriptModel.IfBlock) {
+                final LALScriptModel.IfBlock ifBlock = (LALScriptModel.IfBlock) stmt;
+                if (hasOutputAccessInFilterStmts(ifBlock.getThenBranch())
+                        || hasOutputAccessInFilterStmts(ifBlock.getElseBranch())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasOutputAccessInFilterStmts(
+            final List<? extends LALScriptModel.FilterStatement> stmts) {
+        for (final LALScriptModel.FilterStatement stmt : stmts) {
+            if (stmt instanceof LALScriptModel.OutputFieldAssignment
+                    || stmt instanceof LALScriptModel.FieldAssignment
+                    || stmt instanceof LALScriptModel.TagAssignment) {
+                return true;
+            }
+            if (stmt instanceof LALScriptModel.IfBlock) {
+                final LALScriptModel.IfBlock ifBlock = (LALScriptModel.IfBlock) stmt;
+                if (hasOutputAccessInFilterStmts(ifBlock.getThenBranch())
+                        || hasOutputAccessInFilterStmts(ifBlock.getElseBranch())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     static void generateOutputFieldAssignment(
             final StringBuilder sb,
             final LALScriptModel.OutputFieldAssignment field,
             final LALClassGenerator.GenCtx genCtx) {
-        // Compile-time validation: if outputType is set, verify the setter exists
-        if (genCtx.outputType != null) {
-            final String setterName = "set"
-                + Character.toUpperCase(field.getFieldName().charAt(0))
-                + field.getFieldName().substring(1);
-            if (findSetter(genCtx.outputType, setterName) == null) {
-                throw new IllegalArgumentException(
-                    "Output type " + genCtx.outputType.getName()
-                    + " has no setter " + setterName
-                    + "() for output field '" + field.getFieldName() + "'");
-            }
+        final String fieldName = field.getFieldName();
+        final String setterName = "set"
+            + Character.toUpperCase(fieldName.charAt(0))
+            + fieldName.substring(1);
+
+        if (genCtx.outputType == null) {
+            throw new IllegalArgumentException(
+                "Output field '" + fieldName + "' requires outputType to be set in the LAL rule config");
         }
-        sb.append("  h.ctx().setOutputField(\"")
-          .append(LALCodegenHelper.escapeJava(field.getFieldName()))
-          .append("\", ");
-        // Box primitives for Object parameter — toLong() returns long, toInt() returns int
-        final String castType = field.getCastType();
-        if ("Long".equals(castType)) {
-            sb.append("Long.valueOf(");
-            generateCastedValueAccess(sb, field.getValue(), castType, genCtx);
-            sb.append(")");
-        } else if ("Integer".equals(castType)) {
-            sb.append("Integer.valueOf(");
-            generateCastedValueAccess(sb, field.getValue(), castType, genCtx);
+
+        // Compile-time validation: verify the setter exists on the output type
+        final java.lang.reflect.Method setter = findSetter(genCtx.outputType, setterName);
+        if (setter == null) {
+            throw new IllegalArgumentException(
+                "Output type " + genCtx.outputType.getName()
+                + " has no setter " + setterName
+                + "() for output field '" + fieldName + "'");
+        }
+
+        // Generate direct setter call: _o.setXxx(value)
+        // _o is declared once at the top of the extractor method
+        final Class<?> paramType = setter.getParameterTypes()[0];
+        sb.append("  _o.").append(setterName).append("(");
+        final String effectiveCast = resolveEffectiveCast(paramType, field.getCastType());
+        if (paramType.isEnum()) {
+            // Auto-convert String to enum: EnumType.valueOf(stringValue)
+            sb.append(paramType.getName()).append(".valueOf(");
+            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
             sb.append(")");
         } else {
-            generateCastedValueAccess(sb, field.getValue(), castType, genCtx);
+            generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
         }
         sb.append(");\n");
     }
@@ -262,6 +363,33 @@ final class LALBlockCodegen {
             c = c.getSuperclass();
         }
         return null;
+    }
+
+    /**
+     * Resolve the effective cast type based on the setter parameter type.
+     * When the setter takes a primitive, use the matching cast so that
+     * Javassist can resolve the correct overload (e.g. setComponentId(int)
+     * not setComponentId(Integer)).
+     */
+    private static String resolveEffectiveCast(final Class<?> paramType,
+                                                final String lalCast) {
+        if (paramType == long.class) {
+            return "Long";
+        }
+        if (paramType == int.class) {
+            return "Integer";
+        }
+        if (paramType == double.class || paramType == float.class) {
+            return "Long"; // toLong handles numeric conversion
+        }
+        if (paramType == boolean.class) {
+            return "Boolean";
+        }
+        if (paramType == String.class) {
+            return "String";
+        }
+        // For boxed types and others, use the LAL-declared cast
+        return lalCast;
     }
 
     // ==================== Sink method generation ====================

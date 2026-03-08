@@ -22,12 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import lombok.Getter;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
-import org.apache.skywalking.oap.server.core.source.AbstractLog;
+import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.Log;
 
 /**
  * Mutable property storage for a single LAL script execution cycle.
@@ -48,8 +48,9 @@ public class ExecutionContext {
     public static final String KEY_SAVE = "save";
     public static final String KEY_ABORT = "abort";
     public static final String KEY_METRICS_CONTAINER = "metrics_container";
+    public static final String KEY_CAPTURE_LOG = "capture_log";
     public static final String KEY_LOG_CONTAINER = "log_container";
-    public static final String KEY_OUTPUT_FIELDS = "output_fields";
+    public static final String KEY_OUTPUT = "output";
 
     private final Map<String, Object> properties = new HashMap<>();
 
@@ -70,8 +71,9 @@ public class ExecutionContext {
         setProperty(KEY_SAVE, true);
         setProperty(KEY_ABORT, false);
         setProperty(KEY_METRICS_CONTAINER, null);
+        setProperty(KEY_CAPTURE_LOG, false);
         setProperty(KEY_LOG_CONTAINER, null);
-        setProperty(KEY_OUTPUT_FIELDS, new HashMap<String, Object>());
+        setProperty(KEY_OUTPUT, null);
         return this;
     }
 
@@ -139,23 +141,34 @@ public class ExecutionContext {
         return Optional.ofNullable((List<SampleFamily>) getProperty(KEY_METRICS_CONTAINER));
     }
 
-    public ExecutionContext logContainer(final AtomicReference<AbstractLog> container) {
+    public ExecutionContext captureLog(final boolean capture) {
+        setProperty(KEY_CAPTURE_LOG, capture);
+        return this;
+    }
+
+    public boolean shouldCaptureLog() {
+        return (boolean) getProperty(KEY_CAPTURE_LOG);
+    }
+
+    public ExecutionContext logContainer(final Log container) {
         setProperty(KEY_LOG_CONTAINER, container);
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public Optional<AtomicReference<AbstractLog>> logContainer() {
-        return Optional.ofNullable((AtomicReference<AbstractLog>) getProperty(KEY_LOG_CONTAINER));
+    public Optional<Log> logContainer() {
+        return Optional.ofNullable((Log) getProperty(KEY_LOG_CONTAINER));
     }
 
-    public void setOutputField(final String name, final Object value) {
-        outputFields().put(name, value);
+    public void setOutput(final Object output) {
+        setProperty(KEY_OUTPUT, output);
     }
 
-    @SuppressWarnings("unchecked")
-    public Map<String, Object> outputFields() {
-        return (Map<String, Object>) getProperty(KEY_OUTPUT_FIELDS);
+    public Object output() {
+        return getProperty(KEY_OUTPUT);
+    }
+
+    public LALOutputBuilder outputAsBuilder() {
+        return (LALOutputBuilder) getProperty(KEY_OUTPUT);
     }
 
     public static class Parsed {

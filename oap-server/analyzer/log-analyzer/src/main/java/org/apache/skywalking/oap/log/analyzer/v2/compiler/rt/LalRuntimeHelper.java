@@ -17,10 +17,14 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler.rt;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Runtime helper for compiled LAL expressions.
@@ -174,6 +178,26 @@ public final class LalRuntimeHelper {
             }
         }
         return "";
+    }
+
+    // ==================== Timestamp parsing ====================
+
+    public long parseTimestamp(final String timestamp, final String formatPattern) {
+        if (StringUtil.isEmpty(timestamp)) {
+            return 0L;
+        }
+        if (StringUtil.isEmpty(formatPattern)) {
+            if (StringUtils.isNumeric(timestamp)) {
+                return Long.parseLong(timestamp);
+            }
+            return 0L;
+        }
+        final SimpleDateFormat format = new SimpleDateFormat(formatPattern);
+        try {
+            return format.parse(timestamp).getTime();
+        } catch (final ParseException e) {
+            return 0L;
+        }
     }
 
     // ==================== Type conversion ====================
