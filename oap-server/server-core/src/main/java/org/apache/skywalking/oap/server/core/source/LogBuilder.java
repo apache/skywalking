@@ -93,15 +93,33 @@ public class LogBuilder implements LALOutputBuilder {
     public void init(final LogData logData, final NamingControl namingControl) {
         this.namingControl = namingControl;
         this.logData = logData;
-        this.service = logData.getService();
-        this.serviceInstance = logData.getServiceInstance();
-        this.endpoint = logData.getEndpoint();
-        this.layer = logData.getLayer();
+        // Only populate fields that were NOT already set by the LAL extractor.
+        // The extractor runs before init(), so extractor values take priority.
+        if (this.service == null) {
+            this.service = logData.getService();
+        }
+        if (this.serviceInstance == null) {
+            this.serviceInstance = logData.getServiceInstance();
+        }
+        if (this.endpoint == null) {
+            this.endpoint = logData.getEndpoint();
+        }
+        if (this.layer == null) {
+            this.layer = logData.getLayer();
+        }
         final TraceContext tc = logData.getTraceContext();
-        this.traceId = tc.getTraceId();
-        this.segmentId = tc.getTraceSegmentId();
-        this.spanId = tc.getSpanId();
-        this.timestamp = logData.getTimestamp();
+        if (this.traceId == null) {
+            this.traceId = tc.getTraceId();
+        }
+        if (this.segmentId == null) {
+            this.segmentId = tc.getTraceSegmentId();
+        }
+        if (this.spanId < 0) {
+            this.spanId = tc.getSpanId();
+        }
+        if (this.timestamp == 0) {
+            this.timestamp = logData.getTimestamp();
+        }
     }
 
     @Override

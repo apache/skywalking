@@ -101,10 +101,19 @@ public class SampledTraceBuilder implements LALOutputBuilder {
     @Override
     public void init(final LogData logData, final NamingControl namingControl) {
         this.namingControl = namingControl;
-        this.traceId = logData.getTraceContext().getTraceId();
-        this.serviceName = logData.getService();
-        this.serviceInstanceName = logData.getServiceInstance();
-        this.timestamp = logData.getTimestamp();
+        // Only populate fields not already set by the LAL extractor.
+        if (this.traceId == null) {
+            this.traceId = logData.getTraceContext().getTraceId();
+        }
+        if (this.serviceName == null) {
+            this.serviceName = logData.getService();
+        }
+        if (this.serviceInstanceName == null) {
+            this.serviceInstanceName = logData.getServiceInstance();
+        }
+        if (this.timestamp == 0) {
+            this.timestamp = logData.getTimestamp();
+        }
     }
 
     @Override

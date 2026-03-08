@@ -77,10 +77,21 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     @Override
     public void init(final LogData logData, final NamingControl namingControl) {
         this.namingControl = namingControl;
-        this.serviceName = logData.getService();
-        this.traceId = logData.getTraceContext().getTraceId();
-        this.timestamp = logData.getTimestamp();
-        this.timeBucket = TimeBucket.getTimeBucket(logData.getTimestamp(), DownSampling.Second);
+        // Only populate fields not already set by the LAL extractor.
+        if (this.serviceName == null) {
+            this.serviceName = logData.getService();
+        }
+        if (this.traceId == null) {
+            this.traceId = logData.getTraceContext().getTraceId();
+        }
+        if (this.timestamp == 0) {
+            this.timestamp = logData.getTimestamp();
+        }
+        if (this.timeBucket == 0) {
+            this.timeBucket = TimeBucket.getTimeBucket(
+                this.timestamp > 0 ? this.timestamp : logData.getTimestamp(),
+                DownSampling.Second);
+        }
     }
 
     @Override
