@@ -50,11 +50,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  *
  * <p>Two-phase execution (called by {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.LogAnalyzer}):
  * <ol>
- *   <li>{@link #parse} — creates a fresh {@link ExecutionContext} with the current log data
- *       and binds it to every DSL instance (sets the ThreadLocal in each Spec).</li>
+ *   <li>{@link #parse} — creates a fresh {@link ExecutionContext} with the current log data.</li>
  *   <li>{@link #build} — calls {@link DSL#evaluate(ExecutionContext)} on every DSL instance,
  *       which invokes the compiled {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression}
- *       to run the filter/extractor/sink pipeline.</li>
+ *       to run the filter/extractor/sink pipeline. The context is passed explicitly — no ThreadLocal.</li>
  * </ol>
  */
 @Slf4j

@@ -31,7 +31,6 @@ public class LALConfig {
     /**
      * Fully qualified class name of the input type (the extra log proto/POJO)
      * for compile-time {@code parsed.*} getter resolution.
-     * Was previously named {@code extraLogType}.
      */
     private String inputType;
 

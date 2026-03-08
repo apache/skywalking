@@ -44,7 +44,7 @@ oap-server/analyzer/log-analyzer/
     ExecutionContext.java               — Per-log execution state (log, parsed, flags)
     DSL.java                            — Wraps compiled expression + FilterSpec
     spec/filter/FilterSpec.java         — Top-level filter spec (all methods take ctx explicitly)
-    spec/extractor/ExtractorSpec.java   — Extractor field setters (all methods take ctx explicitly)
+    spec/extractor/MetricExtractor.java   — Handles LAL metrics {} blocks (prepare/submit samples to MAL)
     spec/sink/SinkSpec.java             — Sink spec (save/drop/sample)
     spec/sink/SamplerSpec.java          — Rate-limit sampler
 
@@ -87,7 +87,8 @@ All spec methods take `ExecutionContext ctx` as an explicit parameter — there 
 
 - `execute(FilterSpec filterSpec, ExecutionContext ctx)` — entry point
 - `filterSpec.json(ctx)`, `filterSpec.text(ctx)`, `filterSpec.sink(ctx)` — parser/sink calls
-- `_e.service(h.ctx(), ...)`, `_e.tag(h.ctx(), ...)` — extractor calls via `h.ctx()`
+- `((OutputType) h.ctx().output()).setService(...)` — standard field setters on the output builder
+- `_e.prepareMetrics(h.ctx())`, `_e.submitMetrics(h.ctx(), _metrics)` — metrics calls via MetricExtractor
 - `_f.sampler().rateLimit(h.ctx(), ...)` — sink calls via `h.ctx()`
 
 The generated `execute()` method guards `_extractor()` and `_sink()` calls with `if (!ctx.shouldAbort())`, matching v1 Groovy behavior where `extractor {}` and `sink {}` closures check the abort flag before running their body. `finalizeSink(ctx)` also checks the flag. Individual spec methods inside each block additionally check `ctx.shouldAbort()` as a defense-in-depth measure.
@@ -151,7 +152,7 @@ Custom fields specific to the output subclass are set via `outputFieldStatement`
 extractor {
   statement parsed.statement as String    // output field — direct setter on output object
   latency parsed.latency as Long          // output field
-  service parsed.service as String        // standard field — handled by ExtractorSpec
+  service parsed.service as String        // standard field — direct setter on output builder
 }
 ```
 
@@ -190,8 +191,8 @@ public class default_L3_my_rule implements LalExpression {
         }
         filterSpec.sink(ctx);
     }
-    private void _extractor(ExtractorSpec _e, LalRuntimeHelper h) {
-        _e.service(h.ctx(), h.toStr(h.mapVal("service")));
+    private void _extractor(MetricExtractor _e, LalRuntimeHelper h) {
+        ((LogBuilder) h.ctx().output()).setService(h.toStr(h.mapVal("service")));
     }
 }
 ```

@@ -32,10 +32,10 @@ final class LALBlockCodegen {
 
     private static final String FILTER_SPEC =
         "org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec";
-    private static final String EXTRACTOR_SPEC =
-        "org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.ExtractorSpec";
+    private static final String METRIC_EXTRACTOR =
+        "org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.MetricExtractor";
     private static final String SAMPLE_BUILDER =
-        EXTRACTOR_SPEC + "$SampleBuilder";
+        METRIC_EXTRACTOR + "$SampleBuilder";
     private static final String H =
         "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
     private static final String PROCESS_REGISTRY =
@@ -65,10 +65,10 @@ final class LALBlockCodegen {
         // Assemble method with declarations before body
         final StringBuilder body = new StringBuilder();
         body.append("private void ").append(methodName).append("(")
-            .append(EXTRACTOR_SPEC).append(" _e, ").append(H).append(" h) {\n");
+            .append(METRIC_EXTRACTOR).append(" _e, ").append(H).append(" h) {\n");
 
         final List<String[]> lvtVars = new ArrayList<>();
-        lvtVars.add(new String[]{"_e", "L" + EXTRACTOR_SPEC.replace('.', '/') + ";"});
+        lvtVars.add(new String[]{"_e", "L" + METRIC_EXTRACTOR.replace('.', '/') + ";"});
         lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
 
         if (genCtx.usedProtoAccess) {
@@ -90,6 +90,12 @@ final class LALBlockCodegen {
                 .append(outTypeName).append(") h.ctx().output();\n");
             lvtVars.add(new String[]{"_o",
                 "L" + outTypeName.replace('.', '/') + ";"});
+        }
+
+        // Add LVT entry for _metrics if any metrics block exists
+        if (hasMetricsBlock(block.getStatements())) {
+            lvtVars.add(new String[]{"_metrics",
+                "L" + SAMPLE_BUILDER.replace('.', '/') + ";"});
         }
 
         body.append(bodyContent);
@@ -272,6 +278,16 @@ final class LALBlockCodegen {
     }
 
     // ==================== Output field assignment ====================
+
+    private static boolean hasMetricsBlock(
+            final List<? extends LALScriptModel.ExtractorStatement> stmts) {
+        for (final LALScriptModel.ExtractorStatement stmt : stmts) {
+            if (stmt instanceof LALScriptModel.MetricsBlock) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static boolean hasOutputAccess(
             final List<? extends LALScriptModel.ExtractorStatement> stmts) {

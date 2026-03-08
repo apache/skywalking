@@ -341,6 +341,7 @@ class LalComparisonTest {
     }
 
     private static final Map<String, String[]> FIELD_GETTER_CANDIDATES;
+
     static {
         FIELD_GETTER_CANDIDATES = new HashMap<>();
         FIELD_GETTER_CANDIDATES.put("service",
@@ -503,7 +504,7 @@ class LalComparisonTest {
         setInternalField(manager, "isInPrepareStage", false);
         when(manager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
 
-        // v1 and v2 have different LogAnalyzerModuleProvider classes that ExtractorSpec casts to.
+        // v1 and v2 have different LogAnalyzerModuleProvider classes that MetricExtractor casts to.
         // Each path needs its own manager with the correct provider type.
         final ModuleProviderHolder logAnalyzerHolder = mock(ModuleProviderHolder.class);
         if (isV1) {

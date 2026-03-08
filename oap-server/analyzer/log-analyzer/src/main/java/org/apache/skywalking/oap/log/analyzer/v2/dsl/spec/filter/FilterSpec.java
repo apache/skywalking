@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.ExtractorSpec;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.MetricExtractor;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.JsonParserSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.TextParserSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.YamlParserSpec;
@@ -61,7 +61,7 @@ public class FilterSpec extends AbstractSpec {
 
     private final YamlParserSpec yamlParser;
 
-    private final ExtractorSpec extractor;
+    private final MetricExtractor extractor;
 
     private final SinkSpec sink;
 
@@ -83,7 +83,7 @@ public class FilterSpec extends AbstractSpec {
         jsonParser = new JsonParserSpec(moduleManager(), moduleConfig());
         yamlParser = new YamlParserSpec(moduleManager(), moduleConfig());
 
-        extractor = new ExtractorSpec(moduleManager(), moduleConfig());
+        extractor = new MetricExtractor(moduleManager(), moduleConfig());
 
         sink = new SinkSpec(moduleManager(), moduleConfig());
     }
@@ -201,7 +201,7 @@ public class FilterSpec extends AbstractSpec {
 
     // ==================== Direct-access APIs for flattened generated code ====================
 
-    public ExtractorSpec extractor() {
+    public MetricExtractor extractor() {
         return extractor;
     }
 

@@ -26,6 +26,7 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
@@ -36,18 +37,14 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
 
 /**
  * Default LAL output builder that produces a {@link Log} source object.
  * Used when no explicit {@code outputType} is configured in the LAL rule.
  */
+@Slf4j
 public class LogBuilder implements LALOutputBuilder {
     public static final String NAME = "Log";
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogBuilder.class);
 
     private NamingControl namingControl;
     private LogData logData;
@@ -193,8 +190,8 @@ public class LogBuilder implements LALOutputBuilder {
                                          final String key, final String value) {
         final Tag tag = new Tag(key, value);
         if (value.length() > Tag.TAG_LENGTH || tag.toString().length() > Tag.TAG_LENGTH) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Log tag : {} length > : {}, dropped", tag, Tag.TAG_LENGTH);
+            if (log.isDebugEnabled()) {
+                log.debug("Log tag : {} length > : {}, dropped", tag, Tag.TAG_LENGTH);
             }
             return;
         }

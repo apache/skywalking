@@ -25,6 +25,7 @@
   - Output type resolution order: per-rule YAML `outputType` (short name via SPI or FQCN) > `LALSourceTypeProvider` SPI default > `Log.class`.
   - All bundled LAL scripts (`mysql-slowsql.yaml`, `pgsql-slowsql.yaml`, `redis-slowsql.yaml`, `envoy-als.yaml`, `k8s-service.yaml`, `mesh-dp.yaml`) have been updated.
   - Users with custom LAL scripts using `slowSql {}` or `sampledTrace {}` must migrate to the new syntax. See [LAL documentation](../concepts-and-designs/lal.md#output-type).
+  - Rename `ExtractorSpec` to `MetricExtractor` — now only handles LAL `metrics {}` blocks. Standard field setters (service, layer, timestamp, etc.) are compiled as direct setter calls on the output builder.
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.
