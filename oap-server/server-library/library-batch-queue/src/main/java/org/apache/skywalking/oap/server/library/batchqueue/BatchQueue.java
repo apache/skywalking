@@ -807,7 +807,7 @@ public class BatchQueue<T> {
             // Rebuild assignedPartitions from ownership array
             this.assignedPartitions = buildAssignmentsFromOwner(owner, taskCount, partitionCount);
 
-            log.info("BatchQueue[{}]: rebalanced {} partitions", name, moves.size());
+            log.debug("BatchQueue[{}]: rebalanced {} partitions", name, moves.size());
         } catch (final Throwable t) {
             log.error("BatchQueue[{}]: rebalance error", name, t);
         }
