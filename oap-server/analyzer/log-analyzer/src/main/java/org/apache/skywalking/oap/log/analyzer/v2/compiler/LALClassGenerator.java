@@ -67,7 +67,8 @@ public final class LALClassGenerator {
     private final ClassPool classPool;
     private File classOutputDir;
     private String classNameHint;
-    private Class<?> extraLogType;
+    private Class<?> inputType;
+    private Class<?> outputType;
     private String yamlSource;
 
     // ==================== Parser type detection ====================
@@ -86,7 +87,8 @@ public final class LALClassGenerator {
 
     static class GenCtx {
         final ParserType parserType;
-        final Class<?> extraLogType;
+        final Class<?> inputType;
+        final Class<?> outputType;
         final List<PrivateMethod> privateMethods = new ArrayList<>();
         final Map<String, Integer> methodCounts = new HashMap<>();
 
@@ -96,7 +98,7 @@ public final class LALClassGenerator {
         String lastNullChecks;
         String lastRawChain;
 
-        // Per-method proto field variable caching (NONE + extraLogType only).
+        // Per-method proto field variable caching (NONE + inputType only).
         // Maps chain key ("response", "response.responseCode") to variable name ("_t0", "_t1").
         // Enables dedup: the same chain accessed multiple times reuses the same variable.
         final Map<String, String> protoVars = new HashMap<>();
@@ -105,9 +107,11 @@ public final class LALClassGenerator {
         int protoVarCounter;
         boolean usedProtoAccess;
 
-        GenCtx(final ParserType parserType, final Class<?> extraLogType) {
+        GenCtx(final ParserType parserType, final Class<?> inputType,
+               final Class<?> outputType) {
             this.parserType = parserType;
-            this.extraLogType = extraLogType;
+            this.inputType = inputType;
+            this.outputType = outputType;
         }
 
         String nextMethodName(final String prefix) {
@@ -171,8 +175,12 @@ public final class LALClassGenerator {
         this.classNameHint = hint;
     }
 
-    public void setExtraLogType(final Class<?> extraLogType) {
-        this.extraLogType = extraLogType;
+    public void setInputType(final Class<?> inputType) {
+        this.inputType = inputType;
+    }
+
+    public void setOutputType(final Class<?> outputType) {
+        this.outputType = outputType;
     }
 
     public void setYamlSource(final String yamlSource) {
@@ -399,11 +407,14 @@ public final class LALClassGenerator {
     public LalExpression compileFromModel(final LALScriptModel model) throws Exception {
         final String className = makeClassName("LalExpr_");
         final ParserType parserType = detectParserType(model.getStatements());
-        final GenCtx genCtx = new GenCtx(parserType, this.extraLogType);
+        final Class<?> resolvedOutput = this.outputType != null
+            ? this.outputType
+            : org.apache.skywalking.oap.server.core.source.LogBuilder.class;
+        final GenCtx genCtx = new GenCtx(parserType, this.inputType, resolvedOutput);
 
-        if (parserType == ParserType.NONE && this.extraLogType != null) {
-            log.info("LAL rule has no parser — using extraLogType {} for "
-                + "direct getter calls.", this.extraLogType.getName());
+        if (parserType == ParserType.NONE && this.inputType != null) {
+            log.info("LAL rule has no parser — using inputType {} for "
+                + "direct getter calls.", this.inputType.getName());
         }
 
         final String executeBody = generateExecuteMethod(model, genCtx);
@@ -438,9 +449,9 @@ public final class LALClassGenerator {
         execLvt.add(new String[]{"ctx", "L" + EXEC_CTX.replace('.', '/') + ";"});
         execLvt.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
         if (genCtx.usedProtoAccess) {
-            if (genCtx.extraLogType != null) {
+            if (genCtx.inputType != null) {
                 execLvt.add(new String[]{"_p",
-                    "L" + genCtx.extraLogType.getName().replace('.', '/') + ";"});
+                    "L" + genCtx.inputType.getName().replace('.', '/') + ";"});
             }
             execLvt.addAll(genCtx.protoLvtVars);
         }
@@ -492,10 +503,14 @@ public final class LALClassGenerator {
           .append(" filterSpec, ").append(EXEC_CTX).append(" ctx) {\n");
         sb.append("  ").append(H).append(" h = new ").append(H).append("(ctx);\n");
 
+        // Create the output object and store in ctx before extractor runs
+        sb.append("  h.ctx().setOutput(new ")
+          .append(genCtx.outputType.getName()).append("());\n");
+
         // Insert _p + proto var declarations if any proto field access was used
         if (genCtx.usedProtoAccess) {
-            if (genCtx.extraLogType != null) {
-                final String elTypeName = genCtx.extraLogType.getName();
+            if (genCtx.inputType != null) {
+                final String elTypeName = genCtx.inputType.getName();
                 sb.append("  ").append(elTypeName).append(" _p = (")
                   .append(elTypeName).append(") h.ctx().extraLog();\n");
             }
@@ -567,8 +582,11 @@ public final class LALClassGenerator {
      */
     public String generateSource(final String dsl) {
         final LALScriptModel model = LALScriptParser.parse(dsl);
+        final Class<?> resolvedOutput = this.outputType != null
+            ? this.outputType
+            : org.apache.skywalking.oap.server.core.source.LogBuilder.class;
         final GenCtx genCtx = new GenCtx(
-            detectParserType(model.getStatements()), this.extraLogType);
+            detectParserType(model.getStatements()), this.inputType, resolvedOutput);
         final String execute = generateExecuteMethod(model, genCtx);
         if (genCtx.privateMethods.isEmpty()) {
             return execute;

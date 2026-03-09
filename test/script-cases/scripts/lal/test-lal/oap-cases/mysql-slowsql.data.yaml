@@ -17,10 +17,15 @@
 
 mysql-slowsql:
   body-type: json
-  body: '{"layer":"MYSQL","service":"db-svc","time":"1609459200000","id":"slow-1","statement":"SELECT 1","query_time":500}'
+  body: '{"layer":"MYSQL","service":"mysql::test-db","time":"1609459200000","id":"slow-001","statement":"SELECT * FROM users WHERE name LIKE \"%test%\"","query_time":3000}'
   tags:
     LOG_KIND: SLOW_SQL
   expect:
-    service: db-svc
+    save: true
+    abort: false
     layer: MYSQL
-    timestamp: 1609459200000
+    service: mysql::test-db
+    timestamp: "1609459200000"
+    outputField.id: slow-001
+    outputField.statement: "SELECT * FROM users WHERE name LIKE \"%test%\""
+    outputField.latency: 3000

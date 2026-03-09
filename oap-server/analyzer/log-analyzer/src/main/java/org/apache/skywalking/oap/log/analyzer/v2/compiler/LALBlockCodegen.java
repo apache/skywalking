@@ -32,10 +32,10 @@ final class LALBlockCodegen {
 
     private static final String FILTER_SPEC =
         "org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec";
-    private static final String EXTRACTOR_SPEC =
-        "org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.ExtractorSpec";
+    private static final String METRIC_EXTRACTOR =
+        "org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.MetricExtractor";
     private static final String SAMPLE_BUILDER =
-        EXTRACTOR_SPEC + "$SampleBuilder";
+        METRIC_EXTRACTOR + "$SampleBuilder";
     private static final String H =
         "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
     private static final String PROCESS_REGISTRY =
@@ -65,15 +65,15 @@ final class LALBlockCodegen {
         // Assemble method with declarations before body
         final StringBuilder body = new StringBuilder();
         body.append("private void ").append(methodName).append("(")
-            .append(EXTRACTOR_SPEC).append(" _e, ").append(H).append(" h) {\n");
+            .append(METRIC_EXTRACTOR).append(" _e, ").append(H).append(" h) {\n");
 
         final List<String[]> lvtVars = new ArrayList<>();
-        lvtVars.add(new String[]{"_e", "L" + EXTRACTOR_SPEC.replace('.', '/') + ";"});
+        lvtVars.add(new String[]{"_e", "L" + METRIC_EXTRACTOR.replace('.', '/') + ";"});
         lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
 
         if (genCtx.usedProtoAccess) {
-            if (genCtx.extraLogType != null) {
-                final String elTypeName = genCtx.extraLogType.getName();
+            if (genCtx.inputType != null) {
+                final String elTypeName = genCtx.inputType.getName();
                 body.append("  ").append(elTypeName).append(" _p = (")
                     .append(elTypeName).append(") h.ctx().extraLog();\n");
                 lvtVars.add(new String[]{"_p",
@@ -81,6 +81,21 @@ final class LALBlockCodegen {
             }
             body.append(genCtx.protoVarDecls);
             lvtVars.addAll(genCtx.protoLvtVars);
+        }
+
+        // Cast output once if extractor uses the output object
+        if (genCtx.outputType != null && hasOutputAccess(block.getStatements())) {
+            final String outTypeName = genCtx.outputType.getName();
+            body.append("  ").append(outTypeName).append(" _o = (")
+                .append(outTypeName).append(") h.ctx().output();\n");
+            lvtVars.add(new String[]{"_o",
+                "L" + outTypeName.replace('.', '/') + ";"});
+        }
+
+        // Add LVT entry for _metrics if any metrics block exists
+        if (hasMetricsBlock(block.getStatements())) {
+            lvtVars.add(new String[]{"_metrics",
+                "L" + SAMPLE_BUILDER.replace('.', '/') + ";"});
         }
 
         body.append(bodyContent);
@@ -103,29 +118,77 @@ final class LALBlockCodegen {
             if (stmt instanceof LALScriptModel.FieldAssignment) {
                 final LALScriptModel.FieldAssignment field =
                     (LALScriptModel.FieldAssignment) stmt;
-                sb.append("  _e.").append(field.getFieldType().name().toLowerCase())
-                  .append("(h.ctx(), ");
-                generateCastedValueAccess(sb, field.getValue(),
-                    field.getCastType(), genCtx);
-                if (field.getFormatPattern() != null) {
-                    sb.append(", \"")
-                      .append(LALCodegenHelper.escapeJava(field.getFormatPattern()))
-                      .append("\"");
-                }
-                sb.append(");\n");
+                generateFieldToOutput(sb, field, genCtx);
             } else if (stmt instanceof LALScriptModel.TagAssignment) {
                 generateTagAssignment(sb, (LALScriptModel.TagAssignment) stmt, genCtx);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
                 generateIfBlockInExtractor(sb, (LALScriptModel.IfBlock) stmt, genCtx);
             } else if (stmt instanceof LALScriptModel.MetricsBlock) {
                 generateMetricsInline(sb, (LALScriptModel.MetricsBlock) stmt, genCtx);
-            } else if (stmt instanceof LALScriptModel.SlowSqlBlock) {
-                generateSlowSqlInline(sb, (LALScriptModel.SlowSqlBlock) stmt, genCtx);
-            } else if (stmt instanceof LALScriptModel.SampledTraceBlock) {
-                generateSampledTraceInline(sb,
-                    (LALScriptModel.SampledTraceBlock) stmt, genCtx);
+            } else if (stmt instanceof LALScriptModel.OutputFieldAssignment) {
+                generateOutputFieldAssignment(
+                    sb, (LALScriptModel.OutputFieldAssignment) stmt, genCtx);
             }
         }
+    }
+
+    private static final String[][] FIELD_TYPE_SETTER_CANDIDATES = {
+        // SERVICE
+        {"setServiceName", "setService"},
+        // INSTANCE
+        {"setServiceInstanceName", "setServiceInstance", "setInstance"},
+        // ENDPOINT
+        {"setEndpoint"},
+        // LAYER
+        {"setLayer"},
+        // TRACE_ID
+        {"setTraceId"},
+        // SEGMENT_ID
+        {"setSegmentId"},
+        // SPAN_ID
+        {"setSpanId"},
+        // TIMESTAMP
+        {"setTimestamp"},
+    };
+
+    private static void generateFieldToOutput(
+            final StringBuilder sb,
+            final LALScriptModel.FieldAssignment field,
+            final LALClassGenerator.GenCtx genCtx) {
+        final String[] candidates =
+            FIELD_TYPE_SETTER_CANDIDATES[field.getFieldType().ordinal()];
+        java.lang.reflect.Method setter = null;
+        for (final String candidate : candidates) {
+            setter = findSetter(genCtx.outputType, candidate);
+            if (setter != null) {
+                break;
+            }
+        }
+        if (setter == null) {
+            throw new IllegalArgumentException(
+                "Output type " + genCtx.outputType.getName()
+                + " has no setter for field '" + field.getFieldType().name().toLowerCase()
+                + "' (tried: " + String.join(", ", candidates) + ")");
+        }
+
+        final Class<?> paramType = setter.getParameterTypes()[0];
+        final String effectiveCast = resolveEffectiveCast(paramType, field.getCastType());
+        sb.append("  _o.").append(setter.getName()).append("(");
+        if (field.getFormatPattern() != null) {
+            // Format pattern provided in LAL script (e.g., timestamp ... , "yyyy/MM/dd HH:mm:ss")
+            sb.append("h.parseTimestamp(");
+            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            sb.append(", \"")
+              .append(LALCodegenHelper.escapeJava(field.getFormatPattern()))
+              .append("\")");
+        } else if (paramType.isEnum()) {
+            sb.append(paramType.getName()).append(".valueOf(");
+            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            sb.append(")");
+        } else {
+            generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
+        }
+        sb.append(");\n");
     }
 
     static void generateIfBlockInExtractor(
@@ -150,14 +213,14 @@ final class LALBlockCodegen {
             final StringBuilder sb,
             final LALScriptModel.MetricsBlock block,
             final LALClassGenerator.GenCtx genCtx) {
-        sb.append("  { ").append(SAMPLE_BUILDER).append(" _b = _e.prepareMetrics(h.ctx());\n");
-        sb.append("  if (_b != null) {\n");
+        sb.append("  { ").append(SAMPLE_BUILDER).append(" _metrics = _e.prepareMetrics(h.ctx());\n");
+        sb.append("  if (_metrics != null) {\n");
         if (block.getName() != null) {
-            sb.append("  _b.name(\"")
+            sb.append("  _metrics.name(\"")
                 .append(LALCodegenHelper.escapeJava(block.getName())).append("\");\n");
         }
         if (block.getTimestampValue() != null) {
-            sb.append("  _b.timestamp(");
+            sb.append("  _metrics.timestamp(");
             generateCastedValueAccess(sb, block.getTimestampValue(),
                 block.getTimestampCast(), genCtx);
             sb.append(");\n");
@@ -172,10 +235,10 @@ final class LALBlockCodegen {
                     entry.getValue().getCastType(), genCtx);
                 sb.append(");\n");
             }
-            sb.append("    _b.labels(_labels); }\n");
+            sb.append("    _metrics.labels(_labels); }\n");
         }
         if (block.getValue() != null) {
-            sb.append("  _b.value(");
+            sb.append("  _metrics.value(");
             if ("Long".equals(block.getValueCast())) {
                 sb.append("(double) h.toLong(");
                 generateValueAccess(sb, block.getValue(), genCtx);
@@ -195,154 +258,8 @@ final class LALBlockCodegen {
             }
             sb.append(");\n");
         }
-        sb.append("  _e.submitMetrics(h.ctx(), _b);\n");
+        sb.append("  _e.submitMetrics(h.ctx(), _metrics);\n");
         sb.append("  } }\n");
-    }
-
-    // ==================== SlowSql inline ====================
-
-    static void generateSlowSqlInline(
-            final StringBuilder sb,
-            final LALScriptModel.SlowSqlBlock block,
-            final LALClassGenerator.GenCtx genCtx) {
-        sb.append("  _e.prepareSlowSql(h.ctx());\n");
-        if (block.getId() != null) {
-            sb.append("  _e.slowSqlSpec().id(h.ctx(), ");
-            generateCastedValueAccess(sb, block.getId(), block.getIdCast(), genCtx);
-            sb.append(");\n");
-        }
-        if (block.getStatement() != null) {
-            sb.append("  _e.slowSqlSpec().statement(h.ctx(), ");
-            generateCastedValueAccess(sb, block.getStatement(),
-                block.getStatementCast(), genCtx);
-            sb.append(");\n");
-        }
-        if (block.getLatency() != null) {
-            sb.append("  _e.slowSqlSpec().latency(h.ctx(), Long.valueOf(h.toLong(");
-            generateValueAccess(sb, block.getLatency(), genCtx);
-            sb.append(")));\n");
-        }
-        sb.append("  _e.submitSlowSql(h.ctx());\n");
-    }
-
-    // ==================== SampledTrace inline ====================
-
-    static void generateSampledTraceInline(
-            final StringBuilder sb,
-            final LALScriptModel.SampledTraceBlock block,
-            final LALClassGenerator.GenCtx genCtx) {
-        sb.append("  _e.prepareSampledTrace(h.ctx());\n");
-        generateSampledTraceBody(sb, block.getStatements(), genCtx);
-        sb.append("  _e.submitSampledTrace(h.ctx());\n");
-    }
-
-    static void generateSampledTraceBody(
-            final StringBuilder sb,
-            final List<LALScriptModel.SampledTraceStatement> stmts,
-            final LALClassGenerator.GenCtx genCtx) {
-        for (final LALScriptModel.SampledTraceStatement stmt : stmts) {
-            if (stmt instanceof LALScriptModel.SampledTraceField) {
-                generateSampledTraceField(sb, (LALScriptModel.SampledTraceField) stmt,
-                    genCtx);
-            } else if (stmt instanceof LALScriptModel.IfBlock) {
-                generateSampledTraceIfBlock(sb, (LALScriptModel.IfBlock) stmt, genCtx);
-            }
-        }
-    }
-
-    static void generateSampledTraceField(
-            final StringBuilder sb,
-            final LALScriptModel.SampledTraceField field,
-            final LALClassGenerator.GenCtx genCtx) {
-        switch (field.getFieldType()) {
-            case LATENCY:
-                sb.append("  _e.sampledTraceSpec().latency(h.ctx(), Long.valueOf(h.toLong(");
-                generateValueAccess(sb, field.getValue(), genCtx);
-                sb.append(")));\n");
-                return;
-            case COMPONENT_ID:
-                sb.append("  _e.sampledTraceSpec().componentId(h.ctx(), h.toInt(");
-                generateValueAccess(sb, field.getValue(), genCtx);
-                sb.append("));\n");
-                return;
-            case URI:
-                sb.append("  _e.sampledTraceSpec().uri(h.ctx(), ");
-                break;
-            case REASON:
-                sb.append("  _e.sampledTraceSpec().reason(h.ctx(), ");
-                break;
-            case PROCESS_ID:
-                sb.append("  _e.sampledTraceSpec().processId(h.ctx(), ");
-                break;
-            case DEST_PROCESS_ID:
-                sb.append("  _e.sampledTraceSpec().destProcessId(h.ctx(), ");
-                break;
-            case DETECT_POINT:
-                sb.append("  _e.sampledTraceSpec().detectPoint(h.ctx(), ");
-                break;
-            case REPORT_SERVICE:
-                sb.append("  _e.sampledTraceSpec().")
-                  .append(field.getFieldType().name().toLowerCase())
-                  .append("(h.ctx(), ");
-                break;
-            default:
-                return;
-        }
-        generateCastedValueAccess(sb, field.getValue(), field.getCastType(), genCtx);
-        sb.append(");\n");
-    }
-
-    static void generateSampledTraceIfBlock(
-            final StringBuilder sb,
-            final LALScriptModel.IfBlock ifBlock,
-            final LALClassGenerator.GenCtx genCtx) {
-        sb.append("  if (");
-        generateCondition(sb, ifBlock.getCondition(), genCtx);
-        sb.append(") {\n");
-        generateSampledTraceBodyFromFilterStmts(sb, ifBlock.getThenBranch(), genCtx);
-        sb.append("  }\n");
-        if (!ifBlock.getElseBranch().isEmpty()) {
-            sb.append("  else {\n");
-            generateSampledTraceBodyFromFilterStmts(sb, ifBlock.getElseBranch(), genCtx);
-            sb.append("  }\n");
-        }
-    }
-
-    static void generateSampledTraceBodyFromFilterStmts(
-            final StringBuilder sb,
-            final List<? extends LALScriptModel.FilterStatement> stmts,
-            final LALClassGenerator.GenCtx genCtx) {
-        for (final LALScriptModel.FilterStatement stmt : stmts) {
-            if (stmt instanceof LALScriptModel.SampledTraceField) {
-                generateSampledTraceField(sb,
-                    (LALScriptModel.SampledTraceField) stmt, genCtx);
-            } else if (stmt instanceof LALScriptModel.FieldAssignment) {
-                generateSampledTraceFieldFromAssignment(sb,
-                    (LALScriptModel.FieldAssignment) stmt, genCtx);
-            } else if (stmt instanceof LALScriptModel.IfBlock) {
-                generateSampledTraceIfBlock(sb, (LALScriptModel.IfBlock) stmt, genCtx);
-            }
-        }
-    }
-
-    static void generateSampledTraceFieldFromAssignment(
-            final StringBuilder sb,
-            final LALScriptModel.FieldAssignment fa,
-            final LALClassGenerator.GenCtx genCtx) {
-        switch (fa.getFieldType()) {
-            case TIMESTAMP:
-                sb.append("  _e.sampledTraceSpec().latency(h.ctx(), Long.valueOf(h.toLong(");
-                generateValueAccess(sb, fa.getValue(), genCtx);
-                sb.append(")));\n");
-                break;
-            default:
-                sb.append("  _e.sampledTraceSpec().")
-                  .append(fa.getFieldType().name().toLowerCase())
-                  .append("(h.ctx(), ");
-                generateCastedValueAccess(sb, fa.getValue(), fa.getCastType(), genCtx);
-                sb.append(");\n");
-                break;
-        }
     }
 
     // ==================== Tag assignment ====================
@@ -352,12 +269,144 @@ final class LALBlockCodegen {
                                        final LALClassGenerator.GenCtx genCtx) {
         for (final Map.Entry<String, LALScriptModel.TagValue> entry
                 : tag.getTags().entrySet()) {
-            sb.append("  _e.tag(h.ctx(), \"")
+            sb.append("  _o.addTag(\"")
               .append(LALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
             generateStringValueAccess(sb, entry.getValue().getValue(),
                 entry.getValue().getCastType(), genCtx);
             sb.append(");\n");
         }
+    }
+
+    // ==================== Output field assignment ====================
+
+    private static boolean hasMetricsBlock(
+            final List<? extends LALScriptModel.ExtractorStatement> stmts) {
+        for (final LALScriptModel.ExtractorStatement stmt : stmts) {
+            if (stmt instanceof LALScriptModel.MetricsBlock) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasOutputAccess(
+            final List<? extends LALScriptModel.ExtractorStatement> stmts) {
+        for (final LALScriptModel.ExtractorStatement stmt : stmts) {
+            if (stmt instanceof LALScriptModel.OutputFieldAssignment
+                    || stmt instanceof LALScriptModel.FieldAssignment
+                    || stmt instanceof LALScriptModel.TagAssignment) {
+                return true;
+            }
+            if (stmt instanceof LALScriptModel.IfBlock) {
+                final LALScriptModel.IfBlock ifBlock = (LALScriptModel.IfBlock) stmt;
+                if (hasOutputAccessInFilterStmts(ifBlock.getThenBranch())
+                        || hasOutputAccessInFilterStmts(ifBlock.getElseBranch())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasOutputAccessInFilterStmts(
+            final List<? extends LALScriptModel.FilterStatement> stmts) {
+        for (final LALScriptModel.FilterStatement stmt : stmts) {
+            if (stmt instanceof LALScriptModel.OutputFieldAssignment
+                    || stmt instanceof LALScriptModel.FieldAssignment
+                    || stmt instanceof LALScriptModel.TagAssignment) {
+                return true;
+            }
+            if (stmt instanceof LALScriptModel.IfBlock) {
+                final LALScriptModel.IfBlock ifBlock = (LALScriptModel.IfBlock) stmt;
+                if (hasOutputAccessInFilterStmts(ifBlock.getThenBranch())
+                        || hasOutputAccessInFilterStmts(ifBlock.getElseBranch())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static void generateOutputFieldAssignment(
+            final StringBuilder sb,
+            final LALScriptModel.OutputFieldAssignment field,
+            final LALClassGenerator.GenCtx genCtx) {
+        final String fieldName = field.getFieldName();
+        final String setterName = "set"
+            + Character.toUpperCase(fieldName.charAt(0))
+            + fieldName.substring(1);
+
+        if (genCtx.outputType == null) {
+            throw new IllegalArgumentException(
+                "Output field '" + fieldName + "' requires outputType to be set in the LAL rule config");
+        }
+
+        // Compile-time validation: verify the setter exists on the output type
+        final java.lang.reflect.Method setter = findSetter(genCtx.outputType, setterName);
+        if (setter == null) {
+            throw new IllegalArgumentException(
+                "Output type " + genCtx.outputType.getName()
+                + " has no setter " + setterName
+                + "() for output field '" + fieldName + "'");
+        }
+
+        // Generate direct setter call: _o.setXxx(value)
+        // _o is declared once at the top of the extractor method
+        final Class<?> paramType = setter.getParameterTypes()[0];
+        sb.append("  _o.").append(setterName).append("(");
+        final String effectiveCast = resolveEffectiveCast(paramType, field.getCastType());
+        if (paramType.isEnum()) {
+            // Auto-convert String to enum: EnumType.valueOf(stringValue.toUpperCase())
+            // toUpperCase() handles case-insensitive matching (e.g., "slow" → "SLOW")
+            sb.append(paramType.getName()).append(".valueOf(((String) ");
+            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            sb.append(").toUpperCase())");
+        } else {
+            generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
+        }
+        sb.append(");\n");
+    }
+
+    private static java.lang.reflect.Method findSetter(
+            final Class<?> clazz, final String setterName) {
+        Class<?> c = clazz;
+        while (c != null && c != Object.class) {
+            for (final java.lang.reflect.Method m : c.getDeclaredMethods()) {
+                if (m.getName().equals(setterName)
+                        && m.getParameterCount() == 1) {
+                    return m;
+                }
+            }
+            c = c.getSuperclass();
+        }
+        return null;
+    }
+
+    /**
+     * Resolve the effective cast type based on the setter parameter type.
+     * When the setter takes a primitive, use the matching cast so that
+     * Javassist can resolve the correct overload (e.g. setComponentId(int)
+     * not setComponentId(Integer)).
+     */
+    private static String resolveEffectiveCast(final Class<?> paramType,
+                                                final String lalCast) {
+        if (paramType == long.class) {
+            return "Long";
+        }
+        if (paramType == int.class) {
+            return "Integer";
+        }
+        if (paramType == double.class || paramType == float.class) {
+            return "Long"; // toLong handles numeric conversion
+        }
+        if (paramType == boolean.class) {
+            return "Boolean";
+        }
+        if (paramType == String.class) {
+            return "String";
+        }
+        // For boxed types and others, use the LAL-declared cast
+        return lalCast;
     }
 
     // ==================== Sink method generation ====================
@@ -387,8 +436,8 @@ final class LALBlockCodegen {
         lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
 
         if (genCtx.usedProtoAccess) {
-            if (genCtx.extraLogType != null) {
-                final String elTypeName = genCtx.extraLogType.getName();
+            if (genCtx.inputType != null) {
+                final String elTypeName = genCtx.inputType.getName();
                 body.append("  ").append(elTypeName).append(" _p = (")
                     .append(elTypeName).append(") h.ctx().extraLog();\n");
                 lvtVars.add(new String[]{"_p",
@@ -947,11 +996,11 @@ final class LALBlockCodegen {
                 }
                 break;
             case NONE:
-                if (genCtx.extraLogType != null) {
-                    current = generateExtraLogAccess(fieldSegments, genCtx.extraLogType,
+                if (genCtx.inputType != null) {
+                    current = generateExtraLogAccess(fieldSegments, genCtx.inputType,
                         "_p", true, genCtx);
                 } else {
-                    // No parser and no extraLogType — fall back to LogData proto
+                    // No parser and no inputType — fall back to LogData proto
                     current = generateExtraLogAccess(fieldSegments, LogData.Builder.class,
                         "h.ctx().log()", false, genCtx);
                 }

@@ -19,137 +19,83 @@ package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
 import com.google.protobuf.Message;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
-import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
-import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.query.type.ContentType;
-import org.apache.skywalking.oap.server.core.source.Log;
+import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils.toJSON;
-
 /**
- * RecordSinkListener forwards the log data to the persistence layer with the query required conditions.
+ * RecordSinkListener forwards LAL output to the persistence layer.
+ *
+ * <p>All LAL rules produce an {@link LALOutputBuilder} in the {@link ExecutionContext}.
+ * This listener calls {@code init()} to populate standard fields from LogData,
+ * then {@code complete()} to dispatch the final source(s).
  */
-@RequiredArgsConstructor
 public class RecordSinkListener implements LogSinkListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordSinkListener.class);
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
     private final List<String> searchableTagKeys;
-    @Getter
-    private final Log log = new Log();
+
+    private LALOutputBuilder builder;
+
+    RecordSinkListener(final SourceReceiver sourceReceiver,
+                       final NamingControl namingControl,
+                       final List<String> searchableTagKeys) {
+        this.sourceReceiver = sourceReceiver;
+        this.namingControl = namingControl;
+        this.searchableTagKeys = searchableTagKeys;
+    }
 
     @Override
     public void build() {
-        sourceReceiver.receive(log);
-        addAutocompleteTags();
+        if (builder == null) {
+            return;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("RecordSinkListener invoking builder.complete() on {}",
+                builder.getClass().getSimpleName());
+        }
+        builder.complete(sourceReceiver);
     }
 
     @Override
     @SneakyThrows
     public LogSinkListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
-        LogDataBody body = logData.getBody();
-        log.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
-        // timestamp
-        log.setTimestamp(logData.getTimestamp());
-        log.setTimeBucket(TimeBucket.getRecordTimeBucket(logData.getTimestamp()));
-
-        // service
-        String serviceName = namingControl.formatServiceName(logData.getService());
-        String serviceId = IDManager.ServiceID.buildId(serviceName, true);
-        log.setServiceId(serviceId);
-        // service instance
-        if (StringUtil.isNotEmpty(logData.getServiceInstance())) {
-            log.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(
-                serviceId,
-                namingControl.formatInstanceName(logData.getServiceInstance())
-            ));
-        }
-        // endpoint
-        if (StringUtil.isNotEmpty(logData.getEndpoint())) {
-            String endpointName = namingControl.formatEndpointName(serviceName, logData.getEndpoint());
-            log.setEndpointId(IDManager.EndpointID.buildId(serviceId, endpointName));
-        }
-        // trace
-        TraceContext traceContext = logData.getTraceContext();
-        if (StringUtil.isNotEmpty(traceContext.getTraceId())) {
-            log.setTraceId(traceContext.getTraceId());
-        }
-        if (StringUtil.isNotEmpty(traceContext.getTraceSegmentId())) {
-            log.setTraceSegmentId(traceContext.getTraceSegmentId());
-            log.setSpanId(traceContext.getSpanId());
-        }
-        // content
-        if (body.hasText()) {
-            log.setContentType(ContentType.TEXT);
-            log.setContent(body.getText().getText());
-        } else if (body.hasYaml()) {
-            log.setContentType(ContentType.YAML);
-            log.setContent(body.getYaml().getYaml());
-        } else if (body.hasJson()) {
-            log.setContentType(ContentType.JSON);
-            log.setContent(body.getJson().getJson());
-        } else if (extraLog != null) {
-            log.setContentType(ContentType.JSON);
-            log.setContent(toJSON(extraLog));
-        }
-        if (logData.getTags().getDataCount() > 0) {
-            log.setTagsRawData(logData.getTags().toByteArray());
-        }
-        log.getTags().addAll(appendSearchableTags(logData));
         return this;
     }
 
-    private Collection<Tag> appendSearchableTags(LogData.Builder logData) {
-        HashSet<Tag> logTags = new HashSet<>();
-        logData.getTags().getDataList().forEach(tag -> {
-            if (searchableTagKeys.contains(tag.getKey())) {
-                final Tag logTag = new Tag(tag.getKey(), tag.getValue());
-                if (tag.getValue().length()  > Tag.TAG_LENGTH || logTag.toString().length() > Tag.TAG_LENGTH) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Log tag : {} length > : {}, dropped", logTag, Tag.TAG_LENGTH);
-                    }
-                    return;
-                }
-                logTags.add(logTag);
-            }
-        });
-        return logTags;
+    @Override
+    @SneakyThrows
+    public LogSinkListener parse(final LogData.Builder logData,
+                                 final Message extraLog,
+                                 final ExecutionContext ctx) {
+        if (ctx == null || !(ctx.output() instanceof LALOutputBuilder)) {
+            return this;
+        }
+        builder = ctx.outputAsBuilder();
+        if (builder instanceof LogBuilder) {
+            ((LogBuilder) builder).setSearchableTagKeys(searchableTagKeys);
+        }
+        builder.init(logData.build(), namingControl);
+        return this;
     }
 
-    private void addAutocompleteTags() {
-        log.getTags().forEach(tag -> {
-            TagAutocomplete tagAutocomplete = new TagAutocomplete();
-            tagAutocomplete.setTagKey(tag.getKey());
-            tagAutocomplete.setTagValue(tag.getValue());
-            tagAutocomplete.setTagType(TagType.LOG);
-            tagAutocomplete.setTimeBucket(TimeBucket.getMinuteTimeBucket(log.getTimestamp()));
-            sourceReceiver.receive(tagAutocomplete);
-        });
+    public LALOutputBuilder getBuilder() {
+        return builder;
     }
 
     public static class Factory implements LogSinkListenerFactory {

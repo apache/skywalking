@@ -44,14 +44,14 @@ oap-server/analyzer/log-analyzer/
     ExecutionContext.java               — Per-log execution state (log, parsed, flags)
     DSL.java                            — Wraps compiled expression + FilterSpec
     spec/filter/FilterSpec.java         — Top-level filter spec (all methods take ctx explicitly)
-    spec/extractor/ExtractorSpec.java   — Extractor field setters (all methods take ctx explicitly)
+    spec/extractor/MetricExtractor.java   — Handles LAL metrics {} blocks (prepare/submit samples to MAL)
     spec/sink/SinkSpec.java             — Sink spec (save/drop/sample)
     spec/sink/SamplerSpec.java          — Rate-limit sampler
 
   src/test/java/.../compiler/
-    LALScriptParserTest.java            — 20 parser tests
-    LALClassGeneratorTest.java          — 37 generator tests
-    LALExpressionExecutionTest.java     — 27 data-driven execution tests (from YAML + .input.data)
+    LALScriptParserTest.java            — 19 parser tests
+    LALClassGeneratorTest.java          — 35 generator tests
+    LALExpressionExecutionTest.java     — 25 data-driven execution tests (from YAML + .data.yaml)
 ```
 
 ## Package & Class Naming
@@ -76,7 +76,10 @@ The generator produces a single class per LAL script. Extractor and sink blocks 
 
 Method naming: `_extractor`, `_extractor_2`, `_extractor_3` (no `_0` suffix for single methods).
 
-Sub-blocks (slowSql, sampledTrace, metrics, sampler, rateLimit) are inlined within their parent method.
+Sub-blocks (metrics, sampler, rateLimit) are inlined within their parent method.
+
+Note: `slowSql` and `sampledTrace` sub-DSLs have been removed from the grammar. Custom output
+fields are now handled via the `outputType` mechanism with `outputFieldStatement` grammar rule.
 
 ## Explicit Context Passing (No ThreadLocal)
 
@@ -84,7 +87,8 @@ All spec methods take `ExecutionContext ctx` as an explicit parameter — there 
 
 - `execute(FilterSpec filterSpec, ExecutionContext ctx)` — entry point
 - `filterSpec.json(ctx)`, `filterSpec.text(ctx)`, `filterSpec.sink(ctx)` — parser/sink calls
-- `_e.service(h.ctx(), ...)`, `_e.tag(h.ctx(), ...)` — extractor calls via `h.ctx()`
+- `((OutputType) h.ctx().output()).setService(...)` — standard field setters on the output builder
+- `_e.prepareMetrics(h.ctx())`, `_e.submitMetrics(h.ctx(), _metrics)` — metrics calls via MetricExtractor
 - `_f.sampler().rateLimit(h.ctx(), ...)` — sink calls via `h.ctx()`
 
 The generated `execute()` method guards `_extractor()` and `_sink()` calls with `if (!ctx.shouldAbort())`, matching v1 Groovy behavior where `extractor {}` and `sink {}` closures check the abort flag before running their body. `finalizeSink(ctx)` also checks the flag. Individual spec methods inside each block additionally check `ctx.shouldAbort()` as a defense-in-depth measure.
@@ -110,24 +114,66 @@ The generator detects the parser type from the AST at compile time and generates
 | JSON/YAML | `parsed.service` | `h.mapVal("service")` |
 | JSON/YAML nested | `parsed.a.b` | `h.mapVal("a", "b")` |
 | TEXT (regexp) | `parsed.level` | `h.group("level")` |
-| NONE + extraLogType | `parsed.response.code` | `((ExtraLogType) h.ctx().extraLog()).getResponse().getCode()` |
-| NONE + no extraLogType | `parsed.service` | `h.ctx().log().getService()` (LogData.Builder fallback) |
+| NONE + inputType | `parsed.response.code` | `((ExtraLogType) h.ctx().extraLog()).getResponse().getCode()` |
+| NONE + no inputType | `parsed.service` | `h.ctx().log().getService()` (LogData.Builder fallback) |
 | log fields | `log.service` | `h.ctx().log().getService()` |
 | log trace | `log.traceContext.traceId` | `h.ctx().log().getTraceContext().getTraceId()` |
 | tags | `tag("KEY")` | `h.tagValue("KEY")` |
 
-### extraLogType and LALSourceTypeProvider SPI
+### inputType and LALSourceTypeProvider SPI
 
 For LAL rules with no DSL parser (`json{}`/`yaml{}`/`text{}`), the compiler needs a type to generate direct getter calls on `parsed.*` fields. Per-rule resolution order:
 
-1. **DSL parser** (`json{}`, `yaml{}`, `text{}`) — parser wins, extraLogType is ignored
-2. **Explicit `extraLogType`** in YAML rule config — FQCN string, resolved via `Class.forName()`
-3. **`LALSourceTypeProvider` SPI** — default extraLogType for a layer, discovered via `ServiceLoader`
+1. **DSL parser** (`json{}`, `yaml{}`, `text{}`) — parser wins, inputType is ignored
+2. **Explicit `inputType`** in YAML rule config — FQCN string, resolved via `Class.forName()`
+3. **`LALSourceTypeProvider` SPI** — default inputType for a layer, discovered via `ServiceLoader`
 4. **`LogData.Builder` fallback** — if none of the above, `parsed.*` generates getter chains on `LogData.Builder` with compile-time reflection validation. Fields not found on `LogData.Builder` cause `IllegalArgumentException` at boot.
 
 The SPI interface is in `org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider`. Receiver plugins implement it and register in `META-INF/services/`. Example: `EnvoyHTTPLALSourceTypeProvider` registers `HTTPAccessLogEntry` for `Layer.MESH`.
 
-A single YAML file can have rules with different input types (e.g., `envoy-als.yaml` has a proto-based rule and a `json{}` rule, both in layer MESH). Resolution is per-rule, not per-file.
+Resolution is per-rule, not per-file.
+
+### outputType — Configurable Output Entity
+
+The output entity type (`AbstractLog` subclass) produced by the LAL sink. Resolution order:
+
+1. **Per-rule YAML config** `outputType` field — FQCN string, highest priority
+2. **`LALSourceTypeProvider` SPI** `outputType()` — default for a layer
+3. **`Log.class`** — fallback if not specified anywhere
+
+inputType is per-layer (all rules share the same input proto), but outputType is per-rule
+(different rules in the same layer may produce different output types).
+
+### Output Field Assignments
+
+Custom fields specific to the output subclass are set via `outputFieldStatement` in the extractor:
+
+```
+extractor {
+  statement parsed.statement as String    // output field — direct setter on output object
+  latency parsed.latency as Long          // output field
+  service parsed.service as String        // standard field — direct setter on output builder
+}
+```
+
+Unknown identifiers in the extractor (not `service`, `instance`, `endpoint`, `layer`, etc.)
+are parsed as `OutputFieldAssignment`. The compiler generates direct setter calls:
+`((OutputType) h.ctx().output()).setFieldName(value)`.
+
+**Output object creation**: The generated `execute()` method creates the output object at the
+start: `h.ctx().setOutput(new OutputType())`. This happens before the extractor runs, so
+output fields are set directly via typed setter calls — no reflection.
+
+**Compile-time validation**: `outputType` must be set for output field assignments. The compiler
+validates that a matching setter exists on the output type class (e.g., `setStatement(String)`).
+If no setter is found, compilation fails with an `IllegalArgumentException` at boot.
+
+**Runtime dispatch**: `RecordSinkListener.parse()` reads the output object from
+`ExecutionContext.output()` (already populated by generated code), calls `init()` for
+builder mode, then `build()` dispatches via `complete()` or `sourceReceiver.receive()`.
+
+Note: `slowSql {}` and `sampledTrace {}` sub-DSLs were removed. Custom output types use
+the `outputType` + output field mechanism instead of dedicated DSL blocks.
 
 ## Example
 
@@ -145,8 +191,8 @@ public class default_L3_my_rule implements LalExpression {
         }
         filterSpec.sink(ctx);
     }
-    private void _extractor(ExtractorSpec _e, LalRuntimeHelper h) {
-        _e.service(h.ctx(), h.toStr(h.mapVal("service")));
+    private void _extractor(MetricExtractor _e, LalRuntimeHelper h) {
+        ((LogBuilder) h.ctx().output()).setService(h.toStr(h.mapVal("service")));
     }
 }
 ```
@@ -189,12 +235,12 @@ whereas `String.valueOf(null)` would produce the string `"null"`.
 test/script-cases/scripts/lal/test-lal/
   oap-cases/                     — copies of shipped LAL configs (each with .input.data)
   feature-cases/
-    execution-basic.yaml         — 17 LAL feature-coverage rules
-    execution-basic.input.data   — mock input + expected output per rule
+    execution-basic.yaml         — 16 LAL feature-coverage rules
+    execution-basic.data.yaml    — mock input + expected output per rule
 ```
 
 Each `.input.data` entry specifies `body-type`, `body`, optional `tags`, and `expect` assertions
-(service, instance, endpoint, layer, tags, abort, save, timestamp, sampledTrace fields).
+(service, instance, endpoint, layer, tags, abort, save, timestamp).
 
 ## LAL Input Data Mock Principles
 
@@ -221,7 +267,6 @@ rule-name:
       service: expected-svc          # Extracted service name
       layer: MESH                    # Extracted layer
       tag.status.code: "500"         # Extracted tag value
-      sampledTrace.traceId: trace-001  # SampledTrace field
 ```
 
 ### Principles
@@ -229,10 +274,8 @@ rule-name:
 1. **`body-type` determines parsing**: `json` → `json{}` block, `text` → `text{}` block, `none` → proto extraLog or raw LogData access.
 2. **`extra-log` for proto types**: When rules access `parsed.*` on protobuf types (e.g., `HTTPAccessLogEntry`), provide `proto-class` and `proto-json`. The test harness parses via `JsonFormat`.
 3. **`expect` section is mandatory**: Every entry must have `expect` with at least `save` and `abort`.
-4. **Enum fields as strings**: Fields like `sampledTrace.reason` and `sampledTrace.detectPoint` are enums. Expected values use enum names (e.g., `slow`, `client`) compared via `.name()`.
-5. **Tag assertions**: `tag.KEY` in expect asserts extracted tag values (e.g., `tag.status.code: "500"`).
-6. **SampledTrace assertions**: `sampledTrace.FIELD` asserts fields on `NativeSampledTrace` (traceId, processId, destProcessId, componentId, etc.).
-7. **v1 is the truth**: Both v1 (Groovy) and v2 (ANTLR4) must produce identical results. If v1 produces different output than expected, the expected data has a bug.
+4. **Tag assertions**: `tag.KEY` in expect asserts extracted tag values (e.g., `tag.status.code: "500"`).
+5. **v1 is the truth**: Both v1 (Groovy) and v2 (ANTLR4) must produce identical results. If v1 produces different output than expected, the expected data has a bug.
 
 ### Directory Structure
 

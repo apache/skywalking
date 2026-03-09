@@ -79,42 +79,6 @@ class LALScriptParserTest {
     }
 
     @Test
-    void parseSlowSql() {
-        final LALScriptModel model = LALScriptParser.parse(
-            "filter {\n"
-                + "  json {}\n"
-                + "  extractor {\n"
-                + "    layer parsed.layer as String\n"
-                + "    service parsed.service as String\n"
-                + "    timestamp parsed.time as String\n"
-                + "    slowSql {\n"
-                + "      id parsed.id as String\n"
-                + "      statement parsed.statement as String\n"
-                + "      latency parsed.query_time as Long\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
-
-        final LALScriptModel.ExtractorBlock extractor =
-            (LALScriptModel.ExtractorBlock) model.getStatements().get(1);
-
-        // Find the slowSql block
-        LALScriptModel.SlowSqlBlock slowSql = null;
-        for (final LALScriptModel.ExtractorStatement stmt : extractor.getStatements()) {
-            if (stmt instanceof LALScriptModel.SlowSqlBlock) {
-                slowSql = (LALScriptModel.SlowSqlBlock) stmt;
-            }
-        }
-        assertNotNull(slowSql);
-        assertNotNull(slowSql.getId());
-        assertEquals("String", slowSql.getIdCast());
-        assertNotNull(slowSql.getStatement());
-        assertEquals("String", slowSql.getStatementCast());
-        assertNotNull(slowSql.getLatency());
-        assertEquals("Long", slowSql.getLatencyCast());
-    }
-
-    @Test
     void parseMetricsBlock() {
         final LALScriptModel model = LALScriptParser.parse(
             "filter {\n"
@@ -450,32 +414,6 @@ class LALScriptParserTest {
         assertEquals("String", method.getArguments().get(1).getCastType());
     }
 
-    // ==================== Sampled trace parsing ====================
-
-    @Test
-    void parseSampledTrace() {
-        final LALScriptModel model = LALScriptParser.parse(
-            "filter {\n"
-                + "  json {}\n"
-                + "  extractor {\n"
-                + "    sampledTrace {\n"
-                + "      latency parsed.latency as Long\n"
-                + "      uri parsed.uri as String\n"
-                + "      reason parsed.reason as String\n"
-                + "      detectPoint parsed.detect_point as String\n"
-                + "      componentId 49\n"
-                + "    }\n"
-                + "  }\n"
-                + "  sink {}\n"
-                + "}");
-
-        final LALScriptModel.ExtractorBlock extractor =
-            (LALScriptModel.ExtractorBlock) model.getStatements().get(1);
-        final LALScriptModel.SampledTraceBlock st =
-            (LALScriptModel.SampledTraceBlock) extractor.getStatements().get(0);
-        assertEquals(5, st.getStatements().size());
-    }
-
     // ==================== If in extractor/sink parsing ====================
 
     @Test
@@ -525,5 +463,38 @@ class LALScriptParserTest {
         // The sampler has one if-block as content
         assertEquals(1, sampler.getContents().size());
         assertInstanceOf(LALScriptModel.IfBlock.class, sampler.getContents().get(0));
+    }
+
+    @Test
+    void parseOutputFieldAssignment() {
+        final LALScriptModel model = LALScriptParser.parse(
+            "filter {\n"
+                + "  json {}\n"
+                + "  extractor {\n"
+                + "    service parsed.service as String\n"
+                + "    statement parsed.statement as String\n"
+                + "    latency parsed.latency as Long\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+        final LALScriptModel.ExtractorBlock extractor =
+            (LALScriptModel.ExtractorBlock) model.getStatements().get(1);
+        assertEquals(3, extractor.getStatements().size());
+
+        // 'service' is a known field → FieldAssignment
+        assertInstanceOf(LALScriptModel.FieldAssignment.class,
+            extractor.getStatements().get(0));
+
+        // 'statement' is not a known field → OutputFieldAssignment
+        final LALScriptModel.OutputFieldAssignment stmt =
+            (LALScriptModel.OutputFieldAssignment) extractor.getStatements().get(1);
+        assertEquals("statement", stmt.getFieldName());
+        assertEquals("String", stmt.getCastType());
+
+        // 'latency' is not a known field → OutputFieldAssignment
+        final LALScriptModel.OutputFieldAssignment latency =
+            (LALScriptModel.OutputFieldAssignment) extractor.getStatements().get(2);
+        assertEquals("latency", latency.getFieldName());
+        assertEquals("Long", latency.getCastType());
     }
 }
