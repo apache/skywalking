@@ -28,7 +28,18 @@ public class LALConfig {
 
     private String layer;
 
-    private String extraLogType;
+    /**
+     * Fully qualified class name of the input type (the extra log proto/POJO)
+     * for compile-time {@code parsed.*} getter resolution.
+     */
+    private String inputType;
+
+    /**
+     * Fully qualified class name of the output {@link org.apache.skywalking.oap.server.core.source.Source}
+     * subclass that the LAL sink should produce.
+     * Defaults to {@link org.apache.skywalking.oap.server.core.source.Log} when not specified.
+     */
+    private String outputType;
 
     /**
      * Source YAML file name (without extension), set during loading by

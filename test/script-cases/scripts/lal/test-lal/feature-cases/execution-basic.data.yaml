@@ -138,24 +138,3 @@ text-parser-regexp:
   body: "1609459200000 ERROR Something failed"
   expect:
     service: ERROR
-
-sampled-trace-basic:
-  body-type: json
-  body: '{"latency":150,"uri":"/test","reason":"slow","pid":"proc-a","dpid":"proc-b","dp":"client"}'
-  service: trace-svc
-  instance: trace-inst
-  trace-id: trace-basic-001
-  timestamp: 1609459200000
-  expect:
-    save: true
-    sampledTrace.traceId: trace-basic-001
-    sampledTrace.serviceName: trace-svc
-    sampledTrace.serviceInstanceName: trace-inst
-    sampledTrace.timestamp: 1609459200000
-    sampledTrace.latency: 150
-    sampledTrace.uri: /test
-    sampledTrace.reason: SLOW
-    sampledTrace.processId: proc-a
-    sampledTrace.destProcessId: proc-b
-    sampledTrace.detectPoint: CLIENT
-    sampledTrace.componentId: 49

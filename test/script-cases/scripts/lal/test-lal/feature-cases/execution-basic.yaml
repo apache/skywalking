@@ -252,21 +252,3 @@ rules:
         }
         sink {}
       }
-
-  - name: sampled-trace-basic
-    layer: MESH_DP
-    dsl: |
-      filter {
-        json {}
-        extractor {
-          sampledTrace {
-            latency parsed.latency as Long
-            uri parsed.uri as String
-            reason parsed.reason as String
-            processId parsed.pid as String
-            destProcessId parsed.dpid as String
-            detectPoint parsed.dp as String
-            componentId 49
-          }
-        }
-      }

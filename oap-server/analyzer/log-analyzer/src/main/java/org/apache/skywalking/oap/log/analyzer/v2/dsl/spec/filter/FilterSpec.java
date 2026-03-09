@@ -24,12 +24,10 @@ import com.google.protobuf.TextFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.ExtractorSpec;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.MetricExtractor;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.JsonParserSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.TextParserSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.YamlParserSpec;
@@ -39,7 +37,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfi
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogSinkListenerFactory;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.RecordSinkListener;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.TrafficSinkListener;
-import org.apache.skywalking.oap.server.core.source.Log;
+import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
@@ -63,7 +61,7 @@ public class FilterSpec extends AbstractSpec {
 
     private final YamlParserSpec yamlParser;
 
-    private final ExtractorSpec extractor;
+    private final MetricExtractor extractor;
 
     private final SinkSpec sink;
 
@@ -85,7 +83,7 @@ public class FilterSpec extends AbstractSpec {
         jsonParser = new JsonParserSpec(moduleManager(), moduleConfig());
         yamlParser = new YamlParserSpec(moduleManager(), moduleConfig());
 
-        extractor = new ExtractorSpec(moduleManager(), moduleConfig());
+        extractor = new MetricExtractor(moduleManager(), moduleConfig());
 
         sink = new SinkSpec(moduleManager(), moduleConfig());
     }
@@ -183,26 +181,27 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
-        final Optional<AtomicReference<Log>> container = ctx.logContainer();
-        if (container.isPresent()) {
+        if (ctx.shouldCaptureLog()) {
             sinkListenerFactories.stream()
                      .map(LogSinkListenerFactory::create)
                      .filter(it -> it instanceof RecordSinkListener)
-                     .map(it -> it.parse(logData, extraLog))
+                     .map(it -> it.parse(logData, extraLog, ctx))
                      .map(it -> (RecordSinkListener) it)
-                     .map(RecordSinkListener::getLog)
+                     .map(RecordSinkListener::getBuilder)
+                     .filter(it -> it instanceof LogBuilder)
+                     .map(it -> ((LogBuilder) it).toLog())
                      .findFirst()
-                     .ifPresent(log -> container.get().set(log));
+                     .ifPresent(log -> ctx.logContainer(log));
         } else {
             sinkListenerFactories.stream()
                      .map(LogSinkListenerFactory::create)
-                     .forEach(it -> it.parse(logData, extraLog).build());
+                     .forEach(it -> it.parse(logData, extraLog, ctx).build());
         }
     }
 
     // ==================== Direct-access APIs for flattened generated code ====================
 
-    public ExtractorSpec extractor() {
+    public MetricExtractor extractor() {
         return extractor;
     }
 

@@ -41,23 +41,11 @@ SPAN_ID:       'spanId';
 TIMESTAMP:     'timestamp';
 TAG:           'tag';
 METRICS:       'metrics';
-SLOW_SQL:      'slowSql';
-SAMPLED_TRACE: 'sampledTrace';
 REGEXP:        'regexp';
 ABORT_ON_FAILURE: 'abortOnFailure';
 NAME:          'name';
 VALUE:         'value';
 LABELS:        'labels';
-ID:            'id';
-STATEMENT:     'statement';
-LATENCY:       'latency';
-URI:           'uri';
-REASON:        'reason';
-PROCESS_ID:    'processId';
-DEST_PROCESS_ID: 'destProcessId';
-DETECT_POINT:  'detectPoint';
-COMPONENT_ID:  'componentId';
-REPORT_SERVICE: 'reportService';
 
 // Keywords - sink statements
 SAMPLER:       'sampler';

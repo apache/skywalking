@@ -37,6 +37,8 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfi
 import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
 
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
@@ -48,20 +50,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
  *
  * <p>Two-phase execution (called by {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.LogAnalyzer}):
  * <ol>
- *   <li>{@link #parse} — creates a fresh {@link ExecutionContext} with the current log data
- *       and binds it to every DSL instance (sets the ThreadLocal in each Spec).</li>
+ *   <li>{@link #parse} — creates a fresh {@link ExecutionContext} with the current log data.</li>
  *   <li>{@link #build} — calls {@link DSL#evaluate(ExecutionContext)} on every DSL instance,
  *       which invokes the compiled {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression}
- *       to run the filter/extractor/sink pipeline.</li>
+ *       to run the filter/extractor/sink pipeline. The context is passed explicitly — no ThreadLocal.</li>
  * </ol>
- *
- * <p>The inner {@link Factory} is created once at startup by
- * {@link org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider#start()}.
- * It loads all {@code .yaml} LAL config files, compiles each rule's DSL string
- * into a {@link DSL} instance via
- * {@link DSL#of(org.apache.skywalking.oap.server.library.module.ModuleManager,
- *   org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig, String)},
- * and organizes them by {@link Layer}.
  */
 @Slf4j
 public class LogFilterListener implements LogAnalysisListener {
@@ -86,10 +79,10 @@ public class LogFilterListener implements LogAnalysisListener {
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
                                      final Message extraLog) {
-        final LogData log = logData.build();
+        final LogData logDataSnapshot = logData.build();
         contexts = new ArrayList<>(dsls.size());
         for (int i = 0; i < dsls.size(); i++) {
-            contexts.add(new ExecutionContext().log(log).extraLog(extraLog));
+            contexts.add(new ExecutionContext().log(logDataSnapshot).extraLog(extraLog));
         }
         return this;
     }
@@ -100,12 +93,13 @@ public class LogFilterListener implements LogAnalysisListener {
         public Factory(final ModuleManager moduleManager, final LogAnalyzerModuleConfig config) throws Exception {
             dsls = new HashMap<>();
 
-            // Scan SPI providers for default extraLogType per layer
-            final Map<Layer, Class<?>> spiTypes = new HashMap<>();
+            // Scan SPI providers for default inputType/outputType per layer
+            final Map<Layer, LALSourceTypeProvider> spiProviders = new HashMap<>();
             for (final LALSourceTypeProvider p : ServiceLoader.load(LALSourceTypeProvider.class)) {
-                spiTypes.put(p.layer(), p.extraLogType());
-                log.info("LALSourceTypeProvider: layer={} -> {}",
-                    p.layer().name(), p.extraLogType().getName());
+                spiProviders.put(p.layer(), p);
+                log.info("LALSourceTypeProvider: layer={}, inputType={}, outputType={}",
+                    p.layer().name(), p.inputType().getName(),
+                    p.outputType() != null ? p.outputType().getName() : "default(Log)");
             }
 
             final List<LALConfig> configList = LALConfigs.load(config.getLalPath(), config.lalFiles())
@@ -114,30 +108,98 @@ public class LogFilterListener implements LogAnalysisListener {
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
                 final Layer layer = Layer.nameOf(c.getLayer());
+                final LALSourceTypeProvider spiProvider = spiProviders.get(layer);
 
                 // Per-rule resolution: explicit YAML > SPI > null
-                Class<?> resolvedType = resolveExtraLogType(c, spiTypes.get(layer));
+                final Class<?> resolvedInputType = resolveInputType(c, spiProvider);
+                final Class<?> resolvedOutputType = resolveOutputType(c, spiProvider);
 
                 final Map<String, DSL> layerDsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
-                if (layerDsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl(), resolvedType, c.getName(), c.getSourceName())) != null) {
+                if (layerDsls.put(c.getName(), DSL.of(
+                        moduleManager, config, c.getDsl(),
+                        resolvedInputType, resolvedOutputType,
+                        c.getName(), c.getSourceName())) != null) {
                     throw new ModuleStartException("Layer " + layer.name() + " has already set " + c.getName() + " rule.");
                 }
             }
         }
 
-        private static Class<?> resolveExtraLogType(final LALConfig config,
-                                                     final Class<?> spiType) throws ModuleStartException {
-            final String yamlType = config.getExtraLogType();
+        private static Class<?> resolveInputType(final LALConfig config,
+                                                  final LALSourceTypeProvider spiProvider) throws ModuleStartException {
+            final String yamlType = config.getInputType();
             if (yamlType != null && !yamlType.isEmpty()) {
                 try {
                     return Class.forName(yamlType);
                 } catch (ClassNotFoundException e) {
                     throw new ModuleStartException(
-                        "LAL rule '" + config.getName() + "' declares extraLogType '"
+                        "LAL rule '" + config.getName() + "' declares inputType '"
                             + yamlType + "' but the class was not found.", e);
                 }
             }
-            return spiType;
+            return spiProvider != null ? spiProvider.inputType() : null;
+        }
+
+        /**
+         * Short name → implementation class map built from {@link ServiceLoader}{@code <LALOutputBuilder>}.
+         * Populated once on first call to {@link #resolveOutputType}.
+         */
+        private static volatile Map<String, Class<?>> OUTPUT_BUILDER_NAMES;
+
+        private static Map<String, Class<?>> loadOutputBuilderNames() {
+            if (OUTPUT_BUILDER_NAMES != null) {
+                return OUTPUT_BUILDER_NAMES;
+            }
+            synchronized (Factory.class) {
+                if (OUTPUT_BUILDER_NAMES != null) {
+                    return OUTPUT_BUILDER_NAMES;
+                }
+                final Map<String, Class<?>> map = new HashMap<>();
+                for (final LALOutputBuilder builder : ServiceLoader.load(LALOutputBuilder.class)) {
+                    final String name = builder.name();
+                    final Class<?> prev = map.put(name, builder.getClass());
+                    if (prev != null) {
+                        log.warn("Duplicate LALOutputBuilder name '{}': {} vs {}",
+                            name, prev.getName(), builder.getClass().getName());
+                    }
+                    log.info("LALOutputBuilder registered: name={}, class={}",
+                        name, builder.getClass().getName());
+                }
+                OUTPUT_BUILDER_NAMES = map;
+                return map;
+            }
+        }
+
+        private static Class<?> resolveOutputType(
+                final LALConfig config,
+                final LALSourceTypeProvider spiProvider) throws ModuleStartException {
+            // Per-rule YAML config takes priority
+            final String yamlType = config.getOutputType();
+            if (yamlType != null && !yamlType.isEmpty()) {
+                // Try short name first (no '.' means it's not a FQCN)
+                if (!yamlType.contains(".")) {
+                    final Class<?> byName = loadOutputBuilderNames().get(yamlType);
+                    if (byName != null) {
+                        return byName;
+                    }
+                }
+                // Fall back to FQCN
+                try {
+                    return Class.forName(yamlType);
+                } catch (ClassNotFoundException e) {
+                    throw new ModuleStartException(
+                        "LAL rule '" + config.getName() + "' declares outputType '"
+                            + yamlType + "' but neither a registered LALOutputBuilder name"
+                            + " nor a class was found.", e);
+                }
+            }
+            // Fall back to SPI default for the layer
+            if (spiProvider != null) {
+                final Class<? extends Source> spiOutput = spiProvider.outputType();
+                if (spiOutput != null) {
+                    return spiOutput;
+                }
+            }
+            return null; // DSL.of() will default to Log.class
         }
 
         @Override

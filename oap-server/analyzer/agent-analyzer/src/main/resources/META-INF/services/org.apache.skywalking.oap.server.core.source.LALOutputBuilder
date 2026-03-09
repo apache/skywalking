@@ -1,3 +1,4 @@
+#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -12,21 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-# Mock input data for mesh-dp.yaml rules.
-
-network-profiling-slow-trace:
-  body-type: json
-  body: '{"latency":500,"uri":"/api/test","reason":"SLOW","service":"mesh-svc","serviceInstance":"mesh-inst-1","client_process":{"process_id":"proc-client-1","local":false,"address":"10.0.0.1:8080"},"server_process":{"process_id":"proc-server-1","local":false,"address":"10.0.0.2:8080"},"detect_point":"CLIENT","component":"http","ssl":false}'
-  tags:
-    LOG_KIND: NET_PROFILING_SAMPLED_TRACE
-  expect:
-    save: true
-    abort: false
-    outputField.latency: 500
-    outputField.uri: /api/test
-    outputField.reason: SLOW
-    outputField.processId: proc-client-1
-    outputField.destProcessId: proc-server-1
-    outputField.detectPoint: CLIENT
-    outputField.componentId: 49
+org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder
+org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder

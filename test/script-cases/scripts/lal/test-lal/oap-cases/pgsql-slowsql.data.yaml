@@ -17,10 +17,15 @@
 
 pgsql-slowsql:
   body-type: json
-  body: '{"layer":"POSTGRESQL","service":"pg-svc","time":"1609459200000","id":"slow-pg-1","statement":"SELECT 1","query_time":300}'
+  body: '{"layer":"POSTGRESQL","service":"pgsql::test-db","time":"1609459200000","id":"slow-002","statement":"SELECT * FROM orders WHERE created_at > now() - interval 1 day","query_time":5000}'
   tags:
     LOG_KIND: SLOW_SQL
   expect:
-    service: pg-svc
+    save: true
+    abort: false
     layer: POSTGRESQL
-    timestamp: 1609459200000
+    service: pgsql::test-db
+    timestamp: "1609459200000"
+    outputField.id: slow-002
+    outputField.statement: "SELECT * FROM orders WHERE created_at > now() - interval 1 day"
+    outputField.latency: 5000

@@ -22,13 +22,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import lombok.Getter;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.DatabaseSlowStatementBuilder;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SampledTraceBuilder;
+import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.Log;
 
 /**
@@ -50,9 +48,9 @@ public class ExecutionContext {
     public static final String KEY_SAVE = "save";
     public static final String KEY_ABORT = "abort";
     public static final String KEY_METRICS_CONTAINER = "metrics_container";
+    public static final String KEY_CAPTURE_LOG = "capture_log";
     public static final String KEY_LOG_CONTAINER = "log_container";
-    public static final String KEY_DATABASE_SLOW_STATEMENT = "database_slow_statement";
-    public static final String KEY_SAMPLED_TRACE = "sampled_trace";
+    public static final String KEY_OUTPUT = "output";
 
     private final Map<String, Object> properties = new HashMap<>();
 
@@ -73,7 +71,9 @@ public class ExecutionContext {
         setProperty(KEY_SAVE, true);
         setProperty(KEY_ABORT, false);
         setProperty(KEY_METRICS_CONTAINER, null);
+        setProperty(KEY_CAPTURE_LOG, false);
         setProperty(KEY_LOG_CONTAINER, null);
+        setProperty(KEY_OUTPUT, null);
         return this;
     }
 
@@ -106,24 +106,6 @@ public class ExecutionContext {
 
     public Parsed parsed() {
         return (Parsed) getProperty(KEY_PARSED);
-    }
-
-    public DatabaseSlowStatementBuilder databaseSlowStatement() {
-        return (DatabaseSlowStatementBuilder) getProperty(KEY_DATABASE_SLOW_STATEMENT);
-    }
-
-    public ExecutionContext databaseSlowStatement(final DatabaseSlowStatementBuilder databaseSlowStatementBuilder) {
-        setProperty(KEY_DATABASE_SLOW_STATEMENT, databaseSlowStatementBuilder);
-        return this;
-    }
-
-    public SampledTraceBuilder sampledTraceBuilder() {
-        return (SampledTraceBuilder) getProperty(KEY_SAMPLED_TRACE);
-    }
-
-    public ExecutionContext sampledTrace(final SampledTraceBuilder sampledTraceBuilder) {
-        setProperty(KEY_SAMPLED_TRACE, sampledTraceBuilder);
-        return this;
     }
 
     public ExecutionContext save() {
@@ -159,14 +141,34 @@ public class ExecutionContext {
         return Optional.ofNullable((List<SampleFamily>) getProperty(KEY_METRICS_CONTAINER));
     }
 
-    public ExecutionContext logContainer(final AtomicReference<Log> container) {
+    public ExecutionContext captureLog(final boolean capture) {
+        setProperty(KEY_CAPTURE_LOG, capture);
+        return this;
+    }
+
+    public boolean shouldCaptureLog() {
+        return (boolean) getProperty(KEY_CAPTURE_LOG);
+    }
+
+    public ExecutionContext logContainer(final Log container) {
         setProperty(KEY_LOG_CONTAINER, container);
         return this;
     }
 
-    @SuppressWarnings("unchecked")
-    public Optional<AtomicReference<Log>> logContainer() {
-        return Optional.ofNullable((AtomicReference<Log>) getProperty(KEY_LOG_CONTAINER));
+    public Optional<Log> logContainer() {
+        return Optional.ofNullable((Log) getProperty(KEY_LOG_CONTAINER));
+    }
+
+    public void setOutput(final Object output) {
+        setProperty(KEY_OUTPUT, output);
+    }
+
+    public Object output() {
+        return getProperty(KEY_OUTPUT);
+    }
+
+    public LALOutputBuilder outputAsBuilder() {
+        return (LALOutputBuilder) getProperty(KEY_OUTPUT);
     }
 
     public static class Parsed {

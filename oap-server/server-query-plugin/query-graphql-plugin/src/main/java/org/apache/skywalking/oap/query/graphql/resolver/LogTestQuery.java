@@ -23,7 +23,6 @@ import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
@@ -75,13 +74,13 @@ public class LogTestQuery implements GraphQLQueryResolver {
         ProtoBufJsonUtils.fromJSON(request.getLog(), log);
         ctx.log(log);
 
-        ctx.logContainer(new AtomicReference<>());
+        ctx.captureLog(true);
         ctx.metricsContainer(new ArrayList<>());
 
         dsl.evaluate(ctx);
 
         final LogTestResponse.LogTestResponseBuilder builder = LogTestResponse.builder();
-        ctx.logContainer().map(AtomicReference::get).ifPresent(it -> {
+        ctx.logContainer().ifPresent(it -> {
             final Log l = new Log();
 
             if (isNotBlank(it.getServiceId())) {

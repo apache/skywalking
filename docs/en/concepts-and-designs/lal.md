@@ -65,12 +65,12 @@ We can add tags like following:
       ...
    }
 ]
-``` 
+```
 And we can use this method to get the value of the tag key `TEST_KEY`.
 ```
 filter {
     if (tag("TEST_KEY") == "TEST_VALUE") {
-         ...   
+         ...
     }
 }
 ```
@@ -144,6 +144,8 @@ filter {
 
 Extractors aim to extract metadata from the logs. The metadata can be a service name, a service instance name, an
 endpoint name, or even a trace ID, all of which can be associated with the existing traces and metrics.
+
+#### Standard fields
 
 - `service`
 
@@ -222,7 +224,22 @@ filter {
 }
 ```
 
-- `metrics`
+#### Output fields
+
+When a rule declares a custom `outputType` (see [Output Type](#output-type)), the extractor can set fields specific to
+that output type. Any identifier in the extractor that is not a standard field (listed above) is treated as an
+**output field assignment**. The syntax is the same as standard fields:
+
+```
+fieldName valueExpression as Type
+```
+
+The LAL compiler validates at boot time that a matching setter exists on the output type class (e.g., `setStatement(String)`
+for field `statement`). If no setter is found, the OAP server will fail to start, ensuring early error detection.
+
+See [Slow SQL](#slow-sql-database-slow-statement) and [Sampled Trace](#sampled-trace-network-profiling) for concrete examples.
+
+#### `metrics`
 
 `metrics` extracts / generates metrics from the logs, and sends the generated metrics to the meter system. You may
 configure [MAL](mal.md) for further analysis of these metrics. The dedicated MAL config files are under
@@ -287,150 +304,13 @@ metrics:
     exp: http_response_time.sum(['le', 'service', 'instance']).increase('PT5M').histogram().histogram_percentile([50,75,90,95,99])
 ```
 
-- `slowSql`
-
-`slowSql` aims to convert LogData to DatabaseSlowStatement. It extracts data from `parsed` result and save them as DatabaseSlowStatement. SlowSql will not abort or edit logs, you can use other LAL for further processing.
-SlowSql will reuse `service`, `layer` and `timestamp` of extractor, so it is necessary to use `SlowSQL` after setting these.
-We require a log tag `"LOG_KIND" = "SLOW_SQL"` to make OAP distinguish slow SQL logs from other log reports.
-
-**Note**, slow SQL sampling would only flag this SQL in the candidate list. The OAP server would run statistic per service
-and only persistent the top 50 every 10(controlled by `topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10}`) minutes by default.  
-
-An example of JSON sent to OAP is as following:
-``` json
-[
-   {
-      "tags":{
-         "data":[
-            {
-               "key":"LOG_KIND",
-               "value":"SLOW_SQL"
-            }
-         ]
-      },
-      "layer":"MYSQL",
-      "body":{
-         "json":{
-            "json":"{\"time\":\"1663063011\",\"id\":\"cb92c1a5b-2691e-fb2f-457a-9c72a392d9ed\",\"service\":\"root[root]@[localhost]\",\"statement\":\"select sleep(2);\",\"layer\":\"MYSQL\",\"query_time\":2000}"
-         }
-      },
-      "service":"root[root]@[localhost]"
-   }
-]
-```
-
-- `statement`
-
-`statement` extracts the SQL statement from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be
-persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
-
-- `latency`
-
-`latency` extracts the latency from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be
-persisted (if not dropped) and is used to associate with TopNDatabaseStatement.
-
-- `id`
-
-`id` extracts the id from the `parsed` result, and set it into the `DatabaseSlowStatement`, which will be persisted (if not
-dropped) and is used to associate with TopNDatabaseStatement.
-
-An example of LAL to distinguish slow logs:
-
-```
-filter {
-  json{
-  }
-  extractor{
-    layer parsed.layer as String
-    service parsed.service as String
-    timestamp parsed.time as String
-    if (tag("LOG_KIND") == "SLOW_SQL") {
-      slowSql {
-        id parsed.id as String
-        statement parsed.statement as String
-        latency parsed.query_time as Long
-      }
-    }
-  }
-}
-```
-- `sampledTrace`
-
-`sampledTrace` aims to convert LogData to SampledTrace Records. It extracts data from `parsed` result and save them as SampledTraceRecord. SampledTrace will not abort or edit logs, you can use other LAL for further processing.
-We require a log tag `"LOG_KIND" = "NET_PROFILING_SAMPLED_TRACE"` to make OAP distinguish slow trace logs from other log reports.
-An example of JSON sent to OAP is as following:
-``` json
-[
-   {
-      "tags":{
-         "data":[
-            {
-               "key":"LOG_KIND",
-               "value":"NET_PROFILING_SAMPLED_TRACE"
-            }
-         ]
-      },
-      "layer":"MESH",
-      "body":{
-         "json":{
-            "json":"{\"uri\":\"/provider\",\"reason\":\"slow\",\"latency\":2048,\"client_process\":{\"process_id\":\"c1519f4555ec11eda8df0242ac1d0002\",\"local\":false,\"address\":\"\"},\"server_process\":{\"process_id\":\"\",\"local\":false,\"address\":\"172.31.0.3:443\"},\"detect_point\":\"client\",\"component\":\"http\",\"ssl\":true}"
-         }
-      },
-      "service":"test-service",
-      "serviceInstance":"test-service-instance",
-      "timestamp": 1666916962406,
-   }
-]
-```
-Examples are as follows:
-
-```
-filter {
-    json {
-    }
-    if (tag("LOG_KIND") == "NET_PROFILING_SAMPLED_TRACE") {
-        sampledTrace {
-            latency parsed.latency as Long
-            uri parsed.uri as String
-            reason parsed.reason as String
-
-            if (parsed.client_process.process_id as String != "") {
-                processId parsed.client_process.process_id as String
-            } else if (parsed.client_process.local as Boolean) {
-                processId ProcessRegistry.generateVirtualLocalProcess(parsed.service as String, parsed.serviceInstance as String) as String
-            } else {
-                processId ProcessRegistry.generateVirtualRemoteProcess(parsed.service as String, parsed.serviceInstance as String, parsed.client_process.address as String) as String
-            }
-
-            if (parsed.server_process.process_id as String != "") {
-                destProcessId parsed.server_process.process_id as String
-            } else if (parsed.server_process.local as Boolean) {
-                destProcessId ProcessRegistry.generateVirtualLocalProcess(parsed.service as String, parsed.serviceInstance as String) as String
-            } else {
-                destProcessId ProcessRegistry.generateVirtualRemoteProcess(parsed.service as String, parsed.serviceInstance as String, parsed.server_process.address as String) as String
-            }
-
-            detectPoint parsed.detect_point as String
-
-            if (parsed.component as String == "http" && parsed.ssl as Boolean) {
-                componentId 129
-            } else if (parsed.component as String == "http") {
-                componentId 49
-            } else if (parsed.ssl as Boolean) {
-                componentId 130
-            } else {
-                componentId 110
-            }
-        }
-    }
-}
-```
-
 ### Sink
 
-Sinks are the persistent layer of the LAL. By default, all the logs of each filter are persisted into the storage.
-However, some mechanisms allow you to selectively save some logs, or even drop all the logs after you've
-extracted useful information, such as metrics.
+Sinks are the persistent layer of the LAL. An explicit `sink {}` block is **required** for any data to be persisted.
+Without a `sink {}` block, no data is saved — this applies to all LAL rules, including those using custom `outputType`.
+
+Within the sink, you can use samplers, droppers, and enforcers to control which logs are persisted.
+An empty `sink {}` block means all logs are saved unconditionally.
 
 #### Sampler
 
@@ -552,3 +432,189 @@ filter {
     }
 }
 ```
+
+## Output Type
+
+By default, each LAL rule produces a `Log` source object that is persisted to storage. However, some use cases require
+transforming log data into a different entity type — for example, converting slow SQL logs into `DatabaseSlowStatement`
+records or network profiling logs into `SampledTraceRecord`. The `outputType` mechanism makes this configurable per rule,
+without requiring any DSL grammar changes.
+
+### Configuration
+
+Set `outputType` at the rule level in the YAML config. You can use the short name registered by
+the `LALOutputBuilder` SPI (recommended), or a fully qualified class name:
+
+```yaml
+rules:
+  - name: my-rule
+    layer: MYSQL
+    outputType: SlowSQL    # short name registered by DatabaseSlowStatementBuilder
+    dsl: |
+      filter {
+        // ...
+      }
+```
+
+### Resolution order
+
+The output type is resolved per-rule in the following priority:
+
+1. **Per-rule YAML config** — the `outputType` field shown above (highest priority).
+   Short names (no `.`) are resolved via `ServiceLoader<LALOutputBuilder>`; fully qualified class names
+   are resolved via `Class.forName()` as a fallback.
+2. **`LALSourceTypeProvider` SPI** — a default output type registered by receiver plugins for a specific layer
+3. **`Log.class`** — the fallback if not specified anywhere
+
+### Two output paths
+
+LAL supports two kinds of output types:
+
+| Output path | Base type | How it works |
+|---|---|---|
+| **Log path** | Subclass of `AbstractLog` | The sink populates standard log fields (service, instance, endpoint, tags, body, etc.) from `LogData` and persists via `SourceReceiver` |
+| **Builder path** | Implements `LALOutputBuilder` | The sink creates the builder, calls `init(LogData, NamingControl)` to pre-populate standard fields, applies output field values via setters, then calls `complete(SourceReceiver)` to validate and dispatch |
+
+The builder path is used when the output type implements the `LALOutputBuilder` interface. This is how SkyWalking's
+built-in slow SQL and sampled trace features work.
+
+### Built-in output types
+
+#### Slow SQL (Database Slow Statement)
+
+SkyWalking converts slow SQL logs into `DatabaseSlowStatement` records for database slow query analysis (MySQL, PostgreSQL, Redis, etc.).
+
+Use `outputType: SlowSQL` in your rule config.
+The available output fields are: `id`, `statement`, `latency`. Standard fields (`service`, `layer`, `timestamp`) are handled
+by the extractor as usual and pre-populated via `init()` from `LogData`.
+
+We require a log tag `"LOG_KIND" = "SLOW_SQL"` to make OAP distinguish slow SQL logs from other log reports.
+
+**Note**, slow SQL sampling would only flag this SQL in the candidate list. The OAP server would run statistic per service
+and only persistent the top 50 every 10(controlled by `topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10}`) minutes by default.
+
+See bundled LAL scripts for complete examples:
+[mysql-slowsql.yaml](../../../oap-server/server-starter/src/main/resources/lal/mysql-slowsql.yaml),
+[pgsql-slowsql.yaml](../../../oap-server/server-starter/src/main/resources/lal/pgsql-slowsql.yaml),
+[redis-slowsql.yaml](../../../oap-server/server-starter/src/main/resources/lal/redis-slowsql.yaml).
+
+#### Sampled Trace (Network Profiling)
+
+SkyWalking converts network profiling sampled trace logs into `SampledTraceRecord` for process-level network analysis.
+
+Use `outputType: SampledTrace` in your rule config.
+The available output fields are: `latency`, `uri`, `reason`, `processId`, `destProcessId`, `detectPoint`, `componentId`.
+
+We require a log tag `"LOG_KIND" = "NET_PROFILING_SAMPLED_TRACE"` to make OAP distinguish sampled trace logs from other log reports.
+
+See bundled LAL scripts for complete examples:
+[envoy-als.yaml](../../../oap-server/server-starter/src/main/resources/lal/envoy-als.yaml),
+[k8s-service.yaml](../../../oap-server/server-starter/src/main/resources/lal/k8s-service.yaml),
+[mesh-dp.yaml](../../../oap-server/server-starter/src/main/resources/lal/mesh-dp.yaml).
+
+### Extending: custom output types
+
+You can create custom output types to transform logs into any entity type for your own use cases. There are two approaches:
+
+#### Approach 1: Implement `LALOutputBuilder`
+
+Use this when you need full control over validation and dispatching, or when the output is not a simple `AbstractLog` subclass.
+
+1. Create a class that implements `org.apache.skywalking.oap.server.core.source.LALOutputBuilder`:
+
+```java
+public class MyCustomBuilder implements LALOutputBuilder {
+    public static final String NAME = "MyCustom";
+
+    @Setter @Getter
+    private String myField;
+    @Setter @Getter
+    private long myMetric;
+
+    public MyCustomBuilder() {} // no-arg constructor required
+
+    @Override
+    public String name() { return NAME; }
+
+    @Override
+    public void init(LogData logData, NamingControl namingControl) {
+        // Pre-populate from LogData (service, timestamp, traceId, etc.)
+    }
+
+    @Override
+    public void complete(SourceReceiver sourceReceiver) {
+        // Validate, build final Source/Record, and dispatch
+    }
+}
+```
+
+2. Register it as a `ServiceLoader` provider so the short name can be used in YAML config.
+   Create `META-INF/services/org.apache.skywalking.oap.server.core.source.LALOutputBuilder` containing:
+   ```
+   com.example.MyCustomBuilder
+   ```
+
+3. Reference it in your LAL YAML config by short name:
+
+```yaml
+rules:
+  - name: my-custom-rule
+    layer: GENERAL
+    outputType: MyCustom    # short name from name() method
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          myField parsed.someField as String
+          myMetric parsed.someValue as Long
+        }
+        sink {}
+      }
+```
+
+The LAL compiler validates at boot time that `setMyField(String)` and `setMyMetric(Long)` exist on `MyCustomBuilder`.
+Fully qualified class names (e.g., `outputType: com.example.MyCustomBuilder`) are also supported as a fallback.
+
+#### Approach 2: Extend `AbstractLog`
+
+Use this for simpler cases where you want to produce a log-like record with additional fields:
+
+1. Create a subclass of `AbstractLog` with the extra fields.
+2. Set `outputType` to your subclass. Standard log fields are populated automatically.
+
+#### Custom input types
+
+For rules that receive structured protobuf data (not JSON/YAML log bodies), you can configure the input type
+so that `parsed.*` generates optimized direct getter calls:
+
+```yaml
+rules:
+  - name: my-proto-rule
+    layer: MY_LAYER
+    inputType: com.example.MyProtoMessage
+    dsl: |
+      filter {
+        extractor {
+          service parsed.serviceName as String
+          endpoint parsed.requestPath as String
+        }
+      }
+```
+
+Alternatively, register a `LALSourceTypeProvider` SPI implementation to set the default input and output types
+for an entire layer, so individual rules don't need to repeat the configuration:
+
+```java
+public class MyLayerSourceTypeProvider implements LALSourceTypeProvider {
+    @Override
+    public Layer layer() { return Layer.MY_LAYER; }
+
+    @Override
+    public Class<?> inputType() { return MyProtoMessage.class; }
+
+    @Override
+    public Class<? extends Source> outputType() { return MyCustomBuilder.class; }
+}
+```
+
+Register it in `META-INF/services/org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider`.
