@@ -18,7 +18,6 @@
 package org.apache.skywalking.oap.log.analyzer.v2.spi;
 
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.source.Source;
 
 /**
  * SPI for receiver plugins to declare the input and default output types for
@@ -70,11 +69,12 @@ public interface LALSourceTypeProvider {
     Class<?> inputType();
 
     /**
-     * The default {@link Source} subclass that LAL rules on this layer produce.
+     * The default output type that LAL rules on this layer produce.
+     * Can be a {@code Source} subclass or an {@code LALOutputBuilder} implementation.
      * Individual rules can override this via the {@code outputType} YAML config field.
      * Returns {@code null} by default, meaning the standard {@code Log} source is used.
      */
-    default Class<? extends Source> outputType() {
+    default Class<?> outputType() {
         return null;
     }
 }

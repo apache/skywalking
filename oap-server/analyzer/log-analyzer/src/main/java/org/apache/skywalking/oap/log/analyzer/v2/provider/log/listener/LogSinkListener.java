@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import com.google.protobuf.Message;
+import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 
@@ -32,7 +32,7 @@ public interface LogSinkListener {
      * Parse the raw data from the probe.
      * @return {@code this} for chaining.
      */
-    LogSinkListener parse(LogData.Builder logData, final Message extraLog);
+    LogSinkListener parse(LogData.Builder logData, Optional<Object> extraLog);
 
     /**
      * Parse the raw data from the probe with access to the execution context.
@@ -40,7 +40,7 @@ public interface LogSinkListener {
      * per-execution state to the sink output.
      * @return {@code this} for chaining.
      */
-    default LogSinkListener parse(final LogData.Builder logData, final Message extraLog,
+    default LogSinkListener parse(final LogData.Builder logData, final Optional<Object> extraLog,
                                   final ExecutionContext ctx) {
         return parse(logData, extraLog);
     }

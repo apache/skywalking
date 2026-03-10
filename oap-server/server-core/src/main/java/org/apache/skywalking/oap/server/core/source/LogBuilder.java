@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,7 +78,6 @@ public class LogBuilder implements LALOutputBuilder {
         }
     }
 
-    @Override
     public void addTag(final String key, final String value) {
         if (StringUtil.isNotEmpty(key) && StringUtil.isNotEmpty(value)) {
             lalTags.add(new String[]{key, value});
@@ -90,7 +90,8 @@ public class LogBuilder implements LALOutputBuilder {
     }
 
     @Override
-    public void init(final LogData logData, final NamingControl namingControl) {
+    public void init(final LogData logData, final Optional<Object> extraLog,
+                     final NamingControl namingControl) {
         this.namingControl = namingControl;
         this.logData = logData;
         // Only populate fields that were NOT already set by the LAL extractor.

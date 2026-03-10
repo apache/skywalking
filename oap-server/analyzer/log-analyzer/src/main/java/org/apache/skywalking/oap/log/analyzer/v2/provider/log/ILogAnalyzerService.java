@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log;
 
-import com.google.protobuf.Message;
+import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -26,9 +26,9 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface ILogAnalyzerService extends Service {
 
-    void doAnalysis(LogData.Builder log, Message extraLog);
+    void doAnalysis(LogData.Builder log, Optional<Object> extraLog);
 
-    default void doAnalysis(LogData logData, Message extraLog) {
+    default void doAnalysis(LogData logData, Optional<Object> extraLog) {
         doAnalysis(logData.toBuilder(), extraLog);
     }
 

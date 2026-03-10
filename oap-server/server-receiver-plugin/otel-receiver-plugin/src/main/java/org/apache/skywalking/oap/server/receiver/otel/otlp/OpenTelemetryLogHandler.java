@@ -25,6 +25,7 @@ import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceResponse;
 import io.opentelemetry.proto.collector.logs.v1.LogsServiceGrpc;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.logs.v1.LogRecord;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
@@ -130,7 +131,7 @@ public class OpenTelemetryLogHandler
                     .setTags(buildTags(logRecord))
                     .setBody(buildBody(logRecord))
                     .setLayer(layer),
-                null);
+                Optional.empty());
         } catch (Exception e) {
             log.error("Failed to analyze logs", e);
         }

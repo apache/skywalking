@@ -19,11 +19,11 @@
 package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
@@ -172,7 +172,7 @@ public class FilterSpec extends AbstractSpec {
 
     private void doSink(final ExecutionContext ctx) {
         final LogData.Builder logData = ctx.log();
-        final Message extraLog = ctx.extraLog();
+        final Optional<Object> extraLog = Optional.ofNullable(ctx.extraLog());
 
         if (!ctx.shouldSave()) {
             if (LOGGER.isDebugEnabled()) {

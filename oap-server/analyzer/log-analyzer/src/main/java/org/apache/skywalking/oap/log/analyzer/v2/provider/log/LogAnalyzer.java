@@ -17,20 +17,16 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log;
 
-import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * Entry point for log analysis. Created per-request by the log receiver.
@@ -53,15 +49,16 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * </ol>
  */
 @Slf4j
-@RequiredArgsConstructor
 public class LogAnalyzer {
-    private final ModuleManager moduleManager;
-    private final LogAnalyzerModuleConfig moduleConfig;
     private final ILogAnalysisListenerManager factoryManager;
+
+    public LogAnalyzer(final ILogAnalysisListenerManager factoryManager) {
+        this.factoryManager = factoryManager;
+    }
 
     private final List<LogAnalysisListener> listeners = new ArrayList<>();
 
-    public void doAnalysis(LogData.Builder builder, Message extraLog) {
+    public void doAnalysis(LogData.Builder builder, Optional<Object> extraLog) {
         if (StringUtil.isEmpty(builder.getService())) {
             // If the service name is empty, the log will be ignored.
             log.debug("The log is ignored because the Service name is empty");
@@ -89,7 +86,7 @@ public class LogAnalyzer {
         notifyAnalysisListenerToBuild();
     }
 
-    private void notifyAnalysisListener(LogData.Builder builder, final Message extraLog) {
+    private void notifyAnalysisListener(LogData.Builder builder, final Optional<Object> extraLog) {
         listeners.forEach(listener -> listener.parse(builder, extraLog));
     }
 
