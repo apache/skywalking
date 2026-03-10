@@ -1179,7 +1179,7 @@ final class LALBlockCodegen {
                                       final LALClassGenerator.GenCtx genCtx) {
         final LALScriptModel.ValueAccess init = def.getInitializer();
         final String varName = def.getVarName();
-        final String javaVar = "_" + varName;
+        final String javaVar = "_def_" + varName;
         final boolean alreadyDeclared = genCtx.localVars.containsKey(varName);
 
         // Determine type and generate initializer expression
@@ -1534,7 +1534,8 @@ final class LALBlockCodegen {
                     // Local def variable reference
                     sb.append(genCtx.localVars.get(text).javaVarName);
                 } else {
-                    sb.append("null");
+                    throw new IllegalArgumentException(
+                        "Unknown identifier used as method argument: '" + text + "'");
                 }
             } else {
                 sb.append("null");
