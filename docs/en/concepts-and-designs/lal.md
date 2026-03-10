@@ -184,6 +184,20 @@ Two built-in conversion functions are provided for JSON interoperability:
 
 After declaration, the variable can be used in subsequent expressions with full null-safe navigation support (`?.`).
 
+Def variables can also be used as method arguments. This is useful when you need to look up a dynamic key:
+
+```
+filter {
+    json {}
+    extractor {
+        def key = parsed.fieldName as String
+        def config = toJson(parsed.metadata)
+        tag 'val': config?.get(key)?.getAsString()
+    }
+    sink {}
+}
+```
+
 Example — extracting fields from a protobuf input type (no JSON conversion needed):
 
 ```

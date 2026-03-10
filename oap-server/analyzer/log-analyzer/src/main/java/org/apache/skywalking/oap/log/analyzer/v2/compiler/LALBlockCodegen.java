@@ -921,7 +921,7 @@ final class LALBlockCodegen {
         for (final LALScriptModel.ValueAccessSegment seg : value.getChain()) {
             if (seg instanceof LALScriptModel.MethodSegment) {
                 current = appendMethodSegment(current,
-                    (LALScriptModel.MethodSegment) seg);
+                    (LALScriptModel.MethodSegment) seg, genCtx);
             } else if (seg instanceof LALScriptModel.IndexSegment) {
                 current = current + "["
                     + ((LALScriptModel.IndexSegment) seg).getIndex() + "]";
@@ -985,7 +985,7 @@ final class LALBlockCodegen {
                 }
             } else if (seg instanceof LALScriptModel.MethodSegment) {
                 current = appendMethodSegment(current,
-                    (LALScriptModel.MethodSegment) seg);
+                    (LALScriptModel.MethodSegment) seg, null);
             }
         }
 
@@ -1060,7 +1060,7 @@ final class LALBlockCodegen {
                 final LALScriptModel.ValueAccessSegment seg = chain.get(i);
                 if (seg instanceof LALScriptModel.MethodSegment) {
                     current = appendMethodSegment(current,
-                        (LALScriptModel.MethodSegment) seg);
+                        (LALScriptModel.MethodSegment) seg, genCtx);
                 } else if (seg instanceof LALScriptModel.IndexSegment) {
                     current = current + "["
                         + ((LALScriptModel.IndexSegment) seg).getIndex() + "]";
@@ -1317,7 +1317,7 @@ final class LALBlockCodegen {
                             + "." + methodName + "() in def variable chain");
                 }
                 final Class<?> returnType = method.getReturnType();
-                final String args = generateMethodArgs(ms.getArguments());
+                final String args = generateMethodArgs(ms.getArguments(), genCtx);
 
                 if (ms.isSafeNav() && canBeNull) {
                     if (isLast && returnType.isPrimitive()) {
@@ -1483,10 +1483,11 @@ final class LALBlockCodegen {
     // ==================== Utility methods ====================
 
     static String appendMethodSegment(final String current,
-                                       final LALScriptModel.MethodSegment ms) {
+                                       final LALScriptModel.MethodSegment ms,
+                                       final LALClassGenerator.GenCtx genCtx) {
         final String mn = ms.getName();
         final String args = ms.getArguments().isEmpty()
-            ? "" : generateMethodArgs(ms.getArguments());
+            ? "" : generateMethodArgs(ms.getArguments(), genCtx);
         if (ms.isSafeNav()) {
             // Special-cased helpers for common safe-nav methods on Object
             if ("toString".equals(mn)) {
@@ -1503,7 +1504,8 @@ final class LALBlockCodegen {
     }
 
     static String generateMethodArgs(
-            final List<LALScriptModel.FunctionArg> args) {
+            final List<LALScriptModel.FunctionArg> args,
+            final LALClassGenerator.GenCtx genCtx) {
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < args.size(); i++) {
             if (i > 0) {
@@ -1516,6 +1518,19 @@ final class LALBlockCodegen {
                     va.getSegments().get(0))).append("\"");
             } else if (va.isNumberLiteral()) {
                 sb.append(va.getSegments().get(0));
+            } else if (!va.getSegments().isEmpty()) {
+                final String text = va.getSegments().get(0);
+                if ("true".equals(text) || "false".equals(text)
+                        || "null".equals(text)) {
+                    // Boolean or null literal
+                    sb.append(text);
+                } else if (genCtx != null
+                        && genCtx.localVars.containsKey(text)) {
+                    // Local def variable reference
+                    sb.append(genCtx.localVars.get(text).javaVarName);
+                } else {
+                    sb.append("null");
+                }
             } else {
                 sb.append("null");
             }

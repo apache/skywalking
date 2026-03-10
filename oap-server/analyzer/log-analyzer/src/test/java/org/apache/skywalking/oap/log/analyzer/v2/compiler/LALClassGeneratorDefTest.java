@@ -217,4 +217,54 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 "(io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon)"),
             "Expected AccessLogCommon cast but got:\n" + source);
     }
+
+    // ==================== Def variable as method argument ====================
+
+    @Test
+    void generateSourceDefVarAsMethodArg() {
+        final String source = generator.generateSource(
+            "filter {\n"
+                + "  json {}\n"
+                + "  extractor {\n"
+                + "    def key = parsed.fieldName as String\n"
+                + "    def config = toJson(parsed.metadata)\n"
+                + "    tag 'val': config?.get(key)?.getAsString()\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+        // _d0 = key (String), _d1 = config (JsonObject)
+        // config?.get(key) should generate _d1.get(_d0), not _d1.get(null)
+        assertTrue(source.contains(".get(_d0)"),
+            "Expected .get(_d0) for def var arg but got:\n" + source);
+    }
+
+    @Test
+    void generateSourceBoolLiteralAsMethodArg() {
+        final String source = generator.generateSource(
+            "filter {\n"
+                + "  json {}\n"
+                + "  extractor {\n"
+                + "    def config = toJson(parsed.metadata)\n"
+                + "    tag 'val': config?.get(\"key\")?.getAsBoolean()\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+        // getAsBoolean() has no args, just verify it compiles
+        assertTrue(source.contains(".getAsBoolean()"),
+            "Expected .getAsBoolean() call but got:\n" + source);
+    }
+
+    @Test
+    void compileDefVarAsMethodArg() throws Exception {
+        compileAndAssert(
+            "filter {\n"
+                + "  json {}\n"
+                + "  extractor {\n"
+                + "    def key = parsed.fieldName as String\n"
+                + "    def config = toJson(parsed.metadata)\n"
+                + "    tag 'val': config?.get(key)?.getAsString()\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+    }
 }
