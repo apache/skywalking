@@ -122,7 +122,6 @@ public final class LALClassGenerator {
         // Local variables from def statements.
         // Maps user-chosen name (e.g., "metadata") to type info.
         final Map<String, LocalVarInfo> localVars = new HashMap<>();
-        int localVarCounter;
         final StringBuilder localVarDecls = new StringBuilder();
         final List<String[]> localVarLvtVars = new ArrayList<>();
 
@@ -151,7 +150,6 @@ public final class LALClassGenerator {
             protoVarCounter = 0;
             usedProtoAccess = false;
             localVars.clear();
-            localVarCounter = 0;
             localVarDecls.setLength(0);
             localVarLvtVars.clear();
         }
@@ -164,7 +162,6 @@ public final class LALClassGenerator {
                 protoVarCounter,
                 usedProtoAccess,
                 new HashMap<>(localVars),
-                localVarCounter,
                 localVarDecls.toString(),
                 new ArrayList<>(localVarLvtVars)
             };
@@ -182,11 +179,10 @@ public final class LALClassGenerator {
             usedProtoAccess = (Boolean) state[4];
             localVars.clear();
             localVars.putAll((Map<String, LocalVarInfo>) state[5]);
-            localVarCounter = (Integer) state[6];
             localVarDecls.setLength(0);
-            localVarDecls.append((String) state[7]);
+            localVarDecls.append((String) state[6]);
             localVarLvtVars.clear();
-            localVarLvtVars.addAll((List<String[]>) state[8]);
+            localVarLvtVars.addAll((List<String[]>) state[7]);
         }
     }
 

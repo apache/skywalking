@@ -169,8 +169,9 @@ Def variables are stored in `genCtx.localVars` map (name → `LocalVarInfo` with
 and resolved type). Variable declarations are emitted at method top via `genCtx.localVarDecls`;
 assignments are emitted at the point where `def` appears in the DSL.
 
-Java variable names follow the pattern `_d0`, `_d1`, etc. LVT entries are added for debugger
-visibility.
+Java variable names use the user-chosen name with a `_` prefix (e.g., `def config` → `_config`).
+Re-defining the same name reassigns the existing variable without creating a new declaration.
+LVT entries are added for debugger visibility.
 
 ## Compile-Time Data Source Analysis
 

@@ -1179,7 +1179,8 @@ final class LALBlockCodegen {
                                       final LALClassGenerator.GenCtx genCtx) {
         final LALScriptModel.ValueAccess init = def.getInitializer();
         final String varName = def.getVarName();
-        final String javaVar = "_d" + genCtx.localVarCounter++;
+        final String javaVar = "_" + varName;
+        final boolean alreadyDeclared = genCtx.localVars.containsKey(varName);
 
         // Determine type and generate initializer expression
         Class<?> resolvedType;
@@ -1233,12 +1234,14 @@ final class LALBlockCodegen {
         genCtx.localVars.put(varName,
             new LALClassGenerator.LocalVarInfo(javaVar, resolvedType));
 
-        // Emit declaration (placed at method top via localVarDecls)
-        genCtx.localVarDecls.append("  ").append(resolvedType.getName())
-            .append(" ").append(javaVar).append(";\n");
-        genCtx.localVarLvtVars.add(new String[]{
-            javaVar, "L" + resolvedType.getName().replace('.', '/') + ";"
-        });
+        // Emit declaration (placed at method top via localVarDecls) — skip if already declared
+        if (!alreadyDeclared) {
+            genCtx.localVarDecls.append("  ").append(resolvedType.getName())
+                .append(" ").append(javaVar).append(";\n");
+            genCtx.localVarLvtVars.add(new String[]{
+                javaVar, "L" + resolvedType.getName().replace('.', '/') + ";"
+            });
+        }
 
         // Emit assignment in body (at the point where def appears)
         sb.append("  ").append(javaVar).append(" = ");

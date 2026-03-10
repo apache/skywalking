@@ -43,7 +43,7 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 + "  }\n"
                 + "  sink {}\n"
                 + "}");
-        assertTrue(source.contains("com.google.gson.JsonObject _d0"),
+        assertTrue(source.contains("com.google.gson.JsonObject _config"),
             "Expected JsonObject declaration but got:\n" + source);
         assertTrue(source.contains("h.toJsonObject("),
             "Expected h.toJsonObject() call but got:\n" + source);
@@ -64,7 +64,7 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 + "  }\n"
                 + "  sink {}\n"
                 + "}");
-        assertTrue(source.contains("com.google.gson.JsonArray _d0"),
+        assertTrue(source.contains("com.google.gson.JsonArray _items"),
             "Expected JsonArray declaration but got:\n" + source);
         assertTrue(source.contains("h.toJsonArray("),
             "Expected h.toJsonArray() call but got:\n" + source);
@@ -85,8 +85,8 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 + "  }\n"
                 + "  sink {}\n"
                 + "}");
-        assertTrue(source.contains("_d0 == null") || source.contains("_d0 != null"),
-            "Expected null check on _d0 but got:\n" + source);
+        assertTrue(source.contains("_config == null") || source.contains("_config != null"),
+            "Expected null check on _config but got:\n" + source);
         assertTrue(source.contains(".has(\"env\")"),
             "Expected .has(\"env\") call but got:\n" + source);
     }
@@ -171,7 +171,7 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 + "  }\n"
                 + "  sink {}\n"
                 + "}");
-        assertTrue(source.contains("java.lang.String _d0"),
+        assertTrue(source.contains("java.lang.String _svc"),
             "Expected String declaration but got:\n" + source);
         assertTrue(source.contains("(java.lang.String)"),
             "Expected String cast but got:\n" + source);
@@ -211,7 +211,7 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 + "  sink {}\n"
                 + "}");
         assertTrue(source.contains(
-                "io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon _d0"),
+                "io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon _common"),
             "Expected AccessLogCommon declaration but got:\n" + source);
         assertTrue(source.contains(
                 "(io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon)"),
@@ -232,10 +232,10 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 + "  }\n"
                 + "  sink {}\n"
                 + "}");
-        // _d0 = key (String), _d1 = config (JsonObject)
-        // config?.get(key) should generate _d1.get(_d0), not _d1.get(null)
-        assertTrue(source.contains(".get(_d0)"),
-            "Expected .get(_d0) for def var arg but got:\n" + source);
+        // _key = key (String), _config = config (JsonObject)
+        // config?.get(key) should generate _config.get(_key), not _config.get(null)
+        assertTrue(source.contains(".get(_key)"),
+            "Expected .get(_key) for def var arg but got:\n" + source);
     }
 
     @Test

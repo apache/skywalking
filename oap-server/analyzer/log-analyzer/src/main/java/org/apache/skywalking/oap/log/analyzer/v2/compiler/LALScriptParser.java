@@ -712,7 +712,7 @@ public final class LALScriptParser {
             } else if (fac.STRING() != null) {
                 final String val = stripQuotes(fac.STRING().getText());
                 final ValueAccess va = new ValueAccess(
-                    List.of(val), false, false, true, true, false,
+                    List.of(val), false, false, false, true, false,
                     List.of(), null, null);
                 args.add(new LALScriptModel.FunctionArg(va, null));
             } else if (fac.NUMBER() != null) {
