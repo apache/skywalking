@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
+import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.ILogAnalyzerService;
@@ -71,7 +72,7 @@ public class LogHandler extends AbstractKafkaHandler {
     public void handle(final ConsumerRecord<String, Bytes> record) {
         try (HistogramMetrics.Timer ignore = histogram.createTimer()) {
             LogData logData = parseConsumerRecord(record);
-            logAnalyzerService.doAnalysis(logData, null);
+            logAnalyzerService.doAnalysis(logData, Optional.empty());
         } catch (Exception e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);
