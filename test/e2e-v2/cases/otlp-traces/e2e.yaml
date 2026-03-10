@@ -41,7 +41,7 @@ verify:
     # max retry count
     count: 20
     # the interval between two retries, in millisecond.
-    interval: 5s
+    interval: 10s
   cases:
     # service name
     - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/services
