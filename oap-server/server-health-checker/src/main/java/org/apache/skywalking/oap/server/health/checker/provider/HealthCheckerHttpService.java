@@ -35,11 +35,12 @@ public class HealthCheckerHttpService {
     @Get("/healthcheck")
     public HttpResponse healthcheck(ServiceRequestContext ctx, HttpRequest req) throws Exception {
         final var status = healthQueryService.checkHealth();
-        log.info("Health status: {}", status);
 
         if (status.getScore() == 0) {
+            log.debug("Health status: {}", status);
             return HttpResponse.of(HttpStatus.OK);
         }
+        log.warn("Health status: {}", status);
         return HttpResponse.of(HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
