@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 
 /**
@@ -32,7 +31,11 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
  * <p>The LAL compiler validates output field assignments against the builder's
  * setters at compile time. At runtime:
  * <ol>
- *   <li>{@link #init} is called to pre-populate standard fields from LogData</li>
+ *   <li>{@link #init} is called to pre-populate standard fields from the input
+ *       data object whose type matches what
+ *       {@code LALSourceTypeProvider#inputType()} declares (e.g.,
+ *       {@code LogData} for standard logs,
+ *       {@code HTTPAccessLogEntry} for envoy access logs)</li>
  *   <li>Output field values are applied via reflection (setter invocation)</li>
  *   <li>{@link #complete} is called to validate, create final Source/Record,
  *       and dispatch via {@link SourceReceiver}</li>
@@ -46,10 +49,16 @@ public interface LALOutputBuilder {
     String name();
 
     /**
-     * Pre-populate standard fields from the log data before custom output
+     * Pre-populate standard fields from the input data before custom output
      * fields are applied. Called once per log entry.
+     *
+     * <p>The actual type of {@code logData} matches what the
+     * {@code LALSourceTypeProvider#inputType()} declares for the layer.
+     * For standard logs this is {@code LogData}; for envoy access logs
+     * this is {@code HTTPAccessLogEntry}, etc. Each builder casts directly
+     * to its expected type.
      */
-    void init(LogData logData, NamingControl namingControl);
+    void init(Object logData, NamingControl namingControl);
 
     /**
      * Validate the builder state and dispatch the final output source(s).
@@ -57,10 +66,4 @@ public interface LALOutputBuilder {
      */
     void complete(SourceReceiver sourceReceiver);
 
-    /**
-     * Add a tag to the output. Only meaningful for builders that produce
-     * tag-bearing sources (e.g., {@link LogBuilder}). Default is no-op.
-     */
-    default void addTag(final String key, final String value) {
-    }
 }

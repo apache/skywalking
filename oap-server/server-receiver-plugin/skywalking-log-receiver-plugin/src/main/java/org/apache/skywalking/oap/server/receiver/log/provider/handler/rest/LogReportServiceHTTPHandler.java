@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.server.receiver.log.provider.handler.rest;
 
 import com.linecorp.armeria.server.annotation.Post;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
@@ -63,7 +64,7 @@ public class LogReportServiceHTTPHandler {
     @Post("/v3/logs")
     public Commands collectLogs(final List<LogData> logs) {
         try (final HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            logs.forEach(it -> logAnalyzerService.doAnalysis(it, null));
+            logs.forEach(it -> logAnalyzerService.doAnalysis(it, Optional.empty()));
             return Commands.newBuilder().build();
         } catch (final Throwable e) {
             errorCounter.inc();

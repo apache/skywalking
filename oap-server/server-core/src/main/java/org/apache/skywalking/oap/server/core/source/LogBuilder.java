@@ -77,7 +77,6 @@ public class LogBuilder implements LALOutputBuilder {
         }
     }
 
-    @Override
     public void addTag(final String key, final String value) {
         if (StringUtil.isNotEmpty(key) && StringUtil.isNotEmpty(value)) {
             lalTags.add(new String[]{key, value});
@@ -90,7 +89,8 @@ public class LogBuilder implements LALOutputBuilder {
     }
 
     @Override
-    public void init(final LogData logData, final NamingControl namingControl) {
+    public void init(final Object logDataObj, final NamingControl namingControl) {
+        final LogData logData = (LogData) logDataObj;
         this.namingControl = namingControl;
         this.logData = logData;
         // Only populate fields that were NOT already set by the LAL extractor.

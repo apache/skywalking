@@ -17,9 +17,9 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import com.google.protobuf.Message;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 
@@ -74,14 +74,14 @@ public class RecordSinkListener implements LogSinkListener {
     @Override
     @SneakyThrows
     public LogSinkListener parse(final LogData.Builder logData,
-                                     final Message extraLog) {
+                                     final Optional<Object> extraLog) {
         return this;
     }
 
     @Override
     @SneakyThrows
     public LogSinkListener parse(final LogData.Builder logData,
-                                 final Message extraLog,
+                                 final Optional<Object> extraLog,
                                  final ExecutionContext ctx) {
         if (ctx == null || !(ctx.output() instanceof LALOutputBuilder)) {
             return this;
@@ -90,7 +90,9 @@ public class RecordSinkListener implements LogSinkListener {
         if (builder instanceof LogBuilder) {
             ((LogBuilder) builder).setSearchableTagKeys(searchableTagKeys);
         }
-        builder.init(logData.build(), namingControl);
+        // Pass the input data matching the declared inputType:
+        // extraLog (e.g., HTTPAccessLogEntry) when present, otherwise LogData.
+        builder.init(extraLog.orElseGet(logData::build), namingControl);
         return this;
     }
 

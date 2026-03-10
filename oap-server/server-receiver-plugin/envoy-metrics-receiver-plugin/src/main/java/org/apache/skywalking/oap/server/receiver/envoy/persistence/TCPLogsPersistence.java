@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
+import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
@@ -66,7 +67,7 @@ public class TCPLogsPersistence implements TCPAccessLogAnalyzer {
             }
 
             final LogData logData = convertToLogData(entry, result);
-            logAnalyzerService.doAnalysis(logData, entry);
+            logAnalyzerService.doAnalysis(logData, Optional.of(entry));
         } catch (final Exception e) {
             log.error("Failed to persist Envoy access log", e);
         }

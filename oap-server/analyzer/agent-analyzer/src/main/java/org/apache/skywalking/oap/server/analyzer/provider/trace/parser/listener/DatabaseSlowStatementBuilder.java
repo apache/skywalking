@@ -75,7 +75,8 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     }
 
     @Override
-    public void init(final LogData logData, final NamingControl namingControl) {
+    public void init(final Object logDataObj, final NamingControl namingControl) {
+        final LogData logData = (LogData) logDataObj;
         this.namingControl = namingControl;
         // Only populate fields not already set by the LAL extractor.
         if (this.serviceName == null) {

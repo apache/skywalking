@@ -18,11 +18,11 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import com.google.protobuf.Message;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
 
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
-import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
@@ -78,15 +77,34 @@ public class LogFilterListener implements LogAnalysisListener {
 
     @Override
     public LogAnalysisListener parse(final LogData.Builder logData,
-                                     final Message extraLog) {
+                                     final Optional<Object> extraLog) {
         final LogData logDataSnapshot = logData.build();
         contexts = new ArrayList<>(dsls.size());
         for (int i = 0; i < dsls.size(); i++) {
-            contexts.add(new ExecutionContext().log(logDataSnapshot).extraLog(extraLog));
+            contexts.add(new ExecutionContext().log(logDataSnapshot).extraLog(extraLog.orElse(null)));
         }
         return this;
     }
 
+    /**
+     * Eagerly compiles all LAL rules at startup and groups the resulting
+     * {@link DSL} instances by telemetry layer and rule name.
+     *
+     * <p>{@code dsls} structure: {@code Layer -> (ruleName -> DSL)}.
+     * <ul>
+     *   <li><b>Outer key</b> ({@link Layer}): the telemetry layer declared in
+     *       the YAML rule (e.g., {@code GENERAL}, {@code MESH}).</li>
+     *   <li><b>Inner key</b> ({@code String}): the rule {@code name} field
+     *       from the YAML config (e.g., {@code "default"}, {@code "envoy-als"}).
+     *       Must be unique within a layer.</li>
+     *   <li><b>Value</b> ({@link DSL}): a compiled LAL expression plus its
+     *       runtime {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec},
+     *       ready to evaluate incoming logs.</li>
+     * </ul>
+     *
+     * <p>At runtime, {@link #create(Layer)} returns a {@link LogFilterListener}
+     * containing all DSL instances for the requested layer.
+     */
     public static class Factory implements LogAnalysisListenerFactory {
         private final Map<Layer, Map<String, DSL>> dsls;
 
@@ -194,7 +212,7 @@ public class LogFilterListener implements LogAnalysisListener {
             }
             // Fall back to SPI default for the layer
             if (spiProvider != null) {
-                final Class<? extends Source> spiOutput = spiProvider.outputType();
+                final Class<?> spiOutput = spiProvider.outputType();
                 if (spiOutput != null) {
                     return spiOutput;
                 }

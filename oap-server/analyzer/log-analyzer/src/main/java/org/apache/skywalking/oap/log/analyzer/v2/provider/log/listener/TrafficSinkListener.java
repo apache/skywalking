@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import com.google.protobuf.Message;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -63,7 +63,7 @@ public class TrafficSinkListener implements LogSinkListener {
 
     @Override
     public LogSinkListener parse(final LogData.Builder logData,
-                                     final Message extraLog) {
+                                     final Optional<Object> extraLog) {
         Layer layer;
         if (StringUtil.isNotEmpty(logData.getLayer())) {
             layer = Layer.valueOf(logData.getLayer());
