@@ -497,4 +497,121 @@ class LALScriptParserTest {
         assertEquals("latency", latency.getFieldName());
         assertEquals("Long", latency.getCastType());
     }
+
+    // ==================== Def statement parsing ====================
+
+    @Test
+    void parseDefWithToJson() {
+        final LALScriptModel model = LALScriptParser.parse(
+            "filter {\n"
+                + "  extractor {\n"
+                + "    def metadata = toJson(parsed?.request?.requestHeaders?.get(\"x-metadata\"))\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+
+        final LALScriptModel.ExtractorBlock extractor =
+            (LALScriptModel.ExtractorBlock) model.getStatements().get(0);
+        assertEquals(1, extractor.getStatements().size());
+        final LALScriptModel.DefStatement def =
+            assertInstanceOf(LALScriptModel.DefStatement.class,
+                extractor.getStatements().get(0));
+        assertEquals("metadata", def.getVarName());
+        assertNotNull(def.getInitializer());
+        assertEquals("toJson", def.getInitializer().getFunctionCallName());
+    }
+
+    @Test
+    void parseDefWithToJsonArray() {
+        final LALScriptModel model = LALScriptParser.parse(
+            "filter {\n"
+                + "  extractor {\n"
+                + "    def items = toJsonArray(parsed?.response?.responseTrailers?.get(\"x-items\"))\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+
+        final LALScriptModel.ExtractorBlock extractor =
+            (LALScriptModel.ExtractorBlock) model.getStatements().get(0);
+        final LALScriptModel.DefStatement def =
+            assertInstanceOf(LALScriptModel.DefStatement.class,
+                extractor.getStatements().get(0));
+        assertEquals("items", def.getVarName());
+        assertEquals("toJsonArray", def.getInitializer().getFunctionCallName());
+    }
+
+    @Test
+    void parseDefWithSimpleValueAccess() {
+        final LALScriptModel model = LALScriptParser.parse(
+            "filter {\n"
+                + "  extractor {\n"
+                + "    def code = parsed?.response?.responseCode\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+
+        final LALScriptModel.ExtractorBlock extractor =
+            (LALScriptModel.ExtractorBlock) model.getStatements().get(0);
+        final LALScriptModel.DefStatement def =
+            assertInstanceOf(LALScriptModel.DefStatement.class,
+                extractor.getStatements().get(0));
+        assertEquals("code", def.getVarName());
+        assertTrue(def.getInitializer().isParsedRef());
+    }
+
+    @Test
+    void parseDefAtFilterLevel() {
+        final LALScriptModel model = LALScriptParser.parse(
+            "filter {\n"
+                + "  json {}\n"
+                + "  def metadata = toJson(parsed.headers)\n"
+                + "  sink {}\n"
+                + "}");
+
+        assertEquals(3, model.getStatements().size());
+        final LALScriptModel.DefStatement def =
+            assertInstanceOf(LALScriptModel.DefStatement.class,
+                model.getStatements().get(1));
+        assertEquals("metadata", def.getVarName());
+    }
+
+    @Test
+    void parseDefWithPrimitiveCast() {
+        final LALScriptModel model = LALScriptParser.parse(
+            "filter {\n"
+                + "  extractor {\n"
+                + "    def svc = parsed?.service as String\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+
+        final LALScriptModel.ExtractorBlock extractor =
+            (LALScriptModel.ExtractorBlock) model.getStatements().get(0);
+        final LALScriptModel.DefStatement def =
+            assertInstanceOf(LALScriptModel.DefStatement.class,
+                extractor.getStatements().get(0));
+        assertEquals("svc", def.getVarName());
+        assertEquals("String", def.getCastType());
+    }
+
+    @Test
+    void parseDefWithQualifiedNameCast() {
+        final LALScriptModel model = LALScriptParser.parse(
+            "filter {\n"
+                + "  extractor {\n"
+                + "    def resp = parsed?.response"
+                + " as io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+
+        final LALScriptModel.ExtractorBlock extractor =
+            (LALScriptModel.ExtractorBlock) model.getStatements().get(0);
+        final LALScriptModel.DefStatement def =
+            assertInstanceOf(LALScriptModel.DefStatement.class,
+                extractor.getStatements().get(0));
+        assertEquals("resp", def.getVarName());
+        assertEquals("io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties",
+            def.getCastType());
+    }
 }

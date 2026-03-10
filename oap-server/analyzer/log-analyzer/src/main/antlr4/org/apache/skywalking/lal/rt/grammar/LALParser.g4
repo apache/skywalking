@@ -54,6 +54,7 @@ filterStatement
     | sinkBlock
     | ifStatement
     | abortBlock
+    | defStatement
     ;
 
 // ==================== Parser blocks ====================
@@ -116,7 +117,8 @@ extractorContent
     ;
 
 extractorStatement
-    : serviceStatement
+    : defStatement
+    | serviceStatement
     | instanceStatement
     | endpointStatement
     | layerStatement
@@ -128,6 +130,10 @@ extractorStatement
     | metricsBlock
     | ifStatement
     | outputFieldStatement
+    ;
+
+defStatement
+    : DEF IDENTIFIER ASSIGN valueAccess typeCast?
     ;
 
 serviceStatement
@@ -368,7 +374,11 @@ functionArg
 // ==================== Type cast ====================
 
 typeCast
-    : AS (STRING_TYPE | LONG_TYPE | INTEGER_TYPE | BOOLEAN_TYPE)
+    : AS (STRING_TYPE | LONG_TYPE | INTEGER_TYPE | BOOLEAN_TYPE | qualifiedName)
+    ;
+
+qualifiedName
+    : IDENTIFIER (DOT IDENTIFIER)*
     ;
 
 // ==================== Common ====================
@@ -384,6 +394,7 @@ anyIdentifier
     | NAME | VALUE | LABELS
     | SAMPLER | RATE_LIMIT | RPM | ENFORCER | DROPPER
     | TEXT | JSON | YAML | FILTER | EXTRACTOR | SINK | ABORT
+    | DEF
     ;
 
 boolValue

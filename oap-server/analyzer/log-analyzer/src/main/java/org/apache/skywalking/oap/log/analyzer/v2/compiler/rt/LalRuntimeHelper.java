@@ -17,6 +17,14 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler.rt;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.google.protobuf.ListValue;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -178,6 +186,115 @@ public final class LalRuntimeHelper {
             }
         }
         return "";
+    }
+
+    // ==================== JSON conversion (for def variables) ====================
+    //
+    // toJsonObject: converts to JsonObject. Overloaded for Struct, String, Object.
+    // toJsonArray:  converts to JsonArray.  Overloaded for String, Object.
+    //
+    // Primary use case: extract JWT claims from envoy ALS filter_metadata:
+    //   def jwt = toJson(parsed?.commonProperties?.metadata
+    //       ?.filterMetadataMap?.get("envoy.filters.http.jwt_authn"))
+    //   tag 'email': jwt?.getAsJsonObject("payload")?.get("email")?.getAsString()
+
+    /**
+     * Converts a protobuf {@link Struct} to a Gson {@link JsonObject}.
+     * Recursively converts nested Struct/Value/ListValue to Gson types.
+     */
+    public JsonObject toJsonObject(final Struct struct) {
+        if (struct == null) {
+            return null;
+        }
+        return structToJsonObject(struct);
+    }
+
+    /**
+     * Parses a JSON string into a {@link JsonObject}.
+     */
+    public JsonObject toJsonObject(final String s) {
+        if (s == null || s.isEmpty()) {
+            return null;
+        }
+        final JsonElement el = JsonParser.parseString(s);
+        return el.isJsonObject() ? el.getAsJsonObject() : null;
+    }
+
+    /**
+     * Fallback for {@code Map.get()} erasure — dispatches to typed overloads.
+     */
+    public JsonObject toJsonObject(final Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof Struct) {
+            return toJsonObject((Struct) obj);
+        }
+        if (obj instanceof String) {
+            return toJsonObject((String) obj);
+        }
+        return null;
+    }
+
+    /**
+     * Parses a JSON string into a {@link JsonArray}.
+     */
+    public JsonArray toJsonArray(final String s) {
+        if (s == null || s.isEmpty()) {
+            return null;
+        }
+        final JsonElement el = JsonParser.parseString(s);
+        return el.isJsonArray() ? el.getAsJsonArray() : null;
+    }
+
+    /**
+     * Fallback for {@code Map.get()} erasure.
+     */
+    public JsonArray toJsonArray(final Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof String) {
+            return toJsonArray((String) obj);
+        }
+        return null;
+    }
+
+    // ==================== Struct → Gson recursive conversion ====================
+
+    private static JsonObject structToJsonObject(final Struct struct) {
+        final JsonObject obj = new JsonObject();
+        for (final Map.Entry<String, Value> entry : struct.getFieldsMap().entrySet()) {
+            obj.add(entry.getKey(), valueToJsonElement(entry.getValue()));
+        }
+        return obj;
+    }
+
+    private static JsonElement valueToJsonElement(final Value value) {
+        switch (value.getKindCase()) {
+            case STRING_VALUE:
+                return new JsonPrimitive(value.getStringValue());
+            case NUMBER_VALUE:
+                return new JsonPrimitive(value.getNumberValue());
+            case BOOL_VALUE:
+                return new JsonPrimitive(value.getBoolValue());
+            case STRUCT_VALUE:
+                return structToJsonObject(value.getStructValue());
+            case LIST_VALUE:
+                return listValueToJsonArray(value.getListValue());
+            case NULL_VALUE:
+            case KIND_NOT_SET:
+            default:
+                return com.google.gson.JsonNull.INSTANCE;
+        }
+    }
+
+    private static JsonArray listValueToJsonArray(final ListValue listValue) {
+        final JsonArray arr = new JsonArray();
+        for (final Value v : listValue.getValuesList()) {
+            arr.add(valueToJsonElement(v));
+        }
+        return arr;
     }
 
     // ==================== Timestamp parsing ====================

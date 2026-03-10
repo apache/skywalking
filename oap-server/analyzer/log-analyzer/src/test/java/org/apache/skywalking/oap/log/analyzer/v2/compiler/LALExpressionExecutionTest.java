@@ -254,6 +254,11 @@ class LALExpressionExecutionTest {
 
         expr.execute(filterSpec, ctx);
 
+        // The output builder (LogBuilder) holds extracted fields.
+        // For standard fields (service, instance, endpoint, layer),
+        // check the output builder first, falling back to ctx.log() proto.
+        final Object outputObj = ctx.output();
+
         // Assert expected values
         @SuppressWarnings("unchecked")
         final Map<String, Object> expect =
@@ -268,20 +273,27 @@ class LALExpressionExecutionTest {
 
             switch (key) {
                 case "service":
-                    assertEquals(expected, ctx.log().getService(),
+                    assertEquals(expected,
+                        getOutputOrProto(outputObj, "service",
+                            ctx.log().getService()),
                         ruleName + ": service mismatch");
                     break;
                 case "instance":
                     assertEquals(expected,
-                        ctx.log().getServiceInstance(),
+                        getOutputOrProto(outputObj, "serviceInstance",
+                            ctx.log().getServiceInstance()),
                         ruleName + ": serviceInstance mismatch");
                     break;
                 case "endpoint":
-                    assertEquals(expected, ctx.log().getEndpoint(),
+                    assertEquals(expected,
+                        getOutputOrProto(outputObj, "endpoint",
+                            ctx.log().getEndpoint()),
                         ruleName + ": endpoint mismatch");
                     break;
                 case "layer":
-                    assertEquals(expected, ctx.log().getLayer(),
+                    assertEquals(expected,
+                        getOutputOrProto(outputObj, "layer",
+                            ctx.log().getLayer()),
                         ruleName + ": layer mismatch");
                     break;
                 case "save":
@@ -316,6 +328,30 @@ class LALExpressionExecutionTest {
                     break;
             }
         }
+    }
+
+    /**
+     * Reads a field from the output builder if present, otherwise falls back
+     * to the proto value. The output builder (e.g. LogBuilder) stores
+     * extracted fields that haven't been flushed to LogData proto yet.
+     */
+    private static String getOutputOrProto(final Object outputObj,
+                                            final String fieldName,
+                                            final String protoValue) {
+        if (outputObj == null) {
+            return protoValue;
+        }
+        try {
+            final Field f = outputObj.getClass().getDeclaredField(fieldName);
+            f.setAccessible(true);
+            final Object val = f.get(outputObj);
+            if (val != null) {
+                return val.toString();
+            }
+        } catch (NoSuchFieldException | IllegalAccessException ignored) {
+            // Field not on this output type — fall back to proto
+        }
+        return protoValue;
     }
 
     // ==================== LogData builder ====================

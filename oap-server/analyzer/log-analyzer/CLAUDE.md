@@ -50,8 +50,13 @@ oap-server/analyzer/log-analyzer/
 
   src/test/java/.../compiler/
     LALScriptParserTest.java            — 19 parser tests
-    LALClassGeneratorTest.java          — 35 generator tests
-    LALExpressionExecutionTest.java     — 25 data-driven execution tests (from YAML + .data.yaml)
+    LALClassGeneratorTestBase.java      — shared base: fresh generator per test, .class output, naming
+    LALClassGeneratorBasicTest.java     — 10 tests: minimal compile, parsers, source gen, errors
+    LALClassGeneratorConditionTest.java — 10 tests: tag(), safe-nav, if-blocks, else-if
+    LALClassGeneratorExtractorTest.java — 10 tests: ProcessRegistry, metrics, inputType, outputType
+    LALClassGeneratorDefTest.java       — 7 tests: def variables, toJson/toJsonArray
+    LALClassGeneratorSinkTest.java      — 5 tests: sampler, rateLimit, interpolated IDs
+    LALExpressionExecutionTest.java     — 25+ data-driven execution tests (from YAML + .data.yaml)
 ```
 
 ## Package & Class Naming
@@ -104,6 +109,68 @@ All generated methods include a `LocalVariableTable` attribute for debugger/deco
 | `_sink()` | `this` | `_f` | `h` | — |
 
 LVT entries are added via `PrivateMethod` inner class which carries both source code and variable descriptors.
+
+## Local Variables (`def`)
+
+The `def` keyword declares local variables in the extractor (or filter level). The grammar rule:
+
+```
+defStatement: DEF IDENTIFIER ASSIGN valueAccess typeCast? ;
+```
+
+The optional `typeCast` supports built-in types (`String`, `Long`, `Integer`, `Boolean`) and
+fully qualified class names (`as com.example.MyType`). The FQCN is resolved via `Class.forName()`
+at compile time. If not found, compilation fails with `IllegalArgumentException`.
+
+### Type inference
+
+The variable type is inferred from the initializer expression:
+
+| Initializer | Inferred type | Generated code |
+|---|---|---|
+| `toJson(expr)` | `JsonObject` | `h.toJsonObject(expr)` |
+| `toJsonArray(expr)` | `JsonArray` | `h.toJsonArray(expr)` |
+| General value access | Last resolved type via reflection | Standard value access codegen |
+
+Built-in functions are registered in `BUILTIN_FUNCTIONS` map in `LALBlockCodegen`.
+
+### Chained def variables
+
+A `def` variable can be initialized from another `def` variable's method chain:
+
+```
+def jwt = toJson(parsed?.commonProperties?.metadata?.filterMetadataMap?.get("envoy.filters.http.jwt_authn"))
+def payload = jwt?.getAsJsonObject("payload")
+tag 'email': payload?.get("email")?.getAsString()
+```
+
+The general value access path in `generateDefStatement()` recognizes `jwt` as a def variable,
+delegates to `generateDefVarChain()` which uses reflection to resolve the chain, and
+`genCtx.lastResolvedType` captures the resolved type (`JsonObject` in this case).
+
+### Runtime helpers
+
+`LalRuntimeHelper` provides `toJsonObject()` and `toJsonArray()` overloads:
+
+| Method | Input type | Conversion |
+|---|---|---|
+| `toJsonObject(String)` | JSON string | `JsonParser.parseString().getAsJsonObject()` |
+| `toJsonObject(Map)` | Map (from JSON/YAML parser) | Recursive Gson conversion |
+| `toJsonObject(Struct)` | Protobuf `Struct` | Recursive field conversion preserving nested structures |
+| `toJsonObject(Object)` | Any (fallback) | Delegates to above based on runtime type |
+| `toJsonArray(String)` | JSON array string | `JsonParser.parseString().getAsJsonArray()` |
+| `toJsonArray(Object)` | Any (fallback) | String fallback |
+
+All methods return `null` for `null` input (null-safe).
+
+### Code generation
+
+Def variables are stored in `genCtx.localVars` map (name → `LocalVarInfo` with Java variable name
+and resolved type). Variable declarations are emitted at method top via `genCtx.localVarDecls`;
+assignments are emitted at the point where `def` appears in the DSL.
+
+Java variable names follow the pattern `_d0`, `_d1`, etc. LVT entries are added for debugger
+visibility.
 
 ## Compile-Time Data Source Analysis
 

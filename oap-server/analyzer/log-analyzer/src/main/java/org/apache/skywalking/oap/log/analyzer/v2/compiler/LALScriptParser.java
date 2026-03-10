@@ -29,6 +29,7 @@ import org.antlr.v4.runtime.Recognizer;
 import org.apache.skywalking.lal.rt.grammar.LALLexer;
 import org.apache.skywalking.lal.rt.grammar.LALParser;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.AbortStatement;
+import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.DefStatement;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.InterpolationPart;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.CompareOp;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.ComparisonCondition;
@@ -134,6 +135,9 @@ public final class LALScriptParser {
         if (ctx.abortBlock() != null) {
             return new AbortStatement();
         }
+        if (ctx.defStatement() != null) {
+            return visitDefStatement(ctx.defStatement());
+        }
         // ifStatement
         return visitIfStatement(ctx.ifStatement());
     }
@@ -190,6 +194,9 @@ public final class LALScriptParser {
 
     private static ExtractorStatement visitExtractorStatement(
             final LALParser.ExtractorStatementContext ctx) {
+        if (ctx.defStatement() != null) {
+            return (ExtractorStatement) visitDefStatement(ctx.defStatement());
+        }
         if (ctx.serviceStatement() != null) {
             return visitFieldAssignment(FieldType.SERVICE, ctx.serviceStatement().valueAccess(),
                 ctx.serviceStatement().typeCast());
@@ -248,6 +255,17 @@ public final class LALScriptParser {
         final ValueAccess value = visitValueAccess(ctx.valueAccess());
         final String castType = ctx.typeCast() != null ? extractCastType(ctx.typeCast()) : null;
         return new LALScriptModel.OutputFieldAssignment(fieldName, value, castType);
+    }
+
+    // ==================== Def statement ====================
+
+    private static DefStatement visitDefStatement(
+            final LALParser.DefStatementContext ctx) {
+        final String varName = ctx.IDENTIFIER().getText();
+        final ValueAccess initializer = visitValueAccess(ctx.valueAccess());
+        final String castType = ctx.typeCast() != null
+            ? extractCastType(ctx.typeCast()) : null;
+        return new DefStatement(varName, initializer, castType);
     }
 
     // ==================== Tag statement ====================
@@ -740,6 +758,9 @@ public final class LALScriptParser {
         }
         if (ctx.BOOLEAN_TYPE() != null) {
             return "Boolean";
+        }
+        if (ctx.qualifiedName() != null) {
+            return ctx.qualifiedName().getText();
         }
         return null;
     }

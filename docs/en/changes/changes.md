@@ -26,6 +26,8 @@
   - All bundled LAL scripts (`mysql-slowsql.yaml`, `pgsql-slowsql.yaml`, `redis-slowsql.yaml`, `envoy-als.yaml`, `k8s-service.yaml`, `mesh-dp.yaml`) have been updated.
   - Users with custom LAL scripts using `slowSql {}` or `sampledTrace {}` must migrate to the new syntax. See [LAL documentation](../concepts-and-designs/lal.md#output-type).
   - Rename `ExtractorSpec` to `MetricExtractor` — now only handles LAL `metrics {}` blocks. Standard field setters (service, layer, timestamp, etc.) are compiled as direct setter calls on the output builder.
+  - Add `def` local variable support in LAL extractor (and filter level). Supports `toJson()` and `toJsonArray()` built-in functions for converting strings, Maps, and protobuf `Struct` to Gson JSON objects. Variables support null-safe navigation (`?.`), method chaining with compile-time type inference, and explicit type cast via `as` (built-in types or fully qualified class names, e.g., `def resp = parsed?.response as io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties`).
+  - **Breaking Change** — `LALOutputBuilder.init()` signature changed from `init(LogData, NamingControl)` to `init(LogData, Optional<Object> extraLog, NamingControl)`. The `extraLog` parameter carries the typed input object (e.g., `HTTPAccessLogEntry` for envoy access logs) so that output builders can access protocol-specific fields. Custom `LALOutputBuilder` implementations must update their `init()` method signature.
 * Fix E2E test metrics verify: make it failure if the metric values all null.
 * Support building, testing, and publishing with Java 25.
 * Add `CLAUDE.md` as AI assistant guide for the project.

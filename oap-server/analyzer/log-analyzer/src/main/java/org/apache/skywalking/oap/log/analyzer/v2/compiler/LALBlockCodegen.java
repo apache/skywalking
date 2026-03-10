@@ -17,7 +17,10 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
@@ -40,6 +43,15 @@ final class LALBlockCodegen {
         "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
     private static final String PROCESS_REGISTRY =
         "org.apache.skywalking.oap.meter.analyzer.v2.dsl.registry.ProcessRegistry";
+
+    // Built-in function registry for def variable type inference.
+    // Maps DSL function name → [runtime helper method, return type].
+    static final Map<String, Object[]> BUILTIN_FUNCTIONS = new HashMap<>();
+
+    static {
+        BUILTIN_FUNCTIONS.put("toJson", new Object[]{"h.toJsonObject", JsonObject.class});
+        BUILTIN_FUNCTIONS.put("toJsonArray", new Object[]{"h.toJsonArray", JsonArray.class});
+    }
 
     private LALBlockCodegen() {
         // utility class
@@ -92,6 +104,12 @@ final class LALBlockCodegen {
                 "L" + outTypeName.replace('.', '/') + ";"});
         }
 
+        // Add local var declarations from def statements
+        if (genCtx.localVarDecls.length() > 0) {
+            body.append(genCtx.localVarDecls);
+            lvtVars.addAll(genCtx.localVarLvtVars);
+        }
+
         // Add LVT entry for _metrics if any metrics block exists
         if (hasMetricsBlock(block.getStatements())) {
             lvtVars.add(new String[]{"_metrics",
@@ -128,6 +146,9 @@ final class LALBlockCodegen {
             } else if (stmt instanceof LALScriptModel.OutputFieldAssignment) {
                 generateOutputFieldAssignment(
                     sb, (LALScriptModel.OutputFieldAssignment) stmt, genCtx);
+            } else if (stmt instanceof LALScriptModel.DefStatement) {
+                generateDefStatement(
+                    sb, (LALScriptModel.DefStatement) stmt, genCtx);
             }
         }
     }
@@ -861,6 +882,17 @@ final class LALBlockCodegen {
             return;
         }
 
+        // Check for def variable reference
+        if (!value.getSegments().isEmpty()) {
+            final String primaryName = value.getSegments().get(0);
+            final LALClassGenerator.LocalVarInfo localVar =
+                genCtx.localVars.get(primaryName);
+            if (localVar != null) {
+                generateDefVarChain(sb, localVar, chain, genCtx);
+                return;
+            }
+        }
+
         // Fallback for unknown primary
         if (chain.isEmpty()) {
             sb.append("null");
@@ -1140,6 +1172,283 @@ final class LALBlockCodegen {
         return prevVar;
     }
 
+    // ==================== Def statement codegen ====================
+
+    static void generateDefStatement(final StringBuilder sb,
+                                      final LALScriptModel.DefStatement def,
+                                      final LALClassGenerator.GenCtx genCtx) {
+        final LALScriptModel.ValueAccess init = def.getInitializer();
+        final String varName = def.getVarName();
+        final String javaVar = "_d" + genCtx.localVarCounter++;
+
+        // Determine type and generate initializer expression
+        Class<?> resolvedType;
+        final StringBuilder initExpr = new StringBuilder();
+
+        if (init.getFunctionCallName() != null
+                && BUILTIN_FUNCTIONS.containsKey(init.getFunctionCallName())) {
+            // Built-in function: toJson(...), toJsonArray(...)
+            final Object[] info = BUILTIN_FUNCTIONS.get(init.getFunctionCallName());
+            final String helperMethod = (String) info[0];
+            resolvedType = (Class<?>) info[1];
+
+            initExpr.append(helperMethod).append("(");
+            if (!init.getFunctionCallArgs().isEmpty()) {
+                generateValueAccess(initExpr,
+                    init.getFunctionCallArgs().get(0).getValue(), genCtx);
+            } else {
+                initExpr.append("null");
+            }
+            initExpr.append(")");
+        } else {
+            // General value access — type inferred from lastResolvedType
+            generateValueAccess(initExpr, init, genCtx);
+            resolvedType = genCtx.lastResolvedType != null
+                ? genCtx.lastResolvedType : Object.class;
+            // Box primitive types for local variable declarations
+            if (resolvedType.isPrimitive()) {
+                final String boxName = LALCodegenHelper.boxTypeName(resolvedType);
+                if (boxName != null) {
+                    try {
+                        resolvedType = Class.forName("java.lang." + boxName);
+                    } catch (ClassNotFoundException ignored) {
+                        // keep primitive
+                    }
+                }
+            }
+        }
+
+        // Apply explicit type cast if specified (e.g., "as com.example.MyType")
+        final String castType = def.getCastType();
+        if (castType != null && !castType.isEmpty()) {
+            // Resolve the cast type — primitive wrapper names are handled,
+            // anything else is treated as a FQCN
+            final Class<?> castClass = resolveDefCastType(castType);
+            if (castClass != null) {
+                resolvedType = castClass;
+            }
+        }
+
+        // Register in local vars for later reference
+        genCtx.localVars.put(varName,
+            new LALClassGenerator.LocalVarInfo(javaVar, resolvedType));
+
+        // Emit declaration (placed at method top via localVarDecls)
+        genCtx.localVarDecls.append("  ").append(resolvedType.getName())
+            .append(" ").append(javaVar).append(";\n");
+        genCtx.localVarLvtVars.add(new String[]{
+            javaVar, "L" + resolvedType.getName().replace('.', '/') + ";"
+        });
+
+        // Emit assignment in body (at the point where def appears)
+        sb.append("  ").append(javaVar).append(" = ");
+        if (castType != null && !castType.isEmpty()) {
+            sb.append("(").append(resolvedType.getName()).append(") ");
+        }
+        sb.append(initExpr).append(";\n");
+    }
+
+    /**
+     * Resolves a cast type string to a {@link Class}.
+     * Handles the four built-in type names ({@code String}, {@code Long},
+     * {@code Integer}, {@code Boolean}) and fully qualified class names.
+     */
+    private static Class<?> resolveDefCastType(final String castType) {
+        switch (castType) {
+            case "String":
+                return String.class;
+            case "Long":
+                return Long.class;
+            case "Integer":
+                return Integer.class;
+            case "Boolean":
+                return Boolean.class;
+            default:
+                try {
+                    return Class.forName(castType);
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalArgumentException(
+                        "def cast type not found on classpath: " + castType, e);
+                }
+        }
+    }
+
+    // ==================== Def variable chain codegen ====================
+
+    /**
+     * Generates typed method-chain access on a def variable.
+     * Uses reflection to resolve each method/field call and track types.
+     *
+     * @param sb output buffer
+     * @param localVar the def variable info (java var name + resolved type)
+     * @param chain the chain segments after the variable name
+     * @param genCtx codegen context
+     */
+    static void generateDefVarChain(
+            final StringBuilder sb,
+            final LALClassGenerator.LocalVarInfo localVar,
+            final List<LALScriptModel.ValueAccessSegment> chain,
+            final LALClassGenerator.GenCtx genCtx) {
+        if (chain.isEmpty()) {
+            sb.append(localVar.javaVarName);
+            genCtx.lastResolvedType = localVar.resolvedType;
+            return;
+        }
+
+        String prevExpr = localVar.javaVarName;
+        Class<?> currentType = localVar.resolvedType;
+        boolean canBeNull = true;
+
+        for (int i = 0; i < chain.size(); i++) {
+            final LALScriptModel.ValueAccessSegment seg = chain.get(i);
+            final boolean isLast = i == chain.size() - 1;
+
+            if (seg instanceof LALScriptModel.MethodSegment) {
+                final LALScriptModel.MethodSegment ms =
+                    (LALScriptModel.MethodSegment) seg;
+                final String methodName = ms.getName();
+
+                // Resolve method on currentType via reflection
+                final java.lang.reflect.Method method =
+                    resolveMethod(currentType, methodName, ms.getArguments());
+                if (method == null) {
+                    throw new IllegalArgumentException(
+                        "Cannot resolve method " + currentType.getSimpleName()
+                            + "." + methodName + "() in def variable chain");
+                }
+                final Class<?> returnType = method.getReturnType();
+                final String args = generateMethodArgs(ms.getArguments());
+
+                if (ms.isSafeNav() && canBeNull) {
+                    if (isLast && returnType.isPrimitive()) {
+                        // Primitive return with null guard
+                        final String boxName =
+                            LALCodegenHelper.boxTypeName(returnType);
+                        prevExpr = "(" + prevExpr + " == null ? null : "
+                            + boxName + ".valueOf(" + prevExpr + "."
+                            + methodName + "(" + args + ")))";
+                        currentType = returnType;
+                    } else {
+                        prevExpr = "(" + prevExpr + " == null ? null : "
+                            + prevExpr + "." + methodName + "(" + args + "))";
+                        currentType = returnType;
+                        canBeNull = true;
+                    }
+                } else {
+                    prevExpr = prevExpr + "." + methodName + "(" + args + ")";
+                    currentType = returnType;
+                    canBeNull = !returnType.isPrimitive();
+                }
+            } else if (seg instanceof LALScriptModel.FieldSegment) {
+                final LALScriptModel.FieldSegment fs =
+                    (LALScriptModel.FieldSegment) seg;
+                final String fieldName = fs.getName();
+                // Try getter first
+                final String getterName = "get"
+                    + Character.toUpperCase(fieldName.charAt(0))
+                    + fieldName.substring(1);
+                java.lang.reflect.Method getter = null;
+                try {
+                    getter = currentType.getMethod(getterName);
+                } catch (NoSuchMethodException e) {
+                    // Try direct field access name
+                    try {
+                        getter = currentType.getMethod(fieldName);
+                    } catch (NoSuchMethodException e2) {
+                        throw new IllegalArgumentException(
+                            "Cannot resolve field/getter "
+                                + currentType.getSimpleName()
+                                + "." + fieldName + " in def variable chain");
+                    }
+                }
+                final Class<?> returnType = getter.getReturnType();
+
+                if (fs.isSafeNav() && canBeNull) {
+                    if (isLast && returnType.isPrimitive()) {
+                        final String boxName =
+                            LALCodegenHelper.boxTypeName(returnType);
+                        prevExpr = "(" + prevExpr + " == null ? null : "
+                            + boxName + ".valueOf(" + prevExpr + "."
+                            + getter.getName() + "()))";
+                        currentType = returnType;
+                    } else {
+                        prevExpr = "(" + prevExpr + " == null ? null : "
+                            + prevExpr + "." + getter.getName() + "())";
+                        currentType = returnType;
+                        canBeNull = true;
+                    }
+                } else {
+                    prevExpr = prevExpr + "." + getter.getName() + "()";
+                    currentType = returnType;
+                    canBeNull = !returnType.isPrimitive();
+                }
+            } else if (seg instanceof LALScriptModel.IndexSegment) {
+                final int index = ((LALScriptModel.IndexSegment) seg).getIndex();
+                // Try get(int) method (e.g., JsonArray.get(int))
+                java.lang.reflect.Method getMethod = null;
+                try {
+                    getMethod = currentType.getMethod("get", int.class);
+                } catch (NoSuchMethodException e) {
+                    throw new IllegalArgumentException(
+                        "Cannot resolve index access on "
+                            + currentType.getSimpleName()
+                            + " in def variable chain");
+                }
+                final Class<?> returnType = getMethod.getReturnType();
+                if (canBeNull) {
+                    prevExpr = "(" + prevExpr + " == null ? null : "
+                        + prevExpr + ".get(" + index + "))";
+                } else {
+                    prevExpr = prevExpr + ".get(" + index + ")";
+                }
+                currentType = returnType;
+                canBeNull = true;
+            }
+        }
+
+        genCtx.lastResolvedType = currentType;
+        sb.append(prevExpr);
+    }
+
+    /**
+     * Resolves a method on the given type by name, matching argument count.
+     * For methods with String arguments (like JsonObject.get(String)),
+     * prioritizes exact match by parameter types.
+     */
+    private static java.lang.reflect.Method resolveMethod(
+            final Class<?> type, final String name,
+            final List<LALScriptModel.FunctionArg> args) {
+        final int argCount = args != null ? args.size() : 0;
+        // Try exact match with common parameter types
+        if (argCount == 1) {
+            try {
+                return type.getMethod(name, String.class);
+            } catch (NoSuchMethodException ignored) {
+                // fall through
+            }
+            try {
+                return type.getMethod(name, int.class);
+            } catch (NoSuchMethodException ignored) {
+                // fall through
+            }
+        }
+        if (argCount == 0) {
+            try {
+                return type.getMethod(name);
+            } catch (NoSuchMethodException ignored) {
+                // fall through
+            }
+        }
+        // Fallback: find by name and arg count
+        for (final java.lang.reflect.Method m : type.getMethods()) {
+            if (m.getName().equals(name)
+                    && m.getParameterCount() == argCount) {
+                return m;
+            }
+        }
+        return null;
+    }
+
     // ==================== ProcessRegistry ====================
 
     static void generateProcessRegistryCall(
@@ -1175,23 +1484,21 @@ final class LALBlockCodegen {
 
     static String appendMethodSegment(final String current,
                                        final LALScriptModel.MethodSegment ms) {
+        final String mn = ms.getName();
+        final String args = ms.getArguments().isEmpty()
+            ? "" : generateMethodArgs(ms.getArguments());
         if (ms.isSafeNav()) {
-            final String mn = ms.getName();
+            // Special-cased helpers for common safe-nav methods on Object
             if ("toString".equals(mn)) {
                 return "h.toString(" + current + ")";
             } else if ("trim".equals(mn)) {
                 return "h.trim(" + current + ")";
-            } else {
-                throw new IllegalArgumentException(
-                    "Unsupported safe-nav method: ?." + mn + "()");
             }
+            // General safe-nav: null guard with ternary
+            return "(" + current + " == null ? null : "
+                + current + "." + mn + "(" + args + "))";
         } else {
-            if (ms.getArguments().isEmpty()) {
-                return current + "." + ms.getName() + "()";
-            } else {
-                return current + "." + ms.getName() + "("
-                    + generateMethodArgs(ms.getArguments()) + ")";
-            }
+            return current + "." + mn + "(" + args + ")";
         }
     }
 
