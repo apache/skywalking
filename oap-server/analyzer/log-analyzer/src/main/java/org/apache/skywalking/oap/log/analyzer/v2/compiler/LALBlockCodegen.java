@@ -1189,17 +1189,19 @@ final class LALBlockCodegen {
         if (init.getFunctionCallName() != null
                 && BUILTIN_FUNCTIONS.containsKey(init.getFunctionCallName())) {
             // Built-in function: toJson(...), toJsonArray(...)
-            final Object[] info = BUILTIN_FUNCTIONS.get(init.getFunctionCallName());
+            final String funcName = init.getFunctionCallName();
+            final int argCount = init.getFunctionCallArgs().size();
+            if (argCount != 1) {
+                throw new IllegalArgumentException(
+                    funcName + "() requires exactly 1 argument, got " + argCount);
+            }
+            final Object[] info = BUILTIN_FUNCTIONS.get(funcName);
             final String helperMethod = (String) info[0];
             resolvedType = (Class<?>) info[1];
 
             initExpr.append(helperMethod).append("(");
-            if (!init.getFunctionCallArgs().isEmpty()) {
-                generateValueAccess(initExpr,
-                    init.getFunctionCallArgs().get(0).getValue(), genCtx);
-            } else {
-                initExpr.append("null");
-            }
+            generateValueAccess(initExpr,
+                init.getFunctionCallArgs().get(0).getValue(), genCtx);
             initExpr.append(")");
         } else {
             // General value access — type inferred from lastResolvedType

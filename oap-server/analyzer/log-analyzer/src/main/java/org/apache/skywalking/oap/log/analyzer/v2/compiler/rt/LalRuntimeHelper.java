@@ -221,11 +221,31 @@ public final class LalRuntimeHelper {
     }
 
     /**
+     * Converts a {@link Map} (from JSON/YAML parser output) into a {@link JsonObject}.
+     * Recursively converts nested Maps and Lists to Gson elements.
+     */
+    @SuppressWarnings("unchecked")
+    public JsonObject toJsonObject(final Map<String, ?> map) {
+        if (map == null) {
+            return null;
+        }
+        final JsonObject obj = new JsonObject();
+        for (final Map.Entry<String, ?> entry : map.entrySet()) {
+            obj.add(entry.getKey(), mapValueToJsonElement(entry.getValue()));
+        }
+        return obj;
+    }
+
+    /**
      * Fallback for {@code Map.get()} erasure — dispatches to typed overloads.
      */
+    @SuppressWarnings("unchecked")
     public JsonObject toJsonObject(final Object obj) {
         if (obj == null) {
             return null;
+        }
+        if (obj instanceof Map) {
+            return toJsonObject((Map<String, ?>) obj);
         }
         if (obj instanceof Struct) {
             return toJsonObject((Struct) obj);
@@ -250,14 +270,52 @@ public final class LalRuntimeHelper {
     /**
      * Fallback for {@code Map.get()} erasure.
      */
+    @SuppressWarnings("unchecked")
     public JsonArray toJsonArray(final Object obj) {
         if (obj == null) {
             return null;
+        }
+        if (obj instanceof List) {
+            final JsonArray arr = new JsonArray();
+            for (final Object item : (List<?>) obj) {
+                arr.add(mapValueToJsonElement(item));
+            }
+            return arr;
         }
         if (obj instanceof String) {
             return toJsonArray((String) obj);
         }
         return null;
+    }
+
+    // ==================== Map/List → Gson recursive conversion ====================
+
+    @SuppressWarnings("unchecked")
+    private static JsonElement mapValueToJsonElement(final Object value) {
+        if (value == null) {
+            return com.google.gson.JsonNull.INSTANCE;
+        }
+        if (value instanceof Map) {
+            final JsonObject obj = new JsonObject();
+            for (final Map.Entry<String, ?> e : ((Map<String, ?>) value).entrySet()) {
+                obj.add(e.getKey(), mapValueToJsonElement(e.getValue()));
+            }
+            return obj;
+        }
+        if (value instanceof List) {
+            final JsonArray arr = new JsonArray();
+            for (final Object item : (List<?>) value) {
+                arr.add(mapValueToJsonElement(item));
+            }
+            return arr;
+        }
+        if (value instanceof Number) {
+            return new JsonPrimitive((Number) value);
+        }
+        if (value instanceof Boolean) {
+            return new JsonPrimitive((Boolean) value);
+        }
+        return new JsonPrimitive(value.toString());
     }
 
     // ==================== Struct → Gson recursive conversion ====================
