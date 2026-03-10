@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl;
 
-import com.google.protobuf.Message;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,12 +84,12 @@ public class ExecutionContext {
         return (LogData.Builder) getProperty(KEY_LOG);
     }
 
-    public ExecutionContext extraLog(final Message extraLog) {
+    public ExecutionContext extraLog(final Object extraLog) {
         parsed().extraLog = extraLog;
         return this;
     }
 
-    public Message extraLog() {
+    public Object extraLog() {
         return parsed().getExtraLog();
     }
 
@@ -179,6 +178,6 @@ public class ExecutionContext {
         private Map<String, Object> map;
 
         @Getter
-        private Message extraLog;
+        private Object extraLog;
     }
 }

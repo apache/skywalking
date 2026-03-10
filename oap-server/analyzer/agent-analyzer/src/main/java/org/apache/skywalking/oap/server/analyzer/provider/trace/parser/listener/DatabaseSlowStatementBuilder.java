@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
+import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +76,8 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     }
 
     @Override
-    public void init(final LogData logData, final NamingControl namingControl) {
+    public void init(final LogData logData, final Optional<Object> extraLog,
+                     final NamingControl namingControl) {
         this.namingControl = namingControl;
         // Only populate fields not already set by the LAL extractor.
         if (this.serviceName == null) {

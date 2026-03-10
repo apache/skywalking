@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import com.google.protobuf.Message;
+import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 
 /**
@@ -31,7 +31,11 @@ public interface LogAnalysisListener {
 
     /**
      * Parse the raw data from the probe.
+     * @param logData  log metadata (service, layer, timestamp, etc.)
+     * @param extraLog the actual input object whose type matches
+     *                 {@code LALSourceTypeProvider#inputType()} — may be {@code null}
+     *                 for standard logs where LogData is the sole input
      * @return {@code this} for chaining.
      */
-    LogAnalysisListener parse(LogData.Builder logData, final Message extraLog);
+    LogAnalysisListener parse(LogData.Builder logData, Optional<Object> extraLog);
 }

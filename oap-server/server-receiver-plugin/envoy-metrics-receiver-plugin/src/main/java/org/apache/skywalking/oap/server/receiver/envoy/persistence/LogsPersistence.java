@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
@@ -66,7 +67,7 @@ public class LogsPersistence implements ALSHTTPAnalysis {
             }
 
             final LogData logData = convertToLogData(entry, result);
-            logAnalyzerService.doAnalysis(logData, entry);
+            logAnalyzerService.doAnalysis(logData, Optional.of(entry));
         } catch (final Exception e) {
             log.error("Failed to persist Envoy access log", e);
         }
