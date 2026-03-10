@@ -92,7 +92,7 @@ public class RecordSinkListener implements LogSinkListener {
         }
         // Pass the input data matching the declared inputType:
         // extraLog (e.g., HTTPAccessLogEntry) when present, otherwise LogData.
-        builder.init(extraLog.orElseGet(logData::build), namingControl);
+        builder.init(logData.build(), extraLog, namingControl);
         return this;
     }
 

@@ -23,6 +23,7 @@ import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties;
 import java.util.Collections;
+import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
@@ -71,8 +72,11 @@ class EnvoyAccessLogBuilderTest {
         builder.setService("test-svc");
         builder.setTimestamp(1609459200000L);
 
-        // init() receives the HTTPAccessLogEntry directly (matching inputType)
-        builder.init(entry, namingControl);
+        final LogData logData = LogData.newBuilder()
+            .setService("test-svc")
+            .setTimestamp(1609459200000L)
+            .build();
+        builder.init(logData, Optional.of(entry), namingControl);
 
         final Log log = builder.toLog();
 
@@ -90,8 +94,12 @@ class EnvoyAccessLogBuilderTest {
         builder.setService("test-svc");
         builder.setTimestamp(1609459200000L);
 
+        final LogData logData = LogData.newBuilder()
+            .setService("test-svc")
+            .setTimestamp(1609459200000L)
+            .build();
         // Pass a default (empty) entry — no response code, so toLog() serializes empty JSON
-        builder.init(HTTPAccessLogEntry.getDefaultInstance(), namingControl);
+        builder.init(logData, Optional.of(HTTPAccessLogEntry.getDefaultInstance()), namingControl);
 
         final Log log = builder.toLog();
 
@@ -168,8 +176,7 @@ class EnvoyAccessLogBuilderTest {
         // To verify, call init + toLog and check the Log's searchable tags.
         final EnvoyAccessLogBuilder output = (EnvoyAccessLogBuilder) ctx.output();
         output.setSearchableTagKeys(java.util.Arrays.asList("status.code", "svc"));
-        // init() receives the HTTPAccessLogEntry directly (matching inputType)
-        output.init(entry, namingControl);
+        output.init(logData.build(), Optional.of(entry), namingControl);
         final Log log = output.toLog();
 
         assertTrue(log.getTags().stream().anyMatch(

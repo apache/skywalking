@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
 import com.google.protobuf.Message;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
@@ -34,16 +35,14 @@ import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
  * as JSON content. The serialization is deferred to {@link #toLog()} so that
  * it only happens when the log is actually persisted (after LAL filtering).
  *
- * <p>The {@link #init} method receives the raw protobuf access log entry
- * directly (e.g., {@code HTTPAccessLogEntry}) as declared by
- * {@code EnvoyHTTPLALSourceTypeProvider#inputType()}, and passes a default
- * {@code LogData} to the base class since all standard fields are populated
- * by the LAL extractor.
+ * <p>The {@link #init} method stores the extra log entry (e.g.,
+ * {@code HTTPAccessLogEntry}) for JSON serialization, then delegates to
+ * the base class for standard field population from {@code LogData}.
  */
 public class EnvoyAccessLogBuilder extends LogBuilder {
     public static final String NAME = "EnvoyAccessLog";
 
-    private Message accessLogEntry;
+    private Object accessLogEntry;
 
     @Override
     public String name() {
@@ -51,13 +50,10 @@ public class EnvoyAccessLogBuilder extends LogBuilder {
     }
 
     @Override
-    public void init(final Object logData, final NamingControl namingControl) {
-        this.accessLogEntry = (Message) logData;
-        // Standard fields (service, instance, endpoint, layer, etc.) are
-        // populated by the LAL extractor before init() is called.
-        // Pass a default LogData to the base class so toLog() body/tag
-        // accessors work safely (both will be empty for envoy).
-        super.init(LogData.getDefaultInstance(), namingControl);
+    public void init(final LogData logData, final Optional<Object> extraLog,
+                     final NamingControl namingControl) {
+        extraLog.ifPresent(entry -> this.accessLogEntry = entry);
+        super.init(logData, extraLog, namingControl);
     }
 
     @Override
@@ -66,7 +62,7 @@ public class EnvoyAccessLogBuilder extends LogBuilder {
         final Log log = super.toLog();
         if (log.getContent() == null && accessLogEntry != null) {
             log.setContentType(ContentType.JSON);
-            log.setContent(ProtoBufJsonUtils.toJSON(accessLogEntry));
+            log.setContent(ProtoBufJsonUtils.toJSON((Message) accessLogEntry));
         }
         return log;
     }
