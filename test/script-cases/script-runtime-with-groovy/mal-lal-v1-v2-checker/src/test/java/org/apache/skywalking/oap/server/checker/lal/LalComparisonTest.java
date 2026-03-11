@@ -96,7 +96,7 @@ class LalComparisonTest {
                 if (rule.inputs.isEmpty()) {
                     final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression expr = v2Expr;
                     final String err = v2CompileError;
-                    final boolean v2Only = rule.outputType != null;
+                    final boolean v2Only = rule.outputType != null || rule.v2Only;
                     tests.add(DynamicTest.dynamicTest(
                         yamlFile + " | " + rule.name,
                         () -> compareExecution(rule.name, rule.dsl,
@@ -107,7 +107,7 @@ class LalComparisonTest {
                         final int idx = i;
                         final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression expr = v2Expr;
                         final String err = v2CompileError;
-                        final boolean v2Only = rule.outputType != null;
+                        final boolean v2Only = rule.outputType != null || rule.v2Only;
                         final String testName = rule.inputs.size() == 1
                             ? rule.name : rule.name + " [" + i + "]";
                         tests.add(DynamicTest.dynamicTest(
@@ -747,6 +747,7 @@ class LalComparisonTest {
                 final String inputType = rule.get("inputType");
                 final String outputType = rule.get("outputType");
                 final String layer = rule.get("layer");
+                final boolean v2OnlyFlag = Boolean.TRUE.equals(rule.get("v2Only"));
                 final int count = nameCount.merge(name, 1, Integer::sum);
                 final int lineNo = findRuleLine(lines, name, count);
 
@@ -764,7 +765,7 @@ class LalComparisonTest {
                 }
                 lalRules.add(new LalRule(
                     name, dslStr, inputType, outputType, layer,
-                    inputs, file, lineNo));
+                    v2OnlyFlag, inputs, file, lineNo));
             }
 
             if (!lalRules.isEmpty()) {
@@ -883,13 +884,14 @@ class LalComparisonTest {
         final String inputType;
         final String outputType;
         final String layer;
+        final boolean v2Only;
         final List<Map<String, Object>> inputs;
         final File sourceFile;
         final int lineNo;
 
         LalRule(final String name, final String dsl,
                 final String inputType, final String outputType,
-                final String layer,
+                final String layer, final boolean v2Only,
                 final List<Map<String, Object>> inputs,
                 final File sourceFile, final int lineNo) {
             this.name = name;
@@ -897,6 +899,7 @@ class LalComparisonTest {
             this.inputType = inputType;
             this.outputType = outputType;
             this.layer = layer;
+            this.v2Only = v2Only;
             this.inputs = inputs;
             this.sourceFile = sourceFile;
             this.lineNo = lineNo;

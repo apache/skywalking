@@ -21,6 +21,7 @@
 rules:
   - name: def-json-extract-service
     layer: GENERAL
+    v2Only: true
     dsl: |
       filter {
         json {}
@@ -33,6 +34,7 @@ rules:
 
   - name: def-json-nested-access
     layer: GENERAL
+    v2Only: true
     dsl: |
       filter {
         json {}
@@ -46,6 +48,7 @@ rules:
 
   - name: def-json-with-condition
     layer: GENERAL
+    v2Only: true
     dsl: |
       filter {
         json {}
@@ -60,6 +63,7 @@ rules:
 
   - name: def-json-missing-field
     layer: GENERAL
+    v2Only: true
     dsl: |
       filter {
         json {}
@@ -74,6 +78,7 @@ rules:
 
   - name: def-multiple-vars
     layer: GENERAL
+    v2Only: true
     dsl: |
       filter {
         json {}
@@ -88,6 +93,7 @@ rules:
 
   - name: def-null-var-safe-nav
     layer: GENERAL
+    v2Only: true
     dsl: |
       filter {
         json {}
