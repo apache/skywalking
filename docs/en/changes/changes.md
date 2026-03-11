@@ -95,6 +95,7 @@
 #### OAP Server
 
 * KubernetesCoordinator: make self instance return real pod IP address instead of `127.0.0.1`.
+* Fix KubernetesCoordinator self-endpoint race condition: include self in the endpoint list so DynamicEndpointGroup re-fires the listener when the self pod appears in the informer after initial sync.
 * Enhance the alarm kernel with recovered status notification capability
 * Fix BrowserWebVitalsPerfData `clsTime` to `cls` and make it double type.
 * Init `log-mal-rules` at module provider start stage to avoid re-init for every LAL.
