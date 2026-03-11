@@ -114,7 +114,7 @@ public class KubernetesLabelSelectorEndpointGroup extends DynamicEndpointGroup i
                         // Previously self was excluded here, so the endpoint list stayed
                         // the same when self appeared — DynamicEndpointGroup deduplicated
                         // and skipped listener notification, leaving the coordinator stuck
-                        // with the 127.0.0.1 fallback forever. See #13739.
+                        // with the 127.0.0.1 fallback forever.
                         newEndpoints.add(endpoint);
                     }
                     continue;

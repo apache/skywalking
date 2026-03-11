@@ -40,9 +40,66 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 /**
- * Tests for {@link KubernetesCoordinator} listener behavior, especially the race condition
- * where the K8s informer hasn't synced the self pod when the first endpoint update fires.
- * See <a href="https://github.com/apache/skywalking/issues/13739">#13739</a>.
+ * Tests for {@link KubernetesCoordinator} listener behavior, focusing on the
+ * self-endpoint race condition during K8s informer startup.
+ *
+ * <h3>Workflow: Self-endpoint race condition during OAP pod startup</h3>
+ * <pre>
+ * ┌─────────────────────────────────────────────────────────────────────────┐
+ * │                   OAP Pod Startup Sequence                              │
+ * ├─────────────────────────────────────────────────────────────────────────┤
+ * │                                                                         │
+ * │  1. Constructor: .inform() starts K8s informer (async)                  │
+ * │  2. Constructor: updateEndpoints() called immediately                   │
+ * │                                                                         │
+ * │  ┌──────────────── Informer Cache State ───────────────────┐            │
+ * │  │  Only remote pod cached (self pod NOT synced yet)       │            │
+ * │  └────────────────────────────────────────────────────────-┘            │
+ * │                           │                                             │
+ * │                           ▼                                             │
+ * │  ┌──────────────── updateEndpoints() ──────────────────────┐            │
+ * │  │  endpoints = [remote_pod_ip]                            │            │
+ * │  │  selfEndpoint = null  (self not in informer yet)        │            │
+ * │  └────────────────────────┬────────────────────────────────┘            │
+ * │                           │                                             │
+ * │                           ▼                                             │
+ * │  ┌──────────────── Coordinator Listener ───────────────────┐            │
+ * │  │  getSelfEndpoint() == null                              │            │
+ * │  │  Fallback: add 127.0.0.1 as self                       │            │
+ * │  │  result = [remote_pod(self=false), 127.0.0.1(self=true)]│            │
+ * │  │                                                         │            │
+ * │  │  *** Tested by: shouldFallbackTo127WhenSelfNotSynced ** │            │
+ * │  └────────────────────────┬────────────────────────────────┘            │
+ * │                           │                                             │
+ * │  ═══════════ Time passes, informer syncs self pod ══════════            │
+ * │                           │                                             │
+ * │                           ▼                                             │
+ * │  ┌──────────────── updateEndpoints() (2nd call) ───────────┐            │
+ * │  │  selfEndpoint = real_pod_ip  (now set correctly)        │            │
+ * │  │  endpoints = [remote_pod_ip, self_pod_ip]               │            │
+ * │  │  List CHANGED (1 to 2 entries) → listener fires again   │            │
+ * │  └────────────────────────┬────────────────────────────────┘            │
+ * │                           │                                             │
+ * │                           ▼                                             │
+ * │  ┌──────────────── Coordinator Listener (2nd fire) ────────┐            │
+ * │  │  getSelfEndpoint() == real_pod_ip                       │            │
+ * │  │  Match self in endpoint list, mark isSelf=true          │            │
+ * │  │  result = [remote_pod(self=false), self_pod(self=true)] │            │
+ * │  │  127.0.0.1 fallback is gone                             │            │
+ * │  │                                                         │            │
+ * │  │  *** Tested by: shouldResolveSelfAfterInformerSync ***  │            │
+ * │  └────────────────────────┬────────────────────────────────┘            │
+ * │                           │                                             │
+ * │                           ▼                                             │
+ * │  ┌──────────────── TTL Leader Election ────────────────────┐            │
+ * │  │  sort([10.x.x.x, 10.x.x.y]) → deterministic ordering  │            │
+ * │  │  Exactly one node is self → stable leader selection     │            │
+ * │  │                                                         │            │
+ * │  │  *** Tested by: shouldElectTTLLeaderCorrectlyWithRealIPs│            │
+ * │  └────────────────────────────────────────────────────────-┘            │
+ * │                                                                         │
+ * └─────────────────────────────────────────────────────────────────────────┘
+ * </pre>
  */
 @ExtendWith(MockitoExtension.class)
 public class KubernetesCoordinatorTest {
@@ -73,13 +130,14 @@ public class KubernetesCoordinatorTest {
     }
 
     /**
-     * Simulates the race condition: informer has NOT synced the self pod yet.
-     * Only the remote pod is in the endpoint list, and getSelfEndpoint() returns null.
+     * Simulates the initial race window: informer has NOT synced the self pod yet.
+     * Only the remote pod is in the endpoint list, and {@code getSelfEndpoint()} returns null.
      * The coordinator should fall back to 127.0.0.1 for self.
+     *
+     * <p>See "Coordinator Listener" (1st fire) in the class-level workflow diagram.
      */
     @Test
     public void shouldFallbackTo127WhenSelfNotSynced() {
-        // selfEndpoint is null (not synced), only remote pod in the list
         testEndpointGroup.fireEndpoints(
             List.of(Endpoint.of(REMOTE_POD_IP, GRPC_PORT)));
 
@@ -94,14 +152,16 @@ public class KubernetesCoordinatorTest {
     }
 
     /**
-     * Simulates the fix for #13739: after the informer syncs the self pod,
-     * the endpoint list now includes self (list changes from 1 to 2 entries),
-     * so DynamicEndpointGroup fires the listener again. This time
-     * getSelfEndpoint() returns the real IP and self is correctly identified.
+     * Simulates the full race-then-recovery sequence: after the informer syncs
+     * the self pod, the endpoint list grows from 1 to 2 entries, so
+     * {@link DynamicEndpointGroup} fires the listener again. This time
+     * {@code getSelfEndpoint()} returns the real IP and self is correctly identified.
      *
-     * Previously, self was excluded from the endpoint list, so the list
-     * didn't change when self appeared — DynamicEndpointGroup deduplicated
+     * <p>Previously, self was excluded from the endpoint list, so the list
+     * didn't change when self appeared. {@link DynamicEndpointGroup} deduplicated
      * and never re-fired the listener, leaving self stuck at 127.0.0.1.
+     *
+     * <p>See "Coordinator Listener" (1st + 2nd fire) in the class-level workflow diagram.
      */
     @Test
     public void shouldResolveSelfAfterInformerSync() {
@@ -139,8 +199,10 @@ public class KubernetesCoordinatorTest {
 
     /**
      * Verifies that TTL leader election works correctly after self is resolved.
-     * Sorted instance list should have deterministic ordering with real IPs,
+     * The sorted instance list should have deterministic ordering with real IPs,
      * and exactly one node should be self.
+     *
+     * <p>See "TTL Leader Election" in the class-level workflow diagram.
      */
     @Test
     public void shouldElectTTLLeaderCorrectlyWithRealIPs() {
@@ -181,10 +243,12 @@ public class KubernetesCoordinatorTest {
      * A controllable endpoint group for testing. Implements {@link SelfEndpointAccessor}
      * so the coordinator can resolve self endpoint without requiring a real K8s client.
      *
-     * Simulates the K8s informer behavior:
-     * - Initially selfEndpoint is null (informer hasn't synced self pod yet)
-     * - After calling {@link #setSelfEndpoint}, the next {@link #fireEndpoints} call
-     *   simulates the informer adding the self pod to its cache
+     * <p>Simulates the K8s informer behavior:
+     * <ul>
+     *   <li>Initially selfEndpoint is null (informer hasn't synced self pod yet)</li>
+     *   <li>After calling {@link #setSelfEndpoint}, the next {@link #fireEndpoints} call
+     *       simulates the informer adding the self pod to its cache</li>
+     * </ul>
      */
     static class TestEndpointGroup extends DynamicEndpointGroup implements SelfEndpointAccessor {
         private volatile Endpoint selfEndpoint;
