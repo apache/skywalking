@@ -24,6 +24,7 @@ skywalking/
 │   ├── oal-rt/                    # OAL runtime
 │   ├── mqe-grammar/               # MQE (Metrics Query Engine) grammar
 │   ├── mqe-rt/                    # MQE runtime
+│   ├── server-testing/             # Shared test utilities (DSL test framework)
 │   ├── analyzer/                  # Log and trace analyzers
 │   ├── ai-pipeline/               # AI/ML pipeline components
 │   └── exporter/                  # Data export functionality

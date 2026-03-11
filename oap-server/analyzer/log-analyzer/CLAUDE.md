@@ -50,8 +50,13 @@ oap-server/analyzer/log-analyzer/
 
   src/test/java/.../compiler/
     LALScriptParserTest.java            — 19 parser tests
-    LALClassGeneratorTest.java          — 35 generator tests
-    LALExpressionExecutionTest.java     — 25 data-driven execution tests (from YAML + .data.yaml)
+    LALClassGeneratorTestBase.java      — shared base: fresh generator per test, .class output, naming
+    LALClassGeneratorBasicTest.java     — 10 tests: minimal compile, parsers, source gen, errors
+    LALClassGeneratorConditionTest.java — 10 tests: tag(), safe-nav, if-blocks, else-if
+    LALClassGeneratorExtractorTest.java — 10 tests: ProcessRegistry, metrics, inputType, outputType
+    LALClassGeneratorDefTest.java       — 7 tests: def variables, toJson/toJsonArray
+    LALClassGeneratorSinkTest.java      — 5 tests: sampler, rateLimit, interpolated IDs
+    LALExpressionExecutionTest.java     — 25+ data-driven execution tests (from YAML + .data.yaml)
 ```
 
 ## Package & Class Naming
@@ -104,6 +109,69 @@ All generated methods include a `LocalVariableTable` attribute for debugger/deco
 | `_sink()` | `this` | `_f` | `h` | — |
 
 LVT entries are added via `PrivateMethod` inner class which carries both source code and variable descriptors.
+
+## Local Variables (`def`)
+
+The `def` keyword declares local variables in the extractor (or filter level). The grammar rule:
+
+```
+defStatement: DEF IDENTIFIER ASSIGN valueAccess typeCast? ;
+```
+
+The optional `typeCast` supports built-in types (`String`, `Long`, `Integer`, `Boolean`) and
+fully qualified class names (`as com.example.MyType`). The FQCN is resolved via `Class.forName()`
+at compile time. If not found, compilation fails with `IllegalArgumentException`.
+
+### Type inference
+
+The variable type is inferred from the initializer expression:
+
+| Initializer | Inferred type | Generated code |
+|---|---|---|
+| `toJson(expr)` | `JsonObject` | `h.toJsonObject(expr)` |
+| `toJsonArray(expr)` | `JsonArray` | `h.toJsonArray(expr)` |
+| General value access | Last resolved type via reflection | Standard value access codegen |
+
+Built-in functions are registered in `BUILTIN_FUNCTIONS` map in `LALBlockCodegen`.
+
+### Chained def variables
+
+A `def` variable can be initialized from another `def` variable's method chain:
+
+```
+def jwt = toJson(parsed?.commonProperties?.metadata?.filterMetadataMap?.get("envoy.filters.http.jwt_authn"))
+def payload = jwt?.getAsJsonObject("payload")
+tag 'email': payload?.get("email")?.getAsString()
+```
+
+The general value access path in `generateDefStatement()` recognizes `jwt` as a def variable,
+delegates to `generateDefVarChain()` which uses reflection to resolve the chain, and
+`genCtx.lastResolvedType` captures the resolved type (`JsonObject` in this case).
+
+### Runtime helpers
+
+`LalRuntimeHelper` provides `toJsonObject()` and `toJsonArray()` overloads:
+
+| Method | Input type | Conversion |
+|---|---|---|
+| `toJsonObject(String)` | JSON string | `JsonParser.parseString().getAsJsonObject()` |
+| `toJsonObject(Map)` | Map (from JSON/YAML parser) | Recursive Gson conversion |
+| `toJsonObject(Struct)` | Protobuf `Struct` | Recursive field conversion preserving nested structures |
+| `toJsonObject(Object)` | Any (fallback) | Delegates to above based on runtime type |
+| `toJsonArray(String)` | JSON array string | `JsonParser.parseString().getAsJsonArray()` |
+| `toJsonArray(Object)` | Any (fallback) | String fallback |
+
+All methods return `null` for `null` input (null-safe).
+
+### Code generation
+
+Def variables are stored in `genCtx.localVars` map (name → `LocalVarInfo` with Java variable name
+and resolved type). Variable declarations are emitted at method top via `genCtx.localVarDecls`;
+assignments are emitted at the point where `def` appears in the DSL.
+
+Java variable names use the user-chosen name with a `_def_` prefix (e.g., `def config` → `_def_config`).
+Re-defining the same name reassigns the existing variable without creating a new declaration.
+LVT entries are added for debugger visibility.
 
 ## Compile-Time Data Source Analysis
 
@@ -299,6 +367,21 @@ When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated
 ```
 
 This is the same env variable used by OAL. Useful for debugging code generation issues or comparing V1 vs V2 output. In tests, use `setClassOutputDir(dir)` instead.
+
+## Testing Framework (server-testing module)
+
+Test utilities from `org.apache.skywalking.oap.server.testing.dsl`:
+
+- `DslClassOutput.unitTestDir("lal")` — output dir for unit tests (`target/lal-generated-classes/`)
+- `DslClassOutput.checkerTestDir(sourceFile)` — output dir for checker tests (`{baseName}.generated-classes/`)
+- `LalRuleLoader.loadAllRules(Path)` — loads all LAL rules with companion `.input.data` or `.data.yaml`
+- `LalLogDataBuilder.buildLogData(Map)` — builds `LogData.Builder` from test input map
+- `LalLogDataBuilder.buildSyntheticLogData(String)` — builds synthetic LogData from DSL string
+- `LalLogDataBuilder.buildExtraLog(Map)` — builds proto Message for extraLog from input map
+- `DslRuleLoader.findScriptsDir(String...)` — resolves scripts directory from candidates
+- `DslRuleLoader.findRuleLine(String[], String, int)` — finds 1-based line number of rule in YAML
+
+Used by `LALClassGeneratorTestBase`, `LALExpressionExecutionTest`, `LalComparisonTest`, and `EnvoyAlsLalTest`.
 
 ## Dependencies
 

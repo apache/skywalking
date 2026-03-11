@@ -85,6 +85,18 @@ public final class LALClassGenerator {
         }
     }
 
+    static class LocalVarInfo {
+        final String javaVarName;
+        final Class<?> resolvedType;
+        final String descriptor;
+
+        LocalVarInfo(final String javaVarName, final Class<?> resolvedType) {
+            this.javaVarName = javaVarName;
+            this.resolvedType = resolvedType;
+            this.descriptor = "L" + resolvedType.getName().replace('.', '/') + ";";
+        }
+    }
+
     static class GenCtx {
         final ParserType parserType;
         final Class<?> inputType;
@@ -106,6 +118,12 @@ public final class LALClassGenerator {
         final StringBuilder protoVarDecls = new StringBuilder();
         int protoVarCounter;
         boolean usedProtoAccess;
+
+        // Local variables from def statements.
+        // Maps user-chosen name (e.g., "metadata") to type info.
+        final Map<String, LocalVarInfo> localVars = new HashMap<>();
+        final StringBuilder localVarDecls = new StringBuilder();
+        final List<String[]> localVarLvtVars = new ArrayList<>();
 
         GenCtx(final ParserType parserType, final Class<?> inputType,
                final Class<?> outputType) {
@@ -131,6 +149,9 @@ public final class LALClassGenerator {
             protoVarDecls.setLength(0);
             protoVarCounter = 0;
             usedProtoAccess = false;
+            localVars.clear();
+            localVarDecls.setLength(0);
+            localVarLvtVars.clear();
         }
 
         Object[] saveProtoVarState() {
@@ -139,7 +160,10 @@ public final class LALClassGenerator {
                 new ArrayList<>(protoLvtVars),
                 protoVarDecls.toString(),
                 protoVarCounter,
-                usedProtoAccess
+                usedProtoAccess,
+                new HashMap<>(localVars),
+                localVarDecls.toString(),
+                new ArrayList<>(localVarLvtVars)
             };
         }
 
@@ -153,6 +177,12 @@ public final class LALClassGenerator {
             protoVarDecls.append((String) state[2]);
             protoVarCounter = (Integer) state[3];
             usedProtoAccess = (Boolean) state[4];
+            localVars.clear();
+            localVars.putAll((Map<String, LocalVarInfo>) state[5]);
+            localVarDecls.setLength(0);
+            localVarDecls.append((String) state[6]);
+            localVarLvtVars.clear();
+            localVarLvtVars.addAll((List<String[]>) state[7]);
         }
     }
 
@@ -455,6 +485,7 @@ public final class LALClassGenerator {
             }
             execLvt.addAll(genCtx.protoLvtVars);
         }
+        execLvt.addAll(genCtx.localVarLvtVars);
         addLocalVariableTable(execMethod, className,
             execLvt.toArray(new String[0][]));
         addLineNumberTable(execMethod, 3); // slot 0=this, 1=filterSpec, 2=ctx
@@ -517,6 +548,11 @@ public final class LALClassGenerator {
             sb.append(genCtx.protoVarDecls);
         }
 
+        // Insert local var declarations from def statements at execute level
+        if (genCtx.localVarDecls.length() > 0) {
+            sb.append(genCtx.localVarDecls);
+        }
+
         sb.append(bodyContent);
         sb.append("}\n");
         return sb.toString();
@@ -552,6 +588,9 @@ public final class LALClassGenerator {
             }
         } else if (stmt instanceof LALScriptModel.IfBlock) {
             generateTopLevelIfBlock(sb, (LALScriptModel.IfBlock) stmt, genCtx);
+        } else if (stmt instanceof LALScriptModel.DefStatement) {
+            LALBlockCodegen.generateDefStatement(
+                sb, (LALScriptModel.DefStatement) stmt, genCtx);
         }
     }
 

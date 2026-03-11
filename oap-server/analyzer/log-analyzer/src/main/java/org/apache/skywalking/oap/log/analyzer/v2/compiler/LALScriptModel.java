@@ -82,6 +82,23 @@ public final class LALScriptModel {
     public static final class AbortStatement implements FilterStatement {
     }
 
+    // ==================== Local variable declaration ====================
+
+    @Getter
+    public static final class DefStatement implements FilterStatement, ExtractorStatement {
+        private final String varName;
+        private final ValueAccess initializer;
+        private final String castType;
+
+        public DefStatement(final String varName,
+                            final ValueAccess initializer,
+                            final String castType) {
+            this.varName = varName;
+            this.initializer = initializer;
+            this.castType = castType;
+        }
+    }
+
     // ==================== Extractor block ====================
 
     @Getter

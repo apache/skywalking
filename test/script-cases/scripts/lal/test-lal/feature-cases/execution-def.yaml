@@ -1,0 +1,105 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Execution tests for LAL 'def' local variable feature.
+# Tests toJson()/toJsonArray() on JSON body parsed values.
+# Uses standard field assignment (service/endpoint) for assertions,
+# since tag assertions require full sink pipeline.
+# Paired with execution-def.input.data for mock input and expected output.
+rules:
+  - name: def-json-extract-service
+    layer: GENERAL
+    v2Only: true
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          def config = toJson(parsed.metadata)
+          service config?.get("service")?.getAsString()
+        }
+        sink {}
+      }
+
+  - name: def-json-nested-access
+    layer: GENERAL
+    v2Only: true
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          def config = toJson(parsed.metadata)
+          service config?.getAsJsonObject("app")?.get("name")?.getAsString()
+          endpoint config?.getAsJsonObject("app")?.get("endpoint")?.getAsString()
+        }
+        sink {}
+      }
+
+  - name: def-json-with-condition
+    layer: GENERAL
+    v2Only: true
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          def config = toJson(parsed.metadata)
+          if (config?.has("app")) {
+            service config?.getAsJsonObject("app")?.get("name")?.getAsString()
+          }
+        }
+        sink {}
+      }
+
+  - name: def-json-missing-field
+    layer: GENERAL
+    v2Only: true
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          def config = toJson(parsed.nonexistent)
+          if (config?.has("key")) {
+            service config?.get("key")?.getAsString()
+          }
+        }
+        sink {}
+      }
+
+  - name: def-multiple-vars
+    layer: GENERAL
+    v2Only: true
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          def config = toJson(parsed.metadata)
+          def info = toJson(parsed.extra)
+          service config?.get("service")?.getAsString()
+          endpoint info?.get("endpoint")?.getAsString()
+        }
+        sink {}
+      }
+
+  - name: def-null-var-safe-nav
+    layer: GENERAL
+    v2Only: true
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          def config = toJson(parsed.nonexistent)
+          service config?.get("service")?.getAsString()
+        }
+        sink {}
+      }

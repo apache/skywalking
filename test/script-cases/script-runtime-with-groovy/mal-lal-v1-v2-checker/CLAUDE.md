@@ -104,3 +104,18 @@ Some production configs (e.g., apisix.yaml) have duplicate rule names for route-
 ## K8s Mocking
 
 Rules using `retagByK8sMeta` require K8s registry mocks. Both v1 and v2 K8sInfoRegistry are mocked via `Mockito.mockStatic()` in `@BeforeAll`. Mock `findServiceName(ns, pod)` returns `pod.ns`.
+
+## Shared DSL Testing Framework (server-testing module)
+
+Checker tests use utilities from `org.apache.skywalking.oap.server.testing.dsl`:
+
+| Utility | Used by |
+|---------|---------|
+| `DslClassOutput.checkerTestDir(sourceFile)` | All three checkers — standardized `.generated-classes/` output dir |
+| `DslRuleLoader.findScriptsDir(String...)` | `LalComparisonTest` — locate `test/script-cases/scripts/lal` |
+| `LalRuleLoader.loadAllRules(Path)` | `LalComparisonTest` — load LAL rules with companion input data |
+| `LalLogDataBuilder.buildLogData(Map)` | `LalComparisonTest` — build `LogData` from test input maps |
+| `LalLogDataBuilder.buildExtraLog(Map)` | `LalComparisonTest` — build proto extraLog from input maps |
+| `LalLogDataBuilder.buildSyntheticLogData(String)` | `LalComparisonTest` — synthetic LogData when no input data |
+
+`LalComparisonTest` is fully migrated to the framework. `MalComparisonTest` uses `DslClassOutput` for class output dirs.

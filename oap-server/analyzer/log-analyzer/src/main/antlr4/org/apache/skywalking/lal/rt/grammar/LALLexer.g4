@@ -54,6 +54,9 @@ RPM:           'rpm';
 ENFORCER:      'enforcer';
 DROPPER:       'dropper';
 
+// Keywords - local variables
+DEF:           'def';
+
 // Keywords - control flow
 IF:            'if';
 ELSE:          'else';

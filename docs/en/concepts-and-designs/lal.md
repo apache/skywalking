@@ -145,6 +145,103 @@ filter {
 Extractors aim to extract metadata from the logs. The metadata can be a service name, a service instance name, an
 endpoint name, or even a trace ID, all of which can be associated with the existing traces and metrics.
 
+#### Local variables (`def`)
+
+You can use `def` to declare local variables in the extractor (or at the filter level). This is useful when an
+expression is reused multiple times, or when you want to break a long chain into readable steps.
+
+The syntax is:
+
+```
+def variableName = expression
+def variableName = expression as TypeName
+```
+
+The variable type is inferred from the initializer expression at compile time. `def` is not limited to JSON — it works
+with any value access expression whose type is resolvable on the classpath, including protobuf getter chains,
+`log.*` fields, and Gson JSON method chains. Subsequent method calls on the variable are validated at compile time
+against the inferred type.
+
+You can optionally add an explicit `as` type cast to narrow the variable type. The cast type can be a built-in
+type (`String`, `Long`, `Integer`, `Boolean`) or a fully qualified class name:
+
+```
+def value = someExpression as com.example.MyType
+```
+
+This is useful when the compiler infers a type that is too general (e.g., `Object` from a generic API return)
+and you know the concrete runtime type. The cast tells the compiler which type to use for subsequent method chain
+validation. Note that `as` performs a Java cast — it does **not** convert between types. For JSON conversion, use
+`toJson()` or `toJsonArray()` instead.
+
+The FQCN must be resolvable on the classpath at compile time. If the class is not found, the OAP server will fail
+to start.
+
+Two built-in conversion functions are provided for JSON interoperability:
+
+- `toJson(expr)` — converts a value to a Gson `JsonObject`. Works with JSON strings, `Map`, and protobuf `Struct`.
+- `toJsonArray(expr)` — converts a value to a Gson `JsonArray`. Works with JSON array strings.
+
+After declaration, the variable can be used in subsequent expressions with full null-safe navigation support (`?.`).
+
+Def variables can also be used as method arguments. This is useful when you need to look up a dynamic key:
+
+```
+filter {
+    json {}
+    extractor {
+        def key = parsed.fieldName as String
+        def config = toJson(parsed.metadata)
+        tag 'val': config?.get(key)?.getAsString()
+    }
+    sink {}
+}
+```
+
+Example — extracting fields from a protobuf input type (no JSON conversion needed):
+
+```
+filter {
+    extractor {
+        def resp = parsed?.response
+        tag 'status.code': resp?.responseCode?.value
+        tag 'resp.flags': resp?.responseCodeDetails
+    }
+    sink {}
+}
+```
+
+Example — extracting JWT claims from envoy access log filter metadata via `toJson()`:
+
+```
+filter {
+    extractor {
+        def jwt = toJson(parsed?.commonProperties?.metadata
+            ?.filterMetadataMap?.get("envoy.filters.http.jwt_authn"))
+        def payload = jwt?.getAsJsonObject("payload")
+        if (payload != null) {
+            tag 'email': payload?.get("email")?.getAsString()
+            tag 'group': payload?.get("group")?.getAsString()
+        }
+    }
+    sink {}
+}
+```
+
+Example — parsing a JSON log body field into a structured object:
+
+```
+filter {
+    json {}
+    extractor {
+        def config = toJson(parsed.metadata)
+        tag 'env': config?.get("env")?.getAsString()
+        tag 'region': config?.getAsJsonObject("location")?.get("region")?.getAsString()
+    }
+    sink {}
+}
+```
+
 #### Standard fields
 
 - `service`
@@ -473,7 +570,7 @@ LAL supports two kinds of output types:
 | Output path | Base type | How it works |
 |---|---|---|
 | **Log path** | Subclass of `AbstractLog` | The sink populates standard log fields (service, instance, endpoint, tags, body, etc.) from `LogData` and persists via `SourceReceiver` |
-| **Builder path** | Implements `LALOutputBuilder` | The sink creates the builder, calls `init(LogData, NamingControl)` to pre-populate standard fields, applies output field values via setters, then calls `complete(SourceReceiver)` to validate and dispatch |
+| **Builder path** | Implements `LALOutputBuilder` | The sink creates the builder, calls `init(LogData, Optional<Object> extraLog, NamingControl)` to pre-populate standard fields, applies output field values via setters, then calls `complete(SourceReceiver)` to validate and dispatch |
 
 The builder path is used when the output type implements the `LALOutputBuilder` interface. This is how SkyWalking's
 built-in slow SQL and sampled trace features work.
@@ -537,8 +634,9 @@ public class MyCustomBuilder implements LALOutputBuilder {
     public String name() { return NAME; }
 
     @Override
-    public void init(LogData logData, NamingControl namingControl) {
+    public void init(LogData logData, Optional<Object> extraLog, NamingControl namingControl) {
         // Pre-populate from LogData (service, timestamp, traceId, etc.)
+        // extraLog contains the typed input object (e.g., a protobuf message) if available
     }
 
     @Override
