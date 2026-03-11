@@ -134,6 +134,16 @@ When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated
 
 This is the same env variable used by OAL. Useful for debugging code generation issues. In tests, use `setClassOutputDir(dir)` instead.
 
+## Testing Framework (server-testing module)
+
+Test utilities from `org.apache.skywalking.oap.server.testing.dsl`:
+
+- `DslClassOutput.checkerTestDir(sourceFile)` — output dir for checker tests (`{baseName}.generated-classes/`)
+- `HierarchyRuleLoader.loadRuleExpressions(Path)` — loads rule expressions from YAML
+- `HierarchyRuleLoader.loadTestPairs(Path)` — loads test pairs from `.data.yaml`
+
+Used by `HierarchyRuleComparisonTest`.
+
 ## Dependencies
 
 Grammar, compiler, and runtime are merged into this module:

@@ -157,6 +157,20 @@ MAL test data lives in `.data.yaml` companion files alongside rule YAML files un
 | `metricsRules` | Standard rule YAMLs (OTEL, meter-analyzer, envoy, log-mal, telegraf) |
 | `metrics` | Zabbix `agent.yaml` (production ZabbixConfig maps `metrics` to `getMetricsRules()`) |
 
+## Testing Framework (server-testing module)
+
+Test utilities from `org.apache.skywalking.oap.server.testing.dsl`:
+
+- `DslClassOutput.unitTestDir("mal")` — output dir for unit tests (`target/mal-generated-classes/`)
+- `DslClassOutput.checkerTestDir(sourceFile)` — output dir for checker tests (`{baseName}.generated-classes/`)
+- `MalRuleLoader.loadAllRules(Path, String[])` — loads all MAL rules with companion `.data.yaml`
+- `MalRuleLoader.formatExp(expPrefix, expSuffix, exp)` — replicates production `MetricConvert.formatExp()`
+- `MalMockDataBuilder.buildFromInput(Map, double)` — builds version-neutral `MalMockSample` from input
+- `DslRuleLoader.findScriptsDir(String...)` — resolves scripts directory from candidates
+- `DslRuleLoader.findRuleLine(String[], String, int)` — finds 1-based line number of rule in YAML
+
+Used by `MalComparisonTest` and `MalFilterComparisonTest`.
+
 ## Dependencies
 
 All within this module (grammar, compiler, and runtime are merged):

@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
+import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
@@ -139,13 +140,10 @@ class MalComparisonTest {
                 // Compile v2 filter once per source file (generates .class file)
                 if (rule.filter != null && rule.sourceFile != null
                         && compiledFilters.add(rule.sourceFile)) {
-                    final String baseName = rule.sourceFile.getName()
-                        .replaceFirst("\\.(yaml|yml)$", "");
                     final int filterLine = findFilterLine(rule.sourceFile);
                     final MALClassGenerator filterGen = new MALClassGenerator();
-                    filterGen.setClassOutputDir(new java.io.File(
-                        rule.sourceFile.getParent(),
-                        baseName + ".generated-classes"));
+                    filterGen.setClassOutputDir(
+                        DslClassOutput.checkerTestDir(rule.sourceFile));
                     filterGen.setClassNameHint("filter");
                     filterGen.setYamlSource(filterLine > 0
                         ? rule.sourceFile.getName() + ":" + filterLine
@@ -181,11 +179,8 @@ class MalComparisonTest {
             final MalRule rule) throws Exception {
         final MALClassGenerator generator = new MALClassGenerator();
         if (rule.sourceFile != null) {
-            final String baseName = rule.sourceFile.getName()
-                .replaceFirst("\\.(yaml|yml)$", "");
-            generator.setClassOutputDir(new java.io.File(
-                rule.sourceFile.getParent(),
-                baseName + ".generated-classes"));
+            generator.setClassOutputDir(
+                DslClassOutput.checkerTestDir(rule.sourceFile));
             generator.setClassNameHint(rule.name);
             generator.setYamlSource(rule.lineNo > 0
                 ? rule.sourceFile.getName() + ":" + rule.lineNo

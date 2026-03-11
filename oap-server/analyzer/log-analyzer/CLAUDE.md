@@ -368,6 +368,21 @@ When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated
 
 This is the same env variable used by OAL. Useful for debugging code generation issues or comparing V1 vs V2 output. In tests, use `setClassOutputDir(dir)` instead.
 
+## Testing Framework (server-testing module)
+
+Test utilities from `org.apache.skywalking.oap.server.testing.dsl`:
+
+- `DslClassOutput.unitTestDir("lal")` — output dir for unit tests (`target/lal-generated-classes/`)
+- `DslClassOutput.checkerTestDir(sourceFile)` — output dir for checker tests (`{baseName}.generated-classes/`)
+- `LalRuleLoader.loadAllRules(Path)` — loads all LAL rules with companion `.input.data` or `.data.yaml`
+- `LalLogDataBuilder.buildLogData(Map)` — builds `LogData.Builder` from test input map
+- `LalLogDataBuilder.buildSyntheticLogData(String)` — builds synthetic LogData from DSL string
+- `LalLogDataBuilder.buildExtraLog(Map)` — builds proto Message for extraLog from input map
+- `DslRuleLoader.findScriptsDir(String...)` — resolves scripts directory from candidates
+- `DslRuleLoader.findRuleLine(String[], String, int)` — finds 1-based line number of rule in YAML
+
+Used by `LALClassGeneratorTestBase`, `LALExpressionExecutionTest`, `LalComparisonTest`, and `EnvoyAlsLalTest`.
+
 ## Dependencies
 
 All within this module (grammar, compiler, and runtime are merged):

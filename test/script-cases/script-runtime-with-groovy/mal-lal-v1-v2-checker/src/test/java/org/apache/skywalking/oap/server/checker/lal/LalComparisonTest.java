@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.oap.server.checker.lal;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,14 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import com.google.protobuf.Message;
-import com.google.protobuf.util.JsonFormat;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
-import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
-import org.apache.skywalking.apm.network.logging.v3.LogTags;
-import org.apache.skywalking.apm.network.logging.v3.TextLog;
-import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
@@ -49,9 +42,13 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
+import org.apache.skywalking.oap.server.testing.dsl.DslRuleLoader;
+import org.apache.skywalking.oap.server.testing.dsl.lal.LalLogDataBuilder;
+import org.apache.skywalking.oap.server.testing.dsl.lal.LalRuleLoader;
+import org.apache.skywalking.oap.server.testing.dsl.lal.LalTestRule;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -77,11 +74,24 @@ class LalComparisonTest {
     @TestFactory
     Collection<DynamicTest> lalScriptsCompileAndExecute() throws Exception {
         final List<DynamicTest> tests = new ArrayList<>();
-        final Map<String, List<LalRule>> yamlRules = loadAllLalYamlFiles();
 
-        for (final Map.Entry<String, List<LalRule>> entry : yamlRules.entrySet()) {
+        final Path scriptsDir = DslRuleLoader.findScriptsDir(
+            "test/script-cases/scripts/lal",
+            "../../scripts/lal");
+        if (scriptsDir == null) {
+            return tests;
+        }
+        final Path lalDir = scriptsDir.resolve("test-lal");
+        if (!Files.isDirectory(lalDir)) {
+            return tests;
+        }
+
+        final Map<String, List<LalTestRule>> allRules =
+            LalRuleLoader.loadAllRules(lalDir);
+
+        for (final Map.Entry<String, List<LalTestRule>> entry : allRules.entrySet()) {
             final String yamlFile = entry.getKey();
-            for (final LalRule rule : entry.getValue()) {
+            for (final LalTestRule rule : entry.getValue()) {
                 // Compile v2 once per rule — the expression is stateless
                 org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression v2Expr = null;
                 String v2CompileError = null;
@@ -93,27 +103,27 @@ class LalComparisonTest {
                         + ": " + cause.getMessage();
                 }
 
-                if (rule.inputs.isEmpty()) {
+                final boolean v2Only = rule.getOutputType() != null || rule.isV2Only();
+
+                if (rule.getInputs().isEmpty()) {
                     final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression expr = v2Expr;
                     final String err = v2CompileError;
-                    final boolean v2Only = rule.outputType != null || rule.v2Only;
                     tests.add(DynamicTest.dynamicTest(
-                        yamlFile + " | " + rule.name,
-                        () -> compareExecution(rule.name, rule.dsl,
+                        yamlFile + " | " + rule.getName(),
+                        () -> compareExecution(rule.getName(), rule.getDsl(),
                             null, expr, err, v2Only)
                     ));
                 } else {
-                    for (int i = 0; i < rule.inputs.size(); i++) {
+                    for (int i = 0; i < rule.getInputs().size(); i++) {
                         final int idx = i;
                         final org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression expr = v2Expr;
                         final String err = v2CompileError;
-                        final boolean v2Only = rule.outputType != null || rule.v2Only;
-                        final String testName = rule.inputs.size() == 1
-                            ? rule.name : rule.name + " [" + i + "]";
+                        final String testName = rule.getInputs().size() == 1
+                            ? rule.getName() : rule.getName() + " [" + i + "]";
                         tests.add(DynamicTest.dynamicTest(
                             yamlFile + " | " + testName,
-                            () -> compareExecution(testName, rule.dsl,
-                                rule.inputs.get(idx), expr, err, v2Only)
+                            () -> compareExecution(testName, rule.getDsl(),
+                                rule.getInputs().get(idx), expr, err, v2Only)
                         ));
                     }
                 }
@@ -124,31 +134,28 @@ class LalComparisonTest {
     }
 
     private org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression compileV2(
-            final LalRule rule) throws Exception {
+            final LalTestRule rule) throws Exception {
         final LALClassGenerator generator = new LALClassGenerator();
-        if (rule.inputType != null) {
-            generator.setInputType(Class.forName(rule.inputType));
-        } else if (rule.layer != null) {
-            generator.setInputType(spiInputTypes().get(rule.layer));
+        if (rule.getInputType() != null) {
+            generator.setInputType(Class.forName(rule.getInputType()));
+        } else if (rule.getLayer() != null) {
+            generator.setInputType(spiInputTypes().get(rule.getLayer()));
         } else {
             generator.setInputType(null);
         }
-        final Class<?> resolvedOutput = resolveOutputType(rule.outputType);
+        final Class<?> resolvedOutput = resolveOutputType(rule.getOutputType());
         if (resolvedOutput != null) {
             generator.setOutputType(resolvedOutput);
         }
-        if (rule.sourceFile != null) {
-            final String baseName = rule.sourceFile.getName()
-                .replaceFirst("\\.(yaml|yml)$", "");
-            generator.setClassOutputDir(new java.io.File(
-                rule.sourceFile.getParent(),
-                baseName + ".generated-classes"));
-            generator.setClassNameHint(rule.name);
-            generator.setYamlSource(rule.lineNo > 0
-                ? rule.sourceFile.getName() + ":" + rule.lineNo
-                : rule.sourceFile.getName());
+        if (rule.getSourceFile() != null) {
+            generator.setClassOutputDir(
+                DslClassOutput.checkerTestDir(rule.getSourceFile()));
+            generator.setClassNameHint(rule.getName());
+            generator.setYamlSource(rule.getLineNo() > 0
+                ? rule.getSourceFile().getName() + ":" + rule.getLineNo()
+                : rule.getSourceFile().getName());
         }
-        return generator.compile(rule.dsl);
+        return generator.compile(rule.getDsl());
     }
 
     private void compareExecution(
@@ -158,10 +165,16 @@ class LalComparisonTest {
             final String v2CompileError,
             final boolean v2Only) throws Exception {
 
-        final LogData testLog = buildLogData(inputData, dsl);
+        final LogData testLog;
+        if (inputData != null) {
+            testLog = LalLogDataBuilder.buildLogData(inputData).build();
+        } else {
+            testLog = LalLogDataBuilder.buildSyntheticLogData(dsl);
+        }
 
         // Build proto extraLog from input data if available
-        final Message extraLog = buildExtraLog(inputData);
+        final Message extraLog = inputData != null
+            ? LalLogDataBuilder.buildExtraLog(inputData) : null;
 
         // ---- V1: Groovy path (skipped for v2-only rules like outputType) ----
         org.apache.skywalking.oap.log.analyzer.dsl.Binding v1Ctx = null;
@@ -544,97 +557,6 @@ class LalComparisonTest {
         return manager;
     }
 
-    @SuppressWarnings("unchecked")
-    private LogData buildLogData(final Map<String, Object> inputData,
-                                 final String dsl) {
-        if (inputData == null) {
-            return buildSyntheticLogData(dsl);
-        }
-
-        final LogData.Builder builder = LogData.newBuilder();
-
-        final String service = (String) inputData.get("service");
-        if (service != null) {
-            builder.setService(service);
-        }
-
-        final String instance = (String) inputData.get("instance");
-        if (instance != null) {
-            builder.setServiceInstance(instance);
-        }
-
-        final String traceId = (String) inputData.get("trace-id");
-        if (traceId != null) {
-            builder.setTraceContext(TraceContext.newBuilder().setTraceId(traceId));
-        }
-
-        final Object tsObj = inputData.get("timestamp");
-        if (tsObj != null) {
-            builder.setTimestamp(Long.parseLong(String.valueOf(tsObj)));
-        }
-
-        final String bodyType = (String) inputData.get("body-type");
-        final String body = (String) inputData.get("body");
-
-        if ("json".equals(bodyType) && body != null) {
-            builder.setBody(LogDataBody.newBuilder()
-                .setJson(JSONLog.newBuilder().setJson(body)));
-        } else if ("text".equals(bodyType) && body != null) {
-            builder.setBody(LogDataBody.newBuilder()
-                .setText(TextLog.newBuilder().setText(body)));
-        }
-
-        final Map<String, String> tags =
-            (Map<String, String>) inputData.get("tags");
-        if (tags != null && !tags.isEmpty()) {
-            final LogTags.Builder tagsBuilder = LogTags.newBuilder();
-            for (final Map.Entry<String, String> tag : tags.entrySet()) {
-                tagsBuilder.addData(KeyStringValuePair.newBuilder()
-                    .setKey(tag.getKey())
-                    .setValue(tag.getValue()));
-            }
-            builder.setTags(tagsBuilder);
-        }
-
-        return builder.build();
-    }
-
-    private LogData buildSyntheticLogData(final String dsl) {
-        final LogData.Builder builder = LogData.newBuilder()
-            .setService("test-service")
-            .setServiceInstance("test-instance")
-            .setTimestamp(System.currentTimeMillis())
-            .setTraceContext(TraceContext.newBuilder()
-                .setTraceId("test-trace-id-123")
-                .setTraceSegmentId("test-segment-id-456")
-                .setSpanId(1));
-
-        if (dsl.contains("json")) {
-            builder.setBody(LogDataBody.newBuilder()
-                .setJson(JSONLog.newBuilder()
-                    .setJson("{\"level\":\"ERROR\",\"msg\":\"test\","
-                        + "\"layer\":\"GENERAL\",\"service\":\"test-svc\","
-                        + "\"instance\":\"test-inst\",\"endpoint\":\"test-ep\","
-                        + "\"time\":\"1234567890\","
-                        + "\"id\":\"slow-1\",\"statement\":\"SELECT 1\","
-                        + "\"query_time\":500,\"code\":200,"
-                        + "\"env\":\"prod\",\"region\":\"us-east\","
-                        + "\"skip\":\"false\","
-                        + "\"data\":{\"name\":\"test-value\"},"
-                        + "\"latency\":100,\"uri\":\"/api/test\","
-                        + "\"reason\":\"SLOW\",\"pid\":\"proc-1\","
-                        + "\"dpid\":\"proc-2\",\"dp\":\"CLIENT\"}")));
-        }
-
-        if (dsl.contains("LOG_KIND")) {
-            builder.setTags(LogTags.newBuilder()
-                .addData(KeyStringValuePair.newBuilder()
-                    .setKey("LOG_KIND").setValue("SLOW_SQL")));
-        }
-
-        return builder.build();
-    }
-
     private void disableSinkListeners(final Object dsl) {
         try {
             final Object filterSpec = getInternalField(dsl, "filterSpec");
@@ -694,147 +616,6 @@ class LalComparisonTest {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    private Map<String, List<LalRule>> loadAllLalYamlFiles() throws Exception {
-        final Map<String, List<LalRule>> result = new HashMap<>();
-        final Yaml yaml = new Yaml();
-
-        final Path scriptsDir = findScriptsDir("lal");
-        if (scriptsDir == null) {
-            return result;
-        }
-        final Path lalDir = scriptsDir.resolve("test-lal");
-        if (!Files.isDirectory(lalDir)) {
-            return result;
-        }
-
-        // Scan top-level and subdirectories (oap-cases/, feature-cases/)
-        final List<File> yamlFiles = new ArrayList<>();
-        collectYamlFiles(lalDir.toFile(), yamlFiles);
-
-        for (final File file : yamlFiles) {
-            final String content = Files.readString(file.toPath());
-            final Map<String, Object> config = yaml.load(content);
-            if (config == null || !config.containsKey("rules")) {
-                continue;
-            }
-            final List<Map<String, String>> rules =
-                (List<Map<String, String>>) config.get("rules");
-            if (rules == null) {
-                continue;
-            }
-
-            // Load matching .data.yaml file if present
-            final String baseName = file.getName()
-                .replaceFirst("\\.(yaml|yml)$", "");
-            final File inputDataFile = new File(file.getParent(),
-                baseName + ".data.yaml");
-            Map<String, Map<String, Object>> inputData = null;
-            if (inputDataFile.exists()) {
-                inputData = yaml.load(
-                    Files.readString(inputDataFile.toPath()));
-            }
-
-            final List<LalRule> lalRules = new ArrayList<>();
-            final String[] lines = content.split("\n");
-            final Map<String, Integer> nameCount = new HashMap<>();
-            for (final Map<String, String> rule : rules) {
-                final String name = rule.get("name");
-                final String dslStr = rule.get("dsl");
-                if (name == null || dslStr == null) {
-                    continue;
-                }
-                final String inputType = rule.get("inputType");
-                final String outputType = rule.get("outputType");
-                final String layer = rule.get("layer");
-                final boolean v2OnlyFlag = Boolean.TRUE.equals(rule.get("v2Only"));
-                final int count = nameCount.merge(name, 1, Integer::sum);
-                final int lineNo = findRuleLine(lines, name, count);
-
-                final Object ruleInput = inputData != null
-                    ? inputData.get(name) : null;
-
-                final List<Map<String, Object>> inputs;
-                if (ruleInput instanceof List) {
-                    inputs = (List<Map<String, Object>>) ruleInput;
-                } else if (ruleInput instanceof Map) {
-                    inputs = Collections.singletonList(
-                        (Map<String, Object>) ruleInput);
-                } else {
-                    inputs = Collections.emptyList();
-                }
-                lalRules.add(new LalRule(
-                    name, dslStr, inputType, outputType, layer,
-                    v2OnlyFlag, inputs, file, lineNo));
-            }
-
-            if (!lalRules.isEmpty()) {
-                final String relative = lalDir.relativize(file.toPath()).toString();
-                result.put("lal/" + relative, lalRules);
-            }
-        }
-        return result;
-    }
-
-    private Path findScriptsDir(final String language) {
-        final String[] candidates = {
-            "test/script-cases/scripts/" + language,
-            "../../scripts/" + language
-        };
-        for (final String candidate : candidates) {
-            final Path path = Path.of(candidate);
-            if (Files.isDirectory(path)) {
-                return path;
-            }
-        }
-        return null;
-    }
-
-    private static void collectYamlFiles(final File dir,
-                                            final List<File> result) {
-        final File[] children = dir.listFiles();
-        if (children == null) {
-            return;
-        }
-        for (final File child : children) {
-            if (child.isDirectory()) {
-                collectYamlFiles(child, result);
-            } else if (child.getName().endsWith(".yaml")
-                    || child.getName().endsWith(".yml")) {
-                result.add(child);
-            }
-        }
-    }
-
-    // ==================== Proto extraLog builder ====================
-
-    @SuppressWarnings("unchecked")
-    private static Message buildExtraLog(
-            final Map<String, Object> inputData) throws Exception {
-        if (inputData == null) {
-            return null;
-        }
-        final Map<String, String> extraLog =
-            (Map<String, String>) inputData.get("extra-log");
-        if (extraLog == null) {
-            return null;
-        }
-
-        final String protoClass = extraLog.get("proto-class");
-        final String protoJson = extraLog.get("proto-json");
-        if (protoClass == null || protoJson == null) {
-            return null;
-        }
-
-        final Class<?> clazz = Class.forName(protoClass);
-        final Message.Builder builder = (Message.Builder)
-            clazz.getMethod("newBuilder").invoke(null);
-        JsonFormat.parser()
-            .ignoringUnknownFields()
-            .merge(protoJson, builder);
-        return builder.build();
-    }
-
     // ==================== SPI lookup ====================
 
     private Map<String, Class<?>> spiTypes;
@@ -874,58 +655,5 @@ class LalComparisonTest {
             }
         }
         return Class.forName(outputType);
-    }
-
-    // ==================== Inner classes ====================
-
-    private static class LalRule {
-        final String name;
-        final String dsl;
-        final String inputType;
-        final String outputType;
-        final String layer;
-        final boolean v2Only;
-        final List<Map<String, Object>> inputs;
-        final File sourceFile;
-        final int lineNo;
-
-        LalRule(final String name, final String dsl,
-                final String inputType, final String outputType,
-                final String layer, final boolean v2Only,
-                final List<Map<String, Object>> inputs,
-                final File sourceFile, final int lineNo) {
-            this.name = name;
-            this.dsl = dsl;
-            this.inputType = inputType;
-            this.outputType = outputType;
-            this.layer = layer;
-            this.v2Only = v2Only;
-            this.inputs = inputs;
-            this.sourceFile = sourceFile;
-            this.lineNo = lineNo;
-        }
-    }
-
-    /**
-     * Find the 1-based line number of the Nth occurrence of {@code name: <value>} in YAML.
-     */
-    private static int findRuleLine(final String[] lines, final String name,
-                                    final int occurrence) {
-        int found = 0;
-        for (int i = 0; i < lines.length; i++) {
-            String trimmed = lines[i].trim();
-            if (trimmed.startsWith("- ")) {
-                trimmed = trimmed.substring(2);
-            }
-            if (trimmed.equals("name: " + name)
-                    || trimmed.equals("name: '" + name + "'")
-                    || trimmed.equals("name: \"" + name + "\"")) {
-                found++;
-                if (found == occurrence) {
-                    return i + 1;
-                }
-            }
-        }
-        return 0;
     }
 }

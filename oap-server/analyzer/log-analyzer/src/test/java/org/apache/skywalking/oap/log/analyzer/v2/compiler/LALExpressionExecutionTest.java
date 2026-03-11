@@ -17,9 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
-import java.io.File;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,13 +29,8 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 import com.google.protobuf.Message;
-import com.google.protobuf.util.JsonFormat;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
-import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
-import org.apache.skywalking.apm.network.logging.v3.LogTags;
-import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
@@ -53,6 +46,10 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.testing.dsl.DslRuleLoader;
+import org.apache.skywalking.oap.server.testing.dsl.lal.LalLogDataBuilder;
+import org.apache.skywalking.oap.server.testing.dsl.lal.LalRuleLoader;
+import org.apache.skywalking.oap.server.testing.dsl.lal.LalTestRule;
 import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -62,9 +59,9 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -89,14 +86,12 @@ class LALExpressionExecutionTest {
 
     @BeforeAll
     static void setupMocks() {
-        // Mock K8sInfoRegistry for ProcessRegistry.generateVirtualRemoteProcess()
         final K8sInfoRegistry mockK8s = mock(K8sInfoRegistry.class);
         when(mockK8s.findPodByIP(anyString())).thenReturn(ObjectID.EMPTY);
         when(mockK8s.findServiceByIP(anyString())).thenReturn(ObjectID.EMPTY);
         K8S_MOCK = Mockito.mockStatic(K8sInfoRegistry.class);
         K8S_MOCK.when(K8sInfoRegistry::getInstance).thenReturn(mockK8s);
 
-        // Mock MetricsStreamProcessor for ProcessRegistry.generateVirtualProcess()
         final MetricsStreamProcessor mockMsp = mock(MetricsStreamProcessor.class);
         doNothing().when(mockMsp).in(any());
         MSP_MOCK = Mockito.mockStatic(MetricsStreamProcessor.class);
@@ -118,104 +113,35 @@ class LALExpressionExecutionTest {
         final List<DynamicTest> tests = new ArrayList<>();
         final FilterSpec filterSpec = buildFilterSpec();
         final LALClassGenerator generator = new LALClassGenerator();
-        final Yaml yaml = new Yaml();
 
-        final Path testLalDir = findTestLalDir();
+        final Path testLalDir = DslRuleLoader.findScriptsDir(
+            "test/script-cases/scripts/lal/test-lal",
+            "../../../test/script-cases/scripts/lal/test-lal",
+            "../../scripts/lal/test-lal");
         if (testLalDir == null) {
             return tests;
         }
 
-        // Scan subdirectories (oap-cases/, feature-cases/)
-        final File[] subdirs = testLalDir.toFile().listFiles(File::isDirectory);
-        if (subdirs == null) {
-            return tests;
-        }
+        final Map<String, List<LalTestRule>> allRules =
+            LalRuleLoader.loadAllRules(testLalDir);
 
-        for (final File subdir : subdirs) {
-            final File[] files = subdir.listFiles();
-            if (files == null) {
-                continue;
-            }
-            for (final File yamlFile : files) {
-                if (!yamlFile.getName().endsWith(".yaml")
-                        && !yamlFile.getName().endsWith(".yml")) {
+        for (final Map.Entry<String, List<LalTestRule>> entry : allRules.entrySet()) {
+            for (final LalTestRule rule : entry.getValue()) {
+                if (rule.getInputs().isEmpty()) {
                     continue;
                 }
-
-                // Look for matching .input.data file
-                final String baseName = yamlFile.getName()
-                    .replaceAll("\\.(yaml|yml)$", "");
-                final File inputDataFile = new File(subdir,
-                    baseName + ".input.data");
-                if (!inputDataFile.exists()) {
-                    continue;
-                }
-
-                // Parse the YAML rules
-                final String yamlContent =
-                    Files.readString(yamlFile.toPath());
-                final Map<String, Object> config = yaml.load(yamlContent);
-                if (config == null || !config.containsKey("rules")) {
-                    continue;
-                }
-                @SuppressWarnings("unchecked")
-                final List<Map<String, String>> rules =
-                    (List<Map<String, String>>) config.get("rules");
-                if (rules == null) {
-                    continue;
-                }
-
-                // Parse the input data
-                final String inputContent =
-                    Files.readString(inputDataFile.toPath());
-                @SuppressWarnings("unchecked")
-                final Map<String, Object> inputData =
-                    yaml.load(inputContent);
-                if (inputData == null) {
-                    continue;
-                }
-
-                final String category = subdir.getName();
-                for (final Map<String, String> rule : rules) {
-                    final String ruleName = rule.get("name");
-                    final String dsl = rule.get("dsl");
-                    final String ruleLayer = rule.get("layer");
-                    final String inputType = rule.get("inputType");
-                    if (ruleName == null || dsl == null) {
-                        continue;
-                    }
-                    final Object ruleInput = inputData.get(ruleName);
-                    if (ruleInput == null) {
-                        continue;
-                    }
-
-                    if (ruleInput instanceof List) {
-                        @SuppressWarnings("unchecked")
-                        final List<Map<String, Object>> inputs =
-                            (List<Map<String, Object>>) ruleInput;
-                        for (int i = 0; i < inputs.size(); i++) {
-                            final Map<String, Object> input = inputs.get(i);
-                            final int idx = i;
-                            tests.add(DynamicTest.dynamicTest(
-                                category + "/" + baseName + " | "
-                                    + ruleName + " [" + idx + "]",
-                                () -> executeAndAssert(
-                                    generator, filterSpec,
-                                    ruleName + " [" + idx + "]",
-                                    dsl, ruleLayer, inputType, input)
-                            ));
-                        }
-                    } else {
-                        @SuppressWarnings("unchecked")
-                        final Map<String, Object> input =
-                            (Map<String, Object>) ruleInput;
-                        tests.add(DynamicTest.dynamicTest(
-                            category + "/" + baseName + " | " + ruleName,
-                            () -> executeAndAssert(
-                                generator, filterSpec, ruleName,
-                                dsl, ruleLayer, inputType, input)
-                        ));
-                    }
+                for (int i = 0; i < rule.getInputs().size(); i++) {
+                    final Map<String, Object> input = rule.getInputs().get(i);
+                    final int idx = i;
+                    final String testName = rule.getInputs().size() == 1
+                        ? rule.getName() : rule.getName() + " [" + idx + "]";
+                    tests.add(DynamicTest.dynamicTest(
+                        entry.getKey() + " | " + testName,
+                        () -> executeAndAssert(
+                            generator, filterSpec, testName,
+                            rule.getDsl(), rule.getLayer(),
+                            rule.getInputType(), rule.getOutputType(), input)
+                    ));
                 }
             }
         }
@@ -229,37 +155,36 @@ class LALExpressionExecutionTest {
             final String dsl,
             final String ruleLayer,
             final String inputType,
+            final String outputType,
             final Map<String, Object> input) throws Exception {
         if (inputType != null) {
             generator.setInputType(Class.forName(inputType));
         } else if (ruleLayer != null) {
-            // Resolve via LALSourceTypeProvider SPI
             generator.setInputType(spiInputTypes().get(ruleLayer));
         } else {
             generator.setInputType(null);
         }
+
+        final Class<?> resolvedOutput = resolveOutputType(outputType);
+        generator.setOutputType(resolvedOutput);
+
         final LalExpression expr = generator.compile(dsl);
-        final LogData.Builder logData = buildLogData(input);
+        final LogData.Builder logData = LalLogDataBuilder.buildLogData(input);
         if (ruleLayer != null) {
             logData.setLayer(ruleLayer);
         }
         final ExecutionContext ctx = new ExecutionContext();
         ctx.log(logData);
 
-        // Set proto extraLog if specified
-        final Message extraLog = buildExtraLog(input);
+        final Message extraLog = LalLogDataBuilder.buildExtraLog(input);
         if (extraLog != null) {
             ctx.extraLog(extraLog);
         }
 
         expr.execute(filterSpec, ctx);
 
-        // The output builder (LogBuilder) holds extracted fields.
-        // For standard fields (service, instance, endpoint, layer),
-        // check the output builder first, falling back to ctx.log() proto.
         final Object outputObj = ctx.output();
 
-        // Assert expected values
         @SuppressWarnings("unchecked")
         final Map<String, Object> expect =
             (Map<String, Object>) input.get("expect");
@@ -272,30 +197,6 @@ class LALExpressionExecutionTest {
             final String expected = String.valueOf(entry.getValue());
 
             switch (key) {
-                case "service":
-                    assertEquals(expected,
-                        getOutputOrProto(outputObj, "service",
-                            ctx.log().getService()),
-                        ruleName + ": service mismatch");
-                    break;
-                case "instance":
-                    assertEquals(expected,
-                        getOutputOrProto(outputObj, "serviceInstance",
-                            ctx.log().getServiceInstance()),
-                        ruleName + ": serviceInstance mismatch");
-                    break;
-                case "endpoint":
-                    assertEquals(expected,
-                        getOutputOrProto(outputObj, "endpoint",
-                            ctx.log().getEndpoint()),
-                        ruleName + ": endpoint mismatch");
-                    break;
-                case "layer":
-                    assertEquals(expected,
-                        getOutputOrProto(outputObj, "layer",
-                            ctx.log().getLayer()),
-                        ruleName + ": layer mismatch");
-                    break;
                 case "save":
                     assertEquals(Boolean.parseBoolean(expected),
                         ctx.shouldSave(),
@@ -306,133 +207,162 @@ class LALExpressionExecutionTest {
                         ctx.shouldAbort(),
                         ruleName + ": shouldAbort mismatch");
                     break;
+                case "service":
+                    assertOutputField(ruleName, outputObj, "service", expected, ctx.log().getService());
+                    break;
+                case "instance":
+                    assertOutputField(ruleName, outputObj, "serviceInstance", expected, ctx.log().getServiceInstance());
+                    break;
+                case "endpoint":
+                    assertOutputField(ruleName, outputObj, "endpoint", expected, ctx.log().getEndpoint());
+                    break;
+                case "layer":
+                    assertOutputField(ruleName, outputObj, "layer", expected, ctx.log().getLayer());
+                    break;
                 case "timestamp":
-                    assertEquals(Long.parseLong(expected),
-                        ctx.log().getTimestamp(),
-                        ruleName + ": timestamp mismatch");
+                    assertOutputField(ruleName, outputObj, "timestamp", expected, String.valueOf(ctx.log().getTimestamp()));
                     break;
                 default:
                     if (key.startsWith("tag.")) {
                         final String tagKey = key.substring(4);
-                        final List<KeyStringValuePair> tags =
-                            ctx.log().getTags().getDataList();
-                        assertTrue(tags.stream().anyMatch(
-                            t -> tagKey.equals(t.getKey())
-                                && expected.equals(t.getValue())),
-                            ruleName + ": expected tag "
-                                + tagKey + "=" + expected
-                                + ", got: " + tags.stream()
-                                .map(t -> t.getKey() + "=" + t.getValue())
-                                .collect(Collectors.joining(", ")));
+                        if (outputObj instanceof org.apache.skywalking.oap.server.core.source.LogBuilder) {
+                            assertLalTag(ruleName, outputObj, tagKey, expected);
+                        } else {
+                            final List<KeyStringValuePair> tags =
+                                ctx.log().getTags().getDataList();
+                            assertTrue(tags.stream().anyMatch(
+                                t -> tagKey.equals(t.getKey())
+                                    && expected.equals(t.getValue())),
+                                ruleName + ": expected tag "
+                                    + tagKey + "=" + expected
+                                    + ", got: " + tags.stream()
+                                    .map(t -> t.getKey() + "=" + t.getValue())
+                                    .collect(Collectors.joining(", ")));
+                        }
+                    } else if (key.startsWith("outputField.")) {
+                        final String fieldName = key.substring("outputField.".length());
+                        assertOutputField(ruleName, outputObj, fieldName, expected, "");
                     }
                     break;
             }
         }
     }
 
-    /**
-     * Reads a field from the output builder if present, otherwise falls back
-     * to the proto value. The output builder (e.g. LogBuilder) stores
-     * extracted fields that haven't been flushed to LogData proto yet.
-     */
-    private static String getOutputOrProto(final Object outputObj,
-                                            final String fieldName,
-                                            final String protoValue) {
-        if (outputObj == null) {
-            return protoValue;
-        }
-        try {
-            final Field f = outputObj.getClass().getDeclaredField(fieldName);
-            f.setAccessible(true);
-            final Object val = f.get(outputObj);
-            if (val != null) {
-                return val.toString();
-            }
-        } catch (NoSuchFieldException | IllegalAccessException ignored) {
-            // Field not on this output type — fall back to proto
-        }
-        return protoValue;
+    private static final Map<String, String[]> FIELD_GETTER_CANDIDATES;
+
+    static {
+        FIELD_GETTER_CANDIDATES = new HashMap<>();
+        FIELD_GETTER_CANDIDATES.put("service",
+            new String[]{"getService", "getServiceName"});
+        FIELD_GETTER_CANDIDATES.put("serviceInstance",
+            new String[]{"getServiceInstance", "getServiceInstanceName", "getInstance"});
     }
 
-    // ==================== LogData builder ====================
-
-    @SuppressWarnings("unchecked")
-    private static LogData.Builder buildLogData(
-            final Map<String, Object> input) {
-        final LogData.Builder builder = LogData.newBuilder();
-
-        final String service = (String) input.get("service");
-        if (service != null) {
-            builder.setService(service);
+    private void assertOutputField(final String ruleName,
+                                   final Object output,
+                                   final String fieldName,
+                                   final String expected,
+                                   final String protoValue) {
+        if (output == null) {
+            assertEquals(expected, protoValue, ruleName + ": " + fieldName + " mismatch (no output)");
+            return;
         }
 
-        final String instance = (String) input.get("instance");
-        if (instance != null) {
-            builder.setServiceInstance(instance);
-        }
-
-        final String traceId = (String) input.get("trace-id");
-        if (traceId != null) {
-            builder.setTraceContext(
-                org.apache.skywalking.apm.network.logging.v3.TraceContext
-                    .newBuilder().setTraceId(traceId));
-        }
-
-        final Object tsObj = input.get("timestamp");
-        if (tsObj != null) {
-            builder.setTimestamp(Long.parseLong(String.valueOf(tsObj)));
-        }
-
-        final String bodyType = (String) input.get("body-type");
-        final String body = (String) input.get("body");
-
-        if ("json".equals(bodyType) && body != null) {
-            builder.setBody(LogDataBody.newBuilder()
-                .setJson(JSONLog.newBuilder().setJson(body)));
-        } else if ("text".equals(bodyType) && body != null) {
-            builder.setBody(LogDataBody.newBuilder()
-                .setText(TextLog.newBuilder().setText(body)));
-        }
-
-        final Map<String, String> tags =
-            (Map<String, String>) input.get("tags");
-        if (tags != null && !tags.isEmpty()) {
-            final LogTags.Builder tagsBuilder = LogTags.newBuilder();
-            for (final Map.Entry<String, String> tag : tags.entrySet()) {
-                tagsBuilder.addData(KeyStringValuePair.newBuilder()
-                    .setKey(tag.getKey())
-                    .setValue(tag.getValue()));
+        // Try getter candidates for known fields, then standard getter
+        final String[] candidates = FIELD_GETTER_CANDIDATES.get(fieldName);
+        if (candidates != null) {
+            for (final String getterName : candidates) {
+                try {
+                    final Object actual = output.getClass().getMethod(getterName).invoke(output);
+                    if (actual != null) {
+                        assertEquals(expected, String.valueOf(actual),
+                            ruleName + ": expect." + fieldName + " mismatch");
+                        return;
+                    }
+                } catch (final NoSuchMethodException ignored) {
+                } catch (final Exception e) {
+                    fail(ruleName + ": getter " + getterName + " failed: " + e.getMessage());
+                    return;
+                }
             }
-            builder.setTags(tagsBuilder);
+        } else {
+            final String getterName = "get"
+                + Character.toUpperCase(fieldName.charAt(0))
+                + fieldName.substring(1);
+            try {
+                final Object actual = output.getClass().getMethod(getterName).invoke(output);
+                if (actual != null) {
+                    assertEquals(expected, String.valueOf(actual),
+                        ruleName + ": expect." + fieldName + " mismatch");
+                    return;
+                }
+            } catch (final NoSuchMethodException ignored) {
+            } catch (final Exception e) {
+                fail(ruleName + ": getter " + getterName + " failed: " + e.getMessage());
+                return;
+            }
         }
 
-        return builder;
+        // Fall back to field access
+        Class<?> clazz = output.getClass();
+        while (clazz != null && clazz != Object.class) {
+            try {
+                final Field f = clazz.getDeclaredField(fieldName);
+                f.setAccessible(true);
+                final Object actual = f.get(output);
+                if (actual != null) {
+                    assertEquals(expected, String.valueOf(actual),
+                        ruleName + ": expect." + fieldName + " mismatch");
+                    return;
+                }
+                break;
+            } catch (final NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            } catch (final Exception e) {
+                fail(ruleName + ": field access " + fieldName + " failed: " + e.getMessage());
+                return;
+            }
+        }
+
+        // Final fallback to proto value if output field is null/missing
+        assertEquals(expected, protoValue, ruleName + ": " + fieldName + " mismatch");
     }
 
-    // ==================== Proto extraLog builder ====================
+    private void assertLalTag(final String ruleName, final Object output,
+                               final String key, final String expected) throws Exception {
+        final Field f = output.getClass().getDeclaredField("lalTags");
+        f.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        final List<String[]> tags = (List<String[]>) f.get(output);
+        assertTrue(tags.stream().anyMatch(t -> key.equals(t[0]) && expected.equals(t[1])),
+            ruleName + ": expected tag " + key + "=" + expected + ", got: "
+                + tags.stream().map(t -> t[0] + "=" + t[1]).collect(Collectors.joining(", ")));
+    }
 
-    @SuppressWarnings("unchecked")
-    private static Message buildExtraLog(
-            final Map<String, Object> input) throws Exception {
-        final Map<String, String> extraLog =
-            (Map<String, String>) input.get("extra-log");
-        if (extraLog == null) {
+    private Map<String, Class<?>> outputBuilderNames;
+
+    private Map<String, Class<?>> outputBuilderNameMap() {
+        if (outputBuilderNames == null) {
+            outputBuilderNames = new HashMap<>();
+            for (final org.apache.skywalking.oap.server.core.source.LALOutputBuilder builder :
+                    ServiceLoader.load(org.apache.skywalking.oap.server.core.source.LALOutputBuilder.class)) {
+                outputBuilderNames.put(builder.name(), builder.getClass());
+            }
+        }
+        return outputBuilderNames;
+    }
+
+    private Class<?> resolveOutputType(final String outputType) throws ClassNotFoundException {
+        if (outputType == null) {
             return null;
         }
-
-        final String protoClass = extraLog.get("proto-class");
-        final String protoJson = extraLog.get("proto-json");
-        if (protoClass == null || protoJson == null) {
-            return null;
+        if (!outputType.contains(".")) {
+            final Class<?> byName = outputBuilderNameMap().get(outputType);
+            if (byName != null) {
+                return byName;
+            }
         }
-
-        final Class<?> clazz = Class.forName(protoClass);
-        final Message.Builder builder = (Message.Builder)
-            clazz.getMethod("newBuilder").invoke(null);
-        JsonFormat.parser()
-            .ignoringUnknownFields()
-            .merge(protoJson, builder);
-        return builder.build();
+        return Class.forName(outputType);
     }
 
     // ==================== SPI lookup ====================
@@ -491,26 +421,6 @@ class LALExpressionExecutionTest {
             Collections.emptyList());
 
         return filterSpec;
-    }
-
-    // ==================== Directory resolution ====================
-
-    private Path findTestLalDir() {
-        final String[] candidates = {
-            // From repo root (e.g., running with -pl from top level)
-            "test/script-cases/scripts/lal/test-lal",
-            // From oap-server/analyzer/log-analyzer/ module directory
-            "../../../test/script-cases/scripts/lal/test-lal",
-            // From script-runtime-with-groovy checker location
-            "../../scripts/lal/test-lal"
-        };
-        for (final String candidate : candidates) {
-            final Path path = Path.of(candidate);
-            if (Files.isDirectory(path)) {
-                return path;
-            }
-        }
-        return null;
     }
 
     // ==================== Reflection helpers ====================

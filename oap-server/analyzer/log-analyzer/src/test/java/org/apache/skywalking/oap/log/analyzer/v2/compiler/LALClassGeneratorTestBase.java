@@ -17,9 +17,9 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
-import java.io.File;
 import javassist.ClassPool;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
+import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 
@@ -38,15 +38,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 abstract class LALClassGeneratorTestBase {
 
-    private static final File CLASS_OUTPUT_DIR =
-        new File("target/lal-generated-classes");
-
     protected LALClassGenerator generator;
 
     @BeforeEach
     void setUp(final TestInfo testInfo) {
         generator = new LALClassGenerator(new ClassPool(true));
-        generator.setClassOutputDir(CLASS_OUTPUT_DIR);
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("lal"));
         // Build hint from test class + method for readable .class file names
         final String className = getClass().getSimpleName()
             .replace("LALClassGenerator", "");

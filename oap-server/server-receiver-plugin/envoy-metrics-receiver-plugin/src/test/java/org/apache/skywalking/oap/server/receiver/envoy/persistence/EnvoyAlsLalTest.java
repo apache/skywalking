@@ -24,7 +24,6 @@ import io.envoyproxy.envoy.config.core.v3.Metadata;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Optional;
@@ -46,6 +45,7 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -69,9 +69,6 @@ import static org.mockito.Mockito.when;
  */
 class EnvoyAlsLalTest {
 
-    private static final File CLASS_OUTPUT_DIR =
-        new File("target/lal-generated-classes");
-
     private LALClassGenerator generator;
     private NamingControl namingControl;
 
@@ -80,7 +77,7 @@ class EnvoyAlsLalTest {
         generator = new LALClassGenerator(new ClassPool(true));
         generator.setInputType(HTTPAccessLogEntry.class);
         generator.setOutputType(EnvoyAccessLogBuilder.class);
-        generator.setClassOutputDir(CLASS_OUTPUT_DIR);
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("lal"));
         final String methodName = testInfo.getTestMethod()
             .map(m -> m.getName()).orElse("unknown");
         generator.setClassNameHint("EnvoyAlsLalTest_" + methodName);

@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.apache.skywalking.oap.server.core.config.v2.compiler.HierarchyRuleClassGenerator;
+import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -86,10 +87,8 @@ class HierarchyRuleComparisonTest {
             groovyProvider.buildRules(ruleExpressions);
 
         // Build v2 rules with class output
-        final String baseName = hierarchyYml.getFileName().toString()
-            .replaceFirst("\\.(yaml|yml)$", "");
-        final File classBaseDir = new File(hierarchyYml.getParent().toFile(),
-            baseName + ".generated-classes");
+        final File classBaseDir =
+            DslClassOutput.checkerTestDir(hierarchyYml.toFile());
         final String yamlContent = Files.readString(hierarchyYml);
         final String[] yamlLines = yamlContent.split("\n");
         final HierarchyRuleClassGenerator generator = new HierarchyRuleClassGenerator();
