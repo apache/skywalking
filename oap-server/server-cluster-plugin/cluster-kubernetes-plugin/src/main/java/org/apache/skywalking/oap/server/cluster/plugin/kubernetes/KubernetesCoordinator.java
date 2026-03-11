@@ -68,7 +68,7 @@ public class KubernetesCoordinator extends ClusterCoordinator {
         }
     }
 
-    private EndpointGroup createEndpointGroup() {
+    EndpointGroup createEndpointGroup() {
         if (port == -1) {
             port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
         }
@@ -148,22 +148,28 @@ public class KubernetesCoordinator extends ClusterCoordinator {
                 log.debug("[kubernetes cluster endpoints]: {}", endpoints);
             }
 
+            // The endpoint group now includes self in the list.
+            // Identify self by matching against getSelfEndpoint().
+            Endpoint selfEndpoint = null;
+            if (endpointGroup instanceof SelfEndpointAccessor) {
+                selfEndpoint = ((SelfEndpointAccessor) endpointGroup).getSelfEndpoint();
+            }
+
+            final Endpoint finalSelfEndpoint = selfEndpoint;
             final var instances = endpoints.stream()
-                    .map(endpoint -> new RemoteInstance(new Address(endpoint.host(), endpoint.port(), false)))
+                    .map(endpoint -> {
+                        final boolean isSelf = finalSelfEndpoint != null
+                            && endpoint.host().equals(finalSelfEndpoint.host())
+                            && endpoint.port() == finalSelfEndpoint.port();
+                        return new RemoteInstance(new Address(endpoint.host(), endpoint.port(), isSelf));
+                    })
                     .collect(Collectors.toList());
 
-            // The endpoint group will never include itself, add it.
-            Endpoint selfEndpoint = null;
-            if (endpointGroup instanceof KubernetesLabelSelectorEndpointGroup) {
-                selfEndpoint = ((KubernetesLabelSelectorEndpointGroup) endpointGroup).getSelfEndpoint();
+            // If self was not found in the endpoint list (informer hasn't synced self yet),
+            // add a fallback self instance so the cluster always has a self node.
+            if (instances.stream().noneMatch(i -> i.getAddress().isSelf())) {
+                instances.add(new RemoteInstance(new Address("127.0.0.1", port, true)));
             }
-            final RemoteInstance selfInstance;
-            if (selfEndpoint == null) {
-                selfInstance = new RemoteInstance(new Address("127.0.0.1", port, true));
-            } else {
-                selfInstance = new RemoteInstance(new Address(selfEndpoint.host(), selfEndpoint.port(), true));
-            }
-            instances.add(selfInstance);
 
             if (log.isDebugEnabled()) {
                 instances.forEach(instance -> log.debug("kubernetes cluster instance: {}", instance));

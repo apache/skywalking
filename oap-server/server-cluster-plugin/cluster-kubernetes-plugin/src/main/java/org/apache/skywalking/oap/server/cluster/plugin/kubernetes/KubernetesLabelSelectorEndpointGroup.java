@@ -41,7 +41,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class KubernetesLabelSelectorEndpointGroup extends DynamicEndpointGroup {
+public class KubernetesLabelSelectorEndpointGroup extends DynamicEndpointGroup implements SelfEndpointAccessor {
 
     private final KubernetesClient kubernetesClient;
     private final String namespace;
@@ -108,6 +108,14 @@ public class KubernetesLabelSelectorEndpointGroup extends DynamicEndpointGroup {
                     Endpoint endpoint = createEndpoint(pod);
                     if (endpoint != null) {
                         selfEndpoint = endpoint;
+                        // Include self in the endpoint list so that when self pod appears
+                        // in the informer (after initial sync), the endpoint list changes
+                        // and DynamicEndpointGroup fires the listener again.
+                        // Previously self was excluded here, so the endpoint list stayed
+                        // the same when self appeared — DynamicEndpointGroup deduplicated
+                        // and skipped listener notification, leaving the coordinator stuck
+                        // with the 127.0.0.1 fallback forever. See #13739.
+                        newEndpoints.add(endpoint);
                     }
                     continue;
                 }
