@@ -15,7 +15,7 @@
 
 {{- contains . }}
 - id: {{ notEmpty .id }}
-  name: python
+  name: gunicorn
   serviceid: {{ b64enc "productpage.default" }}.1
   servicename: productpage.default
   instanceid: {{ notEmpty .instanceid }}
