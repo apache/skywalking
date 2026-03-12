@@ -42,7 +42,7 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
  *   <li>DSL parser ({@code json{}}, {@code yaml{}}, {@code text{}}) wins over all</li>
  *   <li>Explicit {@code inputType} declared in the YAML rule config</li>
  *   <li>This SPI — acts as the default for a layer</li>
- *   <li>{@code LogData.Builder} fallback if none of the above</li>
+ *   <li>{@code LogMetadata} fallback if none of the above</li>
  * </ol>
  *
  * <p>Output type resolution order:

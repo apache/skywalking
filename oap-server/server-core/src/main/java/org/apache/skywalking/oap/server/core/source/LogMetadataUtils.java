@@ -53,9 +53,25 @@ public final class LogMetadataUtils {
     }
 
     /**
-     * Build LogMetadata from a LogData.Builder.
+     * Build LogMetadata from a LogData.Builder without building a full LogData.
      */
     public static LogMetadata fromLogData(final LogData.Builder builder) {
-        return fromLogData(builder.build());
+        LogMetadata.TraceContext tc = null;
+        if (builder.hasTraceContext()) {
+            final TraceContext ctxProto = builder.getTraceContext();
+            tc = LogMetadata.TraceContext.builder()
+                                        .traceId(ctxProto.getTraceId())
+                                        .traceSegmentId(ctxProto.getTraceSegmentId())
+                                        .spanId(ctxProto.getSpanId())
+                                        .build();
+        }
+        return LogMetadata.builder()
+                          .service(builder.getService())
+                          .serviceInstance(builder.getServiceInstance())
+                          .endpoint(builder.getEndpoint())
+                          .layer(builder.getLayer())
+                          .timestamp(builder.getTimestamp())
+                          .traceContext(tc)
+                          .build();
     }
 }

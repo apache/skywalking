@@ -243,7 +243,7 @@ public class LalBenchmark {
                 final Message extraLog = extraLogs.get(i);
                 final org.apache.skywalking.oap.server.core.source.LogMetadata metadata =
                     org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(logData);
-                final Object input = extraLog != null ? extraLog : logData;
+                final Object input = extraLog != null ? extraLog : logData.toBuilder();
                 final org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext ctx =
                     new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext();
                 ctx.init(metadata, input);

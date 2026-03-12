@@ -185,7 +185,7 @@ The generator detects the parser type from the AST at compile time and generates
 | NONE + inputType | `parsed.response.code` | `((InputType) h.ctx().input()).getResponse().getCode()` |
 | NONE + no inputType | `parsed.service` | `h.ctx().metadata().getService()` (LogMetadata fallback) |
 | log fields (metadata) | `log.service` | `h.ctx().metadata().getService()` |
-| log fields (LogData) | `log.body` | `h.ctx().log().getBody()` |
+| log fields (LogData) | `log.body` | `((LogData.Builder) h.ctx().input()).getBody()` |
 | log trace | `log.traceContext.traceId` | `h.ctx().metadata().getTraceContext().getTraceId()` |
 | tags | `tag("KEY")` | `h.tagValue("KEY")` |
 
