@@ -822,25 +822,17 @@ final class LALBlockCodegen {
             return;
         }
 
-        // Handle function call primaries (e.g., tag("LOG_KIND"))
-        if (value.getFunctionCallName() != null) {
-            if ("tag".equals(value.getFunctionCallName())
-                    && !value.getFunctionCallArgs().isEmpty()) {
-                if (genCtx.inputType != null) {
-                    throw new IllegalArgumentException(
-                        "tag(\"KEY\") is only supported for LogData input. "
-                            + "For typed input " + genCtx.inputType.getName()
-                            + ", access tags via parsed.* field chain.");
-                }
-                sb.append("h.tagValue(\"");
-                final String key = value.getFunctionCallArgs().get(0)
-                    .getValue().getSegments().get(0);
-                sb.append(LALCodegenHelper.escapeJava(key)).append("\")");
-            } else {
-                throw new IllegalArgumentException(
-                    "Unsupported function call: " + value.getFunctionCallName()
-                        + ". Only tag(\"KEY\") is supported.");
-            }
+        // tag("KEY") — LogData.Builder specific: use LalRuntimeHelper.tagValue()
+        if ("tag".equals(value.getFunctionCallName())
+                && value.getFunctionCallArgs().size() == 1
+                && value.getFunctionCallArgs().get(0).getValue().isStringLiteral()
+                && (genCtx.inputType == null
+                    || LALCodegenHelper.LOGDATA_BUILDER_CLASS
+                        .isAssignableFrom(genCtx.inputType))) {
+            sb.append("h.tagValue(\"");
+            final String key = value.getFunctionCallArgs().get(0)
+                .getValue().getSegments().get(0);
+            sb.append(LALCodegenHelper.escapeJava(key)).append("\")");
             return;
         }
 

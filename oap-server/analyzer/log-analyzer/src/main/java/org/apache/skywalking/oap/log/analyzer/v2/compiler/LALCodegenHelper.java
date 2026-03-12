@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 
 /**
  * Static utility constants and methods extracted from {@link LALClassGenerator}
@@ -43,6 +44,7 @@ final class LALCodegenHelper {
     static final Map<String, String> METADATA_GETTER_ALIASES = Map.of();
     static final Set<String> LONG_FIELDS = new HashSet<>();
     static final Set<String> INT_FIELDS = new HashSet<>();
+    static final Class<?> LOGDATA_BUILDER_CLASS = LogData.Builder.class;
 
     static {
         METADATA_GETTERS.put("service", "getService");
