@@ -19,11 +19,9 @@
 package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.protobuf.TextFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
@@ -37,7 +35,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfi
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogSinkListenerFactory;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.RecordSinkListener;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.TrafficSinkListener;
-import org.apache.skywalking.oap.server.core.source.LogBuilder;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.slf4j.Logger;
@@ -113,21 +111,21 @@ public class FilterSpec extends AbstractSpec {
     /**
      * LAL {@code json {}} — parses {@code LogData.body.json.json} into a
      * {@code Map<String, Object>} and stores it in {@code ctx.parsed()}.
-     * LogData proto fields (service, serviceInstance, endpoint, layer, timestamp)
+     * Metadata fields (service, serviceInstance, endpoint, layer, timestamp)
      * are also added to the map via {@code putIfAbsent}, so body values take
-     * priority while proto fields serve as fallback — matching v1 Groovy
+     * priority while metadata fields serve as fallback — matching v1 Groovy
      * {@code Binding.Parsed.getAt(key)} behavior.
      */
     public void json(final ExecutionContext ctx) {
         if (ctx.shouldAbort()) {
             return;
         }
-        final LogData.Builder logData = ctx.log();
         try {
+            final LogData.Builder logData = (LogData.Builder) ctx.input();
             final Map<String, Object> parsed = jsonParser.create().readValue(
                 logData.getBody().getJson().getJson(), parsedType
             );
-            addLogDataFields(parsed, logData);
+            addMetadataFields(parsed, ctx.metadata());
             ctx.parsed(parsed);
         } catch (final Exception e) {
             if (jsonParser.abortOnFailure()) {
@@ -139,18 +137,18 @@ public class FilterSpec extends AbstractSpec {
     /**
      * LAL {@code yaml {}} — parses {@code LogData.body.yaml.yaml} into a
      * {@code Map<String, Object>} and stores it in {@code ctx.parsed()}.
-     * LogData proto fields are added the same way as {@link #json(ExecutionContext)}.
+     * Metadata fields are added the same way as {@link #json(ExecutionContext)}.
      */
     public void yaml(final ExecutionContext ctx) {
         if (ctx.shouldAbort()) {
             return;
         }
-        final LogData.Builder logData = ctx.log();
         try {
+            final LogData.Builder logData = (LogData.Builder) ctx.input();
             final Map<String, Object> parsed = yamlParser.create().load(
                 logData.getBody().getYaml().getYaml()
             );
-            addLogDataFields(parsed, logData);
+            addMetadataFields(parsed, ctx.metadata());
             ctx.parsed(parsed);
         } catch (final Exception e) {
             if (yamlParser.abortOnFailure()) {
@@ -171,32 +169,24 @@ public class FilterSpec extends AbstractSpec {
     }
 
     private void doSink(final ExecutionContext ctx) {
-        final LogData.Builder logData = ctx.log();
-        final Optional<Object> extraLog = Optional.ofNullable(ctx.extraLog());
+        if (ctx.isDryRun()) {
+            return;
+        }
+
+        final LogMetadata metadata = ctx.metadata();
+        final Object input = ctx.input();
 
         if (!ctx.shouldSave()) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Log is dropped: {}", TextFormat.shortDebugString(logData));
+                LOGGER.debug("Log is dropped: service={}, layer={}",
+                    metadata.getService(), metadata.getLayer());
             }
             return;
         }
 
-        if (ctx.shouldCaptureLog()) {
-            sinkListenerFactories.stream()
-                     .map(LogSinkListenerFactory::create)
-                     .filter(it -> it instanceof RecordSinkListener)
-                     .map(it -> it.parse(logData, extraLog, ctx))
-                     .map(it -> (RecordSinkListener) it)
-                     .map(RecordSinkListener::getBuilder)
-                     .filter(it -> it instanceof LogBuilder)
-                     .map(it -> ((LogBuilder) it).toLog())
-                     .findFirst()
-                     .ifPresent(log -> ctx.logContainer(log));
-        } else {
-            sinkListenerFactories.stream()
-                     .map(LogSinkListenerFactory::create)
-                     .forEach(it -> it.parse(logData, extraLog, ctx).build());
-        }
+        sinkListenerFactories.stream()
+                 .map(LogSinkListenerFactory::create)
+                 .forEach(it -> it.parse(metadata, input, ctx).build());
     }
 
     // ==================== Direct-access APIs for flattened generated code ====================
@@ -229,18 +219,21 @@ public class FilterSpec extends AbstractSpec {
     }
 
     /**
-     * Add LogData proto fields to the parsed map so that {@code parsed.service},
+     * Add metadata fields to the parsed map so that {@code parsed.service},
      * {@code parsed.serviceInstance}, etc. resolve correctly — matching v1 Groovy
      * {@code Binding.Parsed.getAt(key)} fallback behavior.
      * Uses {@code putIfAbsent} so body-parsed values take priority.
      */
-    private static void addLogDataFields(final Map<String, Object> parsed,
-                                         final LogData.Builder logData) {
-        putIfNotEmpty(parsed, "service", logData.getService());
-        putIfNotEmpty(parsed, "serviceInstance", logData.getServiceInstance());
-        putIfNotEmpty(parsed, "endpoint", logData.getEndpoint());
-        putIfNotEmpty(parsed, "layer", logData.getLayer());
-        final long ts = logData.getTimestamp();
+    private static void addMetadataFields(final Map<String, Object> parsed,
+                                          final LogMetadata metadata) {
+        if (metadata == null) {
+            return;
+        }
+        putIfNotEmpty(parsed, "service", metadata.getService());
+        putIfNotEmpty(parsed, "serviceInstance", metadata.getServiceInstance());
+        putIfNotEmpty(parsed, "endpoint", metadata.getEndpoint());
+        putIfNotEmpty(parsed, "layer", metadata.getLayer());
+        final long ts = metadata.getTimestamp();
         if (ts > 0) {
             parsed.putIfAbsent("timestamp", ts);
         }

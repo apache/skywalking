@@ -15,21 +15,32 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
+package org.apache.skywalking.oap.server.core.source;
 
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
-import org.apache.skywalking.oap.server.core.source.LogMetadata;
+import lombok.Builder;
+import lombok.Data;
 
-public interface LogSinkListener {
-    /**
-     * The last step of the sink process. Typically, the implementations forward the results to the source
-     * receiver.
-     */
-    void build();
+/**
+ * Uniform metadata carrier for log analysis. Receivers build this from their
+ * native source (LogData proto for standard logs, ALS context for envoy, etc.).
+ *
+ * <p>For building from {@code LogData} protobuf, see {@link LogMetadataUtils}.
+ */
+@Data
+@Builder
+public class LogMetadata {
+    private String service;
+    private String serviceInstance;
+    private String endpoint;
+    private String layer;
+    private long timestamp;
+    private TraceContext traceContext;
 
-    /**
-     * Parse the raw data from the probe.
-     * @return {@code this} for chaining.
-     */
-    LogSinkListener parse(LogMetadata metadata, Object input, ExecutionContext ctx);
+    @Data
+    @Builder
+    public static class TraceContext {
+        private String traceId;
+        private String traceSegmentId;
+        private int spanId;
+    }
 }

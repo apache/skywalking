@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
@@ -67,13 +68,17 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  *   // Generated:  h.tagValue("LOG_KIND")
  * </pre>
  *
- * <p><b>4. Log proto data</b> — direct access to {@code LogData.Builder} fields.
+ * <p><b>4. Metadata</b> — direct access to {@code LogMetadata} fields.
  * Not accessed through this helper; the compiler generates direct getter chains
- * like {@code h.ctx().log().getService()}.
+ * like {@code h.ctx().metadata().getService()}.
  *
- * <p><b>5. ExtraLog proto data</b> — direct access to typed protobuf extraLog.
+ * <p><b>5. LogData body/tags</b> — direct access to {@code LogData.Builder} fields.
  * Not accessed through this helper; the compiler generates typed cast + getter
- * chains like {@code ((HTTPAccessLogEntry) h.ctx().extraLog()).getResponse()}.
+ * chains like {@code ((LogData.Builder) h.ctx().input()).getBody()}.
+ *
+ * <p><b>6. Typed input proto data</b> — direct access to typed protobuf input.
+ * Not accessed through this helper; the compiler generates typed cast + getter
+ * chains like {@code ((HTTPAccessLogEntry) h.ctx().input()).getResponse()}.
  *
  * <h2>Type Conversion Methods</h2>
  *
@@ -178,7 +183,7 @@ public final class LalRuntimeHelper {
      * </pre>
      */
     public String tagValue(final String key) {
-        final List dl = ctx.log().getTags().getDataList();
+        final List dl = ((LogData.Builder) ctx.input()).getTags().getDataList();
         for (int i = 0; i < dl.size(); i++) {
             final KeyStringValuePair kv = (KeyStringValuePair) dl.get(i);
             if (key.equals(kv.getKey())) {

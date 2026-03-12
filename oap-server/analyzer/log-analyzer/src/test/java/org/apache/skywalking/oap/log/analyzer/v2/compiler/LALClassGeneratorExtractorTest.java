@@ -117,7 +117,7 @@ class LALClassGeneratorExtractorTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void compileNoParserFallsBackToLogDataProto() throws Exception {
+    void compileNoParserFallsBackToLogMetadata() throws Exception {
         final String dsl =
             "filter {\n"
             + "  extractor {\n"
@@ -127,12 +127,12 @@ class LALClassGeneratorExtractorTest extends LALClassGeneratorTestBase {
             + "  sink {}\n"
             + "}";
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("h.ctx().log().getService()"),
-            "Expected h.ctx().log().getService() but got: " + source);
-        assertTrue(source.contains("h.ctx().log().getServiceInstance()"),
-            "Expected h.ctx().log().getServiceInstance() but got: " + source);
+        assertTrue(source.contains("h.ctx().metadata().getService()"),
+            "Expected h.ctx().metadata().getService() but got: " + source);
+        assertTrue(source.contains("h.ctx().metadata().getServiceInstance()"),
+            "Expected h.ctx().metadata().getServiceInstance() but got: " + source);
         assertFalse(source.contains("_p"),
-            "Should NOT have _p variable for LogData fallback but got: " + source);
+            "Should NOT have _p variable for LogMetadata fallback but got: " + source);
         compileAndAssert(dsl);
     }
 
@@ -158,7 +158,7 @@ class LALClassGeneratorExtractorTest extends LALClassGeneratorTestBase {
         final String fqcn =
             "io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry";
         assertTrue(source.contains(
-            fqcn + " _p = (" + fqcn + ") h.ctx().extraLog()"),
+            fqcn + " _p = (" + fqcn + ") h.ctx().input()"),
             "Expected _p local variable for inputType cast but got: " + source);
         assertTrue(source.contains("_p.getResponse()"),
             "Expected _p.getResponse() via cached variable but got: " + source);

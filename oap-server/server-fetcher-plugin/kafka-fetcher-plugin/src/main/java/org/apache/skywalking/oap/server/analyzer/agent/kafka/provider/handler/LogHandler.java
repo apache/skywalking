@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
-import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.source.LogMetadataUtils;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
@@ -71,8 +71,8 @@ public class LogHandler extends AbstractKafkaHandler {
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
         try (HistogramMetrics.Timer ignore = histogram.createTimer()) {
-            LogData logData = parseConsumerRecord(record);
-            logAnalyzerService.doAnalysis(logData, Optional.empty());
+            LogData.Builder builder = parseConsumerRecord(record).toBuilder();
+            logAnalyzerService.doAnalysis(LogMetadataUtils.fromLogData(builder), builder);
         } catch (Exception e) {
             errorCounter.inc();
             log.error(e.getMessage(), e);

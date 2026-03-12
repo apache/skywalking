@@ -20,11 +20,9 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -40,6 +38,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.ProcessRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -94,7 +93,7 @@ public class SampledTraceBuilder implements LALOutputBuilder {
     }
 
     /**
-     * Constructor for v1 (Groovy) path which doesn't use {@link #init}.
+     * Constructor for v1 (Groovy) path where NamingControl is resolved eagerly.
      */
     public SampledTraceBuilder(final NamingControl namingControl) {
         NAMING_CONTROL = namingControl;
@@ -107,7 +106,7 @@ public class SampledTraceBuilder implements LALOutputBuilder {
     }
 
     @Override
-    public void init(final LogData logData, final Optional<Object> extraLog,
+    public void init(final LogMetadata metadata, final Object input,
                      final ModuleManager moduleManager) {
         if (!INITIALIZED) {
             NAMING_CONTROL = moduleManager.find(CoreModule.NAME)
@@ -117,19 +116,22 @@ public class SampledTraceBuilder implements LALOutputBuilder {
         }
         // Only populate fields not already set by the LAL extractor.
         if (this.traceId == null) {
-            this.traceId = logData.getTraceContext().getTraceId();
+            final LogMetadata.TraceContext tc = metadata.getTraceContext();
+            if (tc != null) {
+                this.traceId = tc.getTraceId();
+            }
         }
         if (this.serviceName == null) {
-            this.serviceName = logData.getService();
+            this.serviceName = metadata.getService();
         }
         if (this.serviceInstanceName == null) {
-            this.serviceInstanceName = logData.getServiceInstance();
+            this.serviceInstanceName = metadata.getServiceInstance();
         }
-        if (this.layer == null && !logData.getLayer().isEmpty()) {
-            this.layer = logData.getLayer();
+        if (this.layer == null && metadata.getLayer() != null && !metadata.getLayer().isEmpty()) {
+            this.layer = metadata.getLayer();
         }
         if (this.timestamp == 0) {
-            this.timestamp = logData.getTimestamp();
+            this.timestamp = metadata.getTimestamp();
         }
     }
 

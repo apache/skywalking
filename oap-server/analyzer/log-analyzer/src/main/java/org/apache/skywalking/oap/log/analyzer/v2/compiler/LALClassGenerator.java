@@ -543,7 +543,7 @@ public final class LALClassGenerator {
             if (genCtx.inputType != null) {
                 final String elTypeName = genCtx.inputType.getName();
                 sb.append("  ").append(elTypeName).append(" _p = (")
-                  .append(elTypeName).append(") h.ctx().extraLog();\n");
+                  .append(elTypeName).append(") h.ctx().input();\n");
             }
             sb.append(genCtx.protoVarDecls);
         }

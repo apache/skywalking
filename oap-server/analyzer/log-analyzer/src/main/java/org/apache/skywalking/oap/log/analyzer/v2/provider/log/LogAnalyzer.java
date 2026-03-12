@@ -20,12 +20,11 @@ package org.apache.skywalking.oap.log.analyzer.v2.provider.log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -40,9 +39,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  *       {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogFilterListener.Factory},
  *       which returns a listener wrapping all compiled {@link org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL}
  *       instances for that layer.</li>
- *   <li>{@code notifyAnalysisListener(builder, extraLog)} — calls
+ *   <li>{@code notifyAnalysisListener(metadata, input)} — calls
  *       {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener#parse}
- *       on each listener, which binds the log data to the compiled LAL scripts.</li>
+ *       on each listener, which binds the metadata and input to the compiled LAL scripts.</li>
  *   <li>{@code notifyAnalysisListenerToBuild()} — calls
  *       {@link org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener#build}
  *       on each listener, which evaluates the compiled LAL scripts (extractors, sinks).</li>
@@ -58,36 +57,34 @@ public class LogAnalyzer {
 
     private final List<LogAnalysisListener> listeners = new ArrayList<>();
 
-    public void doAnalysis(LogData.Builder builder, Optional<Object> extraLog) {
-        if (StringUtil.isEmpty(builder.getService())) {
-            // If the service name is empty, the log will be ignored.
+    public void doAnalysis(LogMetadata metadata, final Object input) {
+        if (StringUtil.isEmpty(metadata.getService())) {
             log.debug("The log is ignored because the Service name is empty");
             return;
         }
         Layer layer;
-        if ("".equals(builder.getLayer())) {
+        if (metadata.getLayer() == null || metadata.getLayer().isEmpty()) {
             layer = Layer.GENERAL;
         } else {
             try {
-                layer = Layer.nameOf(builder.getLayer());
+                layer = Layer.nameOf(metadata.getLayer());
             } catch (UnexpectedException e) {
-                log.warn("The Layer {} is not found, abandon the log.", builder.getLayer());
+                log.warn("The Layer {} is not found, abandon the log.", metadata.getLayer());
                 return;
             }
         }
 
         createAnalysisListeners(layer);
-        if (builder.getTimestamp() == 0) {
-            // If no timestamp, OAP server would use the received timestamp as log's timestamp
-            builder.setTimestamp(System.currentTimeMillis());
+        if (metadata.getTimestamp() == 0) {
+            metadata.setTimestamp(System.currentTimeMillis());
         }
 
-        notifyAnalysisListener(builder, extraLog);
+        notifyAnalysisListener(metadata, input);
         notifyAnalysisListenerToBuild();
     }
 
-    private void notifyAnalysisListener(LogData.Builder builder, final Optional<Object> extraLog) {
-        listeners.forEach(listener -> listener.parse(builder, extraLog));
+    private void notifyAnalysisListener(final LogMetadata metadata, final Object input) {
+        listeners.forEach(listener -> listener.parse(metadata, input));
     }
 
     private void notifyAnalysisListenerToBuild() {

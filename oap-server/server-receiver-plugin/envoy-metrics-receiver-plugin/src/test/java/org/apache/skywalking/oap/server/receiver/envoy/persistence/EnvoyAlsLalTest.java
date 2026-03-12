@@ -26,9 +26,8 @@ import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties;
 import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.Optional;
 import javassist.ClassPool;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
@@ -306,15 +305,15 @@ class EnvoyAlsLalTest {
     private ExecutionContext execute(
             final LalExpression expr,
             final HTTPAccessLogEntry entry) throws Exception {
-        final LogData.Builder logData = LogData.newBuilder()
-            .setService("als-test-svc")
-            .setTimestamp(1609459200000L)
-            .setLayer("MESH");
+        final LogMetadata metadata = LogMetadata.builder()
+            .service("als-test-svc")
+            .timestamp(1609459200000L)
+            .layer("MESH")
+            .build();
 
         final FilterSpec filterSpec = buildFilterSpec();
         final ExecutionContext ctx = new ExecutionContext();
-        ctx.log(logData);
-        ctx.extraLog(entry);
+        ctx.init(metadata, entry);
         expr.execute(filterSpec, ctx);
         return ctx;
     }
@@ -332,7 +331,7 @@ class EnvoyAlsLalTest {
         resetLogBuilderState();
         final ModuleManager tagMm = buildCoreModuleManager(
             String.join(",", searchableTagKeys));
-        output.init(ctx.log().build(), Optional.of(entry), tagMm);
+        output.init(ctx.metadata(), entry, tagMm);
         return output.toLog();
     }
 

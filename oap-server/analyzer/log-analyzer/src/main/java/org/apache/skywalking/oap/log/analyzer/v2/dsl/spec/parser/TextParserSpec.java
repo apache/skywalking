@@ -39,7 +39,7 @@ public class TextParserSpec extends AbstractParserSpec {
         if (ctx.shouldAbort()) {
             return;
         }
-        final LogData.Builder log = ctx.log();
+        final LogData.Builder log = (LogData.Builder) ctx.input();
         final Matcher matcher = pattern.matcher(log.getBody().getText().getText());
         final boolean matched = matcher.find();
         if (matched) {

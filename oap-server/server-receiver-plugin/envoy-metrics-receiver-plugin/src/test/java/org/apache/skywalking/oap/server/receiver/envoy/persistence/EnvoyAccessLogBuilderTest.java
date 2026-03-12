@@ -23,8 +23,7 @@ import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties;
 import java.util.Collections;
-import java.util.Optional;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
@@ -87,11 +86,11 @@ class EnvoyAccessLogBuilderTest {
         builder.setService("test-svc");
         builder.setTimestamp(1609459200000L);
 
-        final LogData logData = LogData.newBuilder()
-            .setService("test-svc")
-            .setTimestamp(1609459200000L)
+        final LogMetadata metadata = LogMetadata.builder()
+            .service("test-svc")
+            .timestamp(1609459200000L)
             .build();
-        builder.init(logData, Optional.of(entry), moduleManager);
+        builder.init(metadata, entry, moduleManager);
 
         final Log log = builder.toLog();
 
@@ -109,12 +108,12 @@ class EnvoyAccessLogBuilderTest {
         builder.setService("test-svc");
         builder.setTimestamp(1609459200000L);
 
-        final LogData logData = LogData.newBuilder()
-            .setService("test-svc")
-            .setTimestamp(1609459200000L)
+        final LogMetadata metadata = LogMetadata.builder()
+            .service("test-svc")
+            .timestamp(1609459200000L)
             .build();
         // Pass a default (empty) entry — no response code, so toLog() serializes empty JSON
-        builder.init(logData, Optional.of(HTTPAccessLogEntry.getDefaultInstance()), moduleManager);
+        builder.init(metadata, HTTPAccessLogEntry.getDefaultInstance(), moduleManager);
 
         final Log log = builder.toLog();
 
@@ -159,12 +158,13 @@ class EnvoyAccessLogBuilderTest {
 
         final LalExpression expr = generator.compile(dsl);
 
-        // Build LogData with service/instance (simulates what LogsPersistence creates)
-        final LogData.Builder logData = LogData.newBuilder()
-            .setService("envoy-test-svc")
-            .setServiceInstance("envoy-test-instance")
-            .setTimestamp(1609459200000L)
-            .setLayer("MESH");
+        // Build LogMetadata (simulates what LogsPersistence creates)
+        final LogMetadata metadata = LogMetadata.builder()
+            .service("envoy-test-svc")
+            .serviceInstance("envoy-test-instance")
+            .timestamp(1609459200000L)
+            .layer("MESH")
+            .build();
 
         // Build HTTPAccessLogEntry with response code 503
         final HTTPAccessLogEntry entry = HTTPAccessLogEntry.newBuilder()
@@ -177,8 +177,7 @@ class EnvoyAccessLogBuilderTest {
         // Execute
         final FilterSpec filterSpec = buildFilterSpec();
         final ExecutionContext ctx = new ExecutionContext();
-        ctx.log(logData);
-        ctx.extraLog(entry);
+        ctx.init(metadata, entry);
         expr.execute(filterSpec, ctx);
 
         // Verify output is EnvoyAccessLogBuilder
@@ -196,7 +195,7 @@ class EnvoyAccessLogBuilderTest {
         when(cs.getSearchableLogsTags()).thenReturn("status.code,svc");
         // Reset static initialized flag so the new config takes effect
         resetLogBuilderState();
-        output.init(logData.build(), Optional.of(entry), testMm);
+        output.init(metadata, entry, testMm);
         final Log log = output.toLog();
 
         assertTrue(log.getTags().stream().anyMatch(

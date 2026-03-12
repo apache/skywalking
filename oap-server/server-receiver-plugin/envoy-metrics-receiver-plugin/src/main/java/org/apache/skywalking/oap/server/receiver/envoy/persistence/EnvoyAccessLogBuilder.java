@@ -19,12 +19,11 @@
 package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
 import com.google.protobuf.Message;
-import java.util.Optional;
 import lombok.SneakyThrows;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.core.source.LogBuilder;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
@@ -35,9 +34,9 @@ import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
  * as JSON content. The serialization is deferred to {@link #toLog()} so that
  * it only happens when the log is actually persisted (after LAL filtering).
  *
- * <p>The {@link #init} method stores the extra log entry (e.g.,
- * {@code HTTPAccessLogEntry}) for JSON serialization, then delegates to
- * the base class for standard field population from {@code LogData}.
+ * <p>The {@link #init} method stores the access log entry for JSON
+ * serialization, then delegates to the base class for metadata-only
+ * field population (no LogData in the envoy path).
  */
 public class EnvoyAccessLogBuilder extends LogBuilder {
     public static final String NAME = "EnvoyAccessLog";
@@ -50,10 +49,13 @@ public class EnvoyAccessLogBuilder extends LogBuilder {
     }
 
     @Override
-    public void init(final LogData logData, final Optional<Object> extraLog,
+    public void init(final LogMetadata metadata, final Object input,
                      final ModuleManager moduleManager) {
-        extraLog.ifPresent(entry -> this.accessLogEntry = entry);
-        super.init(logData, extraLog, moduleManager);
+        if (input != null) {
+            this.accessLogEntry = input;
+        }
+        ensureInitialized(moduleManager);
+        initFromMetadata(metadata);
     }
 
     @Override

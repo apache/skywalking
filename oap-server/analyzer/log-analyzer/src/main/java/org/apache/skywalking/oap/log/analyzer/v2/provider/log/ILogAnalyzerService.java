@@ -17,8 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log;
 
-import java.util.Optional;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -26,10 +25,11 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface ILogAnalyzerService extends Service {
 
-    void doAnalysis(LogData.Builder log, Optional<Object> extraLog);
-
-    default void doAnalysis(LogData logData, Optional<Object> extraLog) {
-        doAnalysis(logData.toBuilder(), extraLog);
-    }
+    /**
+     * @param metadata uniform metadata (service, layer, timestamp, trace context)
+     * @param input    source-specific input object (LogData for standard logs,
+     *                 HTTPAccessLogEntry for envoy ALS, etc.)
+     */
+    void doAnalysis(LogMetadata metadata, Object input);
 
 }

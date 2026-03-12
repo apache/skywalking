@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
+import org.apache.skywalking.oap.server.core.source.LogMetadataUtils;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
@@ -39,6 +40,8 @@ import org.apache.skywalking.oap.query.graphql.type.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Log;
+import org.apache.skywalking.oap.server.core.source.LogBuilder;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
@@ -72,17 +75,21 @@ public class LogTestQuery implements GraphQLQueryResolver {
 
         final LogData.Builder log = LogData.newBuilder();
         ProtoBufJsonUtils.fromJSON(request.getLog(), log);
-        ctx.log(log);
+        final LogMetadata metadata = LogMetadataUtils.fromLogData(log);
+        ctx.init(metadata, log);
 
-        ctx.captureLog(true);
+        ctx.dryRun(true);
         ctx.metricsContainer(new ArrayList<>());
 
         dsl.evaluate(ctx);
 
         final LogTestResponse.LogTestResponseBuilder builder = LogTestResponse.builder();
-        ctx.logContainer().ifPresent(it -> {
-            final Log l = new Log();
+        if (ctx.shouldSave() && ctx.outputAsBuilder() instanceof LogBuilder) {
+            final LogBuilder logBuilder = (LogBuilder) ctx.outputAsBuilder();
+            logBuilder.init(metadata, log, moduleManager);
+            final org.apache.skywalking.oap.server.core.source.Log it = logBuilder.toLog();
 
+            final Log l = new Log();
             if (isNotBlank(it.getServiceId())) {
                 l.setServiceName(IDManager.ServiceID.analysisId(it.getServiceId()).getName());
             }
@@ -113,9 +120,8 @@ public class LogTestQuery implements GraphQLQueryResolver {
                     // ignore
                 }
             }
-
             builder.log(l);
-        });
+        }
         ctx.metricsContainer().ifPresent(it -> {
             final List<Metrics> samples =
                 it.stream()

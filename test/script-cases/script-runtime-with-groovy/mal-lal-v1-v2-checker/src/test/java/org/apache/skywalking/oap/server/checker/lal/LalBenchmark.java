@@ -239,12 +239,14 @@ public class LalBenchmark {
     public void executeV2(final Blackhole bh) {
         for (int i = 0; i < v2Exprs.size(); i++) {
             try {
+                final LogData logData = testLogs.get(i);
+                final Message extraLog = extraLogs.get(i);
+                final org.apache.skywalking.oap.server.core.source.LogMetadata metadata =
+                    org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(logData);
+                final Object input = extraLog != null ? extraLog : logData;
                 final org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext ctx =
-                    new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext()
-                        .log(testLogs.get(i));
-                if (extraLogs.get(i) != null) {
-                    ctx.extraLog(extraLogs.get(i));
-                }
+                    new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext();
+                ctx.init(metadata, input);
                 v2Exprs.get(i).execute(v2FilterSpec, ctx);
                 bh.consume(ctx);
             } catch (Exception ignored) {

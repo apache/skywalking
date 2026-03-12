@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 
 /**
  * Static code-generation methods for LAL extractor, sink, condition, and
@@ -43,6 +43,8 @@ final class LALBlockCodegen {
         "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
     private static final String PROCESS_REGISTRY =
         "org.apache.skywalking.oap.meter.analyzer.v2.dsl.registry.ProcessRegistry";
+    private static final String LOGDATA_BUILDER_CAST =
+        "((org.apache.skywalking.apm.network.logging.v3.LogData.Builder) h.ctx().input())";
 
     // Built-in function registry for def variable type inference.
     // Maps DSL function name → [runtime helper method, return type].
@@ -87,7 +89,7 @@ final class LALBlockCodegen {
             if (genCtx.inputType != null) {
                 final String elTypeName = genCtx.inputType.getName();
                 body.append("  ").append(elTypeName).append(" _p = (")
-                    .append(elTypeName).append(") h.ctx().extraLog();\n");
+                    .append(elTypeName).append(") h.ctx().input();\n");
                 lvtVars.add(new String[]{"_p",
                     "L" + elTypeName.replace('.', '/') + ";"});
             }
@@ -460,7 +462,7 @@ final class LALBlockCodegen {
             if (genCtx.inputType != null) {
                 final String elTypeName = genCtx.inputType.getName();
                 body.append("  ").append(elTypeName).append(" _p = (")
-                    .append(elTypeName).append(") h.ctx().extraLog();\n");
+                    .append(elTypeName).append(") h.ctx().input();\n");
                 lvtVars.add(new String[]{"_p",
                     "L" + elTypeName.replace('.', '/') + ";"});
             }
@@ -929,36 +931,68 @@ final class LALBlockCodegen {
 
     // ==================== Log access (direct proto getters) ====================
 
+    /**
+     * Generate code for {@code log.xxx} field access in LAL scripts.
+     * <ul>
+     *   <li>Metadata fields (service, endpoint, layer, timestamp, traceContext)
+     *       → {@code h.ctx().metadata().getXxx()}</li>
+     *   <li>LogData-only fields (body, tags)
+     *       → {@code ((LogData.Builder) h.ctx().input()).getXxx()}</li>
+     * </ul>
+     */
     static void generateLogAccess(final StringBuilder sb,
                                    final List<LALScriptModel.ValueAccessSegment> chain) {
         if (chain.isEmpty()) {
-            sb.append("h.ctx().log()");
+            sb.append("h.ctx().input()");
             return;
         }
 
-        String current = "h.ctx().log()";
+        String current;
         boolean needsBoxing = false;
         String boxType = null;
+
+        // Determine root based on first field
+        final LALScriptModel.ValueAccessSegment first = chain.get(0);
+        if (!(first instanceof LALScriptModel.FieldSegment)) {
+            current = LOGDATA_BUILDER_CAST;
+        } else {
+            final String firstName = ((LALScriptModel.FieldSegment) first).getName();
+            if (LALCodegenHelper.METADATA_GETTERS.containsKey(firstName)) {
+                current = "h.ctx().metadata()";
+            } else if (LALCodegenHelper.LOG_GETTERS.containsKey(firstName)) {
+                current = LOGDATA_BUILDER_CAST;
+            } else {
+                throw new IllegalArgumentException(
+                    "Unknown log field: log." + firstName
+                        + ". Supported metadata fields: "
+                        + LALCodegenHelper.METADATA_GETTERS.keySet()
+                        + ", LogData fields: "
+                        + LALCodegenHelper.LOG_GETTERS.keySet());
+            }
+        }
 
         for (int i = 0; i < chain.size(); i++) {
             final LALScriptModel.ValueAccessSegment seg = chain.get(i);
             if (seg instanceof LALScriptModel.FieldSegment) {
                 final String name = ((LALScriptModel.FieldSegment) seg).getName();
-                if (i == 0 && LALCodegenHelper.LOG_GETTERS.containsKey(name)) {
+                if (i == 0 && LALCodegenHelper.METADATA_GETTERS.containsKey(name)) {
                     if ("traceContext".equals(name)) {
                         current = current + ".getTraceContext()";
                     } else {
                         current = current + "."
-                            + LALCodegenHelper.LOG_GETTERS.get(name) + "()";
+                            + LALCodegenHelper.METADATA_GETTERS.get(name) + "()";
                         if (LALCodegenHelper.LONG_FIELDS.contains(name)) {
                             needsBoxing = true;
                             boxType = "Long";
                         }
                     }
-                } else if (i == 1 && current.endsWith(".getTraceContext()")
-                        && LALCodegenHelper.TRACE_CONTEXT_GETTERS.containsKey(name)) {
+                } else if (i == 0 && LALCodegenHelper.LOG_GETTERS.containsKey(name)) {
                     current = current + "."
-                        + LALCodegenHelper.TRACE_CONTEXT_GETTERS.get(name) + "()";
+                        + LALCodegenHelper.LOG_GETTERS.get(name) + "()";
+                } else if (i == 1 && current.endsWith(".getTraceContext()")
+                        && LALCodegenHelper.METADATA_TRACE_GETTERS.containsKey(name)) {
+                    current = current + "."
+                        + LALCodegenHelper.METADATA_TRACE_GETTERS.get(name) + "()";
                     if (LALCodegenHelper.INT_FIELDS.contains(name)) {
                         needsBoxing = true;
                         boxType = "Integer";
@@ -966,10 +1000,12 @@ final class LALBlockCodegen {
                 } else {
                     throw new IllegalArgumentException(
                         "Unknown log field: log." + name
-                            + ". Supported fields: "
-                            + LALCodegenHelper.LOG_GETTERS.keySet()
+                            + ". Supported metadata fields: "
+                            + LALCodegenHelper.METADATA_GETTERS.keySet()
                             + ", traceContext."
-                            + LALCodegenHelper.TRACE_CONTEXT_GETTERS.keySet());
+                            + LALCodegenHelper.METADATA_TRACE_GETTERS.keySet()
+                            + ", LogData fields: "
+                            + LALCodegenHelper.LOG_GETTERS.keySet());
                 }
             } else if (seg instanceof LALScriptModel.MethodSegment) {
                 current = appendMethodSegment(current,
@@ -1032,9 +1068,9 @@ final class LALBlockCodegen {
                     current = generateExtraLogAccess(fieldSegments, genCtx.inputType,
                         "_p", true, genCtx);
                 } else {
-                    // No parser and no inputType — fall back to LogData proto
-                    current = generateExtraLogAccess(fieldSegments, LogData.Builder.class,
-                        "h.ctx().log()", false, genCtx);
+                    // No parser and no inputType — fall back to LogMetadata
+                    current = generateExtraLogAccess(fieldSegments, LogMetadata.class,
+                        "h.ctx().metadata()", false, genCtx);
                 }
                 break;
             default:
@@ -1083,8 +1119,18 @@ final class LALBlockCodegen {
         for (int i = 0; i < fieldSegments.size(); i++) {
             final LALScriptModel.FieldSegment seg = fieldSegments.get(i);
             final String field = seg.getName();
-            final String getterName = "get" + Character.toUpperCase(field.charAt(0))
+            String getterName = "get" + Character.toUpperCase(field.charAt(0))
                 + field.substring(1);
+
+            // Apply getter aliases (e.g., traceSegmentId → segmentId on LogMetadata)
+            final String alias = LALCodegenHelper.METADATA_GETTER_ALIASES.get(getterName);
+            if (alias != null) {
+                try {
+                    currentType.getMethod(getterName);
+                } catch (NoSuchMethodException ignored) {
+                    getterName = alias;
+                }
+            }
 
             final java.lang.reflect.Method getter;
             try {

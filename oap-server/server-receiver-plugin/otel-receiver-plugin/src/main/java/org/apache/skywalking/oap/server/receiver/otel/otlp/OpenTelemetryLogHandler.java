@@ -25,7 +25,6 @@ import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceResponse;
 import io.opentelemetry.proto.collector.logs.v1.LogsServiceGrpc;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.logs.v1.LogRecord;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
@@ -34,6 +33,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
+import org.apache.skywalking.oap.server.core.source.LogMetadataUtils;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -122,16 +122,15 @@ public class OpenTelemetryLogHandler
 
     private void doAnalysisQuietly(String service, String layer, String serviceInstance, LogRecord logRecord) {
         try {
-            logAnalyzerService().doAnalysis(
-                LogData
-                    .newBuilder()
-                    .setService(service)
-                    .setServiceInstance(serviceInstance)
-                    .setTimestamp(logRecord.getTimeUnixNano() / 1_000_000)
-                    .setTags(buildTags(logRecord))
-                    .setBody(buildBody(logRecord))
-                    .setLayer(layer),
-                Optional.empty());
+            final LogData.Builder builder = LogData
+                .newBuilder()
+                .setService(service)
+                .setServiceInstance(serviceInstance)
+                .setTimestamp(logRecord.getTimeUnixNano() / 1_000_000)
+                .setTags(buildTags(logRecord))
+                .setBody(buildBody(logRecord))
+                .setLayer(layer);
+            logAnalyzerService().doAnalysis(LogMetadataUtils.fromLogData(builder), builder);
         } catch (Exception e) {
             log.error("Failed to analyze logs", e);
         }
