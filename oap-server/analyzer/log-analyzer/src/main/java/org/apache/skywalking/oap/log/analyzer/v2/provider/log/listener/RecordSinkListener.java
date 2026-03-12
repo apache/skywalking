@@ -17,20 +17,14 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
-import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
@@ -46,17 +40,14 @@ import org.slf4j.LoggerFactory;
 public class RecordSinkListener implements LogSinkListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(RecordSinkListener.class);
     private final SourceReceiver sourceReceiver;
-    private final NamingControl namingControl;
-    private final List<String> searchableTagKeys;
+    private final ModuleManager moduleManager;
 
     private LALOutputBuilder builder;
 
     RecordSinkListener(final SourceReceiver sourceReceiver,
-                       final NamingControl namingControl,
-                       final List<String> searchableTagKeys) {
+                       final ModuleManager moduleManager) {
         this.sourceReceiver = sourceReceiver;
-        this.namingControl = namingControl;
-        this.searchableTagKeys = searchableTagKeys;
+        this.moduleManager = moduleManager;
     }
 
     @Override
@@ -87,12 +78,9 @@ public class RecordSinkListener implements LogSinkListener {
             return this;
         }
         builder = ctx.outputAsBuilder();
-        if (builder instanceof LogBuilder) {
-            ((LogBuilder) builder).setSearchableTagKeys(searchableTagKeys);
-        }
         // Pass the input data matching the declared inputType:
         // extraLog (e.g., HTTPAccessLogEntry) when present, otherwise LogData.
-        builder.init(logData.build(), extraLog, namingControl);
+        builder.init(logData.build(), extraLog, moduleManager);
         return this;
     }
 
@@ -102,25 +90,18 @@ public class RecordSinkListener implements LogSinkListener {
 
     public static class Factory implements LogSinkListenerFactory {
         private final SourceReceiver sourceReceiver;
-        private final NamingControl namingControl;
-        private final List<String> searchableTagKeys;
+        private final ModuleManager moduleManager;
 
         public Factory(ModuleManager moduleManager, LogAnalyzerModuleConfig moduleConfig) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME)
                                                .provider()
                                                .getService(SourceReceiver.class);
-            this.namingControl = moduleManager.find(CoreModule.NAME)
-                                              .provider()
-                                              .getService(NamingControl.class);
-            ConfigService configService = moduleManager.find(CoreModule.NAME)
-                                                       .provider()
-                                                       .getService(ConfigService.class);
-            this.searchableTagKeys = Arrays.asList(configService.getSearchableLogsTags().split(Const.COMMA));
+            this.moduleManager = moduleManager;
         }
 
         @Override
         public RecordSinkListener create() {
-            return new RecordSinkListener(sourceReceiver, namingControl, searchableTagKeys);
+            return new RecordSinkListener(sourceReceiver, moduleManager);
         }
     }
 }

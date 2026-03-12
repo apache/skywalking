@@ -288,18 +288,6 @@ final class LALBlockCodegen {
     static void generateTagAssignment(final StringBuilder sb,
                                        final LALScriptModel.TagAssignment tag,
                                        final LALClassGenerator.GenCtx genCtx) {
-        // tag assignments are only supported on LogBuilder (the default output type).
-        // Other output types (e.g. SampledTraceBuilder, DatabaseSlowStatementBuilder)
-        // do not carry tags — fail at compile time instead of silently dropping them.
-        if (genCtx.outputType != null
-                && !org.apache.skywalking.oap.server.core.source.LogBuilder.class
-                        .isAssignableFrom(genCtx.outputType)) {
-            throw new IllegalArgumentException(
-                "LAL 'tag' assignments are only supported when outputType is LogBuilder"
-                    + " (or default), but the resolved outputType is "
-                    + genCtx.outputType.getName()
-                    + ". Remove the 'tag' statements or change the outputType.");
-        }
         for (final Map.Entry<String, LALScriptModel.TagValue> entry
                 : tag.getTags().entrySet()) {
             sb.append("  _o.addTag(\"")

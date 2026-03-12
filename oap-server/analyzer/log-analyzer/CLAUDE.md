@@ -237,8 +237,11 @@ validates that a matching setter exists on the output type class (e.g., `setStat
 If no setter is found, compilation fails with an `IllegalArgumentException` at boot.
 
 **Runtime dispatch**: `RecordSinkListener.parse()` reads the output object from
-`ExecutionContext.output()` (already populated by generated code), calls `init()` for
-builder mode, then `build()` dispatches via `complete()` or `sourceReceiver.receive()`.
+`ExecutionContext.output()` (already populated by generated code), calls
+`init(logData, extraLog, moduleManager)` to populate standard fields and resolve
+services (e.g., `NamingControl`, `ConfigService`) from `ModuleManager`, then `build()`
+dispatches via `complete(sourceReceiver)`. Each builder caches resolved services in
+static fields so `ModuleManager` lookups only happen once.
 
 Note: `slowSql {}` and `sampledTrace {}` sub-DSLs were removed. Custom output types use
 the `outputType` + output field mechanism instead of dedicated DSL blocks.

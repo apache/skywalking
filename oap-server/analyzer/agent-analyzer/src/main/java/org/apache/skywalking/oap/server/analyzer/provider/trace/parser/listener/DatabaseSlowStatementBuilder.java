@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -31,12 +32,14 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
 public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     public static final String NAME = "SlowSQL";
 
-    private NamingControl namingControl;
+    private static NamingControl NAMING_CONTROL;
+    private static boolean INITIALIZED;
 
     @Getter
     @Setter
@@ -66,8 +69,12 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     public DatabaseSlowStatementBuilder() {
     }
 
+    /**
+     * Constructor for v1 (Groovy) path which doesn't use {@link #init}.
+     */
     public DatabaseSlowStatementBuilder(final NamingControl namingControl) {
-        this.namingControl = namingControl;
+        NAMING_CONTROL = namingControl;
+        INITIALIZED = true;
     }
 
     @Override
@@ -77,8 +84,13 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
 
     @Override
     public void init(final LogData logData, final Optional<Object> extraLog,
-                     final NamingControl namingControl) {
-        this.namingControl = namingControl;
+                     final ModuleManager moduleManager) {
+        if (!INITIALIZED) {
+            NAMING_CONTROL = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
+            INITIALIZED = true;
+        }
         // Only populate fields not already set by the LAL extractor.
         if (this.serviceName == null) {
             this.serviceName = logData.getService();
@@ -114,7 +126,7 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     }
 
     public void prepare() {
-        this.serviceName = namingControl.formatServiceName(serviceName);
+        this.serviceName = NAMING_CONTROL.formatServiceName(serviceName);
     }
 
     public DatabaseSlowStatement toDatabaseSlowStatement() {
