@@ -23,13 +23,46 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.source.LogMetadata;
 
 /**
- * Static code-generation methods for LAL extractor, sink, condition, and
- * value-access blocks. Extracted from {@link LALClassGenerator} for
- * readability; all methods are stateless and take a
- * {@link LALClassGenerator.GenCtx} parameter for shared state.
+ * Code generation for LAL block-level structures: {@code extractor},
+ * {@code sink}, {@code sampler}, {@code metrics}, tag assignments, and
+ * output-field assignments.
+ *
+ * <p>Given a LAL script:
+ * <pre>{@code
+ * filter {
+ *   json {}
+ *   extractor {                          // → generateExtractorMethod
+ *     service parsed.service as String   //   → generateFieldToOutput
+ *     tag 'status.code': parsed.code     //   → generateTagAssignment
+ *     latency parsed.latency as Long     //   → generateOutputFieldAssignment
+ *     if (tag("LOG_KIND") == "SLOW") {   //   → generateIfBlockInExtractor
+ *       ...
+ *     }
+ *     metrics {                          //   → generateMetricsInline
+ *       name "log_count"
+ *       value 1
+ *     }
+ *   }
+ *   sink {                               // → generateSinkMethod
+ *     sampler {                          //   → generateSamplerInline
+ *       rateLimit("${log.service}") {    //     → generateRateLimitInline
+ *         rpm 6000
+ *       }
+ *     }
+ *   }
+ * }
+ * }</pre>
+ *
+ * <p>Each block becomes a private method in the generated class (e.g.
+ * {@code _extractor()}, {@code _sink()}). This class emits the method
+ * scaffolding (signature, local variable declarations, LVT entries) and
+ * walks the AST statements within each block.
+ *
+ * <p>Expression-level codegen (value access, conditions, type casts) is
+ * delegated to {@link LALValueCodegen}. {@code def} variable codegen is
+ * delegated to {@link LALDefCodegen}.
  */
 final class LALBlockCodegen {
 
@@ -41,10 +74,6 @@ final class LALBlockCodegen {
         METRIC_EXTRACTOR + "$SampleBuilder";
     private static final String H =
         "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
-    private static final String PROCESS_REGISTRY =
-        "org.apache.skywalking.oap.meter.analyzer.v2.dsl.registry.ProcessRegistry";
-    private static final String LOGDATA_BUILDER_CAST =
-        "((org.apache.skywalking.apm.network.logging.v3.LogData.Builder) h.ctx().input())";
 
     // Built-in function registry for def variable type inference.
     // Maps DSL function name → [runtime helper method, return type].
@@ -61,6 +90,24 @@ final class LALBlockCodegen {
 
     // ==================== Extractor method generation ====================
 
+    /**
+     * Generates the {@code _extractor()} private method for the LAL
+     * {@code extractor { ... }} block.
+     *
+     * <p>LAL example:
+     * <pre>{@code
+     * extractor {
+     *   service parsed.service as String
+     *   tag 'status.code': parsed?.response?.responseCode?.value
+     *   metrics { name "log_count"; value 1 }
+     * }
+     * }</pre>
+     *
+     * <p>The generated method signature is:
+     * {@code private void _extractor(MetricExtractor _e, LalRuntimeHelper h)}.
+     * The call site in {@code execute()} guards it with
+     * {@code if (!ctx.shouldAbort())}.
+     */
     static void generateExtractorMethod(final StringBuilder sb,
                                          final LALScriptModel.ExtractorBlock block,
                                          final LALClassGenerator.GenCtx genCtx) {
@@ -130,6 +177,11 @@ final class LALBlockCodegen {
         sb.append("  }\n");
     }
 
+    /**
+     * Walks extractor statements and dispatches each to its codegen method:
+     * field assignments, tag assignments, if-blocks, metrics blocks,
+     * output-field assignments, and def statements.
+     */
     static void generateExtractorBody(
             final StringBuilder sb,
             final List<? extends LALScriptModel.FilterStatement> stmts,
@@ -149,7 +201,7 @@ final class LALBlockCodegen {
                 generateOutputFieldAssignment(
                     sb, (LALScriptModel.OutputFieldAssignment) stmt, genCtx);
             } else if (stmt instanceof LALScriptModel.DefStatement) {
-                generateDefStatement(
+                LALDefCodegen.generateDefStatement(
                     sb, (LALScriptModel.DefStatement) stmt, genCtx);
             }
         }
@@ -174,6 +226,15 @@ final class LALBlockCodegen {
         {"setTimestamp"},
     };
 
+    /**
+     * Generates a standard field assignment to the output builder.
+     *
+     * <p>LAL: {@code service parsed.service as String}
+     * <br>Generated: {@code _o.setServiceName(h.toStr(h.mapVal("service")))}
+     *
+     * <p>Standard fields: service, instance, endpoint, layer, traceId,
+     * segmentId, spanId, timestamp.
+     */
     private static void generateFieldToOutput(
             final StringBuilder sb,
             final LALScriptModel.FieldAssignment field,
@@ -200,16 +261,16 @@ final class LALBlockCodegen {
         if (field.getFormatPattern() != null) {
             // Format pattern provided in LAL script (e.g., timestamp ... , "yyyy/MM/dd HH:mm:ss")
             sb.append("h.parseTimestamp(");
-            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
             sb.append(", \"")
               .append(LALCodegenHelper.escapeJava(field.getFormatPattern()))
               .append("\")");
         } else if (paramType.isEnum()) {
             sb.append(paramType.getName()).append(".valueOf(");
-            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
             sb.append(")");
         } else {
-            generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
+            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
         }
         sb.append(");\n");
     }
@@ -219,7 +280,7 @@ final class LALBlockCodegen {
             final LALScriptModel.IfBlock ifBlock,
             final LALClassGenerator.GenCtx genCtx) {
         sb.append("  if (");
-        generateCondition(sb, ifBlock.getCondition(), genCtx);
+        LALValueCodegen.generateCondition(sb, ifBlock.getCondition(), genCtx);
         sb.append(") {\n");
         generateExtractorBody(sb, ifBlock.getThenBranch(), genCtx);
         sb.append("  }\n");
@@ -232,6 +293,23 @@ final class LALBlockCodegen {
 
     // ==================== Metrics inline ====================
 
+    /**
+     * Generates an inlined {@code metrics { ... }} block inside the extractor.
+     *
+     * <p>LAL example:
+     * <pre>{@code
+     * metrics {
+     *   name "log_count"
+     *   timestamp log.timestamp as Long
+     *   labels level: parsed.level, service: parsed.service
+     *   value 1
+     * }
+     * }</pre>
+     *
+     * <p>Generated code prepares a {@code SampleBuilder} via
+     * {@code _e.prepareMetrics()}, sets name/timestamp/labels/value, then
+     * calls {@code _e.submitMetrics()}.
+     */
     static void generateMetricsInline(
             final StringBuilder sb,
             final LALScriptModel.MetricsBlock block,
@@ -244,7 +322,7 @@ final class LALBlockCodegen {
         }
         if (block.getTimestampValue() != null) {
             sb.append("  _metrics.timestamp(");
-            generateCastedValueAccess(sb, block.getTimestampValue(),
+            LALValueCodegen.generateCastedValueAccess(sb, block.getTimestampValue(),
                 block.getTimestampCast(), genCtx);
             sb.append(");\n");
         }
@@ -254,7 +332,7 @@ final class LALBlockCodegen {
                     : block.getLabels().entrySet()) {
                 sb.append("    _labels.put(\"")
                     .append(LALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
-                generateCastedValueAccess(sb, entry.getValue().getValue(),
+                LALValueCodegen.generateCastedValueAccess(sb, entry.getValue().getValue(),
                     entry.getValue().getCastType(), genCtx);
                 sb.append(");\n");
             }
@@ -264,18 +342,18 @@ final class LALBlockCodegen {
             sb.append("  _metrics.value(");
             if ("Long".equals(block.getValueCast())) {
                 sb.append("(double) h.toLong(");
-                generateValueAccess(sb, block.getValue(), genCtx);
+                LALValueCodegen.generateValueAccess(sb, block.getValue(), genCtx);
                 sb.append(")");
             } else if ("Integer".equals(block.getValueCast())) {
                 sb.append("(double) h.toInt(");
-                generateValueAccess(sb, block.getValue(), genCtx);
+                LALValueCodegen.generateValueAccess(sb, block.getValue(), genCtx);
                 sb.append(")");
             } else {
                 if (block.getValue().isNumberLiteral()) {
                     sb.append("(double) ").append(block.getValue().getSegments().get(0));
                 } else {
                     sb.append("((Number) ");
-                    generateValueAccess(sb, block.getValue(), genCtx);
+                    LALValueCodegen.generateValueAccess(sb, block.getValue(), genCtx);
                     sb.append(").doubleValue()");
                 }
             }
@@ -287,6 +365,12 @@ final class LALBlockCodegen {
 
     // ==================== Tag assignment ====================
 
+    /**
+     * Generates tag assignment statements in the extractor.
+     *
+     * <p>LAL: {@code tag 'status.code': parsed?.response?.responseCode?.value}
+     * <br>Generated: {@code _o.addTag("status.code", h.toStr(...))}
+     */
     static void generateTagAssignment(final StringBuilder sb,
                                        final LALScriptModel.TagAssignment tag,
                                        final LALClassGenerator.GenCtx genCtx) {
@@ -294,7 +378,7 @@ final class LALBlockCodegen {
                 : tag.getTags().entrySet()) {
             sb.append("  _o.addTag(\"")
               .append(LALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
-            generateStringValueAccess(sb, entry.getValue().getValue(),
+            LALValueCodegen.generateStringValueAccess(sb, entry.getValue().getValue(),
                 entry.getValue().getCastType(), genCtx);
             sb.append(");\n");
         }
@@ -350,6 +434,17 @@ final class LALBlockCodegen {
         return false;
     }
 
+    /**
+     * Generates an output-field assignment for custom output types.
+     *
+     * <p>LAL: {@code latency parsed.latency as Long}
+     * (where {@code latency} is not a standard field but a field on the
+     * {@code outputType} class, e.g. {@code SampledTrace.setLatency(long)})
+     * <br>Generated: {@code _o.setLatency(h.toLong(h.mapVal("latency")))}
+     *
+     * <p>The setter is validated at compile time via reflection on the
+     * output type. If no matching setter exists, compilation fails.
+     */
     static void generateOutputFieldAssignment(
             final StringBuilder sb,
             final LALScriptModel.OutputFieldAssignment field,
@@ -382,10 +477,10 @@ final class LALBlockCodegen {
             // Auto-convert String to enum: EnumType.valueOf(stringValue.toUpperCase())
             // toUpperCase() handles case-insensitive matching (e.g., "slow" → "SLOW")
             sb.append(paramType.getName()).append(".valueOf(((String) ");
-            generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
             sb.append(").toUpperCase())");
         } else {
-            generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
+            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
         }
         sb.append(");\n");
     }
@@ -434,6 +529,26 @@ final class LALBlockCodegen {
 
     // ==================== Sink method generation ====================
 
+    /**
+     * Generates the {@code _sink()} private method for the LAL
+     * {@code sink { ... }} block.
+     *
+     * <p>LAL example:
+     * <pre>{@code
+     * sink {
+     *   sampler {
+     *     rateLimit("${log.service}:${parsed?.response?.responseCode}") {
+     *       rpm 6000
+     *     }
+     *   }
+     * }
+     * }</pre>
+     *
+     * <p>The generated method signature is:
+     * {@code private void _sink(FilterSpec _f, LalRuntimeHelper h)}.
+     * Sink statements include {@code enforcer()}, {@code dropper()},
+     * {@code sampler { ... }}, and if-blocks.
+     */
     static void generateSinkMethod(final StringBuilder sb,
                                     final LALScriptModel.SinkBlock sink,
                                     final LALClassGenerator.GenCtx genCtx) {
@@ -505,7 +620,7 @@ final class LALBlockCodegen {
             final LALScriptModel.IfBlock ifBlock,
             final LALClassGenerator.GenCtx genCtx) {
         sb.append("  if (");
-        generateCondition(sb, ifBlock.getCondition(), genCtx);
+        LALValueCodegen.generateCondition(sb, ifBlock.getCondition(), genCtx);
         sb.append(") {\n");
         generateSinkBody(sb, ifBlock.getThenBranch(), genCtx);
         sb.append("  }\n");
@@ -518,6 +633,9 @@ final class LALBlockCodegen {
 
     // ==================== Sampler/RateLimit inline ====================
 
+    /**
+     * Generates a {@code sampler { ... }} block inside the sink.
+     */
     static void generateSamplerInline(
             final StringBuilder sb,
             final LALScriptModel.SamplerBlock block,
@@ -544,7 +662,7 @@ final class LALBlockCodegen {
             final LALScriptModel.IfBlock ifBlock,
             final LALClassGenerator.GenCtx genCtx) {
         sb.append("  if (");
-        generateCondition(sb, ifBlock.getCondition(), genCtx);
+        LALValueCodegen.generateCondition(sb, ifBlock.getCondition(), genCtx);
         sb.append(") {\n");
         generateSamplerContentsFromFilterStmts(sb, ifBlock.getThenBranch(), genCtx);
         sb.append("  }\n");
@@ -569,6 +687,18 @@ final class LALBlockCodegen {
         }
     }
 
+    /**
+     * Generates a {@code rateLimit("id") { rpm N }} block.
+     *
+     * <p>The ID can be a plain string or an interpolated string:
+     * <pre>{@code
+     * rateLimit("${log.service}:${parsed?.response?.responseCode}") {
+     *   rpm 6000
+     * }
+     * }</pre>
+     *
+     * <p>Generated: {@code _f.sampler().rateLimit(h.ctx(), "" + ... , 6000)}
+     */
     static void generateRateLimitInline(
             final StringBuilder sb,
             final LALScriptModel.RateLimitBlock block,
@@ -583,7 +713,7 @@ final class LALBlockCodegen {
                       .append("\"");
                 } else {
                     sb.append("String.valueOf(");
-                    generateValueAccess(sb, part.getExpression(), genCtx);
+                    LALValueCodegen.generateValueAccess(sb, part.getExpression(), genCtx);
                     sb.append(")");
                 }
             }
@@ -591,990 +721,5 @@ final class LALBlockCodegen {
             sb.append("\"").append(LALCodegenHelper.escapeJava(block.getId())).append("\"");
         }
         sb.append(", ").append(block.getRpm()).append(");\n");
-    }
-
-    // ==================== Conditions ====================
-
-    static void generateCondition(final StringBuilder sb,
-                                   final LALScriptModel.Condition cond,
-                                   final LALClassGenerator.GenCtx genCtx) {
-        if (cond instanceof LALScriptModel.ComparisonCondition) {
-            final LALScriptModel.ComparisonCondition cc =
-                (LALScriptModel.ComparisonCondition) cond;
-            switch (cc.getOp()) {
-                case EQ:
-                    sb.append("java.util.Objects.equals(");
-                    generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
-                    sb.append(", ");
-                    generateConditionValue(sb, cc.getRight(), genCtx);
-                    sb.append(")");
-                    break;
-                case NEQ:
-                    sb.append("!java.util.Objects.equals(");
-                    generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
-                    sb.append(", ");
-                    generateConditionValue(sb, cc.getRight(), genCtx);
-                    sb.append(")");
-                    break;
-                case GT:
-                    generateNumericComparison(sb, cc, " > ", genCtx);
-                    break;
-                case LT:
-                    generateNumericComparison(sb, cc, " < ", genCtx);
-                    break;
-                case GTE:
-                    generateNumericComparison(sb, cc, " >= ", genCtx);
-                    break;
-                case LTE:
-                    generateNumericComparison(sb, cc, " <= ", genCtx);
-                    break;
-                default:
-                    break;
-            }
-        } else if (cond instanceof LALScriptModel.LogicalCondition) {
-            final LALScriptModel.LogicalCondition lc =
-                (LALScriptModel.LogicalCondition) cond;
-            sb.append("(");
-            generateCondition(sb, lc.getLeft(), genCtx);
-            sb.append(lc.getOp() == LALScriptModel.LogicalOp.AND
-                ? " && " : " || ");
-            generateCondition(sb, lc.getRight(), genCtx);
-            sb.append(")");
-        } else if (cond instanceof LALScriptModel.NotCondition) {
-            sb.append("!(");
-            generateCondition(sb,
-                ((LALScriptModel.NotCondition) cond).getInner(), genCtx);
-            sb.append(")");
-        } else if (cond instanceof LALScriptModel.ExprCondition) {
-            final String ct = ((LALScriptModel.ExprCondition) cond).getCastType();
-            final String method = "Boolean".equals(ct) || "boolean".equals(ct)
-                ? ".isTrue(" : ".isNotEmpty(";
-            sb.append("h").append(method);
-            generateValueAccessObj(sb,
-                ((LALScriptModel.ExprCondition) cond).getExpr(),
-                ct, genCtx);
-            sb.append(")");
-        }
-    }
-
-    static void generateNumericComparison(
-            final StringBuilder sb,
-            final LALScriptModel.ComparisonCondition cc,
-            final String op,
-            final LALClassGenerator.GenCtx genCtx) {
-        // Generate left side into buffer to inspect resolved type
-        final StringBuilder leftBuf = new StringBuilder();
-        generateValueAccessObj(leftBuf, cc.getLeft(), null, genCtx);
-
-        final boolean primitiveNumeric = genCtx.lastResolvedType != null
-            && (genCtx.lastResolvedType == int.class
-                || genCtx.lastResolvedType == long.class);
-
-        if (primitiveNumeric && genCtx.lastRawChain != null) {
-            // Direct primitive comparison — no boxing, no h.toLong()
-            if (genCtx.lastNullChecks != null) {
-                sb.append("(").append(genCtx.lastNullChecks).append(" ? false : ")
-                  .append(genCtx.lastRawChain).append(op);
-                generateConditionValueNumeric(sb, cc.getRight(), genCtx);
-                sb.append(")");
-            } else {
-                sb.append(genCtx.lastRawChain).append(op);
-                generateConditionValueNumeric(sb, cc.getRight(), genCtx);
-            }
-        } else {
-            // Fallback: h.toLong() conversion
-            sb.append("h.toLong(").append(leftBuf).append(")").append(op);
-            generateConditionValueNumeric(sb, cc.getRight(), genCtx);
-        }
-    }
-
-    static void generateConditionValue(final StringBuilder sb,
-                                        final LALScriptModel.ConditionValue cv,
-                                        final LALClassGenerator.GenCtx genCtx) {
-        if (cv instanceof LALScriptModel.StringConditionValue) {
-            sb.append('"')
-              .append(LALCodegenHelper.escapeJava(
-                  ((LALScriptModel.StringConditionValue) cv).getValue()))
-              .append('"');
-        } else if (cv instanceof LALScriptModel.NumberConditionValue) {
-            final double val =
-                ((LALScriptModel.NumberConditionValue) cv).getValue();
-            sb.append("Long.valueOf(").append((long) val).append("L)");
-        } else if (cv instanceof LALScriptModel.BoolConditionValue) {
-            sb.append("Boolean.valueOf(")
-              .append(((LALScriptModel.BoolConditionValue) cv).isValue())
-              .append(")");
-        } else if (cv instanceof LALScriptModel.NullConditionValue) {
-            sb.append("null");
-        } else if (cv instanceof LALScriptModel.ValueAccessConditionValue) {
-            generateValueAccessObj(sb,
-                ((LALScriptModel.ValueAccessConditionValue) cv).getValue(),
-                null, genCtx);
-        }
-    }
-
-    static void generateConditionValueNumeric(
-            final StringBuilder sb,
-            final LALScriptModel.ConditionValue cv,
-            final LALClassGenerator.GenCtx genCtx) {
-        if (cv instanceof LALScriptModel.NumberConditionValue) {
-            sb.append((long) ((LALScriptModel.NumberConditionValue) cv)
-                .getValue()).append("L");
-        } else if (cv instanceof LALScriptModel.ValueAccessConditionValue) {
-            sb.append("h.toLong(");
-            generateValueAccessObj(sb,
-                ((LALScriptModel.ValueAccessConditionValue) cv).getValue(),
-                null, genCtx);
-            sb.append(")");
-        } else {
-            sb.append("0L");
-        }
-    }
-
-    // ==================== Value access ====================
-
-    static void generateCastedValueAccess(final StringBuilder sb,
-                                           final LALScriptModel.ValueAccess value,
-                                           final String castType,
-                                           final LALClassGenerator.GenCtx genCtx) {
-        if ("String".equals(castType)) {
-            sb.append("h.toStr(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else if ("Long".equals(castType)) {
-            sb.append("h.toLong(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else if ("Integer".equals(castType)) {
-            sb.append("h.toInt(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else if ("Boolean".equals(castType)) {
-            sb.append("h.toBool(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else {
-            generateValueAccess(sb, value, genCtx);
-        }
-    }
-
-    static void generateStringValueAccess(final StringBuilder sb,
-                                            final LALScriptModel.ValueAccess value,
-                                            final String castType,
-                                            final LALClassGenerator.GenCtx genCtx) {
-        if (castType == null || "String".equals(castType)) {
-            sb.append("h.toStr(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else if ("Long".equals(castType)) {
-            sb.append("String.valueOf(h.toLong(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append("))");
-        } else if ("Integer".equals(castType)) {
-            sb.append("String.valueOf(h.toInt(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append("))");
-        } else if ("Boolean".equals(castType)) {
-            sb.append("String.valueOf(h.toBool(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append("))");
-        } else {
-            sb.append("h.toStr(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        }
-    }
-
-    static void generateValueAccessObj(final StringBuilder sb,
-                                        final LALScriptModel.ValueAccess value,
-                                        final String castType,
-                                        final LALClassGenerator.GenCtx genCtx) {
-        if ("String".equals(castType)) {
-            sb.append("h.toStr(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else {
-            generateValueAccess(sb, value, genCtx);
-        }
-    }
-
-    static void generateValueAccess(final StringBuilder sb,
-                                     final LALScriptModel.ValueAccess value,
-                                     final LALClassGenerator.GenCtx genCtx) {
-        genCtx.clearExtraLogResult();
-
-        // Handle string concatenation (term1 + term2 + ...)
-        if (!value.getConcatParts().isEmpty()) {
-            sb.append("(\"\" + ");
-            for (int i = 0; i < value.getConcatParts().size(); i++) {
-                if (i > 0) {
-                    sb.append(" + ");
-                }
-                generateValueAccess(sb, value.getConcatParts().get(i), genCtx);
-            }
-            sb.append(")");
-            return;
-        }
-
-        // Handle parenthesized expression: (innerExpr as Type).chain...
-        if (value.getParenInner() != null) {
-            generateParenAccess(sb, value, genCtx);
-            return;
-        }
-
-        // tag("KEY") — LogData.Builder specific: use LalRuntimeHelper.tagValue()
-        if ("tag".equals(value.getFunctionCallName())
-                && value.getFunctionCallArgs().size() == 1
-                && value.getFunctionCallArgs().get(0).getValue().isStringLiteral()
-                && (genCtx.inputType == null
-                    || LALCodegenHelper.LOGDATA_BUILDER_CLASS
-                        .isAssignableFrom(genCtx.inputType))) {
-            sb.append("h.tagValue(\"");
-            final String key = value.getFunctionCallArgs().get(0)
-                .getValue().getSegments().get(0);
-            sb.append(LALCodegenHelper.escapeJava(key)).append("\")");
-            return;
-        }
-
-        // Handle string/number literals
-        if (value.isStringLiteral() && value.getChain().isEmpty()) {
-            sb.append("\"").append(LALCodegenHelper.escapeJava(value.getSegments().get(0)))
-              .append("\"");
-            return;
-        }
-        if (value.isNumberLiteral() && value.getChain().isEmpty()) {
-            final String num = value.getSegments().get(0);
-            if (num.contains(".")) {
-                sb.append("Double.valueOf(").append(num).append(")");
-            } else {
-                sb.append("Integer.valueOf(").append(num).append(")");
-            }
-            return;
-        }
-
-        // Handle ProcessRegistry static calls
-        if (value.isProcessRegistryRef()) {
-            generateProcessRegistryCall(sb, value, genCtx);
-            return;
-        }
-
-        final List<LALScriptModel.ValueAccessSegment> chain = value.getChain();
-
-        // Handle log.X.Y direct proto getter chains
-        if (value.isLogRef()) {
-            generateLogAccess(sb, chain);
-            return;
-        }
-
-        // Handle parsed.X.Y with compile-time type analysis
-        if (value.isParsedRef()) {
-            generateParsedAccess(sb, chain, genCtx);
-            return;
-        }
-
-        // Check for def variable reference
-        if (!value.getSegments().isEmpty()) {
-            final String primaryName = value.getSegments().get(0);
-            final LALClassGenerator.LocalVarInfo localVar =
-                genCtx.localVars.get(primaryName);
-            if (localVar != null) {
-                generateDefVarChain(sb, localVar, chain, genCtx);
-                return;
-            }
-        }
-
-        // Fallback for unknown primary
-        if (chain.isEmpty()) {
-            sb.append("null");
-            return;
-        }
-        // Treat as parsed ref
-        generateParsedAccess(sb, chain, genCtx);
-    }
-
-    // ==================== Parenthesized expression ====================
-
-    static void generateParenAccess(final StringBuilder sb,
-                                     final LALScriptModel.ValueAccess value,
-                                     final LALClassGenerator.GenCtx genCtx) {
-        // Generate the inner expression with cast
-        final String castType = value.getParenCast();
-        final StringBuilder inner = new StringBuilder();
-        if (castType != null) {
-            generateCastedValueAccess(inner, value.getParenInner(), castType, genCtx);
-        } else {
-            generateValueAccess(inner, value.getParenInner(), genCtx);
-        }
-
-        // Apply chain segments (methods, fields, index access)
-        String current = inner.toString();
-        for (final LALScriptModel.ValueAccessSegment seg : value.getChain()) {
-            if (seg instanceof LALScriptModel.MethodSegment) {
-                current = appendMethodSegment(current,
-                    (LALScriptModel.MethodSegment) seg, genCtx);
-            } else if (seg instanceof LALScriptModel.IndexSegment) {
-                current = current + "["
-                    + ((LALScriptModel.IndexSegment) seg).getIndex() + "]";
-            } else if (seg instanceof LALScriptModel.FieldSegment) {
-                final LALScriptModel.FieldSegment fs =
-                    (LALScriptModel.FieldSegment) seg;
-                if (fs.isSafeNav()) {
-                    current = "(" + current + " == null ? null : "
-                        + current + "." + fs.getName() + ")";
-                } else {
-                    current = current + "." + fs.getName();
-                }
-            }
-        }
-        sb.append(current);
-    }
-
-    // ==================== Log access (direct proto getters) ====================
-
-    /**
-     * Generate code for {@code log.xxx} field access in LAL scripts.
-     * <ul>
-     *   <li>Metadata fields (service, endpoint, layer, timestamp, traceContext)
-     *       → {@code h.ctx().metadata().getXxx()}</li>
-     *   <li>LogData-only fields (body, tags)
-     *       → {@code ((LogData.Builder) h.ctx().input()).getXxx()}</li>
-     * </ul>
-     */
-    static void generateLogAccess(final StringBuilder sb,
-                                   final List<LALScriptModel.ValueAccessSegment> chain) {
-        if (chain.isEmpty()) {
-            sb.append("h.ctx().input()");
-            return;
-        }
-
-        String current;
-        boolean needsBoxing = false;
-        String boxType = null;
-
-        // Determine root based on first field
-        final LALScriptModel.ValueAccessSegment first = chain.get(0);
-        if (!(first instanceof LALScriptModel.FieldSegment)) {
-            current = LOGDATA_BUILDER_CAST;
-        } else {
-            final String firstName = ((LALScriptModel.FieldSegment) first).getName();
-            if (LALCodegenHelper.METADATA_GETTERS.containsKey(firstName)) {
-                current = "h.ctx().metadata()";
-            } else if (LALCodegenHelper.LOG_GETTERS.containsKey(firstName)) {
-                current = LOGDATA_BUILDER_CAST;
-            } else {
-                throw new IllegalArgumentException(
-                    "Unknown log field: log." + firstName
-                        + ". Supported metadata fields: "
-                        + LALCodegenHelper.METADATA_GETTERS.keySet()
-                        + ", LogData fields: "
-                        + LALCodegenHelper.LOG_GETTERS.keySet());
-            }
-        }
-
-        for (int i = 0; i < chain.size(); i++) {
-            final LALScriptModel.ValueAccessSegment seg = chain.get(i);
-            if (seg instanceof LALScriptModel.FieldSegment) {
-                final String name = ((LALScriptModel.FieldSegment) seg).getName();
-                if (i == 0 && LALCodegenHelper.METADATA_GETTERS.containsKey(name)) {
-                    if ("traceContext".equals(name)) {
-                        current = current + ".getTraceContext()";
-                    } else {
-                        current = current + "."
-                            + LALCodegenHelper.METADATA_GETTERS.get(name) + "()";
-                        if (LALCodegenHelper.LONG_FIELDS.contains(name)) {
-                            needsBoxing = true;
-                            boxType = "Long";
-                        }
-                    }
-                } else if (i == 0 && LALCodegenHelper.LOG_GETTERS.containsKey(name)) {
-                    current = current + "."
-                        + LALCodegenHelper.LOG_GETTERS.get(name) + "()";
-                } else if (i == 1 && current.endsWith(".getTraceContext()")
-                        && LALCodegenHelper.METADATA_TRACE_GETTERS.containsKey(name)) {
-                    current = current + "."
-                        + LALCodegenHelper.METADATA_TRACE_GETTERS.get(name) + "()";
-                    if (LALCodegenHelper.INT_FIELDS.contains(name)) {
-                        needsBoxing = true;
-                        boxType = "Integer";
-                    }
-                } else {
-                    throw new IllegalArgumentException(
-                        "Unknown log field: log." + name
-                            + ". Supported metadata fields: "
-                            + LALCodegenHelper.METADATA_GETTERS.keySet()
-                            + ", traceContext."
-                            + LALCodegenHelper.METADATA_TRACE_GETTERS.keySet()
-                            + ", LogData fields: "
-                            + LALCodegenHelper.LOG_GETTERS.keySet());
-                }
-            } else if (seg instanceof LALScriptModel.MethodSegment) {
-                current = appendMethodSegment(current,
-                    (LALScriptModel.MethodSegment) seg, null);
-            }
-        }
-
-        if (needsBoxing) {
-            sb.append(boxType).append(".valueOf(").append(current).append(")");
-        } else {
-            sb.append(current);
-        }
-    }
-
-    // ==================== Parsed access (compile-time typed) ====================
-
-    static void generateParsedAccess(
-            final StringBuilder sb,
-            final List<LALScriptModel.ValueAccessSegment> chain,
-            final LALClassGenerator.GenCtx genCtx) {
-        if (chain.isEmpty()) {
-            sb.append("h.ctx().parsed()");
-            return;
-        }
-
-        // Collect leading field segments (stop at method/index)
-        final List<LALScriptModel.FieldSegment> fieldSegments = new ArrayList<>();
-        int methodStart = -1;
-        for (int i = 0; i < chain.size(); i++) {
-            final LALScriptModel.ValueAccessSegment seg = chain.get(i);
-            if (seg instanceof LALScriptModel.FieldSegment) {
-                fieldSegments.add((LALScriptModel.FieldSegment) seg);
-            } else {
-                methodStart = i;
-                break;
-            }
-        }
-
-        final List<String> fieldKeys = new ArrayList<>();
-        for (final LALScriptModel.FieldSegment fs : fieldSegments) {
-            fieldKeys.add(fs.getName());
-        }
-
-        String current;
-        switch (genCtx.parserType) {
-            case JSON:
-            case YAML:
-                current = LALCodegenHelper.generateMapValCall(fieldKeys);
-                break;
-            case TEXT:
-                if (!fieldKeys.isEmpty()) {
-                    current = "h.group(\""
-                        + LALCodegenHelper.escapeJava(fieldKeys.get(0)) + "\")";
-                } else {
-                    current = "h.ctx().parsed()";
-                }
-                break;
-            case NONE:
-                if (genCtx.inputType != null) {
-                    current = generateExtraLogAccess(fieldSegments, genCtx.inputType,
-                        "_p", true, genCtx);
-                } else {
-                    // No parser and no inputType — fall back to LogMetadata
-                    current = generateExtraLogAccess(fieldSegments, LogMetadata.class,
-                        "h.ctx().metadata()", false, genCtx);
-                }
-                break;
-            default:
-                current = "null";
-                break;
-        }
-
-        // Apply remaining method/index segments
-        if (methodStart >= 0) {
-            for (int i = methodStart; i < chain.size(); i++) {
-                final LALScriptModel.ValueAccessSegment seg = chain.get(i);
-                if (seg instanceof LALScriptModel.MethodSegment) {
-                    current = appendMethodSegment(current,
-                        (LALScriptModel.MethodSegment) seg, genCtx);
-                } else if (seg instanceof LALScriptModel.IndexSegment) {
-                    current = current + "["
-                        + ((LALScriptModel.IndexSegment) seg).getIndex() + "]";
-                } else if (seg instanceof LALScriptModel.FieldSegment) {
-                    current = current + "."
-                        + ((LALScriptModel.FieldSegment) seg).getName();
-                }
-            }
-        }
-
-        sb.append(current);
-    }
-
-    static String generateExtraLogAccess(
-            final List<LALScriptModel.FieldSegment> fieldSegments,
-            final Class<?> rootType,
-            final String rootExpr,
-            final boolean rootCanBeNull,
-            final LALClassGenerator.GenCtx genCtx) {
-        genCtx.usedProtoAccess = true;
-
-        if (fieldSegments.isEmpty()) {
-            return rootExpr;
-        }
-
-        final String typeName = rootType.getName();
-        final StringBuilder chainKey = new StringBuilder();
-        String prevVar = rootExpr;
-        Class<?> currentType = rootType;
-        boolean prevCanBeNull = rootCanBeNull;
-
-        for (int i = 0; i < fieldSegments.size(); i++) {
-            final LALScriptModel.FieldSegment seg = fieldSegments.get(i);
-            final String field = seg.getName();
-            String getterName = "get" + Character.toUpperCase(field.charAt(0))
-                + field.substring(1);
-
-            // Apply getter aliases (e.g., traceSegmentId → segmentId on LogMetadata)
-            final String alias = LALCodegenHelper.METADATA_GETTER_ALIASES.get(getterName);
-            if (alias != null) {
-                try {
-                    currentType.getMethod(getterName);
-                } catch (NoSuchMethodException ignored) {
-                    getterName = alias;
-                }
-            }
-
-            final java.lang.reflect.Method getter;
-            try {
-                getter = currentType.getMethod(getterName);
-            } catch (NoSuchMethodException e) {
-                throw new IllegalArgumentException(
-                    "Cannot resolve getter " + currentType.getSimpleName()
-                        + "." + getterName + "() for type "
-                        + typeName + ". Check the field path in the LAL rule.");
-            }
-            final Class<?> returnType = getter.getReturnType();
-
-            if (chainKey.length() > 0) {
-                chainKey.append(".");
-            }
-            chainKey.append(field);
-            final String key = chainKey.toString();
-            final boolean isLast = i == fieldSegments.size() - 1;
-
-            // Primitive final segment: return inline expression, no variable
-            if (isLast && returnType.isPrimitive()) {
-                final String rawAccess = prevVar + "." + getterName + "()";
-                genCtx.lastResolvedType = returnType;
-                genCtx.lastRawChain = rawAccess;
-                final String boxName = LALCodegenHelper.boxTypeName(returnType);
-                if (seg.isSafeNav() && prevCanBeNull) {
-                    genCtx.lastNullChecks = prevVar + " == null";
-                    return "(" + prevVar + " == null ? null : "
-                        + boxName + ".valueOf(" + rawAccess + "))";
-                } else {
-                    genCtx.lastNullChecks = null;
-                    return boxName + ".valueOf(" + rawAccess + ")";
-                }
-            }
-
-            // Reuse existing variable (dedup)
-            final String existingVar = genCtx.protoVars.get(key);
-            if (existingVar != null) {
-                prevVar = existingVar;
-                currentType = returnType;
-                prevCanBeNull = true;
-                continue;
-            }
-
-            // Create new local variable declaration
-            final String newVar = "_t" + genCtx.protoVarCounter++;
-            final String returnTypeName = returnType.getName();
-            if (seg.isSafeNav() && prevCanBeNull) {
-                genCtx.protoVarDecls.append("  ").append(returnTypeName)
-                    .append(" ").append(newVar).append(" = ")
-                    .append(prevVar).append(" == null ? null : ")
-                    .append(prevVar).append(".").append(getterName).append("();\n");
-                prevCanBeNull = true;
-            } else {
-                genCtx.protoVarDecls.append("  ").append(returnTypeName)
-                    .append(" ").append(newVar).append(" = ")
-                    .append(prevVar).append(".").append(getterName).append("();\n");
-                prevCanBeNull = !returnType.isPrimitive();
-            }
-            genCtx.protoVars.put(key, newVar);
-            genCtx.protoLvtVars.add(new String[]{
-                newVar, "L" + returnTypeName.replace('.', '/') + ";"
-            });
-
-            prevVar = newVar;
-            currentType = returnType;
-        }
-
-        // Non-primitive final result — null checks are in declarations
-        genCtx.lastResolvedType = currentType;
-        genCtx.lastRawChain = prevVar;
-        genCtx.lastNullChecks = null;
-        return prevVar;
-    }
-
-    // ==================== Def statement codegen ====================
-
-    static void generateDefStatement(final StringBuilder sb,
-                                      final LALScriptModel.DefStatement def,
-                                      final LALClassGenerator.GenCtx genCtx) {
-        final LALScriptModel.ValueAccess init = def.getInitializer();
-        final String varName = def.getVarName();
-        final String javaVar = "_def_" + varName;
-        final boolean alreadyDeclared = genCtx.localVars.containsKey(varName);
-
-        // Determine type and generate initializer expression
-        Class<?> resolvedType;
-        final StringBuilder initExpr = new StringBuilder();
-
-        if (init.getFunctionCallName() != null
-                && BUILTIN_FUNCTIONS.containsKey(init.getFunctionCallName())) {
-            // Built-in function: toJson(...), toJsonArray(...)
-            final String funcName = init.getFunctionCallName();
-            final int argCount = init.getFunctionCallArgs().size();
-            if (argCount != 1) {
-                throw new IllegalArgumentException(
-                    funcName + "() requires exactly 1 argument, got " + argCount);
-            }
-            final Object[] info = BUILTIN_FUNCTIONS.get(funcName);
-            final String helperMethod = (String) info[0];
-            resolvedType = (Class<?>) info[1];
-
-            initExpr.append(helperMethod).append("(");
-            generateValueAccess(initExpr,
-                init.getFunctionCallArgs().get(0).getValue(), genCtx);
-            initExpr.append(")");
-        } else {
-            // General value access — type inferred from lastResolvedType
-            generateValueAccess(initExpr, init, genCtx);
-            resolvedType = genCtx.lastResolvedType != null
-                ? genCtx.lastResolvedType : Object.class;
-            // Box primitive types for local variable declarations
-            if (resolvedType.isPrimitive()) {
-                final String boxName = LALCodegenHelper.boxTypeName(resolvedType);
-                if (boxName != null) {
-                    try {
-                        resolvedType = Class.forName("java.lang." + boxName);
-                    } catch (ClassNotFoundException ignored) {
-                        // keep primitive
-                    }
-                }
-            }
-        }
-
-        // Apply explicit type cast if specified (e.g., "as com.example.MyType")
-        final String castType = def.getCastType();
-        if (castType != null && !castType.isEmpty()) {
-            // Resolve the cast type — primitive wrapper names are handled,
-            // anything else is treated as a FQCN
-            final Class<?> castClass = resolveDefCastType(castType);
-            if (castClass != null) {
-                resolvedType = castClass;
-            }
-        }
-
-        // Register in local vars for later reference
-        genCtx.localVars.put(varName,
-            new LALClassGenerator.LocalVarInfo(javaVar, resolvedType));
-
-        // Emit declaration (placed at method top via localVarDecls) — skip if already declared
-        if (!alreadyDeclared) {
-            genCtx.localVarDecls.append("  ").append(resolvedType.getName())
-                .append(" ").append(javaVar).append(";\n");
-            genCtx.localVarLvtVars.add(new String[]{
-                javaVar, "L" + resolvedType.getName().replace('.', '/') + ";"
-            });
-        }
-
-        // Emit assignment in body (at the point where def appears)
-        sb.append("  ").append(javaVar).append(" = ");
-        if (castType != null && !castType.isEmpty()) {
-            sb.append("(").append(resolvedType.getName()).append(") ");
-        }
-        sb.append(initExpr).append(";\n");
-    }
-
-    /**
-     * Resolves a cast type string to a {@link Class}.
-     * Handles the four built-in type names ({@code String}, {@code Long},
-     * {@code Integer}, {@code Boolean}) and fully qualified class names.
-     */
-    private static Class<?> resolveDefCastType(final String castType) {
-        switch (castType) {
-            case "String":
-                return String.class;
-            case "Long":
-                return Long.class;
-            case "Integer":
-                return Integer.class;
-            case "Boolean":
-                return Boolean.class;
-            default:
-                try {
-                    return Class.forName(castType);
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException(
-                        "def cast type not found on classpath: " + castType, e);
-                }
-        }
-    }
-
-    // ==================== Def variable chain codegen ====================
-
-    /**
-     * Generates typed method-chain access on a def variable.
-     * Uses reflection to resolve each method/field call and track types.
-     *
-     * @param sb output buffer
-     * @param localVar the def variable info (java var name + resolved type)
-     * @param chain the chain segments after the variable name
-     * @param genCtx codegen context
-     */
-    static void generateDefVarChain(
-            final StringBuilder sb,
-            final LALClassGenerator.LocalVarInfo localVar,
-            final List<LALScriptModel.ValueAccessSegment> chain,
-            final LALClassGenerator.GenCtx genCtx) {
-        if (chain.isEmpty()) {
-            sb.append(localVar.javaVarName);
-            genCtx.lastResolvedType = localVar.resolvedType;
-            return;
-        }
-
-        String prevExpr = localVar.javaVarName;
-        Class<?> currentType = localVar.resolvedType;
-        boolean canBeNull = true;
-
-        for (int i = 0; i < chain.size(); i++) {
-            final LALScriptModel.ValueAccessSegment seg = chain.get(i);
-            final boolean isLast = i == chain.size() - 1;
-
-            if (seg instanceof LALScriptModel.MethodSegment) {
-                final LALScriptModel.MethodSegment ms =
-                    (LALScriptModel.MethodSegment) seg;
-                final String methodName = ms.getName();
-
-                // Resolve method on currentType via reflection
-                final java.lang.reflect.Method method =
-                    resolveMethod(currentType, methodName, ms.getArguments());
-                if (method == null) {
-                    throw new IllegalArgumentException(
-                        "Cannot resolve method " + currentType.getSimpleName()
-                            + "." + methodName + "() in def variable chain");
-                }
-                final Class<?> returnType = method.getReturnType();
-                final String args = generateMethodArgs(ms.getArguments(), genCtx);
-
-                if (ms.isSafeNav() && canBeNull) {
-                    if (isLast && returnType.isPrimitive()) {
-                        // Primitive return with null guard
-                        final String boxName =
-                            LALCodegenHelper.boxTypeName(returnType);
-                        prevExpr = "(" + prevExpr + " == null ? null : "
-                            + boxName + ".valueOf(" + prevExpr + "."
-                            + methodName + "(" + args + ")))";
-                        currentType = returnType;
-                    } else {
-                        prevExpr = "(" + prevExpr + " == null ? null : "
-                            + prevExpr + "." + methodName + "(" + args + "))";
-                        currentType = returnType;
-                        canBeNull = true;
-                    }
-                } else {
-                    prevExpr = prevExpr + "." + methodName + "(" + args + ")";
-                    currentType = returnType;
-                    canBeNull = !returnType.isPrimitive();
-                }
-            } else if (seg instanceof LALScriptModel.FieldSegment) {
-                final LALScriptModel.FieldSegment fs =
-                    (LALScriptModel.FieldSegment) seg;
-                final String fieldName = fs.getName();
-                // Try getter first
-                final String getterName = "get"
-                    + Character.toUpperCase(fieldName.charAt(0))
-                    + fieldName.substring(1);
-                java.lang.reflect.Method getter = null;
-                try {
-                    getter = currentType.getMethod(getterName);
-                } catch (NoSuchMethodException e) {
-                    // Try direct field access name
-                    try {
-                        getter = currentType.getMethod(fieldName);
-                    } catch (NoSuchMethodException e2) {
-                        throw new IllegalArgumentException(
-                            "Cannot resolve field/getter "
-                                + currentType.getSimpleName()
-                                + "." + fieldName + " in def variable chain");
-                    }
-                }
-                final Class<?> returnType = getter.getReturnType();
-
-                if (fs.isSafeNav() && canBeNull) {
-                    if (isLast && returnType.isPrimitive()) {
-                        final String boxName =
-                            LALCodegenHelper.boxTypeName(returnType);
-                        prevExpr = "(" + prevExpr + " == null ? null : "
-                            + boxName + ".valueOf(" + prevExpr + "."
-                            + getter.getName() + "()))";
-                        currentType = returnType;
-                    } else {
-                        prevExpr = "(" + prevExpr + " == null ? null : "
-                            + prevExpr + "." + getter.getName() + "())";
-                        currentType = returnType;
-                        canBeNull = true;
-                    }
-                } else {
-                    prevExpr = prevExpr + "." + getter.getName() + "()";
-                    currentType = returnType;
-                    canBeNull = !returnType.isPrimitive();
-                }
-            } else if (seg instanceof LALScriptModel.IndexSegment) {
-                final int index = ((LALScriptModel.IndexSegment) seg).getIndex();
-                // Try get(int) method (e.g., JsonArray.get(int))
-                java.lang.reflect.Method getMethod = null;
-                try {
-                    getMethod = currentType.getMethod("get", int.class);
-                } catch (NoSuchMethodException e) {
-                    throw new IllegalArgumentException(
-                        "Cannot resolve index access on "
-                            + currentType.getSimpleName()
-                            + " in def variable chain");
-                }
-                final Class<?> returnType = getMethod.getReturnType();
-                if (canBeNull) {
-                    prevExpr = "(" + prevExpr + " == null ? null : "
-                        + prevExpr + ".get(" + index + "))";
-                } else {
-                    prevExpr = prevExpr + ".get(" + index + ")";
-                }
-                currentType = returnType;
-                canBeNull = true;
-            }
-        }
-
-        genCtx.lastResolvedType = currentType;
-        sb.append(prevExpr);
-    }
-
-    /**
-     * Resolves a method on the given type by name, matching argument count.
-     * For methods with String arguments (like JsonObject.get(String)),
-     * prioritizes exact match by parameter types.
-     */
-    private static java.lang.reflect.Method resolveMethod(
-            final Class<?> type, final String name,
-            final List<LALScriptModel.FunctionArg> args) {
-        final int argCount = args != null ? args.size() : 0;
-        // Try exact match with common parameter types
-        if (argCount == 1) {
-            try {
-                return type.getMethod(name, String.class);
-            } catch (NoSuchMethodException ignored) {
-                // fall through
-            }
-            try {
-                return type.getMethod(name, int.class);
-            } catch (NoSuchMethodException ignored) {
-                // fall through
-            }
-        }
-        if (argCount == 0) {
-            try {
-                return type.getMethod(name);
-            } catch (NoSuchMethodException ignored) {
-                // fall through
-            }
-        }
-        // Fallback: find by name and arg count
-        for (final java.lang.reflect.Method m : type.getMethods()) {
-            if (m.getName().equals(name)
-                    && m.getParameterCount() == argCount) {
-                return m;
-            }
-        }
-        return null;
-    }
-
-    // ==================== ProcessRegistry ====================
-
-    static void generateProcessRegistryCall(
-            final StringBuilder sb,
-            final LALScriptModel.ValueAccess value,
-            final LALClassGenerator.GenCtx genCtx) {
-        final List<LALScriptModel.ValueAccessSegment> chain = value.getChain();
-        if (chain.isEmpty()) {
-            sb.append("null");
-            return;
-        }
-        final LALScriptModel.ValueAccessSegment seg = chain.get(0);
-        if (seg instanceof LALScriptModel.MethodSegment) {
-            final LALScriptModel.MethodSegment ms =
-                (LALScriptModel.MethodSegment) seg;
-            sb.append(PROCESS_REGISTRY).append(".")
-              .append(ms.getName()).append("(");
-            final List<LALScriptModel.FunctionArg> args = ms.getArguments();
-            for (int i = 0; i < args.size(); i++) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                generateCastedValueAccess(sb,
-                    args.get(i).getValue(), args.get(i).getCastType(), genCtx);
-            }
-            sb.append(")");
-        } else {
-            sb.append("null");
-        }
-    }
-
-    // ==================== Utility methods ====================
-
-    static String appendMethodSegment(final String current,
-                                       final LALScriptModel.MethodSegment ms,
-                                       final LALClassGenerator.GenCtx genCtx) {
-        final String mn = ms.getName();
-        final String args = ms.getArguments().isEmpty()
-            ? "" : generateMethodArgs(ms.getArguments(), genCtx);
-        if (ms.isSafeNav()) {
-            // Special-cased helpers for common safe-nav methods on Object
-            if ("toString".equals(mn)) {
-                return "h.toString(" + current + ")";
-            } else if ("trim".equals(mn)) {
-                return "h.trim(" + current + ")";
-            }
-            // General safe-nav: null guard with ternary
-            return "(" + current + " == null ? null : "
-                + current + "." + mn + "(" + args + "))";
-        } else {
-            return current + "." + mn + "(" + args + ")";
-        }
-    }
-
-    static String generateMethodArgs(
-            final List<LALScriptModel.FunctionArg> args,
-            final LALClassGenerator.GenCtx genCtx) {
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < args.size(); i++) {
-            if (i > 0) {
-                sb.append(", ");
-            }
-            final LALScriptModel.FunctionArg arg = args.get(i);
-            final LALScriptModel.ValueAccess va = arg.getValue();
-            if (va.isStringLiteral()) {
-                sb.append("\"").append(LALCodegenHelper.escapeJava(
-                    va.getSegments().get(0))).append("\"");
-            } else if (va.isNumberLiteral()) {
-                sb.append(va.getSegments().get(0));
-            } else if (!va.getSegments().isEmpty()) {
-                final String text = va.getSegments().get(0);
-                if ("true".equals(text) || "false".equals(text)
-                        || "null".equals(text)) {
-                    // Boolean or null literal
-                    sb.append(text);
-                } else if (genCtx != null
-                        && genCtx.localVars.containsKey(text)) {
-                    // Local def variable reference
-                    sb.append(genCtx.localVars.get(text).javaVarName);
-                } else {
-                    throw new IllegalArgumentException(
-                        "Unknown identifier used as method argument: '" + text + "'");
-                }
-            } else {
-                sb.append("null");
-            }
-        }
-        return sb.toString();
     }
 }

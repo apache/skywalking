@@ -440,7 +440,13 @@ public final class LALClassGenerator {
         final Class<?> resolvedOutput = this.outputType != null
             ? this.outputType
             : org.apache.skywalking.oap.server.core.source.LogBuilder.class;
-        final GenCtx genCtx = new GenCtx(parserType, this.inputType, resolvedOutput);
+        // inputType is only meaningful for parser-less rules (NONE) where parsed.*
+        // generates direct proto getter calls.  When a parser is present (json/yaml/text),
+        // parsed.* reads from the parsed map and tag() reads from LogData.Builder tags,
+        // so inputType must be null to avoid mis-guarding codegen branches.
+        final Class<?> effectiveInputType =
+            parserType == ParserType.NONE ? this.inputType : null;
+        final GenCtx genCtx = new GenCtx(parserType, effectiveInputType, resolvedOutput);
 
         if (parserType == ParserType.NONE && this.inputType != null) {
             log.info("LAL rule has no parser — using inputType {} for "
@@ -589,7 +595,7 @@ public final class LALClassGenerator {
         } else if (stmt instanceof LALScriptModel.IfBlock) {
             generateTopLevelIfBlock(sb, (LALScriptModel.IfBlock) stmt, genCtx);
         } else if (stmt instanceof LALScriptModel.DefStatement) {
-            LALBlockCodegen.generateDefStatement(
+            LALDefCodegen.generateDefStatement(
                 sb, (LALScriptModel.DefStatement) stmt, genCtx);
         }
     }
@@ -598,7 +604,7 @@ public final class LALClassGenerator {
                                           final LALScriptModel.IfBlock ifBlock,
                                           final GenCtx genCtx) {
         sb.append("  if (");
-        LALBlockCodegen.generateCondition(sb, ifBlock.getCondition(), genCtx);
+        LALValueCodegen.generateCondition(sb, ifBlock.getCondition(), genCtx);
         sb.append(") {\n");
         for (final LALScriptModel.FilterStatement s : ifBlock.getThenBranch()) {
             generateFilterStatement(sb, s, genCtx);
@@ -624,8 +630,9 @@ public final class LALClassGenerator {
         final Class<?> resolvedOutput = this.outputType != null
             ? this.outputType
             : org.apache.skywalking.oap.server.core.source.LogBuilder.class;
+        final ParserType pt = detectParserType(model.getStatements());
         final GenCtx genCtx = new GenCtx(
-            detectParserType(model.getStatements()), this.inputType, resolvedOutput);
+            pt, pt == ParserType.NONE ? this.inputType : null, resolvedOutput);
         final String execute = generateExecuteMethod(model, genCtx);
         if (genCtx.privateMethods.isEmpty()) {
             return execute;
