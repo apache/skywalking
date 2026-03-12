@@ -34,13 +34,19 @@ public class LogMetadata {
     private String endpoint;
     private String layer;
     private long timestamp;
-    private TraceContext traceContext;
+    @Builder.Default
+    private TraceContext traceContext = TraceContext.EMPTY;
 
     @Data
     @Builder
     public static class TraceContext {
-        private String traceId;
-        private String traceSegmentId;
+        static final TraceContext EMPTY =
+            TraceContext.builder().traceId("").traceSegmentId("").spanId(0).build();
+
+        @Builder.Default
+        private String traceId = "";
+        @Builder.Default
+        private String traceSegmentId = "";
         private int spanId;
     }
 }

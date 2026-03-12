@@ -32,16 +32,7 @@ public final class LogMetadataUtils {
      * Build LogMetadata from a LogData protobuf message.
      */
     public static LogMetadata fromLogData(final LogData logData) {
-        LogMetadata.TraceContext tc = null;
-        if (logData.hasTraceContext()) {
-            final TraceContext ctxProto =
-                logData.getTraceContext();
-            tc = LogMetadata.TraceContext.builder()
-                                        .traceId(ctxProto.getTraceId())
-                                        .traceSegmentId(ctxProto.getTraceSegmentId())
-                                        .spanId(ctxProto.getSpanId())
-                                        .build();
-        }
+        final LogMetadata.TraceContext tc = buildTraceContext(logData.getTraceContext());
         return LogMetadata.builder()
                           .service(logData.getService())
                           .serviceInstance(logData.getServiceInstance())
@@ -56,15 +47,7 @@ public final class LogMetadataUtils {
      * Build LogMetadata from a LogData.Builder without building a full LogData.
      */
     public static LogMetadata fromLogData(final LogData.Builder builder) {
-        LogMetadata.TraceContext tc = null;
-        if (builder.hasTraceContext()) {
-            final TraceContext ctxProto = builder.getTraceContext();
-            tc = LogMetadata.TraceContext.builder()
-                                        .traceId(ctxProto.getTraceId())
-                                        .traceSegmentId(ctxProto.getTraceSegmentId())
-                                        .spanId(ctxProto.getSpanId())
-                                        .build();
-        }
+        final LogMetadata.TraceContext tc = buildTraceContext(builder.getTraceContext());
         return LogMetadata.builder()
                           .service(builder.getService())
                           .serviceInstance(builder.getServiceInstance())
@@ -73,5 +56,16 @@ public final class LogMetadataUtils {
                           .timestamp(builder.getTimestamp())
                           .traceContext(tc)
                           .build();
+    }
+
+    private static LogMetadata.TraceContext buildTraceContext(final TraceContext ctxProto) {
+        if (ctxProto == null || ctxProto == TraceContext.getDefaultInstance()) {
+            return LogMetadata.TraceContext.EMPTY;
+        }
+        return LogMetadata.TraceContext.builder()
+                                      .traceId(ctxProto.getTraceId())
+                                      .traceSegmentId(ctxProto.getTraceSegmentId())
+                                      .spanId(ctxProto.getSpanId())
+                                      .build();
     }
 }
