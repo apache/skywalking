@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus
 import org.apache.skywalking.oap.server.core.analysis.manual.trace.SampledStatus5xxTraceRecord;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -41,12 +42,14 @@ import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.ProcessRelation;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @Slf4j
 public class SampledTraceBuilder implements LALOutputBuilder {
     public static final String NAME = "SampledTrace";
 
-    private NamingControl namingControl;
+    private static NamingControl NAMING_CONTROL;
+    private static boolean INITIALIZED;
 
     @Setter
     @Getter
@@ -90,8 +93,12 @@ public class SampledTraceBuilder implements LALOutputBuilder {
     public SampledTraceBuilder() {
     }
 
+    /**
+     * Constructor for v1 (Groovy) path which doesn't use {@link #init}.
+     */
     public SampledTraceBuilder(final NamingControl namingControl) {
-        this.namingControl = namingControl;
+        NAMING_CONTROL = namingControl;
+        INITIALIZED = true;
     }
 
     @Override
@@ -101,8 +108,13 @@ public class SampledTraceBuilder implements LALOutputBuilder {
 
     @Override
     public void init(final LogData logData, final Optional<Object> extraLog,
-                     final NamingControl namingControl) {
-        this.namingControl = namingControl;
+                     final ModuleManager moduleManager) {
+        if (!INITIALIZED) {
+            NAMING_CONTROL = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
+            INITIALIZED = true;
+        }
         // Only populate fields not already set by the LAL extractor.
         if (this.traceId == null) {
             this.traceId = logData.getTraceContext().getTraceId();
@@ -203,9 +215,9 @@ public class SampledTraceBuilder implements LALOutputBuilder {
 
     public ISource toEntity() {
         final ProcessRelation processRelation = new ProcessRelation();
-        final String serviceId = IDManager.ServiceID.buildId(namingControl.formatServiceName(serviceName),
+        final String serviceId = IDManager.ServiceID.buildId(NAMING_CONTROL.formatServiceName(serviceName),
             Layer.nameOf(layer).isNormal());
-        final String instanceId = IDManager.ServiceInstanceID.buildId(serviceId, namingControl.formatInstanceName(serviceInstanceName));
+        final String instanceId = IDManager.ServiceInstanceID.buildId(serviceId, NAMING_CONTROL.formatInstanceName(serviceInstanceName));
         processRelation.setInstanceId(instanceId);
         processRelation.setSourceProcessId(processId);
         processRelation.setDestProcessId(destProcessId);

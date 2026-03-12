@@ -22,10 +22,10 @@ import com.google.protobuf.Message;
 import java.util.Optional;
 import lombok.SneakyThrows;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.core.source.LogBuilder;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
 
 /**
@@ -51,9 +51,9 @@ public class EnvoyAccessLogBuilder extends LogBuilder {
 
     @Override
     public void init(final LogData logData, final Optional<Object> extraLog,
-                     final NamingControl namingControl) {
+                     final ModuleManager moduleManager) {
         extraLog.ifPresent(entry -> this.accessLogEntry = entry);
-        super.init(logData, extraLog, namingControl);
+        super.init(logData, extraLog, moduleManager);
     }
 
     @Override

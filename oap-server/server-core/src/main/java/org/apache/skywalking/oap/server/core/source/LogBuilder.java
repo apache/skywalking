@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.source;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -31,12 +32,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -47,11 +52,11 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 public class LogBuilder implements LALOutputBuilder {
     public static final String NAME = "Log";
 
-    private NamingControl namingControl;
-    private LogData logData;
+    private static NamingControl NAMING_CONTROL;
+    private static List<String> SEARCHABLE_TAG_KEYS;
+    private static boolean INITIALIZED;
 
-    @Setter
-    private List<String> searchableTagKeys;
+    private LogData logData;
 
     @Setter
     private String service;
@@ -91,8 +96,18 @@ public class LogBuilder implements LALOutputBuilder {
 
     @Override
     public void init(final LogData logData, final Optional<Object> extraLog,
-                     final NamingControl namingControl) {
-        this.namingControl = namingControl;
+                     final ModuleManager moduleManager) {
+        if (!INITIALIZED) {
+            NAMING_CONTROL = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
+            final ConfigService configService = moduleManager.find(CoreModule.NAME)
+                                                             .provider()
+                                                             .getService(ConfigService.class);
+            SEARCHABLE_TAG_KEYS = Arrays.asList(
+                configService.getSearchableLogsTags().split(Const.COMMA));
+            INITIALIZED = true;
+        }
         this.logData = logData;
         // Only populate fields that were NOT already set by the LAL extractor.
         // The extractor runs before init(), so extractor values take priority.
@@ -139,19 +154,19 @@ public class LogBuilder implements LALOutputBuilder {
         log.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
 
         // service
-        final String serviceName = namingControl.formatServiceName(service);
+        final String serviceName = NAMING_CONTROL.formatServiceName(service);
         final String serviceId = IDManager.ServiceID.buildId(serviceName, true);
         log.setServiceId(serviceId);
         // service instance
         if (StringUtil.isNotEmpty(serviceInstance)) {
             log.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(
                 serviceId,
-                namingControl.formatInstanceName(serviceInstance)
+                NAMING_CONTROL.formatInstanceName(serviceInstance)
             ));
         }
         // endpoint
         if (StringUtil.isNotEmpty(endpoint)) {
-            final String endpointName = namingControl.formatEndpointName(serviceName, endpoint);
+            final String endpointName = NAMING_CONTROL.formatEndpointName(serviceName, endpoint);
             log.setEndpointId(IDManager.EndpointID.buildId(serviceId, endpointName));
         }
         // trace
@@ -188,16 +203,16 @@ public class LogBuilder implements LALOutputBuilder {
 
     private Collection<Tag> collectSearchableTags() {
         final HashSet<Tag> result = new HashSet<>();
-        if (searchableTagKeys != null) {
+        if (SEARCHABLE_TAG_KEYS != null) {
             // Tags from original LogData
             logData.getTags().getDataList().forEach(kv -> {
-                if (searchableTagKeys.contains(kv.getKey())) {
+                if (SEARCHABLE_TAG_KEYS.contains(kv.getKey())) {
                     addSearchableTag(result, kv.getKey(), kv.getValue());
                 }
             });
             // Tags added by LAL extractor
             for (final String[] kv : lalTags) {
-                if (searchableTagKeys.contains(kv[0])) {
+                if (SEARCHABLE_TAG_KEYS.contains(kv[0])) {
                     addSearchableTag(result, kv[0], kv[1]);
                 }
             }

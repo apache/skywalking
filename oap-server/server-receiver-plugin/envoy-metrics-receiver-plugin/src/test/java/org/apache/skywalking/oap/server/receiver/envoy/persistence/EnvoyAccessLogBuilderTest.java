@@ -53,11 +53,26 @@ import static org.mockito.Mockito.when;
 
 class EnvoyAccessLogBuilderTest {
 
-    private NamingControl namingControl;
+    private ModuleManager moduleManager;
 
     @BeforeEach
     void setUp() {
-        namingControl = new NamingControl(512, 512, 512, new EndpointNameGrouping());
+        resetLogBuilderState();
+        moduleManager = buildModuleManager();
+    }
+
+    private static ModuleManager buildModuleManager() {
+        final ModuleManager manager = mock(ModuleManager.class);
+        final ModuleProviderHolder coreHolder = mock(ModuleProviderHolder.class);
+        final ModuleServiceHolder coreServices = mock(ModuleServiceHolder.class);
+        when(coreHolder.provider()).thenReturn(coreServices);
+        when(manager.find(CoreModule.NAME)).thenReturn(coreHolder);
+        when(coreServices.getService(NamingControl.class))
+            .thenReturn(new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+        final ConfigService configService = mock(ConfigService.class);
+        when(configService.getSearchableLogsTags()).thenReturn("");
+        when(coreServices.getService(ConfigService.class)).thenReturn(configService);
+        return manager;
     }
 
     @Test
@@ -76,7 +91,7 @@ class EnvoyAccessLogBuilderTest {
             .setService("test-svc")
             .setTimestamp(1609459200000L)
             .build();
-        builder.init(logData, Optional.of(entry), namingControl);
+        builder.init(logData, Optional.of(entry), moduleManager);
 
         final Log log = builder.toLog();
 
@@ -99,7 +114,7 @@ class EnvoyAccessLogBuilderTest {
             .setTimestamp(1609459200000L)
             .build();
         // Pass a default (empty) entry — no response code, so toLog() serializes empty JSON
-        builder.init(logData, Optional.of(HTTPAccessLogEntry.getDefaultInstance()), namingControl);
+        builder.init(logData, Optional.of(HTTPAccessLogEntry.getDefaultInstance()), moduleManager);
 
         final Log log = builder.toLog();
 
@@ -175,8 +190,13 @@ class EnvoyAccessLogBuilderTest {
         // Tags are stored in the output builder (via addTag), not in LogData.
         // To verify, call init + toLog and check the Log's searchable tags.
         final EnvoyAccessLogBuilder output = (EnvoyAccessLogBuilder) ctx.output();
-        output.setSearchableTagKeys(java.util.Arrays.asList("status.code", "svc"));
-        output.init(logData.build(), Optional.of(entry), namingControl);
+        // Build a moduleManager with searchable tag keys for this test
+        final ModuleManager testMm = buildModuleManager();
+        final ConfigService cs = testMm.find(CoreModule.NAME).provider().getService(ConfigService.class);
+        when(cs.getSearchableLogsTags()).thenReturn("status.code,svc");
+        // Reset static initialized flag so the new config takes effect
+        resetLogBuilderState();
+        output.init(logData.build(), Optional.of(entry), testMm);
         final Log log = output.toLog();
 
         assertTrue(log.getTags().stream().anyMatch(
@@ -223,6 +243,17 @@ class EnvoyAccessLogBuilderTest {
         slf.set(filterSpec, Collections.emptyList());
 
         return filterSpec;
+    }
+
+    private static void resetLogBuilderState() {
+        try {
+            final java.lang.reflect.Field f = org.apache.skywalking.oap.server.core.source.LogBuilder.class
+                .getDeclaredField("INITIALIZED");
+            f.setAccessible(true);
+            f.set(null, false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void assertTrue(final boolean condition, final String message) {

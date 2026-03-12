@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.source;
 
 import java.util.Optional;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
  * Interface for LAL output builders that produce {@link Source} objects from
@@ -54,11 +54,12 @@ public interface LALOutputBuilder {
      * Called once per log entry.
      *
      * @param logData  log metadata (service, layer, timestamp, trace context, etc.)
-     * @param extraLog optional extra input whose type matches
-     *                 {@code LALSourceTypeProvider#inputType()} for the layer
-     *                 (e.g., {@code HTTPAccessLogEntry} for envoy access logs)
+     * @param extraLog      optional extra input whose type matches
+     *                      {@code LALSourceTypeProvider#inputType()} for the layer
+     *                      (e.g., {@code HTTPAccessLogEntry} for envoy access logs)
+     * @param moduleManager module manager for resolving services (e.g., NamingControl)
      */
-    void init(LogData logData, Optional<Object> extraLog, NamingControl namingControl);
+    void init(LogData logData, Optional<Object> extraLog, ModuleManager moduleManager);
 
     /**
      * Validate the builder state and dispatch the final output source(s).

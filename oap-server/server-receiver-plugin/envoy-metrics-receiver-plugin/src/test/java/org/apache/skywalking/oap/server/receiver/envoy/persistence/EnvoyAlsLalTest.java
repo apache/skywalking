@@ -70,10 +70,11 @@ import static org.mockito.Mockito.when;
 class EnvoyAlsLalTest {
 
     private LALClassGenerator generator;
-    private NamingControl namingControl;
+    private ModuleManager moduleManager;
 
     @BeforeEach
     void setUp(final TestInfo testInfo) {
+        resetLogBuilderState();
         generator = new LALClassGenerator(new ClassPool(true));
         generator.setInputType(HTTPAccessLogEntry.class);
         generator.setOutputType(EnvoyAccessLogBuilder.class);
@@ -81,8 +82,32 @@ class EnvoyAlsLalTest {
         final String methodName = testInfo.getTestMethod()
             .map(m -> m.getName()).orElse("unknown");
         generator.setClassNameHint("EnvoyAlsLalTest_" + methodName);
-        namingControl = new NamingControl(
-            512, 512, 512, new EndpointNameGrouping());
+        moduleManager = buildCoreModuleManager("");
+    }
+
+    private static ModuleManager buildCoreModuleManager(final String searchableTags) {
+        final ModuleManager manager = mock(ModuleManager.class);
+        final ModuleProviderHolder coreHolder = mock(ModuleProviderHolder.class);
+        final ModuleServiceHolder coreServices = mock(ModuleServiceHolder.class);
+        when(coreHolder.provider()).thenReturn(coreServices);
+        when(manager.find(CoreModule.NAME)).thenReturn(coreHolder);
+        when(coreServices.getService(NamingControl.class))
+            .thenReturn(new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+        final ConfigService configService = mock(ConfigService.class);
+        when(configService.getSearchableLogsTags()).thenReturn(searchableTags);
+        when(coreServices.getService(ConfigService.class)).thenReturn(configService);
+        return manager;
+    }
+
+    private static void resetLogBuilderState() {
+        try {
+            final Field f = org.apache.skywalking.oap.server.core.source.LogBuilder.class
+                .getDeclaredField("INITIALIZED");
+            f.setAccessible(true);
+            f.set(null, false);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // ==================== def + toJson: JWT from filter_metadata ===========
@@ -303,8 +328,11 @@ class EnvoyAlsLalTest {
         assertNotNull(ctx.output());
         final EnvoyAccessLogBuilder output =
             (EnvoyAccessLogBuilder) ctx.output();
-        output.setSearchableTagKeys(java.util.Arrays.asList(searchableTagKeys));
-        output.init(ctx.log().build(), Optional.of(entry), namingControl);
+        // Reset and rebuild with the desired searchable tag keys
+        resetLogBuilderState();
+        final ModuleManager tagMm = buildCoreModuleManager(
+            String.join(",", searchableTagKeys));
+        output.init(ctx.log().build(), Optional.of(entry), tagMm);
         return output.toLog();
     }
 
@@ -347,7 +375,7 @@ class EnvoyAlsLalTest {
         when(coreServices.getService(SourceReceiver.class))
             .thenReturn(mock(SourceReceiver.class));
         when(coreServices.getService(NamingControl.class))
-            .thenReturn(namingControl);
+            .thenReturn(new NamingControl(512, 512, 512, new EndpointNameGrouping()));
         final ConfigService configService = mock(ConfigService.class);
         when(configService.getSearchableLogsTags()).thenReturn("");
         when(coreServices.getService(ConfigService.class))
