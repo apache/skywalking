@@ -826,12 +826,20 @@ final class LALBlockCodegen {
         if (value.getFunctionCallName() != null) {
             if ("tag".equals(value.getFunctionCallName())
                     && !value.getFunctionCallArgs().isEmpty()) {
+                if (genCtx.inputType != null) {
+                    throw new IllegalArgumentException(
+                        "tag(\"KEY\") is only supported for LogData input. "
+                            + "For typed input " + genCtx.inputType.getName()
+                            + ", access tags via parsed.* field chain.");
+                }
                 sb.append("h.tagValue(\"");
                 final String key = value.getFunctionCallArgs().get(0)
                     .getValue().getSegments().get(0);
                 sb.append(LALCodegenHelper.escapeJava(key)).append("\")");
             } else {
-                sb.append("null");
+                throw new IllegalArgumentException(
+                    "Unsupported function call: " + value.getFunctionCallName()
+                        + ". Only tag(\"KEY\") is supported.");
             }
             return;
         }
