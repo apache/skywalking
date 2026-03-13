@@ -23,10 +23,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import lombok.Getter;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
-import org.apache.skywalking.oap.server.core.source.Log;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 
 /**
  * Mutable property storage for a single LAL script execution cycle.
@@ -34,21 +33,22 @@ import org.apache.skywalking.oap.server.core.source.Log;
  * <p>A new ExecutionContext is created for each incoming log. It carries all
  * per-log state through the compiled LAL pipeline:
  * <ul>
- *   <li>{@code log} — the incoming {@code LogData.Builder}</li>
+ *   <li>{@code metadata} — the {@link LogMetadata} (service, layer, timestamp, trace context)</li>
+ *   <li>{@code input} — the raw input object (LogData.Builder for standard logs, typed proto for ALS)</li>
  *   <li>{@code parsed} — structured data extracted by json/text/yaml parsers</li>
  *   <li>{@code save}/{@code abort} — control flags set by extractor/sink logic</li>
  *   <li>{@code metrics_container} — optional list for LAL-extracted metrics (log-MAL)</li>
- *   <li>{@code log_container} — optional container for the built {@code Log} source object</li>
+ *   <li>{@code dry_run} — when true, sink skips persistence (used by the LAL test tool)</li>
  * </ul>
  */
 public class ExecutionContext {
-    public static final String KEY_LOG = "log";
+    public static final String KEY_INPUT = "input";
+    public static final String KEY_METADATA = "metadata";
     public static final String KEY_PARSED = "parsed";
     public static final String KEY_SAVE = "save";
     public static final String KEY_ABORT = "abort";
     public static final String KEY_METRICS_CONTAINER = "metrics_container";
-    public static final String KEY_CAPTURE_LOG = "capture_log";
-    public static final String KEY_LOG_CONTAINER = "log_container";
+    public static final String KEY_DRY_RUN = "dry_run";
     public static final String KEY_OUTPUT = "output";
 
     private final Map<String, Object> properties = new HashMap<>();
@@ -65,32 +65,30 @@ public class ExecutionContext {
         return properties.get(name);
     }
 
-    public ExecutionContext log(final LogData.Builder log) {
-        setProperty(KEY_LOG, log);
+    /**
+     * Initialize from metadata + input.
+     */
+    public ExecutionContext init(final LogMetadata metadata, final Object input) {
+        setProperty(KEY_METADATA, metadata);
+        setProperty(KEY_INPUT, input);
         setProperty(KEY_SAVE, true);
         setProperty(KEY_ABORT, false);
         setProperty(KEY_METRICS_CONTAINER, null);
-        setProperty(KEY_CAPTURE_LOG, false);
-        setProperty(KEY_LOG_CONTAINER, null);
+        setProperty(KEY_DRY_RUN, false);
         setProperty(KEY_OUTPUT, null);
         return this;
     }
 
-    public ExecutionContext log(final LogData log) {
-        return log(log.toBuilder());
+    public LogMetadata metadata() {
+        return (LogMetadata) getProperty(KEY_METADATA);
     }
 
-    public LogData.Builder log() {
-        return (LogData.Builder) getProperty(KEY_LOG);
-    }
-
-    public ExecutionContext extraLog(final Object extraLog) {
-        parsed().extraLog = extraLog;
-        return this;
-    }
-
-    public Object extraLog() {
-        return parsed().getExtraLog();
+    /**
+     * Returns the raw input object. For standard logs this is a {@code LogData.Builder};
+     * for ALS it is the typed proto (e.g., {@code HTTPAccessLogEntry}).
+     */
+    public Object input() {
+        return getProperty(KEY_INPUT);
     }
 
     public ExecutionContext parsed(final Matcher parsed) {
@@ -140,22 +138,13 @@ public class ExecutionContext {
         return Optional.ofNullable((List<SampleFamily>) getProperty(KEY_METRICS_CONTAINER));
     }
 
-    public ExecutionContext captureLog(final boolean capture) {
-        setProperty(KEY_CAPTURE_LOG, capture);
+    public ExecutionContext dryRun(final boolean dryRun) {
+        setProperty(KEY_DRY_RUN, dryRun);
         return this;
     }
 
-    public boolean shouldCaptureLog() {
-        return (boolean) getProperty(KEY_CAPTURE_LOG);
-    }
-
-    public ExecutionContext logContainer(final Log container) {
-        setProperty(KEY_LOG_CONTAINER, container);
-        return this;
-    }
-
-    public Optional<Log> logContainer() {
-        return Optional.ofNullable((Log) getProperty(KEY_LOG_CONTAINER));
+    public boolean isDryRun() {
+        return (boolean) getProperty(KEY_DRY_RUN);
     }
 
     public void setOutput(final Object output) {
@@ -176,8 +165,5 @@ public class ExecutionContext {
 
         @Getter
         private Map<String, Object> map;
-
-        @Getter
-        private Object extraLog;
     }
 }

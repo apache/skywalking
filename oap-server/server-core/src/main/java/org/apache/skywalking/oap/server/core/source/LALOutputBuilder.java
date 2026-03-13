@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import java.util.Optional;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -53,13 +51,12 @@ public interface LALOutputBuilder {
      * Pre-populate standard fields before custom output fields are applied.
      * Called once per log entry.
      *
-     * @param logData  log metadata (service, layer, timestamp, trace context, etc.)
-     * @param extraLog      optional extra input whose type matches
-     *                      {@code LALSourceTypeProvider#inputType()} for the layer
-     *                      (e.g., {@code HTTPAccessLogEntry} for envoy access logs)
+     * @param metadata      uniform metadata (service, layer, timestamp, trace context, etc.)
+     * @param input         source-specific input object ({@code LogData} for standard logs,
+     *                      {@code HTTPAccessLogEntry} for envoy access logs, etc.)
      * @param moduleManager module manager for resolving services (e.g., NamingControl)
      */
-    void init(LogData logData, Optional<Object> extraLog, ModuleManager moduleManager);
+    void init(LogMetadata metadata, Object input, ModuleManager moduleManager);
 
     /**
      * Validate the builder state and dispatch the final output source(s).

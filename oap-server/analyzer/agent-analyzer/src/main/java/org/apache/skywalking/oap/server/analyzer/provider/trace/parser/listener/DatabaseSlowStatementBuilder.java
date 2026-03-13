@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
-import java.util.Optional;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -31,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -70,7 +69,7 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     }
 
     /**
-     * Constructor for v1 (Groovy) path which doesn't use {@link #init}.
+     * Constructor for v1 (Groovy) path where NamingControl is resolved eagerly.
      */
     public DatabaseSlowStatementBuilder(final NamingControl namingControl) {
         NAMING_CONTROL = namingControl;
@@ -83,7 +82,7 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     }
 
     @Override
-    public void init(final LogData logData, final Optional<Object> extraLog,
+    public void init(final LogMetadata metadata, final Object input,
                      final ModuleManager moduleManager) {
         if (!INITIALIZED) {
             NAMING_CONTROL = moduleManager.find(CoreModule.NAME)
@@ -93,17 +92,20 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
         }
         // Only populate fields not already set by the LAL extractor.
         if (this.serviceName == null) {
-            this.serviceName = logData.getService();
+            this.serviceName = metadata.getService();
         }
         if (this.traceId == null) {
-            this.traceId = logData.getTraceContext().getTraceId();
+            final LogMetadata.TraceContext tc = metadata.getTraceContext();
+            if (tc != null) {
+                this.traceId = tc.getTraceId();
+            }
         }
         if (this.timestamp == 0) {
-            this.timestamp = logData.getTimestamp();
+            this.timestamp = metadata.getTimestamp();
         }
         if (this.timeBucket == 0) {
             this.timeBucket = TimeBucket.getTimeBucket(
-                this.timestamp > 0 ? this.timestamp : logData.getTimestamp(),
+                this.timestamp > 0 ? this.timestamp : metadata.getTimestamp(),
                 DownSampling.Second);
         }
     }

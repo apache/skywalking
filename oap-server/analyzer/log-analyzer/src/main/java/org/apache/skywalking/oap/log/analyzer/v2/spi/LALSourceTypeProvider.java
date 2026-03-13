@@ -23,8 +23,8 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
  * SPI for receiver plugins to declare the input and default output types for
  * LAL rules on a specific {@link Layer}.
  *
- * <p><b>Input type</b> ({@link #inputType()}): The Java type of the {@code extraLog}
- * passed to LAL via {@code ILogAnalyzerService.doAnalysis(LogData, Message)}.
+ * <p><b>Input type</b> ({@link #inputType()}): The Java type of the {@code input}
+ * passed to LAL via {@code ILogAnalyzerService.doAnalysis(LogMetadata, Object)}.
  * The LAL compiler uses this at compile time to generate optimized direct
  * getter calls for {@code parsed.*} field access. This is per-layer because
  * all rules for a layer share the same input proto type.
@@ -42,7 +42,7 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
  *   <li>DSL parser ({@code json{}}, {@code yaml{}}, {@code text{}}) wins over all</li>
  *   <li>Explicit {@code inputType} declared in the YAML rule config</li>
  *   <li>This SPI — acts as the default for a layer</li>
- *   <li>{@code LogData.Builder} fallback if none of the above</li>
+ *   <li>{@code LogMetadata} fallback if none of the above</li>
  * </ol>
  *
  * <p>Output type resolution order:
@@ -62,7 +62,7 @@ public interface LALSourceTypeProvider {
     Layer layer();
 
     /**
-     * The Java type passed as {@code extraLog} by the receiver plugin for
+     * The Java type passed as {@code input} by the receiver plugin for
      * this layer. The compiler resolves getter chains on this type at
      * compile time.
      */

@@ -17,10 +17,10 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -62,36 +62,37 @@ public class TrafficSinkListener implements LogSinkListener {
     }
 
     @Override
-    public LogSinkListener parse(final LogData.Builder logData,
-                                     final Optional<Object> extraLog) {
+    public LogSinkListener parse(final LogMetadata metadata,
+                                 final Object input,
+                                 final ExecutionContext ctx) {
         Layer layer;
-        if (StringUtil.isNotEmpty(logData.getLayer())) {
-            layer = Layer.valueOf(logData.getLayer());
+        if (StringUtil.isNotEmpty(metadata.getLayer())) {
+            layer = Layer.valueOf(metadata.getLayer());
         } else {
             layer = Layer.GENERAL;
         }
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         // to service traffic
-        String serviceName = namingControl.formatServiceName(logData.getService());
+        String serviceName = namingControl.formatServiceName(metadata.getService());
         String serviceId = IDManager.ServiceID.buildId(serviceName, layer.isNormal());
         serviceMeta = new ServiceMeta();
-        serviceMeta.setName(namingControl.formatServiceName(logData.getService()));
+        serviceMeta.setName(namingControl.formatServiceName(metadata.getService()));
         serviceMeta.setLayer(layer);
         serviceMeta.setTimeBucket(timeBucket);
         // to service instance traffic
-        if (StringUtil.isNotEmpty(logData.getServiceInstance())) {
+        if (StringUtil.isNotEmpty(metadata.getServiceInstance())) {
             instanceMeta = new ServiceInstanceUpdate();
             instanceMeta.setServiceId(serviceId);
-            instanceMeta.setName(namingControl.formatInstanceName(logData.getServiceInstance()));
+            instanceMeta.setName(namingControl.formatInstanceName(metadata.getServiceInstance()));
             instanceMeta.setTimeBucket(timeBucket);
 
         }
         // to endpoint traffic
-        if (StringUtil.isNotEmpty(logData.getEndpoint())) {
+        if (StringUtil.isNotEmpty(metadata.getEndpoint())) {
             endpointMeta = new EndpointMeta();
             endpointMeta.setServiceName(serviceName);
             endpointMeta.setServiceNormal(true);
-            endpointMeta.setEndpoint(namingControl.formatEndpointName(serviceName, logData.getEndpoint()));
+            endpointMeta.setEndpoint(namingControl.formatEndpointName(serviceName, metadata.getEndpoint()));
             endpointMeta.setTimeBucket(timeBucket);
         }
         return this;

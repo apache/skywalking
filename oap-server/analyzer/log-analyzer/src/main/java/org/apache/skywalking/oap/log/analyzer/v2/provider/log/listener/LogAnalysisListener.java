@@ -17,8 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import java.util.Optional;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 
 /**
  * LogAnalysisListener represents the callback when OAP does the log data analysis.
@@ -31,11 +30,10 @@ public interface LogAnalysisListener {
 
     /**
      * Parse the raw data from the probe.
-     * @param logData  log metadata (service, layer, timestamp, etc.)
-     * @param extraLog the actual input object whose type matches
-     *                 {@code LALSourceTypeProvider#inputType()} — may be {@code null}
-     *                 for standard logs where LogData is the sole input
+     * @param metadata uniform metadata (service, layer, timestamp, trace context)
+     * @param input    source-specific input object (LogData for standard logs,
+     *                 HTTPAccessLogEntry for envoy ALS, etc.)
      * @return {@code this} for chaining.
      */
-    LogAnalysisListener parse(LogData.Builder logData, Optional<Object> extraLog);
+    LogAnalysisListener parse(LogMetadata metadata, Object input);
 }

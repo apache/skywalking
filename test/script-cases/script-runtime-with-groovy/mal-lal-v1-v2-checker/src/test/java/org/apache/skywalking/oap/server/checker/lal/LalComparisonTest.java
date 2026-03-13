@@ -165,12 +165,13 @@ class LalComparisonTest {
             final String v2CompileError,
             final boolean v2Only) throws Exception {
 
-        final LogData testLog;
+        final LogData.Builder testLogBuilder;
         if (inputData != null) {
-            testLog = LalLogDataBuilder.buildLogData(inputData).build();
+            testLogBuilder = LalLogDataBuilder.buildLogData(inputData);
         } else {
-            testLog = LalLogDataBuilder.buildSyntheticLogData(dsl);
+            testLogBuilder = LalLogDataBuilder.buildSyntheticLogData(dsl).toBuilder();
         }
+        final LogData testLog = testLogBuilder.build();
 
         // Build proto extraLog from input data if available
         final Message extraLog = inputData != null
@@ -215,10 +216,11 @@ class LalComparisonTest {
                         v2Manager, new LogAnalyzerModuleConfig());
                 disableSinkListenersOnSpec(v2FilterSpec);
 
-                v2Ctx = new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext().log(testLog);
-                if (extraLog != null) {
-                    v2Ctx.extraLog(extraLog);
-                }
+                final org.apache.skywalking.oap.server.core.source.LogMetadata v2Metadata =
+                    org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(testLog);
+                final Object v2Input = extraLog != null ? extraLog : testLogBuilder;
+                v2Ctx = new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext();
+                v2Ctx.init(v2Metadata, v2Input);
 
                 v2Expr.execute(v2FilterSpec, v2Ctx);
             } catch (Exception e) {
@@ -247,25 +249,26 @@ class LalComparisonTest {
             // If the extractor sets a field, v1 puts it on LogData, v2 puts it on LogBuilder.
             // If the extractor doesn't set a field, both keep the original LogData value.
             final Object v2Output = v2Ctx.output();
+            final org.apache.skywalking.oap.server.core.source.LogMetadata v2Meta = v2Ctx.metadata();
             if (v2Output instanceof org.apache.skywalking.oap.server.core.source.LogBuilder) {
                 final org.apache.skywalking.oap.server.core.source.LogBuilder v2Builder =
                     (org.apache.skywalking.oap.server.core.source.LogBuilder) v2Output;
                 assertV2Field(testName, "service", v1Log.getService(),
-                    getFieldValue(v2Builder, "service", null), v2Ctx.log().getService());
+                    getFieldValue(v2Builder, "service", null), v2Meta.getService());
                 assertV2Field(testName, "serviceInstance", v1Log.getServiceInstance(),
                     getFieldValue(v2Builder, "serviceInstance", null),
-                    v2Ctx.log().getServiceInstance());
+                    v2Meta.getServiceInstance());
                 assertV2Field(testName, "endpoint", v1Log.getEndpoint(),
-                    getFieldValue(v2Builder, "endpoint", null), v2Ctx.log().getEndpoint());
+                    getFieldValue(v2Builder, "endpoint", null), v2Meta.getEndpoint());
                 assertV2Field(testName, "layer", v1Log.getLayer(),
-                    getFieldValue(v2Builder, "layer", null), v2Ctx.log().getLayer());
+                    getFieldValue(v2Builder, "layer", null), v2Meta.getLayer());
                 final long v2Ts = v2Builder.getTimestamp();
-                assertEquals(v1Log.getTimestamp(), v2Ts != 0 ? v2Ts : v2Ctx.log().getTimestamp(),
+                assertEquals(v1Log.getTimestamp(), v2Ts != 0 ? v2Ts : v2Meta.getTimestamp(),
                     testName + ": timestamp mismatch");
                 // Compare tags: v1 stores in LogData.tags, v2 stores in LogBuilder.lalTags
                 compareV1TagsToV2Builder(testName, v1Log, v2Builder);
-            } else {
-                final LogData.Builder v2Log = v2Ctx.log();
+            } else if (v2Ctx.input() instanceof LogData.Builder) {
+                final LogData.Builder v2Log = (LogData.Builder) v2Ctx.input();
                 assertEquals(v1Log.getService(), v2Log.getService(),
                     testName + ": service mismatch");
                 assertEquals(v1Log.getServiceInstance(), v2Log.getServiceInstance(),
@@ -278,6 +281,16 @@ class LalComparisonTest {
                     testName + ": timestamp mismatch");
                 assertEquals(v1Log.getTags(), v2Log.getTags(),
                     testName + ": tags mismatch");
+            } else {
+                // ALS case: no LogData, compare metadata
+                assertEquals(v1Log.getService(), v2Meta.getService(),
+                    testName + ": service mismatch");
+                assertEquals(v1Log.getServiceInstance(), v2Meta.getServiceInstance(),
+                    testName + ": serviceInstance mismatch");
+                assertEquals(v1Log.getLayer(), v2Meta.getLayer(),
+                    testName + ": layer mismatch");
+                assertEquals(v1Log.getTimestamp(), v2Meta.getTimestamp(),
+                    testName + ": timestamp mismatch");
             }
         }
 
@@ -287,7 +300,8 @@ class LalComparisonTest {
             final Map<String, Object> expect =
                 (Map<String, Object>) inputData.get("expect");
             if (expect != null) {
-                final LogData.Builder v2Log = v2Ctx.log();
+                final LogData.Builder v2Log = v2Ctx.input() instanceof LogData.Builder
+                    ? (LogData.Builder) v2Ctx.input() : null;
                 validateExpected(testName, v2Ctx, v2Log, expect);
             }
         }

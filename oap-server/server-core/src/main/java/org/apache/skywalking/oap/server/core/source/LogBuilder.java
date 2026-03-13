@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +30,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
-import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -95,8 +93,21 @@ public class LogBuilder implements LALOutputBuilder {
     }
 
     @Override
-    public void init(final LogData logData, final Optional<Object> extraLog,
+    public void init(final LogMetadata metadata, final Object input,
                      final ModuleManager moduleManager) {
+        ensureInitialized(moduleManager);
+        if (input instanceof LogData) {
+            this.logData = (LogData) input;
+        } else if (input instanceof LogData.Builder) {
+            this.logData = ((LogData.Builder) input).build();
+        }
+        initFromMetadata(metadata);
+    }
+
+    /**
+     * Initialize static services from ModuleManager (once per JVM).
+     */
+    protected void ensureInitialized(final ModuleManager moduleManager) {
         if (!INITIALIZED) {
             NAMING_CONTROL = moduleManager.find(CoreModule.NAME)
                                           .provider()
@@ -108,33 +119,39 @@ public class LogBuilder implements LALOutputBuilder {
                 configService.getSearchableLogsTags().split(Const.COMMA));
             INITIALIZED = true;
         }
-        this.logData = logData;
-        // Only populate fields that were NOT already set by the LAL extractor.
-        // The extractor runs before init(), so extractor values take priority.
+    }
+
+    /**
+     * Populate fields from metadata. Only sets fields not already set by
+     * the LAL extractor (extractor runs before init, so its values take priority).
+     */
+    protected void initFromMetadata(final LogMetadata metadata) {
         if (this.service == null) {
-            this.service = logData.getService();
+            this.service = metadata.getService();
         }
         if (this.serviceInstance == null) {
-            this.serviceInstance = logData.getServiceInstance();
+            this.serviceInstance = metadata.getServiceInstance();
         }
         if (this.endpoint == null) {
-            this.endpoint = logData.getEndpoint();
+            this.endpoint = metadata.getEndpoint();
         }
         if (this.layer == null) {
-            this.layer = logData.getLayer();
+            this.layer = metadata.getLayer();
         }
-        final TraceContext tc = logData.getTraceContext();
-        if (this.traceId == null) {
-            this.traceId = tc.getTraceId();
-        }
-        if (this.segmentId == null) {
-            this.segmentId = tc.getTraceSegmentId();
-        }
-        if (this.spanId < 0) {
-            this.spanId = tc.getSpanId();
+        final LogMetadata.TraceContext tc = metadata.getTraceContext();
+        if (tc != null) {
+            if (this.traceId == null) {
+                this.traceId = tc.getTraceId();
+            }
+            if (this.segmentId == null) {
+                this.segmentId = tc.getTraceSegmentId();
+            }
+            if (this.spanId < 0) {
+                this.spanId = tc.getSpanId();
+            }
         }
         if (this.timestamp == 0) {
-            this.timestamp = logData.getTimestamp();
+            this.timestamp = metadata.getTimestamp();
         }
     }
 
@@ -179,21 +196,23 @@ public class LogBuilder implements LALOutputBuilder {
                 log.setSpanId(spanId);
             }
         }
-        // content
-        final LogDataBody body = logData.getBody();
-        if (body.hasText()) {
-            log.setContentType(ContentType.TEXT);
-            log.setContent(body.getText().getText());
-        } else if (body.hasYaml()) {
-            log.setContentType(ContentType.YAML);
-            log.setContent(body.getYaml().getYaml());
-        } else if (body.hasJson()) {
-            log.setContentType(ContentType.JSON);
-            log.setContent(body.getJson().getJson());
-        }
-        // raw tags from original LogData
-        if (logData.getTags().getDataCount() > 0) {
-            log.setTagsRawData(logData.getTags().toByteArray());
+        // content (only when input is LogData)
+        if (logData != null) {
+            final LogDataBody body = logData.getBody();
+            if (body.hasText()) {
+                log.setContentType(ContentType.TEXT);
+                log.setContent(body.getText().getText());
+            } else if (body.hasYaml()) {
+                log.setContentType(ContentType.YAML);
+                log.setContent(body.getYaml().getYaml());
+            } else if (body.hasJson()) {
+                log.setContentType(ContentType.JSON);
+                log.setContent(body.getJson().getJson());
+            }
+            // raw tags from original LogData
+            if (logData.getTags().getDataCount() > 0) {
+                log.setTagsRawData(logData.getTags().toByteArray());
+            }
         }
         // searchable tags from LogData + LAL-added tags
         log.getTags().addAll(collectSearchableTags());
@@ -205,11 +224,13 @@ public class LogBuilder implements LALOutputBuilder {
         final HashSet<Tag> result = new HashSet<>();
         if (SEARCHABLE_TAG_KEYS != null) {
             // Tags from original LogData
-            logData.getTags().getDataList().forEach(kv -> {
-                if (SEARCHABLE_TAG_KEYS.contains(kv.getKey())) {
-                    addSearchableTag(result, kv.getKey(), kv.getValue());
-                }
-            });
+            if (logData != null) {
+                logData.getTags().getDataList().forEach(kv -> {
+                    if (SEARCHABLE_TAG_KEYS.contains(kv.getKey())) {
+                        addSearchableTag(result, kv.getKey(), kv.getValue());
+                    }
+                });
+            }
             // Tags added by LAL extractor
             for (final String[] kv : lalTags) {
                 if (SEARCHABLE_TAG_KEYS.contains(kv[0])) {

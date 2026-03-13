@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
-import java.util.Optional;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
@@ -66,8 +65,16 @@ public class TCPLogsPersistence implements TCPAccessLogAnalyzer {
                 return result;
             }
 
-            final LogData logData = convertToLogData(entry, result);
-            logAnalyzerService.doAnalysis(logData, Optional.of(entry));
+            final ServiceMetaInfo service = result.getService();
+            final TCPServiceMeshMetric.Builder metrics =
+                new TCPLogEntry2MetricsAdapter(entry, null, null).adaptCommonPart();
+            final LogMetadata metadata = LogMetadata.builder()
+                .service(service.getServiceName())
+                .serviceInstance(service.getServiceInstanceName())
+                .timestamp(metrics.getEndTime())
+                .layer(Layer.MESH.name())
+                .build();
+            logAnalyzerService.doAnalysis(metadata, entry);
         } catch (final Exception e) {
             log.error("Failed to persist Envoy access log", e);
         }
@@ -77,20 +84,5 @@ public class TCPLogsPersistence implements TCPAccessLogAnalyzer {
     @Override
     public Role identify(final StreamAccessLogsMessage.Identifier alsIdentifier, final Role prev) {
         return prev;
-    }
-
-    public LogData convertToLogData(final TCPAccessLogEntry logEntry, final Result result) {
-        final ServiceMetaInfo service = result.getService();
-
-        final TCPServiceMeshMetric.Builder metrics =
-            new TCPLogEntry2MetricsAdapter(logEntry, null, null).adaptCommonPart();
-
-        return LogData
-            .newBuilder()
-            .setService(service.getServiceName())
-            .setServiceInstance(service.getServiceInstanceName())
-            .setTimestamp(metrics.getEndTime())
-            .setLayer(Layer.MESH.name())
-            .build();
     }
 }

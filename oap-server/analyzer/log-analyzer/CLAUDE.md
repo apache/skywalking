@@ -41,7 +41,7 @@ oap-server/analyzer/log-analyzer/
 
   src/main/java/.../dsl/
     LalExpression.java                  — Functional interface: execute(FilterSpec, ExecutionContext)
-    ExecutionContext.java               — Per-log execution state (log, parsed, flags)
+    ExecutionContext.java               — Per-log execution state (metadata, input, parsed, flags)
     DSL.java                            — Wraps compiled expression + FilterSpec
     spec/filter/FilterSpec.java         — Top-level filter spec (all methods take ctx explicitly)
     spec/extractor/MetricExtractor.java   — Handles LAL metrics {} blocks (prepare/submit samples to MAL)
@@ -182,10 +182,11 @@ The generator detects the parser type from the AST at compile time and generates
 | JSON/YAML | `parsed.service` | `h.mapVal("service")` |
 | JSON/YAML nested | `parsed.a.b` | `h.mapVal("a", "b")` |
 | TEXT (regexp) | `parsed.level` | `h.group("level")` |
-| NONE + inputType | `parsed.response.code` | `((ExtraLogType) h.ctx().extraLog()).getResponse().getCode()` |
-| NONE + no inputType | `parsed.service` | `h.ctx().log().getService()` (LogData.Builder fallback) |
-| log fields | `log.service` | `h.ctx().log().getService()` |
-| log trace | `log.traceContext.traceId` | `h.ctx().log().getTraceContext().getTraceId()` |
+| NONE + inputType | `parsed.response.code` | `((InputType) h.ctx().input()).getResponse().getCode()` |
+| NONE + no inputType | `parsed.service` | `h.ctx().metadata().getService()` (LogMetadata fallback) |
+| log fields (metadata) | `log.service` | `h.ctx().metadata().getService()` |
+| log fields (LogData) | `log.body` | `((LogData.Builder) h.ctx().input()).getBody()` |
+| log trace | `log.traceContext.traceId` | `h.ctx().metadata().getTraceContext().getTraceId()` |
 | tags | `tag("KEY")` | `h.tagValue("KEY")` |
 
 ### inputType and LALSourceTypeProvider SPI
@@ -195,7 +196,7 @@ For LAL rules with no DSL parser (`json{}`/`yaml{}`/`text{}`), the compiler need
 1. **DSL parser** (`json{}`, `yaml{}`, `text{}`) — parser wins, inputType is ignored
 2. **Explicit `inputType`** in YAML rule config — FQCN string, resolved via `Class.forName()`
 3. **`LALSourceTypeProvider` SPI** — default inputType for a layer, discovered via `ServiceLoader`
-4. **`LogData.Builder` fallback** — if none of the above, `parsed.*` generates getter chains on `LogData.Builder` with compile-time reflection validation. Fields not found on `LogData.Builder` cause `IllegalArgumentException` at boot.
+4. **`LogMetadata` fallback** — if none of the above, `parsed.*` generates getter chains on `LogMetadata` with compile-time reflection validation. Fields not found on `LogMetadata` cause `IllegalArgumentException` at boot.
 
 The SPI interface is in `org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider`. Receiver plugins implement it and register in `META-INF/services/`. Example: `EnvoyHTTPLALSourceTypeProvider` registers `HTTPAccessLogEntry` for `Layer.MESH`.
 
@@ -238,7 +239,7 @@ If no setter is found, compilation fails with an `IllegalArgumentException` at b
 
 **Runtime dispatch**: `RecordSinkListener.parse()` reads the output object from
 `ExecutionContext.output()` (already populated by generated code), calls
-`init(logData, extraLog, moduleManager)` to populate standard fields and resolve
+`init(metadata, input, moduleManager)` to populate standard fields and resolve
 services (e.g., `NamingControl`, `ConfigService`) from `ModuleManager`, then `build()`
 dispatches via `complete(sourceReceiver)`. Each builder caches resolved services in
 static fields so `ModuleManager` lookups only happen once.
@@ -276,7 +277,7 @@ Instance-based helper created at the start of `execute()`, holds the `ExecutionC
 - `mapVal(key)`, `mapVal(k1, k2)`, `mapVal(k1, k2, k3)` — JSON/YAML map access
 - `group(name)` — text regexp named group
 - `tagValue(key)` — log tag lookup
-- `ctx()` — access to ExecutionContext (for `h.ctx().log()` proto getters)
+- `ctx()` — access to ExecutionContext (for `h.ctx().metadata()` and `h.ctx().log()` getters)
 
 **Type conversion:** `toStr()`, `toLong()`, `toInt()`, `toBool()`
 
@@ -284,11 +285,11 @@ Instance-based helper created at the start of `execute()`, holds the `ExecutionC
 
 **Safe navigation:** `toString()`, `trim()`
 
-## JSON/YAML LogData Field Population
+## JSON/YAML Metadata Field Population
 
-When `json{}` or `yaml{}` parses the log body, `FilterSpec` also adds LogData proto fields
+When `json{}` or `yaml{}` parses the log body, `FilterSpec` also adds `LogMetadata` fields
 (`service`, `serviceInstance`, `endpoint`, `layer`, `timestamp`) to the parsed map via
-`putIfAbsent`. Body-parsed values take priority; proto fields serve as fallback. This matches
+`putIfAbsent`. Body-parsed values take priority; metadata fields serve as fallback. This matches
 v1 Groovy `Binding.Parsed.getAt(key)` behavior where `parsed.service` falls back to
 `LogData.getService()` when the JSON body doesn't contain a `service` key.
 
@@ -342,7 +343,7 @@ rule-name:
 
 ### Principles
 
-1. **`body-type` determines parsing**: `json` → `json{}` block, `text` → `text{}` block, `none` → proto extraLog or raw LogData access.
+1. **`body-type` determines parsing**: `json` → `json{}` block, `text` → `text{}` block, `none` → typed proto input or LogMetadata fallback.
 2. **`extra-log` for proto types**: When rules access `parsed.*` on protobuf types (e.g., `HTTPAccessLogEntry`), provide `proto-class` and `proto-json`. The test harness parses via `JsonFormat`.
 3. **`expect` section is mandatory**: Every entry must have `expect` with at least `save` and `abort`.
 4. **Tag assertions**: `tag.KEY` in expect asserts extracted tag values (e.g., `tag.status.code: "500"`).
@@ -380,7 +381,7 @@ Test utilities from `org.apache.skywalking.oap.server.testing.dsl`:
 - `LalRuleLoader.loadAllRules(Path)` — loads all LAL rules with companion `.input.data` or `.data.yaml`
 - `LalLogDataBuilder.buildLogData(Map)` — builds `LogData.Builder` from test input map
 - `LalLogDataBuilder.buildSyntheticLogData(String)` — builds synthetic LogData from DSL string
-- `LalLogDataBuilder.buildExtraLog(Map)` — builds proto Message for extraLog from input map
+- `LalLogDataBuilder.buildExtraLog(Map)` — builds proto Message for typed input from input map
 - `DslRuleLoader.findScriptsDir(String...)` — resolves scripts directory from candidates
 - `DslRuleLoader.findRuleLine(String[], String, int)` — finds 1-based line number of rule in YAML
 

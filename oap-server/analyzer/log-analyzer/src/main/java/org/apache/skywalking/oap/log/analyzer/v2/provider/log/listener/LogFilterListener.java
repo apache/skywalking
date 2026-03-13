@@ -22,13 +22,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfig;
@@ -38,6 +36,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
 
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
@@ -76,12 +75,11 @@ public class LogFilterListener implements LogAnalysisListener {
     }
 
     @Override
-    public LogAnalysisListener parse(final LogData.Builder logData,
-                                     final Optional<Object> extraLog) {
-        final LogData logDataSnapshot = logData.build();
+    public LogAnalysisListener parse(final LogMetadata metadata,
+                                     final Object input) {
         contexts = new ArrayList<>(dsls.size());
         for (int i = 0; i < dsls.size(); i++) {
-            contexts.add(new ExecutionContext().log(logDataSnapshot).extraLog(extraLog.orElse(null)));
+            contexts.add(new ExecutionContext().init(metadata, input));
         }
         return this;
     }

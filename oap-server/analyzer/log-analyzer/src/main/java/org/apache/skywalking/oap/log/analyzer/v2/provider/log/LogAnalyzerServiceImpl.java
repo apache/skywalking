@@ -19,11 +19,10 @@ package org.apache.skywalking.oap.log.analyzer.v2.provider.log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListenerFactory;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 @RequiredArgsConstructor
@@ -33,9 +32,9 @@ public class LogAnalyzerServiceImpl implements ILogAnalyzerService, ILogAnalysis
     private final List<LogAnalysisListenerFactory> analysisListenerFactories = new ArrayList<>();
 
     @Override
-    public void doAnalysis(final LogData.Builder log, Optional<Object> extraLog) {
+    public void doAnalysis(final LogMetadata metadata, final Object input) {
         LogAnalyzer analyzer = new LogAnalyzer(this);
-        analyzer.doAnalysis(log, extraLog);
+        analyzer.doAnalysis(metadata, input);
     }
 
     @Override

@@ -39,6 +39,8 @@ import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
+import org.apache.skywalking.oap.server.core.source.LogMetadataUtils;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
@@ -173,13 +175,13 @@ class LALExpressionExecutionTest {
         if (ruleLayer != null) {
             logData.setLayer(ruleLayer);
         }
-        final ExecutionContext ctx = new ExecutionContext();
-        ctx.log(logData);
+        final LogMetadata metadata = LogMetadataUtils.fromLogData(logData);
 
         final Message extraLog = LalLogDataBuilder.buildExtraLog(input);
-        if (extraLog != null) {
-            ctx.extraLog(extraLog);
-        }
+        final Object lalInput = extraLog != null ? extraLog : logData;
+
+        final ExecutionContext ctx = new ExecutionContext();
+        ctx.init(metadata, lalInput);
 
         expr.execute(filterSpec, ctx);
 
@@ -208,28 +210,28 @@ class LALExpressionExecutionTest {
                         ruleName + ": shouldAbort mismatch");
                     break;
                 case "service":
-                    assertOutputField(ruleName, outputObj, "service", expected, ctx.log().getService());
+                    assertOutputField(ruleName, outputObj, "service", expected, ctx.metadata().getService());
                     break;
                 case "instance":
-                    assertOutputField(ruleName, outputObj, "serviceInstance", expected, ctx.log().getServiceInstance());
+                    assertOutputField(ruleName, outputObj, "serviceInstance", expected, ctx.metadata().getServiceInstance());
                     break;
                 case "endpoint":
-                    assertOutputField(ruleName, outputObj, "endpoint", expected, ctx.log().getEndpoint());
+                    assertOutputField(ruleName, outputObj, "endpoint", expected, ctx.metadata().getEndpoint());
                     break;
                 case "layer":
-                    assertOutputField(ruleName, outputObj, "layer", expected, ctx.log().getLayer());
+                    assertOutputField(ruleName, outputObj, "layer", expected, ctx.metadata().getLayer());
                     break;
                 case "timestamp":
-                    assertOutputField(ruleName, outputObj, "timestamp", expected, String.valueOf(ctx.log().getTimestamp()));
+                    assertOutputField(ruleName, outputObj, "timestamp", expected, String.valueOf(ctx.metadata().getTimestamp()));
                     break;
                 default:
                     if (key.startsWith("tag.")) {
                         final String tagKey = key.substring(4);
                         if (outputObj instanceof org.apache.skywalking.oap.server.core.source.LogBuilder) {
                             assertLalTag(ruleName, outputObj, tagKey, expected);
-                        } else {
+                        } else if (ctx.input() instanceof LogData.Builder) {
                             final List<KeyStringValuePair> tags =
-                                ctx.log().getTags().getDataList();
+                                ((LogData.Builder) ctx.input()).getTags().getDataList();
                             assertTrue(tags.stream().anyMatch(
                                 t -> tagKey.equals(t.getKey())
                                     && expected.equals(t.getValue())),

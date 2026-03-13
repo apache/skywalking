@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 
 /**
  * Static utility constants and methods extracted from {@link LALClassGenerator}
@@ -29,27 +30,40 @@ import java.util.Set;
  */
 final class LALCodegenHelper {
 
+    /** Metadata fields — available on {@code LogMetadata} (always present). */
+    static final Map<String, String> METADATA_GETTERS = new HashMap<>();
+    /** TraceContext sub-fields on {@code LogMetadata.TraceContext}. */
+    static final Map<String, String> METADATA_TRACE_GETTERS = new HashMap<>();
+    /** LogData-only fields — require the input to be {@code LogData}. */
     static final Map<String, String> LOG_GETTERS = new HashMap<>();
-    static final Map<String, String> TRACE_CONTEXT_GETTERS = new HashMap<>();
+    /**
+     * Getter-name overrides for reflection-based access.
+     * Applied by {@link LALBlockCodegen#generateExtraLogAccess} when a getter
+     * is not found on the current type — tries the alias before failing.
+     */
+    static final Map<String, String> METADATA_GETTER_ALIASES = Map.of();
     static final Set<String> LONG_FIELDS = new HashSet<>();
     static final Set<String> INT_FIELDS = new HashSet<>();
+    static final Class<?> LOGDATA_BUILDER_CLASS = LogData.Builder.class;
 
     static {
-        LOG_GETTERS.put("service", "getService");
-        LOG_GETTERS.put("serviceInstance", "getServiceInstance");
-        LOG_GETTERS.put("endpoint", "getEndpoint");
-        LOG_GETTERS.put("timestamp", "getTimestamp");
-        LOG_GETTERS.put("body", "getBody");
-        LOG_GETTERS.put("traceContext", "getTraceContext");
-        LOG_GETTERS.put("tags", "getTags");
-        LOG_GETTERS.put("layer", "getLayer");
+        METADATA_GETTERS.put("service", "getService");
+        METADATA_GETTERS.put("serviceInstance", "getServiceInstance");
+        METADATA_GETTERS.put("endpoint", "getEndpoint");
+        METADATA_GETTERS.put("layer", "getLayer");
+        METADATA_GETTERS.put("timestamp", "getTimestamp");
+        METADATA_GETTERS.put("traceContext", "getTraceContext");
 
-        TRACE_CONTEXT_GETTERS.put("traceId", "getTraceId");
-        TRACE_CONTEXT_GETTERS.put("traceSegmentId", "getTraceSegmentId");
-        TRACE_CONTEXT_GETTERS.put("spanId", "getSpanId");
+        METADATA_TRACE_GETTERS.put("traceId", "getTraceId");
+        METADATA_TRACE_GETTERS.put("traceSegmentId", "getTraceSegmentId");
+        METADATA_TRACE_GETTERS.put("spanId", "getSpanId");
+
+        LOG_GETTERS.put("body", "getBody");
+        LOG_GETTERS.put("tags", "getTags");
 
         LONG_FIELDS.add("timestamp");
         INT_FIELDS.add("spanId");
+
     }
 
     private LALCodegenHelper() {

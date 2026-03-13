@@ -17,14 +17,13 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
-import java.util.Optional;
 import lombok.SneakyThrows;
-import org.apache.skywalking.apm.network.logging.v3.LogData;
 
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * RecordSinkListener forwards LAL output to the persistence layer.
  *
  * <p>All LAL rules produce an {@link LALOutputBuilder} in the {@link ExecutionContext}.
- * This listener calls {@code init()} to populate standard fields from LogData,
+ * This listener calls {@code init()} to populate standard fields from metadata,
  * then {@code complete()} to dispatch the final source(s).
  */
 public class RecordSinkListener implements LogSinkListener {
@@ -64,23 +63,14 @@ public class RecordSinkListener implements LogSinkListener {
 
     @Override
     @SneakyThrows
-    public LogSinkListener parse(final LogData.Builder logData,
-                                     final Optional<Object> extraLog) {
-        return this;
-    }
-
-    @Override
-    @SneakyThrows
-    public LogSinkListener parse(final LogData.Builder logData,
-                                 final Optional<Object> extraLog,
+    public LogSinkListener parse(final LogMetadata metadata,
+                                 final Object input,
                                  final ExecutionContext ctx) {
         if (ctx == null || !(ctx.output() instanceof LALOutputBuilder)) {
             return this;
         }
         builder = ctx.outputAsBuilder();
-        // Pass the input data matching the declared inputType:
-        // extraLog (e.g., HTTPAccessLogEntry) when present, otherwise LogData.
-        builder.init(logData.build(), extraLog, moduleManager);
+        builder.init(metadata, input, moduleManager);
         return this;
     }
 

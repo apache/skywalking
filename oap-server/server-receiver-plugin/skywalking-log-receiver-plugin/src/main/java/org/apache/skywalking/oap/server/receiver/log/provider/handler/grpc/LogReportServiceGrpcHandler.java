@@ -18,11 +18,11 @@
 package org.apache.skywalking.oap.server.receiver.log.provider.handler.grpc;
 
 import io.grpc.stub.StreamObserver;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogReportServiceGrpc;
+import org.apache.skywalking.oap.server.core.source.LogMetadataUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.ILogAnalyzerService;
@@ -93,7 +93,7 @@ public class LogReportServiceGrpcHandler extends LogReportServiceGrpc.LogReportS
                 try {
                     LogData.Builder builder = logData.toBuilder();
                     setServiceName(builder);
-                    logAnalyzerService.doAnalysis(builder, Optional.empty());
+                    logAnalyzerService.doAnalysis(LogMetadataUtils.fromLogData(builder), builder);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);
