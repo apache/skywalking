@@ -187,17 +187,18 @@ class LALClassGeneratorExtractorTest extends LALClassGeneratorTestBase {
     // ==================== Output field assignment ====================
 
     @Test
-    void compileOutputFieldAssignment() {
+    void compileOutputFieldAssignment() throws Exception {
         generator.setOutputType(TestOutputType.class);
-        final String source = generator.generateSource(
-            "filter {\n"
+        final String dsl = "filter {\n"
                 + "  json {}\n"
                 + "  extractor {\n"
                 + "    statement parsed.statement as String\n"
                 + "    latency parsed.latency as Long\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains(".setStatement("),
             "Expected direct setStatement() call but got: " + source);
         assertTrue(source.contains(".setLatency("),
@@ -213,16 +214,17 @@ class LALClassGeneratorExtractorTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void compileOutputFieldWithOutputTypeValidation() {
+    void compileOutputFieldWithOutputTypeValidation() throws Exception {
         generator.setOutputType(TestOutputType.class);
-        final String source = generator.generateSource(
-            "filter {\n"
+        final String dsl = "filter {\n"
                 + "  json {}\n"
                 + "  extractor {\n"
                 + "    statement parsed.stmt as String\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains(".setStatement("),
             "Expected direct setStatement() call but got: " + source);
     }

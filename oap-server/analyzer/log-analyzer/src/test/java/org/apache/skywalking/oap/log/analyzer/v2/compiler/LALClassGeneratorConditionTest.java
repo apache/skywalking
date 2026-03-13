@@ -40,13 +40,14 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void generateSourceTagFunctionEmitsTagValue() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifyTagFunctionEmitsTagValue() throws Exception {
+        final String dsl = "filter {\n"
             + "  if (tag(\"LOG_KIND\") == \"SLOW_SQL\") {\n"
             + "    sink {}\n"
             + "  }\n"
-            + "}");
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains("h.tagValue(\"LOG_KIND\")"),
             "Expected tagValue call but got: " + source);
         assertTrue(source.contains("SLOW_SQL"));
@@ -93,14 +94,15 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void generateSourceSafeNavMethodEmitsSpecificHelper() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifySafeNavMethodEmitsSpecificHelper() throws Exception {
+        final String dsl = "filter {\n"
             + "  json {}\n"
             + "  if (parsed?.flags?.toString()) {\n"
             + "    sink {}\n"
             + "  }\n"
-            + "}");
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains("h.toString("),
             "Expected toString helper for safe nav method but got: " + source);
         assertTrue(source.contains("h.isNotEmpty("),
@@ -139,6 +141,111 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}");
     }
 
+    // ==================== Numeric equality/inequality ====================
+
+    @Test
+    void compileNeqNumericEmitsNumericOp() throws Exception {
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  if (parsed?.code as Integer != 403) {\n"
+            + "    sink {}\n"
+            + "  }\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("!= 403L"),
+            "Expected numeric != but got: " + source);
+    }
+
+    @Test
+    void compileEqNumericEmitsNumericOp() throws Exception {
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  if (parsed?.code as Integer == 200) {\n"
+            + "    sink {}\n"
+            + "  }\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("== 200L"),
+            "Expected numeric == but got: " + source);
+    }
+
+    @Test
+    void compileEqStringUsesObjectsEquals() throws Exception {
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  if (parsed?.status == \"OK\") {\n"
+            + "    sink {}\n"
+            + "  }\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("java.util.Objects.equals("),
+            "Expected Objects.equals for string comparison but got: " + source);
+    }
+
+    @Test
+    void compileNeqStringUsesObjectsEquals() throws Exception {
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  if (parsed?.status != \"ERROR\") {\n"
+            + "    sink {}\n"
+            + "  }\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("!java.util.Objects.equals("),
+            "Expected !Objects.equals for string != but got: " + source);
+    }
+
+    @Test
+    void compileNeqNumericWithLogicalAnd() throws Exception {
+        // Matches the envoy-als pattern that triggered the bug
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  if (parsed?.code as Integer != 401"
+            + " && parsed?.code as Integer != 403) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("!= 401L"),
+            "Expected numeric != 401L but got: " + source);
+        assertTrue(source.contains("!= 403L"),
+            "Expected numeric != 403L but got: " + source);
+    }
+
+    @Test
+    void compileEqNullUsesObjectsEquals() throws Exception {
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  if (parsed?.status == null) {\n"
+            + "    sink {}\n"
+            + "  }\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("java.util.Objects.equals("),
+            "Expected Objects.equals for null comparison but got: " + source);
+    }
+
+    @Test
+    void compileNeqNullUsesObjectsEquals() throws Exception {
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  if (parsed?.status != null) {\n"
+            + "    sink {}\n"
+            + "  }\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("!java.util.Objects.equals("),
+            "Expected !Objects.equals for null != but got: " + source);
+    }
+
     // ==================== Else-if chain ====================
 
     @Test
@@ -159,9 +266,8 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void generateSourceElseIfEmitsNestedBranches() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifyElseIfEmitsNestedBranches() throws Exception {
+        final String dsl = "filter {\n"
             + "  json {}\n"
             + "  if (parsed.a) {\n"
             + "    sink {}\n"
@@ -170,7 +276,9 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "  } else {\n"
             + "    sink {}\n"
             + "  }\n"
-            + "}");
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains("else"),
             "Expected else branch but got: " + source);
         int ifCount = 0;
