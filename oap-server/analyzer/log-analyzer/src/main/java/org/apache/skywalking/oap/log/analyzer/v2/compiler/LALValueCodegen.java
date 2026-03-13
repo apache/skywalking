@@ -95,18 +95,26 @@ final class LALValueCodegen {
                 (LALScriptModel.ComparisonCondition) cond;
             switch (cc.getOp()) {
                 case EQ:
-                    sb.append("java.util.Objects.equals(");
-                    generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
-                    sb.append(", ");
-                    generateConditionValue(sb, cc.getRight(), genCtx);
-                    sb.append(")");
+                    if (cc.getRight() instanceof LALScriptModel.NumberConditionValue) {
+                        generateNumericComparison(sb, cc, " == ", genCtx);
+                    } else {
+                        sb.append("java.util.Objects.equals(");
+                        generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
+                        sb.append(", ");
+                        generateConditionValue(sb, cc.getRight(), genCtx);
+                        sb.append(")");
+                    }
                     break;
                 case NEQ:
-                    sb.append("!java.util.Objects.equals(");
-                    generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
-                    sb.append(", ");
-                    generateConditionValue(sb, cc.getRight(), genCtx);
-                    sb.append(")");
+                    if (cc.getRight() instanceof LALScriptModel.NumberConditionValue) {
+                        generateNumericComparison(sb, cc, " != ", genCtx);
+                    } else {
+                        sb.append("!java.util.Objects.equals(");
+                        generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
+                        sb.append(", ");
+                        generateConditionValue(sb, cc.getRight(), genCtx);
+                        sb.append(")");
+                    }
                     break;
                 case GT:
                     generateNumericComparison(sb, cc, " > ", genCtx);

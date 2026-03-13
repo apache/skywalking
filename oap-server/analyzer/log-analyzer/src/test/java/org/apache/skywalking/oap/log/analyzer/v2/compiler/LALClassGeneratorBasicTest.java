@@ -75,9 +75,10 @@ class LALClassGeneratorBasicTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void generateSourceReturnsJavaCode() {
-        final String source = generator.generateSource(
-            "filter { json {} sink {} }");
+    void compileAndVerifySourceReturnsJavaCode() throws Exception {
+        final String dsl = "filter { json {} sink {} }";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertNotNull(source);
         assertTrue(source.contains("filterSpec.json(ctx)"));
         assertTrue(source.contains("filterSpec.sink(ctx)"));

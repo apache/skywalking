@@ -33,16 +33,17 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
     // ==================== Source generation ====================
 
     @Test
-    void generateSourceDefWithToJson() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifyDefWithToJson() throws Exception {
+        final String dsl = "filter {\n"
                 + "  json {}\n"
                 + "  extractor {\n"
                 + "    def config = toJson(parsed.metadata)\n"
                 + "    tag 'env': config?.get(\"env\")?.getAsString()\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains("com.google.gson.JsonObject _def_config"),
             "Expected JsonObject declaration but got:\n" + source);
         assertTrue(source.contains("h.toJsonObject("),
@@ -54,16 +55,17 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void generateSourceDefWithToJsonArray() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifyDefWithToJsonArray() throws Exception {
+        final String dsl = "filter {\n"
                 + "  json {}\n"
                 + "  extractor {\n"
                 + "    def items = toJsonArray(parsed.tags)\n"
                 + "    tag 'first': items?.get(0)?.getAsString()\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains("com.google.gson.JsonArray _def_items"),
             "Expected JsonArray declaration but got:\n" + source);
         assertTrue(source.contains("h.toJsonArray("),
@@ -73,9 +75,8 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void generateSourceDefWithCondition() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifyDefWithCondition() throws Exception {
+        final String dsl = "filter {\n"
                 + "  json {}\n"
                 + "  extractor {\n"
                 + "    def config = toJson(parsed.metadata)\n"
@@ -84,7 +85,9 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 + "    }\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains("_def_config == null") || source.contains("_def_config != null"),
             "Expected null check on _def_config but got:\n" + source);
         assertTrue(source.contains(".has(\"env\")"),
@@ -161,16 +164,17 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
     // ==================== Type cast on def ====================
 
     @Test
-    void generateSourceDefWithStringCast() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifyDefWithStringCast() throws Exception {
+        final String dsl = "filter {\n"
                 + "  json {}\n"
                 + "  extractor {\n"
                 + "    def svc = parsed.service as String\n"
                 + "    tag 'svc': svc\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains("java.lang.String _def_svc"),
             "Expected String declaration but got:\n" + source);
         assertTrue(source.contains("(java.lang.String)"),
@@ -198,18 +202,19 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void generateSourceDefWithQualifiedNameCast() {
+    void compileAndVerifyDefWithQualifiedNameCast() throws Exception {
         generator.setInputType(
             io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
-        final String source = generator.generateSource(
-            "filter {\n"
+        final String dsl = "filter {\n"
                 + "  extractor {\n"
                 + "    def common = parsed?.commonProperties"
                 + " as io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon\n"
                 + "    tag 'cluster': common?.upstreamCluster\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains(
                 "io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon _def_common"),
             "Expected AccessLogCommon declaration but got:\n" + source);
@@ -221,9 +226,8 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
     // ==================== Def variable as method argument ====================
 
     @Test
-    void generateSourceDefVarAsMethodArg() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifyDefVarAsMethodArg() throws Exception {
+        final String dsl = "filter {\n"
                 + "  json {}\n"
                 + "  extractor {\n"
                 + "    def key = parsed.fieldName as String\n"
@@ -231,25 +235,25 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
                 + "    tag 'val': config?.get(key)?.getAsString()\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
-        // _def_key = key (String), _def_config = config (JsonObject)
-        // config?.get(key) should generate _def_config.get(_def_key), not _def_config.get(null)
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains(".get(_def_key)"),
             "Expected .get(_def_key) for def var arg but got:\n" + source);
     }
 
     @Test
-    void generateSourceBoolLiteralAsMethodArg() {
-        final String source = generator.generateSource(
-            "filter {\n"
+    void compileAndVerifyBoolLiteralAsMethodArg() throws Exception {
+        final String dsl = "filter {\n"
                 + "  json {}\n"
                 + "  extractor {\n"
                 + "    def config = toJson(parsed.metadata)\n"
                 + "    tag 'val': config?.get(\"key\")?.getAsBoolean()\n"
                 + "  }\n"
                 + "  sink {}\n"
-                + "}");
-        // getAsBoolean() has no args, just verify it compiles
+                + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
         assertTrue(source.contains(".getAsBoolean()"),
             "Expected .getAsBoolean() call but got:\n" + source);
     }
