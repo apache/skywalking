@@ -8,92 +8,30 @@ Add your GPG public key into the [SkyWalking GPG KEYS](https://dist.apache.org/r
 - If you are a PMC member, use your Apache ID and password to log in this svn, and update the file. **Don't override the existing file.**
 - If you are a committer, please ask a PMC member to help you. 
 
-## Create artifacts for the release
+## Run the release script
 
-- Create a new empty folder to do the release work.
-- Set the version numbers and run the release script file [`tools/releasing/create_release_tars.sh`](https://github.com/apache/skywalking/blob/master/tools/releasing/create_release_tars.sh)
+The release script [`tools/releasing/release.sh`](https://github.com/apache/skywalking/blob/master/tools/releasing/release.sh) automates the following steps:
 
-```bash
-export RELEASE_VERSION=x.y.z # (example: RELEASE_VERSION=10.1.0)
-export NEXT_RELEASE_VERSION=x.y.z # (example: NEXT_RELEASE_VERSION=10.2.0)
-curl -Ls https://raw.githubusercontent.com/apache/skywalking/refs/heads/master/tools/releasing/create_release_tars.sh | bash -
-```
-
-After all the steps are completed, you will have the following files in the folder:
-
-```text
-apache-skywalking-apm-${RELEASE_VERSION}-bin.tar.gz
-apache-skywalking-apm-${RELEASE_VERSION}-bin.tar.gz.asc
-apache-skywalking-apm-${RELEASE_VERSION}-bin.tar.gz.sha512
-apache-skywalking-apm-${RELEASE_VERSION}-src.tar.gz
-apache-skywalking-apm-${RELEASE_VERSION}-src.tar.gz.asc
-apache-skywalking-apm-${RELEASE_VERSION}-src.tar.gz.sha512
-```
-
-## Start the next iteration
-
-Once the binary and source packages are created, you can start updating the version to the next number and open a pull request.
+1. Verify GPG signer (`@apache.org` email required)
+2. Check required tools (`gpg`, `svn`, `shasum`, `git`, `yq`)
+3. Detect current version from `pom.xml`
+4. Calculate release version (strip `-SNAPSHOT`) and next version (bump minor)
+5. Clone the repository, build source and binary tarballs, GPG sign, SHA512 checksum
+6. Upload artifacts to SVN staging (`https://dist.apache.org/repos/dist/dev/skywalking/{version}`)
+7. Generate the vote email (with sha512 checksums and submodule commit IDs filled in)
+8. Prepare next version PR (bump version, rotate changelog, update `menu.yml`, push branch)
 
 ```bash
-curl -Ls https://raw.githubusercontent.com/apache/skywalking/refs/heads/master/tools/releasing/start_next_version.sh | bash -
+cd tools/releasing
+bash release.sh
 ```
 
-## Upload to Apache svn
-1. Use your Apache ID to log in to `https://dist.apache.org/repos/dist/dev/skywalking/`.
-1. Create a folder and name it by the release version and round, such as: `x.y.z`
-1. Upload the source code package to the folder with files ending with `.asc` and `.sha512`.
-    * Package name: `apache-skywalking-x.y.z-src.tar.gz`
-    * See Section "Build and sign the source code package" for more details 
-1. Upload the distribution package to the folder with files ending with `.asc` and `.sha512`.
-    * Package name:  `apache-skywalking-bin-x.y.z.tar.gz`.
-    * Create a `.sha512` package: `shasum -a 512 file > file.sha512`
+The script is interactive — it confirms the GPG signer and version numbers before proceeding.
+
+After the script completes, copy the generated vote email and send it to `dev@skywalking.apache.org`.
 
 ## Call a vote in dev
-Call a vote in `dev@skywalking.apache.org`
-
-```
-Mail title: [VOTE] Release Apache SkyWalking version x.y.z
-
-Mail content:
-Hi All,
-This is a call for vote to release Apache SkyWalking version x.y.z.
-
-Release notes:
-
- * https://github.com/apache/skywalking/blob/master/docs/en/changes/changes-x.y.z.md
-
-Release Candidate:
-
- * https://dist.apache.org/repos/dist/dev/skywalking/xxxx
- * sha512 checksums
-   - sha512xxxxyyyzzz apache-skywalking-apm-x.x.x-src.tgz
-   - sha512xxxxyyyzzz apache-skywalking-apm-bin-x.x.x.tar.gz
-
-Release Tag :
-
- * (Git Tag) vx.y.z
-
-Release CommitID :
-
- * https://github.com/apache/skywalking/tree/(Git Commit ID)
- * Git submodule
-   * skywalking-ui: https://github.com/apache/skywalking-booster-ui/tree/(Git Commit ID)
-   * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/(Git Commit ID)
-   * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/(Git Commit ID)
-
-Keys to verify the Release Candidate :
-
- * https://dist.apache.org/repos/dist/release/skywalking/KEYS
-
-Guide to build the release from source :
-
- * https://github.com/apache/skywalking/blob/vx.y.z/docs/en/guides/How-to-build.md
-
-Voting will start now (xxxx date) and will remain open for at least 72 hours, Request all PMC members to give their vote.
-[ ] +1 Release this package.
-[ ] +0 No opinion.
-[ ] -1 Do not release this package because....
-```
+The release script generates the vote email automatically. Send it to `dev@skywalking.apache.org`.
 
 ## Vote Check
 All PMC members and committers should check these before casting +1 votes.
