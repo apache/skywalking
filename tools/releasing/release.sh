@@ -139,15 +139,22 @@ upload_to_svn() {
     fi
 
     echo "Checking out SVN dev directory..."
-    svn co --depth empty "${SVN_DEV_URL}" "${SVN_DIR}"
+    svn co --depth immediates "${SVN_DEV_URL}" "${SVN_DIR}"
 
-    mkdir -p "${SVN_VERSION_DIR}"
+    if [ -d "${SVN_VERSION_DIR}" ]; then
+        echo "Version folder ${RELEASE_VERSION} already exists in SVN, updating artifacts..."
+        svn update "${SVN_VERSION_DIR}"
+    else
+        mkdir -p "${SVN_VERSION_DIR}"
+        cd "${SVN_DIR}"
+        svn add "${RELEASE_VERSION}"
+    fi
 
     cp "${SRC_TAR}" "${SRC_TAR}.asc" "${SRC_TAR}.sha512" "${SVN_VERSION_DIR}/"
     cp "${BIN_TAR}" "${BIN_TAR}.asc" "${BIN_TAR}.sha512" "${SVN_VERSION_DIR}/"
 
     cd "${SVN_DIR}"
-    svn add "${RELEASE_VERSION}"
+    svn add --force "${RELEASE_VERSION}"
     svn commit -m "Upload Apache SkyWalking ${RELEASE_VERSION} release candidate"
 
     echo "Artifacts uploaded to: ${SVN_DEV_URL}/${RELEASE_VERSION}"
