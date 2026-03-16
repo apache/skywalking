@@ -41,10 +41,6 @@ providers:
   - provider: anthropic
     prefix-match:
       - claude
-    models:
-      - name: claude-3-7-sonnet-20250219-thinking
-        input-cost-per-m: 100
-        output-cost-per-m: 100
 
   - provider: gemini
     prefix-match:
