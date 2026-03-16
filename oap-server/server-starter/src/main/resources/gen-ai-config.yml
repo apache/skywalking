@@ -1,0 +1,95 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file configures GenAI provider matching rules and estimated pricing.
+# Rules define how to map model names to providers and calculate token costs.
+
+#Here is a example
+#- provider: ollama
+#  # If a model name starts with these strings, it will be mapped to this provider
+#  prefix-match:
+#    - ollama
+#  models:
+#    - name: ollama
+#      # --- PRICING CONFIGURATION ---
+#      # Costs are defined as the price per 1,000,000 (one million) tokens.
+#      # The currency depends on your system's default setting (e.g., USD or CNY).
+#
+#      # Estimated cost for every 1,000,000 input (prompt) tokens
+#      input-cost-per-m: 1
+#
+#      # Estimated cost for every 1,000,000 output (completion) tokens
+#      output-cost-per-m: 1
+
+providers:
+  - provider: openai
+    prefix-match:
+      - gpt
+
+  - provider: anthropic
+    prefix-match:
+      - claude
+    models:
+      - name: claude-3-7-sonnet-20250219-thinking
+        input-cost-per-m: 100
+        output-cost-per-m: 100
+
+  - provider: gemini
+    prefix-match:
+      - gemini
+
+  - provider: mistral
+    prefix-match:
+      - mistral-
+
+  - provider: groq
+    prefix-match:
+      - llama-3
+
+  - provider: deepseek
+    prefix-match:
+      - deepseek
+
+  - provider: bytedance
+    prefix-match:
+      - doubao
+
+  - provider: zhipu_ai
+    prefix-match:
+      - glm
+
+  - provider: alibaba
+    prefix-match:
+      - qwen
+
+  - provider: tencent
+    prefix-match:
+      - hunyuan
+
+  - provider: moonshot
+    prefix-match:
+      - kimi
+
+  - provider: minimax
+    prefix-match:
+      - minimax
+
+  - provider: ollama
+    prefix-match:
+      - ollama
+
+  - provider: azure_openai
+    prefix-match:
+      - azure

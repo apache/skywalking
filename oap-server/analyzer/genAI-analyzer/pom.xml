@@ -25,34 +25,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>agent-analyzer</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>genAI-analyzer</artifactId>
+
     <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>configuration-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>server-core</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>meter-analyzer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>genAI-analyzer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-testing</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

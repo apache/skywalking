@@ -346,6 +346,7 @@
                         <exclude>log-mal-rules/</exclude>
                         <exclude>telegraf-rules/</exclude>
                         <exclude>cilium-rules/</exclude>
+                        <exclude>gen-ai-settings.yml</exclude>
                     </excludes>
                 </configuration>
             </plugin>

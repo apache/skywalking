@@ -64,6 +64,7 @@ telemetry.provider=prometheus
 core.default.trainingPeriodHttpUriRecognitionPattern=60
 promql.default.restContextPath=/
 core.default.maxHeapMemoryUsagePercent=96
+genAI-analyzer.provider=default
 aws-firehose.default.contextPath=/
 agent-analyzer.default.slowCacheWriteThreshold=default:20,redis:10
 envoy-metric.default.maxMessageSize=0

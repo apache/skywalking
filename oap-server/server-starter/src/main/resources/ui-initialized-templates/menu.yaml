@@ -272,3 +272,13 @@ menus:
         description: The Go Agent for Apache SkyWalking, which provides the native tracing/metrics/logging abilities for Golang projects.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/dashboards-so11y-go-agent/
         i18nKey: self_observability_go_agent
+  - title: GenAI
+    icon: gen_ai
+    description: Generative AI (GenAI) observability provides comprehensive monitoring and performance insights for various AI services and large language models (LLM).
+    i18nKey: virtual_genai
+    menus:
+      - title: Virtual GenAI
+        layer: VIRTUAL_GENAI
+        description: Observe the virtual GenAI providers and models which are conjectured by language agents through various plugins.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-genai/
+        i18nKey: virtual_gen_ai

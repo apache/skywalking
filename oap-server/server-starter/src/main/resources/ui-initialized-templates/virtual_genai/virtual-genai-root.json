@@ -1,0 +1,57 @@
+[
+  {
+    "id": "Virtual-GenAI-Root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 2,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "Virtual GenAI"
+          },
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "Virtual-GenAI-Provider",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": false
+          },
+          "expressions": [
+            "avg(gen_ai_provider_resp_time)",
+            "avg(gen_ai_provider_sla)/100",
+            "avg(gen_ai_provider_cpm)"
+          ],
+          "subExpressions": [
+            "gen_ai_provider_resp_time",
+            "gen_ai_provider_sla/100",
+            "gen_ai_provider_cpm"
+          ],
+          "metricConfig": [
+            {
+              "unit": "ms",
+              "label": "Access Latency"
+            },
+            {
+              "label": "Successful Access Rate",
+              "unit": "%"
+            },
+            {
+              "label": "Access Traffic",
+              "unit": "calls / min"
+            }
+          ]
+        }
+      ],
+      "id": "Virtual-GenAI-Root",
+      "layer": "VIRTUAL_GENAI",
+      "entity": "All",
+      "name": "Virtual-GenAI-Root",
+      "isRoot": true
+    }
+  }
+]

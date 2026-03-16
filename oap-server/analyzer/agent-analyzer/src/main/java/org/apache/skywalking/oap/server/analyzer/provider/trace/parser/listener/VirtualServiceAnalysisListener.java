@@ -20,12 +20,16 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import java.util.Arrays;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.oap.meter.analyzer.module.GenAIAnalyzerModule;
+import org.apache.skywalking.oap.meter.analyzer.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice.VirtualCacheProcessor;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice.VirtualDatabaseProcessor;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice.VirtualGenAIProcessor;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice.VirtualMQProcessor;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice.VirtualServiceProcessor;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -71,23 +75,28 @@ public class VirtualServiceAnalysisListener implements ExitAnalysisListener, Loc
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
+        private final IGenAIMeterAnalyzerService genAIMeterAnalyzerService;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.namingControl = moduleManager.find(CoreModule.NAME)
                     .provider()
                     .getService(NamingControl.class);
+            this.genAIMeterAnalyzerService = moduleManager.find(GenAIAnalyzerModule.NAME)
+                    .provider()
+                    .getService(IGenAIMeterAnalyzerService.class);
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             return new VirtualServiceAnalysisListener(
-                sourceReceiver,
-                Arrays.asList(
-                    new VirtualCacheProcessor(namingControl, config),
-                    new VirtualDatabaseProcessor(namingControl, config),
-                    new VirtualMQProcessor(namingControl)
-                )
+                    sourceReceiver,
+                    Arrays.asList(
+                            new VirtualCacheProcessor(namingControl, config),
+                            new VirtualDatabaseProcessor(namingControl, config),
+                            new VirtualMQProcessor(namingControl),
+                            new VirtualGenAIProcessor(genAIMeterAnalyzerService)
+                    )
             );
         }
     }

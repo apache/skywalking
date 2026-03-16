@@ -1,0 +1,326 @@
+[
+  {
+    "id": "Virtual-GenAI-Model",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 42,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 4,
+                  "h": 11,
+                  "i": "2",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(gen_ai_model_total_cost)/1000000"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "name": "TotalCost",
+                    "title": "Total Cost",
+                    "tips": "The total cost of GenAI model calls."
+                  },
+                  "id": "0-0-2",
+                  "moved": false,
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ]
+                },
+                {
+                  "x": 4,
+                  "y": 0,
+                  "w": 4,
+                  "h": 11,
+                  "i": "18",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(gen_ai_model_output_tokens_sum)"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Output Tokens"
+                    }
+                  ],
+                  "widget": {
+                    "name": "OutputTokens",
+                    "title": "Output Tokens",
+                    "tips": "The sum of output tokens."
+                  },
+                  "id": "0-0-18",
+                  "moved": false,
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 4,
+                  "h": 11,
+                  "i": "19",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(gen_ai_model_input_tokens_sum)"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Input Tokens"
+                    }
+                  ],
+                  "widget": {
+                    "name": "InputTokens",
+                    "title": "Input Tokens",
+                    "tips": "The sum of input tokens."
+                  },
+                  "id": "0-0-19",
+                  "moved": false,
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 11,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_model_sla/100"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "ServiceSLA",
+                    "title": "Service SLA",
+                    "tips": "Successful rate of GenAI model calls."
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "SLA",
+                      "unit": "%"
+                    }
+                  ],
+                  "id": "0-0-1",
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 11,
+                  "w": 12,
+                  "h": 11,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_model_latency_avg"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Response Time",
+                      "unit": "ms"
+                    }
+                  ],
+                  "widget": {
+                    "name": "ResponseTime",
+                    "title": "Response Time",
+                    "tips": "The average response time of GenAI model."
+                  },
+                  "id": "0-0-0",
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 11,
+                  "w": 12,
+                  "h": 11,
+                  "i": "5",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_model_call_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "CPM"
+                    }
+                  ],
+                  "widget": {
+                    "name": "CPM",
+                    "title": "Calls Per Minute",
+                    "tips": "The number of calls per minute."
+                  },
+                  "id": "0-0-5",
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 22,
+                  "w": 12,
+                  "h": 12,
+                  "i": "14",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_model_latency_avg"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "AvgLatency",
+                    "title": "Average Latency",
+                    "tips": "The average latency of model access."
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Avg Latency",
+                      "unit": "ms"
+                    }
+                  ],
+                  "id": "0-0-14",
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 22,
+                  "w": 12,
+                  "h": 12,
+                  "i": "13",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_model_latency_percentile"
+                  ],
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "name": "LatencyPercentile",
+                    "title": "Latency Percentile",
+                    "tips": "The percentile of model access latency."
+                  },
+                  "id": "0-0-13",
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 34,
+                  "w": 12,
+                  "h": 10,
+                  "i": "20",
+                  "type": "Widget",
+                  "widget": {
+                    "name": "AvgTTFT",
+                    "title": "Average TTFT",
+                    "tips": "The average time from the start of the request until the model returns the first token (Time To First Token)."
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Avg TTFT",
+                      "unit": "ms"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "id": "0-0-20",
+                  "moved": false,
+                  "expressions": [
+                    "gen_ai_model_ttft_avg"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 34,
+                  "w": 12,
+                  "h": 10,
+                  "i": "21",
+                  "type": "Widget",
+                  "widget": {
+                    "name": "TTFTPercentile",
+                    "title": "TTFT Percentile",
+                    "tips": "The percentile distribution of Time to First Token."
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "TTFT Percentile",
+                      "unit": "ms"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "id": "0-0-21",
+                  "moved": false,
+                  "expressions": [
+                    "gen_ai_model_ttft_percentile"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                }
+              ]
+            }
+          ],
+          "id": "0",
+          "activedTabIndex": 0,
+          "moved": false
+        }
+      ],
+      "layer": "VIRTUAL_GENAI",
+      "entity": "ServiceInstance",
+      "name": "Virtual-GenAI-Model",
+      "id": "Virtual-GenAI-Model",
+      "isRoot": false
+    }
+  }
+]
