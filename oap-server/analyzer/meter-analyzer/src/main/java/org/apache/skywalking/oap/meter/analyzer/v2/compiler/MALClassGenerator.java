@@ -919,18 +919,20 @@ public final class MALClassGenerator {
         } else if (arg instanceof MALExpressionModel.StringListArgument) {
             final List<String> vals =
                 ((MALExpressionModel.StringListArgument) arg).getValues();
-            sb.append("java.util.List.of(");
+            // Use Arrays.asList — Javassist cannot resolve List.of() varargs for >10 elements.
+            sb.append("java.util.Arrays.asList(new String[]{");
             for (int i = 0; i < vals.size(); i++) {
                 if (i > 0) {
                     sb.append(", ");
                 }
                 sb.append('"').append(MALCodegenHelper.escapeJava(vals.get(i))).append('"');
             }
-            sb.append(')');
+            sb.append("})");
         } else if (arg instanceof MALExpressionModel.NumberListArgument) {
             final List<Double> vals =
                 ((MALExpressionModel.NumberListArgument) arg).getValues();
-            sb.append("java.util.List.of(");
+            // Use Arrays.asList — Javassist cannot resolve List.of() varargs for >10 elements.
+            sb.append("java.util.Arrays.asList(new Number[]{");
             for (int i = 0; i < vals.size(); i++) {
                 if (i > 0) {
                     sb.append(", ");
@@ -942,7 +944,7 @@ public final class MALClassGenerator {
                     sb.append("Double.valueOf(").append(v).append(')');
                 }
             }
-            sb.append(')');
+            sb.append("})");
         } else if (arg instanceof MALExpressionModel.BoolArgument) {
             sb.append(((MALExpressionModel.BoolArgument) arg).isValue());
         } else if (arg instanceof MALExpressionModel.NullArgument) {
