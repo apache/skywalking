@@ -28,8 +28,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
+import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -209,15 +211,35 @@ public class LogBuilder implements LALOutputBuilder {
                 log.setContentType(ContentType.JSON);
                 log.setContent(body.getJson().getJson());
             }
-            // raw tags from original LogData
-            if (logData.getTags().getDataCount() > 0) {
-                log.setTagsRawData(logData.getTags().toByteArray());
-            }
         }
+        // raw tags: merge original LogData tags + LAL-added tags
+        log.setTagsRawData(buildMergedTagsRawData());
         // searchable tags from LogData + LAL-added tags
         log.getTags().addAll(collectSearchableTags());
 
         return log;
+    }
+
+    /**
+     * Build merged tagsRawData from original LogData tags + LAL-added tags.
+     * Returns null if there are no tags at all.
+     */
+    private byte[] buildMergedTagsRawData() {
+        final boolean hasOriginal = logData != null && logData.getTags().getDataCount() > 0;
+        if (!hasOriginal && lalTags.isEmpty()) {
+            return null;
+        }
+        final LogTags.Builder builder = LogTags.newBuilder();
+        if (hasOriginal) {
+            builder.addAllData(logData.getTags().getDataList());
+        }
+        for (final String[] kv : lalTags) {
+            builder.addData(KeyStringValuePair.newBuilder()
+                                              .setKey(kv[0])
+                                              .setValue(kv[1])
+                                              .build());
+        }
+        return builder.build().toByteArray();
     }
 
     private Collection<Tag> collectSearchableTags() {
