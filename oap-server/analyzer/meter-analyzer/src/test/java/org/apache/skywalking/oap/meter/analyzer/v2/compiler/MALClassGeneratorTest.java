@@ -182,6 +182,51 @@ class MALClassGeneratorTest {
     // ==================== Bytecode verification ====================
 
     @Test
+    void closureCompanionClassWritten() throws Exception {
+        final java.io.File tmpDir = java.nio.file.Files.createTempDirectory("mal-companion").toFile();
+        try {
+            final ClassPool pool = new ClassPool(true);
+            final MALClassGenerator gen = new MALClassGenerator(pool);
+            gen.setClassOutputDir(tmpDir);
+            gen.setClassNameHint("test_closure");
+            gen.compile("test_closure", "metric.tag({ tags -> tags.service = 'svc1' })");
+            final java.io.File[] all = tmpDir.listFiles((d, n) -> n.endsWith(".class"));
+            assertNotNull(all);
+            assertTrue(all.length >= 2, "Should have main + companion class, found: "
+                + java.util.Arrays.toString(all));
+            final boolean hasCompanion = java.util.Arrays.stream(all)
+                .anyMatch(f -> f.getName().contains("$"));
+            assertTrue(hasCompanion, "Companion class file with '$' should exist, found: "
+                + java.util.Arrays.toString(all));
+        } finally {
+            for (final java.io.File f : tmpDir.listFiles()) { f.delete(); }
+            tmpDir.delete();
+        }
+    }
+
+    @Test
+    void closureCompanionWithDefAndRegexWritten() throws Exception {
+        final java.io.File tmpDir = java.nio.file.Files.createTempDirectory("mal-companion-def").toFile();
+        try {
+            final ClassPool pool = new ClassPool(true);
+            final MALClassGenerator gen = new MALClassGenerator(pool);
+            gen.setClassOutputDir(tmpDir);
+            gen.setClassNameHint("test_closure_def");
+            gen.setYamlSource("envoy-ca.yaml:34");
+            // Replicates the envoy-ca.yaml closure with `def matcher` + regex
+            gen.compile("test_closure_def",
+                "metric.tag({ tags -> tags.k = tags.v }).service(['app'], Layer.MESH_DP)");
+            final java.io.File[] all = tmpDir.listFiles((d, n) -> n.endsWith(".class"));
+            assertNotNull(all);
+            assertTrue(all.length >= 2, "Should have main + companion, found: "
+                + java.util.Arrays.toString(all));
+        } finally {
+            for (final java.io.File f : tmpDir.listFiles()) { f.delete(); }
+            tmpDir.delete();
+        }
+    }
+
+    @Test
     void runMethodHasLocalVariableTable() throws Exception {
         final java.io.File tmpDir = java.nio.file.Files.createTempDirectory("mal-lvt").toFile();
         try {

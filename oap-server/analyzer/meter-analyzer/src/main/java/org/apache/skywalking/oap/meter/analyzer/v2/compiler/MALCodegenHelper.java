@@ -17,11 +17,6 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
-import java.lang.invoke.CallSite;
-import java.lang.invoke.LambdaMetafactory;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -170,122 +165,6 @@ final class MALCodegenHelper {
             return ((MALExpressionModel.ClosureStringLiteral) expr).getValue();
         }
         return null;
-    }
-
-    // ---- LambdaMetafactory wiring for closure methods ----
-
-    /**
-     * Closure type metadata for each functional interface used in MAL closures.
-     * Used to create LambdaMetafactory-based wrappers from methods on the main class.
-     */
-    static final class ClosureTypeInfo {
-        final Class<?> interfaceClass;
-        final String samName;
-        final MethodType samType;
-        final MethodType instantiatedType;
-        final MethodType methodType;
-
-        ClosureTypeInfo(final Class<?> interfaceClass,
-                        final String samName,
-                        final MethodType samType,
-                        final MethodType instantiatedType,
-                        final MethodType methodType) {
-            this.interfaceClass = interfaceClass;
-            this.samName = samName;
-            this.samType = samType;
-            this.instantiatedType = instantiatedType;
-            this.methodType = methodType;
-        }
-    }
-
-    private static final Map<String, ClosureTypeInfo> CLOSURE_TYPE_INFO;
-
-    static {
-        CLOSURE_TYPE_INFO = new HashMap<>();
-
-        // TagFunction extends Function<Map, Map>
-        // SAM: apply(Object) → Object (erased), instantiated: apply(Map) → Map
-        CLOSURE_TYPE_INFO.put(
-            "org.apache.skywalking.oap.meter.analyzer.v2.dsl"
-                + ".SampleFamilyFunctions$TagFunction",
-            new ClosureTypeInfo(
-                org.apache.skywalking.oap.meter.analyzer.v2.dsl
-                    .SampleFamilyFunctions.TagFunction.class,
-                "apply",
-                MethodType.methodType(Object.class, Object.class),
-                MethodType.methodType(Map.class, Map.class),
-                MethodType.methodType(Map.class, Map.class)));
-
-        // ForEachFunction — not generic, SAM = instantiated
-        CLOSURE_TYPE_INFO.put(FOR_EACH_FUNCTION_TYPE,
-            new ClosureTypeInfo(
-                org.apache.skywalking.oap.meter.analyzer.v2.dsl
-                    .SampleFamilyFunctions.ForEachFunction.class,
-                "accept",
-                MethodType.methodType(void.class, String.class, Map.class),
-                MethodType.methodType(void.class, String.class, Map.class),
-                MethodType.methodType(void.class, String.class, Map.class)));
-
-        // PropertiesExtractor extends Function<Map, Map>
-        CLOSURE_TYPE_INFO.put(PROPERTIES_EXTRACTOR_TYPE,
-            new ClosureTypeInfo(
-                org.apache.skywalking.oap.meter.analyzer.v2.dsl
-                    .SampleFamilyFunctions.PropertiesExtractor.class,
-                "apply",
-                MethodType.methodType(Object.class, Object.class),
-                MethodType.methodType(Map.class, Map.class),
-                MethodType.methodType(Map.class, Map.class)));
-
-        // DecorateFunction extends Consumer<MeterEntity>
-        // SAM: accept(Object) → void (erased), instantiated: accept(Object) → void
-        CLOSURE_TYPE_INFO.put(DECORATE_FUNCTION_TYPE,
-            new ClosureTypeInfo(
-                org.apache.skywalking.oap.meter.analyzer.v2.dsl
-                    .SampleFamilyFunctions.DecorateFunction.class,
-                "accept",
-                MethodType.methodType(void.class, Object.class),
-                MethodType.methodType(void.class, Object.class),
-                MethodType.methodType(void.class, Object.class)));
-    }
-
-    static ClosureTypeInfo getClosureTypeInfo(final String interfaceType) {
-        return CLOSURE_TYPE_INFO.get(interfaceType);
-    }
-
-    /**
-     * Creates a functional interface instance from a method handle using
-     * {@link LambdaMetafactory}. This is the same mechanism {@code javac}
-     * uses to compile lambda expressions — the JIT can fully inline through
-     * the callsite. No separate {@code .class} file is produced on disk.
-     */
-    /**
-     * Creates a functional interface instance from a direct (unbound) method handle
-     * using {@link LambdaMetafactory}, capturing the target instance.
-     *
-     * @param target a direct method handle (not bound via bindTo)
-     * @param receiverClass the class of the instance to capture
-     * @param receiver the instance to capture as the lambda's receiver
-     */
-    static Object createLambda(final MethodHandles.Lookup lookup,
-                               final ClosureTypeInfo typeInfo,
-                               final MethodHandle target,
-                               final Class<?> receiverClass,
-                               final Object receiver) throws Exception {
-        try {
-            // The factory type captures the receiver: (ReceiverClass) → InterfaceType
-            final CallSite site = LambdaMetafactory.metafactory(
-                lookup,
-                typeInfo.samName,
-                MethodType.methodType(typeInfo.interfaceClass, receiverClass),
-                typeInfo.samType,
-                target,
-                typeInfo.instantiatedType);
-            return site.getTarget().invoke(receiver);
-        } catch (final Exception e) {
-            throw e;
-        } catch (final Throwable t) {
-            throw new RuntimeException("Failed to create lambda for " + typeInfo.samName, t);
-        }
     }
 
     /**

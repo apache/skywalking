@@ -49,8 +49,8 @@ class MALClassGeneratorClosureTest {
         assertNotNull(expr);
         final String source = generator.generateSource(
             "metric.tag({tags -> tags.cluster = 'activemq::' + tags.cluster})");
-        assertTrue(source.contains("this._tag"),
-            "Generated source should reference pre-compiled closure");
+        assertTrue(source.contains("_tag"),
+            "Generated source should reference companion closure field");
     }
 
     @Test
