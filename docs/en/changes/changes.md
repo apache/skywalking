@@ -175,6 +175,11 @@
 * Add the `coldStage` to the `Duration` for queries.
 * Optimize the pages theme.
 * Fix incorrect virtual service names.
+* Add the GenAI icon to Topology.
+* Bump up dependencies.
+* Correct active/inactive text for the cold stage.
+* Add the gen-ai menu.
+
 
 #### Documentation
 
