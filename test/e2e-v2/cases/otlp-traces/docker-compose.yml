@@ -46,7 +46,7 @@ services:
       productcatalogservice:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/8080"]
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 8080"]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -73,7 +73,7 @@ services:
       oap:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3550"]
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 3550"]
       interval: 5s
       timeout: 60s
       retries: 120
