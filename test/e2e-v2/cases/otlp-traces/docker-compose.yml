@@ -26,7 +26,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 200M
     restart: unless-stopped
     ports:
       - 8080
@@ -59,7 +59,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 40M
+          memory: 20M
     restart: unless-stopped
     ports:
       - "3550"
