@@ -32,6 +32,56 @@ with actual query results as context, then structurally compared via `go-cmp`.
 
 ## How to Write Expectation Files
 
+### Core Policy: Verify Data Accuracy, Not Just Existence
+
+The purpose of e2e expected files is to **verify that data is correct**, not merely that something exists.
+
+**Use exact literal values for all meaningful fields** — service names, endpoint names, metric names, label keys/values, span names, component names, layer names, scope names, tag keys/values, etc. These are all known from the test setup and must be verified precisely.
+
+**Only use `notEmpty`/`gt`/`ge` for genuinely dynamic values** — timestamps, UUIDs, generated IDs, durations, IP addresses — values that change every test run and cannot be predicted.
+
+```yaml
+# WRONG — too loose, doesn't verify correctness
+- name: {{ notEmpty .name }}
+  layer: {{ notEmpty .layer }}
+  tags:
+    {{- contains .tags }}
+    - key: {{ notEmpty .key }}
+      value: {{ notEmpty .value }}
+    {{- end }}
+
+# RIGHT — verifies the actual data matches what the test setup produces
+- name: e2e-service-provider
+  layer: GENERAL
+  tags:
+    {{- contains .tags }}
+    - key: http.method
+      value: POST
+    - key: http.status_code
+      value: "200"
+    {{- end }}
+```
+
+**Decision guide — when to use what:**
+
+| Field type | Approach | Example |
+|------------|----------|---------|
+| Service/endpoint/span name | Exact literal | `name: e2e-service-provider` |
+| Layer, scope, kind, type | Exact literal | `layer: GENERAL`, `kind: SERVER` |
+| Tag/label keys | Exact literal | `key: http.method` |
+| Tag/label values (known) | Exact literal | `value: POST` |
+| Metric name | Exact literal | `__name__: service_sla` |
+| Component name | Exact literal | `component: Tomcat` |
+| Boolean fields | Exact literal | `iserror: false`, `normal: true` |
+| Entity IDs | `b64enc` with exact name | `id: {{ b64enc "e2e-service-provider" }}.1` |
+| Timestamps | `gt .field 0` | `starttime: {{ gt .starttime 0 }}` |
+| Durations | `ge .field 0` | `duration: {{ ge .duration 0 }}` |
+| UUIDs / trace IDs | `notEmpty` | `uuid: {{ notEmpty .uuid }}` |
+| IP addresses | `notEmpty` | `ipv4: {{ notEmpty .ipv4 }}` |
+| Instance UUIDs | `notEmpty` | `instanceuuid: {{ notEmpty .instanceuuid }}` |
+| Metric values (known) | Exact literal | `value: "10000"` |
+| Metric values (variable) | `notEmpty` or `gt` | `value: {{ gt .value 0 }}` |
+
 ### How Verification Works
 
 1. Execute query (swctl/curl) → get **actual** YAML/JSON
@@ -162,67 +212,148 @@ results:
 
 ### Recipes: Common Verification Patterns
 
-#### Verify a key exists with any non-empty value
-
-```yaml
-name: {{ notEmpty .name }}
-```
-
-#### Verify a numeric field is positive
-
-```yaml
-starttime: {{ gt .starttime 0 }}
-```
-
-#### Verify a field equals an exact value
-
-Just write the literal — no template function needed:
-
-```yaml
-scope: Service
-layer: GENERAL
-iserror: false
-```
-
-#### Verify a field can be null or have a value
-
-Use the raw accessor (no assertion function):
-
-```yaml
-value: {{ .value }}          # outputs whatever value is, including null
-parentId: {{ .parentId }}    # outputs the value or empty
-```
-
-#### Verify a list has at least N items matching a condition
-
-List N items in the `contains` block — each must match a different actual item:
-
-```yaml
-# At least 2 items with value > 0
-values:
-  {{- contains .values }}
-  - value: {{ gt .value 0 }}
-  - value: {{ gt .value 0 }}
-  {{- end }}
-```
-
-#### Verify a list contains specific named items (unordered)
+#### Service list — verify exact names and properties
 
 ```yaml
 {{- contains . }}
-- name: e2e-service-provider
-- name: e2e-service-consumer
+- id: {{ b64enc "e2e-service-provider" }}.1
+  name: e2e-service-provider
+  group: ""
+  shortname: e2e-service-provider
+  normal: true
+  layers:
+    - GENERAL
+- id: {{ b64enc "e2e-service-consumer" }}.1
+  name: e2e-service-consumer
+  group: ""
+  shortname: e2e-service-consumer
+  normal: true
+  layers:
+    - GENERAL
 {{- end }}
 ```
 
-#### Verify an array contains items with mixed exact and dynamic fields
+#### Topology — verify exact node types, components, and relationships
 
 ```yaml
-tags:
-  {{- contains .tags }}
-  - key: http.method
-    value: POST
-  - key: url
+nodes:
+{{- contains .nodes }}
+- id: {{ b64enc "e2e-service-provider" }}.1
+  name: e2e-service-provider
+  type: Tomcat
+  isreal: true
+  layers:
+    - GENERAL
+- id: {{ b64enc "localhost:-1" }}.0
+  name: localhost:-1
+  type: H2
+  isreal: false
+  layers:
+    - VIRTUAL_DATABASE
+{{- end }}
+calls:
+{{- contains .calls }}
+- source: {{ b64enc "e2e-service-provider" }}.1
+  sourcecomponents:
+    - h2-jdbc-driver
+  target: {{ b64enc "localhost:-1" }}.0
+  targetcomponents: []
+  id: {{ b64enc "e2e-service-provider" }}.1-{{ b64enc "localhost:-1" }}.0
+  detectpoints:
+    - CLIENT
+{{- end }}
+```
+
+#### Traces — verify exact span names, services, components; dynamic for timestamps/IDs
+
+```yaml
+- traceid: {{ .traceid }}
+  segmentid: {{ .segmentid }}
+  spanid: 0
+  parentspanid: -1
+  refs: []
+  servicecode: e2e-service-consumer
+  serviceinstancename: consumer1
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+  endpointname: POST:/users
+  type: Entry
+  peer: ""
+  component: Tomcat
+  iserror: false
+  layer: Http
+  tags:
+    {{- contains .tags }}
+    - key: http.method
+      value: POST
+    - key: http.status_code
+      value: "200"
+    - key: url
+      value: {{ notEmpty .value }}
+    {{- end }}
+```
+
+#### Metrics — verify exact label keys/values; dynamic for timestamps and variable values
+
+```yaml
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+  - metric:
+      labels:
+        {{- contains .metric.labels }}
+        - key: p
+          value: "50"
+        {{- end }}
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ notEmpty .value }}
+        owner: null
+        traceid: null
+      {{- end }}
+  {{- end }}
+error: null
+```
+
+#### Alarms — verify exact scope, name, tag values, expression
+
+```yaml
+msgs:
+  {{- contains .msgs }}
+  - starttime: {{ gt .starttime 0 }}
+    scope: Service
+    id: {{ b64enc "e2e-service-provider" }}.1
+    name: e2e-service-provider
+    tags:
+      - key: level
+        value: WARNING
+    events:
+      {{- contains .events }}
+      - uuid: {{ notEmpty .uuid }}
+        source:
+          service: e2e-service-provider
+          serviceinstance: ""
+          endpoint: ""
+        name: Alarm
+        message: {{ notEmpty .message }}
+        starttime: {{ gt .starttime 0 }}
+        endtime: {{ gt .endtime 0 }}
+        layer: GENERAL
+      {{- end }}
+  {{- end }}
+```
+
+#### List must have at least N items matching a condition
+
+List N patterns in `contains` — each must match a different actual item:
+
+```yaml
+values:
+  {{- contains .values }}
+  - id: {{ notEmpty .id }}
+    value: {{ notEmpty .value }}
+  - id: {{ notEmpty .id }}
     value: {{ notEmpty .value }}
   {{- end }}
 ```
@@ -238,13 +369,7 @@ endtime: {{ gt .endtime 0 }}
 {{- end }}
 ```
 
-#### Verify a field matches a regex pattern
-
-```yaml
-message: {{ regexp .message ".*alarm.*" }}
-```
-
-#### Use variable assignment and reuse
+#### Variable assignment and reuse
 
 ```yaml
 - id: {{ $svcID := (index .nodes 0).id }}{{ notEmpty $svcID }}
@@ -252,36 +377,16 @@ message: {{ regexp .message ".*alarm.*" }}
 - target: {{ $svcID }}
 ```
 
-#### Verify array index access
+#### Prometheus-style timestamp+value tuples
 
 ```yaml
-# Prometheus-style [timestamp, value] tuples
+# timestamp is dynamic, metric value is exact
 value:
-  - "{{ index .value 0 }}"      # timestamp (dynamic)
-  - '10000'                      # value (exact)
+  - "{{ index .value 0 }}"
+  - '10000'
 ```
 
-#### Conditional rendering
-
-```yaml
-{{if . }}
-- id: {{ notEmpty .id }}
-{{else}}
-[]
-{{end}}
-```
-
-#### Verify a field is explicitly null
-
-```yaml
-debuggingtrace: null
-error: null
-owner: null
-```
-
-#### Handle value that may be null or non-empty
-
-Mix null and notEmpty in a `contains` to assert "at least some values exist":
+#### Handle metric time series with data gaps
 
 ```yaml
 values:
@@ -291,6 +396,14 @@ values:
   - id: {{ notEmpty .id }}
     value: null                       # data gaps are OK
   {{- end }}
+```
+
+#### Verify a field is explicitly null
+
+```yaml
+debuggingtrace: null
+error: null
+owner: null
 ```
 
 ---
