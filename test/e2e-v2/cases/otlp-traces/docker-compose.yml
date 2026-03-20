@@ -39,10 +39,17 @@ services:
       ENV_PLATFORM: local
       OTEL_SERVICE_NAME: frontend
       WEB_OTEL_SERVICE_NAME: frontend-web
-      CURRENCY_SERVICE_ADDR: no.exist:80
+      CURRENCY_SERVICE_ADDR: productcatalogservice:3550
     depends_on:
-      - oap
-      - productcatalogservice
+      oap:
+        condition: service_healthy
+      productcatalogservice:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 8080"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
     logging: *logging
     networks:
       - e2e
@@ -61,9 +68,15 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
       OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo
       OTEL_SERVICE_NAME: productcatalogservice
-      FEATURE_FLAG_GRPC_SERVICE_ADDR: no.exist:80
+      FEATURE_FLAG_GRPC_SERVICE_ADDR: productcatalogservice:3550
     depends_on:
-      - oap
+      oap:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 3550"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
     logging: *logging
     networks:
       - e2e
