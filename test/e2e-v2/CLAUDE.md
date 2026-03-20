@@ -40,29 +40,54 @@ The purpose of e2e expected files is to **verify that data is correct**, not mer
 
 **Only use `notEmpty`/`gt`/`ge` for genuinely dynamic values** — timestamps, UUIDs, generated IDs, durations, IP addresses — values that change every test run and cannot be predicted.
 
-```yaml
-# WRONG — too loose, doesn't verify correctness
-- name: {{ notEmpty .name }}
-  layer: {{ notEmpty .layer }}
-  tags:
-    {{- contains .tags }}
-    - key: {{ notEmpty .key }}
-      value: {{ notEmpty .value }}
-    {{- end }}
+### When Uncertain: Ask the Developer
 
-# RIGHT — verifies the actual data matches what the test setup produces
-- name: e2e-service-provider
-  layer: GENERAL
-  tags:
-    {{- contains .tags }}
-    - key: http.method
-      value: POST
-    - key: http.status_code
-      value: "200"
-    {{- end }}
+When writing expected files, you often cannot determine from the raw query output alone which fields
+are meaningful domain values (must be exact) vs dynamic runtime values (use `notEmpty`/`gt`).
+**Do not guess — ask the developer to decide.**
+
+**Workflow:**
+
+1. **Run the query** and show the complete raw output to the developer
+2. **Propose an expected file** with your best guess at exact vs dynamic fields
+3. **For each field, explain your reasoning** — why you chose exact literal vs `notEmpty`/`gt`
+4. **Ask the developer to confirm or correct** which fields should be exact
+
+**Example interaction:**
+
+```
+The query `swctl service ls` returns:
+---
+- id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+  name: e2e-service-provider
+  group: ""
+  shortname: e2e-service-provider
+  normal: true
+  layers:
+    - GENERAL
+
+Proposed expected file:
+---
+{{- contains . }}
+- id: {{ b64enc "e2e-service-provider" }}.1    # exact: derived from known service name
+  name: e2e-service-provider                    # exact: known from docker-compose OTEL_SERVICE_NAME / SW_AGENT_NAME
+  group: ""                                     # exact: default group
+  shortname: e2e-service-provider               # exact: derived from name
+  normal: true                                  # exact: agent-reported service is always normal
+  layers:
+    - GENERAL                                   # exact: standard agent layer
+{{- end }}
+
+All fields are deterministic here. Please confirm, or let me know
+if any field should use notEmpty instead.
 ```
 
-**Decision guide — when to use what:**
+**Why this matters:** Only the developer knows the test's intent — e.g., whether a tag value
+is a fixed protocol value that must be verified, or an environment-dependent value that just
+needs to be non-empty. Making the wrong choice either misses real bugs (too loose) or creates
+flaky tests (too strict on dynamic data).
+
+**Decision guide for common field types:**
 
 | Field type | Approach | Example |
 |------------|----------|---------|
@@ -81,6 +106,7 @@ The purpose of e2e expected files is to **verify that data is correct**, not mer
 | Instance UUIDs | `notEmpty` | `instanceuuid: {{ notEmpty .instanceuuid }}` |
 | Metric values (known) | Exact literal | `value: "10000"` |
 | Metric values (variable) | `notEmpty` or `gt` | `value: {{ gt .value 0 }}` |
+| **Uncertain fields** | **Ask the developer** | Show raw output + your proposal |
 
 ### How Verification Works
 
