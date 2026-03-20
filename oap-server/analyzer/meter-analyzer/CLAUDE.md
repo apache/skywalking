@@ -9,12 +9,13 @@ MAL expression string
   → MALScriptParser.parse(expression)          [ANTLR4 lexer/parser → visitor]
   → MALExpressionModel.Expr (immutable AST)
   → MALClassGenerator.compileFromModel(name, ast)
-      1. collectClosures(ast)          — pre-scan for closure arguments
-      2. addClosureMethod()            — add closure body as method on main class
+      1. collectClosures(ast)          — pre-scan AST for closure arguments
+      2. makeCompanionClass()          — one companion per closure, implements functional interface
+                                         with closure body inlined directly in SAM method
       3. classPool.makeClass()         — create main class implementing MalExpression
       4. generateRunMethod()           — emit Java source for run(Map<String,SampleFamily>)
-      5. ctClass.toClass(MalExpressionPackageHolder.class)  — load via package anchor
-      6. wire closure fields via LambdaMetafactory (no extra .class files)
+      5. toClass() companions first    — static initializer on main class references companion ctors
+      6. ctClass.toClass(MalExpressionPackageHolder.class)  — load main class
   → MalExpression instance
 ```
 
@@ -35,7 +36,7 @@ oap-server/analyzer/meter-analyzer/
     MALScriptParser.java              — ANTLR4 facade: expression → AST
     MALExpressionModel.java           — Immutable AST model classes
     MALClassGenerator.java            — Public API, run method codegen, metadata extraction
-    MALClosureCodegen.java            — Closure method codegen (inlined on main class via LambdaMetafactory)
+    MALClosureCodegen.java            — Companion class codegen: closure body inlined in SAM method
     MALCodegenHelper.java             — Static utility methods and shared constants
     rt/
       MalExpressionPackageHolder.java — Class loading anchor (empty marker)
@@ -54,6 +55,7 @@ All v2 classes live under `org.apache.skywalking.oap.meter.analyzer.v2.*` to avo
 |-----------|---------------|
 | Parser/Model/Generator | `org.apache.skywalking.oap.meter.analyzer.v2.compiler` |
 | Generated classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.{yamlName}_L{lineNo}_{ruleName}` |
+| Companion classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.{yamlName}_L{lineNo}_{ruleName}$_{closureField}` |
 | Filter classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.{yamlName}_L{lineNo}_filter` |
 | Package holder | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder` |
 | Runtime helper | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalRuntimeHelper` |
@@ -67,7 +69,7 @@ Falls back to `MalExpr_<N>` (global counter) when no hint is set.
 
 - **No anonymous inner classes**: Javassist cannot compile `new Consumer() { ... }` or `new Function() { ... }` in method bodies.
 - **No lambda expressions**: Javassist has no lambda support.
-- **Closure approach**: Closure bodies are compiled as methods on the main class (e.g., `_tag_apply(Map)`), then wrapped via `LambdaMetafactory` into functional interface instances. No extra `.class` files are produced — the JVM creates hidden classes internally (same mechanism `javac` uses for lambdas).
+- **Closure approach**: Each closure becomes a companion class (e.g., `MainClass$_tag`) that directly implements the functional interface. The closure body is inlined in the SAM method. The main class holds a `public static final` field for each closure, initialized in a `static {}` block via `new CompanionClass()`. No reflection or `LambdaMetafactory` at runtime. One extra `.class` file is produced per closure.
 - **Inner class notation**: Use `$` not `.` for nested classes (e.g., `SampleFamilyFunctions$TagFunction`).
 - **`isPresent()`/`get()` instead of `ifPresent()`**: `ifPresent(Consumer)` would require an anonymous class. Use `Optional.isPresent()` + `Optional.get()` pattern.
 - **Closure interface dispatch**: Different closure call sites use different functional interfaces:
@@ -99,10 +101,15 @@ public ExpressionMetadata metadata() {
 
 **Input with closure**: `metric.tag({ tags -> tags['k'] = 'v' })`
 
-One class is generated (e.g., `vm_L5_my_metric` when `yamlSource=vm.yaml:5`):
-- Method `_tag_apply(Map tags)` — contains `tags.put("k", "v"); return tags;`
-- Field `_tag` — typed as `TagFunction`, wired via `LambdaMetafactory` after class loading
-- `run()` body calls `metric.tag(this._tag)`
+Two classes are generated (e.g., `vm_L5_my_metric` when `yamlSource=vm.yaml:5`):
+
+Main class `vm_L5_my_metric`:
+- `public static final TagFunction _tag;`
+- `static { _tag = new vm_L5_my_metric$_tag(); }`
+- `run()` body calls `sf = ((SampleFamily) samples.getOrDefault("metric", EMPTY)).tag(_tag);`
+
+Companion class `vm_L5_my_metric$_tag implements TagFunction`:
+- `public Object apply(Object _raw) { Map tags = (Map) _raw; tags.put("k", "v"); return tags; }`
 
 ## ExpressionMetadata (replaces ExpressionParsingContext)
 
@@ -114,7 +121,8 @@ When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated
 
 ```
 {skywalking}/mal-rt/
-  *.class          - Generated MalExpression .class files (one per expression, no separate closure classes)
+  *.class          — Main MalExpression class per expression
+  *$_tag.class     — Companion class per closure (one per tag/forEach/instance/decorate call)
 ```
 
 This is the same env variable used by OAL. Useful for debugging code generation issues or comparing V1 vs V2 output. In tests, use `setClassOutputDir(dir)` instead.
