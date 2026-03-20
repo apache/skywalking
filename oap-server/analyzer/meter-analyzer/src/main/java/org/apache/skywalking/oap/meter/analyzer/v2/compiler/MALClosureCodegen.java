@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import java.util.List;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 
@@ -116,133 +117,6 @@ final class MALClosureCodegen {
                 collectClosures(
                     ((MALExpressionModel.ExprArgument) arg).getExpr(), closures);
             }
-        }
-    }
-
-    /**
-     * Adds a closure method to the main class instead of creating a separate class.
-     * Returns the generated method name.
-     */
-    String addClosureMethod(final CtClass mainClass,
-                            final String fieldName,
-                            final ClosureInfo info) throws Exception {
-        final String className = mainClass.getName();
-        final MALExpressionModel.ClosureArgument closure = info.closure;
-        final List<String> params = closure.getParams();
-        final boolean isForEach = MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType);
-        final boolean isPropertiesExtractor =
-            MALCodegenHelper.PROPERTIES_EXTRACTOR_TYPE.equals(info.interfaceType);
-
-        if (isForEach) {
-            final String methodName = fieldName + "_accept";
-            final String elementParam = params.size() >= 1 ? params.get(0) : "element";
-            final String tagsParam = params.size() >= 2 ? params.get(1) : "tags";
-
-            final StringBuilder sb = new StringBuilder();
-            sb.append("public void ").append(methodName).append("(String ")
-              .append(elementParam).append(", java.util.Map ").append(tagsParam)
-              .append(") {\n");
-            for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
-                generateClosureStatement(sb, stmt, tagsParam);
-            }
-            sb.append("}\n");
-
-            if (log.isDebugEnabled()) {
-                log.debug("ForEach closure method:\n{}", sb);
-            }
-            final javassist.CtMethod m = CtNewMethod.make(sb.toString(), mainClass);
-            mainClass.addMethod(m);
-            generator.addLocalVariableTable(m, className, new String[][]{
-                {elementParam, "Ljava/lang/String;"},
-                {tagsParam, "Ljava/util/Map;"}
-            });
-            generator.addLineNumberTable(m, 3); // slot 0=this, 1=element, 2=tags
-            return methodName;
-        } else if (isPropertiesExtractor) {
-            final String methodName = fieldName + "_apply";
-            final String paramName = params.isEmpty() ? "it" : params.get(0);
-
-            final StringBuilder sb = new StringBuilder();
-            sb.append("public java.util.Map ").append(methodName)
-              .append("(java.util.Map ").append(paramName).append(") {\n");
-
-            final List<MALExpressionModel.ClosureStatement> body = closure.getBody();
-            if (body.size() == 1
-                    && body.get(0) instanceof MALExpressionModel.ClosureExprStatement
-                    && ((MALExpressionModel.ClosureExprStatement) body.get(0)).getExpr()
-                        instanceof MALExpressionModel.ClosureMapLiteral) {
-                final MALExpressionModel.ClosureMapLiteral mapLit =
-                    (MALExpressionModel.ClosureMapLiteral)
-                        ((MALExpressionModel.ClosureExprStatement) body.get(0)).getExpr();
-                sb.append("  java.util.Map _result = new java.util.HashMap();\n");
-                for (final MALExpressionModel.MapEntry entry : mapLit.getEntries()) {
-                    sb.append("  _result.put(\"")
-                      .append(MALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
-                    generateClosureExpr(sb, entry.getValue(), paramName);
-                    sb.append(");\n");
-                }
-                sb.append("  return _result;\n");
-            } else {
-                for (final MALExpressionModel.ClosureStatement stmt : body) {
-                    generateClosureStatement(sb, stmt, paramName);
-                }
-                sb.append("  return ").append(paramName).append(";\n");
-            }
-            sb.append("}\n");
-
-            final javassist.CtMethod m = CtNewMethod.make(sb.toString(), mainClass);
-            mainClass.addMethod(m);
-            generator.addLocalVariableTable(m, className, new String[][]{
-                {paramName, "Ljava/util/Map;"}
-            });
-            generator.addLineNumberTable(m, 2); // slot 0=this, 1=it/param
-            return methodName;
-        } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
-            final String methodName = fieldName + "_accept";
-            final String paramName = params.isEmpty() ? "it" : params.get(0);
-
-            final StringBuilder sb = new StringBuilder();
-            sb.append("public void ").append(methodName).append("(Object _arg) {\n");
-            sb.append("  ").append(MALCodegenHelper.METER_ENTITY_FQCN).append(" ")
-              .append(paramName).append(" = (").append(MALCodegenHelper.METER_ENTITY_FQCN)
-              .append(") _arg;\n");
-            for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
-                generateClosureStatement(sb, stmt, paramName, true);
-            }
-            sb.append("}\n");
-
-            if (log.isDebugEnabled()) {
-                log.debug("Decorate closure method:\n{}", sb);
-            }
-            final javassist.CtMethod m = CtNewMethod.make(sb.toString(), mainClass);
-            mainClass.addMethod(m);
-            generator.addLocalVariableTable(m, className, new String[][]{
-                {"_arg", "Ljava/lang/Object;"},
-                {paramName, "L" + MALCodegenHelper.METER_ENTITY_FQCN.replace('.', '/') + ";"}
-            });
-            generator.addLineNumberTable(m, 2); // slot 0=this, 1=_arg
-            return methodName;
-        } else {
-            // TagFunction: Map<String,String> apply(Map<String,String> tags)
-            final String methodName = fieldName + "_apply";
-            final String paramName = params.isEmpty() ? "it" : params.get(0);
-
-            final StringBuilder sb = new StringBuilder();
-            sb.append("public java.util.Map ").append(methodName)
-              .append("(java.util.Map ").append(paramName).append(") {\n");
-            for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
-                generateClosureStatement(sb, stmt, paramName);
-            }
-            sb.append("  return ").append(paramName).append(";\n");
-            sb.append("}\n");
-
-            final javassist.CtMethod m = CtNewMethod.make(sb.toString(), mainClass);
-            mainClass.addMethod(m);
-            generator.addLocalVariableTable(m, className, new String[][]{
-                {paramName, "Ljava/util/Map;"}
-            });
-            generator.addLineNumberTable(m, 2); // slot 0=this, 1=it/param
-            return methodName;
         }
     }
 
@@ -705,6 +579,151 @@ final class MALClosureCodegen {
                 }
             }
             sb.append(local);
+        }
+    }
+
+    /**
+     * Generates a companion class that implements the given functional interface
+     * by delegating directly to the static closure method on the main class.
+     * No reflection or method lookup — the compiler guarantees both exist.
+     *
+     * <p>Example output for a TagFunction:
+     * <pre>
+     *   class MainClass$_tag implements TagFunction {
+     *     public java.util.Map apply(java.util.Map tags) {
+     *       return MainClass._tag_apply(tags);
+     *     }
+     *   }
+     * </pre>
+     */
+    CtClass makeCompanionClass(final CtClass mainClass,
+                               final String fieldName,
+                               final ClosureInfo info) throws Exception {
+        final String companionName = mainClass.getName() + "$" + fieldName;
+        final CtClass companion = classPool.makeClass(companionName);
+        companion.addInterface(classPool.get(info.interfaceType));
+        companion.addConstructor(CtNewConstructor.defaultConstructor(companion));
+
+        final String methodBody = generateCompanionBody(fieldName, info);
+        if (log.isDebugEnabled()) {
+            log.debug("Companion class [{}] apply():\n{}", companionName, methodBody);
+        }
+        final javassist.CtMethod m = CtNewMethod.make(methodBody, companion);
+        companion.addMethod(m);
+        addCompanionLocalVariableTable(m, info);
+        generator.addLineNumberTable(m, firstResultSlot(info));
+        return companion;
+    }
+
+    private String generateCompanionBody(final String fieldName,
+                                         final ClosureInfo info) {
+        final MALExpressionModel.ClosureArgument closure = info.closure;
+        final List<String> params = closure.getParams();
+        final StringBuilder sb = new StringBuilder();
+
+        if (MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType)) {
+            // ForEachFunction: void accept(String element, Map tags)  — no erasure issue
+            final String elementParam = params.size() >= 1 ? params.get(0) : "element";
+            final String tagsParam = params.size() >= 2 ? params.get(1) : "tags";
+            sb.append("public void accept(String ").append(elementParam)
+              .append(", java.util.Map ").append(tagsParam).append(") {\n");
+            for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
+                generateClosureStatement(sb, stmt, tagsParam);
+            }
+            sb.append("}\n");
+
+        } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
+            // DecorateFunction extends Consumer<MeterEntity> — erased SAM: accept(Object)void
+            final String paramName = params.isEmpty() ? "it" : params.get(0);
+            sb.append("public void accept(Object _arg) {\n");
+            sb.append("  ").append(MALCodegenHelper.METER_ENTITY_FQCN).append(" ")
+              .append(paramName).append(" = (").append(MALCodegenHelper.METER_ENTITY_FQCN)
+              .append(") _arg;\n");
+            for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
+                generateClosureStatement(sb, stmt, paramName, true);
+            }
+            sb.append("}\n");
+
+        } else if (MALCodegenHelper.PROPERTIES_EXTRACTOR_TYPE.equals(info.interfaceType)) {
+            // PropertiesExtractor extends Function<Map,Map> — erased SAM: apply(Object)Object
+            final String paramName = params.isEmpty() ? "it" : params.get(0);
+            sb.append("public Object apply(Object _raw) {\n");
+            sb.append("  java.util.Map ").append(paramName)
+              .append(" = (java.util.Map) _raw;\n");
+            final List<MALExpressionModel.ClosureStatement> body = closure.getBody();
+            if (body.size() == 1
+                    && body.get(0) instanceof MALExpressionModel.ClosureExprStatement
+                    && ((MALExpressionModel.ClosureExprStatement) body.get(0)).getExpr()
+                        instanceof MALExpressionModel.ClosureMapLiteral) {
+                final MALExpressionModel.ClosureMapLiteral mapLit =
+                    (MALExpressionModel.ClosureMapLiteral)
+                        ((MALExpressionModel.ClosureExprStatement) body.get(0)).getExpr();
+                sb.append("  java.util.Map _result = new java.util.HashMap();\n");
+                for (final MALExpressionModel.MapEntry entry : mapLit.getEntries()) {
+                    sb.append("  _result.put(\"")
+                      .append(MALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
+                    generateClosureExpr(sb, entry.getValue(), paramName);
+                    sb.append(");\n");
+                }
+                sb.append("  return _result;\n");
+            } else {
+                for (final MALExpressionModel.ClosureStatement stmt : body) {
+                    generateClosureStatement(sb, stmt, paramName);
+                }
+                sb.append("  return ").append(paramName).append(";\n");
+            }
+            sb.append("}\n");
+
+        } else {
+            // TagFunction extends Function<Map,Map> — erased SAM: apply(Object)Object
+            final String paramName = params.isEmpty() ? "it" : params.get(0);
+            sb.append("public Object apply(Object _raw) {\n");
+            sb.append("  java.util.Map ").append(paramName)
+              .append(" = (java.util.Map) _raw;\n");
+            for (final MALExpressionModel.ClosureStatement stmt : closure.getBody()) {
+                generateClosureStatement(sb, stmt, paramName);
+            }
+            sb.append("  return ").append(paramName).append(";\n");
+            sb.append("}\n");
+        }
+        return sb.toString();
+    }
+
+    private void addCompanionLocalVariableTable(final javassist.CtMethod m,
+                                                final ClosureInfo info) {
+        final List<String> params = info.closure.getParams();
+        if (MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType)) {
+            final String elementParam = params.size() >= 1 ? params.get(0) : "element";
+            final String tagsParam = params.size() >= 2 ? params.get(1) : "tags";
+            // instance method: slot 0=this, 1=element, 2=tags
+            generator.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+                {elementParam, "Ljava/lang/String;"},
+                {tagsParam, "Ljava/util/Map;"}
+            });
+        } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
+            final String paramName = params.isEmpty() ? "it" : params.get(0);
+            // instance method: slot 0=this, 1=_arg, 2=paramName
+            generator.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+                {"_arg", "Ljava/lang/Object;"},
+                {paramName, "L" + MALCodegenHelper.METER_ENTITY_FQCN.replace('.', '/') + ";"}
+            });
+        } else {
+            final String paramName = params.isEmpty() ? "it" : params.get(0);
+            // instance method: slot 0=this, 1=_raw, 2=paramName
+            generator.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+                {"_raw", "Ljava/lang/Object;"},
+                {paramName, "Ljava/util/Map;"}
+            });
+        }
+    }
+
+    private int firstResultSlot(final ClosureInfo info) {
+        if (MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType)) {
+            return 3; // slot 0=this, 1=element, 2=tags, 3+=locals
+        } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
+            return 3; // slot 0=this, 1=_arg, 2=paramName, 3+=locals
+        } else {
+            return 3; // slot 0=this, 1=_raw, 2=paramName, 3+=locals
         }
     }
 

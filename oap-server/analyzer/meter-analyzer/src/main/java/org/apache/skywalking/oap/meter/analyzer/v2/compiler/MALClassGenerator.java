@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -161,7 +159,7 @@ public final class MALClassGenerator {
         try (DataOutputStream out = new DataOutputStream(new FileOutputStream(file))) {
             ctClass.toBytecode(out);
         } catch (Exception e) {
-            log.warn("Failed to write class file {}: {}", file, e.getMessage());
+            log.warn("Failed to write class file {}: {}", file, e.getMessage(), e);
         }
     }
 
@@ -285,13 +283,14 @@ public final class MALClassGenerator {
 
             final javassist.bytecode.LocalVariableAttribute lva =
                 new javassist.bytecode.LocalVariableAttribute(cp);
+            int slot = 0;
             lva.addEntry(0, len,
                 cp.addUtf8Info("this"),
-                cp.addUtf8Info("L" + className.replace('.', '/') + ";"), 0);
-            for (int i = 0; i < vars.length; i++) {
+                cp.addUtf8Info("L" + className.replace('.', '/') + ";"), slot++);
+            for (final String[] var : vars) {
                 lva.addEntry(0, len,
-                    cp.addUtf8Info(vars[i][0]),
-                    cp.addUtf8Info(vars[i][1]), i + 1);
+                    cp.addUtf8Info(var[0]),
+                    cp.addUtf8Info(var[1]), slot++);
             }
             code.getAttributes().add(lva);
         } catch (Exception e) {
@@ -446,19 +445,34 @@ public final class MALClassGenerator {
         ctClass.addInterface(classPool.get(
             "org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression"));
 
-        // Add closure fields typed as functional interfaces (not concrete closure classes)
+        // Generate companion classes — one per closure.
+        // Each companion directly implements the functional interface with the
+        // closure body inlined, so there is no static helper method on the main class.
+        final List<CtClass> companionClasses = new ArrayList<>();
+        for (int i = 0; i < closures.size(); i++) {
+            final CtClass companion = cc.makeCompanionClass(
+                ctClass, closureFieldNames.get(i), closures.get(i));
+            companionClasses.add(companion);
+        }
+
+        // Add public static final fields, one per closure
         for (int i = 0; i < closures.size(); i++) {
             ctClass.addField(javassist.CtField.make(
-                "public " + closureInterfaceTypes.get(i) + " "
+                "public static final " + closureInterfaceTypes.get(i) + " "
                     + closureFieldNames.get(i) + ";", ctClass));
         }
 
-        // Add closure bodies as methods on the main class
-        final List<String> closureMethodNames = new ArrayList<>();
-        for (int i = 0; i < closures.size(); i++) {
-            final String methodName = cc.addClosureMethod(
-                ctClass, closureFieldNames.get(i), closures.get(i));
-            closureMethodNames.add(methodName);
+        // Static initializer: explicitly instantiate each companion class.
+        // No method lookup or LambdaMetafactory — the compiler guarantees
+        // method existence because it generates both sides in the same pass.
+        if (!closures.isEmpty()) {
+            final StringBuilder staticInit = new StringBuilder();
+            for (int i = 0; i < closures.size(); i++) {
+                staticInit.append(closureFieldNames.get(i))
+                          .append(" = new ").append(companionClasses.get(i).getName())
+                          .append("();\n");
+            }
+            ctClass.makeClassInitializer().setBody("{ " + staticInit + "}");
         }
 
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
@@ -490,31 +504,20 @@ public final class MALClassGenerator {
         });
         setSourceFile(ctClass, formatSourceFileName(metricName));
 
+        // Load companions before main class — main class static initializer
+        // references companion constructors, so companions must be loaded first.
+        for (final CtClass companion : companionClasses) {
+            writeClassFile(companion);
+            companion.toClass(MalExpressionPackageHolder.class);
+            companion.detach();
+        }
+
         writeClassFile(ctClass);
 
         final Class<?> clazz = ctClass.toClass(MalExpressionPackageHolder.class);
         ctClass.detach();
-        final MalExpression instance = (MalExpression) clazz.getDeclaredConstructor()
-            .newInstance();
 
-        // Wire closure fields via LambdaMetafactory — creates functional interface
-        // instances from method handles pointing to the closure methods on this class.
-        // No separate .class files are produced (same mechanism as javac lambdas).
-        if (!closures.isEmpty()) {
-            final MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(
-                clazz, MethodHandles.lookup());
-            for (int i = 0; i < closures.size(); i++) {
-                final MALCodegenHelper.ClosureTypeInfo typeInfo =
-                    MALCodegenHelper.getClosureTypeInfo(closureInterfaceTypes.get(i));
-                final MethodHandle mh = lookup.findVirtual(
-                    clazz, closureMethodNames.get(i), typeInfo.methodType);
-                final Object func = MALCodegenHelper.createLambda(
-                    lookup, typeInfo, mh, clazz, instance);
-                clazz.getField(closureFieldNames.get(i)).set(instance, func);
-            }
-        }
-
-        return instance;
+        return (MalExpression) clazz.getDeclaredConstructor().newInstance();
     }
 
     private static final String RUN_VAR = "sf";
@@ -988,8 +991,8 @@ public final class MALClassGenerator {
 
     private void generateClosureArgument(final StringBuilder sb,
                                          final MALExpressionModel.ClosureArgument closure) {
-        // Reference pre-compiled closure field
-        sb.append("this.").append(closureFieldNames.get(closureFieldIndex++));
+        // Reference static closure field (no `this.` — fields are static final)
+        sb.append(closureFieldNames.get(closureFieldIndex++));
     }
 
     // Closure statement/expr/condition generation delegated to MALClosureCodegen.
