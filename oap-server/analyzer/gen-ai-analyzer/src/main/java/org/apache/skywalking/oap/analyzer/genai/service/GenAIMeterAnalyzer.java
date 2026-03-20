@@ -15,14 +15,14 @@
  *   limitations under the License.
  */
 
-package org.apache.skywalking.oap.meter.analyzer.service;
+package org.apache.skywalking.oap.analyzer.genai.service;
 
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
-import org.apache.skywalking.oap.meter.analyzer.config.GenAIConfig;
-import org.apache.skywalking.oap.meter.analyzer.config.GenAITagKey;
-import org.apache.skywalking.oap.meter.analyzer.matcher.GenAIProviderPrefixMatcher;
+import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
+import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKey;
+import org.apache.skywalking.oap.analyzer.genai.matcher.GenAIProviderPrefixMatcher;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -93,7 +93,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
 
-        metrics.setTimeToFirstToken(parseSafeInt(tags.get(GenAITagKey.STREAM_TTFT)));
+        metrics.setTimeToFirstToken(parseSafeInt(tags.get(GenAITagKey.SERVER_TIME_TO_FIRST_TOKEN)));
         metrics.setTotalCost(totalCost);
 
         long latency = span.getEndTime() - span.getStartTime();

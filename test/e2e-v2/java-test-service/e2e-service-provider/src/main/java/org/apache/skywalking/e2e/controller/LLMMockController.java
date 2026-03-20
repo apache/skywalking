@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.e2e.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +30,7 @@ import java.time.Instant;
 @RequestMapping("/llm")
 public class LLMMockController {
     @PostMapping("/v1/chat/completions")
-    public Object completions(@RequestBody JSONObject request, HttpServletResponse response) throws Exception {
+    public Object completions(HttpServletResponse response) throws Exception {
 
         response.setContentType("text/event-stream");
         response.setCharacterEncoding("UTF-8");

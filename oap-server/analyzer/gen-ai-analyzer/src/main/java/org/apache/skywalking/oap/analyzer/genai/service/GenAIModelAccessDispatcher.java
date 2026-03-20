@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.service;
+package org.apache.skywalking.oap.analyzer.genai.service;
 
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;

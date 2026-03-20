@@ -21,8 +21,9 @@ import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
-import org.apache.skywalking.oap.meter.analyzer.service.IGenAIMeterAnalyzerService;
+import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
 import org.apache.skywalking.oap.server.core.source.GenAIModelAccess;
 import org.apache.skywalking.oap.server.core.source.GenAIProviderAccess;
@@ -36,9 +37,11 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class VirtualGenAIProcessor implements VirtualServiceProcessor {
 
+    private final NamingControl namingControl;
+
     private final IGenAIMeterAnalyzerService meterAnalyzerService;
 
-    private List<Source> recordList = new ArrayList<>();
+    private final List<Source> recordList = new ArrayList<>();
 
     @Override
     public void prepareVSIfNecessary(SpanObject span, SegmentObject segmentObject) {
@@ -66,7 +69,7 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
 
     private GenAIProviderAccess toProviderAccess(GenAIMetrics metrics) {
         GenAIProviderAccess source = new GenAIProviderAccess();
-        source.setName(metrics.getProviderName());
+        source.setName(namingControl.formatServiceName(metrics.getProviderName()));
         source.setInputTokens(metrics.getInputTokens());
         source.setOutputTokens(metrics.getOutputTokens());
         source.setTotalCost(metrics.getTotalCost());
@@ -78,8 +81,8 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
 
     private GenAIModelAccess toModelAccess(GenAIMetrics metrics) {
         GenAIModelAccess source = new GenAIModelAccess();
-        source.setServiceName(metrics.getProviderName());
-        source.setModelName(metrics.getModelName());
+        source.setServiceName(namingControl.formatServiceName(metrics.getProviderName()));
+        source.setModelName(namingControl.formatInstanceName(metrics.getModelName()));
         source.setInputTokens(metrics.getInputTokens());
         source.setOutputTokens(metrics.getOutputTokens());
         source.setTotalCost(metrics.getTotalCost());

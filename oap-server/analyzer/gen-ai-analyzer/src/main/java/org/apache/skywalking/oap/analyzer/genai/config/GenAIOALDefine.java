@@ -16,23 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.module;
+package org.apache.skywalking.oap.analyzer.genai.config;
 
-import org.apache.skywalking.oap.meter.analyzer.service.IGenAIMeterAnalyzerService;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
-public class GenAIAnalyzerModule extends ModuleDefine {
+public class GenAIOALDefine extends OALDefine {
 
-    public static final String NAME = "genAI-analyzer";
+    public static final GenAIOALDefine INSTANCE = new GenAIOALDefine();
 
-    public GenAIAnalyzerModule() {
-        super(NAME);
-    }
-
-    @Override
-    public Class[] services() {
-        return new Class[] {
-                IGenAIMeterAnalyzerService.class,
-        };
+    private GenAIOALDefine() {
+        super(
+                "oal/virtual-gen-ai.oal",
+                "org.apache.skywalking.oap.server.core.source"
+        );
     }
 }

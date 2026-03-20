@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>genAI-analyzer</artifactId>
+            <artifactId>gen-ai-analyzer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

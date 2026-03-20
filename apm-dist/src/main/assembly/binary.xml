@@ -75,6 +75,7 @@
                 <include>log-mal-rules/**</include>
                 <include>telegraf-rules/*</include>
                 <include>cilium-rules/*</include>
+                <include>gen-ai-config.yml</include>
             </includes>
             <outputDirectory>config</outputDirectory>
         </fileSet>

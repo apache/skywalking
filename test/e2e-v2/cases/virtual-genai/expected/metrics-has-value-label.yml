@@ -20,7 +20,7 @@ results:
   - metric:
       labels:
         {{- contains .metric.labels }}
-        - key: "_"
+        - key: "p"
           value: {{ notEmpty .value }}
         {{- end}}
     values:
@@ -36,3 +36,4 @@ results:
       {{- end}}
   {{- end}}
 error: null
+

@@ -244,7 +244,7 @@ event-analyzer:
   selector: ${SW_EVENT_ANALYZER:default}
   default:
 
-genAI-analyzer:
+gen-ai-analyzer:
   selector: ${SW_GENAI_ANALYZER:default}
   default:
 

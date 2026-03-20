@@ -24,8 +24,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
-import org.apache.skywalking.oap.meter.analyzer.module.GenAIAnalyzerModule;
-import org.apache.skywalking.oap.meter.analyzer.service.IGenAIMeterAnalyzerService;
+import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
+import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice.VirtualCacheProcessor;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice.VirtualDatabaseProcessor;
@@ -95,7 +95,7 @@ public class VirtualServiceAnalysisListener implements ExitAnalysisListener, Loc
                             new VirtualCacheProcessor(namingControl, config),
                             new VirtualDatabaseProcessor(namingControl, config),
                             new VirtualMQProcessor(namingControl),
-                            new VirtualGenAIProcessor(genAIMeterAnalyzerService)
+                            new VirtualGenAIProcessor(namingControl, genAIMeterAnalyzerService)
                     )
             );
         }

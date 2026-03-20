@@ -136,9 +136,9 @@
                 },
                 {
                   "x": 0,
-                  "y": 11,
+                  "y": 34,
                   "w": 12,
-                  "h": 11,
+                  "h": 12,
                   "i": "0",
                   "type": "Widget",
                   "expressions": [
@@ -165,9 +165,9 @@
                 },
                 {
                   "x": 12,
-                  "y": 11,
+                  "y": 22,
                   "w": 12,
-                  "h": 11,
+                  "h": 12,
                   "i": "5",
                   "type": "Widget",
                   "expressions": [
@@ -199,7 +199,7 @@
                   "i": "14",
                   "type": "Widget",
                   "expressions": [
-                    "gen_ai_provider_latency_avg"
+                    "gen_ai_provider_avg_cost"
                   ],
                   "graph": {
                     "type": "Line",
@@ -207,9 +207,9 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "name": "AvgLatency",
-                    "title": "Average Latency",
-                    "tips": "The average latency of model access."
+                    "name": "AvgCost",
+                    "title": "Average Cost",
+                    "tips": "The average cost of provider access."
                   },
                   "metricConfig": [
                     {
@@ -218,11 +218,14 @@
                     }
                   ],
                   "id": "0-0-14",
-                  "moved": false
+                  "moved": false,
+                  "typesOfMQE": [
+                    "UNKNOWN"
+                  ]
                 },
                 {
                   "x": 12,
-                  "y": 22,
+                  "y": 34,
                   "w": 12,
                   "h": 12,
                   "i": "13",
@@ -241,6 +244,64 @@
                   },
                   "id": "0-0-13",
                   "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 11,
+                  "w": 12,
+                  "h": 11,
+                  "i": "20",
+                  "type": "Widget",
+                  "widget": {
+                    "name": "AvgOutputTokens",
+                    "title": "Average Output Tokens",
+                    "tips": "The average number of output tokens used per provider access."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "id": "0-0-20",
+                  "moved": false,
+                  "expressions": [
+                    "gen_ai_provider_output_tokens_avg"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 11,
+                  "w": 12,
+                  "h": 11,
+                  "i": "21",
+                  "type": "Widget",
+                  "widget": {
+                    "name": "AvgInputTokens",
+                    "title": "Average Input Tokens",
+                    "tips": "The average number of input tokens used per provider access."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "id": "0-0-21",
+                  "moved": false,
+                  "expressions": [
+                    "gen_ai_provider_input_tokens_avg"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 }
               ]
             },
@@ -278,3 +339,5 @@
     }
   }
 ]
+
+

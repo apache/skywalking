@@ -16,15 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.service;
+package org.apache.skywalking.oap.analyzer.genai.module;
 
-import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
-import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-public interface IGenAIMeterAnalyzerService extends Service {
+public class GenAIAnalyzerModule extends ModuleDefine {
 
-    GenAIMetrics extractMetricsFromSWSpan(SpanObject span, SegmentObject segment);
+    public static final String NAME = "gen-ai-analyzer";
 
+    public GenAIAnalyzerModule() {
+        super(NAME);
+    }
+
+    @Override
+    public Class[] services() {
+        return new Class[] {
+                IGenAIMeterAnalyzerService.class,
+        };
+    }
 }

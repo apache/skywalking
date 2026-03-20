@@ -16,18 +16,15 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.config;
+package org.apache.skywalking.oap.analyzer.genai.service;
 
-import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
+import org.apache.skywalking.oap.server.library.module.Service;
 
-public class GenAIOALDefine extends OALDefine {
+public interface IGenAIMeterAnalyzerService extends Service {
 
-    public static final GenAIOALDefine INSTANCE = new GenAIOALDefine();
+    GenAIMetrics extractMetricsFromSWSpan(SpanObject span, SegmentObject segment);
 
-    private GenAIOALDefine() {
-        super(
-                "oal/virtual-gen-ai.oal",
-                "org.apache.skywalking.oap.server.core.source"
-        );
-    }
 }

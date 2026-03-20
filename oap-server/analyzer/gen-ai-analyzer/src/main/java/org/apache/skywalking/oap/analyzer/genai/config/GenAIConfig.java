@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.config;
+package org.apache.skywalking.oap.analyzer.genai.config;
 
 import lombok.Getter;
 import lombok.Setter;

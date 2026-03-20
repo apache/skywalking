@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.config;
+package org.apache.skywalking.oap.analyzer.genai.config;
 
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -33,7 +33,7 @@ public class GenAIConfigLoader {
 
     private final GenAIConfig config;
 
-    public GenAIConfigLoader(GenAIConfig config, Yaml yaml) {
+    public GenAIConfigLoader(GenAIConfig config) {
         this.config = config;
     }
 

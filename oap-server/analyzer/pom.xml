@@ -34,7 +34,7 @@
         <module>meter-analyzer</module>
         <module>log-analyzer</module>
         <module>hierarchy</module>
-        <module>genAI-analyzer</module>
+        <module>gen-ai-analyzer</module>
     </modules>
 
     <dependencies>

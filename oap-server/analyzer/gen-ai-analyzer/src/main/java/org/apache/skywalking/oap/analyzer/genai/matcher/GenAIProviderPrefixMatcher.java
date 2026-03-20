@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.matcher;
+package org.apache.skywalking.oap.analyzer.genai.matcher;
 
-import org.apache.skywalking.oap.meter.analyzer.config.GenAIConfig;
+import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
 
 import java.util.HashMap;
 import java.util.List;

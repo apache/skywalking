@@ -627,7 +627,7 @@ jobs:
             config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
           - name: Zipkin BanyanDB
             config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
-          - name: Virtual-genai
+          - name: Virtual GenAI
             config: test/e2e-v2/cases/virtual-genai/e2e.yaml
 
           - name: Nginx

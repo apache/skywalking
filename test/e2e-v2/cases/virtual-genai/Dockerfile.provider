@@ -21,7 +21,9 @@ FROM eclipse-temurin:17-jdk AS builder
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /source
-RUN git clone https://github.com/spring-projects/spring-ai-examples.git
+RUN git clone https://github.com/spring-projects/spring-ai-examples.git \
+    && cd spring-ai-examples \
+    && git checkout 2a6088db3d18d5fa6fc208b12adf1172d22f77fd
 
 WORKDIR /source/spring-ai-examples/misc/openai-streaming-response
 RUN mvn clean package -DskipTests
@@ -39,3 +41,4 @@ COPY --from=builder /app.jar /services/app.jar
 EXPOSE 8080
 
 CMD ["sh", "-c", "java -jar /services/app.jar"]
+

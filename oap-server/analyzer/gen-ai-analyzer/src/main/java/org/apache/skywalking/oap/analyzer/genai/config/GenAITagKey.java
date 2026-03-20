@@ -15,7 +15,7 @@
  *   limitations under the License.
  */
 
-package org.apache.skywalking.oap.meter.analyzer.config;
+package org.apache.skywalking.oap.analyzer.genai.config;
 
 public class GenAITagKey {
 
@@ -24,5 +24,5 @@ public class GenAITagKey {
     public static final String RESPONSE_MODEL = "gen_ai.response.model";
     public static final String INPUT_TOKENS = "gen_ai.usage.input_tokens";
     public static final String OUTPUT_TOKENS = "gen_ai.usage.output_tokens";
-    public static final String STREAM_TTFT = "gen_ai.stream.ttfr";
+    public static final String SERVER_TIME_TO_FIRST_TOKEN = "gen_ai.server.time_to_first_token";
 }
