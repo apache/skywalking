@@ -34,14 +34,6 @@ Download test log artifacts from a GitHub Actions CI run and inspect them for er
 
 5. **Report findings**: Summarize the root cause error from the logs.
 
-## Fixing "action is not allowed" errors
-
-If a CI run or PR is blocked because a GitHub Action is not on the Apache allow list:
-
-1. **Check the approved list**: https://github.com/apache/infrastructure-actions/blob/main/approved_patterns.yml
-2. **Update the workflow**: Replace the version tag (e.g., `@v3`) with the approved SHA pin from the list.
-3. Actions owned by `actions/*`, `github/*`, and `apache/*` are always allowed (enterprise-owned) and don't need SHA pins.
-
 ## Notes
 - CI artifacts are automatically uploaded by the e2e test framework to `$SW_INFRA_E2E_LOG_DIR`
 - Log files are organized by namespace/pod name
