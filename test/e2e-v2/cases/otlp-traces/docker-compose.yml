@@ -23,10 +23,6 @@ x-default-logging: &logging
 services:
   frontend:
     image: ghcr.io/open-telemetry/demo:1.4.0-frontend
-    deploy:
-      resources:
-        limits:
-          memory: 200M
     restart: unless-stopped
     ports:
       - 8080
@@ -56,10 +52,6 @@ services:
 
   productcatalogservice:
     image: ghcr.io/open-telemetry/demo:1.4.0-productcatalogservice
-    deploy:
-      resources:
-        limits:
-          memory: 20M
     restart: unless-stopped
     ports:
       - "3550"

@@ -231,6 +231,15 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 
 Use the `/gh-pull-request` skill for committing and pushing to a PR branch. It runs pre-flight checks (compile, checkstyle, license headers) before every push, and creates the PR if one doesn't exist yet.
 
+## GitHub Actions Allow List
+
+Apache enforces an allow list for third-party GitHub Actions. All third-party actions must be pinned to an approved SHA from:
+https://github.com/apache/infrastructure-actions/blob/main/approved_patterns.yml
+
+If a PR is blocked by "action is not allowed" errors, check the approved list and update `.github/workflows/` files to use the approved SHA pin instead of a version tag.
+
+Actions owned by `actions/*` (GitHub), `github/*`, and `apache/*` are always allowed (enterprise-owned).
+
 ## Tips for AI Assistants
 
 1. **Always check submodules**: Protocol changes may require submodule updates
