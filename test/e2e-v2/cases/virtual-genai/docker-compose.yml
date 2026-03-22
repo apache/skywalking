@@ -61,6 +61,11 @@ services:
       SW_LOGGING_OUTPUT: CONSOLE
       SW_AGENT_NAME: e2e-spring-ai
       SW_AGENT_INSTANCE_NAME: spring-ai-examples
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 8080" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
     depends_on:
       oap:
         condition: service_healthy

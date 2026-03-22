@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
 import org.apache.skywalking.oap.server.core.source.GenAIModelAccess;
 import org.apache.skywalking.oap.server.core.source.GenAIProviderAccess;
+import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 
@@ -55,6 +56,7 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
         }
 
         recordList.add(toServiceMeta(metrics));
+        recordList.add(toInstance(metrics));
         recordList.add(toProviderAccess(metrics));
         recordList.add(toModelAccess(metrics));
     }
@@ -65,6 +67,15 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
         service.setLayer(Layer.VIRTUAL_GENAI);
         service.setTimeBucket(metrics.getTimeBucket());
         return service;
+    }
+
+    private Source toInstance(GenAIMetrics metrics) {
+        ServiceInstance instance = new ServiceInstance();
+        instance.setTimeBucket(metrics.getTimeBucket());
+        instance.setName(metrics.getModelName());
+        instance.setServiceLayer(Layer.VIRTUAL_GENAI);
+        instance.setServiceName(metrics.getProviderName());
+        return instance;
     }
 
     private GenAIProviderAccess toProviderAccess(GenAIMetrics metrics) {
