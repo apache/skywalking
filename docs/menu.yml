@@ -44,6 +44,8 @@ catalog:
             path: "/en/setup/backend/backend-docker"
           - name: "Run with Kubernetes"
             path: "/en/setup/backend/backend-k8s"
+          - name: "GraalVM Native Image Distribution"
+            path: "/en/setup/backend/graalvm-distro"
       - name: "Marketplace"
         catalog:
           - name: "Overview"
