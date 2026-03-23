@@ -45,7 +45,7 @@ All existing SkyWalking agents, UI, and CLI tools remain fully compatible.
 Pre-built binaries are available for Linux (AMD64/ARM64) and macOS (ARM64) on the
 [SkyWalking Downloads](https://skywalking.apache.org/downloads/#SkyWalkingGraalVMDistro) page.
 
-Docker images are also available on GHCR as `ghcr.io/apache/skywalking-graalvm-distro`.
+Docker images are available on [Docker Hub](https://hub.docker.com/r/apache/skywalking-graalvm-distro) as `apache/skywalking-graalvm-distro`.
 
 ## Version Mapping
 
