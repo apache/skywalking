@@ -22,7 +22,7 @@
                   "i": "2",
                   "type": "Widget",
                   "expressions": [
-                    "latest(gen_ai_model_total_cost)/1000000"
+                    "latest(gen_ai_model_total_estimated_cost)/1000000"
                   ],
                   "graph": {
                     "type": "Card",
@@ -31,9 +31,9 @@
                     "showUnit": true
                   },
                   "widget": {
-                    "name": "TotalCost",
-                    "title": "Total Cost",
-                    "tips": "The total cost of GenAI model calls."
+                    "name": "TotalEstimatedCost",
+                    "title": "Total Estimated Cost",
+                    "tips": "The total estimated cost of GenAI model calls."
                   },
                   "id": "0-0-2",
                   "moved": false,
@@ -355,15 +355,10 @@
                   "i": "24",
                   "type": "Widget",
                   "widget": {
-                    "name": "AvgCost",
-                    "title": "Average Cost",
-                    "tips": "The average cost of model calls."
+                    "name": "AvgEstimatedCost",
+                    "title": "Average Estimated Cost",
+                    "tips": "The average estimated cost of model calls."
                   },
-                  "metricConfig": [
-                    {
-                      "label": "Avg Cost"
-                    }
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -375,7 +370,7 @@
                   "id": "0-0-24",
                   "moved": false,
                   "expressions": [
-                    "gen_ai_model_avg_cost"
+                    "gen_ai_model_avg_estimated_cost"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"

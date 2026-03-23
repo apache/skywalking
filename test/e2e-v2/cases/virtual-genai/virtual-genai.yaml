@@ -19,7 +19,6 @@ cases:
   # service cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected: expected/service.yml
-
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_provider_resp_time --service-id=b3BlbmFp.0
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_provider_sla --service-id=b3BlbmFp.0
@@ -36,13 +35,12 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_provider_output_tokens_avg --service-id=b3BlbmFp.0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_provider_total_cost --service-id=b3BlbmFp.0
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_provider_total_estimated_cost --service-id=b3BlbmFp.0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_provider_avg_cost --service-id=b3BlbmFp.0
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_provider_avg_estimated_cost --service-id=b3BlbmFp.0
     expected: expected/metrics-has-value.yml
 
-
- # instance cases
+  # instance cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-id=b3BlbmFp.0
     expected: expected/instance.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_model_call_cpm --service-id=b3BlbmFp.0 --instance-name=gpt-4.1-mini-2025-04-14
@@ -65,12 +63,7 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_model_output_tokens_avg --service-id=b3BlbmFp.0 --instance-name=gpt-4.1-mini-2025-04-14
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_model_total_cost --service-id=b3BlbmFp.0 --instance-name=gpt-4.1-mini-2025-04-14
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_model_total_estimated_cost --service-id=b3BlbmFp.0 --instance-name=gpt-4.1-mini-2025-04-14
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_model_avg_cost --service-id=b3BlbmFp.0 --instance-name=gpt-4.1-mini-2025-04-14
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=gen_ai_model_avg_estimated_cost --service-id=b3BlbmFp.0 --instance-name=gpt-4.1-mini-2025-04-14
     expected: expected/metrics-has-value.yml
-
-
-
-
-

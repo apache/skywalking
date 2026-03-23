@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,24 +19,19 @@
 gen_ai_provider_resp_time = from(GenAIProviderAccess.latency).longAvg();
 gen_ai_provider_sla = from(GenAIProviderAccess.*).percent(status == true);
 gen_ai_provider_cpm = from(GenAIProviderAccess.*).cpm();
-
 gen_ai_provider_latency_percentile = from(GenAIProviderAccess.latency).percentile2(10);
 
 gen_ai_provider_input_tokens_sum = from(GenAIProviderAccess.inputTokens).sum();
 gen_ai_provider_input_tokens_avg = from(GenAIProviderAccess.inputTokens).longAvg();
-
 gen_ai_provider_output_tokens_sum = from(GenAIProviderAccess.outputTokens).sum();
 gen_ai_provider_output_tokens_avg = from(GenAIProviderAccess.outputTokens).longAvg();
 
-gen_ai_provider_total_cost = from(GenAIProviderAccess.totalCost).sum();
-gen_ai_provider_avg_cost = from(GenAIProviderAccess.totalCost).doubleAvg();
+gen_ai_provider_total_estimated_cost = from(GenAIProviderAccess.totalCost).sum();
+gen_ai_provider_avg_estimated_cost = from(GenAIProviderAccess.totalCost).doubleAvg();
 
 gen_ai_model_call_cpm = from(GenAIModelAccess.*).cpm();
-
 gen_ai_model_sla = from(GenAIModelAccess.*).percent(status == true);
-
 gen_ai_model_latency_avg = from(GenAIModelAccess.latency).longAvg();
-
 gen_ai_model_latency_percentile = from(GenAIModelAccess.latency).percentile2(10);
 
 gen_ai_model_ttft_avg = from(GenAIModelAccess.timeToFirstToken).filter(timeToFirstToken > 0).longAvg();
@@ -47,5 +42,5 @@ gen_ai_model_input_tokens_avg = from(GenAIModelAccess.inputTokens).longAvg();
 gen_ai_model_output_tokens_sum = from(GenAIModelAccess.outputTokens).sum();
 gen_ai_model_output_tokens_avg = from(GenAIModelAccess.outputTokens).longAvg();
 
-gen_ai_model_total_cost = from(GenAIModelAccess.totalCost).sum();
-gen_ai_model_avg_cost = from(GenAIModelAccess.totalCost).doubleAvg();
+gen_ai_model_total_estimated_cost = from(GenAIModelAccess.totalCost).sum();
+gen_ai_model_avg_estimated_cost = from(GenAIModelAccess.totalCost).doubleAvg();

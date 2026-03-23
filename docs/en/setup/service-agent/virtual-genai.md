@@ -27,16 +27,17 @@ against `prefix-match` rules to identify the provider. For example, a model name
 
 To configure cost estimation, add `models` with pricing under the provider:
 
-​```yaml
+yaml
+```
 providers:
 - provider: openai
   prefix-match:
     - gpt
-      models:
+  models:
     - name: gpt-4o
-      input-cost-per-m: 2.5    # cost per 1,000,000 input tokens
-      output-cost-per-m: 10    # cost per 1,000,000 output tokens
-      ​```
+      input-estimated-cost-per-m: 2.5    # estimated cost per 1,000,000 input tokens
+      output-estimated-cost-per-m: 10    # estimated cost per 1,000,000 output tokens
+```
 
 ## Metrics
 
@@ -47,7 +48,7 @@ The following metrics are available at the **provider** (service) level:
 - `gen_ai_provider_latency_percentile` - Latency percentiles
 - `gen_ai_provider_input_tokens_sum / avg` - Input token usage
 - `gen_ai_provider_output_tokens_sum / avg` - Output token usage
-- `gen_ai_provider_total_cost / avg_cost` - Estimated cost
+- `gen_ai_provider_total_estimated_cost / avg_estimated_cost` - Estimated cost
 
 The following metrics are available at the **model** (service instance) level:
 - `gen_ai_model_call_cpm` - Calls per minute
@@ -56,7 +57,7 @@ The following metrics are available at the **model** (service instance) level:
 - `gen_ai_model_ttft_avg / percentile` - Time to first token (streaming only)
 - `gen_ai_model_input_tokens_sum / avg` - Input token usage
 - `gen_ai_model_output_tokens_sum / avg` - Output token usage
-- `gen_ai_model_total_cost / avg_cost` - Estimated cost
+- `gen_ai_model_total_estimated_cost / avg_estimated_cost` - Estimated cost
 
 ## Requirement
-`skwaylking java agent` version >= 9.7
+`Skwaylking java agent` version >= 9.7

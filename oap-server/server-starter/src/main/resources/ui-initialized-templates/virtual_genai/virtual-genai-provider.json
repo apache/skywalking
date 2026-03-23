@@ -22,7 +22,7 @@
                   "i": "2",
                   "type": "Widget",
                   "expressions": [
-                    "latest(gen_ai_provider_total_cost)/1000000"
+                    "latest(gen_ai_provider_total_estimated_cost)/1000000"
                   ],
                   "graph": {
                     "type": "Card",
@@ -31,9 +31,9 @@
                     "showUnit": true
                   },
                   "widget": {
-                    "name": "TotalCost",
-                    "title": "Total Cost",
-                    "tips": "The total cost of GenAI model calls."
+                    "name": "TotalEstimatedCost",
+                    "title": "Total Estimated Cost",
+                    "tips": "The total estimated cost of GenAI model calls."
                   },
                   "id": "0-0-2",
                   "moved": false,
@@ -199,7 +199,7 @@
                   "i": "14",
                   "type": "Widget",
                   "expressions": [
-                    "gen_ai_provider_avg_cost"
+                    "gen_ai_provider_avg_estimated_cost"
                   ],
                   "graph": {
                     "type": "Line",
@@ -207,16 +207,10 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "name": "AvgCost",
-                    "title": "Average Cost",
-                    "tips": "The average cost of provider access."
+                    "name": "AvgEstimatedCost",
+                    "title": "Average Estimated Cost",
+                    "tips": "The average estimated cost of provider access."
                   },
-                  "metricConfig": [
-                    {
-                      "label": "Avg Latency",
-                      "unit": "ms"
-                    }
-                  ],
                   "id": "0-0-14",
                   "moved": false,
                   "typesOfMQE": [

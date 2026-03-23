@@ -98,7 +98,7 @@ public class RuntimeOALGenerationTest {
         // DisableOALDefine - no catalog
         registerOALDefine("disable", createOALDefine("oal/disable.oal", SOURCE_PACKAGE, ""));
 
-        registerOALDefine("disable", createOALDefine("oal/virtual-gen-ai.oal", SOURCE_PACKAGE, ""));
+        registerOALDefine("virtual-gen-ai", createOALDefine("oal/virtual-gen-ai.oal", SOURCE_PACKAGE, ""));
 
         // Set generated file path for IDE inspection
         OALClassGeneratorV2.setGeneratedFilePath("target/test-classes");
