@@ -16,21 +16,15 @@
 version: '2.1'
 
 services:
-  etcd:
-    extends:
-      file: ../../../../script/docker-compose/base-compose.yml
-      service: etcd
-    networks:
-      - e2e
-
   data-hot1:
     extends:
       file: ../../../../script/docker-compose/base-compose.yml
       service: banyandb-data
     hostname: data-hot1
-    command: data --etcd-endpoints=http://etcd:2379 --node-labels type=hot
+    command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --node-labels type=hot
     volumes:
       - ../data-generate/sw_metadata:/tmp/measure/data/sw_metadata
+      - ./nodes.yaml:/etc/banyandb/nodes.yaml
     networks:
       - e2e
 
@@ -39,7 +33,9 @@ services:
       file: ../../../../script/docker-compose/base-compose.yml
       service: banyandb-data
     hostname: data-warm1
-    command: data --etcd-endpoints=http://etcd:2379 --node-labels type=warm
+    command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --node-labels type=warm
+    volumes:
+      - ./nodes.yaml:/etc/banyandb/nodes.yaml
     networks:
       - e2e
 
@@ -48,12 +44,13 @@ services:
       file: ../../../../script/docker-compose/base-compose.yml
       service: banyandb-data
     hostname: data-cold1
-    command: data --etcd-endpoints=http://etcd:2379 --node-labels type=cold
+    command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --node-labels type=cold
     volumes:
       - ../data-generate/tmp/measure-data/measure:/tmp/measure
       - ../data-generate/tmp/stream-data/stream:/tmp/stream
       - ../data-generate/tmp/property:/tmp/property
       - ../data-generate/tmp/trace:/tmp/trace
+      - ./nodes.yaml:/etc/banyandb/nodes.yaml
     networks:
       - e2e
 
@@ -61,7 +58,9 @@ services:
     extends:
       file: ../../../../script/docker-compose/base-compose.yml
       service: liaison
-    command: liaison --etcd-endpoints=http://etcd:2379 --data-node-selector type=hot
+    command: liaison --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --data-node-selector type=hot
+    volumes:
+      - ./nodes.yaml:/etc/banyandb/nodes.yaml
     networks:
       - e2e
 
