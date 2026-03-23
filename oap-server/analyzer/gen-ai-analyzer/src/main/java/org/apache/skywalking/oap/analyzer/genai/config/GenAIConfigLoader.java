@@ -84,8 +84,8 @@ public class GenAIConfigLoader {
                         Map<String, Object> modelMap = (Map<String, Object>) modelObj;
                         GenAIConfig.Model model = new GenAIConfig.Model();
                         model.setName(String.valueOf(modelMap.get("name")));
-                        model.setInputCostPerM(parseCost(modelMap.get("input-cost-per-m")));
-                        model.setOutputCostPerM(parseCost(modelMap.get("output-cost-per-m")));
+                        model.setInputEstimatedCostPerM(parseCost(modelMap.get("input-estimated-cost-per-m")));
+                        model.setOutputEstimatedCostPerM(parseCost(modelMap.get("output-estimated-cost-per-m")));
                         provider.getModels().add(model);
                     }
                 }

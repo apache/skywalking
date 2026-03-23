@@ -158,7 +158,7 @@ catalog:
                 path: "/en/setup/backend/dashboards-so11y-go-agent"
           - name: "GenAI"
             catalog:
-              - name: "Virtual Genai"
+              - name: "Virtual GenAI"
                 path: "/en/setup/service-agent/virtual-genai"
       - name: "Configuration Vocabulary"
         path: "/en/setup/backend/configuration-vocabulary"

@@ -27,8 +27,8 @@ against `prefix-match` rules to identify the provider. For example, a model name
 
 To configure cost estimation, add `models` with pricing under the provider:
 
-yaml
-```
+
+```yaml
 providers:
 - provider: openai
   prefix-match:
@@ -60,4 +60,4 @@ The following metrics are available at the **model** (service instance) level:
 - `gen_ai_model_total_estimated_cost / avg_estimated_cost` - Estimated cost
 
 ## Requirement
-`Skwaylking java agent` version >= 9.7
+`SkyWalking Java Agent` version >= 9.7

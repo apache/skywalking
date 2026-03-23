@@ -77,11 +77,11 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         // calculate the total cost by the cost configs
         double totalCost = 0.0;
         if (modelConfig != null) {
-            if (modelConfig.getInputCostPerM() > 0) {
-                totalCost += inputTokens * modelConfig.getInputCostPerM();
+            if (modelConfig.getInputEstimatedCostPerM() > 0) {
+                totalCost += inputTokens * modelConfig.getInputEstimatedCostPerM();
             }
-            if (modelConfig.getOutputCostPerM() > 0) {
-                totalCost += outputTokens * modelConfig.getOutputCostPerM();
+            if (modelConfig.getOutputEstimatedCostPerM() > 0) {
+                totalCost += outputTokens * modelConfig.getOutputEstimatedCostPerM();
             }
         }
 
@@ -111,7 +111,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
-            LOG.warn("Failed to parse token count: {}", value);
+            LOG.warn("Failed to parse value to long: {}", value);
             return 0;
         }
     }
@@ -123,7 +123,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            LOG.warn("Failed to parse token count: {}", value);
+            LOG.warn("Failed to parse value to int: {}", value);
             return 0;
         }
     }
