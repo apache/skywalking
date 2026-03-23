@@ -14,7 +14,7 @@ self-contained binary with faster startup and lower memory footprint.
 | Module set                           | Dynamically loaded via SPI                 | Fixed at build time        |
 | DSL rules (OAL, MAL, LAL, Hierarchy) | Compiled at startup                        | Pre-compiled at build time |
 
-Benchmark results (Apple M3 Max, BanyanDB backend, 20 RPS sustained load):
+Benchmark results on JVM class initialization and runtime resource usage (Apple M3 Max, BanyanDB backend, 20 RPS sustained load):
 
 | Metric               | Standard OAP (JVM) | GraalVM Distro | Improvement   |
 |----------------------|--------------------|----------------|---------------|
@@ -45,7 +45,7 @@ All existing SkyWalking agents, UI, and CLI tools remain fully compatible.
 Pre-built binaries are available for Linux (AMD64/ARM64) and macOS (ARM64) on the
 [SkyWalking Downloads](https://skywalking.apache.org/downloads/#SkyWalkingGraalVMDistro) page.
 
-Docker images are also available on GHCR.
+Docker images are also available on GHCR as `ghcr.io/apache/skywalking-graalvm-distro`.
 
 ## Version Mapping
 
