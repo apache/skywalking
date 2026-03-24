@@ -83,7 +83,7 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
         source.setName(namingControl.formatServiceName(metrics.getProviderName()));
         source.setInputTokens(metrics.getInputTokens());
         source.setOutputTokens(metrics.getOutputTokens());
-        source.setTotalCost(metrics.getTotalCost());
+        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
         source.setLatency(metrics.getLatency());
         source.setStatus(metrics.isStatus());
         source.setTimeBucket(metrics.getTimeBucket());
@@ -96,7 +96,7 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
         source.setModelName(namingControl.formatInstanceName(metrics.getModelName()));
         source.setInputTokens(metrics.getInputTokens());
         source.setOutputTokens(metrics.getOutputTokens());
-        source.setTotalCost(metrics.getTotalCost());
+        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
         source.setTimeToFirstToken(metrics.getTimeToFirstToken());
         source.setLatency(metrics.getLatency());
         source.setStatus(metrics.isStatus());

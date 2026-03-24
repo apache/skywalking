@@ -55,7 +55,7 @@ public class GenAIModelAccess extends Source {
 
     private long outputTokens;
 
-    private double totalCost;
+    private long totalEstimatedCost;
 
     private int timeToFirstToken;
 

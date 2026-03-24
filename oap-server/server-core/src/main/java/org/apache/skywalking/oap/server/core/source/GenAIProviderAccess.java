@@ -49,7 +49,7 @@ public class GenAIProviderAccess extends Source {
 
     private long outputTokens;
 
-    private double totalCost;
+    private long totalEstimatedCost;
 
     private long latency;
 

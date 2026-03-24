@@ -17,7 +17,7 @@
 
 package org.apache.skywalking.oap.analyzer.genai.config;
 
-public class GenAITagKey {
+public class GenAITagKeys {
 
     public static final String PROVIDER_NAME = "gen_ai.provider.name";
 

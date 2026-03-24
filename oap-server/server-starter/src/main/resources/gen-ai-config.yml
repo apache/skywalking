@@ -239,7 +239,7 @@ providers:
 
   - provider: groq
     prefix-match:
-      - llama-3
+      - llama
     models:
       - name: llama-4-scout-17bx16e-128k
         input-estimated-cost-per-m: 0.11
@@ -300,12 +300,15 @@ providers:
       - qwen
     models:
       - name: qwen3-max
+        # Lowest output price
         input-estimated-cost-per-m: 0.36
         output-estimated-cost-per-m: 1.45
       - name: qwen3.5-plus
+        # Lowest output price
         input-estimated-cost-per-m: 0.12
         output-estimated-cost-per-m: 0.70
       - name: qwen3.5-flash
+        # Lowest output price
         input-estimated-cost-per-m: 0.03
         output-estimated-cost-per-m: 0.29
 
@@ -322,9 +325,6 @@ providers:
         # For Input (0, 32k]
         input-estimated-cost-per-m: 0.46
         output-estimated-cost-per-m: 1.15
-      - name: hunyuan-turbos
-        input-estimated-cost-per-m: 0.12
-        output-estimated-cost-per-m: 0.29
       - name: hunyuan-t1
         input-estimated-cost-per-m: 0.15
         output-estimated-cost-per-m: 0.58
@@ -371,3 +371,61 @@ providers:
 
   - provider: ollama
     prefix-match:
+
+  - provider: azure_openai
+    prefix-match:
+      - GPT
+    models:
+      - name: GPT-5.2
+        # GPT-5.2 Global
+        input-estimated-cost-per-m: 1.75
+        output-estimated-cost-per-m: 14.0
+      - name: GPT-5.2-chat
+        input-estimated-cost-per-m: 1.75
+        output-estimated-cost-per-m: 14.0
+
+      # --- GPT-5.1 Series ---
+      - name: GPT-5.1
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: GPT-5.1-chat
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: GPT-5.1-codex-Global
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: GPT-5.1-codex-max-Global
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: GPT-5.1-codex-mini-Global
+        input-estimated-cost-per-m: 0.25
+        output-estimated-cost-per-m: 2.0
+
+      # --- GPT-5 Series ---
+      - name: GPT-5-2025-08-07-Global
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: GPT-5-Data-Zone
+        input-estimated-cost-per-m: 1.38
+        output-estimated-cost-per-m: 11.0
+      - name: GPT-5-Pro-Global
+        input-estimated-cost-per-m: 15.0
+        output-estimated-cost-per-m: 120.0
+      - name: GPT-5-Codex-Global
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: GPT-5-mini-Global
+        input-estimated-cost-per-m: 0.25
+        output-estimated-cost-per-m: 2.0
+      - name: GPT-5-mini-Data-Zone
+        input-estimated-cost-per-m: 0.28
+        output-estimated-cost-per-m: 2.20
+      - name: GPT-5-nano-Global
+        input-estimated-cost-per-m: 0.05
+        output-estimated-cost-per-m: 0.40
+      - name: GPT-5-nano-Data-Zone
+        input-estimated-cost-per-m: 0.06
+        output-estimated-cost-per-m: 0.44
+      - name: GPT-5-chat-Global
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0

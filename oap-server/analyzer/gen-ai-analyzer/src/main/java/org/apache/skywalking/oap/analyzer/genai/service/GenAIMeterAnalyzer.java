@@ -17,27 +17,25 @@
 
 package org.apache.skywalking.oap.analyzer.genai.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
-import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKey;
+import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKeys;
 import org.apache.skywalking.oap.analyzer.genai.matcher.GenAIProviderPrefixMatcher;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
+@Slf4j
 public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(GenAIMeterAnalyzer.class);
 
     private final GenAIProviderPrefixMatcher matcher;
 
@@ -54,15 +52,15 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
                         (v1, v2) -> v1
                 ));
 
-        String modelName = tags.get(GenAITagKey.RESPONSE_MODEL);
+        String modelName = tags.get(GenAITagKeys.RESPONSE_MODEL);
 
         if (StringUtil.isBlank(modelName)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Model name is missing in span [{}], skipping GenAI analysis", span.getOperationName());
+            if (log.isDebugEnabled()) {
+                log.debug("Model name is missing in span [{}], skipping GenAI analysis", span.getOperationName());
             }
             return null;
         }
-        String provider = tags.get(GenAITagKey.PROVIDER_NAME);
+        String provider = tags.get(GenAITagKeys.PROVIDER_NAME);
         GenAIProviderPrefixMatcher.MatchResult matchResult = matcher.match(modelName);
 
         if (StringUtil.isBlank(provider)) {
@@ -71,17 +69,17 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
 
         GenAIConfig.Model modelConfig = matchResult.getModelConfig();
 
-        long inputTokens = parseSafeLong(tags.get(GenAITagKey.INPUT_TOKENS));
-        long outputTokens = parseSafeLong(tags.get(GenAITagKey.OUTPUT_TOKENS));
+        long inputTokens = parseSafeLong(tags.get(GenAITagKeys.INPUT_TOKENS));
+        long outputTokens = parseSafeLong(tags.get(GenAITagKeys.OUTPUT_TOKENS));
 
         // calculate the total cost by the cost configs
-        double totalCost = 0.0;
+        long totalCost = 0L;
         if (modelConfig != null) {
             if (modelConfig.getInputEstimatedCostPerM() > 0) {
-                totalCost += inputTokens * modelConfig.getInputEstimatedCostPerM();
+                totalCost += (long) (inputTokens * modelConfig.getInputEstimatedCostPerM());
             }
             if (modelConfig.getOutputEstimatedCostPerM() > 0) {
-                totalCost += outputTokens * modelConfig.getOutputEstimatedCostPerM();
+                totalCost += (long) (outputTokens * modelConfig.getOutputEstimatedCostPerM());
             }
         }
 
@@ -93,8 +91,8 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
 
-        metrics.setTimeToFirstToken(parseSafeInt(tags.get(GenAITagKey.SERVER_TIME_TO_FIRST_TOKEN)));
-        metrics.setTotalCost(totalCost);
+        metrics.setTimeToFirstToken(parseSafeInt(tags.get(GenAITagKeys.SERVER_TIME_TO_FIRST_TOKEN)));
+        metrics.setTotalEstimatedCost(totalCost);
 
         long latency = span.getEndTime() - span.getStartTime();
         metrics.setLatency(latency);
@@ -111,7 +109,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
-            LOG.warn("Failed to parse value to long: {}", value);
+            log.warn("Failed to parse value to long: {}", value);
             return 0;
         }
     }
@@ -123,7 +121,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            LOG.warn("Failed to parse value to int: {}", value);
+            log.warn("Failed to parse value to int: {}", value);
             return 0;
         }
     }
