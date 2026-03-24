@@ -370,4 +370,6 @@ providers:
         output-estimated-cost-per-m: 1.2
 
   - provider: ollama
+    # OLLAMA (Local Models): This section serves as a template for self-hosted models.
+    # Users can define their own prefix-match and specific models here.
     prefix-match:

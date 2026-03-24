@@ -63,7 +63,7 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
 
     private ServiceMeta toServiceMeta(GenAIMetrics metrics) {
         ServiceMeta service = new ServiceMeta();
-        service.setName(metrics.getProviderName());
+        service.setName(namingControl.formatServiceName(metrics.getProviderName()));
         service.setLayer(Layer.VIRTUAL_GENAI);
         service.setTimeBucket(metrics.getTimeBucket());
         return service;
@@ -72,7 +72,7 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
     private Source toInstance(GenAIMetrics metrics) {
         ServiceInstance instance = new ServiceInstance();
         instance.setTimeBucket(metrics.getTimeBucket());
-        instance.setName(metrics.getModelName());
+        instance.setName(namingControl.formatInstanceName(metrics.getModelName()));
         instance.setServiceLayer(Layer.VIRTUAL_GENAI);
         instance.setServiceName(metrics.getProviderName());
         return instance;

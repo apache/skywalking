@@ -73,13 +73,13 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         long outputTokens = parseSafeLong(tags.get(GenAITagKeys.OUTPUT_TOKENS));
 
         // calculate the total cost by the cost configs
-        long totalCost = 0L;
+        double totalCost = 0.0D;
         if (modelConfig != null) {
             if (modelConfig.getInputEstimatedCostPerM() > 0) {
-                totalCost += (long) (inputTokens * modelConfig.getInputEstimatedCostPerM());
+                totalCost += inputTokens * modelConfig.getInputEstimatedCostPerM();
             }
             if (modelConfig.getOutputEstimatedCostPerM() > 0) {
-                totalCost += (long) (outputTokens * modelConfig.getOutputEstimatedCostPerM());
+                totalCost += outputTokens * modelConfig.getOutputEstimatedCostPerM();
             }
         }
 
@@ -92,7 +92,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setOutputTokens(outputTokens);
 
         metrics.setTimeToFirstToken(parseSafeInt(tags.get(GenAITagKeys.SERVER_TIME_TO_FIRST_TOKEN)));
-        metrics.setTotalEstimatedCost(totalCost);
+        metrics.setTotalEstimatedCost(Math.round(totalCost));
 
         long latency = span.getEndTime() - span.getStartTime();
         metrics.setLatency(latency);

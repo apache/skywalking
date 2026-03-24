@@ -104,8 +104,6 @@ public class GenAIMeterAnalyzerTest {
         assertEquals(1000L, metrics.getInputTokens());
         assertEquals(500L, metrics.getOutputTokens());
         assertEquals(100, metrics.getTimeToFirstToken());
-
-
         assertEquals(10000L, metrics.getTotalEstimatedCost());
         assertEquals(5000L, metrics.getLatency());
         assertTrue(metrics.isStatus());
@@ -151,7 +149,7 @@ public class GenAIMeterAnalyzerTest {
         assertNotNull(metrics);
         assertEquals("deepseek", metrics.getProviderName());
         assertEquals("deepseek-chat", metrics.getModelName());
-        assertEquals(980L, metrics.getTotalEstimatedCost()); // 基于 0.28 和 0.42 预估价
+        assertEquals(980L, metrics.getTotalEstimatedCost());
     }
 
     @Test
