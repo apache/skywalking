@@ -16,16 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.analyzer.genai;
+package org.apache.skywalking.oap.server.starter.config;
 
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
+import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfigLoader;
 import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKeys;
 import org.apache.skywalking.oap.analyzer.genai.matcher.GenAIProviderPrefixMatcher;
 import org.apache.skywalking.oap.analyzer.genai.service.GenAIMeterAnalyzer;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,17 +36,34 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GenAIMeterAnalyzerTest {
+    private GenAIConfig loadedConfig;
     private GenAIProviderPrefixMatcher matcher;
     private GenAIMeterAnalyzer analyzer;
 
     @BeforeEach
-    void setUp() {
-        matcher = mock(GenAIProviderPrefixMatcher.class);
+    void setUp() throws ModuleStartException {
+        GenAIConfig config = new GenAIConfig();
+        GenAIConfigLoader loader = new GenAIConfigLoader(config);
+        loadedConfig = loader.loadConfig();
+
+        matcher = GenAIProviderPrefixMatcher.build(loadedConfig);
         analyzer = new GenAIMeterAnalyzer(matcher);
+    }
+
+    @Test
+    void testLoadConfig() {
+        assertNotNull(loadedConfig);
+        assertFalse(loadedConfig.getProviders().isEmpty(), "Providers list should not be empty after loading config");
+    }
+
+    @Test
+    void testProviderMatching() {
+        assertEquals("openai", matcher.match("gpt-5.4-pro").getProvider());
+        assertEquals("deepseek", matcher.match("deepseek-chat").getProvider());
+        assertEquals("anthropic", matcher.match("claude-4.6-opus").getProvider());
+        assertEquals("gemini", matcher.match("gemini-3.1-pro-preview").getProvider());
     }
 
     @Test
@@ -56,7 +75,7 @@ public class GenAIMeterAnalyzerTest {
                 .setIsError(false)
                 .addTags(KeyStringValuePair.newBuilder()
                         .setKey(GenAITagKeys.RESPONSE_MODEL)
-                        .setValue("gpt-4o")
+                        .setValue("gpt-5.4")
                         .build())
                 .addTags(KeyStringValuePair.newBuilder()
                         .setKey(GenAITagKeys.PROVIDER_NAME)
@@ -76,23 +95,18 @@ public class GenAIMeterAnalyzerTest {
                         .build())
                 .build();
 
-        GenAIConfig.Model modelConfig = new GenAIConfig.Model();
-        modelConfig.setName("gpt-4o");
-        modelConfig.setInputEstimatedCostPerM(2.5);
-        modelConfig.setOutputEstimatedCostPerM(10.0);
-
-        GenAIProviderPrefixMatcher.MatchResult matchResult = new GenAIProviderPrefixMatcher.MatchResult("openai", modelConfig);
-        when(matcher.match("gpt-4o")).thenReturn(matchResult);
         SegmentObject segment = SegmentObject.newBuilder().build();
         GenAIMetrics metrics = analyzer.extractMetricsFromSWSpan(span, segment);
 
         assertNotNull(metrics);
         assertEquals("openai", metrics.getProviderName());
-        assertEquals("gpt-4o", metrics.getModelName());
+        assertEquals("gpt-5.4", metrics.getModelName());
         assertEquals(1000L, metrics.getInputTokens());
         assertEquals(500L, metrics.getOutputTokens());
         assertEquals(100, metrics.getTimeToFirstToken());
-        assertEquals(7500L, metrics.getTotalEstimatedCost());
+
+
+        assertEquals(10000L, metrics.getTotalEstimatedCost());
         assertEquals(5000L, metrics.getLatency());
         assertTrue(metrics.isStatus());
     }
@@ -131,21 +145,13 @@ public class GenAIMeterAnalyzerTest {
                         .build())
                 .build();
 
-        GenAIConfig.Model modelConfig = new GenAIConfig.Model();
-        modelConfig.setName("deepseek-chat");
-        modelConfig.setInputEstimatedCostPerM(0.28);
-        modelConfig.setOutputEstimatedCostPerM(0.42);
-
-        GenAIProviderPrefixMatcher.MatchResult matchResult = new GenAIProviderPrefixMatcher.MatchResult("deepseek", modelConfig);
-        when(matcher.match("deepseek-chat")).thenReturn(matchResult);
-
         SegmentObject segment = SegmentObject.newBuilder().build();
         GenAIMetrics metrics = analyzer.extractMetricsFromSWSpan(span, segment);
 
         assertNotNull(metrics);
         assertEquals("deepseek", metrics.getProviderName());
         assertEquals("deepseek-chat", metrics.getModelName());
-        assertEquals(980L, metrics.getTotalEstimatedCost()); // (2000 * 0.28) + (1000 * 0.42)
+        assertEquals(980L, metrics.getTotalEstimatedCost()); // 基于 0.28 和 0.42 预估价
     }
 
     @Test
@@ -168,9 +174,6 @@ public class GenAIMeterAnalyzerTest {
                         .build())
                 .build();
 
-        GenAIProviderPrefixMatcher.MatchResult matchResult = new GenAIProviderPrefixMatcher.MatchResult("unknown", null);
-        when(matcher.match("unknown-model")).thenReturn(matchResult);
-
         SegmentObject segment = SegmentObject.newBuilder().build();
         GenAIMetrics metrics = analyzer.extractMetricsFromSWSpan(span, segment);
 
@@ -186,7 +189,7 @@ public class GenAIMeterAnalyzerTest {
                 .setEndTime(1005000L)
                 .addTags(KeyStringValuePair.newBuilder()
                         .setKey(GenAITagKeys.RESPONSE_MODEL)
-                        .setValue("gpt-4o")
+                        .setValue("gpt-5.4")
                         .build())
                 .addTags(KeyStringValuePair.newBuilder()
                         .setKey(GenAITagKeys.INPUT_TOKENS)
@@ -197,9 +200,6 @@ public class GenAIMeterAnalyzerTest {
                         .setValue("not-a-number")
                         .build())
                 .build();
-
-        GenAIProviderPrefixMatcher.MatchResult matchResult = new GenAIProviderPrefixMatcher.MatchResult("openai", null);
-        when(matcher.match("gpt-4o")).thenReturn(matchResult);
 
         SegmentObject segment = SegmentObject.newBuilder().build();
         GenAIMetrics metrics = analyzer.extractMetricsFromSWSpan(span, segment);
@@ -222,13 +222,24 @@ public class GenAIMeterAnalyzerTest {
                         .build())
                 .build();
 
-        GenAIProviderPrefixMatcher.MatchResult matchResult = new GenAIProviderPrefixMatcher.MatchResult("anthropic", null);
-        when(matcher.match("claude-4-sonnet")).thenReturn(matchResult);
-
         SegmentObject segment = SegmentObject.newBuilder().build();
         GenAIMetrics metrics = analyzer.extractMetricsFromSWSpan(span, segment);
 
         assertNotNull(metrics);
         assertFalse(metrics.isStatus());
+    }
+
+    @Test
+    void testEstimatedCost() throws ModuleStartException {
+        GenAIConfig config = new GenAIConfig();
+        GenAIConfigLoader loader = new GenAIConfigLoader(config);
+        GenAIConfig loadedConfig = loader.loadConfig();
+
+        GenAIProviderPrefixMatcher matcher = GenAIProviderPrefixMatcher.build(loadedConfig);
+
+        GenAIProviderPrefixMatcher.MatchResult result = matcher.match("gpt-5.4-pro");
+        assertNotNull(result.getModelConfig());
+        assertEquals(30.0, result.getModelConfig().getInputEstimatedCostPerM(), 0.001);
+        assertEquals(180.0, result.getModelConfig().getOutputEstimatedCostPerM(), 0.001);
     }
 }
