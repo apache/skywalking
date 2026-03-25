@@ -199,7 +199,7 @@
                   "i": "14",
                   "type": "Widget",
                   "expressions": [
-                    "gen_ai_provider_avg_estimated_cost"
+                    "gen_ai_provider_avg_estimated_cost/1000000"
                   ],
                   "graph": {
                     "type": "Line",
