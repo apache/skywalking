@@ -63,6 +63,8 @@ SRC_CILIUM_ENDPOINT: 'CiliumEndpoint';
 SRC_CILIUM_SERVICE_RELATION: 'CiliumServiceRelation';
 SRC_CILIUM_SERVICE_INSTANCE_RELATION: 'CiliumServiceInstanceRelation';
 SRC_CILIUM_ENDPOINT_RELATION: 'CiliumEndpointRelation';
+SRC_GEN_AI_PROVIDER_ACCESS: 'GenAIProviderAccess';
+SRC_GEN_AI_MODEL_ACCESS: 'GenAIModelAccess';
 DECORATOR: 'decorator';
 
 

@@ -45,6 +45,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>gen-ai-analyzer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>server-testing</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

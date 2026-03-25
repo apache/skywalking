@@ -1,0 +1,337 @@
+[
+  {
+    "id": "Virtual-GenAI-Provider",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 42,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 4,
+                  "h": 11,
+                  "i": "2",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(gen_ai_provider_total_estimated_cost)/1000000"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "widget": {
+                    "name": "TotalEstimatedCost",
+                    "title": "Total Estimated Cost",
+                    "tips": "The total estimated cost of GenAI model calls."
+                  },
+                  "id": "0-0-2",
+                  "moved": false,
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ]
+                },
+                {
+                  "x": 4,
+                  "y": 0,
+                  "w": 4,
+                  "h": 11,
+                  "i": "18",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(gen_ai_provider_output_tokens_sum)"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Output Tokens"
+                    }
+                  ],
+                  "widget": {
+                    "name": "OutputTokens",
+                    "title": "Output Tokens",
+                    "tips": "The sum of output tokens."
+                  },
+                  "id": "0-0-18",
+                  "moved": false,
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 4,
+                  "h": 11,
+                  "i": "19",
+                  "type": "Widget",
+                  "expressions": [
+                    "latest(gen_ai_provider_input_tokens_sum)"
+                  ],
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 24,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Input Tokens"
+                    }
+                  ],
+                  "widget": {
+                    "name": "InputTokens",
+                    "title": "Input Tokens",
+                    "tips": "The sum of input tokens."
+                  },
+                  "id": "0-0-19",
+                  "moved": false,
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 11,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_provider_sla/100"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "ServiceSLA",
+                    "title": "Service SLA",
+                    "tips": "Successful rate of GenAI provider calls."
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "SLA",
+                      "unit": "%"
+                    }
+                  ],
+                  "id": "0-0-1",
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 34,
+                  "w": 12,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_provider_resp_time"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Response Time",
+                      "unit": "ms"
+                    }
+                  ],
+                  "widget": {
+                    "name": "ResponseTime",
+                    "title": "Response Time",
+                    "tips": "The average response time of GenAI provider."
+                  },
+                  "id": "0-0-0",
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 22,
+                  "w": 12,
+                  "h": 12,
+                  "i": "5",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_provider_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "CPM"
+                    }
+                  ],
+                  "widget": {
+                    "name": "CPM",
+                    "title": "Calls Per Minute",
+                    "tips": "The number of calls per minute."
+                  },
+                  "id": "0-0-5",
+                  "moved": false
+                },
+                {
+                  "x": 0,
+                  "y": 22,
+                  "w": 12,
+                  "h": 12,
+                  "i": "14",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_provider_avg_estimated_cost/1000000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "AvgEstimatedCost",
+                    "title": "Average Estimated Cost",
+                    "tips": "The average estimated cost of provider access."
+                  },
+                  "id": "0-0-14",
+                  "moved": false,
+                  "typesOfMQE": [
+                    "UNKNOWN"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 34,
+                  "w": 12,
+                  "h": 12,
+                  "i": "13",
+                  "type": "Widget",
+                  "expressions": [
+                    "gen_ai_provider_latency_percentile"
+                  ],
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "name": "LatencyPercentile",
+                    "title": "Latency Percentile",
+                    "tips": "The percentile of model access latency."
+                  },
+                  "id": "0-0-13",
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 11,
+                  "w": 12,
+                  "h": 11,
+                  "i": "20",
+                  "type": "Widget",
+                  "widget": {
+                    "name": "AvgOutputTokens",
+                    "title": "Average Output Tokens",
+                    "tips": "The average number of output tokens used per provider access."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "id": "0-0-20",
+                  "moved": false,
+                  "expressions": [
+                    "gen_ai_provider_output_tokens_avg"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 11,
+                  "w": 12,
+                  "h": 11,
+                  "i": "21",
+                  "type": "Widget",
+                  "widget": {
+                    "name": "AvgInputTokens",
+                    "title": "Average Input Tokens",
+                    "tips": "The average number of input tokens used per provider access."
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "id": "0-0-21",
+                  "moved": false,
+                  "expressions": [
+                    "gen_ai_provider_input_tokens_avg"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "model",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 30,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "Virtual-GenAI-Model",
+                    "fontSize": 12
+                  },
+                  "id": "0-1-0",
+                  "moved": false
+                }
+              ]
+            }
+          ],
+          "id": "0",
+          "activedTabIndex": 0,
+          "moved": false
+        }
+      ],
+      "layer": "VIRTUAL_GENAI",
+      "entity": "Service",
+      "name": "Virtual-GenAI-Provider",
+      "id": "Virtual-GenAI-Provider",
+      "isRoot": false
+    }
+  }
+]
+
+
