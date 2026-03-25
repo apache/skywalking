@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.starter.config;
+package org.apache.skywalking.oap.genai.analyzer;
 
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
