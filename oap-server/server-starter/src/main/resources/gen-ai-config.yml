@@ -1,0 +1,361 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file configures GenAI provider matching rules and estimated pricing.
+# Rules define how to map model names to providers and calculate token costs.
+
+#Here is a example
+#- provider: ollama
+#  # If a model name starts with these strings, it will be mapped to this provider
+#  prefix-match:
+#    - ollama
+#  models:
+#    - name: ollama
+#      # --- PRICING CONFIGURATION ---
+#      # Costs are defined as the price per 1,000,000 (one million) tokens.
+#      # The currency depends on your system's default setting (e.g., USD or CNY).
+#
+#      # Estimated cost for every 1,000,000 input (prompt) tokens
+#      input-estimated-cost-per-m: 1
+#
+#      # Estimated cost for every 1,000,000 output (completion) tokens
+#      output-estimated-cost-per-m: 1
+
+last-updated: 2026-03-23
+
+# --- IMPORTANT NOTES
+# 1. ESTIMATED COSTS ONLY: The pricing values below are for estimation purposes
+#    within the system and MUST NOT be treated as actual billing or invoice amounts.
+#
+# 2. DATA SOURCE: These figures are based on official provider pricing pages
+#    available as of the 'last-updated' date above.
+#
+# 3. MARKET VOLATILITY: GenAI model pricing is subject to frequent and rapid
+#    changes without prior notice.
+#
+# 4. USER RESPONSIBILITY & CURRENCY: Users are encouraged to verify current rates regularly.
+#    Default unit is USD; prices from providers using other currencies have been
+#    converted based on exchange rates at the time of update.
+
+
+providers:
+  - provider: openai
+    prefix-match:
+      - gpt
+    models:
+      - name: gpt-5.4-pro
+        # Pricing for Short context
+        input-estimated-cost-per-m: 30.0
+        output-estimated-cost-per-m: 180.0
+      - name: gpt-5.4
+        # Pricing for Short context
+        input-estimated-cost-per-m: 2.5
+        output-estimated-cost-per-m: 15.0
+      - name: gpt-5.4-mini
+        # Pricing for Short context
+        input-estimated-cost-per-m: 0.75
+        output-estimated-cost-per-m: 4.5
+      - name: gpt-5.4-nano
+        # Pricing for Short context
+        input-estimated-cost-per-m: 0.2
+        output-estimated-cost-per-m: 1.25
+      - name: gpt-5.2-pro
+        input-estimated-cost-per-m: 21.0
+        output-estimated-cost-per-m: 168.0
+      - name: gpt-5.2
+        input-estimated-cost-per-m: 1.75
+        output-estimated-cost-per-m: 14.0
+      - name: gpt-5.1
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: gpt-5-pro
+        input-estimated-cost-per-m: 15.0
+        output-estimated-cost-per-m: 120.0
+      - name: gpt-5
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: gpt-5-mini
+        input-estimated-cost-per-m: 0.25
+        output-estimated-cost-per-m: 2.0
+      - name: gpt-5-nano
+        input-estimated-cost-per-m: 0.05
+        output-estimated-cost-per-m: 0.4
+      - name: gpt-4.1
+        input-estimated-cost-per-m: 2.0
+        output-estimated-cost-per-m: 8.0
+      - name: gpt-4.1-mini-2025-04-14
+        input-estimated-cost-per-m: 0.4
+        output-estimated-cost-per-m: 1.6
+      - name: gpt-4.1-nano
+        input-estimated-cost-per-m: 0.1
+        output-estimated-cost-per-m: 0.4
+      - name: gpt-4o
+        input-estimated-cost-per-m: 2.5
+        output-estimated-cost-per-m: 10.0
+      - name: gpt-4o-mini
+        input-estimated-cost-per-m: 0.15
+        output-estimated-cost-per-m: 0.6
+
+  - provider: anthropic
+    prefix-match:
+      - claude
+    models:
+      - name: claude-4.6-opus
+        # Base Input pricing
+        input-estimated-cost-per-m: 5.0
+        output-estimated-cost-per-m: 25.0
+      - name: claude-4.5-opus
+        # Base Input pricing
+        input-estimated-cost-per-m: 5.0
+        output-estimated-cost-per-m: 25.0
+      - name: claude-4.1-opus
+        # Base Input pricing
+        input-estimated-cost-per-m: 15.0
+        output-estimated-cost-per-m: 75.0
+      - name: claude-4-opus
+        # Base Input pricing
+        input-estimated-cost-per-m: 15.0
+        output-estimated-cost-per-m: 75.0
+      - name: claude-4.6-sonnet
+        # Base Input pricing
+        input-estimated-cost-per-m: 3.0
+        output-estimated-cost-per-m: 15.0
+      - name: claude-4.5-sonnet
+        # Base Input pricing
+        input-estimated-cost-per-m: 3.0
+        output-estimated-cost-per-m: 15.0
+      - name: claude-4-sonnet
+        # Base Input pricing
+        input-estimated-cost-per-m: 3.0
+        output-estimated-cost-per-m: 15.0
+      - name: claude-3.7-sonnet
+        # Deprecated, Base Input pricing
+        input-estimated-cost-per-m: 3.0
+        output-estimated-cost-per-m: 15.0
+      - name: claude-4.5-haiku
+        # Base Input pricing
+        input-estimated-cost-per-m: 1.0
+        output-estimated-cost-per-m: 5.0
+      - name: claude-3.5-haiku
+        # Base Input pricing
+        input-estimated-cost-per-m: 0.8
+        output-estimated-cost-per-m: 4.0
+      - name: claude-3-opus
+        # Deprecated, Base Input pricing
+        input-estimated-cost-per-m: 15.0
+        output-estimated-cost-per-m: 75.0
+      - name: claude-3-haiku
+        # Base Input pricing
+        input-estimated-cost-per-m: 0.25
+        output-estimated-cost-per-m: 1.25
+
+  - provider: gemini
+    prefix-match:
+        - gemini
+    models:
+        # --- Gemini 3.1 Series ---
+      - name: gemini-3.1-pro-preview
+
+        # Pricing for prompt <= 200k (Tier 1)
+        input-estimated-cost-per-m: 2.0
+        output-estimated-cost-per-m: 12.0
+      - name: gemini-3.1-pro-preview-customtools
+        input-estimated-cost-per-m: 2.0
+        output-estimated-cost-per-m: 12.0
+
+        # Pricing for text/picture/video
+      - name: gemini-3.1-flash-lite-preview
+        input-estimated-cost-per-m: 0.25
+        output-estimated-cost-per-m: 1.5
+      - name: gemini-3.1-flash-image-preview
+        input-estimated-cost-per-m: 0.5
+        output-estimated-cost-per-m: 3.0
+
+        # --- Gemini 3 Series ---
+      - name: gemini-3-flash-preview
+        input-estimated-cost-per-m: 0.5
+        output-estimated-cost-per-m: 3.0
+      - name: gemini-3-pro-image-preview
+        input-estimated-cost-per-m: 2.0
+        output-estimated-cost-per-m: 12.0
+
+      # --- Gemini 2.5 Series ---
+      - name: gemini-2.5-pro
+         # Pricing for prompt <= 200k (Tier 1)
+        input-estimated-cost-per-m: 1.25
+        output-estimated-cost-per-m: 10.0
+      - name: gemini-2.5-flash
+        input-estimated-cost-per-m: 0.3
+        output-estimated-cost-per-m: 2.5
+      - name: gemini-2.5-flash-lite
+        input-estimated-cost-per-m: 0.1
+        output-estimated-cost-per-m: 0.4
+      - name: gemini-2.5-flash-lite-preview-09-2025
+        input-estimated-cost-per-m: 0.1
+        output-estimated-cost-per-m: 0.4
+      - name: gemini-2.5-flash-native-audio-preview-12-2025
+        input-estimated-cost-per-m: 0.5
+        output-estimated-cost-per-m: 2.0
+      - name: gemini-2.5-flash-image
+        input-estimated-cost-per-m: 0.3
+        output-estimated-cost-per-m: 2.5
+      - name: gemini-2.5-flash-preview-tts
+        input-estimated-cost-per-m: 0.5
+        output-estimated-cost-per-m: 10.0
+      - name: gemini-2.5-pro-preview-tts
+        input-estimated-cost-per-m: 1.0
+        output-estimated-cost-per-m: 20.0
+
+      # --- Gemini 2.0 Series (Deprecated) ---
+      - name: gemini-2.0-flash
+        input-estimated-cost-per-m: 0.1
+        output-estimated-cost-per-m: 0.4
+
+  - provider: mistral
+    prefix-match:
+      - mistral
+    models:
+      - name: mistral-large-3
+        input-estimated-cost-per-m: 0.5
+        output-estimated-cost-per-m: 1.5
+      - name: mistral-medium-3
+        input-estimated-cost-per-m: 0.4
+        output-estimated-cost-per-m: 2.0
+      - name: mistral-small-4
+        input-estimated-cost-per-m: 0.15
+        output-estimated-cost-per-m: 0.6
+
+  - provider: deepseek
+    prefix-match:
+      - deepseek
+    models:
+      - name: deepseek-chat
+        # DeepSeek-V3.2 (Non-thinking Mode), 128K context
+        # Input pricing for cache miss
+        input-estimated-cost-per-m: 0.28
+        output-estimated-cost-per-m: 0.42
+      - name: deepseek-reasoner
+        # DeepSeek-V3.2 (Thinking Mode), 128K context
+        # Input pricing for cache miss
+        input-estimated-cost-per-m: 0.28
+        output-estimated-cost-per-m: 0.42
+
+  - provider: bytedance
+    prefix-match:
+      - doubao
+
+  - provider: zhipu_ai
+    prefix-match:
+      - glm
+    models:
+      - name: glm-5-turbo
+        # Input [0, 32)
+        input-estimated-cost-per-m: 0.73
+        output-estimated-cost-per-m: 3.20
+      - name: glm-5
+        # Input [0, 32)
+        input-estimated-cost-per-m: 0.58
+        output-estimated-cost-per-m: 2.61
+      - name: glm-4.7
+        # Input [0, 32)
+        input-estimated-cost-per-m: 0.29
+        output-estimated-cost-per-m: 1.16
+      - name: glm-4.5-air
+        # Input [0, 32)
+        input-estimated-cost-per-m: 0.12
+        output-estimated-cost-per-m: 0.29
+      - name: glm-4.7-flashx
+        # For 200K context
+        input-estimated-cost-per-m: 0.07
+        output-estimated-cost-per-m: 0.44
+
+  - provider: alibaba
+    prefix-match:
+      - qwen
+    models:
+      - name: qwen3-max
+        # Lowest output price
+        input-estimated-cost-per-m: 0.36
+        output-estimated-cost-per-m: 1.45
+      - name: qwen3.5-plus
+        # Lowest output price
+        input-estimated-cost-per-m: 0.12
+        output-estimated-cost-per-m: 0.70
+      - name: qwen3.5-flash
+        # Lowest output price
+        input-estimated-cost-per-m: 0.03
+        output-estimated-cost-per-m: 0.29
+
+  - provider: tencent
+    prefix-match:
+      - hunyuan
+      - Tencent
+    models:
+      - name: hunyuan-2.0-think
+        # For Input (0, 32k]
+        input-estimated-cost-per-m: 0.58
+        output-estimated-cost-per-m: 2.31
+      - name: hunyuan-2.0-instruct
+        # For Input (0, 32k]
+        input-estimated-cost-per-m: 0.46
+        output-estimated-cost-per-m: 1.15
+      - name: hunyuan-t1
+        input-estimated-cost-per-m: 0.15
+        output-estimated-cost-per-m: 0.58
+      - name: hunyuan-turbos
+        input-estimated-cost-per-m: 0.12
+        output-estimated-cost-per-m: 0.29
+      - name: hunyuan-a13b
+        input-estimated-cost-per-m: 0.07
+        output-estimated-cost-per-m: 0.29
+
+  - provider: moonshot
+    prefix-match:
+      - kimi
+    models:
+      - name: kimi-k2.5
+        input-estimated-cost-per-m: 0.58
+        output-estimated-cost-per-m: 3.05
+      - name: kimi-k2-0905
+        input-estimated-cost-per-m: 0.58
+        output-estimated-cost-per-m: 2.32
+      - name: kimi-k2-thinking
+        input-estimated-cost-per-m: 0.58
+        output-estimated-cost-per-m: 2.32
+
+  - provider: minimax
+    prefix-match:
+      - minimax
+    models:
+      - name: minimax-m2.7
+        input-estimated-cost-per-m: 0.3
+        output-estimated-cost-per-m: 1.2
+      - name: minimax-m2.7-highspeed
+        input-estimated-cost-per-m: 0.6
+        output-estimated-cost-per-m: 2.4
+      - name: minimax-m2.5
+        input-estimated-cost-per-m: 0.3
+        output-estimated-cost-per-m: 1.2
+      - name: minimax-m2.5-highspeed
+        input-estimated-cost-per-m: 0.6
+        output-estimated-cost-per-m: 2.4
+      - name: m2-her
+        input-estimated-cost-per-m: 0.3
+        output-estimated-cost-per-m: 1.2
+
+  - provider: ollama
+    # OLLAMA (Local Models): This section serves as a template for self-hosted models.
+    # Users can define their own prefix-match and specific models here.
+    prefix-match:

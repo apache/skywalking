@@ -148,6 +148,10 @@ catalog:
             catalog:
               - name: "Flink"
                 path: "/en/setup/backend/backend-flink-monitoring"
+          - name: "GenAI"
+            catalog:
+              - name: "Virtual GenAI"
+                path: "/en/setup/service-agent/virtual-genai"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"

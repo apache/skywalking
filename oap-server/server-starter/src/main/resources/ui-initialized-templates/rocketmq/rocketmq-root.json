@@ -32,7 +32,7 @@
             "content": "Provide RocketMQ monitoring through OpenTelemetry's Prometheus Receiver",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-Rocketmq-monitoring/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-rocketmq-monitoring/"
           }
         }
       ],
