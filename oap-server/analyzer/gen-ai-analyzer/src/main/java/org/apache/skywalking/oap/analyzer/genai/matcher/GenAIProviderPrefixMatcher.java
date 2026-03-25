@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.analyzer.genai.matcher;
 
+import lombok.Data;
 import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
 
 import java.util.HashMap;
@@ -36,11 +37,13 @@ public class GenAIProviderPrefixMatcher {
         this.modelMap = modelMap;
     }
 
+    @Data
     private static class TrieNode {
-        final Map<Character, TrieNode> children = new HashMap<>();
-        String providerName;
+        private final Map<Character, TrieNode> children = new HashMap<>();
+        private String providerName;
     }
 
+    @Data
     public static class MatchResult {
         private final String provider;
         private final GenAIConfig.Model modelConfig;

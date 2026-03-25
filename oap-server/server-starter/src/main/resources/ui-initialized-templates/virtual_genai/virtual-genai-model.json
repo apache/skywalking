@@ -370,7 +370,7 @@
                   "id": "0-0-24",
                   "moved": false,
                   "expressions": [
-                    "gen_ai_model_avg_estimated_cost"
+                    "gen_ai_model_avg_estimated_cost/1000000"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
