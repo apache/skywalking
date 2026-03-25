@@ -1,0 +1,247 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# SWIP-10 Kind Test Resources
+# Deploy with: kubectl apply -f kind-test-resources.yaml
+#
+# This file contains all K8s resources for the SWIP-10 local verification:
+# - Ollama (in-cluster LLM backend)
+# - OTel Collector (debug exporter for capturing OTLP payloads)
+# - AI Gateway CRDs (GatewayClass, GatewayConfig, Gateway, AIGatewayRoute, AIServiceBackend, Backend)
+
+# --- Ollama (in-cluster) ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+        - name: ollama
+          image: ollama/ollama:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 11434
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "2Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  namespace: default
+spec:
+  selector:
+    app: ollama
+  ports:
+    - port: 11434
+      targetPort: 11434
+---
+# --- OTel Collector (debug exporter) ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: default
+data:
+  config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+    exporters:
+      debug:
+        verbosity: detailed
+    service:
+      pipelines:
+        metrics:
+          receivers: [otlp]
+          exporters: [debug]
+        logs:
+          receivers: [otlp]
+          exporters: [debug]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+        - name: collector
+          image: otel/opentelemetry-collector:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 4317
+          volumeMounts:
+            - name: config
+              mountPath: /etc/otelcol/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: otel-collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: default
+spec:
+  selector:
+    app: otel-collector
+  ports:
+    - port: 4317
+      targetPort: 4317
+---
+# --- AI Gateway CRDs ---
+# 1. GatewayClass
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy-ai-gateway
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+---
+# 2. GatewayConfig — OTLP configuration for SkyWalking
+#    Verified: GATEWAY_NAME auto-resolves from pod label
+#    gateway.envoyproxy.io/owning-gateway-name via Downward API
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: GatewayConfig
+metadata:
+  name: sw-test-config
+  namespace: default
+spec:
+  extProc:
+    kubernetes:
+      env:
+        # job_name for MAL/LAL rule routing (fixed for all deployments)
+        - name: OTEL_SERVICE_NAME
+          value: "envoy-ai-gateway"
+        # OTLP endpoint — OTel Collector (or SkyWalking OAP in production)
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector.default:4317"
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          value: "grpc"
+        # Enable OTLP for both metrics and access logs
+        - name: OTEL_METRICS_EXPORTER
+          value: "otlp"
+        - name: OTEL_LOGS_EXPORTER
+          value: "otlp"
+        - name: OTEL_METRIC_EXPORT_INTERVAL
+          value: "5000"
+        # Gateway name = Gateway CRD metadata.name (e.g., "my-ai-gateway")
+        # Read from pod label gateway.envoyproxy.io/owning-gateway-name,
+        # which is auto-set by the Envoy Gateway controller on every envoy pod.
+        - name: GATEWAY_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['gateway.envoyproxy.io/owning-gateway-name']
+        # Pod name (e.g., "envoy-default-my-ai-gateway-76d02f2b-xxx")
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        # aigw.service → SkyWalking service name (= Gateway CRD name, auto-resolved)
+        # service.instance.id → SkyWalking instance name (= pod name, auto-resolved)
+        # $(VAR) substitution references the valueFrom env vars defined above.
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "aigw.service=$(GATEWAY_NAME),service.instance.id=$(POD_NAME)"
+---
+# 3. Gateway — references GatewayConfig via annotation
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: my-ai-gateway
+  namespace: default
+  annotations:
+    aigateway.envoyproxy.io/gateway-config: sw-test-config
+spec:
+  gatewayClassName: envoy-ai-gateway
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+---
+# 4. AIGatewayRoute — routing + token metadata for access logs
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: AIGatewayRoute
+metadata:
+  name: my-ai-gateway-route
+  namespace: default
+spec:
+  parentRefs:
+    - name: my-ai-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+  llmRequestCosts:
+    - metadataKey: llm_input_token
+      type: InputToken
+    - metadataKey: llm_output_token
+      type: OutputToken
+    - metadataKey: llm_total_token
+      type: TotalToken
+  rules:
+    - backendRefs:
+        - name: ollama-backend
+---
+# 5. AIServiceBackend + Backend — Ollama in-cluster
+apiVersion: aigateway.envoyproxy.io/v1alpha1
+kind: AIServiceBackend
+metadata:
+  name: ollama-backend
+  namespace: default
+spec:
+  schema:
+    name: OpenAI
+    prefix: "/v1"
+  backendRef:
+    name: ollama-backend
+    kind: Backend
+    group: gateway.envoyproxy.io
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: ollama-backend
+  namespace: default
+spec:
+  endpoints:
+    - fqdn:
+        hostname: ollama.default.svc.cluster.local
+        port: 11434
