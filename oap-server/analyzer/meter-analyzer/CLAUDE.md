@@ -35,9 +35,13 @@ oap-server/analyzer/meter-analyzer/
   src/main/java/.../compiler/
     MALScriptParser.java              — ANTLR4 facade: expression → AST
     MALExpressionModel.java           — Immutable AST model classes
-    MALClassGenerator.java            — Public API, run method codegen, metadata extraction
+    MALClassGenerator.java            — Public API + orchestration (compile, compileFilter, compileFromModel)
+    MALExprCodegen.java               — Expression → Java source (statement + inline codegen)
+    MALMethodChainCodegen.java        — Method chain codegen: built-in .method() + extension ::method() + args
+    MALMetadataExtractor.java         — Static AST analysis → ExpressionMetadata + metadata() source
+    MALBytecodeHelper.java            — Javassist: class naming, debug output, LineNumberTable, LocalVariableTable
     MALClosureCodegen.java            — Companion class codegen: closure body inlined in SAM method
-    MALCodegenHelper.java             — Static utility methods and shared constants
+    MALCodegenHelper.java             — Static utility methods and shared constants (SF, RUN_VAR, escapeJava)
     rt/
       MalExpressionPackageHolder.java — Class loading anchor (empty marker)
       MalRuntimeHelper.java           — Static helpers called by generated code (divReverse, regexMatch, isTruthy)
