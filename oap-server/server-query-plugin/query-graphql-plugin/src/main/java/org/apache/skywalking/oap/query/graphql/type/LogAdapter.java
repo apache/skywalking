@@ -19,18 +19,19 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
-import static java.lang.String.format;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.format.ResolverStyle;
-import java.time.temporal.TemporalAccessor;
-import java.util.List;
 import com.google.common.base.Splitter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import lombok.RequiredArgsConstructor;
+
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.List;
+
+import static java.lang.String.format;
 
 @RequiredArgsConstructor
 public class LogAdapter {
@@ -39,9 +40,7 @@ public class LogAdapter {
     private final InternalLog log;
 
     // k8s promises RFC3339 or RFC3339Nano timestamp, we truncate to RFC3339
-    private final DateTimeFormatter rfc3339Formatter =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZZZZZ")
-            .withResolverStyle(ResolverStyle.LENIENT);
+    private final DateTimeFormatter rfc3339Formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     public Log adapt() {
         Log l = new Log();
@@ -51,7 +50,7 @@ public class LogAdapter {
             .trimResults()
             .splitToList(log.line());
         if (timeAndContent.size() == 2) {
-            String timeStr = timeAndContent.get(0).replaceAll("\\.\\d+Z", "Z");
+            String timeStr = timeAndContent.get(0).replaceAll("\\.\\d+", "");
             try {
                 TemporalAccessor t = rfc3339Formatter.parse(timeStr);
                 long timestamp = Instant.from(t).getEpochSecond();
