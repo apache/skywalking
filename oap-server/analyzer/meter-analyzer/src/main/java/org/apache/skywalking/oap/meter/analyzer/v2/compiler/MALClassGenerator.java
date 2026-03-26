@@ -761,39 +761,31 @@ public final class MALClassGenerator {
                 throw new IllegalArgumentException(
                     "Expected String argument for extension function, got " + arg.getClass().getSimpleName());
             }
-        } else if (expectedType == double.class || expectedType == Double.class) {
-            if (arg instanceof MALExpressionModel.ExprArgument) {
-                final MALExpressionModel.Expr expr =
-                    ((MALExpressionModel.ExprArgument) arg).getExpr();
-                if (expr instanceof MALExpressionModel.NumberExpr) {
-                    sb.append(((MALExpressionModel.NumberExpr) expr).getValue());
-                } else {
-                    throw new IllegalArgumentException(
-                        "Expected number argument for extension function");
-                }
-            } else {
+        } else if (expectedType == double.class || expectedType == Double.class
+                || expectedType == float.class || expectedType == Float.class
+                || expectedType == long.class || expectedType == Long.class
+                || expectedType == int.class || expectedType == Integer.class) {
+            if (!(arg instanceof MALExpressionModel.ExprArgument)) {
                 throw new IllegalArgumentException(
-                    "Expected number argument for extension function, got " + arg.getClass().getSimpleName());
+                    "Expected number argument for extension function, got "
+                        + arg.getClass().getSimpleName());
             }
-        } else if (expectedType == int.class || expectedType == Integer.class) {
-            if (arg instanceof MALExpressionModel.ExprArgument) {
-                final MALExpressionModel.Expr expr =
-                    ((MALExpressionModel.ExprArgument) arg).getExpr();
-                if (expr instanceof MALExpressionModel.NumberExpr) {
-                    final double value = ((MALExpressionModel.NumberExpr) expr).getValue();
-                    if (value != Math.floor(value)) {
-                        throw new IllegalArgumentException(
-                            "Expected integer argument for extension function,"
-                                + " got non-integer: " + value);
-                    }
-                    sb.append((int) value);
-                } else {
-                    throw new IllegalArgumentException(
-                        "Expected integer argument for extension function");
-                }
-            } else {
+            final MALExpressionModel.Expr expr =
+                ((MALExpressionModel.ExprArgument) arg).getExpr();
+            if (!(expr instanceof MALExpressionModel.NumberExpr)) {
                 throw new IllegalArgumentException(
-                    "Expected integer argument for extension function, got " + arg.getClass().getSimpleName());
+                    "Expected number argument for extension function");
+            }
+            final double raw = ((MALExpressionModel.NumberExpr) expr).getValue();
+            // Emit raw literal with type suffix — no parsing at runtime
+            if (expectedType == double.class || expectedType == Double.class) {
+                sb.append(raw);
+            } else if (expectedType == float.class || expectedType == Float.class) {
+                sb.append((float) raw).append('F');
+            } else if (expectedType == long.class || expectedType == Long.class) {
+                sb.append((long) raw).append('L');
+            } else {
+                sb.append((int) raw);
             }
         } else if (java.util.List.class.isAssignableFrom(expectedType)) {
             if (arg instanceof MALExpressionModel.StringListArgument) {
