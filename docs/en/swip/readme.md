@@ -68,10 +68,11 @@ All accepted and proposed SWIPs can be found in [here](https://github.com/apache
 
 ## Known SWIPs
 
-Next SWIP Number: 10
+Next SWIP Number: 11
 
 ### Accepted SWIPs
 
+- [SWIP-10 Support Envoy AI Gateway Observability](SWIP-10/SWIP.md)
 - [SWIP-9 Support Flink Monitoring](SWIP-9.md)
 - [SWIP-8 Support Kong Monitoring](SWIP-8.md)
 - [SWIP-6 Support ActiveMQ Monitoring](SWIP-6.md)
