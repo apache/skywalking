@@ -430,6 +430,8 @@ catalog:
             catalog:
               - name: "Component Library Settings"
                 path: "/en/guides/component-library-settings"
+              - name: "DSL Extension (MAL/LAL/OAL)"
+                path: "/en/guides/dsl-extension"
               - name: "Extend An OAL Source"
                 path: "/en/guides/source-extension"
           - name: "Dependencies"
