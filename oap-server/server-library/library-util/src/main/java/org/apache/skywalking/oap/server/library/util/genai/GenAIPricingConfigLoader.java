@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.library.util.genai;
 
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;

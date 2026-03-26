@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
 import org.apache.skywalking.oap.server.library.util.genai.GenAIModelMatcher;
 import org.apache.skywalking.oap.server.library.util.genai.GenAIPricingConfig;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
