@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.codec.DecoderException;
 import org.apache.skywalking.oap.query.traceql.TraceQLConfig;
 import org.apache.skywalking.oap.query.traceql.converter.OTLPConverter;
@@ -71,9 +72,9 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                                                         .getService(TagAutoCompleteQueryService.class);
         this.zipkinQueryService = new ZipkinQueryService(moduleManager);
         this.traceQLConfig = config;
-        this.allowedTags = new HashSet<>(Arrays.asList(
-            config.getZipkinTracesListResultTags().split(Const.COMMA)
-        ));
+        this.allowedTags = Arrays.stream(config.getZipkinTracesListResultTags().trim().split(Const.COMMA))
+                                 .map(String::trim)
+                                 .collect(Collectors.toSet());
         // Add fixed tags
         this.allowedTags.add(SPAN_KIND);
         this.allowedTags.add(SERVICE_NAME);
@@ -306,7 +307,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
      */
     private HttpResponse buildJsonHttpResponseFromProtobuf(TraceByIDResponse protoResponse) throws
         JsonProcessingException {
-        OtlpTraceResponse jsonResponse = OTLPConverter.convertProtobufToJson(protoResponse, OTLPConverter.TraceType.Zipkin);
+        OtlpTraceResponse jsonResponse = OTLPConverter.convertProtobufToJson(protoResponse, OTLPConverter.TraceType.ZIPKIN);
         return successResponse(jsonResponse);
     }
 

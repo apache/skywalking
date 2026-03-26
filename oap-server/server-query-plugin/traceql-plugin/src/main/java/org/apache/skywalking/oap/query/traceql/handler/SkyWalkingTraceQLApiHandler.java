@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.codec.DecoderException;
 import org.apache.skywalking.oap.query.traceql.TraceQLConfig;
 import org.apache.skywalking.oap.query.traceql.converter.OTLPConverter;
@@ -43,6 +44,7 @@ import org.apache.skywalking.oap.query.traceql.exception.IllegalExpressionExcept
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLParseResult;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParser;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -84,9 +86,9 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
                                                  .provider()
                                                  .getService(MetadataQueryService.class);
         this.traceQLConfig = config;
-        this.allowedTags = new HashSet<>(Arrays.asList(
-            config.getSkywalkingTracesListResultTags().split(",")
-        ));
+        this.allowedTags = Arrays.stream(config.getSkywalkingTracesListResultTags().trim().split(Const.COMMA))
+                                 .map(String::trim)
+                                 .collect(Collectors.toSet());
         // Add fixed tags
         this.allowedTags.add(SPAN_KIND);
         this.allowedTags.add(SERVICE_NAME);
@@ -262,6 +264,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         // Handle special tags: resource.service.name or resource.service
         if (tagName.equals(RESOURCE_SERVICE_NAME) || tagName.equals(RESOURCE_SERVICE)) {
             // Query service names from MetadataQueryService with Layer.GENERAL filter
+            // The MESH trace could use zipkin reciver and query
             List<org.apache.skywalking.oap.server.core.query.type.Service> services =
                 metadataQueryService.listServices(Layer.GENERAL.name(), null);
 
@@ -352,7 +355,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
      * Convert Protobuf TraceByIDResponse to JSON and build HTTP response.
      */
     private HttpResponse buildJsonHttpResponseFromProtobuf(TraceByIDResponse protoResponse) throws JsonProcessingException {
-        OtlpTraceResponse jsonResponse = OTLPConverter.convertProtobufToJson(protoResponse, OTLPConverter.TraceType.SkyWalking);
+        OtlpTraceResponse jsonResponse = OTLPConverter.convertProtobufToJson(protoResponse, OTLPConverter.TraceType.SKYWALKING);
         return successResponse(jsonResponse);
     }
 
