@@ -553,8 +553,9 @@ public final class MALClassGenerator {
         } else if (expr instanceof MALExpressionModel.NumberExpr) {
             final double val = ((MALExpressionModel.NumberExpr) expr).getValue();
             sb.append("  ").append(RUN_VAR).append(" = ")
-              .append(SF).append(".EMPTY.plus(Double.valueOf(")
-              .append(val).append("));\n");
+              .append(SF).append(".EMPTY.plus(");
+            MALCodegenHelper.emitNumberValueOf(sb, val);
+            sb.append(");\n");
         } else if (expr instanceof MALExpressionModel.BinaryExpr) {
             generateBinaryExprStatements(
                 sb, (MALExpressionModel.BinaryExpr) expr);
@@ -639,19 +640,19 @@ public final class MALClassGenerator {
             sb.append("  ").append(RUN_VAR).append(" = ");
             switch (op) {
                 case ADD:
-                    sb.append(RUN_VAR).append(".plus(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append("))");
+                    sb.append(RUN_VAR).append(".plus(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(')');
                     break;
                 case SUB:
-                    sb.append(RUN_VAR).append(".minus(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append(")).negative()");
+                    sb.append(RUN_VAR).append(".minus(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(").negative()");
                     break;
                 case MUL:
-                    sb.append(RUN_VAR).append(".multiply(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append("))");
+                    sb.append(RUN_VAR).append(".multiply(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(')');
                     break;
                 case DIV:
                     sb.append("org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt")
@@ -667,9 +668,9 @@ public final class MALClassGenerator {
             generateExprStatements(sb, left);
             sb.append("  ").append(RUN_VAR).append(" = ")
               .append(RUN_VAR).append(".").append(MALCodegenHelper.opMethodName(op))
-              .append("(Double.valueOf(");
-            generateScalarExpr(sb, right);
-            sb.append("));\n");
+              .append('(');
+            generateScalarExprAsNumber(sb, right);
+            sb.append(");\n");
         } else {
             // SF op SF: compute left to sf, save to temp, compute right to sf, combine
             generateExprStatements(sb, left);
@@ -815,7 +816,9 @@ public final class MALClassGenerator {
             generateMetricExpr(sb, (MALExpressionModel.MetricExpr) expr);
         } else if (expr instanceof MALExpressionModel.NumberExpr) {
             final double val = ((MALExpressionModel.NumberExpr) expr).getValue();
-            sb.append(SF).append(".EMPTY.plus(Double.valueOf(").append(val).append("))");
+            sb.append(SF).append(".EMPTY.plus(");
+            MALCodegenHelper.emitNumberValueOf(sb, val);
+            sb.append(')');
         } else if (expr instanceof MALExpressionModel.BinaryExpr) {
             generateBinaryExpr(sb, (MALExpressionModel.BinaryExpr) expr);
         } else if (expr instanceof MALExpressionModel.UnaryNegExpr) {
@@ -899,23 +902,23 @@ public final class MALClassGenerator {
                 case ADD:
                     sb.append("(");
                     generateExpr(sb, right);
-                    sb.append(").plus(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append("))");
+                    sb.append(").plus(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(')');
                     break;
                 case SUB:
                     sb.append("(");
                     generateExpr(sb, right);
-                    sb.append(").minus(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append(")).negative()");
+                    sb.append(").minus(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(").negative()");
                     break;
                 case MUL:
                     sb.append("(");
                     generateExpr(sb, right);
-                    sb.append(").multiply(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append("))");
+                    sb.append(").multiply(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(')');
                     break;
                 case DIV:
                     sb.append("org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt")
@@ -933,9 +936,9 @@ public final class MALClassGenerator {
             sb.append("(");
             generateExpr(sb, left);
             sb.append(").").append(MALCodegenHelper.opMethodName(op))
-              .append("(Double.valueOf(");
-            generateScalarExpr(sb, right);
-            sb.append("))");
+              .append('(');
+            generateScalarExprAsNumber(sb, right);
+            sb.append(')');
         } else {
             // SF op SF (both non-number)
             sb.append("(");
@@ -1061,9 +1064,8 @@ public final class MALClassGenerator {
                 ((MALExpressionModel.ExprArgument) arg).getExpr();
             if (innerExpr instanceof MALExpressionModel.NumberExpr) {
                 // Numeric literal argument (e.g., valueEqual(1), multiply(100))
-                // Emit as Double.valueOf() to match Number parameter types.
                 final double num = ((MALExpressionModel.NumberExpr) innerExpr).getValue();
-                sb.append("Double.valueOf(").append(num).append(")");
+                MALCodegenHelper.emitNumberValueOf(sb, num);
             } else if (innerExpr instanceof MALExpressionModel.MetricExpr
                     && ((MALExpressionModel.MetricExpr) innerExpr).getMethodChain().isEmpty()) {
                 // Bare identifier — could be an enum constant like SUM, AVG
@@ -1396,6 +1398,23 @@ public final class MALClassGenerator {
             if ("time".equals(fn)) {
                 sb.append("(double) java.time.Instant.now().getEpochSecond()");
             }
+        }
+    }
+
+    /**
+     * Emits a scalar expression wrapped with the appropriate {@code Number.valueOf()}.
+     * Integer-valued literals use {@code Long.valueOf(NL)}, others use {@code Double.valueOf(N)}.
+     * Non-literal scalars (e.g., {@code time()}) always use {@code Double.valueOf()}.
+     */
+    private void generateScalarExprAsNumber(final StringBuilder sb,
+                                             final MALExpressionModel.Expr expr) {
+        if (expr instanceof MALExpressionModel.NumberExpr) {
+            MALCodegenHelper.emitNumberValueOf(
+                sb, ((MALExpressionModel.NumberExpr) expr).getValue());
+        } else {
+            sb.append("Double.valueOf(");
+            generateScalarExpr(sb, expr);
+            sb.append(')');
         }
     }
 

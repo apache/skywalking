@@ -198,4 +198,16 @@ final class MALCodegenHelper {
         }
         return false;
     }
+
+    /**
+     * Emits the appropriate {@code Number.valueOf()} for a numeric literal.
+     * Integer-valued numbers emit {@code Long.valueOf(NL)}, others emit {@code Double.valueOf(N)}.
+     */
+    static void emitNumberValueOf(final StringBuilder sb, final double value) {
+        if (value == Math.floor(value) && !Double.isInfinite(value)) {
+            sb.append("Long.valueOf(").append((long) value).append("L)");
+        } else {
+            sb.append("Double.valueOf(").append(value).append(')');
+        }
+    }
 }
