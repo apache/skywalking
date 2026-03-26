@@ -104,6 +104,11 @@ final class MALMethodChainCodegen {
     void emitMethodChainInline(final StringBuilder sb,
                                 final List<MALExpressionModel.MethodCall> chain) {
         for (final MALExpressionModel.MethodCall mc : chain) {
+            if (mc.isExtension()) {
+                throw new IllegalStateException(
+                    "Inline extension method calls are not supported: "
+                        + mc.getNamespace() + "::" + mc.getName());
+            }
             sb.append('.').append(mc.getName()).append('(');
             final List<MALExpressionModel.Argument> args = mc.getArguments();
             if (MALCodegenHelper.VARARGS_STRING_METHODS.contains(mc.getName())

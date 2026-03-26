@@ -312,6 +312,10 @@ final class MALExprCodegen {
         } else if (expr instanceof MALExpressionModel.ParenChainExpr) {
             generateParenChainExprInline(
                 sb, (MALExpressionModel.ParenChainExpr) expr);
+        } else {
+            throw new IllegalArgumentException(
+                "Unsupported inline expression type: "
+                    + (expr == null ? "null" : expr.getClass().getSimpleName()));
         }
     }
 
