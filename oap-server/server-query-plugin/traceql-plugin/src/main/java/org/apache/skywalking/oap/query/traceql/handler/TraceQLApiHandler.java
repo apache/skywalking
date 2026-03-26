@@ -128,7 +128,7 @@ public abstract class TraceQLApiHandler {
      * Query trace by trace ID.
      * GET /api/v2/traces/{traceId}
      *
-     * @param traceId The trace ID, for SkyWalking native traces, the original traceId have to encode to the UTF-8
+     * @param traceId The trace ID, for SkyWalking native traces, the original traceId has to be hex encoding of the UTF-8 bytes
      *                you can get the encoded traceId from traces list query API `/api/search`.
      * @param accept Accept header for response format
      * @return Trace data in OTLP format

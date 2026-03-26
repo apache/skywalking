@@ -109,6 +109,9 @@ public class SkyWalkingOTLPConverter {
                                                    .build());
 
             // Convert each SkyWalking span to OTLP Span
+            // Note: SkyWalking traceId alread encode to hex string in query list,
+            // in order to make it compatible with Grafana Tempo, we keep it as hex string and
+            // can directly convert it to bytes for OTLP traceId
             for (org.apache.skywalking.oap.server.core.query.type.Span swSpan : serviceSpans) {
                 io.opentelemetry.proto.trace.v1.Span.Builder spanBuilder = io.opentelemetry.proto.trace.v1.Span.newBuilder();
                 spanBuilder.setTraceId(ByteString.copyFrom(OTLPConverter.hexToBytes(traceId)));
@@ -129,9 +132,11 @@ public class SkyWalkingOTLPConverter {
                     spanBuilder.setParentSpanId(ByteString.copyFromUtf8(parentSpanId));
                 } else if (!swSpan.getRefs().isEmpty()) {
                     // Handle cross-segment reference
-                    Ref ref = swSpan.getRefs().get(0);
-                    String refParentSpanId = ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + ref.getParentSpanId();
-                    spanBuilder.setParentSpanId(ByteString.copyFromUtf8(refParentSpanId));
+                    Ref ref = swSpan.getRefs().stream().filter(r -> r.getTraceId().equals(swSpan.getTraceId())).findFirst().orElse(null);
+                    if (ref != null) {
+                        String refParentSpanId = ref.getParentSegmentId() + Const.SEGMENT_SPAN_SPLIT + ref.getParentSpanId();
+                        spanBuilder.setParentSpanId(ByteString.copyFromUtf8(refParentSpanId));
+                    }
                 }
 
                 // Set span name
@@ -216,6 +221,38 @@ public class SkyWalkingOTLPConverter {
                                                                                     .build())
                                                                   .build());
                             }
+                        }
+
+                        spanBuilder.addEvents(eventBuilder.build());
+                    }
+                }
+
+                // Convert attachedEvents to OTLP events
+                if (!swSpan.getAttachedEvents().isEmpty()) {
+                    for (org.apache.skywalking.oap.server.core.query.type.SpanAttachedEvent attachedEvent : swSpan.getAttachedEvents()) {
+                        long timeUnixNano = attachedEvent.getStartTime().getSeconds() * 1_000_000_000L
+                            + attachedEvent.getStartTime().getNanos();
+                        io.opentelemetry.proto.trace.v1.Span.Event.Builder eventBuilder =
+                            io.opentelemetry.proto.trace.v1.Span.Event.newBuilder()
+                                .setTimeUnixNano(timeUnixNano)
+                                .setName(attachedEvent.getEvent());
+
+                        for (org.apache.skywalking.oap.server.core.query.type.KeyValue tag : attachedEvent.getTags()) {
+                            eventBuilder.addAttributes(KeyValue.newBuilder()
+                                                               .setKey(tag.getKey())
+                                                               .setValue(AnyValue.newBuilder()
+                                                                                 .setStringValue(tag.getValue())
+                                                                                 .build())
+                                                               .build());
+                        }
+
+                        for (org.apache.skywalking.oap.server.core.query.type.KeyNumericValue summary : attachedEvent.getSummary()) {
+                            eventBuilder.addAttributes(KeyValue.newBuilder()
+                                                               .setKey(summary.getKey())
+                                                               .setValue(AnyValue.newBuilder()
+                                                                                 .setStringValue(String.valueOf(summary.getValue()))
+                                                                                 .build())
+                                                               .build());
                         }
 
                         spanBuilder.addEvents(eventBuilder.build());
@@ -442,17 +479,3 @@ public class SkyWalkingOTLPConverter {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

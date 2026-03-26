@@ -25,7 +25,6 @@ import io.grafana.tempo.tempopb.TraceByIDResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -264,7 +263,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         // Handle special tags: resource.service.name or resource.service
         if (tagName.equals(RESOURCE_SERVICE_NAME) || tagName.equals(RESOURCE_SERVICE)) {
             // Query service names from MetadataQueryService with Layer.GENERAL filter
-            // The MESH trace could use zipkin reciver and query
+            // Only GENERAL layer services use SkyWalking native protocol
             List<org.apache.skywalking.oap.server.core.query.type.Service> services =
                 metadataQueryService.listServices(Layer.GENERAL.name(), null);
 
