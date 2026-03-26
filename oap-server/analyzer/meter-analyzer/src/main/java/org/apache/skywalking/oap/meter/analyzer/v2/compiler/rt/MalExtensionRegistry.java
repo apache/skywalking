@@ -91,16 +91,41 @@ public final class MalExtensionRegistry {
             }
             final Class<?>[] extraParamTypes = new Class<?>[paramTypes.length - 1];
             System.arraycopy(paramTypes, 1, extraParamTypes, 0, extraParamTypes.length);
-            final String fqcn = ext.getClass().getName();
-            methods.put(m.getName(),
-                        new ExtensionMethod(fqcn, m.getName(), extraParamTypes));
+            // Validate List params use List<String> (the only List type MAL supports)
+            final java.lang.reflect.Type[] genericTypes = m.getGenericParameterTypes();
+            for (int i = 1; i < genericTypes.length; i++) {
+                if (java.util.List.class.isAssignableFrom(extraParamTypes[i - 1])
+                        && genericTypes[i] instanceof java.lang.reflect.ParameterizedType) {
+                    final java.lang.reflect.Type elementType =
+                        ((java.lang.reflect.ParameterizedType) genericTypes[i])
+                            .getActualTypeArguments()[0];
+                    if (!String.class.equals(elementType)) {
+                        throw new IllegalArgumentException(
+                            "@MALContextFunction " + ext.getClass().getSimpleName()
+                                + "." + m.getName()
+                                + "() List parameters must be List<String>, got "
+                                + genericTypes[i]);
+                    }
+                }
+            }
+            final String methodName = m.getName();
+            if (methods.containsKey(methodName)) {
+                throw new IllegalArgumentException(
+                    "Duplicate @MALContextFunction name '" + methodName
+                        + "' in namespace '" + namespace
+                        + "' from " + ext.getClass().getName());
+            }
+            final String fqcn = m.getDeclaringClass().getName();
+            methods.put(methodName,
+                        new ExtensionMethod(fqcn, methodName, extraParamTypes));
             log.info("Registered MAL extension function {}::{}() -> {}.{}()",
-                     namespace, m.getName(), fqcn, m.getName());
+                     namespace, methodName, fqcn, methodName);
         }
         if (!methods.isEmpty()) {
             if (REGISTRY.containsKey(namespace)) {
-                log.warn("Duplicate MAL extension namespace '{}' from {}, overriding",
-                         namespace, ext.getClass().getName());
+                throw new IllegalArgumentException(
+                    "Duplicate MAL extension namespace '" + namespace
+                        + "' from " + ext.getClass().getName());
             }
             REGISTRY.put(namespace, methods);
         }

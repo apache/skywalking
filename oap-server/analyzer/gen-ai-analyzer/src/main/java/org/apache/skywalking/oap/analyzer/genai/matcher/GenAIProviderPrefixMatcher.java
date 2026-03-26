@@ -31,7 +31,7 @@ public class GenAIProviderPrefixMatcher {
     private GenAIProviderPrefixMatcher() {
     }
 
-    public static GenAIProviderPrefixMatcher build(GenAIConfig config) {
+    public static GenAIProviderPrefixMatcher build() {
         // Ensure singleton is initialized (lazy init from gen-ai-config.yml)
         GenAIModelMatcher.getInstance();
         return new GenAIProviderPrefixMatcher();

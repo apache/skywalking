@@ -780,7 +780,13 @@ public final class MALClassGenerator {
                 final MALExpressionModel.Expr expr =
                     ((MALExpressionModel.ExprArgument) arg).getExpr();
                 if (expr instanceof MALExpressionModel.NumberExpr) {
-                    sb.append((int) ((MALExpressionModel.NumberExpr) expr).getValue());
+                    final double value = ((MALExpressionModel.NumberExpr) expr).getValue();
+                    if (value != Math.floor(value)) {
+                        throw new IllegalArgumentException(
+                            "Expected integer argument for extension function,"
+                                + " got non-integer: " + value);
+                    }
+                    sb.append((int) value);
                 } else {
                     throw new IllegalArgumentException(
                         "Expected integer argument for extension function");

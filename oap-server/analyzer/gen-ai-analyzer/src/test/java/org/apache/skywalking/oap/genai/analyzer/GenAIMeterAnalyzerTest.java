@@ -48,7 +48,7 @@ public class GenAIMeterAnalyzerTest {
         GenAIConfigLoader loader = new GenAIConfigLoader(config);
         loadedConfig = loader.loadConfig();
 
-        matcher = GenAIProviderPrefixMatcher.build(loadedConfig);
+        matcher = GenAIProviderPrefixMatcher.build();
         analyzer = new GenAIMeterAnalyzer(matcher);
     }
 
@@ -233,7 +233,7 @@ public class GenAIMeterAnalyzerTest {
         GenAIConfigLoader loader = new GenAIConfigLoader(config);
         GenAIConfig loadedConfig = loader.loadConfig();
 
-        GenAIProviderPrefixMatcher matcher = GenAIProviderPrefixMatcher.build(loadedConfig);
+        GenAIProviderPrefixMatcher matcher = GenAIProviderPrefixMatcher.build();
 
         GenAIProviderPrefixMatcher.MatchResult result = matcher.match("gpt-5.4-pro");
         assertNotNull(result.getModelConfig());
