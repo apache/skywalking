@@ -44,6 +44,7 @@ L_BRACE:    '{';
 R_BRACE:    '}';
 SEMI:       ';';
 COLON:      ':';
+DOUBLE_COLON: '::';
 QUESTION:   '?';
 ARROW:      '->';
 ASSIGN:     '=';

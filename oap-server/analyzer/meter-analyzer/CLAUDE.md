@@ -41,10 +41,16 @@ oap-server/analyzer/meter-analyzer/
     rt/
       MalExpressionPackageHolder.java — Class loading anchor (empty marker)
       MalRuntimeHelper.java           — Static helpers called by generated code (divReverse, regexMatch, isTruthy)
+      MalExtensionRegistry.java       — SPI registry for extension functions (namespace::method)
+
+  src/main/java/.../spi/
+    MalFunctionExtension.java         — SPI interface for extension namespaces
+    MALContextFunction.java           — Annotation marking callable methods
 
   src/test/java/.../compiler/
-    MALScriptParserTest.java          — 20 parser tests
-    MALClassGeneratorTest.java        — 32 generator tests
+    MALScriptParserTest.java          — 22 parser tests
+    MALClassGeneratorTest.java        — 20 generator tests
+    MALExtensionFunctionTest.java     — 9 extension SPI tests
 ```
 
 ## Package & Class Naming
@@ -59,11 +65,92 @@ All v2 classes live under `org.apache.skywalking.oap.meter.analyzer.v2.*` to avo
 | Filter classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.{yamlName}_L{lineNo}_filter` |
 | Package holder | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder` |
 | Runtime helper | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalRuntimeHelper` |
+| Extension registry | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExtensionRegistry` |
+| Extension SPI | `org.apache.skywalking.oap.meter.analyzer.v2.spi.MalFunctionExtension` |
+| Extension annotation | `org.apache.skywalking.oap.meter.analyzer.v2.spi.MALContextFunction` |
 | Functional interface | `org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression` |
 
 Class names are built from `yamlSource` (file name + line number) and `classNameHint` (rule name or `filter`).
 Example: `vm_L25_cpu_total_percentage` (expression), `gateway_service_L33_filter` (filter).
 Falls back to `MalExpr_<N>` (global counter) when no hint is set.
+
+## Extension Function SPI (`namespace::method()`)
+
+MAL supports custom extension functions via the `namespace::method()` syntax. Extensions are discovered
+at startup via `java.util.ServiceLoader`.
+
+### Syntax
+
+```
+metric.sum(['svc']).genai::estimateCost()
+metric.test::scale(2.0)
+```
+
+The `::` separator distinguishes extension calls from built-in `SampleFamily` methods. The namespace
+avoids global method name conflicts — method names only need to be unique within their namespace.
+
+### Implementing an Extension
+
+1. Create a class implementing `MalFunctionExtension` with **static** `@MALContextFunction` methods:
+
+```java
+public class MyExtension implements MalFunctionExtension {
+    @Override
+    public String name() { return "myext"; }
+
+    @MALContextFunction
+    public static SampleFamily transform(SampleFamily sf, double factor) {
+        return sf.multiply(Double.valueOf(factor));
+    }
+
+    @MALContextFunction
+    public static SampleFamily filterTag(SampleFamily sf, String key, String value) {
+        return sf.tagEqual(key, value);
+    }
+}
+```
+
+2. Register via SPI file `META-INF/services/org.apache.skywalking.oap.meter.analyzer.v2.spi.MalFunctionExtension`:
+```
+com.example.MyExtension
+```
+
+3. Use in MAL scripts: `.myext::transform(2.0)`, `.myext::filterTag("env", "prod")`
+
+### Method Requirements
+
+- Methods **must** be `static` (non-static methods throw `IllegalArgumentException` at startup)
+- First parameter **must** be `SampleFamily` (auto-bound to the current chain value)
+- Return type **must** be `SampleFamily`
+- Additional parameters are matched from MAL arguments by type:
+
+| Java Type | MAL Argument |
+|-----------|-------------|
+| `String` | String literal: `"value"` |
+| `double` / `int` | Number literal: `2.0`, `100` |
+| `List<String>` | String list: `["tag1", "tag2"]` |
+
+### Compile-Time Validation
+
+The compiler validates at expression compilation time:
+- Namespace exists in registry
+- Method exists in that namespace
+- Argument count matches (excluding the implicit `SampleFamily` first param)
+- Argument types are compatible with the method signature
+
+### Generated Code
+
+The compiler generates direct static method calls — no reflection or registry dispatch at runtime.
+
+For `.myext::transform(2.0)`, the compiler generates:
+```java
+sf = com.example.MyExtension.transform(sf, 2.0);
+```
+
+For zero-arg extensions like `.myext::noop()`:
+```java
+sf = com.example.MyExtension.noop(sf);
+```
 
 ## Javassist Constraints
 

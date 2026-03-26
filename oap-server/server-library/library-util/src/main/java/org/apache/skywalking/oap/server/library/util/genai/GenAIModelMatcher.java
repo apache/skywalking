@@ -35,11 +35,33 @@ public class GenAIModelMatcher {
     private final TrieNode providerTrie;
     private final TrieNode modelTrie;
 
+    private static volatile GenAIModelMatcher INSTANCE;
+
     private static final MatchResult UNKNOWN_RESULT = new MatchResult(UNKNOWN, null);
 
     private GenAIModelMatcher(TrieNode providerTrie, TrieNode modelTrie) {
         this.providerTrie = providerTrie;
         this.modelTrie = modelTrie;
+    }
+
+    /**
+     * Get the singleton instance. Lazily initialized from {@code gen-ai-config.yml}
+     * on first access.
+     */
+    public static GenAIModelMatcher getInstance() {
+        if (INSTANCE == null) {
+            synchronized (GenAIModelMatcher.class) {
+                if (INSTANCE == null) {
+                    try {
+                        INSTANCE = build(GenAIPricingConfigLoader.load());
+                    } catch (java.io.IOException e) {
+                        throw new RuntimeException(
+                            "Failed to load gen-ai-config.yml for GenAIModelMatcher", e);
+                    }
+                }
+            }
+        }
+        return INSTANCE;
     }
 
     @Data

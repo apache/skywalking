@@ -22,52 +22,25 @@ import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
 import org.apache.skywalking.oap.server.library.util.genai.GenAIModelMatcher;
 import org.apache.skywalking.oap.server.library.util.genai.GenAIPricingConfig;
 
-import java.util.stream.Collectors;
-
 /**
- * Delegates to {@link GenAIModelMatcher} in library-util.
- * Converts module-specific {@link GenAIConfig} to the shared {@link GenAIPricingConfig}.
+ * Thin wrapper over the singleton {@link GenAIModelMatcher} that converts
+ * results to module-specific {@link GenAIConfig.Model} types.
  */
 public class GenAIProviderPrefixMatcher {
 
-    private final GenAIModelMatcher delegate;
-
-    private GenAIProviderPrefixMatcher(GenAIModelMatcher delegate) {
-        this.delegate = delegate;
+    private GenAIProviderPrefixMatcher() {
     }
 
-    public static GenAIProviderPrefixMatcher build(GenAIConfig config) {
-        GenAIPricingConfig pricingConfig = toPricingConfig(config);
-        return new GenAIProviderPrefixMatcher(GenAIModelMatcher.build(pricingConfig));
+    public static GenAIProviderPrefixMatcher build() {
+        // Ensure singleton is initialized (lazy init from gen-ai-config.yml)
+        GenAIModelMatcher.getInstance();
+        return new GenAIProviderPrefixMatcher();
     }
 
     public MatchResult match(String modelName) {
-        GenAIModelMatcher.MatchResult result = delegate.match(modelName);
+        GenAIModelMatcher.MatchResult result = GenAIModelMatcher.getInstance().match(modelName);
         GenAIConfig.Model modelConfig = toModuleModel(result.getModelConfig());
         return new MatchResult(result.getProvider(), modelConfig);
-    }
-
-    private static GenAIPricingConfig toPricingConfig(GenAIConfig config) {
-        GenAIPricingConfig pricingConfig = new GenAIPricingConfig();
-        pricingConfig.setProviders(
-            config.getProviders().stream().map(p -> {
-                GenAIPricingConfig.Provider pp = new GenAIPricingConfig.Provider();
-                pp.setProvider(p.getProvider());
-                pp.setPrefixMatch(p.getPrefixMatch());
-                pp.setModels(
-                    p.getModels().stream().map(m -> {
-                        GenAIPricingConfig.Model pm = new GenAIPricingConfig.Model();
-                        pm.setName(m.getName());
-                        pm.setAliases(m.getAliases());
-                        pm.setInputEstimatedCostPerM(m.getInputEstimatedCostPerM());
-                        pm.setOutputEstimatedCostPerM(m.getOutputEstimatedCostPerM());
-                        return pm;
-                    }).collect(Collectors.toList())
-                );
-                return pp;
-            }).collect(Collectors.toList())
-        );
-        return pricingConfig;
     }
 
     private static GenAIConfig.Model toModuleModel(GenAIPricingConfig.Model pm) {

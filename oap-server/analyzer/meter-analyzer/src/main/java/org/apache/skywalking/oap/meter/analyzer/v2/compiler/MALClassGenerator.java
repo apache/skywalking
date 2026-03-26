@@ -31,6 +31,7 @@ import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExtensionRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression;
@@ -552,8 +553,9 @@ public final class MALClassGenerator {
         } else if (expr instanceof MALExpressionModel.NumberExpr) {
             final double val = ((MALExpressionModel.NumberExpr) expr).getValue();
             sb.append("  ").append(RUN_VAR).append(" = ")
-              .append(SF).append(".EMPTY.plus(Double.valueOf(")
-              .append(val).append("));\n");
+              .append(SF).append(".EMPTY.plus(");
+            MALCodegenHelper.emitNumberValueOf(sb, val);
+            sb.append(");\n");
         } else if (expr instanceof MALExpressionModel.BinaryExpr) {
             generateBinaryExprStatements(
                 sb, (MALExpressionModel.BinaryExpr) expr);
@@ -638,19 +640,19 @@ public final class MALClassGenerator {
             sb.append("  ").append(RUN_VAR).append(" = ");
             switch (op) {
                 case ADD:
-                    sb.append(RUN_VAR).append(".plus(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append("))");
+                    sb.append(RUN_VAR).append(".plus(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(')');
                     break;
                 case SUB:
-                    sb.append(RUN_VAR).append(".minus(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append(")).negative()");
+                    sb.append(RUN_VAR).append(".minus(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(").negative()");
                     break;
                 case MUL:
-                    sb.append(RUN_VAR).append(".multiply(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append("))");
+                    sb.append(RUN_VAR).append(".multiply(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(')');
                     break;
                 case DIV:
                     sb.append("org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt")
@@ -666,9 +668,9 @@ public final class MALClassGenerator {
             generateExprStatements(sb, left);
             sb.append("  ").append(RUN_VAR).append(" = ")
               .append(RUN_VAR).append(".").append(MALCodegenHelper.opMethodName(op))
-              .append("(Double.valueOf(");
-            generateScalarExpr(sb, right);
-            sb.append("));\n");
+              .append('(');
+            generateScalarExprAsNumber(sb, right);
+            sb.append(");\n");
         } else {
             // SF op SF: compute left to sf, save to temp, compute right to sf, combine
             generateExprStatements(sb, left);
@@ -688,6 +690,10 @@ public final class MALClassGenerator {
     private void emitChainStatements(final StringBuilder sb,
                                      final List<MALExpressionModel.MethodCall> chain) {
         for (final MALExpressionModel.MethodCall mc : chain) {
+            if (mc.isExtension()) {
+                emitExtensionCall(sb, mc);
+                continue;
+            }
             sb.append("  ").append(RUN_VAR).append(" = ")
               .append(RUN_VAR).append('.').append(mc.getName()).append('(');
             final List<MALExpressionModel.Argument> args = mc.getArguments();
@@ -715,13 +721,104 @@ public final class MALClassGenerator {
         }
     }
 
+    private void emitExtensionCall(final StringBuilder sb,
+                                    final MALExpressionModel.MethodCall mc) {
+        final String ns = mc.getNamespace();
+        final String method = mc.getName();
+        final MalExtensionRegistry.ExtensionMethod em = MalExtensionRegistry.lookup(ns, method);
+        if (em == null) {
+            throw new IllegalArgumentException(
+                "Unknown MAL extension function: " + ns + "::" + method);
+        }
+        final List<MALExpressionModel.Argument> args = mc.getArguments();
+        final int expectedArgs = em.getExtraParamTypes().length;
+        if (args.size() != expectedArgs) {
+            throw new IllegalArgumentException(
+                "MAL extension " + ns + "::" + method + " expects " + expectedArgs
+                    + " argument(s), got " + args.size());
+        }
+        // Generate direct static call: sf = com.example.Ext.method(sf, arg1, arg2);
+        sb.append("  ").append(RUN_VAR).append(" = ")
+          .append(em.getDeclaringClass()).append('.')
+          .append(em.getMethodName()).append('(')
+          .append(RUN_VAR);
+        for (int i = 0; i < args.size(); i++) {
+            sb.append(", ");
+            generateExtensionArg(sb, args.get(i), em.getExtraParamTypes()[i]);
+        }
+        sb.append(");\n");
+    }
+
+    private void generateExtensionArg(final StringBuilder sb,
+                                       final MALExpressionModel.Argument arg,
+                                       final Class<?> expectedType) {
+        if (expectedType == String.class) {
+            if (arg instanceof MALExpressionModel.StringArgument) {
+                sb.append('"')
+                  .append(MALCodegenHelper.escapeJava(
+                      ((MALExpressionModel.StringArgument) arg).getValue()))
+                  .append('"');
+            } else {
+                throw new IllegalArgumentException(
+                    "Expected String argument for extension function, got " + arg.getClass().getSimpleName());
+            }
+        } else if (expectedType == double.class || expectedType == Double.class
+                || expectedType == float.class || expectedType == Float.class
+                || expectedType == long.class || expectedType == Long.class
+                || expectedType == int.class || expectedType == Integer.class) {
+            if (!(arg instanceof MALExpressionModel.ExprArgument)) {
+                throw new IllegalArgumentException(
+                    "Expected number argument for extension function, got "
+                        + arg.getClass().getSimpleName());
+            }
+            final MALExpressionModel.Expr expr =
+                ((MALExpressionModel.ExprArgument) arg).getExpr();
+            if (!(expr instanceof MALExpressionModel.NumberExpr)) {
+                throw new IllegalArgumentException(
+                    "Expected number argument for extension function");
+            }
+            final double raw = ((MALExpressionModel.NumberExpr) expr).getValue();
+            // Emit raw literal with type suffix — no parsing at runtime
+            if (expectedType == double.class || expectedType == Double.class) {
+                sb.append(raw);
+            } else if (expectedType == float.class || expectedType == Float.class) {
+                sb.append((float) raw).append('F');
+            } else if (expectedType == long.class || expectedType == Long.class) {
+                sb.append((long) raw).append('L');
+            } else {
+                sb.append((int) raw);
+            }
+        } else if (java.util.List.class.isAssignableFrom(expectedType)) {
+            if (arg instanceof MALExpressionModel.StringListArgument) {
+                final java.util.List<String> values =
+                    ((MALExpressionModel.StringListArgument) arg).getValues();
+                sb.append("java.util.Arrays.asList(new String[]{");
+                for (int i = 0; i < values.size(); i++) {
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append('"').append(MALCodegenHelper.escapeJava(values.get(i))).append('"');
+                }
+                sb.append("})");
+            } else {
+                throw new IllegalArgumentException(
+                    "Expected list argument for extension function, got " + arg.getClass().getSimpleName());
+            }
+        } else {
+            throw new IllegalArgumentException(
+                "Unsupported extension parameter type: " + expectedType.getName());
+        }
+    }
+
     private void generateExpr(final StringBuilder sb,
                               final MALExpressionModel.Expr expr) {
         if (expr instanceof MALExpressionModel.MetricExpr) {
             generateMetricExpr(sb, (MALExpressionModel.MetricExpr) expr);
         } else if (expr instanceof MALExpressionModel.NumberExpr) {
             final double val = ((MALExpressionModel.NumberExpr) expr).getValue();
-            sb.append(SF).append(".EMPTY.plus(Double.valueOf(").append(val).append("))");
+            sb.append(SF).append(".EMPTY.plus(");
+            MALCodegenHelper.emitNumberValueOf(sb, val);
+            sb.append(')');
         } else if (expr instanceof MALExpressionModel.BinaryExpr) {
             generateBinaryExpr(sb, (MALExpressionModel.BinaryExpr) expr);
         } else if (expr instanceof MALExpressionModel.UnaryNegExpr) {
@@ -805,23 +902,23 @@ public final class MALClassGenerator {
                 case ADD:
                     sb.append("(");
                     generateExpr(sb, right);
-                    sb.append(").plus(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append("))");
+                    sb.append(").plus(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(')');
                     break;
                 case SUB:
                     sb.append("(");
                     generateExpr(sb, right);
-                    sb.append(").minus(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append(")).negative()");
+                    sb.append(").minus(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(").negative()");
                     break;
                 case MUL:
                     sb.append("(");
                     generateExpr(sb, right);
-                    sb.append(").multiply(Double.valueOf(");
-                    generateScalarExpr(sb, left);
-                    sb.append("))");
+                    sb.append(").multiply(");
+                    generateScalarExprAsNumber(sb, left);
+                    sb.append(')');
                     break;
                 case DIV:
                     sb.append("org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt")
@@ -839,9 +936,9 @@ public final class MALClassGenerator {
             sb.append("(");
             generateExpr(sb, left);
             sb.append(").").append(MALCodegenHelper.opMethodName(op))
-              .append("(Double.valueOf(");
-            generateScalarExpr(sb, right);
-            sb.append("))");
+              .append('(');
+            generateScalarExprAsNumber(sb, right);
+            sb.append(')');
         } else {
             // SF op SF (both non-number)
             sb.append("(");
@@ -967,9 +1064,8 @@ public final class MALClassGenerator {
                 ((MALExpressionModel.ExprArgument) arg).getExpr();
             if (innerExpr instanceof MALExpressionModel.NumberExpr) {
                 // Numeric literal argument (e.g., valueEqual(1), multiply(100))
-                // Emit as Double.valueOf() to match Number parameter types.
                 final double num = ((MALExpressionModel.NumberExpr) innerExpr).getValue();
-                sb.append("Double.valueOf(").append(num).append(")");
+                MALCodegenHelper.emitNumberValueOf(sb, num);
             } else if (innerExpr instanceof MALExpressionModel.MetricExpr
                     && ((MALExpressionModel.MetricExpr) innerExpr).getMethodChain().isEmpty()) {
                 // Bare identifier — could be an enum constant like SUM, AVG
@@ -1302,6 +1398,23 @@ public final class MALClassGenerator {
             if ("time".equals(fn)) {
                 sb.append("(double) java.time.Instant.now().getEpochSecond()");
             }
+        }
+    }
+
+    /**
+     * Emits a scalar expression wrapped with the appropriate {@code Number.valueOf()}.
+     * Integer-valued literals use {@code Long.valueOf(NL)}, others use {@code Double.valueOf(N)}.
+     * Non-literal scalars (e.g., {@code time()}) always use {@code Double.valueOf()}.
+     */
+    private void generateScalarExprAsNumber(final StringBuilder sb,
+                                             final MALExpressionModel.Expr expr) {
+        if (expr instanceof MALExpressionModel.NumberExpr) {
+            MALCodegenHelper.emitNumberValueOf(
+                sb, ((MALExpressionModel.NumberExpr) expr).getValue());
+        } else {
+            sb.append("Double.valueOf(");
+            generateScalarExpr(sb, expr);
+            sb.append(')');
         }
     }
 
