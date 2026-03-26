@@ -19,19 +19,19 @@
 package org.apache.skywalking.oap.query.traceql.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpResponse;
-import com.linecorp.armeria.common.HttpStatus;
-import com.linecorp.armeria.common.MediaType;
-import com.linecorp.armeria.common.ResponseHeaders;
 import io.grafana.tempo.tempopb.TraceByIDResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.codec.DecoderException;
+import org.apache.skywalking.oap.query.traceql.TraceQLConfig;
+import org.apache.skywalking.oap.query.traceql.converter.OTLPConverter;
 import org.apache.skywalking.oap.query.traceql.converter.ZipkinOTLPConverter;
 import org.apache.skywalking.oap.query.traceql.entity.OtlpTraceResponse;
 import org.apache.skywalking.oap.query.traceql.entity.SearchResponse;
@@ -42,9 +42,7 @@ import org.apache.skywalking.oap.query.traceql.exception.IllegalExpressionExcept
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLParseResult;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParser;
-import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
-import org.apache.skywalking.oap.query.zipkin.ZipkinQueryModule;
-import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
+import org.apache.skywalking.oap.query.zipkin.ZipkinQueryService;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
@@ -61,31 +59,39 @@ import zipkin2.storage.QueryRequest;
 import static org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryVisitor.parseDuration;
 
 public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
-    private final ZipkinQueryHandler zipkinQueryHandler;
-    private final ZipkinQueryConfig zipkinQueryConfig;
+    private final ZipkinQueryService zipkinQueryService;
     private final TagAutoCompleteQueryService tagAutoCompleteQueryService;
+    private final TraceQLConfig traceQLConfig;
+    private final Set<String> allowedTags;
 
-    public ZipkinTraceQLApiHandler(ModuleManager moduleManager) {
+    public ZipkinTraceQLApiHandler(ModuleManager moduleManager, TraceQLConfig config) {
         super();
         this.tagAutoCompleteQueryService = moduleManager.find(CoreModule.NAME)
                                                         .provider()
                                                         .getService(TagAutoCompleteQueryService.class);
-        // Get ZipkinQueryHandler from ZipkinQueryModule service
-        this.zipkinQueryHandler = moduleManager.find(ZipkinQueryModule.NAME)
-                                               .provider()
-                                               .getService(ZipkinQueryHandler.class);
-        this.zipkinQueryConfig = zipkinQueryHandler.getConfig();
+        this.zipkinQueryService = new ZipkinQueryService(moduleManager);
+        this.traceQLConfig = config;
+        this.allowedTags = new HashSet<>(Arrays.asList(
+            config.getZipkinTracesListResultTags().split(Const.COMMA)
+        ));
+        // Add fixed tags
+        this.allowedTags.add(SPAN_KIND);
+        this.allowedTags.add(SERVICE_NAME);
     }
 
     @Override
     protected HttpResponse queryTraceImpl(String traceId,
                                           Optional<String> accept) throws IOException, DecoderException {
-        List<Span> zipkinTrace = zipkinQueryHandler.getTraceById(traceId);
+        List<Span> zipkinTrace = zipkinQueryService.getTraceById(traceId);
 
-        // Step 1: Convert Zipkin spans to Protobuf (primary format) using converter
+        if (zipkinTrace == null || zipkinTrace.isEmpty()) {
+            return HttpResponse.of(com.linecorp.armeria.common.HttpStatus.NOT_FOUND);
+        }
+
+        // Convert Zipkin spans to Protobuf format
         TraceByIDResponse protoResponse = ZipkinOTLPConverter.convertToProtobuf(zipkinTrace);
 
-        // Step 2: Return based on Accept header
+        // Return based on Accept header
         if (accept.isPresent() && accept.get().contains("application/protobuf")) {
             return buildProtobufHttpResponse(protoResponse);
         } else {
@@ -116,7 +122,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                 long startTsMillis = start.get() * 1000;
                 lookbackMillis = endTsMillis - startTsMillis;
             } else {
-                lookbackMillis = zipkinQueryConfig.getLookback();
+                lookbackMillis = traceQLConfig.getLookback();
             }
             queryRequestBuilder.lookback(lookbackMillis);
 
@@ -162,14 +168,8 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                 }
 
                 if (StringUtil.isNotBlank(traceQLParams.getStatus())) {
-                    Set<String> tagKeys = tagAutoCompleteQueryService.queryTagAutocompleteKeys(
-                        TagType.ZIPKIN,
-                        duration
-                    );
-                    if (tagKeys.contains("error")) {
-                        annotationQuery.put("error", "");
-                    } else if (tagKeys.contains("otel.status_code")) {
-                        annotationQuery.put("otel.status_code", traceQLParams.getStatus());
+                    if (ERROR.equalsIgnoreCase(traceQLParams.getStatus())) {
+                        annotationQuery.put(ERROR, "");
                     }
                 }
                 if (CollectionUtils.isNotEmpty(annotationQuery)) {
@@ -189,8 +189,8 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
 
             queryRequestBuilder.limit(limit.orElse(20));
             QueryRequest queryRequest = queryRequestBuilder.build();
-            List<List<zipkin2.Span>> traces = zipkinQueryHandler.getTraces(queryRequest, duration);
-            SearchResponse response = ZipkinOTLPConverter.convertToSearchResponse(traces);
+            List<List<zipkin2.Span>> traces = zipkinQueryService.getTraces(queryRequest, duration);
+            SearchResponse response = ZipkinOTLPConverter.convertToSearchResponse(traces, allowedTags);
             return successResponse(response);
         } catch (IllegalExpressionException | IllegalArgumentException e) {
             return badRequestResponse(e.getMessage());
@@ -203,7 +203,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                                           Optional<Long> start,
                                           Optional<Long> end) throws IOException {
         TagNamesResponse response = new TagNamesResponse();
-        Duration duration = buildDuration(start, end);
+        Duration duration = buildDuration(start, end, traceQLConfig.getLookback());
 
         Set<String> tagKeys = tagAutoCompleteQueryService.queryTagAutocompleteKeys(
             TagType.ZIPKIN,
@@ -221,17 +221,17 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                                             Optional<Long> start,
                                             Optional<Long> end) throws IOException {
         TagNamesV2Response response = new TagNamesV2Response();
-        Duration duration = buildDuration(start, end);
+        Duration duration = buildDuration(start, end, traceQLConfig.getLookback());
 
-        TagNamesV2Response.Scope spanScope = new TagNamesV2Response.Scope("span");
+        TagNamesV2Response.Scope spanScope = new TagNamesV2Response.Scope(SCOPE_SPAN);
         //for Grafana variables, tempo only supports label query in variables setting.
-        TagNamesV2Response.Scope resourceScope = new TagNamesV2Response.Scope("resource");
+        TagNamesV2Response.Scope resourceScope = new TagNamesV2Response.Scope(SCOPE_RESOURCE);
 
         Set<String> tagKeys = tagAutoCompleteQueryService.queryTagAutocompleteKeys(
             TagType.ZIPKIN,
             duration
         );
-        resourceScope.getTags().add("service");
+        resourceScope.getTags().add(SERVICE);
         response.getScopes().add(resourceScope);
         spanScope.getTags().addAll(tagKeys);
         response.getScopes().add(spanScope);
@@ -245,25 +245,24 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                                                Optional<Integer> limit,
                                                Optional<Long> start,
                                                Optional<Long> end) throws IOException {
-        Duration duration = buildDuration(start, end);
+        Duration duration = buildDuration(start, end, traceQLConfig.getLookback());
 
-        if (tagName.equals("resource.service.name") || tagName.equals("resource.service")) {
-            List<String> serviceNames = zipkinQueryHandler.getServiceNames();
+        if (tagName.equals(RESOURCE_SERVICE_NAME) || tagName.equals(RESOURCE_SERVICE)) {
+            List<String> serviceNames = zipkinQueryService.getServiceNames();
             TagValuesResponse serviceNameRsp = new TagValuesResponse();
             for (String serviceName : serviceNames) {
-                TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue("string", serviceName);
+                TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue(TYPE_STRING, serviceName);
                 serviceNameRsp.getTagValues().add(tagValue);
             }
             return successResponse(serviceNameRsp);
-        } else if (tagName.equals("status")) {
+        } else if (tagName.equals(STATUS)) {
             TagValuesResponse serviceNameRsp = new TagValuesResponse();
-            TagValuesResponse.TagValue tagValue1 = new TagValuesResponse.TagValue("string", "STATUS_CODE_OK");
-            TagValuesResponse.TagValue tagValue2 = new TagValuesResponse.TagValue("string", "STATUS_CODE_ERROR");
-            serviceNameRsp.getTagValues().add(tagValue1);
-            serviceNameRsp.getTagValues().add(tagValue2);
+            // zipkin doesn't have an ok status query
+            TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue(TYPE_STRING, ERROR);
+            serviceNameRsp.getTagValues().add(tagValue);
             return successResponse(serviceNameRsp);
-        } else if (tagName.startsWith("span.")) {
-            String actualTagKey = tagName.substring(5);
+        } else if (tagName.startsWith(SPAN_PREFIX)) {
+            String actualTagKey = tagName.substring(SPAN_PREFIX.length());
             TagValuesResponse response = new TagValuesResponse();
 
             Set<String> tagValues = tagAutoCompleteQueryService.queryTagAutocompleteValues(
@@ -273,43 +272,33 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
             );
 
             for (String value : tagValues) {
-                TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue("string", value);
+                TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue(TYPE_STRING, value);
                 response.getTagValues().add(tagValue);
             }
             return successResponse(response);
         }
-        if (query.isPresent() && !query.get().isEmpty()) {
-            TraceQLParseResult parseResult = TraceQLQueryParser.extractParams(query.get());
-            if (parseResult.hasError()) {
-                return badRequestResponse(parseResult.getErrorInfo());
-            }
-            TraceQLQueryParams traceQLParams = parseResult.getParams();
-            if (tagName.equals("name")) {
+        if (tagName.equals(NAME)) {
+            if (query.isPresent() && !query.get().isEmpty()) {
+                TraceQLParseResult parseResult = TraceQLQueryParser.extractParams(query.get());
+                if (parseResult.hasError()) {
+                    return badRequestResponse(parseResult.getErrorInfo());
+                }
+                TraceQLQueryParams traceQLParams = parseResult.getParams();
                 TagValuesResponse serviceNameRsp = new TagValuesResponse();
                 if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
-                    List<String> spanNames = zipkinQueryHandler.getSpanNames(traceQLParams.getServiceName());
+                    List<String> spanNames = zipkinQueryService.getSpanNames(traceQLParams.getServiceName());
                     for (String spanName : spanNames) {
-                        TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue("string", spanName);
+                        TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue(TYPE_STRING, spanName);
                         serviceNameRsp.getTagValues().add(tagValue);
                     }
                 }
                 return successResponse(serviceNameRsp);
+            } else {
+                // Return empty list if no query provide, to avoid error as Grafana query this every time when user enter the query page.
+                return successResponse(new TagValuesResponse());
             }
         }
         return badRequestResponse("Unsupported tag value query.");
-    }
-
-    /**
-     * Build HTTP response with Protobuf content.
-     */
-    private HttpResponse buildProtobufHttpResponse(TraceByIDResponse protoResponse) {
-        byte[] protoBytes = protoResponse.toByteArray();
-        return HttpResponse.of(
-            ResponseHeaders.builder(HttpStatus.OK)
-                           .contentType(MediaType.parse("application/protobuf"))
-                           .build(),
-            HttpData.wrap(protoBytes)
-        );
     }
 
     /**
@@ -317,7 +306,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
      */
     private HttpResponse buildJsonHttpResponseFromProtobuf(TraceByIDResponse protoResponse) throws
         JsonProcessingException {
-        OtlpTraceResponse jsonResponse = ZipkinOTLPConverter.convertProtobufToJson(protoResponse);
+        OtlpTraceResponse jsonResponse = OTLPConverter.convertProtobufToJson(protoResponse, OTLPConverter.TraceType.Zipkin);
         return successResponse(jsonResponse);
     }
 
@@ -332,41 +321,13 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                 if (kv.length == 2) {
                     String key = kv[0].trim();
                     String value = kv[1].trim();
-                    if ("service.name".equals(key)) {
+                    if (SERVICE_NAME.equals(key)) {
                         queryRequestBuilder.serviceName(value);
-                    } else if ("span.name".equals(key)) {
+                    } else if (SPAN_NAME.equals(key)) {
                         queryRequestBuilder.spanName(value);
                     }
                 }
             }
         }
-    }
-
-    /**
-     * Build Duration object from start and end timestamps.
-     */
-    private Duration buildDuration(Optional<Long> start, Optional<Long> end) {
-        Duration duration = new Duration();
-
-        long endTime;
-        long startTime;
-
-        if (end.isPresent()) {
-            endTime = end.get() * 1000;
-        } else {
-            endTime = System.currentTimeMillis();
-        }
-
-        if (start.isPresent()) {
-            startTime = start.get() * 1000;
-        } else {
-            startTime = endTime - zipkinQueryConfig.getLookback();
-        }
-
-        duration.setStart(new DateTime(startTime).toString("yyyy-MM-dd HHmmss"));
-        duration.setEnd(new DateTime(endTime).toString("yyyy-MM-dd HHmmss"));
-        duration.setStep(Step.SECOND);
-
-        return duration;
     }
 }

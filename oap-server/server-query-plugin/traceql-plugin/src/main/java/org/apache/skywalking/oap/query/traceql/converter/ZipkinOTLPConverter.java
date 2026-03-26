@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.query.traceql.converter;
 
+import java.util.LinkedHashSet;
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import com.google.protobuf.ByteString;
 import io.grafana.tempo.tempopb.Trace;
 import io.grafana.tempo.tempopb.TraceByIDResponse;
@@ -31,15 +31,18 @@ import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
-import org.apache.skywalking.oap.query.traceql.entity.OtlpTraceResponse;
 import org.apache.skywalking.oap.query.traceql.entity.SearchResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SERVICE_NAME;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SPAN_KIND;
 
 /**
  * Converter for transforming Zipkin trace data to OpenTelemetry Protocol (OTLP) format.
@@ -100,8 +103,8 @@ public class ZipkinOTLPConverter {
             // Convert each Zipkin span to OTLP Span
             for (zipkin2.Span zipkinSpan : serviceSpans) {
                 Span.Builder spanBuilder = Span.newBuilder()
-                                               .setTraceId(ByteString.copyFrom(hexToBytes(zipkinSpan.traceId())))
-                                               .setSpanId(ByteString.copyFrom(hexToBytes(zipkinSpan.id())))
+                                               .setTraceId(ByteString.copyFrom(OTLPConverter.hexToBytes(zipkinSpan.traceId())))
+                                               .setSpanId(ByteString.copyFrom(OTLPConverter.hexToBytes(zipkinSpan.id())))
                                                .setName(zipkinSpan.name() != null ? zipkinSpan.name() : "")
                                                .setKind(convertZipkinKindToOtlp(zipkinSpan.kind()))
                                                .setStartTimeUnixNano(zipkinSpan.timestampAsLong() * 1000)
@@ -112,7 +115,7 @@ public class ZipkinOTLPConverter {
 
                 // Set parent span ID if present
                 if (zipkinSpan.parentId() != null) {
-                    spanBuilder.setParentSpanId(ByteString.copyFrom(hexToBytes(zipkinSpan.parentId())));
+                    spanBuilder.setParentSpanId(ByteString.copyFrom(OTLPConverter.hexToBytes(zipkinSpan.parentId())));
                 }
 
                 // Set status based on tags (reference: OpenTelemetryTraceHandler.populateStatus)
@@ -273,116 +276,14 @@ public class ZipkinOTLPConverter {
     }
 
     /**
-     * Convert Protobuf TraceByIDResponse to OtlpTraceResponse JSON model.
-     *
-     * @param protoResponse TraceByIDResponse in Protobuf format
-     * @return OtlpTraceResponse JSON model
-     */
-    public static OtlpTraceResponse convertProtobufToJson(TraceByIDResponse protoResponse) {
-        OtlpTraceResponse response = new OtlpTraceResponse();
-        OtlpTraceResponse.TraceData traceData = new OtlpTraceResponse.TraceData();
-
-        Trace trace = protoResponse.getTrace();
-
-        // Convert each ResourceSpans
-        for (ResourceSpans rs : trace.getResourceSpansList()) {
-            OtlpTraceResponse.ResourceSpans jsonResourceSpans = new OtlpTraceResponse.ResourceSpans();
-
-            // Convert Resource
-            OtlpTraceResponse.Resource jsonResource = new OtlpTraceResponse.Resource();
-            for (KeyValue attr : rs.getResource().getAttributesList()) {
-                OtlpTraceResponse.KeyValue jsonKv = new OtlpTraceResponse.KeyValue();
-                jsonKv.setKey(attr.getKey());
-                OtlpTraceResponse.AnyValue jsonValue = new OtlpTraceResponse.AnyValue();
-                jsonValue.setStringValue(attr.getValue().getStringValue());
-                jsonKv.setValue(jsonValue);
-                jsonResource.getAttributes().add(jsonKv);
-            }
-            jsonResourceSpans.setResource(jsonResource);
-
-            // Convert ScopeSpans
-            for (ScopeSpans ss : rs.getScopeSpansList()) {
-                OtlpTraceResponse.ScopeSpans jsonScopeSpans = new OtlpTraceResponse.ScopeSpans();
-
-                // Convert Scope
-                OtlpTraceResponse.Scope jsonScope = new OtlpTraceResponse.Scope();
-                jsonScope.setName(ss.getScope().getName());
-                jsonScope.setVersion(ss.getScope().getVersion());
-                jsonScopeSpans.setScope(jsonScope);
-
-                // Convert Spans
-                for (Span span : ss.getSpansList()) {
-                    OtlpTraceResponse.Span jsonSpan = new OtlpTraceResponse.Span();
-                    jsonSpan.setTraceId(bytesToHex(span.getTraceId().toByteArray()));
-                    jsonSpan.setSpanId(bytesToHex(span.getSpanId().toByteArray()));
-                    if (!span.getParentSpanId().isEmpty()) {
-                        jsonSpan.setParentSpanId(bytesToHex(span.getParentSpanId().toByteArray()));
-                    }
-                    jsonSpan.setName(span.getName());
-                    jsonSpan.setKind(span.getKind().name());
-                    jsonSpan.setStartTimeUnixNano(String.valueOf(span.getStartTimeUnixNano()));
-                    jsonSpan.setEndTimeUnixNano(String.valueOf(span.getEndTimeUnixNano()));
-
-                    // Convert Status
-                    if (span.hasStatus()) {
-                        OtlpTraceResponse.Status jsonStatus = new OtlpTraceResponse.Status();
-                        jsonStatus.setCode(span.getStatus().getCode().name());
-                        if (!span.getStatus().getMessage().isEmpty()) {
-                            jsonStatus.setMessage(span.getStatus().getMessage());
-                        }
-                        jsonSpan.setStatus(jsonStatus);
-                    }
-
-                    // Convert Attributes
-                    for (KeyValue attr : span.getAttributesList()) {
-                        OtlpTraceResponse.KeyValue jsonKv = new OtlpTraceResponse.KeyValue();
-                        jsonKv.setKey(attr.getKey());
-                        OtlpTraceResponse.AnyValue jsonValue = new OtlpTraceResponse.AnyValue();
-                        jsonValue.setStringValue(attr.getValue().getStringValue());
-                        jsonKv.setValue(jsonValue);
-                        jsonSpan.getAttributes().add(jsonKv);
-                    }
-
-                    // Convert Events
-                    for (Span.Event event : span.getEventsList()) {
-                        OtlpTraceResponse.Event jsonEvent = new OtlpTraceResponse.Event();
-                        jsonEvent.setTimeUnixNano(String.valueOf(event.getTimeUnixNano()));
-                        jsonEvent.setName(event.getName());
-
-                        // Convert Event Attributes
-                        for (KeyValue attr : event.getAttributesList()) {
-                            OtlpTraceResponse.KeyValue jsonKv = new OtlpTraceResponse.KeyValue();
-                            jsonKv.setKey(attr.getKey());
-                            OtlpTraceResponse.AnyValue jsonValue = new OtlpTraceResponse.AnyValue();
-                            jsonValue.setStringValue(attr.getValue().getStringValue());
-                            jsonKv.setValue(jsonValue);
-                            jsonEvent.getAttributes().add(jsonKv);
-                        }
-
-                        jsonSpan.getEvents().add(jsonEvent);
-                    }
-
-                    jsonScopeSpans.getSpans().add(jsonSpan);
-                }
-
-                jsonResourceSpans.getScopeSpans().add(jsonScopeSpans);
-            }
-
-            traceData.getResourceSpans().add(jsonResourceSpans);
-        }
-
-        response.setTrace(traceData);
-        return response;
-    }
-
-    /**
      * Convert Zipkin traces to SearchResponse.
      * Each trace in the list becomes a Trace in the SearchResponse.
      *
-     * @param traces List of Zipkin trace (each trace is a list of spans)
+     * @param traces      List of Zipkin trace (each trace is a list of spans)
+     * @param allowedTags Only span attributes whose key is in this set are included in the result
      * @return SearchResponse containing the converted traces
      */
-    public static SearchResponse convertToSearchResponse(List<List<zipkin2.Span>> traces) {
+    public static SearchResponse convertToSearchResponse(List<List<zipkin2.Span>> traces, Set<String> allowedTags) {
         SearchResponse response = new SearchResponse();
 
         if (traces == null || traces.isEmpty()) {
@@ -394,7 +295,7 @@ public class ZipkinOTLPConverter {
                 continue;
             }
 
-            SearchResponse.Trace trace = convertZipkinTraceToSearchTrace(zipkinTrace);
+            SearchResponse.Trace trace = convertZipkinTraceToSearchTrace(zipkinTrace, allowedTags);
             response.getTraces().add(trace);
         }
 
@@ -405,34 +306,30 @@ public class ZipkinOTLPConverter {
      * Convert a single Zipkin trace (list of spans) to SearchResponse.Trace.
      *
      * @param zipkinTrace List of Zipkin spans representing one trace
+     * @param allowedTags Only span attributes whose key is in this set are included; null means all
      * @return SearchResponse.Trace
      */
-    private static SearchResponse.Trace convertZipkinTraceToSearchTrace(List<zipkin2.Span> zipkinTrace) {
+    private static SearchResponse.Trace convertZipkinTraceToSearchTrace(List<zipkin2.Span> zipkinTrace,
+                                                                         Set<String> allowedTags) {
         SearchResponse.Trace trace = new SearchResponse.Trace();
 
         if (zipkinTrace.isEmpty()) {
             return trace;
         }
 
-        // Get the first span to extract trace-level information
         zipkin2.Span firstSpan = zipkinTrace.get(0);
         trace.setTraceID(firstSpan.traceId());
 
-        // Find the root span (span without parent)
         zipkin2.Span rootSpan = zipkinTrace.stream()
                                            .filter(s -> s.parentId() == null)
                                            .findFirst()
                                            .orElse(firstSpan);
 
-        // Set root service name and trace name
         trace.setRootServiceName(rootSpan.localServiceName() != null
                                      ? rootSpan.localServiceName()
                                      : "unknown-service");
-        trace.setRootTraceName(rootSpan.name() != null
-                                   ? rootSpan.name()
-                                   : "unknown");
+        trace.setRootTraceName(rootSpan.name() != null ? rootSpan.name() : "unknown");
 
-        // Calculate trace start time and duration
         long minStartTime = zipkinTrace.stream()
                                        .filter(s -> s.timestampAsLong() != 0)
                                        .mapToLong(zipkin2.Span::timestampAsLong)
@@ -445,22 +342,33 @@ public class ZipkinOTLPConverter {
                                      .max()
                                      .orElse(minStartTime);
 
-        // Convert to nanoseconds for startTimeUnixNano
         trace.setStartTimeUnixNano(String.valueOf(TimeUnit.MICROSECONDS.toNanos(minStartTime)));
+        trace.setDurationMs((int) TimeUnit.MICROSECONDS.toMillis(maxEndTime - minStartTime));
 
-        // Duration in milliseconds
-        long durationMicros = maxEndTime - minStartTime;
-        trace.setDurationMs((int) TimeUnit.MICROSECONDS.toMillis(durationMicros));
-
-        // Create SpanSet with all spans
-        SearchResponse.SpanSet spanSet = new SearchResponse.SpanSet();
-        spanSet.setMatched(zipkinTrace.size());
-
+        // First pass: collect all attribute keys across all spans.
+        // Grafana has a bug (search.go:369) where spans missing an attribute key that other
+        // spans have cause a type panic: Append("") on a []*string field instead of Append(nil).
+        // By ensuring all spans have the same keys (padding missing ones with ""), we avoid
+        // the else branch in Grafana entirely.
+        Set<String> allSpanAttrKeys = new LinkedHashSet<>();
         for (zipkin2.Span zipkinSpan : zipkinTrace) {
-            SearchResponse.Span span = convertZipkinSpanToSearchSpan(zipkinSpan);
-            spanSet.getSpans().add(span);
+            if (zipkinSpan.tags() != null) {
+                allSpanAttrKeys.addAll(zipkinSpan.tags().keySet());
+            }
         }
+        // Restrict to allowed tags when configured
+        if (allowedTags != null) {
+            allSpanAttrKeys.retainAll(allowedTags);
+        }
+        // Add fixed tags last so they always appear
+        allSpanAttrKeys.add(SERVICE_NAME);
+        allSpanAttrKeys.add(SPAN_KIND);
 
+        SearchResponse.SpanSet spanSet = new SearchResponse.SpanSet();
+        for (zipkin2.Span zipkinSpan : zipkinTrace) {
+            spanSet.getSpans().add(convertZipkinSpanToSearchSpan(zipkinSpan, allSpanAttrKeys));
+        }
+        spanSet.setMatched(spanSet.getSpans().size());
         trace.getSpanSets().add(spanSet);
 
         return trace;
@@ -468,65 +376,53 @@ public class ZipkinOTLPConverter {
 
     /**
      * Convert a single Zipkin span to SearchResponse.Span.
+     * All keys in {@code allSpanAttrKeys} are written (missing ones padded with "") so that
+     * every span in the same SpanSet has identical attribute keys — required to avoid a
+     * Grafana search.go:369 type panic on []*string DataFrame fields.
      *
-     * @param zipkinSpan Zipkin span
+     * @param zipkinSpan      Zipkin span
+     * @param allSpanAttrKeys Ordered, already-filtered set of attribute keys to output
      * @return SearchResponse.Span
      */
-    private static SearchResponse.Span convertZipkinSpanToSearchSpan(zipkin2.Span zipkinSpan) {
+    private static SearchResponse.Span convertZipkinSpanToSearchSpan(zipkin2.Span zipkinSpan,
+                                                                       Set<String> allSpanAttrKeys) {
         SearchResponse.Span span = new SearchResponse.Span();
-
         span.setSpanID(zipkinSpan.id());
 
-        // Convert timestamp to nanoseconds
         if (zipkinSpan.timestampAsLong() != 0) {
             span.setStartTimeUnixNano(String.valueOf(
                 TimeUnit.MICROSECONDS.toNanos(zipkinSpan.timestampAsLong())));
         }
-
-        // Convert duration to nanoseconds
         if (zipkinSpan.durationAsLong() != 0) {
             span.setDurationNanos(String.valueOf(
                 TimeUnit.MICROSECONDS.toNanos(zipkinSpan.durationAsLong())));
         }
 
-        // Convert tags to attributes
-        if (zipkinSpan.tags() != null && !zipkinSpan.tags().isEmpty()) {
-            for (Map.Entry<String, String> tag : zipkinSpan.tags().entrySet()) {
-                SearchResponse.Attribute attribute = new SearchResponse.Attribute();
-                attribute.setKey(tag.getKey());
-
-                SearchResponse.Value value = new SearchResponse.Value();
-                value.setStringValue(tag.getValue());
-                attribute.setValue(value);
-
-                span.getAttributes().add(attribute);
-            }
-        }
-
-        // Add service name as attribute if available
+        // Build attribute map for this span
+        Map<String, String> spanAttrMap = new HashMap<>();
         if (zipkinSpan.localServiceName() != null) {
-            SearchResponse.Attribute serviceAttr = new SearchResponse.Attribute();
-            serviceAttr.setKey("service.name");
-
-            SearchResponse.Value value = new SearchResponse.Value();
-            value.setStringValue(zipkinSpan.localServiceName());
-            serviceAttr.setValue(value);
-
-            span.getAttributes().add(serviceAttr);
+            spanAttrMap.put(SERVICE_NAME, zipkinSpan.localServiceName());
         }
-
-        // Add span kind as attribute
         if (zipkinSpan.kind() != null) {
-            SearchResponse.Attribute kindAttr = new SearchResponse.Attribute();
-            kindAttr.setKey("span.kind");
-
-            SearchResponse.Value value = new SearchResponse.Value();
-            value.setStringValue(zipkinSpan.kind().name());
-            kindAttr.setValue(value);
-
-            span.getAttributes().add(kindAttr);
+            spanAttrMap.put(SPAN_KIND, zipkinSpan.kind().name());
+        }
+        if (zipkinSpan.tags() != null) {
+            spanAttrMap.putAll(zipkinSpan.tags());
         }
 
+        // Output all keys in consistent order, padding missing keys with "" to avoid
+        // the Grafana search.go:369 type panic on []*string fields
+        List<SearchResponse.Attribute> attributes = new ArrayList<>();
+        for (String key : allSpanAttrKeys) {
+            SearchResponse.Attribute attr = new SearchResponse.Attribute();
+            attr.setKey(key);
+            SearchResponse.Value value = new SearchResponse.Value();
+            value.setStringValue(spanAttrMap.getOrDefault(key, ""));
+            attr.setValue(value);
+            attributes.add(attr);
+        }
+
+        span.setAttributes(attributes);
         return span;
     }
 
@@ -549,19 +445,5 @@ public class ZipkinOTLPConverter {
             default:
                 return Span.SpanKind.SPAN_KIND_INTERNAL;
         }
-    }
-
-    /**
-     * Convert byte array to hex string.
-     */
-    private static String bytesToHex(byte[] bytes) {
-        return Hex.encodeHexString(bytes);
-    }
-
-    /**
-     * Convert hex string to byte array.
-     */
-    private static byte[] hexToBytes(String hex) throws DecoderException {
-        return Hex.decodeHex(hex);
     }
 }

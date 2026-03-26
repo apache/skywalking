@@ -79,14 +79,10 @@ public class TraceQLProvider extends ModuleProvider {
 
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
-    }
-
-    @Override
-    public void notifyAfterCompleted() {
         if (config.isEnableDatasourceZipkin()) {
             // Register Zipkin-compatible Tempo API handler with /zipkin context path
             httpServer.addHandler(
-                new ZipkinTraceQLApiHandler(getManager()),
+                new ZipkinTraceQLApiHandler(getManager(), config),
                 Collections.singletonList(HttpMethod.GET),
                 config.getRestContextPathZipkin()
             );
@@ -95,11 +91,15 @@ public class TraceQLProvider extends ModuleProvider {
         if (config.isEnableDatasourceSkywalking()) {
             // Register SkyWalking-compatible Tempo API handler with /skywalking context path
             httpServer.addHandler(
-                new SkyWalkingTraceQLApiHandler(getManager()),
+                new SkyWalkingTraceQLApiHandler(getManager(), config),
                 Collections.singletonList(HttpMethod.GET),
                 config.getRestContextPathSkywalking()
             );
         }
+    }
+
+    @Override
+    public void notifyAfterCompleted() {
         if (!RunningMode.isInitMode()) {
             httpServer.start();
         }
