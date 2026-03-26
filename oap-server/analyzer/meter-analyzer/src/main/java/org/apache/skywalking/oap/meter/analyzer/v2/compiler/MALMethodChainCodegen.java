@@ -40,6 +40,13 @@ final class MALMethodChainCodegen {
 
     private final MALExprCodegen exprCodegen;
 
+    /**
+     * Queue of pre-computed temp variable names for complex expression arguments.
+     * Filled by {@link #emitChainStatements} before each method call, consumed by
+     * {@link #generateArgument} in order.
+     */
+    private java.util.Queue<String> preComputedArgs;
+
     MALMethodChainCodegen(final MALExprCodegen exprCodegen) {
         this.exprCodegen = exprCodegen;
     }
@@ -67,6 +74,10 @@ final class MALMethodChainCodegen {
                 emitExtensionCall(sb, mc);
                 continue;
             }
+            // Pre-compute complex expression arguments to temp variables
+            // before starting the method call statement.
+            preComputedArgs = preComputeComplexArgs(sb, mc.getArguments());
+
             sb.append("  ").append(MALCodegenHelper.RUN_VAR).append(" = ")
               .append(MALCodegenHelper.RUN_VAR).append('.').append(mc.getName()).append('(');
             final List<MALExpressionModel.Argument> args = mc.getArguments();
@@ -91,48 +102,47 @@ final class MALMethodChainCodegen {
                 }
             }
             sb.append(");\n");
+            preComputedArgs = null;
         }
     }
 
-    // ==================== Inline chain codegen ====================
+    /**
+     * Scans arguments for complex expressions (metric with chain, binary, function call)
+     * and pre-computes them to temp variables via the statement-based path.
+     *
+     * <p>Simple arguments (strings, numbers, bare metrics, enums, closures) are skipped.
+     * Returns a queue of temp variable names in order, consumed by {@link #generateArgument}.
+     */
+    private java.util.Queue<String> preComputeComplexArgs(
+            final StringBuilder sb,
+            final List<MALExpressionModel.Argument> args) {
+        final java.util.Queue<String> temps = new java.util.LinkedList<>();
+        for (final MALExpressionModel.Argument arg : args) {
+            if (!(arg instanceof MALExpressionModel.ExprArgument)) {
+                continue;
+            }
+            final MALExpressionModel.Expr expr =
+                ((MALExpressionModel.ExprArgument) arg).getExpr();
+            if (isSimpleExprArg(expr)) {
+                continue;
+            }
+            temps.add(exprCodegen.preComputeExprToTemp(sb, expr));
+        }
+        return temps.isEmpty() ? null : temps;
+    }
 
     /**
-     * Emits method chain inline (for sub-expressions in binary ops and function call args).
-     *
-     * <p>For {@code metric.sum(['svc'])}, emits: {@code .sum(Arrays.asList(new String[]{"svc"}))}
+     * Returns true if the expression is simple enough to emit inline as an argument
+     * (number literal, bare metric without chain, downsampling enum).
      */
-    void emitMethodChainInline(final StringBuilder sb,
-                                final List<MALExpressionModel.MethodCall> chain) {
-        for (final MALExpressionModel.MethodCall mc : chain) {
-            if (mc.isExtension()) {
-                throw new IllegalStateException(
-                    "Inline extension method calls are not supported: "
-                        + mc.getNamespace() + "::" + mc.getName());
-            }
-            sb.append('.').append(mc.getName()).append('(');
-            final List<MALExpressionModel.Argument> args = mc.getArguments();
-            if (MALCodegenHelper.VARARGS_STRING_METHODS.contains(mc.getName())
-                    && !args.isEmpty() && allStringArgs(args)) {
-                sb.append("new String[]{");
-                for (int i = 0; i < args.size(); i++) {
-                    if (i > 0) {
-                        sb.append(", ");
-                    }
-                    generateArgument(sb, args.get(i));
-                }
-                sb.append('}');
-            } else {
-                final boolean primitiveDouble =
-                    MALCodegenHelper.PRIMITIVE_DOUBLE_METHODS.contains(mc.getName());
-                for (int i = 0; i < args.size(); i++) {
-                    if (i > 0) {
-                        sb.append(", ");
-                    }
-                    generateMethodCallArg(sb, args.get(i), primitiveDouble);
-                }
-            }
-            sb.append(')');
+    private static boolean isSimpleExprArg(final MALExpressionModel.Expr expr) {
+        if (expr instanceof MALExpressionModel.NumberExpr) {
+            return true;
         }
+        if (expr instanceof MALExpressionModel.MetricExpr) {
+            return ((MALExpressionModel.MetricExpr) expr).getMethodChain().isEmpty();
+        }
+        return false;
     }
 
     // ==================== Extension function codegen ====================
@@ -349,10 +359,25 @@ final class MALMethodChainCodegen {
                     sb.append(MALCodegenHelper.ENUM_FQCN.get("DownsamplingType"))
                       .append('.').append(name);
                 } else {
-                    exprCodegen.generateExprInline(sb, innerExpr);
+                    // Bare metric reference — safe to emit inline
+                    sb.append("((").append(MALCodegenHelper.SF)
+                      .append(") samples.getOrDefault(\"")
+                      .append(MALCodegenHelper.escapeJava(name))
+                      .append("\", ").append(MALCodegenHelper.SF)
+                      .append(".EMPTY))");
                 }
             } else {
-                exprCodegen.generateExprInline(sb, innerExpr);
+                // Complex expression — pre-compute via statement path.
+                // The temp name was pre-computed by emitChainStatements before
+                // starting this method call statement.
+                final String preComputedTemp =
+                    preComputedArgs != null ? preComputedArgs.remove() : null;
+                if (preComputedTemp != null) {
+                    sb.append(preComputedTemp);
+                } else {
+                    throw new IllegalStateException(
+                        "Complex expression argument not pre-computed");
+                }
             }
         } else if (arg instanceof MALExpressionModel.ClosureArgument) {
             sb.append(exprCodegen.nextClosureFieldName());

@@ -283,167 +283,38 @@ final class MALExprCodegen {
         }
     }
 
-    // ==================== Inline expression codegen ====================
+    // ==================== Expression pre-computation ====================
 
     /**
-     * Generates an expression as a single inline Java expression (no statements).
-     * Used for sub-expressions in binary ops and function call arguments.
+     * Pre-computes a sub-expression to a temp variable via the statement-based path.
+     * Used when a complex expression appears as a method argument.
+     *
+     * <p>For {@code metric2.sum(['svc']).test::scale(2.0)} as an argument, generates:
+     * <pre>
+     *   SampleFamily _t0 = sf;   // save current sf
+     *   sf = ((SampleFamily) samples.getOrDefault("metric2", SampleFamily.EMPTY));
+     *   sf = sf.sum(...);
+     *   sf = TestMalExtension.scale(sf, 2.0);
+     *   SampleFamily _t1 = sf;   // save result
+     *   sf = _t0;                // restore original sf
+     * </pre>
+     * Returns {@code "_t1"} — the temp variable holding the result.
      */
-    void generateExprInline(final StringBuilder sb,
-                             final MALExpressionModel.Expr expr) {
-        if (expr instanceof MALExpressionModel.MetricExpr) {
-            generateMetricExprInline(sb, (MALExpressionModel.MetricExpr) expr);
-        } else if (expr instanceof MALExpressionModel.NumberExpr) {
-            final double val = ((MALExpressionModel.NumberExpr) expr).getValue();
-            sb.append(SF).append(".EMPTY.plus(");
-            MALCodegenHelper.emitNumberValueOf(sb, val);
-            sb.append(')');
-        } else if (expr instanceof MALExpressionModel.BinaryExpr) {
-            generateBinaryExprInline(
-                sb, (MALExpressionModel.BinaryExpr) expr);
-        } else if (expr instanceof MALExpressionModel.UnaryNegExpr) {
-            sb.append("(");
-            generateExprInline(
-                sb, ((MALExpressionModel.UnaryNegExpr) expr).getOperand());
-            sb.append(").negative()");
-        } else if (expr instanceof MALExpressionModel.FunctionCallExpr) {
-            generateFunctionCallExprInline(
-                sb, (MALExpressionModel.FunctionCallExpr) expr);
-        } else if (expr instanceof MALExpressionModel.ParenChainExpr) {
-            generateParenChainExprInline(
-                sb, (MALExpressionModel.ParenChainExpr) expr);
-        } else {
-            throw new IllegalArgumentException(
-                "Unsupported inline expression type: "
-                    + (expr == null ? "null" : expr.getClass().getSimpleName()));
-        }
-    }
+    String preComputeExprToTemp(final StringBuilder sb,
+                                 final MALExpressionModel.Expr expr) {
+        final String saveCurrent = nextTemp();
+        sb.append("  ").append(SF).append(" ").append(saveCurrent)
+          .append(" = ").append(RUN_VAR).append(";\n");
 
-    /**
-     * Inline: {@code ((SampleFamily) samples.getOrDefault("metric", EMPTY)).sum(...)}
-     */
-    private void generateMetricExprInline(
-            final StringBuilder sb,
-            final MALExpressionModel.MetricExpr expr) {
-        sb.append("((").append(SF)
-          .append(") samples.getOrDefault(\"")
-          .append(MALCodegenHelper.escapeJava(expr.getMetricName()))
-          .append("\", ").append(SF).append(".EMPTY))");
-        chainCodegen.emitMethodChainInline(sb, expr.getMethodChain());
-    }
+        generateExprStatements(sb, expr);
 
-    /**
-     * Inline: {@code count(metric, ['tag'])}, {@code topN(metric, 10, Order.DES)}
-     */
-    private void generateFunctionCallExprInline(
-            final StringBuilder sb,
-            final MALExpressionModel.FunctionCallExpr expr) {
-        final String fn = expr.getFunctionName();
-        final List<MALExpressionModel.Argument> args = expr.getArguments();
+        final String result = nextTemp();
+        sb.append("  ").append(SF).append(" ").append(result)
+          .append(" = ").append(RUN_VAR).append(";\n");
+        sb.append("  ").append(RUN_VAR).append(" = ")
+          .append(saveCurrent).append(";\n");
 
-        if (("count".equals(fn) || "topN".equals(fn)) && !args.isEmpty()) {
-            final MALExpressionModel.Argument firstArg = args.get(0);
-            if (firstArg instanceof MALExpressionModel.ExprArgument) {
-                generateExprInline(
-                    sb, ((MALExpressionModel.ExprArgument) firstArg).getExpr());
-            }
-            sb.append('.').append(fn).append('(');
-            for (int i = 1; i < args.size(); i++) {
-                if (i > 1) {
-                    sb.append(", ");
-                }
-                chainCodegen.generateArgument(sb, args.get(i));
-            }
-            sb.append(')');
-        } else {
-            sb.append(fn).append('(');
-            for (int i = 0; i < args.size(); i++) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                chainCodegen.generateArgument(sb, args.get(i));
-            }
-            sb.append(')');
-        }
-        chainCodegen.emitMethodChainInline(sb, expr.getMethodChain());
-    }
-
-    /**
-     * Inline: {@code (metric * 2).sum([...])}
-     */
-    private void generateParenChainExprInline(
-            final StringBuilder sb,
-            final MALExpressionModel.ParenChainExpr expr) {
-        sb.append("(");
-        generateExprInline(sb, expr.getInner());
-        sb.append(")");
-        chainCodegen.emitMethodChainInline(sb, expr.getMethodChain());
-    }
-
-    /**
-     * Inline binary: {@code (metric).multiply(Long.valueOf(100L))}
-     */
-    private void generateBinaryExprInline(
-            final StringBuilder sb,
-            final MALExpressionModel.BinaryExpr expr) {
-        final MALExpressionModel.Expr left = expr.getLeft();
-        final MALExpressionModel.Expr right = expr.getRight();
-        final MALExpressionModel.ArithmeticOp op = expr.getOp();
-
-        final boolean leftIsNumber = isScalar(left);
-        final boolean rightIsNumber = isScalar(right);
-
-        if (leftIsNumber && !rightIsNumber) {
-            switch (op) {
-                case ADD:
-                    sb.append("(");
-                    generateExprInline(sb, right);
-                    sb.append(").plus(");
-                    generateScalarExprAsNumber(sb, left);
-                    sb.append(')');
-                    break;
-                case SUB:
-                    sb.append("(");
-                    generateExprInline(sb, right);
-                    sb.append(").minus(");
-                    generateScalarExprAsNumber(sb, left);
-                    sb.append(").negative()");
-                    break;
-                case MUL:
-                    sb.append("(");
-                    generateExprInline(sb, right);
-                    sb.append(").multiply(");
-                    generateScalarExprAsNumber(sb, left);
-                    sb.append(')');
-                    break;
-                case DIV:
-                    sb.append(
-                        "org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt")
-                      .append(".MalRuntimeHelper.divReverse(");
-                    generateScalarExpr(sb, left);
-                    sb.append(", ");
-                    generateExprInline(sb, right);
-                    sb.append(")");
-                    break;
-                default:
-                    throw new IllegalArgumentException(
-                        "Unsupported op: " + op);
-            }
-        } else if (!leftIsNumber && rightIsNumber) {
-            sb.append("(");
-            generateExprInline(sb, left);
-            sb.append(").").append(MALCodegenHelper.opMethodName(op))
-              .append('(');
-            generateScalarExprAsNumber(sb, right);
-            sb.append(')');
-        } else {
-            sb.append("(");
-            generateExprInline(sb, left);
-            sb.append(").").append(MALCodegenHelper.opMethodName(op))
-              .append("(");
-            generateExprInline(sb, right);
-            sb.append(")");
-        }
+        return result;
     }
 
     // ==================== Scalar helpers ====================
