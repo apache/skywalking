@@ -167,6 +167,7 @@
 * Activate `otlp-traces` handler in `receiver-otel` by default.
 * Update Istio E2E test versions: remove EOL 1.20.0, add 1.25.0–1.29.0 for ALS/Metrics/Ambient tests. Update Rover with Istio Process test from 1.15.0 to 1.28.0 with Kubernetes 1.28.
 * Support Virtual-GenAI monitoring.
+* Fix Kubernetes On Demand Pod Logs time parser error.
 
 #### UI
 * Fix the missing icon in new native trace view.
