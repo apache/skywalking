@@ -31,6 +31,7 @@ import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExtensionRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression;
@@ -688,6 +689,10 @@ public final class MALClassGenerator {
     private void emitChainStatements(final StringBuilder sb,
                                      final List<MALExpressionModel.MethodCall> chain) {
         for (final MALExpressionModel.MethodCall mc : chain) {
+            if (mc.isExtension()) {
+                emitExtensionCall(sb, mc);
+                continue;
+            }
             sb.append("  ").append(RUN_VAR).append(" = ")
               .append(RUN_VAR).append('.').append(mc.getName()).append('(');
             final List<MALExpressionModel.Argument> args = mc.getArguments();
@@ -712,6 +717,97 @@ public final class MALClassGenerator {
                 }
             }
             sb.append(");\n");
+        }
+    }
+
+    private void emitExtensionCall(final StringBuilder sb,
+                                    final MALExpressionModel.MethodCall mc) {
+        final String ns = mc.getNamespace();
+        final String method = mc.getName();
+        final MalExtensionRegistry.ExtensionMethod em = MalExtensionRegistry.lookup(ns, method);
+        if (em == null) {
+            throw new IllegalArgumentException(
+                "Unknown MAL extension function: " + ns + "::" + method);
+        }
+        final List<MALExpressionModel.Argument> args = mc.getArguments();
+        final int expectedArgs = em.getExtraParamTypes().length;
+        if (args.size() != expectedArgs) {
+            throw new IllegalArgumentException(
+                "MAL extension " + ns + "::" + method + " expects " + expectedArgs
+                    + " argument(s), got " + args.size());
+        }
+        // Generate direct static call: sf = com.example.Ext.method(sf, arg1, arg2);
+        sb.append("  ").append(RUN_VAR).append(" = ")
+          .append(em.getDeclaringClass()).append('.')
+          .append(em.getMethodName()).append('(')
+          .append(RUN_VAR);
+        for (int i = 0; i < args.size(); i++) {
+            sb.append(", ");
+            generateExtensionArg(sb, args.get(i), em.getExtraParamTypes()[i]);
+        }
+        sb.append(");\n");
+    }
+
+    private void generateExtensionArg(final StringBuilder sb,
+                                       final MALExpressionModel.Argument arg,
+                                       final Class<?> expectedType) {
+        if (expectedType == String.class) {
+            if (arg instanceof MALExpressionModel.StringArgument) {
+                sb.append('"')
+                  .append(MALCodegenHelper.escapeJava(
+                      ((MALExpressionModel.StringArgument) arg).getValue()))
+                  .append('"');
+            } else {
+                throw new IllegalArgumentException(
+                    "Expected String argument for extension function, got " + arg.getClass().getSimpleName());
+            }
+        } else if (expectedType == double.class || expectedType == Double.class) {
+            if (arg instanceof MALExpressionModel.ExprArgument) {
+                final MALExpressionModel.Expr expr =
+                    ((MALExpressionModel.ExprArgument) arg).getExpr();
+                if (expr instanceof MALExpressionModel.NumberExpr) {
+                    sb.append(((MALExpressionModel.NumberExpr) expr).getValue());
+                } else {
+                    throw new IllegalArgumentException(
+                        "Expected number argument for extension function");
+                }
+            } else {
+                throw new IllegalArgumentException(
+                    "Expected number argument for extension function, got " + arg.getClass().getSimpleName());
+            }
+        } else if (expectedType == int.class || expectedType == Integer.class) {
+            if (arg instanceof MALExpressionModel.ExprArgument) {
+                final MALExpressionModel.Expr expr =
+                    ((MALExpressionModel.ExprArgument) arg).getExpr();
+                if (expr instanceof MALExpressionModel.NumberExpr) {
+                    sb.append((int) ((MALExpressionModel.NumberExpr) expr).getValue());
+                } else {
+                    throw new IllegalArgumentException(
+                        "Expected integer argument for extension function");
+                }
+            } else {
+                throw new IllegalArgumentException(
+                    "Expected integer argument for extension function, got " + arg.getClass().getSimpleName());
+            }
+        } else if (java.util.List.class.isAssignableFrom(expectedType)) {
+            if (arg instanceof MALExpressionModel.StringListArgument) {
+                final java.util.List<String> values =
+                    ((MALExpressionModel.StringListArgument) arg).getValues();
+                sb.append("java.util.Arrays.asList(new String[]{");
+                for (int i = 0; i < values.size(); i++) {
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append('"').append(MALCodegenHelper.escapeJava(values.get(i))).append('"');
+                }
+                sb.append("})");
+            } else {
+                throw new IllegalArgumentException(
+                    "Expected list argument for extension function, got " + arg.getClass().getSimpleName());
+            }
+        } else {
+            throw new IllegalArgumentException(
+                "Unsupported extension parameter type: " + expectedType.getName());
         }
     }
 

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
@@ -248,10 +249,19 @@ public final class MALScriptParser {
         }
 
         private MethodCall visitMethodCallNode(final MALParser.MethodCallContext ctx) {
-            final String name = ctx.IDENTIFIER().getText();
+            final List<TerminalNode> ids = ctx.IDENTIFIER();
+            final String namespace;
+            final String name;
+            if (ids.size() == 2) {
+                namespace = ids.get(0).getText();
+                name = ids.get(1).getText();
+            } else {
+                namespace = null;
+                name = ids.get(0).getText();
+            }
             final List<Argument> args = ctx.argumentList() != null
                 ? visitArgList(ctx.argumentList()) : Collections.emptyList();
-            return new MethodCall(name, args);
+            return new MethodCall(namespace, name, args);
         }
 
         private List<Argument> visitArgList(final MALParser.ArgumentListContext ctx) {

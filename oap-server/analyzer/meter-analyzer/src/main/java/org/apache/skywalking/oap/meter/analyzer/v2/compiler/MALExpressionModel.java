@@ -132,16 +132,28 @@ public final class MALExpressionModel {
     // ==================== Method calls ====================
 
     /**
-     * A method call in a chain: {@code .sum(["tag"])}, {@code .rate("PT1M")}
+     * A method call in a chain: {@code .sum(["tag"])}, {@code .rate("PT1M")},
+     * or an extension call: {@code .genai::estimateCost()}.
      */
     @Getter
     public static final class MethodCall {
+        private final String namespace;
         private final String name;
         private final List<Argument> arguments;
 
         public MethodCall(final String name, final List<Argument> arguments) {
+            this(null, name, arguments);
+        }
+
+        public MethodCall(final String namespace, final String name,
+                          final List<Argument> arguments) {
+            this.namespace = namespace;
             this.name = name;
             this.arguments = Collections.unmodifiableList(arguments);
+        }
+
+        public boolean isExtension() {
+            return namespace != null;
         }
     }
 
