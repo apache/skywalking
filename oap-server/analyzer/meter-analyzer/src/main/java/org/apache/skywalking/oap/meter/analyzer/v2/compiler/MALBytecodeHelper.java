@@ -275,18 +275,18 @@ final class MALBytecodeHelper {
 
     /**
      * Adds {@code LocalVariableTable} for the {@code run(Map)} method,
-     * including the {@code sf} variable and any temp variables ({@code _t0, _t1, ...}).
+     * including all generated variables ({@code _metric1}, {@code _metric2}, {@code _t0}, ...).
      */
     void addRunLocalVariableTable(final javassist.CtMethod method,
                                    final String className,
-                                   final int tempCount) {
+                                   final java.util.Set<String> varNames) {
         final String sfDesc =
             "L" + MALCodegenHelper.SF.replace('.', '/') + ";";
-        final String[][] vars = new String[2 + tempCount][];
+        final String[][] vars = new String[1 + varNames.size()][];
         vars[0] = new String[]{"samples", "Ljava/util/Map;"};
-        vars[1] = new String[]{MALCodegenHelper.RUN_VAR, sfDesc};
-        for (int i = 0; i < tempCount; i++) {
-            vars[2 + i] = new String[]{"_t" + i, sfDesc};
+        int i = 1;
+        for (final String name : varNames) {
+            vars[i++] = new String[]{name, sfDesc};
         }
         addLocalVariableTable(method, className, vars);
     }

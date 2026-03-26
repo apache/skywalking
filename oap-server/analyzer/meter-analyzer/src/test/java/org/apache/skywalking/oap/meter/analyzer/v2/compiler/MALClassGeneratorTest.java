@@ -252,18 +252,18 @@ class MALClassGeneratorTest {
                     code.getAttribute(javassist.bytecode.LocalVariableAttribute.tag);
             assertNotNull(lva, "run() should have LocalVariableTable attribute");
             boolean foundSamples = false;
-            boolean foundSf = false;
+            boolean foundMetricVar = false;
             for (int i = 0; i < lva.tableLength(); i++) {
                 final String name = lva.variableName(i);
                 if ("samples".equals(name)) {
                     foundSamples = true;
                 }
-                if ("sf".equals(name)) {
-                    foundSf = true;
+                if (name.startsWith("_")) {
+                    foundMetricVar = true;
                 }
             }
             assertTrue(foundSamples, "LVT should contain 'samples'");
-            assertTrue(foundSf, "LVT should contain 'sf'");
+            assertTrue(foundMetricVar, "LVT should contain a metric variable (e.g. _instance_jvm_cpu)");
         } finally {
             for (final java.io.File f : tmpDir.listFiles()) {
                 f.delete();

@@ -17,46 +17,56 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Generates Java source for the {@code run(Map)} method body from a MAL expression AST.
  *
- * <p>Supports two codegen modes:
- * <ul>
- *   <li><b>Statement-based</b> (for the top-level {@code run()} method): each expression
- *       step is a separate {@code sf = ...;} statement. Used by {@code generateRunMethod()}.
- *       Example for {@code metric.sum(['svc']).rate("PT1M")}:
- *       <pre>
- *         sf = ((SampleFamily) samples.getOrDefault("metric", SampleFamily.EMPTY));
- *         sf = sf.sum(Arrays.asList(new String[]{"svc"}));
- *         sf = sf.rate("PT1M");
- *       </pre></li>
- *   <li><b>Inline</b> (for sub-expressions in binary ops, function args): the entire
- *       expression is a single chained Java expression. Used by {@code generateExprInline()}.
- *       Example for {@code metric.sum(['svc'])} as a sub-expression:
- *       {@code ((SampleFamily) samples.getOrDefault("metric", SampleFamily.EMPTY)).sum(...)}</li>
- * </ul>
+ * <p>Uses a <b>variable-per-expression</b> model: each metric gets its own named variable
+ * (e.g. {@code _metric1}, {@code _metric2}), and chain calls reassign to the same variable.
+ * Binary operations combine variables directly. No shared mutable {@code sf} variable.
+ *
+ * <p>Example for {@code metric1.sum(['svc']) + metric2.avg(['svc']).test::scale(2.0)}:
+ * <pre>
+ * public SampleFamily run(java.util.Map samples) {
+ *   SampleFamily _metric1 = ((SampleFamily) samples.getOrDefault("metric1", SampleFamily.EMPTY));
+ *   _metric1 = _metric1.sum(java.util.Arrays.asList(new String[]{"svc"}));
+ *   SampleFamily _metric2 = ((SampleFamily) samples.getOrDefault("metric2", SampleFamily.EMPTY));
+ *   _metric2 = _metric2.avg(java.util.Arrays.asList(new String[]{"svc"}));
+ *   _metric2 = TestMalExtension.scale(_metric2, 2.0);
+ *   return _metric1.plus(_metric2);
+ * }
+ * </pre>
  *
  * <p>Delegates method chain codegen to {@link MALMethodChainCodegen}.
  */
 final class MALExprCodegen {
 
     private static final String SF = MALCodegenHelper.SF;
-    private static final String RUN_VAR = MALCodegenHelper.RUN_VAR;
 
     private final List<String> closureFieldNames;
     private final MALMethodChainCodegen chainCodegen;
     private int closureFieldIndex;
-    private int runTempCounter;
+    private int varCounter;
+    private final Set<String> declaredVars = new HashSet<>();
 
     MALExprCodegen(final List<String> closureFieldNames) {
         this.closureFieldNames = closureFieldNames;
         this.chainCodegen = new MALMethodChainCodegen(this);
     }
 
-    int getRunTempCounter() {
-        return runTempCounter;
+    int getVarCount() {
+        return varCounter;
+    }
+
+    /**
+     * Returns all variable names declared during code generation,
+     * for building the {@code LocalVariableTable}.
+     */
+    Set<String> getDeclaredVars() {
+        return declaredVars;
     }
 
     /**
@@ -67,254 +77,267 @@ final class MALExprCodegen {
         return closureFieldNames.get(closureFieldIndex++);
     }
 
-    // ==================== Statement-based codegen ====================
+    // ==================== Variable naming ====================
+
+    /**
+     * Creates a variable name for a metric expression.
+     * Uses {@code _metricName} if not taken, otherwise {@code _metricName_2}, etc.
+     */
+    private String metricVar(final String metricName) {
+        final String base = "_" + MALCodegenHelper.sanitizeName(metricName);
+        String name = base;
+        int suffix = 2;
+        while (declaredVars.contains(name)) {
+            name = base + "_" + suffix++;
+        }
+        declaredVars.add(name);
+        varCounter++;
+        return name;
+    }
+
+    /**
+     * Creates a generic temp variable name ({@code _t0}, {@code _t1}, ...).
+     * Used for non-metric expressions (numbers, function calls, parenthesized).
+     */
+    private String tempVar() {
+        final String name = "_t" + varCounter++;
+        declaredVars.add(name);
+        return name;
+    }
+
+    // ==================== Code generation ====================
 
     /**
      * Generates the complete {@code run(Map)} method source.
-     *
-     * <p>For {@code metric.sum(['svc']).rate("PT1M")}, generates:
-     * <p>Note: generated code uses FQCNs (e.g. {@code o.a.s...SampleFamily}) to avoid
-     * import issues in Javassist. Simplified here for readability:
-     * <pre>
-     * public SampleFamily run(java.util.Map samples) {
-     *   SampleFamily sf;
-     *   sf = ((SampleFamily) samples.getOrDefault("metric", SampleFamily.EMPTY));
-     *   sf = sf.sum(java.util.Arrays.asList(new String[]{"svc"}));
-     *   sf = sf.rate("PT1M");
-     *   return sf;
-     * }
-     * </pre>
      */
     String generateRunMethod(final MALExpressionModel.Expr ast) {
-        runTempCounter = 0;
+        varCounter = 0;
         closureFieldIndex = 0;
+        declaredVars.clear();
         final StringBuilder sb = new StringBuilder();
-        sb.append("public ").append(SF).append(" run(java.util.Map samples) {\n");
-        sb.append("  ").append(SF).append(" ").append(RUN_VAR).append(";\n");
-        generateExprStatements(sb, ast);
-        sb.append("  return ").append(RUN_VAR).append(";\n");
+        sb.append("public ").append(SF)
+          .append(" run(java.util.Map samples) {\n");
+        final String result = emitExpr(sb, ast);
+        sb.append("  return ").append(result).append(";\n");
         sb.append("}\n");
         return sb.toString();
     }
 
-    private String nextTemp() {
-        return "_t" + runTempCounter++;
-    }
-
     /**
-     * Emits the expression as a series of {@code sf = ...;} reassignment statements.
+     * Emits statements for an expression and returns the variable name holding the result.
      *
-     * <p>Dispatches by AST node type:
+     * <p>Each expression type produces its own named variable:
      * <ul>
-     *   <li>{@code metric} → lookup from samples map + chain calls</li>
-     *   <li>{@code 100} → {@code sf = SampleFamily.EMPTY.plus(Long.valueOf(100L));}</li>
-     *   <li>{@code metric1 + metric2} → temp variable for left, compute right, combine</li>
-     *   <li>{@code -metric} → {@code sf = sf.negative();}</li>
-     *   <li>{@code count(metric, [...])} → function call + chain</li>
-     *   <li>{@code (metric * 2).sum([...])} → parenthesized + chain</li>
+     *   <li>{@code metric.sum(['svc'])} → declares {@code _metric}, chains on it</li>
+     *   <li>{@code 100} → declares {@code _t0 = SampleFamily.EMPTY.plus(100L)}</li>
+     *   <li>{@code metric1 + metric2} → emits both, returns combined expression</li>
+     *   <li>{@code -metric} → emits metric, returns {@code _metric.negative()}</li>
      * </ul>
      */
-    private void generateExprStatements(final StringBuilder sb,
-                                         final MALExpressionModel.Expr expr) {
+    String emitExpr(final StringBuilder sb,
+                     final MALExpressionModel.Expr expr) {
         if (expr instanceof MALExpressionModel.MetricExpr) {
-            generateMetricExprStatements(
-                sb, (MALExpressionModel.MetricExpr) expr);
+            return emitMetricExpr(sb, (MALExpressionModel.MetricExpr) expr);
         } else if (expr instanceof MALExpressionModel.NumberExpr) {
-            final double val = ((MALExpressionModel.NumberExpr) expr).getValue();
-            sb.append("  ").append(RUN_VAR).append(" = ")
-              .append(SF).append(".EMPTY.plus(");
-            MALCodegenHelper.emitNumberValueOf(sb, val);
-            sb.append(");\n");
+            return emitNumberExpr(sb, (MALExpressionModel.NumberExpr) expr);
         } else if (expr instanceof MALExpressionModel.BinaryExpr) {
-            generateBinaryExprStatements(
-                sb, (MALExpressionModel.BinaryExpr) expr);
+            return emitBinaryExpr(sb, (MALExpressionModel.BinaryExpr) expr);
         } else if (expr instanceof MALExpressionModel.UnaryNegExpr) {
-            generateExprStatements(
-                sb, ((MALExpressionModel.UnaryNegExpr) expr).getOperand());
-            sb.append("  ").append(RUN_VAR).append(" = ")
-              .append(RUN_VAR).append(".negative();\n");
+            return emitUnaryNegExpr(
+                sb, (MALExpressionModel.UnaryNegExpr) expr);
         } else if (expr instanceof MALExpressionModel.FunctionCallExpr) {
-            generateFunctionCallStatements(
+            return emitFunctionCallExpr(
                 sb, (MALExpressionModel.FunctionCallExpr) expr);
         } else if (expr instanceof MALExpressionModel.ParenChainExpr) {
-            generateParenChainStatements(
+            return emitParenChainExpr(
                 sb, (MALExpressionModel.ParenChainExpr) expr);
         } else {
-            throw new IllegalArgumentException("Unknown expr type: " + expr);
+            throw new IllegalArgumentException(
+                "Unknown expr type: "
+                    + (expr == null ? "null" : expr.getClass().getSimpleName()));
         }
     }
 
     /**
-     * Generates statements for {@code metric.sum(['svc']).rate("PT1M")}.
-     *
+     * {@code metric.sum(['svc']).rate("PT1M")} →
      * <pre>
-     *   sf = ((SampleFamily) samples.getOrDefault("metric", SampleFamily.EMPTY));
-     *   sf = sf.sum(...);
-     *   sf = sf.rate("PT1M");
+     *   SampleFamily _metric = ((SF) samples.getOrDefault("metric", SF.EMPTY));
+     *   _metric = _metric.sum(...);
+     *   _metric = _metric.rate("PT1M");
      * </pre>
+     * Returns {@code "_metric"}.
      */
-    private void generateMetricExprStatements(
-            final StringBuilder sb,
-            final MALExpressionModel.MetricExpr expr) {
-        sb.append("  ").append(RUN_VAR).append(" = ((").append(SF)
+    private String emitMetricExpr(final StringBuilder sb,
+                                   final MALExpressionModel.MetricExpr expr) {
+        final String var = metricVar(expr.getMetricName());
+        sb.append("  ").append(SF).append(" ").append(var)
+          .append(" = ((").append(SF)
           .append(") samples.getOrDefault(\"")
           .append(MALCodegenHelper.escapeJava(expr.getMetricName()))
           .append("\", ").append(SF).append(".EMPTY));\n");
-        chainCodegen.emitChainStatements(sb, expr.getMethodChain());
+        chainCodegen.emitChainStatements(sb, var, expr.getMethodChain());
+        return var;
     }
 
     /**
-     * Generates statements for {@code (metric * 2).sum([...])}.
+     * {@code 100} →
+     * <pre>
+     *   SampleFamily _t0 = SF.EMPTY.plus(Long.valueOf(100L));
+     * </pre>
      */
-    private void generateParenChainStatements(
+    private String emitNumberExpr(final StringBuilder sb,
+                                   final MALExpressionModel.NumberExpr expr) {
+        final String var = tempVar();
+        sb.append("  ").append(SF).append(" ").append(var)
+          .append(" = ").append(SF).append(".EMPTY.plus(");
+        MALCodegenHelper.emitNumberValueOf(sb, expr.getValue());
+        sb.append(");\n");
+        return var;
+    }
+
+    /**
+     * {@code metric1 + metric2} →
+     * <pre>
+     *   SampleFamily _metric1 = ...;
+     *   SampleFamily _metric2 = ...;
+     *   _metric1 = _metric1.plus(_metric2);
+     * </pre>
+     * Returns {@code "_metric1"}.
+     *
+     * <p>For scalar + SF: {@code 100 * metric} →
+     * <pre>
+     *   SampleFamily _metric = ...;
+     *   _metric = _metric.multiply(Long.valueOf(100L));
+     * </pre>
+     */
+    private String emitBinaryExpr(final StringBuilder sb,
+                                   final MALExpressionModel.BinaryExpr expr) {
+        final MALExpressionModel.Expr left = expr.getLeft();
+        final MALExpressionModel.Expr right = expr.getRight();
+        final MALExpressionModel.ArithmeticOp op = expr.getOp();
+
+        final boolean leftIsScalar = isScalar(left);
+        final boolean rightIsScalar = isScalar(right);
+
+        if (leftIsScalar && !rightIsScalar) {
+            // N op SF
+            final String rightVar = emitExpr(sb, right);
+            switch (op) {
+                case ADD:
+                    sb.append("  ").append(rightVar).append(" = ")
+                      .append(rightVar).append(".plus(");
+                    emitScalarAsNumber(sb, left);
+                    sb.append(");\n");
+                    break;
+                case SUB:
+                    sb.append("  ").append(rightVar).append(" = ")
+                      .append(rightVar).append(".minus(");
+                    emitScalarAsNumber(sb, left);
+                    sb.append(").negative();\n");
+                    break;
+                case MUL:
+                    sb.append("  ").append(rightVar).append(" = ")
+                      .append(rightVar).append(".multiply(");
+                    emitScalarAsNumber(sb, left);
+                    sb.append(");\n");
+                    break;
+                case DIV:
+                    sb.append("  ").append(rightVar).append(" = ")
+                      .append("org.apache.skywalking.oap.meter.analyzer")
+                      .append(".v2.compiler.rt.MalRuntimeHelper.divReverse(");
+                    emitScalarRaw(sb, left);
+                    sb.append(", ").append(rightVar).append(");\n");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported op: " + op);
+            }
+            return rightVar;
+        } else if (!leftIsScalar && rightIsScalar) {
+            // SF op N
+            final String leftVar = emitExpr(sb, left);
+            sb.append("  ").append(leftVar).append(" = ")
+              .append(leftVar).append(".")
+              .append(MALCodegenHelper.opMethodName(op)).append("(");
+            emitScalarAsNumber(sb, right);
+            sb.append(");\n");
+            return leftVar;
+        } else {
+            // SF op SF
+            final String leftVar = emitExpr(sb, left);
+            final String rightVar = emitExpr(sb, right);
+            sb.append("  ").append(leftVar).append(" = ")
+              .append(leftVar).append(".")
+              .append(MALCodegenHelper.opMethodName(op))
+              .append("(").append(rightVar).append(");\n");
+            return leftVar;
+        }
+    }
+
+    /**
+     * {@code -metric} → emits metric, then {@code _metric = _metric.negative();}
+     */
+    private String emitUnaryNegExpr(
             final StringBuilder sb,
-            final MALExpressionModel.ParenChainExpr expr) {
-        generateExprStatements(sb, expr.getInner());
-        chainCodegen.emitChainStatements(sb, expr.getMethodChain());
+            final MALExpressionModel.UnaryNegExpr expr) {
+        final String var = emitExpr(sb, expr.getOperand());
+        sb.append("  ").append(var).append(" = ")
+          .append(var).append(".negative();\n");
+        return var;
     }
 
     /**
-     * Generates statements for top-level functions: {@code count(metric, ['tag'])},
-     * {@code topN(metric, 10, Order.DES)}.
+     * {@code count(metric, ['tag'])} → emits metric, then applies count.
+     * {@code topN(metric, 10, Order.DES)} → same pattern.
      */
-    private void generateFunctionCallStatements(
+    private String emitFunctionCallExpr(
             final StringBuilder sb,
             final MALExpressionModel.FunctionCallExpr expr) {
         final String fn = expr.getFunctionName();
         final List<MALExpressionModel.Argument> args = expr.getArguments();
 
+        String var;
         if (("count".equals(fn) || "topN".equals(fn)) && !args.isEmpty()) {
             final MALExpressionModel.Argument firstArg = args.get(0);
             if (firstArg instanceof MALExpressionModel.ExprArgument) {
-                generateExprStatements(
+                var = emitExpr(
                     sb, ((MALExpressionModel.ExprArgument) firstArg).getExpr());
+            } else {
+                var = tempVar();
             }
-            sb.append("  ").append(RUN_VAR).append(" = ")
-              .append(RUN_VAR).append('.').append(fn).append('(');
+            sb.append("  ").append(var).append(" = ")
+              .append(var).append('.').append(fn).append('(');
             for (int i = 1; i < args.size(); i++) {
                 if (i > 1) {
                     sb.append(", ");
                 }
-                chainCodegen.generateArgument(sb, args.get(i));
+                chainCodegen.generateArgument(sb, var, args.get(i));
             }
             sb.append(");\n");
         } else {
-            sb.append("  ").append(RUN_VAR).append(" = ")
-              .append(fn).append('(');
+            var = tempVar();
+            sb.append("  ").append(SF).append(" ").append(var)
+              .append(" = ").append(fn).append('(');
             for (int i = 0; i < args.size(); i++) {
                 if (i > 0) {
                     sb.append(", ");
                 }
-                chainCodegen.generateArgument(sb, args.get(i));
+                chainCodegen.generateArgument(sb, var, args.get(i));
             }
             sb.append(");\n");
         }
-        chainCodegen.emitChainStatements(sb, expr.getMethodChain());
+        chainCodegen.emitChainStatements(sb, var, expr.getMethodChain());
+        return var;
     }
 
     /**
-     * Generates statements for binary arithmetic: {@code metric * 100},
-     * {@code metric1 + metric2}, {@code 2 / metric}.
-     *
-     * <p>Three cases:
-     * <ul>
-     *   <li>N op SF: {@code sf = sf.plus(Long.valueOf(100L));} (swapped)</li>
-     *   <li>SF op N: {@code sf = sf.multiply(Long.valueOf(100L));}</li>
-     *   <li>SF op SF: uses temp variable {@code _t0} for left operand</li>
-     * </ul>
+     * {@code (metric * 2).sum(['svc'])} → emits inner, then applies chain.
      */
-    private void generateBinaryExprStatements(
+    private String emitParenChainExpr(
             final StringBuilder sb,
-            final MALExpressionModel.BinaryExpr expr) {
-        final MALExpressionModel.Expr left = expr.getLeft();
-        final MALExpressionModel.Expr right = expr.getRight();
-        final MALExpressionModel.ArithmeticOp op = expr.getOp();
-
-        final boolean leftIsNumber = isScalar(left);
-        final boolean rightIsNumber = isScalar(right);
-
-        if (leftIsNumber && !rightIsNumber) {
-            generateExprStatements(sb, right);
-            sb.append("  ").append(RUN_VAR).append(" = ");
-            switch (op) {
-                case ADD:
-                    sb.append(RUN_VAR).append(".plus(");
-                    generateScalarExprAsNumber(sb, left);
-                    sb.append(')');
-                    break;
-                case SUB:
-                    sb.append(RUN_VAR).append(".minus(");
-                    generateScalarExprAsNumber(sb, left);
-                    sb.append(").negative()");
-                    break;
-                case MUL:
-                    sb.append(RUN_VAR).append(".multiply(");
-                    generateScalarExprAsNumber(sb, left);
-                    sb.append(')');
-                    break;
-                case DIV:
-                    sb.append(
-                        "org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt")
-                      .append(".MalRuntimeHelper.divReverse(");
-                    generateScalarExpr(sb, left);
-                    sb.append(", ").append(RUN_VAR).append(")");
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported op: " + op);
-            }
-            sb.append(";\n");
-        } else if (!leftIsNumber && rightIsNumber) {
-            generateExprStatements(sb, left);
-            sb.append("  ").append(RUN_VAR).append(" = ")
-              .append(RUN_VAR).append(".")
-              .append(MALCodegenHelper.opMethodName(op)).append('(');
-            generateScalarExprAsNumber(sb, right);
-            sb.append(");\n");
-        } else {
-            generateExprStatements(sb, left);
-            final String temp = nextTemp();
-            sb.append("  ").append(SF).append(" ").append(temp)
-              .append(" = ").append(RUN_VAR).append(";\n");
-            generateExprStatements(sb, right);
-            sb.append("  ").append(RUN_VAR).append(" = ")
-              .append(temp).append(".")
-              .append(MALCodegenHelper.opMethodName(op))
-              .append("(").append(RUN_VAR).append(");\n");
-        }
-    }
-
-    // ==================== Expression pre-computation ====================
-
-    /**
-     * Pre-computes a sub-expression to a temp variable via the statement-based path.
-     * Used when a complex expression appears as a method argument.
-     *
-     * <p>For {@code metric2.sum(['svc']).test::scale(2.0)} as an argument, generates:
-     * <pre>
-     *   SampleFamily _t0 = sf;   // save current sf
-     *   sf = ((SampleFamily) samples.getOrDefault("metric2", SampleFamily.EMPTY));
-     *   sf = sf.sum(...);
-     *   sf = TestMalExtension.scale(sf, 2.0);
-     *   SampleFamily _t1 = sf;   // save result
-     *   sf = _t0;                // restore original sf
-     * </pre>
-     * Returns {@code "_t1"} — the temp variable holding the result.
-     */
-    String preComputeExprToTemp(final StringBuilder sb,
-                                 final MALExpressionModel.Expr expr) {
-        final String saveCurrent = nextTemp();
-        sb.append("  ").append(SF).append(" ").append(saveCurrent)
-          .append(" = ").append(RUN_VAR).append(";\n");
-
-        generateExprStatements(sb, expr);
-
-        final String result = nextTemp();
-        sb.append("  ").append(SF).append(" ").append(result)
-          .append(" = ").append(RUN_VAR).append(";\n");
-        sb.append("  ").append(RUN_VAR).append(" = ")
-          .append(saveCurrent).append(";\n");
-
-        return result;
+            final MALExpressionModel.ParenChainExpr expr) {
+        final String var = emitExpr(sb, expr.getInner());
+        chainCodegen.emitChainStatements(sb, var, expr.getMethodChain());
+        return var;
     }
 
     // ==================== Scalar helpers ====================
@@ -327,43 +350,37 @@ final class MALExprCodegen {
             return true;
         }
         if (expr instanceof MALExpressionModel.FunctionCallExpr) {
-            final String fn =
-                ((MALExpressionModel.FunctionCallExpr) expr).getFunctionName();
-            return "time".equals(fn);
+            return "time".equals(
+                ((MALExpressionModel.FunctionCallExpr) expr).getFunctionName());
         }
         return false;
     }
 
     /**
-     * Emits a raw scalar value: number literal or {@code time()} call.
-     * Used inside {@code divReverse()} calls where the raw double is needed.
+     * Emits a scalar as a boxed Number: {@code Long.valueOf(100L)} or
+     * {@code Double.valueOf(3.14)}.
      */
-    private void generateScalarExpr(final StringBuilder sb,
+    private void emitScalarAsNumber(final StringBuilder sb,
                                      final MALExpressionModel.Expr expr) {
-        if (expr instanceof MALExpressionModel.NumberExpr) {
-            sb.append(((MALExpressionModel.NumberExpr) expr).getValue());
-        } else if (isScalar(expr)) {
-            final String fn =
-                ((MALExpressionModel.FunctionCallExpr) expr).getFunctionName();
-            if ("time".equals(fn)) {
-                sb.append("(double) java.time.Instant.now().getEpochSecond()");
-            }
-        }
-    }
-
-    /**
-     * Emits a scalar expression wrapped with the appropriate {@code Number.valueOf()}.
-     * Integer-valued literals use {@code Long.valueOf(NL)}, others use {@code Double.valueOf(N)}.
-     */
-    private void generateScalarExprAsNumber(final StringBuilder sb,
-                                             final MALExpressionModel.Expr expr) {
         if (expr instanceof MALExpressionModel.NumberExpr) {
             MALCodegenHelper.emitNumberValueOf(
                 sb, ((MALExpressionModel.NumberExpr) expr).getValue());
         } else {
             sb.append("Double.valueOf(");
-            generateScalarExpr(sb, expr);
+            emitScalarRaw(sb, expr);
             sb.append(')');
+        }
+    }
+
+    /**
+     * Emits a raw scalar value (unboxed): number literal or {@code time()} call.
+     */
+    private void emitScalarRaw(final StringBuilder sb,
+                                final MALExpressionModel.Expr expr) {
+        if (expr instanceof MALExpressionModel.NumberExpr) {
+            sb.append(((MALExpressionModel.NumberExpr) expr).getValue());
+        } else if (isScalar(expr)) {
+            sb.append("(double) java.time.Instant.now().getEpochSecond()");
         }
     }
 }

@@ -243,8 +243,8 @@ public final class MALClassGenerator {
             CtNewMethod.make(runBody, ctClass);
         ctClass.addMethod(runMethod);
         bytecodeHelper.addRunLocalVariableTable(
-            runMethod, className, exprCodegen.getRunTempCounter());
-        bytecodeHelper.addLineNumberTable(runMethod, 2);
+            runMethod, className, exprCodegen.getDeclaredVars());
+        bytecodeHelper.addLineNumberTable(runMethod, 1);
 
         final javassist.CtMethod metaMethod =
             CtNewMethod.make(metadataBody, ctClass);
