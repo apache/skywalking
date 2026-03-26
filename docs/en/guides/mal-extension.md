@@ -1,16 +1,14 @@
-# DSL Extension Guide for Developers
+# MAL Extension Functions for Developers
 
-SkyWalking's analysis DSLs (MAL, LAL, OAL) are extensible via Java SPI. This guide covers how developers
-can add custom functions and capabilities to each DSL without modifying the core compiler.
+MAL (Meter Analysis Language) supports custom extension functions callable from scripts using the
+`namespace::method()` syntax. Extensions are discovered at startup via Java `ServiceLoader`, requiring
+no changes to the MAL compiler or grammar.
 
-## MAL Extension Functions (`namespace::method()`)
+## Creating an Extension
 
-MAL supports custom extension functions callable from scripts using the `namespace::method()` syntax.
-Extensions are discovered at startup via Java `ServiceLoader`.
+### 1. Implement `MalFunctionExtension`
 
-### Creating an Extension
-
-1. Implement `MalFunctionExtension` with static `@MALContextFunction` methods:
+Create a class that implements the SPI interface and add static methods annotated with `@MALContextFunction`:
 
 ```java
 package com.example;
@@ -37,12 +35,15 @@ public class MyExtension implements MalFunctionExtension {
 }
 ```
 
-2. Register via SPI file `META-INF/services/org.apache.skywalking.oap.meter.analyzer.v2.spi.MalFunctionExtension`:
+### 2. Register via SPI
+
+Create the file `META-INF/services/org.apache.skywalking.oap.meter.analyzer.v2.spi.MalFunctionExtension`:
 ```
 com.example.MyExtension
 ```
 
-3. Use in MAL scripts:
+### 3. Use in MAL scripts
+
 ```yaml
 metricsRules:
   - name: scaled_metric
@@ -51,15 +52,16 @@ metricsRules:
     exp: metric.myext::filterByTag("env", "prod").sum(['svc'])
 ```
 
-### Method Requirements
+## Method Requirements
 
 - Methods **must** be `static`
-- First parameter **must** be `SampleFamily` (auto-bound to the current chain value)
+- First parameter **must** be `SampleFamily` (auto-bound to the current chain value in the expression)
 - Return type **must** be `SampleFamily`
 - Non-static or invalid methods throw `IllegalArgumentException` at startup
 - Duplicate namespace names throw `IllegalArgumentException` at startup
+- Duplicate method names within the same namespace throw `IllegalArgumentException` at startup
 
-### Supported Parameter Types
+## Supported Parameter Types
 
 | Java Type | MAL Argument | Example |
 |-----------|-------------|---------|
@@ -70,10 +72,14 @@ metricsRules:
 | `int` | Number literal | `10` |
 | `List<String>` | String list | `["tag1", "tag2"]` |
 
-### Generated Code
+Only `List<String>` is supported for list parameters. Other generic list types (e.g., `List<Integer>`)
+are rejected at startup.
 
-The MAL compiler generates **direct static method calls** — no reflection at runtime.
-Each metric gets a named variable (e.g., `_metric`):
+## How It Works
+
+The MAL compiler generates **direct static method calls** at compile time — no reflection at runtime.
+Each metric gets a named variable (e.g., `_metric`), and extension calls are emitted as static calls
+on the variable:
 
 For `metric.sum(['svc']).myext::scale(2.0)`:
 ```java
@@ -83,7 +89,7 @@ _metric = com.example.MyExtension.scale(_metric, 2.0);
 return _metric;
 ```
 
-### Compile-Time Validation
+## Compile-Time Validation
 
 The compiler validates at expression compilation time:
 - Namespace exists in the SPI registry
@@ -91,63 +97,20 @@ The compiler validates at expression compilation time:
 - Argument count matches (excluding the implicit `SampleFamily` first parameter)
 - Argument types are compatible with the method signature
 
-## LAL Custom Output Types
-
-LAL supports custom log output types via the `LALSourceTypeProvider` SPI. This allows extensions to
-define new log processing targets beyond the built-in `Log` type.
-
-### Creating a Custom Output Type
-
-1. Define a source class extending `Source` in `server-core`:
-
-```java
-@ScopeDeclaration(id = MY_CUSTOM_SCOPE, name = "MyCustomLog")
-public class MyCustomLog extends Source {
-    // fields populated by LAL rules
-}
-```
-
-2. Implement `LALSourceTypeProvider`:
-
-```java
-public class MySourceTypeProvider implements LALSourceTypeProvider {
-    @Override
-    public Map<String, Class<?>> sourceTypes() {
-        return Map.of("MyCustomLog", MyCustomLog.class);
-    }
-}
-```
-
-3. Register via SPI file `META-INF/services/org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider`.
-
-4. Use in LAL rules with `outputType`:
-```yaml
-rules:
-  - name: my_custom_rule
-    outputType: MyCustomLog
-    dsl: |
-      filter { ... }
-```
-
-## OAL Source Extension
-
-To add new metrics sources for OAL analysis, see [Extend An OAL Source](source-extension.md).
+Any validation failure results in a compilation error with a clear message.
 
 ## Shared Utilities
 
-### GenAI Model Matcher (`library-util`)
+### GenAI Model Matcher
 
 The `GenAIModelMatcher` in `server-library/library-util` provides Trie-based model name matching
-with alias support, available to both MAL extensions and agent analyzers:
+with alias support, available to MAL extensions:
 
 ```java
 import org.apache.skywalking.oap.server.library.util.genai.GenAIModelMatcher;
 
-// Singleton — lazy initialized from gen-ai-config.yml
 GenAIModelMatcher matcher = GenAIModelMatcher.getInstance();
 GenAIModelMatcher.MatchResult result = matcher.match("gpt-4o-2024-08-06");
 // result.getProvider() = "openai"
 // result.getModelConfig().getInputEstimatedCostPerM() = 2.5
 ```
-
-This is used by the GenAI cost estimation extension for SWIP-10 AI Gateway monitoring.
