@@ -40,19 +40,18 @@ public class LogAdapter {
     private final InternalLog log;
 
     // k8s promises RFC3339 or RFC3339Nano timestamp, we truncate to RFC3339
-    private final DateTimeFormatter rfc3339Formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+    private final DateTimeFormatter isoOffsetDateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     public Log adapt() {
         Log l = new Log();
 
         List<String> timeAndContent = Splitter.on(" ")
-            .limit(2)
-            .trimResults()
-            .splitToList(log.line());
+                .limit(2)
+                .trimResults()
+                .splitToList(log.line());
         if (timeAndContent.size() == 2) {
-            String timeStr = timeAndContent.get(0).replaceAll("\\.\\d+", "");
             try {
-                TemporalAccessor t = rfc3339Formatter.parse(timeStr);
+                TemporalAccessor t = isoOffsetDateTimeFormatter.parse(timeAndContent.get(0));
                 long timestamp = Instant.from(t).getEpochSecond();
                 l.setTimestamp(timestamp);
                 l.setContent(format("[%s] %s", log.container(), timeAndContent.get(1)));
