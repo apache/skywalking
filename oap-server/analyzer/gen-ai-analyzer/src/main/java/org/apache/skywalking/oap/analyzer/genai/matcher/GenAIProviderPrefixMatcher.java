@@ -18,32 +18,71 @@
 
 package org.apache.skywalking.oap.analyzer.genai.matcher;
 
-import lombok.Data;
 import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
+import org.apache.skywalking.oap.server.library.util.genai.GenAIModelMatcher;
+import org.apache.skywalking.oap.server.library.util.genai.GenAIPricingConfig;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * Delegates to {@link GenAIModelMatcher} in library-util.
+ * Converts module-specific {@link GenAIConfig} to the shared {@link GenAIPricingConfig}.
+ */
 public class GenAIProviderPrefixMatcher {
-    private static final String UNKNOWN = "unknown";
-    private final TrieNode root;
-    private final Map<String, GenAIConfig.Model> modelMap;
 
-    private static final MatchResult UNKNOWN_RESULT = new MatchResult(UNKNOWN, null);
+    private final GenAIModelMatcher delegate;
 
-    private GenAIProviderPrefixMatcher(TrieNode root, Map<String, GenAIConfig.Model> modelMap) {
-        this.root = root;
-        this.modelMap = modelMap;
+    private GenAIProviderPrefixMatcher(GenAIModelMatcher delegate) {
+        this.delegate = delegate;
     }
 
-    @Data
-    private static class TrieNode {
-        private final Map<Character, TrieNode> children = new HashMap<>();
-        private String providerName;
+    public static GenAIProviderPrefixMatcher build(GenAIConfig config) {
+        GenAIPricingConfig pricingConfig = toPricingConfig(config);
+        return new GenAIProviderPrefixMatcher(GenAIModelMatcher.build(pricingConfig));
     }
 
-    @Data
+    public MatchResult match(String modelName) {
+        GenAIModelMatcher.MatchResult result = delegate.match(modelName);
+        GenAIConfig.Model modelConfig = toModuleModel(result.getModelConfig());
+        return new MatchResult(result.getProvider(), modelConfig);
+    }
+
+    private static GenAIPricingConfig toPricingConfig(GenAIConfig config) {
+        GenAIPricingConfig pricingConfig = new GenAIPricingConfig();
+        pricingConfig.setProviders(
+            config.getProviders().stream().map(p -> {
+                GenAIPricingConfig.Provider pp = new GenAIPricingConfig.Provider();
+                pp.setProvider(p.getProvider());
+                pp.setPrefixMatch(p.getPrefixMatch());
+                pp.setModels(
+                    p.getModels().stream().map(m -> {
+                        GenAIPricingConfig.Model pm = new GenAIPricingConfig.Model();
+                        pm.setName(m.getName());
+                        pm.setAliases(m.getAliases());
+                        pm.setInputEstimatedCostPerM(m.getInputEstimatedCostPerM());
+                        pm.setOutputEstimatedCostPerM(m.getOutputEstimatedCostPerM());
+                        return pm;
+                    }).collect(Collectors.toList())
+                );
+                return pp;
+            }).collect(Collectors.toList())
+        );
+        return pricingConfig;
+    }
+
+    private static GenAIConfig.Model toModuleModel(GenAIPricingConfig.Model pm) {
+        if (pm == null) {
+            return null;
+        }
+        GenAIConfig.Model m = new GenAIConfig.Model();
+        m.setName(pm.getName());
+        m.setAliases(pm.getAliases());
+        m.setInputEstimatedCostPerM(pm.getInputEstimatedCostPerM());
+        m.setOutputEstimatedCostPerM(pm.getOutputEstimatedCostPerM());
+        return m;
+    }
+
     public static class MatchResult {
         private final String provider;
         private final GenAIConfig.Model modelConfig;
@@ -60,59 +99,5 @@ public class GenAIProviderPrefixMatcher {
         public GenAIConfig.Model getModelConfig() {
             return modelConfig;
         }
-    }
-
-    public static GenAIProviderPrefixMatcher build(GenAIConfig config) {
-        TrieNode root = new TrieNode();
-        Map<String, GenAIConfig.Model> modelMap = new HashMap<>();
-
-        for (GenAIConfig.Provider p : config.getProviders()) {
-            List<String> prefixes = p.getPrefixMatch();
-            if (prefixes != null) {
-                for (String prefix : prefixes) {
-                    if (prefix == null || prefix.isEmpty()) continue;
-
-                    TrieNode current = root;
-                    for (int i = 0; i < prefix.length(); i++) {
-                        char c = prefix.charAt(i);
-                        current = current.children.computeIfAbsent(c, k -> new TrieNode());
-                    }
-                    current.providerName = p.getProvider();
-                }
-            }
-
-            List<GenAIConfig.Model> models = p.getModels();
-            if (models != null) {
-                for (GenAIConfig.Model model : models) {
-                    if (model.getName() != null) {
-                        modelMap.put(model.getName(), model);
-                    }
-                }
-            }
-        }
-
-        return new GenAIProviderPrefixMatcher(root, modelMap);
-    }
-
-    public MatchResult match(String modelName) {
-        if (modelName == null || modelName.isEmpty()) {
-            return UNKNOWN_RESULT;
-        }
-
-        TrieNode current = root;
-        String matchedProvider = null;
-
-        for (int i = 0; i < modelName.length(); i++) {
-            current = current.children.get(modelName.charAt(i));
-            if (current == null) break;
-            if (current.providerName != null) {
-                matchedProvider = current.providerName;
-            }
-        }
-
-        String provider = matchedProvider != null ? matchedProvider : UNKNOWN;
-        GenAIConfig.Model modelConfig = modelMap.get(modelName);
-
-        return new MatchResult(provider, modelConfig);
     }
 }

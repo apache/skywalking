@@ -16,16 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.analyzer.genai.config;
+package org.apache.skywalking.oap.server.library.util.genai;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GenAIConfig extends ModuleConfig {
+/**
+ * GenAI provider and model pricing configuration.
+ * Shared by agent-based GenAI analysis and OTLP-based AI Gateway monitoring.
+ */
+public class GenAIPricingConfig {
 
     @Getter
     @Setter
@@ -35,7 +38,6 @@ public class GenAIConfig extends ModuleConfig {
     @Setter
     public static class Provider {
         private String provider;
-        private String baseUrl;
         private List<String> prefixMatch = new ArrayList<>();
         private List<Model> models = new ArrayList<>();
     }

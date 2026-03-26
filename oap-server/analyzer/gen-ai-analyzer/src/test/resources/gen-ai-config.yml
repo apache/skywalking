@@ -113,51 +113,53 @@ providers:
       - claude
     models:
       - name: claude-4.6-opus
-        # Base Input pricing
+        aliases: [claude-opus-4-6]
         input-estimated-cost-per-m: 5.0
         output-estimated-cost-per-m: 25.0
       - name: claude-4.5-opus
-        # Base Input pricing
+        aliases: [claude-opus-4-5]
         input-estimated-cost-per-m: 5.0
         output-estimated-cost-per-m: 25.0
       - name: claude-4.1-opus
-        # Base Input pricing
+        aliases: [claude-opus-4-1]
         input-estimated-cost-per-m: 15.0
         output-estimated-cost-per-m: 75.0
       - name: claude-4-opus
-        # Base Input pricing
+        aliases: [claude-opus-4]
         input-estimated-cost-per-m: 15.0
         output-estimated-cost-per-m: 75.0
       - name: claude-4.6-sonnet
-        # Base Input pricing
+        aliases: [claude-sonnet-4-6]
         input-estimated-cost-per-m: 3.0
         output-estimated-cost-per-m: 15.0
       - name: claude-4.5-sonnet
-        # Base Input pricing
+        aliases: [claude-sonnet-4-5]
         input-estimated-cost-per-m: 3.0
         output-estimated-cost-per-m: 15.0
       - name: claude-4-sonnet
-        # Base Input pricing
+        aliases: [claude-sonnet-4]
         input-estimated-cost-per-m: 3.0
         output-estimated-cost-per-m: 15.0
       - name: claude-3.7-sonnet
-        # Deprecated, Base Input pricing
+        aliases: [claude-sonnet-3-7]
+        # Deprecated
         input-estimated-cost-per-m: 3.0
         output-estimated-cost-per-m: 15.0
       - name: claude-4.5-haiku
-        # Base Input pricing
+        aliases: [claude-haiku-4-5]
         input-estimated-cost-per-m: 1.0
         output-estimated-cost-per-m: 5.0
       - name: claude-3.5-haiku
-        # Base Input pricing
+        aliases: [claude-haiku-3-5]
         input-estimated-cost-per-m: 0.8
         output-estimated-cost-per-m: 4.0
       - name: claude-3-opus
-        # Deprecated, Base Input pricing
+        aliases: [claude-opus-3]
+        # Deprecated
         input-estimated-cost-per-m: 15.0
         output-estimated-cost-per-m: 75.0
       - name: claude-3-haiku
-        # Base Input pricing
+        aliases: [claude-haiku-3]
         input-estimated-cost-per-m: 0.25
         output-estimated-cost-per-m: 1.25
 

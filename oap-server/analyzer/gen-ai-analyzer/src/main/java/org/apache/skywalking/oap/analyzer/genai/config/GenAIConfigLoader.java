@@ -19,16 +19,15 @@
 package org.apache.skywalking.oap.analyzer.genai.config;
 
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.yaml.snakeyaml.Yaml;
+import org.apache.skywalking.oap.server.library.util.genai.GenAIPricingConfig;
+import org.apache.skywalking.oap.server.library.util.genai.GenAIPricingConfigLoader;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
-import java.util.List;
-import java.util.Map;
 
+/**
+ * Loads {@link GenAIConfig} by delegating to {@link GenAIPricingConfigLoader}
+ * and converting to the module-specific config (adds baseUrl support).
+ */
 public class GenAIConfigLoader {
 
     private final GenAIConfig config;
@@ -38,73 +37,33 @@ public class GenAIConfigLoader {
     }
 
     public GenAIConfig loadConfig() throws ModuleStartException {
-        Map<String, List<Map<String, Object>>> configMap;
-        try (Reader applicationReader = ResourceUtils.read("gen-ai-config.yml")) {
-            Yaml yaml = new Yaml();
-            configMap = yaml.loadAs(applicationReader, Map.class);
-        } catch (FileNotFoundException e) {
-            throw new ModuleStartException(
-                    "Cannot find the GenAI configuration file [gen-ai-config.yml].", e);
+        GenAIPricingConfig pricingConfig;
+        try {
+            pricingConfig = GenAIPricingConfigLoader.load();
         } catch (IOException e) {
             throw new ModuleStartException(
-                    "Failed to read the GenAI configuration file [gen-ai-config.yml].", e);
+                "Failed to load GenAI configuration file.", e);
+        } catch (IllegalArgumentException e) {
+            throw new ModuleStartException(e.getMessage(), e);
         }
 
-        if (configMap == null || !configMap.containsKey("providers")) {
-            return config;
-        }
-
-        List<Map<String, Object>> providersConfig = configMap.get("providers");
-        for (Map<String, Object> providerMap : providersConfig) {
+        for (GenAIPricingConfig.Provider pp : pricingConfig.getProviders()) {
             GenAIConfig.Provider provider = new GenAIConfig.Provider();
+            provider.setProvider(pp.getProvider());
+            provider.setPrefixMatch(pp.getPrefixMatch());
 
-            Object name = providerMap.get("provider");
-            if (name == null) {
-                throw new ModuleStartException("Provider name is missing in [gen-ai-config.yml].");
-            }
-            provider.setProvider(name.toString());
-
-            Object baseUrl = providerMap.get("base-url");
-            if (baseUrl != null && StringUtil.isNotBlank(baseUrl.toString())) {
-                provider.setBaseUrl(baseUrl.toString());
-            }
-
-            Object prefixMatch = providerMap.get("prefix-match");
-            if (prefixMatch instanceof List) {
-                provider.getPrefixMatch().addAll((List<String>) prefixMatch);
-            } else if (prefixMatch != null) {
-                throw new ModuleStartException("prefix-match must be a list in [gen-ai-config.yml] for provider: " + name);
-            }
-
-            // Parse specific model overrides
-            Object modelsConfig = providerMap.get("models");
-            if (modelsConfig instanceof List) {
-                for (Object modelObj : (List<?>) modelsConfig) {
-                    if (modelObj instanceof Map) {
-                        Map<String, Object> modelMap = (Map<String, Object>) modelObj;
-                        GenAIConfig.Model model = new GenAIConfig.Model();
-                        model.setName(String.valueOf(modelMap.get("name")));
-                        model.setInputEstimatedCostPerM(parseCost(modelMap.get("input-estimated-cost-per-m")));
-                        model.setOutputEstimatedCostPerM(parseCost(modelMap.get("output-estimated-cost-per-m")));
-                        provider.getModels().add(model);
-                    }
-                }
+            for (GenAIPricingConfig.Model pm : pp.getModels()) {
+                GenAIConfig.Model model = new GenAIConfig.Model();
+                model.setName(pm.getName());
+                model.setAliases(pm.getAliases());
+                model.setInputEstimatedCostPerM(pm.getInputEstimatedCostPerM());
+                model.setOutputEstimatedCostPerM(pm.getOutputEstimatedCostPerM());
+                provider.getModels().add(model);
             }
 
             config.getProviders().add(provider);
         }
 
         return config;
-    }
-
-    private double parseCost(Object value) {
-        if (value == null) {
-            return 0.0;
-        }
-        try {
-            return Double.parseDouble(value.toString());
-        } catch (NumberFormatException e) {
-            return 0.0;
-        }
     }
 }
