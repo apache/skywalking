@@ -275,6 +275,11 @@ The MAL compiler validates extension calls at compile time:
 - Mismatched argument count results in a compilation error.
 - Type mismatches between MAL arguments and Java parameter types result in a compilation error.
 
+### Building Extensions
+
+For developers who want to create custom MAL extension functions, see the
+[MAL Extension Developer Guide](../guides/mal-extension.md).
+
 ## Down Sampling Operation
 MAL should instruct meter-system on how to downsample for metrics. It doesn't only refer to aggregate raw samples to
 `minute` level, but also expresses data from `minute` in higher levels, such as `hour` and `day`.
