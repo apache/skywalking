@@ -771,6 +771,7 @@ jobs:
         with:
           name: test-logs-${{ matrix.test.name }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          overwrite: true
 
   e2e-test-istio:
     if: |
@@ -847,6 +848,7 @@ jobs:
         with:
           name: test-logs-${{ matrix.test.name }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          overwrite: true
 
   e2e-test-istio-ambient:
     if: |
@@ -918,6 +920,7 @@ jobs:
         with:
           name: test-istio-ambient-logs-${{ matrix.versions.istio }}-${{ matrix.versions.kubernetes }}-${{ matrix.analyzer }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          overwrite: true
 
   e2e-test-java-versions:
     if: |
@@ -1073,6 +1076,7 @@ jobs:
         with:
           name: test-logs-${{ matrix.test.name }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          overwrite: true
 
   required:
     if: always()
