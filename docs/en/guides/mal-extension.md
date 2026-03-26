@@ -98,19 +98,3 @@ The compiler validates at expression compilation time:
 - Argument types are compatible with the method signature
 
 Any validation failure results in a compilation error with a clear message.
-
-## Shared Utilities
-
-### GenAI Model Matcher
-
-The `GenAIModelMatcher` in `server-library/library-util` provides Trie-based model name matching
-with alias support, available to MAL extensions:
-
-```java
-import org.apache.skywalking.oap.server.library.util.genai.GenAIModelMatcher;
-
-GenAIModelMatcher matcher = GenAIModelMatcher.getInstance();
-GenAIModelMatcher.MatchResult result = matcher.match("gpt-4o-2024-08-06");
-// result.getProvider() = "openai"
-// result.getModelConfig().getInputEstimatedCostPerM() = 2.5
-```
