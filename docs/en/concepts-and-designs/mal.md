@@ -248,11 +248,12 @@ Extension functions are called with a `::` separator between the namespace and m
 
 ```
 metric.sum(['svc']).myext::transform(2.0)
-metric.genai::estimateCost()
 ```
 
 The `::` separator distinguishes extension calls from built-in `SampleFamily` methods (like `.sum()`,
 `.tag()`, `.filter()`). Method names only need to be unique within their namespace.
+
+Available extension namespaces depend on which extension modules are deployed with the OAP server.
 
 ### Supported Parameter Types
 
