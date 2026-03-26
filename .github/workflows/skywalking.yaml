@@ -26,6 +26,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   SW_AGENT_JDK_VERSION: 8
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5 # Cache restore timeout
@@ -37,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -50,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -66,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -115,7 +116,7 @@ jobs:
       pom: ${{ steps.filter.outputs.pom }}
       ui: ${{ steps.filter.outputs.ui }}
     steps:
-      - uses: actions/checkout@v4 # required for push event
+      - uses: actions/checkout@v6 # required for push event
         with:
           fetch-depth: 0
           submodules: true
@@ -166,7 +167,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -201,7 +202,7 @@ jobs:
       matrix:
         java-version: [11, 17, 25]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -248,7 +249,7 @@ jobs:
           - os: ubuntu-latest
             java-version: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -277,7 +278,7 @@ jobs:
       matrix:
         java-version: [11, 17, 21, 25]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -312,7 +313,7 @@ jobs:
           - name: ElasticSearch / OpenSearch
             class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -713,7 +714,7 @@ jobs:
           - name: Pprof MySQL
             config: test/e2e-v2/cases/profiling/pprof/mysql/e2e.yaml
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -806,7 +807,7 @@ jobs:
             kubernetes: 28
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -878,7 +879,7 @@ jobs:
           - istio: 1.29.0
             kubernetes: 28
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -935,7 +936,7 @@ jobs:
       matrix:
         java-version: [11, 17, 25]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -989,7 +990,7 @@ jobs:
           - name: BanyanDB Stages
             config: test/e2e-v2/cases/storage/banyandb/stages/e2e.yaml
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
