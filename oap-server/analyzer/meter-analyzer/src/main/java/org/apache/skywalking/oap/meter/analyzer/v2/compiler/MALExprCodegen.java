@@ -73,11 +73,13 @@ final class MALExprCodegen {
      * Generates the complete {@code run(Map)} method source.
      *
      * <p>For {@code metric.sum(['svc']).rate("PT1M")}, generates:
+     * <p>Note: generated code uses FQCNs (e.g. {@code o.a.s...SampleFamily}) to avoid
+     * import issues in Javassist. Simplified here for readability:
      * <pre>
-     * public SampleFamily run(Map samples) {
+     * public SampleFamily run(java.util.Map samples) {
      *   SampleFamily sf;
      *   sf = ((SampleFamily) samples.getOrDefault("metric", SampleFamily.EMPTY));
-     *   sf = sf.sum(Arrays.asList(new String[]{"svc"}));
+     *   sf = sf.sum(java.util.Arrays.asList(new String[]{"svc"}));
      *   sf = sf.rate("PT1M");
      *   return sf;
      * }

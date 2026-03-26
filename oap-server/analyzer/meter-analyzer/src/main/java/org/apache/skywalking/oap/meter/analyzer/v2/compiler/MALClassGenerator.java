@@ -137,43 +137,14 @@ public final class MALClassGenerator {
             "org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter"));
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
 
-        final List<String> params = closure.getParams();
-        final String paramName = params.isEmpty() ? "it" : params.get(0);
-
-        final MALClosureCodegen cc = new MALClosureCodegen(classPool, this);
-        final StringBuilder sb = new StringBuilder();
-        sb.append("public boolean test(java.util.Map ").append(paramName)
-          .append(") {\n");
-
-        final List<MALExpressionModel.ClosureStatement> body = closure.getBody();
-        if (body.size() == 1
-                && body.get(0) instanceof MALExpressionModel.ClosureExprStatement) {
-            final MALExpressionModel.ClosureExpr expr =
-                ((MALExpressionModel.ClosureExprStatement) body.get(0)).getExpr();
-            if (expr instanceof MALExpressionModel.ClosureCondition) {
-                sb.append("  return ");
-                cc.generateClosureCondition(
-                    sb, (MALExpressionModel.ClosureCondition) expr, paramName);
-                sb.append(";\n");
-            } else {
-                sb.append("  Object _v = ");
-                cc.generateClosureExpr(sb, expr, paramName);
-                sb.append(";\n");
-                sb.append("  return _v != null && !Boolean.FALSE.equals(_v);\n");
-            }
-        } else {
-            for (final MALExpressionModel.ClosureStatement stmt : body) {
-                cc.generateClosureStatement(sb, stmt, paramName);
-            }
-            sb.append("  return false;\n");
-        }
-        sb.append("}\n");
-
-        final String filterBody = sb.toString();
+        final String filterBody = generateFilterTestBody(closure);
         if (log.isDebugEnabled()) {
             log.debug("MAL compileFilter AST: {}", closure);
             log.debug("MAL compileFilter test():\n{}", filterBody);
         }
+
+        final List<String> params = closure.getParams();
+        final String paramName = params.isEmpty() ? "it" : params.get(0);
 
         final javassist.CtMethod testMethod =
             CtNewMethod.make(filterBody, ctClass);
@@ -337,7 +308,22 @@ public final class MALClassGenerator {
     public String generateFilterSource(final String filterExpression) {
         final MALExpressionModel.ClosureArgument closure =
             MALScriptParser.parseFilter(filterExpression);
+        return generateFilterTestBody(closure);
+    }
 
+    /**
+     * Generates the {@code test(Map)} method body for a filter closure.
+     * Shared by {@link #compileFilter} (compilation) and {@link #generateFilterSource} (debug).
+     *
+     * <p>For {@code { tags -> tags.job_name == 'mysql-monitoring' }}, generates:
+     * <pre>
+     * public boolean test(java.util.Map tags) {
+     *   return java.util.Objects.equals((String) tags.get("job_name"), "mysql-monitoring");
+     * }
+     * </pre>
+     */
+    private String generateFilterTestBody(
+            final MALExpressionModel.ClosureArgument closure) {
         final List<String> params = closure.getParams();
         final String paramName = params.isEmpty() ? "it" : params.get(0);
 
@@ -360,7 +346,8 @@ public final class MALClassGenerator {
                 sb.append("  Object _v = ");
                 cc.generateClosureExpr(sb, expr, paramName);
                 sb.append(";\n");
-                sb.append("  return _v != null && !Boolean.FALSE.equals(_v);\n");
+                sb.append(
+                    "  return _v != null && !Boolean.FALSE.equals(_v);\n");
             }
         } else {
             for (final MALExpressionModel.ClosureStatement stmt : body) {
