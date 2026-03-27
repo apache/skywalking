@@ -94,7 +94,8 @@ cleanup:
     on: failure
     output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
     items:
-      - label-selector: app=banyandb
+      - namespace: istio-system
+        label-selector: app.kubernetes.io/name=banyandb
         paths:
           - /tmp/trace/
           - /tmp/stream/
