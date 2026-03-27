@@ -85,7 +85,8 @@ verify:
     - includes:
         - ../profiling-cases.yaml
     # INTENTIONAL FAILURE: verify BanyanDB data collection on Kind — remove after verification
-    - query: echo "INTENTIONAL_FAIL"
+    # Runs after real cases pass, ensuring data is populated. Fails on mismatch.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
       expected: ../../expected-intentional-fail.yml
 
 cleanup:
