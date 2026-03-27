@@ -46,8 +46,8 @@ services:
     hostname: data-cold1
     command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --node-labels type=cold
     volumes:
-      - ../data-generate/tmp/measure-data/measure:/tmp/measure
-      - ../data-generate/tmp/stream-data/stream:/tmp/stream
+      - ../data-generate/tmp/measure:/tmp/measure
+      - ../data-generate/tmp/stream:/tmp/stream
       - ../data-generate/tmp/property:/tmp/property
       - ../data-generate/tmp/trace:/tmp/trace
       - ./nodes.yaml:/etc/banyandb/nodes.yaml
