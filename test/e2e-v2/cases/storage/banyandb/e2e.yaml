@@ -46,6 +46,9 @@ verify:
     # the interval between two retries, in millisecond.
     interval: 10s
   cases:
+    # INTENTIONAL FAILURE: verify BanyanDB data collection on failure
+    - query: echo "INTENTIONAL_FAIL_FOR_DATA_COLLECTION_TEST"
+      expected: ../expected/intentional-fail.yml
     - includes:
       - ../storage-cases.yaml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des,attr0='GENERAL',attr1!='Not_exist')/100"
@@ -63,3 +66,16 @@ verify:
       expected: ../expected/traces-v2-list.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --tags http.method=POST,http.status_code=201
       expected: ../expected/empty-traces-v2-list.yml
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
+    items:
+      - service: banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/
+          - /tmp/schema-property/

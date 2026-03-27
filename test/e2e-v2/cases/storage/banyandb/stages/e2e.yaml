@@ -68,3 +68,16 @@ verify:
       expected: ../../expected/cold/topN-OP-service.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(endpoint_resp_time,3,des)" --start="-96h" --end="-48h" --cold=true --step=DAY
       expected: ../../expected/cold/topN-OP-endpoint.yml
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
+    items:
+      - service: banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/
+          - /tmp/schema-property/
