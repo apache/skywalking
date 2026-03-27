@@ -49,7 +49,6 @@ import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.
 
 /**
  * Converter for transforming SkyWalking trace data to OpenTelemetry Protocol (OTLP) format.
- * Handles conversion of SkyWalking spans to both Protobuf and JSON representations.
  * <p>
  * Note: This class uses fully qualified names for some classes to avoid naming conflicts:
  * - org.apache.skywalking.oap.server.core.query.type.Trace (SkyWalking Trace)
@@ -109,7 +108,7 @@ public class SkyWalkingOTLPConverter {
                                                    .build());
 
             // Convert each SkyWalking span to OTLP Span
-            // Note: SkyWalking traceId alread encode to hex string in query list,
+            // Note: SkyWalking traceId already encode to hex string in query list,
             // in order to make it compatible with Grafana Tempo, we keep it as hex string and
             // can directly convert it to bytes for OTLP traceId
             for (org.apache.skywalking.oap.server.core.query.type.Span swSpan : serviceSpans) {
@@ -249,6 +248,7 @@ public class SkyWalkingOTLPConverter {
                         for (org.apache.skywalking.oap.server.core.query.type.KeyNumericValue summary : attachedEvent.getSummary()) {
                             eventBuilder.addAttributes(KeyValue.newBuilder()
                                                                .setKey(summary.getKey())
+                                                               // convert numeric value to string for AnyValue, make it trans to JOSN format easier
                                                                .setValue(AnyValue.newBuilder()
                                                                                  .setStringValue(String.valueOf(summary.getValue()))
                                                                                  .build())
@@ -380,7 +380,7 @@ public class SkyWalkingOTLPConverter {
             spanAttrMap.put(SERVICE_NAME, swSpan.getServiceCode());
         }
         if (swSpan.getType() != null) {
-            spanAttrMap.put(SPAN_KIND, convertSpanType(swSpan.getType()));
+            spanAttrMap.put(SPAN_KIND, convertSpanKind(swSpan.getType()).name());
         }
         for (org.apache.skywalking.oap.server.core.query.type.KeyValue tag : swSpan.getTags()) {
             spanAttrMap.put(tag.getKey(), tag.getValue());
@@ -403,31 +403,11 @@ public class SkyWalkingOTLPConverter {
     }
 
     /**
-     * Convert SkyWalking span type to OTLP span kind string.
-     */
-    private static String convertSpanType(String type) {
-        if (StringUtil.isEmpty(type)) {
-            return "INTERNAL";
-        }
-
-        switch (type.toUpperCase()) {
-            case "ENTRY":
-                return "SERVER";
-            case "EXIT":
-                return "CLIENT";
-            case "LOCAL":
-                return "INTERNAL";
-            default:
-                return "UNSPECIFIED";
-        }
-    }
-
-    /**
      * Convert SkyWalking span type to OTLP span kind.
      */
     private static io.opentelemetry.proto.trace.v1.Span.SpanKind convertSpanKind(String type) {
         if (StringUtil.isEmpty(type)) {
-            return io.opentelemetry.proto.trace.v1.Span.SpanKind.SPAN_KIND_INTERNAL;
+            return io.opentelemetry.proto.trace.v1.Span.SpanKind.SPAN_KIND_UNSPECIFIED;
         }
 
         switch (type.toUpperCase()) {
@@ -438,7 +418,7 @@ public class SkyWalkingOTLPConverter {
             case "LOCAL":
                 return io.opentelemetry.proto.trace.v1.Span.SpanKind.SPAN_KIND_INTERNAL;
             default:
-                return io.opentelemetry.proto.trace.v1.Span.SpanKind.SPAN_KIND_UNSPECIFIED;
+                return io.opentelemetry.proto.trace.v1.Span.SpanKind.SPAN_KIND_INTERNAL;
         }
     }
 

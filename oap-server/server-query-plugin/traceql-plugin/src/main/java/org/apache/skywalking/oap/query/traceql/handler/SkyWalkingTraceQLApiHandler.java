@@ -241,14 +241,16 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         Set<String> tagKeys = tagAutoCompleteQueryService.queryTagAutocompleteKeys(TagType.TRACE, duration);
 
         TagNamesV2Response response = new TagNamesV2Response();
-        TagNamesV2Response.Scope scopeObj = new TagNamesV2Response.Scope();
-        scopeObj.setName(SCOPE_SPAN);
-        scopeObj.setTags(new ArrayList<>(tagKeys));
-
+        TagNamesV2Response.Scope spanScope = new TagNamesV2Response.Scope();
+        spanScope.setName(SCOPE_SPAN);
+        spanScope.setTags(new ArrayList<>(tagKeys));
+        //for Grafana variables, tempo only supports label query in variables setting.
+        TagNamesV2Response.Scope resourceScope = new TagNamesV2Response.Scope(SCOPE_RESOURCE);
+        resourceScope.getTags().add(SERVICE);
         List<TagNamesV2Response.Scope> scopes = new ArrayList<>();
-        scopes.add(scopeObj);
+        scopes.add(spanScope);
         response.setScopes(scopes);
-
+        response.getScopes().add(resourceScope);
         return successResponse(response);
     }
 

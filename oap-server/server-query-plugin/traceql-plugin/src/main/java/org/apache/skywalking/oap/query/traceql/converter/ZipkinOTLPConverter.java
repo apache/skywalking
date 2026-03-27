@@ -46,7 +46,6 @@ import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.
 
 /**
  * Converter for transforming Zipkin trace data to OpenTelemetry Protocol (OTLP) format.
- * Handles conversion of Zipkin spans to both Protobuf and JSON representations.
  */
 public class ZipkinOTLPConverter {
 
@@ -404,7 +403,7 @@ public class ZipkinOTLPConverter {
             spanAttrMap.put(SERVICE_NAME, zipkinSpan.localServiceName());
         }
         if (zipkinSpan.kind() != null) {
-            spanAttrMap.put(SPAN_KIND, zipkinSpan.kind().name());
+            spanAttrMap.put(SPAN_KIND, convertZipkinKindToOtlp(zipkinSpan.kind()).name());
         }
         if (zipkinSpan.tags() != null) {
             spanAttrMap.putAll(zipkinSpan.tags());
