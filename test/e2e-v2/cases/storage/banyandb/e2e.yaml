@@ -46,9 +46,6 @@ verify:
     # the interval between two retries, in millisecond.
     interval: 10s
   cases:
-    # INTENTIONAL FAILURE: verify BanyanDB data collection on failure
-    - query: echo "INTENTIONAL_FAIL_FOR_DATA_COLLECTION_TEST"
-      expected: ../expected/intentional-fail.yml
     - includes:
       - ../storage-cases.yaml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(service_resp_time,3,des,attr0='GENERAL',attr1!='Not_exist')/100"
