@@ -55,7 +55,7 @@ cleanup:
       - service: banyandb
         paths:
           - /tmp/trace/
-          - /tmp/stream/
-          - /tmp/measure/
+          - /tmp/stream-data/
+          - /tmp/measure-data/
           - /tmp/property/
           - /tmp/schema-property/
