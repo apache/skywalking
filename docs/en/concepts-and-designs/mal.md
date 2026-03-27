@@ -248,11 +248,12 @@ Extension functions are called with a `::` separator between the namespace and m
 
 ```
 metric.sum(['svc']).myext::transform(2.0)
-metric.genai::estimateCost()
 ```
 
 The `::` separator distinguishes extension calls from built-in `SampleFamily` methods (like `.sum()`,
 `.tag()`, `.filter()`). Method names only need to be unique within their namespace.
+
+Available extension namespaces depend on which extension modules are deployed with the OAP server.
 
 ### Supported Parameter Types
 
@@ -274,6 +275,11 @@ The MAL compiler validates extension calls at compile time:
 - Unknown namespace or method name results in a compilation error.
 - Mismatched argument count results in a compilation error.
 - Type mismatches between MAL arguments and Java parameter types result in a compilation error.
+
+### Building Extensions
+
+For developers who want to create custom MAL extension functions, see the
+[MAL Extension Developer Guide](../guides/mal-extension.md).
 
 ## Down Sampling Operation
 MAL should instruct meter-system on how to downsample for metrics. It doesn't only refer to aggregate raw samples to

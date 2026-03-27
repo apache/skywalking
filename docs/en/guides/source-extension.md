@@ -1,4 +1,4 @@
-# Source and scope extension for new metrics
+# OAL Extension: Source and Scope for New Metrics
 From the [OAL scope introduction](../concepts-and-designs/oal.md#from), you should already have understood what a scope is.
 If you would like to create more extensions, you need to have a deeper understanding of what a **source** is. 
 

@@ -35,11 +35,11 @@ import lombok.extern.slf4j.Slf4j;
 final class MALClosureCodegen {
 
     private final ClassPool classPool;
-    private final MALClassGenerator generator;
+    private final MALBytecodeHelper bytecodeHelper;
 
     MALClosureCodegen(final ClassPool classPool, final MALClassGenerator generator) {
         this.classPool = classPool;
-        this.generator = generator;
+        this.bytecodeHelper = generator.getBytecodeHelper();
     }
 
     static final class ClosureInfo {
@@ -611,7 +611,7 @@ final class MALClosureCodegen {
         final javassist.CtMethod m = CtNewMethod.make(methodBody, companion);
         companion.addMethod(m);
         addCompanionLocalVariableTable(m, info);
-        generator.addLineNumberTable(m, firstResultSlot(info));
+        bytecodeHelper.addLineNumberTable(m, firstResultSlot(info));
         return companion;
     }
 
@@ -696,21 +696,21 @@ final class MALClosureCodegen {
             final String elementParam = params.size() >= 1 ? params.get(0) : "element";
             final String tagsParam = params.size() >= 2 ? params.get(1) : "tags";
             // instance method: slot 0=this, 1=element, 2=tags
-            generator.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+            bytecodeHelper.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
                 {elementParam, "Ljava/lang/String;"},
                 {tagsParam, "Ljava/util/Map;"}
             });
         } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
             final String paramName = params.isEmpty() ? "it" : params.get(0);
             // instance method: slot 0=this, 1=_arg, 2=paramName
-            generator.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+            bytecodeHelper.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
                 {"_arg", "Ljava/lang/Object;"},
                 {paramName, "L" + MALCodegenHelper.METER_ENTITY_FQCN.replace('.', '/') + ";"}
             });
         } else {
             final String paramName = params.isEmpty() ? "it" : params.get(0);
             // instance method: slot 0=this, 1=_raw, 2=paramName
-            generator.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+            bytecodeHelper.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
                 {"_raw", "Ljava/lang/Object;"},
                 {paramName, "Ljava/util/Map;"}
             });
