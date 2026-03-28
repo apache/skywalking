@@ -114,3 +114,5 @@ cleanup:
           - /tmp/measure/
           - /tmp/property/
           - /tmp/schema-property/
+          - /tmp/*-ingest-*
+          - /tmp/*-query-*
