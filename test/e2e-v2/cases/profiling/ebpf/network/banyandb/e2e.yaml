@@ -62,6 +62,12 @@ setup:
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=banyandb \
           --set oap.env.SW_HEALTH_CHECKER=default \
+          --set "banyandb.standalone.env[0].name=BYDB_ENABLE_INGESTION_ACCESS_LOG" \
+          --set "banyandb.standalone.env[0].value=true" \
+          --set "banyandb.standalone.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
+          --set "banyandb.standalone.env[1].value=true" \
+          --set "banyandb.standalone.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
+          --set "banyandb.standalone.env[2].value=/tmp" \
           --set "banyandb.standalone.env[0].value=true" \
           --set "banyandb.standalone.env[1].value=true" \
           -f test/e2e-v2/cases/profiling/ebpf/network/kubernetes-values.yaml
