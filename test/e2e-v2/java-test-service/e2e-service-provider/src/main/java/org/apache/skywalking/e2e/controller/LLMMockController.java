@@ -30,7 +30,7 @@ import java.time.Instant;
 @RequestMapping("/llm")
 public class LLMMockController {
     @PostMapping("/v1/chat/completions")
-    public Object completions(HttpServletResponse response) throws Exception {
+    public Object swCompletions(HttpServletResponse response) throws Exception {
 
         response.setContentType("text/event-stream");
         response.setCharacterEncoding("UTF-8");
@@ -104,7 +104,7 @@ public class LLMMockController {
     }
 
     @PostMapping(value = "/otlp/v1/chat/completions", produces = "application/json")
-    public Object simpleCompletions() {
+    public Object otlpCompletions() {
         return "{" +
                 "    \"id\": \"chatcmpl-DNhDGYUo62qPZjSFntcM7rlLXLCBr\"," +
                 "    \"object\": \"chat.completion\"," +
