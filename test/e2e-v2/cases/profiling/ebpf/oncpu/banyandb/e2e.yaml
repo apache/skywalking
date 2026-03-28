@@ -65,8 +65,6 @@ setup:
           --set "banyandb.standalone.env[1].value=true" \
           --set "banyandb.standalone.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
           --set "banyandb.standalone.env[2].value=/tmp" \
-          --set "banyandb.standalone.env[0].value=true" \
-          --set "banyandb.standalone.env[1].value=true" \
           -f test/e2e-v2/cases/profiling/ebpf/kubernetes-values.yaml
       wait:
         - namespace: istio-system
