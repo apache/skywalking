@@ -67,7 +67,7 @@ setup:
           --set "banyandb.standalone.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
           --set "banyandb.standalone.env[1].value=true" \
           --set "banyandb.standalone.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
-          --set "banyandb.standalone.env[2].value=/tmp/access-log" \
+          --set "banyandb.standalone.env[2].value=/tmp" \
           -f test/e2e-v2/cases/profiling/ebpf/network/kubernetes-values.yaml
       wait:
         - namespace: istio-system
@@ -115,4 +115,4 @@ cleanup:
           - /tmp/property/
           - /tmp/schema-property/
           # Access log files (e.g. measure-ingest-20260328_120000, trace-query-20260328_120000)
-          - /tmp/access-log/
+          - /tmp/accesslog/
