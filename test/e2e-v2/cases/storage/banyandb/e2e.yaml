@@ -63,6 +63,9 @@ verify:
       expected: ../expected/traces-v2-list.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --tags http.method=POST,http.status_code=201
       expected: ../expected/empty-traces-v2-list.yml
+    # INTENTIONAL FAILURE — remove after verification
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
+      expected: ../expected/intentional-fail.yml
 cleanup:
   on: always
   collect:
