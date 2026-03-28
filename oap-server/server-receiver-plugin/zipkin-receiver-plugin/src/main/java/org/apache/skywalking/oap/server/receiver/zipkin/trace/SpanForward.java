@@ -27,10 +27,19 @@ import java.util.List;
 
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
+import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
+import org.apache.skywalking.oap.server.core.source.GenAIModelAccess;
+import org.apache.skywalking.oap.server.core.source.GenAIProviderAccess;
+import org.apache.skywalking.oap.server.core.source.ServiceInstance;
+import org.apache.skywalking.oap.server.core.source.ServiceMeta;
+import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinService;
@@ -58,6 +67,8 @@ public class SpanForward implements SpanForwardService {
     private NamingControl namingControl;
     private SourceReceiver receiver;
     private RateLimiter rateLimiter;
+
+    private IGenAIMeterAnalyzerService genAIMeterAnalyzerService;
 
     public SpanForward(final ZipkinReceiverConfig config, final ModuleManager manager) {
         this.config = config;
@@ -152,6 +163,9 @@ public class SpanForward implements SpanForwardService {
                 }
                 zipkinSpan.setTags(tagsJson);
             }
+
+            toGenAIMetrics(zipkinSpan);
+
             getReceiver().receive(zipkinSpan);
 
             toService(zipkinSpan, minuteTimeBucket);
@@ -193,6 +207,61 @@ public class SpanForward implements SpanForwardService {
         relation.setRemoteServiceName(zipkinSpan.getRemoteEndpointServiceName());
         relation.setTimeBucket(minuteTimeBucket);
         getReceiver().receive(relation);
+    }
+
+    private void toGenAIMetrics(ZipkinSpan zipkinSpan) {
+        GenAIMetrics metrics = getGenAIMeterAnalyzerService().extractMetricsFromZipKinSpan(zipkinSpan);
+        if (metrics == null) {
+            return;
+        }
+
+        getReceiver().receive(toVirtualGenAIServiceMeta(metrics));
+        getReceiver().receive(toVirtualGenAIInstance(metrics));
+        getReceiver().receive(toProviderAccess(metrics));
+        getReceiver().receive(toModelAccess(metrics));
+    }
+
+    private ServiceMeta toVirtualGenAIServiceMeta(GenAIMetrics metrics) {
+        ServiceMeta service = new ServiceMeta();
+        service.setName(namingControl.formatServiceName(metrics.getProviderName()));
+        service.setLayer(Layer.VIRTUAL_GENAI);
+        service.setTimeBucket(metrics.getTimeBucket());
+        return service;
+    }
+
+    private Source toVirtualGenAIInstance(GenAIMetrics metrics) {
+        ServiceInstance instance = new ServiceInstance();
+        instance.setTimeBucket(metrics.getTimeBucket());
+        instance.setName(namingControl.formatInstanceName(metrics.getModelName()));
+        instance.setServiceLayer(Layer.VIRTUAL_GENAI);
+        instance.setServiceName(metrics.getProviderName());
+        return instance;
+    }
+
+    private GenAIProviderAccess toProviderAccess(GenAIMetrics metrics) {
+        GenAIProviderAccess source = new GenAIProviderAccess();
+        source.setName(namingControl.formatServiceName(metrics.getProviderName()));
+        source.setInputTokens(metrics.getInputTokens());
+        source.setOutputTokens(metrics.getOutputTokens());
+        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
+        source.setLatency(metrics.getLatency());
+        source.setStatus(metrics.isStatus());
+        source.setTimeBucket(metrics.getTimeBucket());
+        return source;
+    }
+
+    private GenAIModelAccess toModelAccess(GenAIMetrics metrics) {
+        GenAIModelAccess source = new GenAIModelAccess();
+        source.setServiceName(namingControl.formatServiceName(metrics.getProviderName()));
+        source.setModelName(namingControl.formatInstanceName(metrics.getModelName()));
+        source.setInputTokens(metrics.getInputTokens());
+        source.setOutputTokens(metrics.getOutputTokens());
+        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
+        source.setTimeToFirstToken(metrics.getTimeToFirstToken());
+        source.setLatency(metrics.getLatency());
+        source.setStatus(metrics.isStatus());
+        source.setTimeBucket(metrics.getTimeBucket());
+        return source;
     }
 
     private List<Span> getSampledTraces(List<Span> input) {
@@ -240,5 +309,12 @@ public class SpanForward implements SpanForwardService {
             receiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         }
         return receiver;
+    }
+
+    private IGenAIMeterAnalyzerService getGenAIMeterAnalyzerService() {
+        if (genAIMeterAnalyzerService == null) {
+            genAIMeterAnalyzerService = moduleManager.find(GenAIAnalyzerModule.NAME).provider().getService(IGenAIMeterAnalyzerService.class);
+        }
+        return genAIMeterAnalyzerService;
     }
 }

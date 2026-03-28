@@ -21,10 +21,13 @@ package org.apache.skywalking.oap.analyzer.genai.service;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface IGenAIMeterAnalyzerService extends Service {
 
     GenAIMetrics extractMetricsFromSWSpan(SpanObject span, SegmentObject segment);
+
+    GenAIMetrics extractMetricsFromZipKinSpan(ZipkinSpan zipkinSpan);
 
 }

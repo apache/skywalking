@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.analyzer.genai.service;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
@@ -28,9 +30,13 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -102,6 +108,48 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         return metrics;
     }
 
+    @Override
+    public GenAIMetrics extractMetricsFromZipKinSpan(ZipkinSpan zipkinSpan) {
+        JsonObject tags = zipkinSpan.getTags();
+        JsonElement element = tags.get(GenAITagKeys.RESPONSE_MODEL);
+        if (element == null || StringUtil.isBlank(element.getAsString())) {
+            return null;
+        }
+
+        String modelName = element.getAsString();
+        String provider = getZipKinSpanTagValue(tags, GenAITagKeys.PROVIDER_NAME);
+
+        GenAIProviderPrefixMatcher.MatchResult matchResult = matcher.match(modelName);
+        if (StringUtil.isBlank(provider)) {
+            provider = matchResult.getProvider();
+        }
+
+        GenAIConfig.Model modelConfig = matchResult.getModelConfig();
+
+        long inputTokens = parseSafeLong(getZipKinSpanTagValue(tags, GenAITagKeys.INPUT_TOKENS));
+        long outputTokens = parseSafeLong(getZipKinSpanTagValue(tags, GenAITagKeys.OUTPUT_TOKENS));
+
+        double totalCost = calculateTotalCost(modelConfig, inputTokens, outputTokens);
+
+        BigDecimal calculatedCost = BigDecimal.valueOf(totalCost)
+                .divide(new BigDecimal("1000000"), 10, RoundingMode.HALF_UP);
+        tags.addProperty(GenAITagKeys.ESTIMATED_COST, calculatedCost.stripTrailingZeros().toPlainString());
+        zipkinSpan.setTags(tags);
+
+        GenAIMetrics metrics = new GenAIMetrics();
+        metrics.setServiceId(IDManager.ServiceID.buildId(provider, Layer.VIRTUAL_GENAI.isNormal()));
+        metrics.setProviderName(provider);
+        metrics.setModelName(modelName);
+        metrics.setInputTokens(inputTokens);
+        metrics.setOutputTokens(outputTokens);
+        metrics.setTimeToFirstToken(parseSafeInt(getZipKinSpanTagValue(tags, GenAITagKeys.SERVER_TIME_TO_FIRST_TOKEN)));
+        metrics.setTotalEstimatedCost(Math.round(totalCost));
+        metrics.setLatency(zipkinSpan.getDuration());
+        metrics.setStatus(Objects.isNull(getZipKinSpanTagValue(tags, "errors")));
+        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(zipkinSpan.getTimestamp() / 1000));
+        return metrics;
+    }
+
     private long parseSafeLong(String value) {
         if (StringUtil.isEmpty(value)) {
             return 0;
@@ -124,5 +172,24 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
             log.warn("Failed to parse value to int: {}", value);
             return 0;
         }
+    }
+
+    private String getZipKinSpanTagValue(JsonObject tags, String key) {
+        JsonElement element = tags.get(key);
+        return element != null ? element.getAsString() : null;
+    }
+
+    private double calculateTotalCost(GenAIConfig.Model modelConfig, long inputTokens, long outputTokens) {
+        if (modelConfig == null) {
+            return 0.0D;
+        }
+        double cost = 0.0D;
+        if (modelConfig.getInputEstimatedCostPerM() > 0) {
+            cost += inputTokens * modelConfig.getInputEstimatedCostPerM();
+        }
+        if (modelConfig.getOutputEstimatedCostPerM() > 0) {
+            cost += outputTokens * modelConfig.getOutputEstimatedCostPerM();
+        }
+        return cost;
     }
 }
