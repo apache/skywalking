@@ -84,9 +84,6 @@ verify:
   cases:
     - includes:
         - ../profiling-cases.yaml
-    # INTENTIONAL FAILURE: verify Kind access log collection — remove after verification
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
-      expected: ../../expected-intentional-fail.yml
 
 cleanup:
   on: always
