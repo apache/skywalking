@@ -59,6 +59,8 @@ setup:
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=banyandb \
           --set oap.env.SW_HEALTH_CHECKER=default \
+          --set "banyandb.standalone.env[0].value=true" \
+          --set "banyandb.standalone.env[1].value=true" \
           -f test/e2e-v2/cases/profiling/ebpf/kubernetes-values.yaml
       wait:
         - namespace: istio-system
@@ -99,4 +101,3 @@ cleanup:
           - /tmp/measure/
           - /tmp/property/
           - /tmp/schema-property/
-          - /tmp/access-log/
