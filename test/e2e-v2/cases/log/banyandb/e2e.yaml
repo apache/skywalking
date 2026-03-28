@@ -70,3 +70,4 @@ cleanup:
           - /tmp/measure/
           - /tmp/property/
           - /tmp/schema-property/
+          - /tmp/access-log/

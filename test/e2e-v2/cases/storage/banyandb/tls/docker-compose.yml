@@ -22,7 +22,7 @@ services:
       service: banyandb
     volumes:
       - ./tls:/tls
-    command: standalone --tls=true --key-file=/tls/cert.key --cert-file=/tls/cert.crt --http-grpc-cert-file=/tls/ca.crt
+    command: standalone --tls=true --key-file=/tls/cert.key --cert-file=/tls/cert.crt --http-grpc-cert-file=/tls/ca.crt --enable-ingestion-access-log --enable-query-access-log --access-log-root-path /tmp/access-log
     networks:
       - e2e
 
