@@ -49,4 +49,5 @@ cleanup:
           - /tmp/measure/
           - /tmp/property/
           - /tmp/schema-property/
+          # Access log files (e.g. measure-ingest-20260328_120000, trace-query-20260328_120000)
           - /tmp/access-log/
