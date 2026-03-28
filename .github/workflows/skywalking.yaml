@@ -589,132 +589,132 @@ jobs:
               KUBERNETES_VERSION=28
             runs-on: ubuntu-24.04
 
-#          - name: Satellite
-#            config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
-#          - name: Auth
-#            config: test/e2e-v2/cases/simple/auth/e2e.yaml
-#          - name: SSL
-#            config: test/e2e-v2/cases/simple/ssl/e2e.yaml
-#          - name: mTLS
-#            config: test/e2e-v2/cases/simple/mtls/e2e.yaml
-#          - name: Virtual Gateway
-#            config: test/e2e-v2/cases/gateway/e2e.yaml
-#          - name: Meter
-#            config: test/e2e-v2/cases/meter/e2e.yaml
-#          - name: VM Zabbix
-#            config: test/e2e-v2/cases/vm/zabbix/e2e.yaml
-#          - name: VM Prometheus
-#            config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
-#          - name: VM Telegraf
-#            config: test/e2e-v2/cases/vm/telegraf/e2e.yaml
-#          - name: So11y
-#            config: test/e2e-v2/cases/so11y/e2e.yaml
-#          - name: MySQL Prometheus and slowsql
-#            config: test/e2e-v2/cases/mysql/mysql-slowsql/e2e.yaml
-#          - name: PostgreSQL Prometheus
-#            config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
-#          - name: MariaDB Prometheus and slowsql
-#            config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
-#
-#          - name: Zipkin ES
-#            config: test/e2e-v2/cases/zipkin/es/e2e.yaml
-#          - name: Zipkin ES Sharding
-#            config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
-#          - name: Zipkin MySQL
-#            config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
-#          - name: Zipkin Postgres
-#            config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
-#          - name: Zipkin Kafka
-#            config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
-#          - name: Zipkin BanyanDB
-#            config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
+          - name: Satellite
+            config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
+          - name: Auth
+            config: test/e2e-v2/cases/simple/auth/e2e.yaml
+          - name: SSL
+            config: test/e2e-v2/cases/simple/ssl/e2e.yaml
+          - name: mTLS
+            config: test/e2e-v2/cases/simple/mtls/e2e.yaml
+          - name: Virtual Gateway
+            config: test/e2e-v2/cases/gateway/e2e.yaml
+          - name: Meter
+            config: test/e2e-v2/cases/meter/e2e.yaml
+          - name: VM Zabbix
+            config: test/e2e-v2/cases/vm/zabbix/e2e.yaml
+          - name: VM Prometheus
+            config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
+          - name: VM Telegraf
+            config: test/e2e-v2/cases/vm/telegraf/e2e.yaml
+          - name: So11y
+            config: test/e2e-v2/cases/so11y/e2e.yaml
+          - name: MySQL Prometheus and slowsql
+            config: test/e2e-v2/cases/mysql/mysql-slowsql/e2e.yaml
+          - name: PostgreSQL Prometheus
+            config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
+          - name: MariaDB Prometheus and slowsql
+            config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
+
+          - name: Zipkin ES
+            config: test/e2e-v2/cases/zipkin/es/e2e.yaml
+          - name: Zipkin ES Sharding
+            config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
+          - name: Zipkin MySQL
+            config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
+          - name: Zipkin Postgres
+            config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
+          - name: Zipkin Kafka
+            config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
+          - name: Zipkin BanyanDB
+            config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
           - name: Virtual GenAI
             config: test/e2e-v2/cases/virtual-genai/e2e.yaml
           - name: OTLP Virtual GenAI
             config: test/e2e-v2/cases/otlp-virtual-genai/e2e.yaml
 
-#          - name: Nginx
-#            config: test/e2e-v2/cases/nginx/e2e.yaml
-#          - name: APISIX metrics
-#            config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
-#          - name: Exporter Kafka
-#            config: test/e2e-v2/cases/exporter/kafka/e2e.yaml
-#          - name: Virtual MQ
-#            config: test/e2e-v2/cases/virtual-mq/e2e.yaml
-#          - name: AWS Cloud EKS
-#            config: test/e2e-v2/cases/aws/eks/e2e.yaml
-#          - name: Windows
-#            config: test/e2e-v2/cases/win/e2e.yaml
-#          - name: AWS Cloud S3
-#            config: test/e2e-v2/cases/aws/s3/e2e.yaml
-#          - name: AWS Cloud DynamoDB
-#            config: test/e2e-v2/cases/aws/dynamodb/e2e.yaml
-#          - name: PromQL Service
-#            config: test/e2e-v2/cases/promql/e2e.yaml
-#          - name: LogQL Service
-#            config: test/e2e-v2/cases/logql/e2e.yaml
-#          - name: TraceQL Service Zipkin
-#            config: test/e2e-v2/cases/traceql/zipkin/e2e.yaml
-#          - name: AWS API Gateway
-#            config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
-#          - name: Redis Prometheus and Log Collecting
-#            config: test/e2e-v2/cases/redis/redis-exporter/e2e.yaml
-#          - name: Elasticsearch
-#            config: test/e2e-v2/cases/elasticsearch/e2e.yaml
-#          - name: MongoDB
-#            config: test/e2e-v2/cases/mongodb/e2e.yaml
-#          - name: RabbitMQ
-#            config: test/e2e-v2/cases/rabbitmq/e2e.yaml
-#          - name: Kafka
-#            config: test/e2e-v2/cases/kafka/kafka-monitoring/e2e.yaml
-#          - name: MQE Service
-#            config: test/e2e-v2/cases/mqe/e2e.yaml
-#          - name: Pulsar and BookKeeper
-#            config: test/e2e-v2/cases/pulsar/e2e.yaml
-#          - name: RocketMQ
-#            config: test/e2e-v2/cases/rocketmq/e2e.yaml
-#          - name: ClickHouse
-#            config: test/e2e-v2/cases/clickhouse/clickhouse-prometheus-endpoint/e2e.yaml
-#          - name: ActiveMQ
-#            config: test/e2e-v2/cases/activemq/e2e.yaml
-#          - name: Kong
-#            config: test/e2e-v2/cases/kong/e2e.yaml
-#          - name: Flink
-#            config: test/e2e-v2/cases/flink/e2e.yaml
-#
-#          - name: UI Menu BanyanDB
-#            config: test/e2e-v2/cases/menu/banyandb/e2e.yaml
-#          - name: UI Menu ES
-#            config: test/e2e-v2/cases/menu/es/e2e.yaml
-#          - name: UI Menu Sharding ES
-#            config: test/e2e-v2/cases/menu/es/es-sharding/e2e.yaml
-#          - name: UI Menu MySQL
-#            config: test/e2e-v2/cases/menu/mysql/e2e.yaml
-#          - name: UI Menu Postgres
-#            config: test/e2e-v2/cases/menu/postgres/e2e.yaml
-#          - name: UI Menu OpenSearch 2.4.0
-#            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=2.4.0
-#
-#          - name: OTLP Trace
-#            config: test/e2e-v2/cases/otlp-traces/e2e.yaml
-#
-#          - name: Cilium Service
-#            config: test/e2e-v2/cases/cilium/e2e.yaml
-#
-#          - name: Async Profiler ES
-#            config: test/e2e-v2/cases/profiling/async-profiler/es/e2e.yaml
-#          - name: Async Profiler BanyanDB
-#            config: test/e2e-v2/cases/profiling/async-profiler/banyandb/e2e.yaml
-#          - name: Async Profiler MySQL
-#            config: test/e2e-v2/cases/profiling/async-profiler/mysql/e2e.yaml
-#
-#          - name: Pprof ES
-#            config: test/e2e-v2/cases/profiling/pprof/es/e2e.yaml
-#          - name: Pprof BanyanDB
-#            config: test/e2e-v2/cases/profiling/pprof/banyandb/e2e.yaml
-#          - name: Pprof MySQL
-#            config: test/e2e-v2/cases/profiling/pprof/mysql/e2e.yaml
+          - name: Nginx
+            config: test/e2e-v2/cases/nginx/e2e.yaml
+          - name: APISIX metrics
+            config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
+          - name: Exporter Kafka
+            config: test/e2e-v2/cases/exporter/kafka/e2e.yaml
+          - name: Virtual MQ
+            config: test/e2e-v2/cases/virtual-mq/e2e.yaml
+          - name: AWS Cloud EKS
+            config: test/e2e-v2/cases/aws/eks/e2e.yaml
+          - name: Windows
+            config: test/e2e-v2/cases/win/e2e.yaml
+          - name: AWS Cloud S3
+            config: test/e2e-v2/cases/aws/s3/e2e.yaml
+          - name: AWS Cloud DynamoDB
+            config: test/e2e-v2/cases/aws/dynamodb/e2e.yaml
+          - name: PromQL Service
+            config: test/e2e-v2/cases/promql/e2e.yaml
+          - name: LogQL Service
+            config: test/e2e-v2/cases/logql/e2e.yaml
+          - name: TraceQL Service Zipkin
+            config: test/e2e-v2/cases/traceql/zipkin/e2e.yaml
+          - name: AWS API Gateway
+            config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
+          - name: Redis Prometheus and Log Collecting
+            config: test/e2e-v2/cases/redis/redis-exporter/e2e.yaml
+          - name: Elasticsearch
+            config: test/e2e-v2/cases/elasticsearch/e2e.yaml
+          - name: MongoDB
+            config: test/e2e-v2/cases/mongodb/e2e.yaml
+          - name: RabbitMQ
+            config: test/e2e-v2/cases/rabbitmq/e2e.yaml
+          - name: Kafka
+            config: test/e2e-v2/cases/kafka/kafka-monitoring/e2e.yaml
+          - name: MQE Service
+            config: test/e2e-v2/cases/mqe/e2e.yaml
+          - name: Pulsar and BookKeeper
+            config: test/e2e-v2/cases/pulsar/e2e.yaml
+          - name: RocketMQ
+            config: test/e2e-v2/cases/rocketmq/e2e.yaml
+          - name: ClickHouse
+            config: test/e2e-v2/cases/clickhouse/clickhouse-prometheus-endpoint/e2e.yaml
+          - name: ActiveMQ
+            config: test/e2e-v2/cases/activemq/e2e.yaml
+          - name: Kong
+            config: test/e2e-v2/cases/kong/e2e.yaml
+          - name: Flink
+            config: test/e2e-v2/cases/flink/e2e.yaml
+
+          - name: UI Menu BanyanDB
+            config: test/e2e-v2/cases/menu/banyandb/e2e.yaml
+          - name: UI Menu ES
+            config: test/e2e-v2/cases/menu/es/e2e.yaml
+          - name: UI Menu Sharding ES
+            config: test/e2e-v2/cases/menu/es/es-sharding/e2e.yaml
+          - name: UI Menu MySQL
+            config: test/e2e-v2/cases/menu/mysql/e2e.yaml
+          - name: UI Menu Postgres
+            config: test/e2e-v2/cases/menu/postgres/e2e.yaml
+          - name: UI Menu OpenSearch 2.4.0
+            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
+
+          - name: OTLP Trace
+            config: test/e2e-v2/cases/otlp-traces/e2e.yaml
+
+          - name: Cilium Service
+            config: test/e2e-v2/cases/cilium/e2e.yaml
+
+          - name: Async Profiler ES
+            config: test/e2e-v2/cases/profiling/async-profiler/es/e2e.yaml
+          - name: Async Profiler BanyanDB
+            config: test/e2e-v2/cases/profiling/async-profiler/banyandb/e2e.yaml
+          - name: Async Profiler MySQL
+            config: test/e2e-v2/cases/profiling/async-profiler/mysql/e2e.yaml
+
+          - name: Pprof ES
+            config: test/e2e-v2/cases/profiling/pprof/es/e2e.yaml
+          - name: Pprof BanyanDB
+            config: test/e2e-v2/cases/profiling/pprof/banyandb/e2e.yaml
+          - name: Pprof MySQL
+            config: test/e2e-v2/cases/profiling/pprof/mysql/e2e.yaml
     steps:
       - uses: actions/checkout@v6
         with:
