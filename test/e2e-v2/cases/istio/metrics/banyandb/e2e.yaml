@@ -54,6 +54,13 @@ setup:
     - name: Install helm
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh helm
     - name: Install SkyWalking with BanyanDB cluster
+      # To enable BanyanDB access logs for debugging, add these flags to the helm install:
+      #   --set "banyandb.cluster.liaison.env[0].name=BYDB_ENABLE_INGESTION_ACCESS_LOG" \
+      #   --set "banyandb.cluster.liaison.env[0].value=\"true\"" \
+      #   --set "banyandb.cluster.liaison.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
+      #   --set "banyandb.cluster.liaison.env[1].value=\"true\"" \
+      #   --set "banyandb.cluster.liaison.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
+      #   --set "banyandb.cluster.liaison.env[2].value=/tmp"
       command: |
         helm -n istio-system install skywalking \
           oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
@@ -77,13 +84,6 @@ setup:
           --set banyandb.cluster.data.nodeTemplate.replicas=2 \
           --set banyandb.image.tag=${SW_BANYANDB_COMMIT} \
           --set banyandb.image.repository=ghcr.io/apache/skywalking-banyandb \
-          # Uncomment to enable BanyanDB access logs for debugging:
-          # --set "banyandb.cluster.liaison.env[0].name=BYDB_ENABLE_INGESTION_ACCESS_LOG" \
-          # --set "banyandb.cluster.liaison.env[0].value=\"true\"" \
-          # --set "banyandb.cluster.liaison.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
-          # --set "banyandb.cluster.liaison.env[1].value=\"true\"" \
-          # --set "banyandb.cluster.liaison.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
-          # --set "banyandb.cluster.liaison.env[2].value=/tmp" \
           -f test/e2e-v2/cases/istio/values.yaml
       wait:
         - namespace: istio-system

@@ -41,6 +41,13 @@ setup:
     - name: Install kubectl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
     - name: Install SkyWalking
+      # To enable BanyanDB access logs for debugging, add these flags to the helm install:
+      #   --set "banyandb.standalone.env[0].name=BYDB_ENABLE_INGESTION_ACCESS_LOG" \
+      #   --set "banyandb.standalone.env[0].value=\"true\"" \
+      #   --set "banyandb.standalone.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
+      #   --set "banyandb.standalone.env[1].value=\"true\"" \
+      #   --set "banyandb.standalone.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
+      #   --set "banyandb.standalone.env[2].value=/tmp"
       command: |
         kubectl create namespace istio-system
         helm -n istio-system install skywalking \
@@ -58,14 +65,6 @@ setup:
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=banyandb \
           --set oap.env.SW_HEALTH_CHECKER=default \
-          # Uncomment to enable BanyanDB access logs for debugging:
-          # --set "banyandb.standalone.env[0].name=BYDB_ENABLE_INGESTION_ACCESS_LOG" \
-          # Uncomment to enable BanyanDB access logs for debugging:
-          # --set "banyandb.standalone.env[0].value=\"true\"" \
-          # --set "banyandb.standalone.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
-          # --set "banyandb.standalone.env[1].value=\"true\"" \
-          # --set "banyandb.standalone.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
-          # --set "banyandb.standalone.env[2].value=/tmp" \
           -f test/e2e-v2/cases/profiling/ebpf/kubernetes-values.yaml
       wait:
         - namespace: istio-system
