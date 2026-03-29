@@ -60,9 +60,9 @@ setup:
           --set oap.storageType=banyandb \
           --set oap.env.SW_HEALTH_CHECKER=default \
           --set "banyandb.standalone.env[0].name=BYDB_ENABLE_INGESTION_ACCESS_LOG" \
-          --set "banyandb.standalone.env[0].value=true" \
+          --set-string "banyandb.standalone.env[0].value=true" \
           --set "banyandb.standalone.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
-          --set "banyandb.standalone.env[1].value=true" \
+          --set-string "banyandb.standalone.env[1].value=true" \
           --set "banyandb.standalone.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
           --set "banyandb.standalone.env[2].value=/tmp" \
           -f test/e2e-v2/cases/profiling/ebpf/kubernetes-values.yaml
@@ -90,7 +90,7 @@ verify:
   cases:
     - includes:
         - ../profiling-cases.yaml
-    # INTENTIONAL FAILURE — remove after verification
+    # INTENTIONAL FAILURE — verify BanyanDB data collection on Kind, remove after verification
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
       expected: ../../expected-intentional-fail.yml
 
