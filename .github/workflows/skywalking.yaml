@@ -632,6 +632,8 @@ jobs:
             config: test/e2e-v2/cases/virtual-genai/e2e.yaml
           - name: OTLP Virtual GenAI
             config: test/e2e-v2/cases/otlp-virtual-genai/e2e.yaml
+          - name: Zipkin Virtual GenAI
+            config: test/e2e-v2/cases/zipkin-virtual-genai/e2e.yaml
 
           - name: Nginx
             config: test/e2e-v2/cases/nginx/e2e.yaml
@@ -760,7 +762,7 @@ jobs:
         if: matrix.test.docker != null
         run: docker build -t ${{ matrix.test.docker.name }} -f ${{ matrix.test.docker.base }}/${{ matrix.test.docker.file }} ${{ matrix.test.docker.base }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
+        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() }}
@@ -833,7 +835,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
+        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -905,7 +907,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
+        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -969,7 +971,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
+        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
@@ -1044,12 +1046,12 @@ jobs:
           found=false
           for i in {1..60}; do
             # check if segment files exist
-            if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure/data/sw_metricsDay/seg* 2>/dev/null)" ]'; then
+            if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure-data/measure/data/sw_metricsDay/seg* 2>/dev/null)" ]'; then
               echo "✅ found segment files"
               sleep 180
               # create and copy files
               docker cp $CONTAINER_ID:/tmp ${BANYANDB_DATA_GENERATE_ROOT}
-              docker cp $CONTAINER_ID:/tmp/measure/data/sw_metadata ${BANYANDB_DATA_GENERATE_ROOT}
+              docker cp $CONTAINER_ID:/tmp/measure-data/measure/data/sw_metadata ${BANYANDB_DATA_GENERATE_ROOT}
               found=true
               break
             else
@@ -1065,7 +1067,7 @@ jobs:
           fi
           docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml down -v
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
+        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() }}

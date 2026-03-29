@@ -29,14 +29,20 @@ import org.apache.skywalking.oap.analyzer.genai.matcher.GenAIProviderPrefixMatch
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
+import org.apache.skywalking.oap.server.core.source.GenAIModelAccess;
+import org.apache.skywalking.oap.server.core.source.GenAIProviderAccess;
+import org.apache.skywalking.oap.server.core.source.ServiceInstance;
+import org.apache.skywalking.oap.server.core.source.ServiceMeta;
+import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -44,7 +50,7 @@ import static java.util.stream.Collectors.toMap;
 public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
 
     private final GenAIProviderPrefixMatcher matcher;
-
+    
     public GenAIMeterAnalyzer(GenAIProviderPrefixMatcher matcher) {
         this.matcher = matcher;
     }
@@ -78,16 +84,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         long inputTokens = parseSafeLong(tags.get(GenAITagKeys.INPUT_TOKENS));
         long outputTokens = parseSafeLong(tags.get(GenAITagKeys.OUTPUT_TOKENS));
 
-        // calculate the total cost by the cost configs
-        double totalCost = 0.0D;
-        if (modelConfig != null) {
-            if (modelConfig.getInputEstimatedCostPerM() > 0) {
-                totalCost += inputTokens * modelConfig.getInputEstimatedCostPerM();
-            }
-            if (modelConfig.getOutputEstimatedCostPerM() > 0) {
-                totalCost += outputTokens * modelConfig.getOutputEstimatedCostPerM();
-            }
-        }
+        double totalCost = calculateTotalCost(modelConfig, inputTokens, outputTokens);
 
         GenAIMetrics metrics = new GenAIMetrics();
 
@@ -109,7 +106,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
     }
 
     @Override
-    public GenAIMetrics extractMetricsFromZipKinSpan(ZipkinSpan zipkinSpan) {
+    public GenAIMetrics extractMetricsFromZipkinSpan(ZipkinSpan zipkinSpan) {
         JsonObject tags = zipkinSpan.getTags();
         JsonElement element = tags.get(GenAITagKeys.RESPONSE_MODEL);
         if (element == null || StringUtil.isBlank(element.getAsString())) {
@@ -117,7 +114,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         }
 
         String modelName = element.getAsString();
-        String provider = getZipKinSpanTagValue(tags, GenAITagKeys.PROVIDER_NAME);
+        String provider = getZipkinSpanTagValue(tags, GenAITagKeys.PROVIDER_NAME);
 
         GenAIProviderPrefixMatcher.MatchResult matchResult = matcher.match(modelName);
         if (StringUtil.isBlank(provider)) {
@@ -126,15 +123,10 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
 
         GenAIConfig.Model modelConfig = matchResult.getModelConfig();
 
-        long inputTokens = parseSafeLong(getZipKinSpanTagValue(tags, GenAITagKeys.INPUT_TOKENS));
-        long outputTokens = parseSafeLong(getZipKinSpanTagValue(tags, GenAITagKeys.OUTPUT_TOKENS));
+        long inputTokens = parseSafeLong(getZipkinSpanTagValue(tags, GenAITagKeys.INPUT_TOKENS));
+        long outputTokens = parseSafeLong(getZipkinSpanTagValue(tags, GenAITagKeys.OUTPUT_TOKENS));
 
         double totalCost = calculateTotalCost(modelConfig, inputTokens, outputTokens);
-
-        BigDecimal calculatedCost = BigDecimal.valueOf(totalCost)
-                .divide(new BigDecimal("1000000"), 10, RoundingMode.HALF_UP);
-        tags.addProperty(GenAITagKeys.ESTIMATED_COST, calculatedCost.stripTrailingZeros().toPlainString());
-        zipkinSpan.setTags(tags);
 
         GenAIMetrics metrics = new GenAIMetrics();
         metrics.setServiceId(IDManager.ServiceID.buildId(provider, Layer.VIRTUAL_GENAI.isNormal()));
@@ -142,12 +134,26 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setModelName(modelName);
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
-        metrics.setTimeToFirstToken(parseSafeInt(getZipKinSpanTagValue(tags, GenAITagKeys.SERVER_TIME_TO_FIRST_TOKEN)));
+        metrics.setTimeToFirstToken(parseSafeInt(getZipkinSpanTagValue(tags, GenAITagKeys.SERVER_TIME_TO_FIRST_TOKEN)));
         metrics.setTotalEstimatedCost(Math.round(totalCost));
-        metrics.setLatency(zipkinSpan.getDuration());
-        metrics.setStatus(Objects.isNull(getZipKinSpanTagValue(tags, "errors")));
+        metrics.setLatency(zipkinSpan.getDuration() / 1000);
+        metrics.setStatus(StringUtil.isNotBlank(getZipkinSpanTagValue(tags, "error")));
         metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(zipkinSpan.getTimestamp() / 1000));
         return metrics;
+    }
+
+    @Override
+    public List<Source> transferToSources(GenAIMetrics metrics, NamingControl namingControl) {
+        if (metrics == null) {
+            return Collections.emptyList();
+        }
+
+        List<Source> sources = new ArrayList<>();
+        sources.add(toVirtualGenAIServiceMeta(metrics, namingControl));
+        sources.add(toVirtualGenAIInstance(metrics, namingControl));
+        sources.add(toProviderAccess(metrics, namingControl));
+        sources.add(toModelAccess(metrics, namingControl));
+        return sources;
     }
 
     private long parseSafeLong(String value) {
@@ -174,7 +180,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         }
     }
 
-    private String getZipKinSpanTagValue(JsonObject tags, String key) {
+    private String getZipkinSpanTagValue(JsonObject tags, String key) {
         JsonElement element = tags.get(key);
         return element != null ? element.getAsString() : null;
     }
@@ -191,5 +197,48 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
             cost += outputTokens * modelConfig.getOutputEstimatedCostPerM();
         }
         return cost;
+    }
+
+    private ServiceMeta toVirtualGenAIServiceMeta(GenAIMetrics metrics, NamingControl namingControl) {
+        ServiceMeta service = new ServiceMeta();
+        service.setName(namingControl.formatServiceName(metrics.getProviderName()));
+        service.setLayer(Layer.VIRTUAL_GENAI);
+        service.setTimeBucket(metrics.getTimeBucket());
+        return service;
+    }
+
+    private Source toVirtualGenAIInstance(GenAIMetrics metrics, NamingControl namingControl) {
+        ServiceInstance instance = new ServiceInstance();
+        instance.setTimeBucket(metrics.getTimeBucket());
+        instance.setName(namingControl.formatInstanceName(metrics.getModelName()));
+        instance.setServiceLayer(Layer.VIRTUAL_GENAI);
+        instance.setServiceName(namingControl.formatServiceName(metrics.getProviderName()));
+        return instance;
+    }
+
+    private GenAIProviderAccess toProviderAccess(GenAIMetrics metrics, NamingControl namingControl) {
+        GenAIProviderAccess source = new GenAIProviderAccess();
+        source.setName(namingControl.formatServiceName(metrics.getProviderName()));
+        source.setInputTokens(metrics.getInputTokens());
+        source.setOutputTokens(metrics.getOutputTokens());
+        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
+        source.setLatency(metrics.getLatency());
+        source.setStatus(metrics.isStatus());
+        source.setTimeBucket(metrics.getTimeBucket());
+        return source;
+    }
+
+    private GenAIModelAccess toModelAccess(GenAIMetrics metrics, NamingControl namingControl) {
+        GenAIModelAccess source = new GenAIModelAccess();
+        source.setServiceName(namingControl.formatServiceName(metrics.getProviderName()));
+        source.setModelName(namingControl.formatInstanceName(metrics.getModelName()));
+        source.setInputTokens(metrics.getInputTokens());
+        source.setOutputTokens(metrics.getOutputTokens());
+        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
+        source.setTimeToFirstToken(metrics.getTimeToFirstToken());
+        source.setLatency(metrics.getLatency());
+        source.setStatus(metrics.isStatus());
+        source.setTimeBucket(metrics.getTimeBucket());
+        return source;
     }
 }

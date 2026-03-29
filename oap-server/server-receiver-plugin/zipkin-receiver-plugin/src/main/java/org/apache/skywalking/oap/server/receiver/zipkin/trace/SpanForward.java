@@ -20,13 +20,18 @@ package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonObject;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKeys;
 import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
 import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.Const;
@@ -148,7 +153,7 @@ public class SpanForward implements SpanForwardService {
                 for (Map.Entry<String, String> tag : span.tags().entrySet()) {
                     String tagString = tag.getKey() + "=" + tag.getValue();
                     tagsJson.addProperty(tag.getKey(), tag.getValue());
-                    if (tag.getValue().length()  > Tag.TAG_LENGTH || tagString.length() > Tag.TAG_LENGTH) {
+                    if (tag.getValue().length() > Tag.TAG_LENGTH || tagString.length() > Tag.TAG_LENGTH) {
                         if (log.isDebugEnabled()) {
                             log.debug("Span tag : {} length > : {}, dropped", tagString, Tag.TAG_LENGTH);
                         }
@@ -164,7 +169,7 @@ public class SpanForward implements SpanForwardService {
                 zipkinSpan.setTags(tagsJson);
             }
 
-            toGenAIMetrics(zipkinSpan);
+            processGenAILogic(zipkinSpan);
 
             getReceiver().receive(zipkinSpan);
 
@@ -209,16 +214,30 @@ public class SpanForward implements SpanForwardService {
         getReceiver().receive(relation);
     }
 
-    private void toGenAIMetrics(ZipkinSpan zipkinSpan) {
-        GenAIMetrics metrics = getGenAIMeterAnalyzerService().extractMetricsFromZipKinSpan(zipkinSpan);
+    private void processGenAILogic(ZipkinSpan zipkinSpan) {
+        GenAIMetrics metrics = getGenAIMeterAnalyzerService().extractMetricsFromZipkinSpan(zipkinSpan);
         if (metrics == null) {
             return;
         }
 
-        getReceiver().receive(toVirtualGenAIServiceMeta(metrics));
-        getReceiver().receive(toVirtualGenAIInstance(metrics));
-        getReceiver().receive(toProviderAccess(metrics));
-        getReceiver().receive(toModelAccess(metrics));
+        setEstimatedCost(zipkinSpan, metrics.getTotalEstimatedCost());
+
+        getGenAIMeterAnalyzerService().transferToSources(metrics, namingControl)
+                .forEach(source -> getReceiver().receive(source));
+    }
+
+    private void setEstimatedCost(ZipkinSpan zipkinSpan, long totalEstimatedCost) {
+        if (totalEstimatedCost > 0) {
+            JsonObject tags = zipkinSpan.getTags();
+            if (tags == null) {
+                tags = new JsonObject();
+            }
+
+            BigDecimal calculatedCost = BigDecimal.valueOf(totalEstimatedCost)
+                    .divide(new BigDecimal("1000000"), 10, RoundingMode.HALF_UP);
+            tags.addProperty(GenAITagKeys.ESTIMATED_COST, calculatedCost.stripTrailingZeros().toPlainString());
+            zipkinSpan.setTags(tags);
+        }
     }
 
     private ServiceMeta toVirtualGenAIServiceMeta(GenAIMetrics metrics) {
@@ -275,13 +294,13 @@ public class SpanForward implements SpanForwardService {
                 sampledTraces.add(span);
                 continue;
             }
-            
+
             // Apply maximum spans per minute sampling first
             if (rateLimiter != null && !rateLimiter.tryAcquire()) {
                 log.debug("Span dropped due to maximum spans per minute limit: {}", span.id());
                 continue;
             }
-            
+
             // Apply percentage-based sampling
             if (config.getSampleRate() == 10000) {
                 // 100% sample rate - include all spans that passed the maximum spans check
