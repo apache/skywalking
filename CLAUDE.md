@@ -253,3 +253,29 @@ Actions owned by `actions/*` (GitHub), `github/*`, and `apache/*` are always all
 8. **Test both unit and integration**: Different test patterns for different scopes
 9. **Documentation is rendered via markdown**: When reviewing docs, consider how they will be rendered by a markdown engine
 10. **Relative paths in docs are valid**: Relative file paths (e.g., `../../../oap-server/...`) in documentation work both in the repo and on the documentation website, supported by website build tooling
+
+## Analysis and Design Principles
+
+**Never guess or speculate.** All analysis must be grounded in source code, documentation, or verified behavior.
+
+### Before making claims
+- **Read the source code** — don't assume how a feature works based on naming or convention. Check the actual implementation.
+- **Read the documentation** — check `docs/en/`, CLAUDE.md files in submodules, and README files before proposing designs.
+- **Check configuration and flags** — verify what flags/env vars exist, their default values, and how they are parsed (e.g., BanyanDB uses viper with `BYDB_` prefix to auto-bind flags to env vars).
+- **Check dependent projects** — SkyWalking depends on BanyanDB, infra-e2e, Helm charts, etc. Read their source code and docs before assuming capabilities (e.g., check Helm chart `values.yaml` for supported fields, check infra-e2e for supported config options). For `skywalking-*` projects, ask the developer if they have the source code locally — searching a local clone is much faster than fetching files via GitHub API.
+
+### Before proposing changes
+- **Verify locally first** — run the code, start the container, execute the test before pushing to CI. Don't use CI as a trial-and-error environment.
+- **Validate file paths and directory structures** — check where data actually goes (e.g., BanyanDB `--stream-root-path /tmp` creates `/tmp/stream/`, `--access-log-root-path /tmp` creates `/tmp/accesslog/`). Don't assume directory names.
+- **Validate YAML syntax** — after editing YAML files (especially with sed/awk), validate with a YAML parser before committing. Corrupted YAML causes silent failures in CI.
+- **Check the actual Docker image** — verify what's available in the container (binaries, shell, directories) before writing commands that depend on them.
+
+### When uncertain
+- **Say "I don't know" and investigate** — reading the code is always better than guessing. Use grep, find, and read tools to locate the answer.
+- **Ask the developer first** — if you can't find the source code, don't know how to run something, or the code doesn't make the answer clear, ask the developer where to find it rather than speculate.
+- **Test with real data** — when investigating runtime behavior (e.g., what model names an API returns, what directory structure BanyanDB creates), set up a local test and observe the actual output.
+
+### Docker images
+- **Apache SkyWalking projects** — images are on `ghcr.io/apache/` (e.g., `ghcr.io/apache/skywalking-banyandb:${COMMIT_SHA}`). Tags are full commit SHAs, not short SHAs or version tags.
+- **Official and 3rd-party images** — on Docker Hub (e.g., `ollama/ollama`, `otel/opentelemetry-collector`, `envoyproxy/gateway`).
+- **Always verify the image exists** — `docker pull` before writing CI or e2e configs. Image tags depend on CI publish workflows completing successfully.
