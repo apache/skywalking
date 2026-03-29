@@ -840,7 +840,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: ${{ matrix.analyzer }}-${{ matrix.storage.name }}-${{ matrix.versions.istio }}
+      - name: ALS ${{ matrix.storage.name }}, ${{ matrix.analyzer }}, istio-${{ matrix.versions.istio }}, k8s-${{ matrix.versions.kubernetes }}
         uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
@@ -857,7 +857,7 @@ jobs:
         if: ${{ failure() }}
         name: Upload Logs
         with:
-          name: test-logs-${{ matrix.analyzer }}-${{ matrix.storage.name }}-${{ matrix.versions.istio }}-${{ matrix.versions.kubernetes }}
+          name: test-istio-als-logs-${{ matrix.storage.name }}-${{ matrix.analyzer }}-istio-${{ matrix.versions.istio }}-k8s-${{ matrix.versions.kubernetes }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
           overwrite: true
 
