@@ -57,3 +57,17 @@ verify:
             swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls | yq e '.traces | map(select(.spans[0].endpointname == "GET:/logs/trigger")) | .[0].spans[0].traceid' -
         )
       expected: ../expected/logs.yml
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
+    items:
+      - service: banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/
+          - /tmp/schema-property/
+          - /tmp/accesslog/

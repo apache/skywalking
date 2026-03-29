@@ -25,7 +25,7 @@ services:
     entrypoint: /bin/sh -c
     command: |
       "chmod 600 /auth-config.yaml &&
-       /banyand standalone --stream-root-path /tmp/stream-data --measure-root-path /tmp/measure-data --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m --auth-config-file=/auth-config.yaml"
+       /banyand standalone --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m --enable-ingestion-access-log --enable-query-access-log --access-log-root-path /tmp --auth-config-file=/auth-config.yaml"
     networks:
       - e2e
 
