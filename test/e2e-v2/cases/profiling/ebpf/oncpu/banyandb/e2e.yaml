@@ -90,9 +90,6 @@ verify:
   cases:
     - includes:
         - ../profiling-cases.yaml
-    # INTENTIONAL FAILURE — verify BanyanDB data collection on Kind, remove after verification
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
-      expected: ../../expected-intentional-fail.yml
 
 cleanup:
   on: always
@@ -108,5 +105,4 @@ cleanup:
           - /tmp/measure/
           - /tmp/property/
           - /tmp/schema-property/
-          # Access log files (e.g. measure-ingest-20260328_120000, trace-query-20260328_120000)
           - /tmp/accesslog/
