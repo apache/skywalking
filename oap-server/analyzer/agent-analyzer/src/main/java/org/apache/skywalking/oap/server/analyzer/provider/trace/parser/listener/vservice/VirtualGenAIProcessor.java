@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class VirtualGenAIProcessor implements VirtualServiceProcessor {
 
-
     private final IGenAIMeterAnalyzerService meterAnalyzerService;
 
     private final List<Source> recordList = new ArrayList<>();
