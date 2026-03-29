@@ -20,40 +20,24 @@ package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonObject;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKeys;
 import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
 import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
-import org.apache.skywalking.oap.server.core.source.GenAIModelAccess;
-import org.apache.skywalking.oap.server.core.source.GenAIProviderAccess;
-import org.apache.skywalking.oap.server.core.source.ServiceInstance;
-import org.apache.skywalking.oap.server.core.source.ServiceMeta;
-import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinService;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinServiceRelation;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinServiceSpan;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -63,8 +47,17 @@ import zipkin2.Annotation;
 import zipkin2.Span;
 import zipkin2.internal.HexCodec;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 @Slf4j
 public class SpanForward implements SpanForwardService {
+
     private final ZipkinReceiverConfig config;
     private final ModuleManager moduleManager;
     private final List<String> searchTagKeys;
@@ -222,65 +215,18 @@ public class SpanForward implements SpanForwardService {
 
         setEstimatedCost(zipkinSpan, metrics.getTotalEstimatedCost());
 
-        getGenAIMeterAnalyzerService().transferToSources(metrics, namingControl)
+        getGenAIMeterAnalyzerService().transferToSources(metrics)
                 .forEach(source -> getReceiver().receive(source));
     }
 
-    private void setEstimatedCost(ZipkinSpan zipkinSpan, long totalEstimatedCost) {
+    private void setEstimatedCost(ZipkinSpan zipkinSpan, double totalEstimatedCost) {
         if (totalEstimatedCost > 0) {
-            JsonObject tags = zipkinSpan.getTags();
-            if (tags == null) {
-                tags = new JsonObject();
-            }
-
             BigDecimal calculatedCost = BigDecimal.valueOf(totalEstimatedCost)
                     .divide(new BigDecimal("1000000"), 10, RoundingMode.HALF_UP);
+            JsonObject tags = zipkinSpan.getTags();
             tags.addProperty(GenAITagKeys.ESTIMATED_COST, calculatedCost.stripTrailingZeros().toPlainString());
             zipkinSpan.setTags(tags);
         }
-    }
-
-    private ServiceMeta toVirtualGenAIServiceMeta(GenAIMetrics metrics) {
-        ServiceMeta service = new ServiceMeta();
-        service.setName(namingControl.formatServiceName(metrics.getProviderName()));
-        service.setLayer(Layer.VIRTUAL_GENAI);
-        service.setTimeBucket(metrics.getTimeBucket());
-        return service;
-    }
-
-    private Source toVirtualGenAIInstance(GenAIMetrics metrics) {
-        ServiceInstance instance = new ServiceInstance();
-        instance.setTimeBucket(metrics.getTimeBucket());
-        instance.setName(namingControl.formatInstanceName(metrics.getModelName()));
-        instance.setServiceLayer(Layer.VIRTUAL_GENAI);
-        instance.setServiceName(metrics.getProviderName());
-        return instance;
-    }
-
-    private GenAIProviderAccess toProviderAccess(GenAIMetrics metrics) {
-        GenAIProviderAccess source = new GenAIProviderAccess();
-        source.setName(namingControl.formatServiceName(metrics.getProviderName()));
-        source.setInputTokens(metrics.getInputTokens());
-        source.setOutputTokens(metrics.getOutputTokens());
-        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
-        source.setLatency(metrics.getLatency());
-        source.setStatus(metrics.isStatus());
-        source.setTimeBucket(metrics.getTimeBucket());
-        return source;
-    }
-
-    private GenAIModelAccess toModelAccess(GenAIMetrics metrics) {
-        GenAIModelAccess source = new GenAIModelAccess();
-        source.setServiceName(namingControl.formatServiceName(metrics.getProviderName()));
-        source.setModelName(namingControl.formatInstanceName(metrics.getModelName()));
-        source.setInputTokens(metrics.getInputTokens());
-        source.setOutputTokens(metrics.getOutputTokens());
-        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
-        source.setTimeToFirstToken(metrics.getTimeToFirstToken());
-        source.setLatency(metrics.getLatency());
-        source.setStatus(metrics.isStatus());
-        source.setTimeBucket(metrics.getTimeBucket());
-        return source;
     }
 
     private List<Span> getSampledTraces(List<Span> input) {

@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.analyzer.genai.service;
 
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
@@ -34,6 +33,6 @@ public interface IGenAIMeterAnalyzerService extends Service {
 
     GenAIMetrics extractMetricsFromZipkinSpan(ZipkinSpan zipkinSpan);
 
-    List<Source> transferToSources(GenAIMetrics metrics, NamingControl namingControl);
+    List<Source> transferToSources(GenAIMetrics metrics);
 
 }

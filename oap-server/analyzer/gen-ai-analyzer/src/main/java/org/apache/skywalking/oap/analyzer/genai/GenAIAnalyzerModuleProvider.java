@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
 import org.apache.skywalking.oap.analyzer.genai.service.GenAIMeterAnalyzer;
 import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -67,10 +68,14 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
         GenAIConfigLoader loader = new GenAIConfigLoader(config);
         config = loader.loadConfig();
         GenAIProviderPrefixMatcher matcher = GenAIProviderPrefixMatcher.build();
+
+        NamingControl namingControl = getManager().find(CoreModule.NAME)
+                .provider()
+                .getService(NamingControl.class);
+
         this.registerServiceImplementation(
                 IGenAIMeterAnalyzerService.class,
-                new GenAIMeterAnalyzer(matcher)
-        );
+                new GenAIMeterAnalyzer(matcher,namingControl));
     }
 
     @Override

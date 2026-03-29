@@ -22,7 +22,6 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
 import org.apache.skywalking.oap.server.core.source.Source;
 
@@ -33,7 +32,6 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class VirtualGenAIProcessor implements VirtualServiceProcessor {
 
-    private final NamingControl namingControl;
 
     private final IGenAIMeterAnalyzerService meterAnalyzerService;
 
@@ -50,7 +48,7 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
             return;
         }
 
-        recordList.addAll(meterAnalyzerService.transferToSources(metrics, namingControl));
+        recordList.addAll(meterAnalyzerService.transferToSources(metrics));
     }
 
     @Override

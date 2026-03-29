@@ -50,9 +50,12 @@ import static java.util.stream.Collectors.toMap;
 public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
 
     private final GenAIProviderPrefixMatcher matcher;
-    
-    public GenAIMeterAnalyzer(GenAIProviderPrefixMatcher matcher) {
+
+    private final NamingControl namingControl;
+
+    public GenAIMeterAnalyzer(GenAIProviderPrefixMatcher matcher, NamingControl namingControl) {
         this.matcher = matcher;
+        this.namingControl = namingControl;
     }
 
     @Override
@@ -135,15 +138,15 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
         metrics.setTimeToFirstToken(parseSafeInt(getZipkinSpanTagValue(tags, GenAITagKeys.SERVER_TIME_TO_FIRST_TOKEN)));
-        metrics.setTotalEstimatedCost(Math.round(totalCost));
+        metrics.setTotalEstimatedCost(totalCost);
         metrics.setLatency(zipkinSpan.getDuration() / 1000);
-        metrics.setStatus(StringUtil.isNotBlank(getZipkinSpanTagValue(tags, "error")));
+        metrics.setStatus(StringUtil.isBlank(getZipkinSpanTagValue(tags, "error")));
         metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(zipkinSpan.getTimestamp() / 1000));
         return metrics;
     }
 
     @Override
-    public List<Source> transferToSources(GenAIMetrics metrics, NamingControl namingControl) {
+    public List<Source> transferToSources(GenAIMetrics metrics) {
         if (metrics == null) {
             return Collections.emptyList();
         }
@@ -221,7 +224,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         source.setName(namingControl.formatServiceName(metrics.getProviderName()));
         source.setInputTokens(metrics.getInputTokens());
         source.setOutputTokens(metrics.getOutputTokens());
-        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
+        source.setTotalEstimatedCost(Math.round(metrics.getTotalEstimatedCost()));
         source.setLatency(metrics.getLatency());
         source.setStatus(metrics.isStatus());
         source.setTimeBucket(metrics.getTimeBucket());
@@ -234,7 +237,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         source.setModelName(namingControl.formatInstanceName(metrics.getModelName()));
         source.setInputTokens(metrics.getInputTokens());
         source.setOutputTokens(metrics.getOutputTokens());
-        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
+        source.setTotalEstimatedCost(Math.round(metrics.getTotalEstimatedCost()));
         source.setTimeToFirstToken(metrics.getTimeToFirstToken());
         source.setLatency(metrics.getLatency());
         source.setStatus(metrics.isStatus());
