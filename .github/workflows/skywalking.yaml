@@ -791,11 +791,7 @@ jobs:
       fail-fast: false
       matrix:
         analyzer: [k8s-mesh, mx-mesh]
-        storage:
-          - name: ES
-            config: test/e2e-v2/cases/istio/als/e2e.yaml
-          - name: BanyanDB
-            config: test/e2e-v2/cases/istio/als/banyandb/e2e.yaml
+        storage: [ES, BanyanDB]
         versions:
           - istio: 1.21.0
             kubernetes: 28
@@ -840,14 +836,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: ALS ${{ matrix.storage.name }}, ${{ matrix.analyzer }}, istio-${{ matrix.versions.istio }}, k8s-${{ matrix.versions.kubernetes }}
+      - name: ALS ${{ matrix.storage }}, ${{ matrix.analyzer }}, istio-${{ matrix.versions.istio }}, k8s-${{ matrix.versions.kubernetes }}
         uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
           ALS_ANALYZER: ${{ matrix.analyzer }}
         with:
-          e2e-file: ${{ matrix.storage.config }}
+          e2e-file: ${{ matrix.storage == 'BanyanDB' && 'test/e2e-v2/cases/istio/als/banyandb/e2e.yaml' || 'test/e2e-v2/cases/istio/als/e2e.yaml' }}
       - if: ${{ failure() }}
         run: |
           df -h
@@ -857,7 +853,7 @@ jobs:
         if: ${{ failure() }}
         name: Upload Logs
         with:
-          name: test-istio-als-logs-${{ matrix.storage.name }}-${{ matrix.analyzer }}-istio-${{ matrix.versions.istio }}-k8s-${{ matrix.versions.kubernetes }}
+          name: test-istio-als-logs-${{ matrix.storage }}-${{ matrix.analyzer }}-istio-${{ matrix.versions.istio }}-k8s-${{ matrix.versions.kubernetes }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
           overwrite: true
 
