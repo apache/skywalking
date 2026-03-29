@@ -38,6 +38,8 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
 
     private GenAIConfig config;
 
+    private GenAIMeterAnalyzer analyzer;
+
     @Override
     public String name() {
         return "default";
@@ -69,13 +71,10 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
         config = loader.loadConfig();
         GenAIProviderPrefixMatcher matcher = GenAIProviderPrefixMatcher.build();
 
-        NamingControl namingControl = getManager().find(CoreModule.NAME)
-                .provider()
-                .getService(NamingControl.class);
-
+        this.analyzer = new GenAIMeterAnalyzer(matcher);
         this.registerServiceImplementation(
                 IGenAIMeterAnalyzerService.class,
-                new GenAIMeterAnalyzer(matcher,namingControl));
+                analyzer);
     }
 
     @Override
@@ -84,6 +83,12 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
                 .provider()
                 .getService(OALEngineLoaderService.class)
                 .load(GenAIOALDefine.INSTANCE);
+
+        NamingControl namingControl = getManager().find(CoreModule.NAME)
+                .provider()
+                .getService(NamingControl.class);
+
+        this.analyzer.setNamingControl(namingControl);
     }
 
     @Override
@@ -93,7 +98,7 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {
+        return new String[]{
                 CoreModule.NAME
         };
     }

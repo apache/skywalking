@@ -51,10 +51,13 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
 
     private final GenAIProviderPrefixMatcher matcher;
 
-    private final NamingControl namingControl;
+    private NamingControl namingControl;
 
-    public GenAIMeterAnalyzer(GenAIProviderPrefixMatcher matcher, NamingControl namingControl) {
+    public GenAIMeterAnalyzer(GenAIProviderPrefixMatcher matcher) {
         this.matcher = matcher;
+    }
+
+    public void setNamingControl(NamingControl namingControl) {
         this.namingControl = namingControl;
     }
 
@@ -152,10 +155,10 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         }
 
         List<Source> sources = new ArrayList<>();
-        sources.add(toVirtualGenAIServiceMeta(metrics, namingControl));
-        sources.add(toVirtualGenAIInstance(metrics, namingControl));
-        sources.add(toProviderAccess(metrics, namingControl));
-        sources.add(toModelAccess(metrics, namingControl));
+        sources.add(toVirtualGenAIServiceMeta(metrics));
+        sources.add(toVirtualGenAIInstance(metrics));
+        sources.add(toProviderAccess(metrics));
+        sources.add(toModelAccess(metrics));
         return sources;
     }
 
@@ -202,7 +205,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         return cost;
     }
 
-    private ServiceMeta toVirtualGenAIServiceMeta(GenAIMetrics metrics, NamingControl namingControl) {
+    private ServiceMeta toVirtualGenAIServiceMeta(GenAIMetrics metrics) {
         ServiceMeta service = new ServiceMeta();
         service.setName(namingControl.formatServiceName(metrics.getProviderName()));
         service.setLayer(Layer.VIRTUAL_GENAI);
@@ -210,7 +213,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         return service;
     }
 
-    private Source toVirtualGenAIInstance(GenAIMetrics metrics, NamingControl namingControl) {
+    private Source toVirtualGenAIInstance(GenAIMetrics metrics) {
         ServiceInstance instance = new ServiceInstance();
         instance.setTimeBucket(metrics.getTimeBucket());
         instance.setName(namingControl.formatInstanceName(metrics.getModelName()));
@@ -219,7 +222,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         return instance;
     }
 
-    private GenAIProviderAccess toProviderAccess(GenAIMetrics metrics, NamingControl namingControl) {
+    private GenAIProviderAccess toProviderAccess(GenAIMetrics metrics) {
         GenAIProviderAccess source = new GenAIProviderAccess();
         source.setName(namingControl.formatServiceName(metrics.getProviderName()));
         source.setInputTokens(metrics.getInputTokens());
@@ -231,7 +234,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         return source;
     }
 
-    private GenAIModelAccess toModelAccess(GenAIMetrics metrics, NamingControl namingControl) {
+    private GenAIModelAccess toModelAccess(GenAIMetrics metrics) {
         GenAIModelAccess source = new GenAIModelAccess();
         source.setServiceName(namingControl.formatServiceName(metrics.getProviderName()));
         source.setModelName(namingControl.formatInstanceName(metrics.getModelName()));
