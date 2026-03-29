@@ -102,4 +102,44 @@ public class LLMMockController {
         writer.write("data: " + cleanJson + "\n\n");
         writer.flush();
     }
+
+    @PostMapping(value = "/otlp/v1/chat/completions", produces = "application/json")
+    public Object simpleCompletions() {
+        return "{" +
+                "    \"id\": \"chatcmpl-DNhDGYUo62qPZjSFntcM7rlLXLCBr\"," +
+                "    \"object\": \"chat.completion\"," +
+                "    \"created\": 1774540026," +
+                "    \"model\": \"gpt-4.1-mini-2025-04-14\"," +
+                "    \"choices\": [" +
+                "        {" +
+                "            \"index\": 0," +
+                "            \"message\": {" +
+                "                \"role\": \"assistant\"," +
+                "                \"content\": \"Sure! Here's a joke for you:\\n\\nWhy don't scientists trust atoms?\\n\\nBecause they make up everything!\"," +
+                "                \"refusal\": null," +
+                "                \"annotations\": []" +
+                "            }," +
+                "            \"logprobs\": null," +
+                "            \"finish_reason\": \"stop\"" +
+                "        }" +
+                "    ]," +
+                "    \"usage\": {" +
+                "        \"prompt_tokens\": 12," +
+                "        \"completion_tokens\": 22," +
+                "        \"total_tokens\": 34," +
+                "        \"prompt_tokens_details\": {" +
+                "            \"cached_tokens\": 0," +
+                "            \"audio_tokens\": 0" +
+                "        }," +
+                "        \"completion_tokens_details\": {" +
+                "            \"reasoning_tokens\": 0," +
+                "            \"audio_tokens\": 0," +
+                "            \"accepted_prediction_tokens\": 0," +
+                "            \"rejected_prediction_tokens\": 0" +
+                "        }" +
+                "    }," +
+                "    \"system_fingerprint\": \"fp_b6f445fc1c\"" +
+                "}";
+
+    }
 }

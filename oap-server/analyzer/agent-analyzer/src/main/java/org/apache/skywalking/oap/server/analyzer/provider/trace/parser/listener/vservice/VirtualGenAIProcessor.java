@@ -22,13 +22,8 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
-import org.apache.skywalking.oap.server.core.source.GenAIModelAccess;
-import org.apache.skywalking.oap.server.core.source.GenAIProviderAccess;
-import org.apache.skywalking.oap.server.core.source.ServiceInstance;
-import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 
 import java.util.ArrayList;
@@ -55,53 +50,7 @@ public class VirtualGenAIProcessor implements VirtualServiceProcessor {
             return;
         }
 
-        recordList.add(toServiceMeta(metrics));
-        recordList.add(toInstance(metrics));
-        recordList.add(toProviderAccess(metrics));
-        recordList.add(toModelAccess(metrics));
-    }
-
-    private ServiceMeta toServiceMeta(GenAIMetrics metrics) {
-        ServiceMeta service = new ServiceMeta();
-        service.setName(namingControl.formatServiceName(metrics.getProviderName()));
-        service.setLayer(Layer.VIRTUAL_GENAI);
-        service.setTimeBucket(metrics.getTimeBucket());
-        return service;
-    }
-
-    private Source toInstance(GenAIMetrics metrics) {
-        ServiceInstance instance = new ServiceInstance();
-        instance.setTimeBucket(metrics.getTimeBucket());
-        instance.setName(namingControl.formatInstanceName(metrics.getModelName()));
-        instance.setServiceLayer(Layer.VIRTUAL_GENAI);
-        instance.setServiceName(metrics.getProviderName());
-        return instance;
-    }
-
-    private GenAIProviderAccess toProviderAccess(GenAIMetrics metrics) {
-        GenAIProviderAccess source = new GenAIProviderAccess();
-        source.setName(namingControl.formatServiceName(metrics.getProviderName()));
-        source.setInputTokens(metrics.getInputTokens());
-        source.setOutputTokens(metrics.getOutputTokens());
-        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
-        source.setLatency(metrics.getLatency());
-        source.setStatus(metrics.isStatus());
-        source.setTimeBucket(metrics.getTimeBucket());
-        return source;
-    }
-
-    private GenAIModelAccess toModelAccess(GenAIMetrics metrics) {
-        GenAIModelAccess source = new GenAIModelAccess();
-        source.setServiceName(namingControl.formatServiceName(metrics.getProviderName()));
-        source.setModelName(namingControl.formatInstanceName(metrics.getModelName()));
-        source.setInputTokens(metrics.getInputTokens());
-        source.setOutputTokens(metrics.getOutputTokens());
-        source.setTotalEstimatedCost(metrics.getTotalEstimatedCost());
-        source.setTimeToFirstToken(metrics.getTimeToFirstToken());
-        source.setLatency(metrics.getLatency());
-        source.setStatus(metrics.isStatus());
-        source.setTimeBucket(metrics.getTimeBucket());
-        return source;
+        recordList.addAll(meterAnalyzerService.transferToSources(metrics, namingControl));
     }
 
     @Override

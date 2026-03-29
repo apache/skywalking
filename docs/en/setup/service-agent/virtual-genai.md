@@ -6,6 +6,13 @@ metrics of the GenAI operations are from the GenAI client-side perspective.
 For example, a Spring AI plugin in the Java agent could detect the latency of a chat completion request.
 As a result, SkyWalking would show traffic, latency, success rate, token usage (input/output), and estimated cost in the GenAI dashboard.
 
+# Data Sources
+Virtual GenAI metrics are derived from distributed tracing data. SkyWalking OAP can ingest and analyze trace data adhering to GenAI semantic conventions from the following sources:
+
+1. Native SkyWalking Traces via SkyWalking Java Agent
+2. OpenTelemetry format trace 
+3. Zipkin format Traces
+
 ## Span Contract
 
 The GenAI operation span should have the following properties:
