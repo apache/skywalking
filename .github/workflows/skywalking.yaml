@@ -336,7 +336,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
+    name: ${{ matrix.test.name }}
     needs: [docker, dist-tar]
     runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
     timeout-minutes: 60
@@ -933,7 +933,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
+    name: Java ${{ matrix.java-version }}
     needs: [docker]
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -983,7 +983,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
+    name: ${{ matrix.test.name }}
     needs: [docker, dist-tar]
     runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
     timeout-minutes: 60
