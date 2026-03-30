@@ -25,6 +25,7 @@ import io.grafana.tempo.tempopb.TraceByIDResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -75,6 +76,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
     private final MetadataQueryService metadataQueryService;
     private final TraceQLConfig traceQLConfig;
     private final Set<String> allowedTags;
+    private static final long START_OF_2020_SEC = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeZone.UTC).getMillis() / 1000;
 
     public SkyWalkingTraceQLApiHandler(ModuleManager moduleManager, TraceQLConfig config) {
         super();
@@ -88,9 +90,17 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
                                                  .provider()
                                                  .getService(MetadataQueryService.class);
         this.traceQLConfig = config;
-        this.allowedTags = Arrays.stream(config.getSkywalkingTracesListResultTags().trim().split(Const.COMMA))
-                                 .map(String::trim)
-                                 .collect(Collectors.toSet());
+        final String swTagsConfig = config.getSkywalkingTracesListResultTags();
+        final Set<String> allowedTagsInit;
+        if (StringUtil.isNotBlank(swTagsConfig)) {
+            allowedTagsInit = Arrays.stream(swTagsConfig.split(Const.COMMA))
+                                    .map(String::trim)
+                                    .filter(tag -> !tag.isEmpty())
+                                    .collect(Collectors.toCollection(HashSet::new));
+        } else {
+            allowedTagsInit = new HashSet<>();
+        }
+        this.allowedTags = allowedTagsInit;
         // Add fixed tags
         this.allowedTags.add(SPAN_KIND);
         this.allowedTags.add(SERVICE_NAME);
@@ -102,9 +112,8 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
                                           Optional<Long> end,
                                           Optional<String> accept) throws IOException, DecoderException {
         // If start/end are provided use them; otherwise cover the full historical range from 2020-01-01 00:00:00 UTC
-        final long startOf2020Sec = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeZone.UTC).getMillis() / 1000;
         Duration duration = buildDuration(
-            start.isPresent() ? start : Optional.of(startOf2020Sec),
+            start.isPresent() ? start : Optional.of(START_OF_2020_SEC),
             end,
             0L
         );

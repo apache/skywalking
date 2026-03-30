@@ -749,7 +749,7 @@ SkyWalking span types are mapped to OTLP span kinds:
 | `Exit`               | `SPAN_KIND_CLIENT`      |
 | `Local`              | `SPAN_KIND_INTERNAL`    |
 | (absent)             | `SPAN_KIND_UNSPECIFIED` |
-| (other)              | `SPAN_KIND_UNSPECIFIED` |
+| (other)              | `SPAN_KIND_INTERNAL`    |
 
 ### Status Mapping
 The SkyWalking `isError` flag is mapped to OTLP span status:

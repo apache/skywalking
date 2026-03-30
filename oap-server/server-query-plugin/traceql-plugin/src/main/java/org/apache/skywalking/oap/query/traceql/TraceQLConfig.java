@@ -40,7 +40,8 @@ public class TraceQLConfig extends ModuleConfig {
 
     private static final String ZIPKIN_TRACES_LIST_RESULT_TAGS = String.join(
         Const.COMMA,
-        "http.method"
+        "http.method",
+        "error"
     );
     private static final String SKYWALKING_TRACES_LIST_RESULT_TAGS = String.join(
         Const.COMMA,

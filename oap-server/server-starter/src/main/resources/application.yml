@@ -509,7 +509,7 @@ traceQL:
     restContextPathSkywalking: ${SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING:/skywalking}
     restIdleTimeOut: ${SW_TRACEQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_TRACEQL_REST_QUEUE_SIZE:0}
-    # If query not provide the start time (the default end time is current), the default look back for traces and autocompleteTags, 1 day in millis
+    # If the query does not provide the start time (the default end time is current), the default lookback for traces and autocompleteTags is 1 day in milliseconds.
     lookback: ${SW_TRACEQL_LOOKBACK:86400000}
     # The tags in the list result of traces query, which would be used for trace grouping and shown in the trace list page.
     zipkinTracesListResultTags: ${SW_TRACEQL_ZIPKIN_TRACES_LIST_RESULT_TAGS:http.method,error}

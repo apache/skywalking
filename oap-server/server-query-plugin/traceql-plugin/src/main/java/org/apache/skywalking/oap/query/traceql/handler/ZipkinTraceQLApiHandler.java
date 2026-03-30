@@ -24,6 +24,7 @@ import io.grafana.tempo.tempopb.TraceByIDResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -71,9 +72,17 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                                                         .getService(TagAutoCompleteQueryService.class);
         this.zipkinQueryService = new ZipkinQueryService(moduleManager);
         this.traceQLConfig = config;
-        this.allowedTags = Arrays.stream(config.getZipkinTracesListResultTags().trim().split(Const.COMMA))
-                                 .map(String::trim)
-                                 .collect(Collectors.toSet());
+        final String zipkinTagsConfig = config.getZipkinTracesListResultTags();
+        final Set<String> allowedTagsInit;
+        if (StringUtil.isNotBlank(zipkinTagsConfig)) {
+            allowedTagsInit = Arrays.stream(zipkinTagsConfig.split(Const.COMMA))
+                                    .map(String::trim)
+                                    .filter(tag -> !tag.isEmpty())
+                                    .collect(Collectors.toCollection(HashSet::new));
+        } else {
+            allowedTagsInit = new HashSet<>();
+        }
+        this.allowedTags = allowedTagsInit;
         // Add fixed tags
         this.allowedTags.add(SPAN_KIND);
         this.allowedTags.add(SERVICE_NAME);

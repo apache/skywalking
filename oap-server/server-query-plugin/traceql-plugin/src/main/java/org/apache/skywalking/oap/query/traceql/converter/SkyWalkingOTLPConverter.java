@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -248,7 +249,7 @@ public class SkyWalkingOTLPConverter {
                         for (org.apache.skywalking.oap.server.core.query.type.KeyNumericValue summary : attachedEvent.getSummary()) {
                             eventBuilder.addAttributes(KeyValue.newBuilder()
                                                                .setKey(summary.getKey())
-                                                               // convert numeric value to string for AnyValue, make it trans to JOSN format easier
+                                                               // convert numeric value to string for AnyValue, make it easier to serialize to JSON format
                                                                .setValue(AnyValue.newBuilder()
                                                                                  .setStringValue(String.valueOf(summary.getValue()))
                                                                                  .build())
@@ -375,7 +376,7 @@ public class SkyWalkingOTLPConverter {
         span.setDurationNanos(String.valueOf((swSpan.getEndTime() - swSpan.getStartTime()) * 1_000_000));
 
         // Build attribute map for this span
-        Map<String, String> spanAttrMap = new java.util.LinkedHashMap<>();
+        Map<String, String> spanAttrMap = new LinkedHashMap<>();
         if (swSpan.getServiceCode() != null) {
             spanAttrMap.put(SERVICE_NAME, swSpan.getServiceCode());
         }
@@ -432,9 +433,9 @@ public class SkyWalkingOTLPConverter {
      *
      * Examples:
      *   "2a2e04e8d1114b14925c04a6321ca26c.38.17739924187687539"
-     *   → "326132653034653864313131346231343932356330346136333231636132366332653333382e31373733393932343138373638373533"
+     *   → "32613265303465386431313134623134393235633034613633323163613236632e33382e3137373339393234313837363837353339"
      *   "abc123=.test"
-     *   → "61626331323333643265746573"  (encode)  → "abc123=.test"  (decode)
+     *   → "6162633132333d2e74657374"  (encode)  → "abc123=.test"  (decode)
      *
      * @param swTraceId original SkyWalking trace ID
      * @return lowercase hex string
