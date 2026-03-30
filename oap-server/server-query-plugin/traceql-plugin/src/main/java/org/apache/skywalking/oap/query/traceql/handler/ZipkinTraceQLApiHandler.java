@@ -81,6 +81,8 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
 
     @Override
     protected HttpResponse queryTraceImpl(String traceId,
+                                          Optional<Long> start,
+                                          Optional<Long> end,
                                           Optional<String> accept) throws IOException, DecoderException {
         List<Span> zipkinTrace = zipkinQueryService.getTraceById(traceId);
 

@@ -57,11 +57,14 @@ import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
+import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.query.type.Trace;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.query.type.trace.v2.TraceList;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 /**
  * SkyWalking-native implementation of TraceQL API Handler.
@@ -95,9 +98,19 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
 
     @Override
     protected HttpResponse queryTraceImpl(String traceId,
+                                          Optional<Long> start,
+                                          Optional<Long> end,
                                           Optional<String> accept) throws IOException, DecoderException {
+        // If start/end are provided use them; otherwise cover the full historical range from 2020-01-01 00:00:00 UTC
+        final long startOf2020Sec = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeZone.UTC).getMillis() / 1000;
+        Duration duration = buildDuration(
+            start.isPresent() ? start : Optional.of(startOf2020Sec),
+            end,
+            0L
+        );
+
         // Query SkyWalking trace by ID
-        Trace swTrace = traceQueryService.queryTrace(SkyWalkingOTLPConverter.decodeTraceId(traceId), null);
+        Trace swTrace = traceQueryService.queryTrace(SkyWalkingOTLPConverter.decodeTraceId(traceId), duration);
 
         if (swTrace == null || swTrace.getSpans().isEmpty()) {
             return HttpResponse.of(HttpStatus.NOT_FOUND);
@@ -142,6 +155,11 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         if (StringUtil.isNotBlank(queryParams.getServiceName())) {
             String serviceId = IDManager.ServiceID.buildId(queryParams.getServiceName(), true);
             condition.setServiceId(serviceId);
+        }
+
+        if (StringUtil.isNotBlank(queryParams.getServiceInstance()) && StringUtil.isNotBlank(condition.getServiceId())) {
+            String instanceId = IDManager.ServiceInstanceID.buildId(condition.getServiceId(), queryParams.getServiceInstance());
+            condition.setServiceInstanceId(instanceId);
         }
 
         // Set endpoint ID if span name is provided
@@ -247,6 +265,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         //for Grafana variables, tempo only supports label query in variables setting.
         TagNamesV2Response.Scope resourceScope = new TagNamesV2Response.Scope(SCOPE_RESOURCE);
         resourceScope.getTags().add(SERVICE);
+        resourceScope.getTags().add(INSTANCE);
         List<TagNamesV2Response.Scope> scopes = new ArrayList<>();
         scopes.add(spanScope);
         response.setScopes(scopes);
@@ -321,6 +340,32 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
 
                     for (Endpoint endpoint : endpoints) {
                         response.getTagValues().add(new TagValuesResponse.TagValue(TYPE_STRING, endpoint.getName()));
+                    }
+                }
+                return successResponse(response);
+            } else {
+                // Return empty list if no query provided, to avoid error as Grafana queries this every time when user enters the query page.
+                return successResponse(new TagValuesResponse());
+            }
+        }
+        if (tagName.equals(RESOURCE_INSTANCE)) {
+            if (query.isPresent() && !query.get().isEmpty()) {
+                TraceQLParseResult parseResult = TraceQLQueryParser.extractParams(query.get());
+                if (parseResult.hasError()) {
+                    return badRequestResponse(parseResult.getErrorInfo());
+                }
+                TraceQLQueryParams traceQLParams = parseResult.getParams();
+                TagValuesResponse response = new TagValuesResponse();
+                if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
+                    String serviceId = IDManager.ServiceID.buildId(traceQLParams.getServiceName(), true);
+                    List<ServiceInstance> instances = metadataQueryService.listInstances(
+                        duration,
+                        serviceId
+
+                    );
+
+                    for (ServiceInstance instance : instances) {
+                        response.getTagValues().add(new TagValuesResponse.TagValue(TYPE_STRING, instance.getName()));
                     }
                 }
                 return successResponse(response);

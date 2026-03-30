@@ -61,8 +61,10 @@ public abstract class TraceQLApiHandler {
     // Resource-scoped tag names
     public static final String RESOURCE_SERVICE_NAME = "resource.service.name";
     public static final String RESOURCE_SERVICE = "resource.service";
+    public static final String RESOURCE_INSTANCE = "resource.instance";
     public static final String SERVICE_NAME = "service.name";
     public static final String SERVICE = "service";
+    public static final String INSTANCE = "instance";
 
     // Span-scoped tag prefix and names
     public static final String SPAN_PREFIX = "span.";
@@ -139,13 +141,13 @@ public abstract class TraceQLApiHandler {
                                    @Param("start") Optional<Long> start,
                                    @Param("end") Optional<Long> end,
                                    @Header("Accept") Optional<String> accept) throws IOException, DecoderException {
-        return queryTraceImpl(traceId, accept);
+        return queryTraceImpl(traceId, start, end, accept);
     }
 
     /**
      * Abstract method to be implemented by subclasses for trace query logic.
      */
-    protected abstract HttpResponse queryTraceImpl(String traceId, Optional<String> accept) throws IOException, DecoderException;
+    protected abstract HttpResponse queryTraceImpl(String traceId, Optional<Long> start, Optional<Long> end, Optional<String> accept) throws IOException, DecoderException;
 
     /**
      * Search for traces matching the given criteria.
