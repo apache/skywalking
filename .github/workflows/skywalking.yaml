@@ -730,7 +730,7 @@ jobs:
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
-          name: docker-images-11
+          name: docker-images-25
           path: docker-images
       - name: Load docker images
         run: |
@@ -824,7 +824,7 @@ jobs:
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
-          name: docker-images-11
+          name: docker-images-25
           path: docker-images
       - name: Load docker images
         run: |
@@ -896,7 +896,7 @@ jobs:
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
-          name: docker-images-11
+          name: docker-images-25
           path: docker-images
       - name: Load docker images
         run: |
@@ -1007,7 +1007,7 @@ jobs:
       - uses: actions/download-artifact@v4
         name: Download docker images
         with:
-          name: docker-images-11
+          name: docker-images-25
           path: docker-images
       - name: Load docker images
         run: |
