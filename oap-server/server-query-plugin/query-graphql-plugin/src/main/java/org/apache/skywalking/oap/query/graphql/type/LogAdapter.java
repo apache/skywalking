@@ -19,18 +19,19 @@
 
 package org.apache.skywalking.oap.query.graphql.type;
 
-import static java.lang.String.format;
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.format.ResolverStyle;
-import java.time.temporal.TemporalAccessor;
-import java.util.List;
 import com.google.common.base.Splitter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import lombok.RequiredArgsConstructor;
+
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.List;
+
+import static java.lang.String.format;
 
 @RequiredArgsConstructor
 public class LogAdapter {
@@ -39,21 +40,18 @@ public class LogAdapter {
     private final InternalLog log;
 
     // k8s promises RFC3339 or RFC3339Nano timestamp, we truncate to RFC3339
-    private final DateTimeFormatter rfc3339Formatter =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZZZZZ")
-            .withResolverStyle(ResolverStyle.LENIENT);
+    private final DateTimeFormatter isoOffsetDateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     public Log adapt() {
         Log l = new Log();
 
         List<String> timeAndContent = Splitter.on(" ")
-            .limit(2)
-            .trimResults()
-            .splitToList(log.line());
+                .limit(2)
+                .trimResults()
+                .splitToList(log.line());
         if (timeAndContent.size() == 2) {
-            String timeStr = timeAndContent.get(0).replaceAll("\\.\\d+Z", "Z");
             try {
-                TemporalAccessor t = rfc3339Formatter.parse(timeStr);
+                TemporalAccessor t = isoOffsetDateTimeFormatter.parse(timeAndContent.get(0));
                 long timestamp = Instant.from(t).getEpochSecond();
                 l.setTimestamp(timestamp);
                 l.setContent(format("[%s] %s", log.container(), timeAndContent.get(1)));

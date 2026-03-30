@@ -66,7 +66,7 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         GenAIConfigLoader loader = new GenAIConfigLoader(config);
         config = loader.loadConfig();
-        GenAIProviderPrefixMatcher matcher = GenAIProviderPrefixMatcher.build(config);
+        GenAIProviderPrefixMatcher matcher = GenAIProviderPrefixMatcher.build();
         this.registerServiceImplementation(
                 IGenAIMeterAnalyzerService.class,
                 new GenAIMeterAnalyzer(matcher)

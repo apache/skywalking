@@ -44,6 +44,7 @@ public class GenAIConfig extends ModuleConfig {
     @Setter
     public static class Model {
         private String name;
+        private List<String> aliases = new ArrayList<>();
         private double inputEstimatedCostPerM;
         private double outputEstimatedCostPerM;
     }

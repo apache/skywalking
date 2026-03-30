@@ -58,6 +58,12 @@ setup:
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=banyandb \
           --set oap.env.SW_HEALTH_CHECKER=default \
+          --set "banyandb.standalone.env[0].name=BYDB_ENABLE_INGESTION_ACCESS_LOG" \
+          --set "banyandb.standalone.env[0].value=\"true\"" \
+          --set "banyandb.standalone.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
+          --set "banyandb.standalone.env[1].value=\"true\"" \
+          --set "banyandb.standalone.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
+          --set "banyandb.standalone.env[2].value=/tmp" \
           -f test/e2e-v2/cases/profiling/ebpf/kubernetes-values.yaml
       wait:
         - namespace: istio-system
@@ -86,3 +92,19 @@ verify:
   cases:
     - includes:
         - ../accesslog-cases.yaml
+
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
+    items:
+      - namespace: istio-system
+        label-selector: app.kubernetes.io/name=banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/
+          - /tmp/schema-property/
+          - /tmp/accesslog/

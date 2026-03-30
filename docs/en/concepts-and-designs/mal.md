@@ -236,6 +236,51 @@ buckets, will multiply the bucket value by 1000.)
 1. `element`: element in the array.
 2. `tags`: tags in each sample.
 
+## Extension Functions
+
+MAL supports extension functions via the `namespace::method()` syntax. Extensions are pluggable modules
+that add custom capabilities to MAL without modifying the core language. They are discovered at startup
+via Java `ServiceLoader`.
+
+### Syntax
+
+Extension functions are called with a `::` separator between the namespace and method name:
+
+```
+metric.sum(['svc']).myext::transform(2.0)
+```
+
+The `::` separator distinguishes extension calls from built-in `SampleFamily` methods (like `.sum()`,
+`.tag()`, `.filter()`). Method names only need to be unique within their namespace.
+
+Available extension namespaces depend on which extension modules are deployed with the OAP server.
+
+### Supported Parameter Types
+
+Extension methods accept the following argument types from MAL expressions:
+
+| Java Type | MAL Argument Example |
+|-----------|---------------------|
+| `String` | `"value"` |
+| `double` | `2.0` |
+| `int` | `100` |
+| `List<String>` | `["tag1", "tag2"]` |
+
+The first parameter is always `SampleFamily`, which is automatically bound to the current value in the
+method chain. Only the additional parameters need to be specified in the MAL expression.
+
+### Error Handling
+
+The MAL compiler validates extension calls at compile time:
+- Unknown namespace or method name results in a compilation error.
+- Mismatched argument count results in a compilation error.
+- Type mismatches between MAL arguments and Java parameter types result in a compilation error.
+
+### Building Extensions
+
+For developers who want to create custom MAL extension functions, see the
+[MAL Extension Developer Guide](../guides/mal-extension.md).
+
 ## Down Sampling Operation
 MAL should instruct meter-system on how to downsample for metrics. It doesn't only refer to aggregate raw samples to
 `minute` level, but also expresses data from `minute` in higher levels, such as `hour` and `day`.

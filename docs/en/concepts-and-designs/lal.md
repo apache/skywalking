@@ -611,8 +611,15 @@ See bundled LAL scripts for complete examples:
 
 ### Extending: custom output types
 
-You can create custom output types to transform logs into any entity type for your own use cases. There are two approaches:
+For developers who need to create custom output types (implementing `LALOutputBuilder`, extending
+`AbstractLog`, registering `LALSourceTypeProvider` SPI, or defining custom input types), see the
+[LAL Extension Developer Guide](../guides/lal-extension.md).
 
+<!--
+Developer-facing content below is kept for reference but the canonical guide is lal-extension.md.
+-->
+
+<!--
 #### Approach 1: Implement `LALOutputBuilder`
 
 Use this when you need full control over validation and dispatching, or when the output is not a simple `AbstractLog` subclass.
@@ -716,3 +723,4 @@ public class MyLayerSourceTypeProvider implements LALSourceTypeProvider {
 ```
 
 Register it in `META-INF/services/org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider`.
+-->

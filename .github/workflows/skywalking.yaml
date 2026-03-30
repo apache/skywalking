@@ -26,6 +26,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   SW_AGENT_JDK_VERSION: 8
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5 # Cache restore timeout
@@ -37,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -50,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -66,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -115,7 +116,7 @@ jobs:
       pom: ${{ steps.filter.outputs.pom }}
       ui: ${{ steps.filter.outputs.ui }}
     steps:
-      - uses: actions/checkout@v4 # required for push event
+      - uses: actions/checkout@v6 # required for push event
         with:
           fetch-depth: 0
           submodules: true
@@ -166,7 +167,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -201,7 +202,7 @@ jobs:
       matrix:
         java-version: [11, 17, 25]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -248,7 +249,7 @@ jobs:
           - os: ubuntu-latest
             java-version: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -277,7 +278,7 @@ jobs:
       matrix:
         java-version: [11, 17, 21, 25]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -312,7 +313,7 @@ jobs:
           - name: ElasticSearch / OpenSearch
             class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -713,7 +714,7 @@ jobs:
           - name: Pprof MySQL
             config: test/e2e-v2/cases/profiling/pprof/mysql/e2e.yaml
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -757,7 +758,7 @@ jobs:
         if: matrix.test.docker != null
         run: docker build -t ${{ matrix.test.docker.name }} -f ${{ matrix.test.docker.base }}/${{ matrix.test.docker.file }} ${{ matrix.test.docker.base }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
+        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() }}
@@ -771,6 +772,7 @@ jobs:
         with:
           name: test-logs-${{ matrix.test.name }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          overwrite: true
 
   e2e-test-istio:
     if: |
@@ -805,7 +807,7 @@ jobs:
             kubernetes: 28
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -829,7 +831,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
+        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -847,6 +849,7 @@ jobs:
         with:
           name: test-logs-${{ matrix.test.name }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          overwrite: true
 
   e2e-test-istio-ambient:
     if: |
@@ -876,7 +879,7 @@ jobs:
           - istio: 1.29.0
             kubernetes: 28
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -900,7 +903,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
+        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -918,6 +921,7 @@ jobs:
         with:
           name: test-istio-ambient-logs-${{ matrix.versions.istio }}-${{ matrix.versions.kubernetes }}-${{ matrix.analyzer }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          overwrite: true
 
   e2e-test-java-versions:
     if: |
@@ -932,7 +936,7 @@ jobs:
       matrix:
         java-version: [11, 17, 25]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -963,7 +967,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
+        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
@@ -986,7 +990,7 @@ jobs:
           - name: BanyanDB Stages
             config: test/e2e-v2/cases/storage/banyandb/stages/e2e.yaml
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: true
           persist-credentials: false
@@ -1038,12 +1042,12 @@ jobs:
           found=false
           for i in {1..60}; do
             # check if segment files exist
-            if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure-data/measure/data/sw_metricsDay/seg* 2>/dev/null)" ]'; then
+            if docker exec $CONTAINER_ID sh -c '[ -n "$(ls /tmp/measure/data/sw_metricsDay/seg* 2>/dev/null)" ]'; then
               echo "✅ found segment files"
               sleep 180
               # create and copy files
               docker cp $CONTAINER_ID:/tmp ${BANYANDB_DATA_GENERATE_ROOT}
-              docker cp $CONTAINER_ID:/tmp/measure-data/measure/data/sw_metadata ${BANYANDB_DATA_GENERATE_ROOT}
+              docker cp $CONTAINER_ID:/tmp/measure/data/sw_metadata ${BANYANDB_DATA_GENERATE_ROOT}
               found=true
               break
             else
@@ -1059,7 +1063,7 @@ jobs:
           fi
           docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml down -v
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@8c21e43e241a32a54bdf8eeceb9099eb27e5e9b4
+        uses: apache/skywalking-infra-e2e@e26033e1faaf865899c486ffe17dabdf17b90aae
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() }}
@@ -1073,6 +1077,7 @@ jobs:
         with:
           name: test-logs-${{ matrix.test.name }}
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          overwrite: true
 
   required:
     if: always()

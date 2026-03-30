@@ -27,6 +27,12 @@ import java.util.Set;
  */
 final class MALCodegenHelper {
 
+    /** FQCN of {@code SampleFamily} — used in generated method signatures and casts. */
+    static final String SF = "org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily";
+
+    /** Local variable name for the running SampleFamily in generated {@code run()} methods. */
+    static final String RUN_VAR = "sf";
+
     private MALCodegenHelper() {
     }
 
@@ -197,5 +203,17 @@ final class MALCodegenHelper {
             }
         }
         return false;
+    }
+
+    /**
+     * Emits the appropriate {@code Number.valueOf()} for a numeric literal.
+     * Integer-valued numbers emit {@code Long.valueOf(NL)}, others emit {@code Double.valueOf(N)}.
+     */
+    static void emitNumberValueOf(final StringBuilder sb, final double value) {
+        if (value == Math.floor(value) && !Double.isInfinite(value)) {
+            sb.append("Long.valueOf(").append((long) value).append("L)");
+        } else {
+            sb.append("Double.valueOf(").append(value).append(')');
+        }
     }
 }

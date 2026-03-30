@@ -76,7 +76,8 @@ functionCall
     ;
 
 methodCall
-    : IDENTIFIER L_PAREN argumentList? R_PAREN
+    : IDENTIFIER DOUBLE_COLON IDENTIFIER L_PAREN argumentList? R_PAREN    // extension: .ns::method()
+    | IDENTIFIER L_PAREN argumentList? R_PAREN                            // built-in: .method()
     ;
 
 // ==================== Arguments ====================

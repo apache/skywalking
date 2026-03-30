@@ -35,16 +35,26 @@ oap-server/analyzer/meter-analyzer/
   src/main/java/.../compiler/
     MALScriptParser.java              — ANTLR4 facade: expression → AST
     MALExpressionModel.java           — Immutable AST model classes
-    MALClassGenerator.java            — Public API, run method codegen, metadata extraction
+    MALClassGenerator.java            — Public API + orchestration (compile, compileFilter, compileFromModel)
+    MALExprCodegen.java               — Expression → Java source (variable-per-expression model)
+    MALMethodChainCodegen.java        — Method chain codegen: built-in .method() + extension ::method() + args
+    MALMetadataExtractor.java         — Static AST analysis → ExpressionMetadata + metadata() source
+    MALBytecodeHelper.java            — Javassist: class naming, debug output, LineNumberTable, LocalVariableTable
     MALClosureCodegen.java            — Companion class codegen: closure body inlined in SAM method
-    MALCodegenHelper.java             — Static utility methods and shared constants
+    MALCodegenHelper.java             — Static utility methods and shared constants (SF, RUN_VAR, escapeJava)
     rt/
       MalExpressionPackageHolder.java — Class loading anchor (empty marker)
       MalRuntimeHelper.java           — Static helpers called by generated code (divReverse, regexMatch, isTruthy)
+      MalExtensionRegistry.java       — SPI registry for extension functions (namespace::method)
+
+  src/main/java/.../spi/
+    MalFunctionExtension.java         — SPI interface for extension namespaces
+    MALContextFunction.java           — Annotation marking callable methods
 
   src/test/java/.../compiler/
-    MALScriptParserTest.java          — 20 parser tests
-    MALClassGeneratorTest.java        — 32 generator tests
+    MALScriptParserTest.java          — 22 parser tests
+    MALClassGeneratorTest.java        — 20 generator tests
+    MALExtensionFunctionTest.java     — 9 extension SPI tests
 ```
 
 ## Package & Class Naming
@@ -59,11 +69,96 @@ All v2 classes live under `org.apache.skywalking.oap.meter.analyzer.v2.*` to avo
 | Filter classes | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.{yamlName}_L{lineNo}_filter` |
 | Package holder | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder` |
 | Runtime helper | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalRuntimeHelper` |
+| Extension registry | `org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExtensionRegistry` |
+| Extension SPI | `org.apache.skywalking.oap.meter.analyzer.v2.spi.MalFunctionExtension` |
+| Extension annotation | `org.apache.skywalking.oap.meter.analyzer.v2.spi.MALContextFunction` |
 | Functional interface | `org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression` |
 
 Class names are built from `yamlSource` (file name + line number) and `classNameHint` (rule name or `filter`).
 Example: `vm_L25_cpu_total_percentage` (expression), `gateway_service_L33_filter` (filter).
 Falls back to `MalExpr_<N>` (global counter) when no hint is set.
+
+## Extension Function SPI (`namespace::method()`)
+
+MAL supports custom extension functions via the `namespace::method()` syntax. Extensions are discovered
+at startup via `java.util.ServiceLoader`.
+
+### Syntax
+
+```
+metric.sum(['svc']).genai::estimateCost()
+metric.test::scale(2.0)
+```
+
+The `::` separator distinguishes extension calls from built-in `SampleFamily` methods. The namespace
+avoids global method name conflicts — method names only need to be unique within their namespace.
+
+### Implementing an Extension
+
+1. Create a class implementing `MalFunctionExtension` with **static** `@MALContextFunction` methods:
+
+```java
+public class MyExtension implements MalFunctionExtension {
+    @Override
+    public String name() { return "myext"; }
+
+    @MALContextFunction
+    public static SampleFamily transform(SampleFamily sf, double factor) {
+        return sf.multiply(Double.valueOf(factor));
+    }
+
+    @MALContextFunction
+    public static SampleFamily filterTag(SampleFamily sf, String key, String value) {
+        return sf.tagEqual(key, value);
+    }
+}
+```
+
+2. Register via SPI file `META-INF/services/org.apache.skywalking.oap.meter.analyzer.v2.spi.MalFunctionExtension`:
+```
+com.example.MyExtension
+```
+
+3. Use in MAL scripts: `.myext::transform(2.0)`, `.myext::filterTag("env", "prod")`
+
+### Method Requirements
+
+- Methods **must** be `static` (non-static methods throw `IllegalArgumentException` at startup)
+- First parameter **must** be `SampleFamily` (auto-bound to the current chain value)
+- Return type **must** be `SampleFamily`
+- Additional parameters are matched from MAL arguments by type:
+
+| Java Type | MAL Argument |
+|-----------|-------------|
+| `String` | String literal: `"value"` |
+| `double` / `int` | Number literal: `2.0`, `100` |
+| `List<String>` | String list: `["tag1", "tag2"]` |
+
+### Compile-Time Validation
+
+The compiler validates at expression compilation time:
+- Namespace exists in registry
+- Method exists in that namespace
+- Argument count matches (excluding the implicit `SampleFamily` first param)
+- Argument types are compatible with the method signature
+
+### Generated Code
+
+The compiler generates direct static method calls — no reflection or registry dispatch at runtime.
+Each metric gets its own named variable (e.g. `_metric`).
+
+For `metric.sum(['svc']).myext::transform(2.0)`:
+```java
+SampleFamily _metric = ((SF) samples.getOrDefault("metric", SF.EMPTY));
+_metric = _metric.sum(java.util.Arrays.asList(new String[]{"svc"}));
+_metric = com.example.MyExtension.transform(_metric, 2.0);
+```
+
+For zero-arg extensions like `metric.myext::noop()`:
+```java
+SampleFamily _metric = ((SF) samples.getOrDefault("metric", SF.EMPTY));
+_metric = com.example.MyExtension.noop(_metric);
+```
 
 ## Javassist Constraints
 
@@ -79,41 +174,70 @@ Falls back to `MalExpr_<N>` (global counter) when no hint is set.
   - `decorate(closure)` → `SampleFamilyFunctions$DecorateFunction`
 - **v2 package isolation**: All v2 classes are under `*.v2.*` packages, so there are no FQCN conflicts with the v1 Groovy module.
 
-## Example
+## Code Generation Model
+
+Uses **variable-per-expression**: each metric gets its own named variable (`_metricName`).
+Chain calls reassign to the same variable. Binary operations combine variables directly.
+No shared mutable variable, no save/restore.
+
+### Simple expression
 
 **Input**: `instance_jvm_cpu.sum(['service', 'instance'])`
 
-**Generated `run()` method** (pure computation, no ThreadLocal):
+**Generated `run()` method**:
 ```java
-public SampleFamily run(Map samples) {
-  return ((SampleFamily) samples.getOrDefault("instance_jvm_cpu", SampleFamily.EMPTY))
-      .sum(java.util.List.of("service", "instance"));
+public SampleFamily run(java.util.Map samples) {
+  SampleFamily _instance_jvm_cpu = ((SampleFamily) samples.getOrDefault("instance_jvm_cpu", SampleFamily.EMPTY));
+  _instance_jvm_cpu = _instance_jvm_cpu.sum(java.util.Arrays.asList(new String[]{"service", "instance"}));
+  return _instance_jvm_cpu;
 }
 ```
 
-**Generated `metadata()` method** (returns compile-time facts extracted from AST):
+### Binary expression
+
+**Input**: `metric1.sum(['svc']) + metric2.avg(['svc'])`
+
 ```java
-public ExpressionMetadata metadata() {
-  // samples=["instance_jvm_cpu"], aggregationLabels=["service","instance"], ...
-  return new ExpressionMetadata(...);
+public SampleFamily run(java.util.Map samples) {
+  SampleFamily _metric1 = ((SampleFamily) samples.getOrDefault("metric1", SampleFamily.EMPTY));
+  _metric1 = _metric1.sum(java.util.Arrays.asList(new String[]{"svc"}));
+  SampleFamily _metric2 = ((SampleFamily) samples.getOrDefault("metric2", SampleFamily.EMPTY));
+  _metric2 = _metric2.avg(java.util.Arrays.asList(new String[]{"svc"}));
+  _metric1 = _metric1.plus(_metric2);
+  return _metric1;
 }
 ```
 
-**Input with closure**: `metric.tag({ tags -> tags['k'] = 'v' })`
+### Extension function
+
+**Input**: `metric.sum(['svc']).test::scale(2.0)`
+
+```java
+public SampleFamily run(java.util.Map samples) {
+  SampleFamily _metric = ((SampleFamily) samples.getOrDefault("metric", SampleFamily.EMPTY));
+  _metric = _metric.sum(java.util.Arrays.asList(new String[]{"svc"}));
+  _metric = TestMalExtension.scale(_metric, 2.0);
+  return _metric;
+}
+```
+
+### Closure
+
+**Input**: `metric.tag({ tags -> tags['k'] = 'v' })`
 
 Two classes are generated (e.g., `vm_L5_my_metric` when `yamlSource=vm.yaml:5`):
 
 Main class `vm_L5_my_metric`:
 - `public static final TagFunction _tag;`
 - `static { _tag = new vm_L5_my_metric$_tag(); }`
-- `run()` body calls `sf = ((SampleFamily) samples.getOrDefault("metric", EMPTY)).tag(_tag);`
+- `run()` body: `_metric = _metric.tag(_tag);`
 
 Companion class `vm_L5_my_metric$_tag implements TagFunction`:
 - `public Object apply(Object _raw) { Map tags = (Map) _raw; tags.put("k", "v"); return tags; }`
 
 ## ExpressionMetadata (replaces ExpressionParsingContext)
 
-Metadata is extracted statically from the AST at compile time by `MALClassGenerator.extractMetadata()`. No ThreadLocal, no dry-run execution. The `Analyzer` calls `expression.metadata()` to get sample names, scope type, aggregation labels, downsampling, histogram/percentile info.
+Metadata is extracted statically from the AST at compile time by `MALMetadataExtractor.extractMetadata()`. No ThreadLocal, no dry-run execution. The `Analyzer` calls `expression.metadata()` to get sample names, scope type, aggregation labels, downsampling, histogram/percentile info.
 
 ## Debug Output
 

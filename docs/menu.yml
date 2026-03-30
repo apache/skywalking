@@ -430,8 +430,12 @@ catalog:
             catalog:
               - name: "Component Library Settings"
                 path: "/en/guides/component-library-settings"
-              - name: "Extend An OAL Source"
+              - name: "OAL Source and Scope Extension"
                 path: "/en/guides/source-extension"
+              - name: "MAL Extension Functions"
+                path: "/en/guides/mal-extension"
+              - name: "LAL Custom Input/Output Types"
+                path: "/en/guides/lal-extension"
           - name: "Dependencies"
             catalog:
               - name: "Project Dependencies Check"
