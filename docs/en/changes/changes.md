@@ -182,6 +182,7 @@
 * Bump up dependencies.
 * Correct active/inactive text for the cold stage.
 * Add the gen-ai menu.
+* Fix: set the step to SECOND in the duration for Log/Trace/Alarm/Tag.
 
 
 #### Documentation
