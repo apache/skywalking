@@ -5,6 +5,10 @@ Third-party systems or visualization platforms that already support Tempo and Tr
 
 SkyWalking supports two types of traces: SkyWalking native traces and Zipkin-compatible traces. The TraceQL Service converts both trace formats to OpenTelemetry Protocol (OTLP) format to provide compatibility with Grafana Tempo and TraceQL queries.
 
+> **Note**: SkyWalking native trace support in TraceQL is based on the [Query Traces V2 API](../../../oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol/trace-v2.graphqls) (`queryTraces` / `hasQueryTracesV2Support`).
+> Currently, only **BanyanDB** storage implements this API. Other storage backends (e.g. Elasticsearch, MySQL, PostgreSQL) do not support it.
+> Zipkin-compatible traces are not subject to this restriction.
+
 ## Details Of Supported TraceQL
 The following doc describes the details of the supported protocol and compared it to the TraceQL official documentation.
 If not mentioned, it will not be supported by default.
@@ -250,16 +254,16 @@ Search for traces matching the given TraceQL criteria.
 GET /api/search
 ```
 
-| Parameter   | Definition                          | Optional      |
-|-------------|-------------------------------------|---------------|
-| q           | TraceQL query                       | yes           |
-| tags        | Deprecated tag query format         | yes           |
-| minDuration | Minimum trace duration              | yes           |
-| maxDuration | Maximum trace duration              | yes           |
-| limit       | Maximum number of traces to return  | yes           |
-| start       | Start timestamp (seconds)           | yes            |
-| end         | End timestamp (seconds)             | yes            |
-| spss        | Spans per span set                  | not supported |
+| Parameter   | Definition                                      | Optional       |
+|-------------|-------------------------------------------------|----------------|
+| q           | TraceQL query                                   | yes            |
+| tags        | Deprecated tag query format                     | yes            |
+| minDuration | Minimum trace duration                          | yes            |
+| maxDuration | Maximum trace duration                          | yes            |
+| limit       | Maximum number of traces to return. Default: 20 | yes            |
+| start       | Start timestamp (seconds)                       | yes            |
+| end         | End timestamp (seconds)                         | yes            |
+| spss        | Spans per span set                              | not supported  |
 
 **Example**:
 ```text
@@ -716,6 +720,26 @@ version: "0.1.0"
 
 When using the SkyWalking native backend, the following conversions are applied:
 
+### Trace ID Encoding
+
+SkyWalking native trace IDs are arbitrary strings that may contain characters outside the hexadecimal alphabet
+(for example, `2a2e04e8d1114b14925c04a6321ca26c.38.17739924187687539` includes `.` separators).
+OTLP and Grafana Tempo require trace IDs to be pure hex strings.
+
+To satisfy this constraint, every SkyWalking trace ID is encoded by converting each UTF-8 byte of the
+original string to two lowercase hex characters:
+
+```
+Original: 2a2e04e8d1114b14925c04a6321ca26c.38.17739924187687539
+Encoded:  32613265303465386431313134623134393235633034613633323163613236632e33382e3137373339393234313837363837353339
+```
+
+- **Encoding**: `traceId.getBytes(UTF-8)` → each byte formatted as `%02x` → concatenated lowercase hex string.
+- **Decoding**: hex string → byte array → `new String(bytes, UTF-8)` → original SkyWalking trace ID.
+
+The encoded trace ID is what appears in all API responses (e.g., the `traceID` field in [Search Traces](#search-traces)).
+When calling [Query Trace by ID](#query-trace-by-id-v1), use the encoded hex form as the `{traceId}` path parameter.
+
 ### Span Kind Mapping
 SkyWalking span types are mapped to OTLP span kinds:
 
@@ -835,5 +859,5 @@ traceQL:
 ## See Also
 - [Grafana Tempo TraceQL Documentation](https://grafana.com/docs/tempo/latest/traceql/)
 - [OpenTelemetry Protocol Specification](https://opentelemetry.io/docs/reference/specification/protocol/)
-- [SkyWalking Trace Query](https://skywalking.apache.org/docs/main/next/en/api/query-protocol/)
+- [SkyWalking Trace Query](https://skywalking.apache.org/docs/main/next/en/api/query-protocol/#trace)
 
