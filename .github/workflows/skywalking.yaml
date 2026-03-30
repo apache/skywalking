@@ -783,7 +783,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
+    name: Istio ALS
     needs: [docker]
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -861,7 +861,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
+    name: Istio Ambient ALS
     needs: [docker]
     runs-on: ubuntu-24.04
     timeout-minutes: 60
