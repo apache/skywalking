@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.query.zipkin;
 
-import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 public class ZipkinQueryModule extends ModuleDefine {
@@ -30,8 +29,6 @@ public class ZipkinQueryModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[] {
-            ZipkinQueryHandler.class
-        };
+        return new Class[0];
     }
 }

@@ -13,12 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
+# Istio Envoy Metrics Service test with BanyanDB cluster mode (liaison x2, data x2, DNS discovery, native metadata)
 
 setup:
   env: kind
-  file: ../kind.k${KUBERNETES_VERSION}.yaml
-  init-system-environment: ../../../script/env
+  file: ../../kind.k${KUBERNETES_VERSION}.yaml
+  init-system-environment: ../../../../script/env
   kind:
     import-images:
       - skywalking/ui:latest
@@ -49,38 +49,41 @@ setup:
                   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[5]=.*upstream_rq_pending_active.*' \
                   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[6]=.*lb_healthy_panic.*' \
                   --set 'meshConfig.defaultConfig.proxyStatsMatcher.inclusionRegexps[7]=.*upstream_cx_none_healthy.*' \
-                  --set values.telemetry.v2.enabled=false # disable the metadata-exchange extension intentionally to make sure metrics service doesn't rely on it
+                  --set values.telemetry.v2.enabled=false
         kubectl label namespace default istio-injection=enabled
     - name: Install helm
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh helm
-    - name: Install kubectl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
-    - name: Install ECK operator
-      command: |
-        helm pull oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
-          --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" --untar
-        helm dep up skywalking-helm
-        helm -n istio-system install eck-operator skywalking-helm/charts/eck-operator-*.tgz \
-          --create-namespace
-        kubectl -n istio-system rollout status --watch --timeout=120s statefulset/elastic-operator
-    - name: Install SkyWalking
+    - name: Install SkyWalking with BanyanDB cluster
+      # To enable BanyanDB access logs for debugging, add these flags to the helm install:
+      #   --set "banyandb.cluster.liaison.env[0].name=BYDB_ENABLE_INGESTION_ACCESS_LOG" \
+      #   --set "banyandb.cluster.liaison.env[0].value=\"true\"" \
+      #   --set "banyandb.cluster.liaison.env[1].name=BYDB_ENABLE_QUERY_ACCESS_LOG" \
+      #   --set "banyandb.cluster.liaison.env[1].value=\"true\"" \
+      #   --set "banyandb.cluster.liaison.env[2].name=BYDB_ACCESS_LOG_ROOT_PATH" \
+      #   --set "banyandb.cluster.liaison.env[2].value=/tmp"
       command: |
         helm -n istio-system install skywalking \
           oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
           --set fullnameOverride=skywalking \
-          --set eckOperator.enabled=false \
+          --set elasticsearch.enabled=false \
           --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=$ALS_ANALYZER \
           --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=$ALS_ANALYZER \
           --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
           --set oap.env.SW_HEALTH_CHECKER=default \
-          --set oap.envoy.als.enabled=true \
           --set oap.replicas=1 \
           --set ui.image.repository=skywalking/ui \
           --set ui.image.tag=latest \
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
-          --set oap.storageType=elasticsearch \
+          --set oap.storageType=banyandb \
+          --set banyandb.enabled=true \
+          --set banyandb.standalone.enabled=false \
+          --set banyandb.cluster.enabled=true \
+          --set banyandb.cluster.liaison.replicas=2 \
+          --set banyandb.cluster.data.nodeTemplate.replicas=2 \
+          --set banyandb.image.tag=${SW_BANYANDB_COMMIT} \
+          --set banyandb.image.repository=ghcr.io/apache/skywalking-banyandb \
           -f test/e2e-v2/cases/istio/values.yaml
       wait:
         - namespace: istio-system
@@ -97,7 +100,7 @@ setup:
           resource: pod
           for: condition=Ready
     - name: Generate traffic
-      path: ../traffic-gen.yaml
+      path: ../../traffic-gen.yaml
       wait:
         - namespace: default
           resource: pod
@@ -107,7 +110,23 @@ setup:
 verify:
   retry:
     count: 20
-    interval: 10s
+    interval: 15s
   cases:
     - includes:
-        - metrics-cases.yaml
+        - ../metrics-cases.yaml
+
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
+    items:
+      - namespace: istio-system
+        label-selector: app.kubernetes.io/name=banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/
+          - /tmp/schema-property/
+          - /tmp/accesslog/

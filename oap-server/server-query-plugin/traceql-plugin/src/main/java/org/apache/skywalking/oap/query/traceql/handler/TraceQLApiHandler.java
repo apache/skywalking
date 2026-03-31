@@ -29,12 +29,16 @@ import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Header;
 import com.linecorp.armeria.server.annotation.Param;
 import com.linecorp.armeria.server.annotation.Path;
+import io.grafana.tempo.tempopb.TraceByIDResponse;
 import java.io.IOException;
 import java.util.Optional;
 import org.apache.commons.codec.DecoderException;
 import org.apache.skywalking.oap.query.traceql.entity.BuildInfoResponse;
 import org.apache.skywalking.oap.query.traceql.entity.ErrorResponse;
 import org.apache.skywalking.oap.query.traceql.entity.QueryResponse;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.joda.time.DateTime;
 
 /**
  * Handler for Grafana Tempo API endpoints.
@@ -46,6 +50,31 @@ import org.apache.skywalking.oap.query.traceql.entity.QueryResponse;
  */
 public abstract class TraceQLApiHandler {
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    public static final String SCOPE_RESOURCE = "resource";
+    public static final String SCOPE_SPAN = "span";
+
+    // Intrinsic tag names
+    public static final String STATUS = "status";
+    public static final String NAME = "name";
+
+    // Resource-scoped tag names
+    public static final String RESOURCE_SERVICE_NAME = "resource.service.name";
+    public static final String RESOURCE_SERVICE = "resource.service";
+    public static final String RESOURCE_INSTANCE = "resource.instance";
+    public static final String SERVICE_NAME = "service.name";
+    public static final String SERVICE = "service";
+    public static final String INSTANCE = "instance";
+
+    // Span-scoped tag prefix and names
+    public static final String SPAN_PREFIX = "span.";
+    public static final String SPAN_NAME = "span.name";
+    public static final String SPAN_KIND = "span.kind";
+
+    // Status values
+    public static final String ERROR = "error";
+    public static final String OK = "ok";
+    public static final String TYPE_STRING = "string";
 
     @Get
     @Path("/ready")
@@ -101,7 +130,8 @@ public abstract class TraceQLApiHandler {
      * Query trace by trace ID.
      * GET /api/v2/traces/{traceId}
      *
-     * @param traceId The trace ID
+     * @param traceId The trace ID, for SkyWalking native traces, the original traceId has to be hex encoding of the UTF-8 bytes
+     *                you can get the encoded traceId from traces list query API `/api/search`.
      * @param accept Accept header for response format
      * @return Trace data in OTLP format
      */
@@ -111,13 +141,13 @@ public abstract class TraceQLApiHandler {
                                    @Param("start") Optional<Long> start,
                                    @Param("end") Optional<Long> end,
                                    @Header("Accept") Optional<String> accept) throws IOException, DecoderException {
-        return queryTraceImpl(traceId, accept);
+        return queryTraceImpl(traceId, start, end, accept);
     }
 
     /**
      * Abstract method to be implemented by subclasses for trace query logic.
      */
-    protected abstract HttpResponse queryTraceImpl(String traceId, Optional<String> accept) throws IOException, DecoderException;
+    protected abstract HttpResponse queryTraceImpl(String traceId, Optional<Long> start, Optional<Long> end, Optional<String> accept) throws IOException, DecoderException;
 
     /**
      * Search for traces matching the given criteria.
@@ -349,6 +379,52 @@ public abstract class TraceQLApiHandler {
      */
     protected HttpResponse badRequestResponse(String message) throws JsonProcessingException {
         return errorResponse(HttpStatus.BAD_REQUEST, message);
+    }
+
+    /**
+     * Build Duration object from start and end timestamps.
+     *
+     * @param start Optional start timestamp in seconds
+     * @param end Optional end timestamp in seconds
+     * @param defaultLookback Default lookback duration in milliseconds if start is not provided
+     * @return Duration object with start and end times
+     */
+    protected Duration buildDuration(Optional<Long> start, Optional<Long> end, long defaultLookback) {
+        Duration duration = new Duration();
+
+        long endTime;
+        long startTime;
+
+        if (end.isPresent()) {
+            endTime = end.get() * 1000;
+        } else {
+            endTime = System.currentTimeMillis();
+        }
+
+        if (start.isPresent()) {
+            startTime = start.get() * 1000;
+        } else {
+            startTime = endTime - defaultLookback;
+        }
+
+        duration.setStart(new DateTime(startTime).toString("yyyy-MM-dd HHmmss"));
+        duration.setEnd(new DateTime(endTime).toString("yyyy-MM-dd HHmmss"));
+        duration.setStep(Step.SECOND);
+
+        return duration;
+    }
+
+    /**
+     * Build HTTP response with Protobuf content.
+     */
+    protected HttpResponse buildProtobufHttpResponse(TraceByIDResponse protoResponse) {
+        byte[] protoBytes = protoResponse.toByteArray();
+        return HttpResponse.of(
+            ResponseHeaders.builder(HttpStatus.OK)
+                           .contentType(MediaType.parse("application/protobuf"))
+                           .build(),
+            HttpData.wrap(protoBytes)
+        );
     }
 }
 

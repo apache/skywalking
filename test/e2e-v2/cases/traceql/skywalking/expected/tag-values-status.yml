@@ -15,5 +15,6 @@
 
 tagValues:
   - type: string
+    value: ok
+  - type: string
     value: error
-

@@ -18,50 +18,46 @@ version: '2.1'
 services:
   banyandb:
     extends:
-      file: ../../../../script/docker-compose/base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: banyandb
-    volumes:
-      - ./tls:/tls
-    command: standalone --tls=true --key-file=/tls/cert.key --cert-file=/tls/cert.crt --http-grpc-cert-file=/tls/ca.crt
-    networks:
-      - e2e
+    ports:
+      - 17912
 
   oap:
     extends:
-      file: ../../../../script/docker-compose/base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: oap
-    volumes:
-      - ./tls/cert.crt:/tls/cert.crt
     environment:
       SW_STORAGE: banyandb
-      SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH: /tls/cert.crt
+      SW_STORAGE_BANYANDB_TARGETS: banyandb:17912
+      # Enable TraceQL API with SkyWalking datasource only
+      SW_TRACEQL: default
+      SW_TRACEQL_ENABLE_DATASOURCE_ZIPKIN: "false"
+      SW_TRACEQL_ENABLE_DATASOURCE_SKYWALKING: "true"
     ports:
       - 12800
+      - 3200:3200
+    networks:
+      - e2e
     depends_on:
       banyandb:
         condition: service_healthy
 
   provider:
     extends:
-      file: ../../../../script/docker-compose/base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: provider
-    ports:
-      - 9090
-    networks:
-      - e2e
     depends_on:
       oap:
         condition: service_healthy
 
   consumer:
     extends:
-      file: ../../../../script/docker-compose/base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: consumer
     ports:
       - 9092
     depends_on:
-      oap:
-        condition: service_healthy
       provider:
         condition: service_healthy
 

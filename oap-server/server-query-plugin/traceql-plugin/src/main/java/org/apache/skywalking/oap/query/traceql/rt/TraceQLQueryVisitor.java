@@ -44,23 +44,37 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseRe
 
         // Handle specific attributes
         // Note: unscoped .service.name becomes "service.name", scoped becomes "resource.service.name"
-        if ("service.name".equals(attribute) || "resource.service.name".equals(attribute)) {
-            if ("=".equals(operator)) {
-                params.setServiceName(value);
-            }
-        } else if ("span.name".equals(attribute) || "name".equals(attribute)) {
-            if ("=".equals(operator)) {
-                params.setSpanName(value);
-            }
-        } else if ("http.status_code".equals(attribute) || "span.http.status_code".equals(attribute)) {
-            if ("=".equals(operator)) {
-                params.setHttpStatusCode(value);
-            }
-        } else {
-            // Store other attributes
-            // Remove scope prefix if present (e.g., span.http.method -> http.method)
-            String tagKey = removeScopePrefix(attribute);
-            params.getTags().put(tagKey, value);
+        switch (attribute) {
+            case "service.name":
+            case "resource.service.name":
+            case "resource.service":
+                if ("=".equals(operator)) {
+                    params.setServiceName(value);
+                }
+                break;
+            case "resource.instance":
+                if ("=".equals(operator)) {
+                    params.setServiceInstance(value);
+                }
+                break;
+            case "span.name":
+            case "name":
+                if ("=".equals(operator)) {
+                    params.setSpanName(value);
+                }
+                break;
+            case "http.status_code":
+            case "span.http.status_code":
+                if ("=".equals(operator)) {
+                    params.setHttpStatusCode(value);
+                }
+                break;
+            default:
+                // Store other attributes
+                // Remove scope prefix if present (e.g., span.http.method -> http.method)
+                String tagKey = removeScopePrefix(attribute);
+                params.getTags().put(tagKey, value);
+                break;
         }
 
         return visitChildren(ctx);

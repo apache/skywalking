@@ -161,13 +161,14 @@
 * Bump up netty to 4.2.10.Final.
 * Bump up log4j to 2.25.3 and jackson to 2.18.5.
 * Remove PowerMock dependency. Replace `Whitebox` with `ReflectUtil` (standard Java reflection + `sun.misc.Unsafe` for final fields) across all modules to support JDK 25+.
-* Support TraceQL and Tempo API for Zipkin trace query.
+* Support TraceQL and Tempo API for Zipkin and SkyWalking native trace query.
 * Remove `initExp` from MAL configuration. It was an internal Groovy startup validation mechanism, not an end-user feature. The v2 ANTLR4 compiler performs fail-fast validation at startup natively.
 * Update hierarchy rule documentation: `auto-matching-rules` in `hierarchy-definition.yml` no longer use Groovy scripts. Rules now use a dedicated expression grammar supporting property access, String methods, if/else, comparisons, and logical operators. All shipped rules are fully compatible.
 * Activate `otlp-traces` handler in `receiver-otel` by default.
 * Update Istio E2E test versions: remove EOL 1.20.0, add 1.25.0–1.29.0 for ALS/Metrics/Ambient tests. Update Rover with Istio Process test from 1.15.0 to 1.28.0 with Kubernetes 1.28.
 * Support Virtual-GenAI monitoring.
 * Fix on-demand pod log parsing failure by replacing invalid `DateTimeFormatter` pattern with `ISO_OFFSET_DATE_TIME`.
+* Fix Zipkin receiver compatibility with application/x-protobuf Content-Type.
 * Support virtual GenAI analysis for otlp and zipkin traces.
 
 #### UI
@@ -182,6 +183,7 @@
 * Bump up dependencies.
 * Correct active/inactive text for the cold stage.
 * Add the gen-ai menu.
+* Fix: set the step to SECOND in the duration for Log/Trace/Alarm/Tag.
 
 
 #### Documentation
