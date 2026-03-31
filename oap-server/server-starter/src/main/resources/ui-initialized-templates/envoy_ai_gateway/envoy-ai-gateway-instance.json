@@ -165,7 +165,7 @@
                     }
                   ],
                   "widget": {
-                    "title": "Time to First Token (Avg)",
+                    "title": "Time to First Token Avg (TTFT)",
                     "tips": "Average time to first token for streaming requests"
                   }
                 },
@@ -191,7 +191,7 @@
                     }
                   ],
                   "widget": {
-                    "title": "TTFT Percentile",
+                    "title": "Time to First Token Percentile (TTFT)",
                     "tips": "P50 / P75 / P90 / P95 / P99"
                   }
                 },
@@ -217,7 +217,7 @@
                     }
                   ],
                   "widget": {
-                    "title": "Time Per Output Token (Avg)",
+                    "title": "Time Per Output Token Avg (TPOT)",
                     "tips": "Average inter-token latency for streaming requests"
                   }
                 },
@@ -243,7 +243,7 @@
                     }
                   ],
                   "widget": {
-                    "title": "TPOT Percentile",
+                    "title": "Time Per Output Token Percentile (TPOT)",
                     "tips": "P50 / P75 / P90 / P95 / P99"
                   }
                 }
@@ -429,7 +429,7 @@
                     }
                   ],
                   "widget": {
-                    "title": "TTFT Avg by Model"
+                    "title": "Time to First Token Avg by Model (TTFT)"
                   }
                 },
                 {
@@ -454,7 +454,7 @@
                     }
                   ],
                   "widget": {
-                    "title": "TPOT Avg by Model"
+                    "title": "Time Per Output Token Avg by Model (TPOT)"
                   }
                 }
               ]
