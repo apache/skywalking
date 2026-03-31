@@ -28,9 +28,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
     opentelemetry-sdk \
     opentelemetry-instrumentation-openai \
     opentelemetry-exporter-otlp-proto-grpc \
-    opentelemetry-exporter-zipkin
+    opentelemetry-exporter-zipkin \
+    opentelemetry-exporter-zipkin-json \
+    opentelemetry-exporter-zipkin-proto-http \
+    opentelemetry-distro
 
-RUN pip install opentelemetry-distro
 RUN opentelemetry-bootstrap --action=install
 
 COPY python/openai-call.py /openai-call.py
