@@ -72,8 +72,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
 
     /**
      * Fallback label mappings: if the target label (value) is absent in resource attributes,
-     * copy the source label (key) as the target. The source label is always kept as-is.
-     * For example, if "job_name" is not present, "service.name" value is copied as "job_name".
+     * copy the source label (key) value as the target. The source label is always kept as-is
+     * (with dots converted to underscores by the first pass).
      */
     private static final Map<String, String> FALLBACK_LABEL_MAPPINGS =
         ImmutableMap
@@ -81,7 +81,6 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             .put("net.host.name", "node_identifier_host_name")
             .put("host.name", "node_identifier_host_name")
             .put("job", "job_name")
-            .put("service.name", "job_name")
             .build();
     private List<MetricConvert> converters;
 
