@@ -8,6 +8,19 @@ The LAL config files are in YAML format, and are located under directory `lal`. 
 set `log-analyzer/default/lalFiles` in the `application.yml` file or set environment variable `SW_LOG_LAL_FILES` to
 activate specific LAL config files.
 
+## OTLP log attribute mapping
+
+When logs arrive via the OTLP receiver, resource attributes are mapped to `LogData` fields:
+
+| Resource attribute | LogData field | Notes |
+|---|---|---|
+| `service.name` | `service` | SkyWalking service name |
+| `service.instance.id` | `serviceInstance` | OTel standard ([spec](https://opentelemetry.io/docs/specs/semconv/resource/#service)). Falls back to `service.instance` for backward compatibility. |
+| `service.layer` | `layer` | Routes to the LAL rule with matching `layer` declaration |
+
+Log record attributes are available via `tag("attribute_name")` in LAL rules. Attribute keys
+retain their original names (dots are NOT converted to underscores in log attributes).
+
 ## Layer
 Layer should be declared in the LAL script to represent the analysis scope of the logs.
 

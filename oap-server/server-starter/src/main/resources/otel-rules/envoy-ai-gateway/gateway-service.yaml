@@ -1,0 +1,103 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Envoy AI Gateway — Service-level metrics
+#
+# Source OTLP metrics (dots → underscores by OTel receiver):
+#   gen_ai_client_token_usage          — Histogram (Delta), labels: gen_ai_token_type, gen_ai_provider_name, gen_ai_response_model
+#   gen_ai_server_request_duration     — Histogram (Delta), unit: seconds
+#   gen_ai_server_time_to_first_token  — Histogram (Delta), unit: seconds, streaming only
+#   gen_ai_server_time_per_output_token — Histogram (Delta), unit: seconds, streaming only
+#
+# All durations are in seconds from the AI Gateway; multiply by 1000 for ms display.
+
+filter: "{ tags -> tags.job_name == 'envoy-ai-gateway' }"
+expSuffix: service(['service_name'], Layer.ENVOY_AI_GATEWAY)
+metricPrefix: meter_envoy_ai_gw
+
+metricsRules:
+  # ===================== Aggregate metrics =====================
+
+  # Request CPM — count of requests per minute
+  - name: request_cpm
+    exp: gen_ai_server_request_duration_count.sum(['service_name']).increase('PT1M')
+
+  # Request latency average (ms)
+  - name: request_latency_avg
+    exp: gen_ai_server_request_duration_sum.sum(['service_name']).increase('PT1M') / gen_ai_server_request_duration_count.sum(['service_name']).increase('PT1M') * 1000
+
+  # Request latency percentile (ms)
+  - name: request_latency_percentile
+    exp: gen_ai_server_request_duration.sum(['le', 'service_name']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99]) * 1000
+
+  # Input token rate (tokens/min)
+  - name: input_token_rate
+    exp: gen_ai_client_token_usage_sum.tagEqual('gen_ai_token_type', 'input').sum(['service_name']).increase('PT1M')
+
+  # Output token rate (tokens/min)
+  - name: output_token_rate
+    exp: gen_ai_client_token_usage_sum.tagEqual('gen_ai_token_type', 'output').sum(['service_name']).increase('PT1M')
+
+  # TTFT average (ms) — streaming requests only
+  - name: ttft_avg
+    exp: gen_ai_server_time_to_first_token_sum.sum(['service_name']).increase('PT1M') / gen_ai_server_time_to_first_token_count.sum(['service_name']).increase('PT1M') * 1000
+
+  # TTFT percentile (ms)
+  - name: ttft_percentile
+    exp: gen_ai_server_time_to_first_token.sum(['le', 'service_name']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99]) * 1000
+
+  # TPOT average (ms) — time per output token, streaming only
+  - name: tpot_avg
+    exp: gen_ai_server_time_per_output_token_sum.sum(['service_name']).increase('PT1M') / gen_ai_server_time_per_output_token_count.sum(['service_name']).increase('PT1M') * 1000
+
+  # TPOT percentile (ms)
+  - name: tpot_percentile
+    exp: gen_ai_server_time_per_output_token.sum(['le', 'service_name']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99]) * 1000
+
+  # ===================== Per-provider breakdown =====================
+
+  # Provider request CPM — labeled by gen_ai_provider_name
+  - name: provider_request_cpm
+    exp: gen_ai_server_request_duration_count.sum(['gen_ai_provider_name', 'service_name']).increase('PT1M')
+
+  # Provider token rate — labeled by gen_ai_provider_name and gen_ai_token_type
+  - name: provider_token_rate
+    exp: gen_ai_client_token_usage_sum.sum(['gen_ai_provider_name', 'gen_ai_token_type', 'service_name']).increase('PT1M')
+
+  # Provider latency average (ms) — labeled by gen_ai_provider_name
+  - name: provider_latency_avg
+    exp: gen_ai_server_request_duration_sum.sum(['gen_ai_provider_name', 'service_name']).increase('PT1M') / gen_ai_server_request_duration_count.sum(['gen_ai_provider_name', 'service_name']).increase('PT1M') * 1000
+
+  # ===================== Per-model breakdown =====================
+
+  # Model request CPM — labeled by gen_ai_response_model
+  - name: model_request_cpm
+    exp: gen_ai_server_request_duration_count.sum(['gen_ai_response_model', 'service_name']).increase('PT1M')
+
+  # Model token rate — labeled by gen_ai_response_model and gen_ai_token_type
+  - name: model_token_rate
+    exp: gen_ai_client_token_usage_sum.sum(['gen_ai_response_model', 'gen_ai_token_type', 'service_name']).increase('PT1M')
+
+  # Model latency average (ms) — labeled by gen_ai_response_model
+  - name: model_latency_avg
+    exp: gen_ai_server_request_duration_sum.sum(['gen_ai_response_model', 'service_name']).increase('PT1M') / gen_ai_server_request_duration_count.sum(['gen_ai_response_model', 'service_name']).increase('PT1M') * 1000
+
+  # Model TTFT average (ms) — labeled by gen_ai_response_model
+  - name: model_ttft_avg
+    exp: gen_ai_server_time_to_first_token_sum.sum(['gen_ai_response_model', 'service_name']).increase('PT1M') / gen_ai_server_time_to_first_token_count.sum(['gen_ai_response_model', 'service_name']).increase('PT1M') * 1000
+
+  # Model TPOT average (ms) — labeled by gen_ai_response_model
+  - name: model_tpot_avg
+    exp: gen_ai_server_time_per_output_token_sum.sum(['gen_ai_response_model', 'service_name']).increase('PT1M') / gen_ai_server_time_per_output_token_count.sum(['gen_ai_response_model', 'service_name']).increase('PT1M') * 1000

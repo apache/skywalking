@@ -152,6 +152,8 @@ catalog:
             catalog:
               - name: "Virtual GenAI"
                 path: "/en/setup/service-agent/virtual-genai"
+              - name: "Envoy AI Gateway"
+                path: "/en/setup/backend/backend-envoy-ai-gateway-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"
