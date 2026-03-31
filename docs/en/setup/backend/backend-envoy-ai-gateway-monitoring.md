@@ -12,7 +12,7 @@ Collector is needed between the AI Gateway and SkyWalking OAP.
 
 ### Prerequisites
 - [Envoy AI Gateway](https://aigateway.envoyproxy.io/) deployed. See the
-  [Envoy AI Gateway quickstart](https://aigateway.envoyproxy.io/docs/capabilities/quickstart/) for installation.
+  [Envoy AI Gateway getting started](https://aigateway.envoyproxy.io/docs/getting-started/) for installation.
 
 ### Data flow
 1. Envoy AI Gateway processes LLM API requests and records GenAI metrics (token usage, latency, TTFT, TPOT).
