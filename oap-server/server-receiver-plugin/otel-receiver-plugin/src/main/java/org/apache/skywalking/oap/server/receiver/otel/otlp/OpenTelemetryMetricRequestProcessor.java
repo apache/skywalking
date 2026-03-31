@@ -70,7 +70,12 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
 
     private final OtelMetricReceiverConfig config;
 
-    private static final Map<String, String> LABEL_MAPPINGS =
+    /**
+     * Fallback label mappings: if the target label (value) is absent in resource attributes,
+     * copy the source label (key) as the target. The source label is always kept as-is.
+     * For example, if "job_name" is not present, "service.name" value is copied as "job_name".
+     */
+    private static final Map<String, String> FALLBACK_LABEL_MAPPINGS =
         ImmutableMap
             .<String, String>builder()
             .put("net.host.name", "node_identifier_host_name")
@@ -99,18 +104,20 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                     log.debug("Resource attributes: {}", request.getResource().getAttributesList());
                 }
 
-                final Map<String, String> nodeLabels =
-                    request
-                        .getResource()
-                        .getAttributesList()
-                        .stream()
-                        .collect(toMap(
-                            it -> LABEL_MAPPINGS
-                                .getOrDefault(it.getKey(), it.getKey())
-                                .replaceAll("\\.", "_"),
-                                it -> anyValueToString(it.getValue()),
-                        (v1, v2) -> v1
-                        ));
+                // First pass: collect all resource attributes with dots replaced by underscores
+                final Map<String, String> nodeLabels = new HashMap<>();
+                for (final var it : request.getResource().getAttributesList()) {
+                    final String key = it.getKey().replaceAll("\\.", "_");
+                    final String value = anyValueToString(it.getValue());
+                    nodeLabels.putIfAbsent(key, value);
+                }
+                // Second pass: apply fallback mappings — only if the target key is absent
+                for (final var it : request.getResource().getAttributesList()) {
+                    final String targetKey = FALLBACK_LABEL_MAPPINGS.get(it.getKey());
+                    if (targetKey != null) {
+                        nodeLabels.putIfAbsent(targetKey, anyValueToString(it.getValue()));
+                    }
+                }
 
                 ImmutableMap<String, SampleFamily> sampleFamilies = PrometheusMetricConverter.convertPromMetricToSampleFamily(
                     request.getScopeMetricsList().stream()
@@ -154,7 +161,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         return kvs
             .stream()
             .collect(toMap(
-                KeyValue::getKey,
+                it -> it.getKey().replaceAll("\\.", "_"),
                 it -> anyValueToString(it.getValue())
             ));
     }

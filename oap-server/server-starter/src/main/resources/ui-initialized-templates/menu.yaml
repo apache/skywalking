@@ -252,6 +252,11 @@ menus:
         description: Observe the virtual GenAI providers and models which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-genai/
         i18nKey: virtual_gen_ai
+      - title: Envoy AI Gateway
+        layer: ENVOY_AI_GATEWAY
+        description: Observe Envoy AI Gateway traffic including token usage, latency, TTFT, and per-provider/model breakdowns via OTLP metrics and access logs.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-envoy-ai-gateway-monitoring/
+        i18nKey: envoy_ai_gateway
   - title: Self Observability
     icon: self_observability
     description: Self Observability provides the observabilities for running components and servers from the SkyWalking ecosystem.

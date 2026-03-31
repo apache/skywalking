@@ -98,6 +98,27 @@ public class SampleFamily {
 
     public final RunningContext context;
 
+    @Override
+    public String toString() {
+        if (samples.length == 0) {
+            return "SampleFamily{EMPTY}";
+        }
+        final StringBuilder sb = new StringBuilder("SampleFamily{samples=[\n");
+        for (final Sample s : samples) {
+            sb.append("  ").append(s.getName()).append(s.getLabels()).append(" ").append(s.getValue()).append('\n');
+        }
+        sb.append("]}");
+        return sb.toString();
+    }
+
+    /**
+     * Dump this SampleFamily for debugging.
+     */
+    public SampleFamily debugDump() {
+        log.info("{}", this);
+        return this;
+    }
+
     /**
      * Following operations are used in DSL
      */
