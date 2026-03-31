@@ -26,7 +26,19 @@ The receiver adds label with key `node_identifier_host_name` to the collected da
 and its value is from `net.host.name` (or `host.name` for some OTLP versions) resource attributes defined in OpenTelemetry proto,
 for identification of the metric data.
 
-**Notice:** In the resource scope, dots (.) in the attributes' key names are converted to underscores (_), whereas in the metrics scope, they are not converted.
+**Label name conversion:** Dots (`.`) in attribute key names are converted to underscores (`_`) for both
+resource attributes and data point (metric-level) attributes. For example, `gen_ai.token.type` becomes
+`gen_ai_token_type` in MAL rules. Metric names also undergo the same conversion (e.g.,
+`gen_ai.client.token.usage` becomes `gen_ai_client_token_usage`).
+
+**Fallback label mappings:** The following resource attributes are copied to alternative label names
+if the target does not already exist:
+
+| Source | Target | Notes |
+|---|---|---|
+| `job` | `job_name` | Prometheus scrape job name |
+| `net.host.name` | `node_identifier_host_name` | Host identification |
+| `host.name` | `node_identifier_host_name` | Host identification |
 
 | Description                             | Configuration File                                  | Data Source                                                                                                            |
 |-----------------------------------------|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|

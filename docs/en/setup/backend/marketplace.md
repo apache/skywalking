@@ -12,6 +12,7 @@ SkyWalking provides ready-to-use monitoring capabilities for a wide range of tec
 - **Infrastructure** - Linux and Windows server monitoring
 - **Cloud Services** - AWS EKS, S3, DynamoDB, API Gateway, and more
 - **Gateways** - Nginx, APISIX, Kong monitoring
+- **GenAI** - [Virtual GenAI](../service-agent/virtual-genai.md) for agent-based LLM call monitoring, [Envoy AI Gateway](backend-envoy-ai-gateway-monitoring.md) for infrastructure-side AI traffic observability
 - **Databases** - MySQL, PostgreSQL, Redis, Elasticsearch, MongoDB, ClickHouse, and more
 - **Message Queues** - Kafka, RabbitMQ, Pulsar, RocketMQ, ActiveMQ
 - **Browser** - Real user monitoring for web applications
