@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.query.traceql;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 @Setter
@@ -33,4 +34,24 @@ public class TraceQLConfig extends ModuleConfig {
     private String restContextPathSkywalking;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
+    private long lookback = 86400000L;
+    private String zipkinTracesListResultTags = ZIPKIN_TRACES_LIST_RESULT_TAGS;
+    private String skywalkingTracesListResultTags = SKYWALKING_TRACES_LIST_RESULT_TAGS;
+
+    private static final String ZIPKIN_TRACES_LIST_RESULT_TAGS = String.join(
+        Const.COMMA,
+        "http.method",
+        "error"
+    );
+    private static final String SKYWALKING_TRACES_LIST_RESULT_TAGS = String.join(
+        Const.COMMA,
+        "http.method",
+        "http.status_code",
+        "rpc.status_code",
+        "db.type",
+        "db.instance",
+        "mq.queue",
+        "mq.topic",
+        "mq.broker"
+    );
 }

@@ -33,6 +33,11 @@ public class TraceQLQueryParams {
     private String serviceName;
 
     /**
+     * Service instance name filter
+     */
+    private String serviceInstance;
+
+    /**
      * Span name filter
      */
     private String spanName;
