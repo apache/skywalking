@@ -168,6 +168,7 @@
 * Update Istio E2E test versions: remove EOL 1.20.0, add 1.25.0–1.29.0 for ALS/Metrics/Ambient tests. Update Rover with Istio Process test from 1.15.0 to 1.28.0 with Kubernetes 1.28.
 * Support Virtual-GenAI monitoring.
 * Fix on-demand pod log parsing failure by replacing invalid `DateTimeFormatter` pattern with `ISO_OFFSET_DATE_TIME`.
+* Fix Zipkin receiver compatibility with application/x-protobuf Content-Type.
 * Support Envoy AI Gateway observability (SWIP-10): new `ENVOY_AI_GATEWAY` layer with MAL/LAL rules
   for GenAI metrics (token usage, latency, TTFT, TPOT) and access log sampling via OTLP.
 * OTel metric receiver: convert data point attribute dots to underscores (consistent with resource attributes
@@ -175,7 +176,6 @@
   precedence over the `service.name` fallback.
 * OTel log handler: prefer `service.instance.id` (OTel spec) over `service.instance` with fallback.
 * Add `SampleFamily.debugDump()` for MAL debugging.
-
 
 #### UI
 * Fix the missing icon in new native trace view.
