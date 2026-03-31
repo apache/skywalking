@@ -74,13 +74,30 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
      * Fallback label mappings: if the target label (value) is absent in resource attributes,
      * copy the source label (key) value as the target. The source label is always kept as-is
      * (with dots converted to underscores by the first pass).
+     *
+     * <p>The {@code service.name → job_name} mapping is required because the
+     * <a href="https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/prometheusreceiver/README.md">
+     * OTel Collector Prometheus Receiver</a> automatically converts the Prometheus {@code job}
+     * label to the {@code service.name} resource attribute. All Prometheus-based monitoring
+     * integrations (VM, Nginx, Redis, etc.) depend on this being available as {@code job_name}
+     * in MAL rules. When {@code job_name} is set explicitly in resource attributes (e.g., by
+     * Envoy AI Gateway), it takes precedence via {@code putIfAbsent}.
+     *
+     * <p><b>Legacy:</b> The {@code net.host.name} and {@code host.name} mappings to
+     * {@code node_identifier_host_name} are kept for backward compatibility with existing
+     * VM/Windows MAL rules. New integrations should NOT add entries here — use the natural
+     * dot-to-underscore conversion instead (e.g., {@code host.name} becomes {@code host_name}).
      */
     private static final Map<String, String> FALLBACK_LABEL_MAPPINGS =
         ImmutableMap
             .<String, String>builder()
+            // Legacy: use host_name (dot-to-underscore) for new integrations instead
             .put("net.host.name", "node_identifier_host_name")
             .put("host.name", "node_identifier_host_name")
-            .put("job", "job_name")
+            // OTel Collector Prometheus Receiver converts Prometheus `job` to `service.name`.
+            // All Prometheus-based MAL rules filter by job_name. When job_name is set explicitly
+            // in resource attributes (e.g., Envoy AI Gateway), it takes precedence via putIfAbsent.
+            .put("service.name", "job_name")
             .build();
     private List<MetricConvert> converters;
 

@@ -32,13 +32,20 @@ resource attributes and data point (metric-level) attributes. For example, `gen_
 `gen_ai.client.token.usage` becomes `gen_ai_client_token_usage`).
 
 **Fallback label mappings:** The following resource attributes are copied to alternative label names
-if the target does not already exist:
+if the target does not already exist. These are fallback-only — if the target label is already present
+in the resource attributes, the fallback is skipped.
 
 | Source | Target | Notes |
 |---|---|---|
-| `job` | `job_name` | Prometheus scrape job name |
-| `net.host.name` | `node_identifier_host_name` | Host identification |
-| `host.name` | `node_identifier_host_name` | Host identification |
+| `service.name` | `job_name` | The [OTel Collector Prometheus Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/prometheusreceiver/README.md) automatically converts the Prometheus `job` label to `service.name`. This fallback ensures it is available as `job_name` for MAL rule filtering. |
+| `net.host.name` | `node_identifier_host_name` | Legacy: used by VM/Windows MAL rules |
+| `host.name` | `node_identifier_host_name` | Legacy: used by VM/Windows MAL rules |
+
+When `job_name` is set explicitly in `OTEL_RESOURCE_ATTRIBUTES` (e.g., by Envoy AI Gateway),
+it takes precedence and the `service.name` fallback is skipped.
+
+**Note:** The `net.host.name` and `host.name` mappings are legacy. New integrations should use
+the natural dot-to-underscore conversion (e.g., `host.name` → `host_name` in MAL rules).
 
 | Description                             | Configuration File                                  | Data Source                                                                                                            |
 |-----------------------------------------|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
