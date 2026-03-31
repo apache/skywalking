@@ -272,7 +272,13 @@ public enum Layer {
      * Virtual GenAI is a virtual layer used to represent and monitor remote, uninstrumented
      * Generative AI providers.
      */
-    VIRTUAL_GENAI(45, false);
+    VIRTUAL_GENAI(45, false),
+
+    /**
+     * Envoy AI Gateway is an AI/LLM traffic gateway built on Envoy Proxy,
+     * providing observability for GenAI API traffic.
+     */
+    ENVOY_AI_GATEWAY(46, true);
 
     private final int value;
     /**

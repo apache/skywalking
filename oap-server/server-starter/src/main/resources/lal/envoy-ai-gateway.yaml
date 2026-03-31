@@ -1,0 +1,52 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Envoy AI Gateway access log processing via OTLP.
+#
+# Sampling policy: only persist abnormal or expensive requests.
+# Normal 200 responses with low token count and no upstream failure are dropped.
+
+rules:
+  - name: envoy-ai-gateway-access-log
+    layer: ENVOY_AI_GATEWAY
+    dsl: |
+      filter {
+        // Drop normal logs: response < 400, no upstream failure, low token count
+        if (tag("response_code") != "" && tag("response_code") != "-") {
+          if (tag("response_code") as Integer < 400) {
+            if (tag("upstream_transport_failure_reason") == "" || tag("upstream_transport_failure_reason") == "-") {
+              if (tag("gen_ai.usage.input_tokens") != "" && tag("gen_ai.usage.input_tokens") != "-"
+                  && tag("gen_ai.usage.output_tokens") != "" && tag("gen_ai.usage.output_tokens") != "-") {
+                if ((tag("gen_ai.usage.input_tokens") as Integer) + (tag("gen_ai.usage.output_tokens") as Integer) < 10000) {
+                  abort {}
+                }
+              }
+            }
+          }
+        }
+
+        extractor {
+          tag 'gen_ai.request.model': tag("gen_ai.request.model")
+          tag 'gen_ai.response.model': tag("gen_ai.response.model")
+          tag 'gen_ai.provider.name': tag("gen_ai.provider.name")
+          tag 'gen_ai.usage.input_tokens': tag("gen_ai.usage.input_tokens")
+          tag 'gen_ai.usage.output_tokens': tag("gen_ai.usage.output_tokens")
+          tag 'response_code': tag("response_code")
+          tag 'duration': tag("duration")
+        }
+
+        sink {
+        }
+      }

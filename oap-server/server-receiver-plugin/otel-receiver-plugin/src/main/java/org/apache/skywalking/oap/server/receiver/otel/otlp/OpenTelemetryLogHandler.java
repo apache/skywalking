@@ -104,7 +104,13 @@ public class OpenTelemetryLogHandler
                 return;
             }
             final var layer = attributes.getOrDefault("service.layer", "");
-            final var serviceInstance = attributes.getOrDefault("service.instance", "");
+            // service.instance.id is the OTel standard resource attribute for instance identity
+            // https://opentelemetry.io/docs/specs/semconv/resource/#service
+            // Fall back to service.instance for backward compatibility
+            final var instanceId = attributes.getOrDefault("service.instance.id", "");
+            final var serviceInstance = instanceId.isEmpty()
+                ? attributes.getOrDefault("service.instance", "")
+                : instanceId;
 
             resourceLogs
                 .getScopeLogsList()
