@@ -278,7 +278,7 @@ public class DebuggingHTTPHandler {
         DebuggingTraceContext traceContext = new DebuggingTraceContext(condition, true, false);
         DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
         try {
-            AggregatedHttpResponse response = zipkinQueryHandler.getTracesHTTP(
+            AggregatedHttpResponse response = zipkinQueryHandler.getTraces(
                 serviceName, remoteServiceName, spanName, annotationQuery, minDuration, maxDuration, endTs, lookback,
                 limit
             );
@@ -304,7 +304,7 @@ public class DebuggingHTTPHandler {
         DebuggingTraceContext traceContext = new DebuggingTraceContext("traceId: " + traceId, true, false);
         DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
         try {
-            AggregatedHttpResponse response = zipkinQueryHandler.getTraceByIdHTTP(traceId);
+            AggregatedHttpResponse response = zipkinQueryHandler.getTraceById(traceId);
             List<Span> trace = new ArrayList<>();
             if (response.status().code() == 200) {
                 trace = new Gson().fromJson(

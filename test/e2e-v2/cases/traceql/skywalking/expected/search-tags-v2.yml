@@ -13,7 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-tagValues:
-  - type: string
-    value: error
-
+scopes:
+  {{- contains .scopes }}
+  - name: span
+    tags:
+      {{- contains .tags }}
+      - {{ notEmpty . }}
+      {{- end }}
+  {{- end }}

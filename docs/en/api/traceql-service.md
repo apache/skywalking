@@ -5,6 +5,10 @@ Third-party systems or visualization platforms that already support Tempo and Tr
 
 SkyWalking supports two types of traces: SkyWalking native traces and Zipkin-compatible traces. The TraceQL Service converts both trace formats to OpenTelemetry Protocol (OTLP) format to provide compatibility with Grafana Tempo and TraceQL queries.
 
+> **Note**: SkyWalking native trace support in TraceQL is based on the [Query Traces V2 API](https://skywalking.apache.org/docs/main/next/en/api/query-protocol/#trace-v2) (`queryTraces` / `hasQueryTracesV2Support`).
+> Currently, only **BanyanDB** storage implements this API. Other storage backends (e.g. Elasticsearch, MySQL, PostgreSQL) do not support it.
+> Zipkin-compatible traces are not subject to this restriction.
+
 ## Details Of Supported TraceQL
 The following doc describes the details of the supported protocol and compared it to the TraceQL official documentation.
 If not mentioned, it will not be supported by default.
@@ -250,16 +254,16 @@ Search for traces matching the given TraceQL criteria.
 GET /api/search
 ```
 
-| Parameter   | Definition                          | Optional      |
-|-------------|-------------------------------------|---------------|
-| q           | TraceQL query                       | yes           |
-| tags        | Deprecated tag query format         | yes           |
-| minDuration | Minimum trace duration              | yes           |
-| maxDuration | Maximum trace duration              | yes           |
-| limit       | Maximum number of traces to return  | yes           |
-| start       | Start timestamp (seconds)           | yes            |
-| end         | End timestamp (seconds)             | yes            |
-| spss        | Spans per span set                  | not supported |
+| Parameter   | Definition                                      | Optional       |
+|-------------|-------------------------------------------------|----------------|
+| q           | TraceQL query                                   | yes            |
+| tags        | Deprecated tag query format                     | yes            |
+| minDuration | Minimum trace duration                          | yes            |
+| maxDuration | Maximum trace duration                          | yes            |
+| limit       | Maximum number of traces to return. Default: 20 | yes            |
+| start       | Start timestamp (seconds)                       | yes            |
+| end         | End timestamp (seconds)                         | yes            |
+| spss        | Spans per span set                              | not supported  |
 
 **Example**:
 ```text
@@ -305,7 +309,7 @@ GET /zipkin/api/search?q={resource.service.name="frontend"}&start=1640000000&end
                 {
                   "key": "span.kind",
                   "value": {
-                    "stringValue": "SERVER"
+                    "stringValue": "SPAN_KIND_SERVER"
                   }
                 }
               ]
@@ -336,7 +340,7 @@ GET /zipkin/api/search?q={resource.service.name="frontend"}&start=1640000000&end
                 {
                   "key": "span.kind",
                   "value": {
-                    "stringValue": "CLIENT"
+                    "stringValue": "SPAN_KIND_CLIENT"
                   }
                 }
               ]
@@ -664,22 +668,171 @@ GET /zipkin/api/v2/traces/f321ebb45ffee8b5
 **Response (Protobuf)**:
 When `Accept: application/protobuf` header is set, the response will be in OpenTelemetry Protobuf format.
 
-## Configuration
+## Zipkin Trace Conversion
 
-### Context Path
-TraceQL Service supports custom context paths for different trace backends:
+When using the Zipkin backend, the following conversions are applied:
 
-- **Zipkin Backend**: `/zipkin` - Queries Zipkin-compatible traces and converts to OTLP format
-- **SkyWalking Native**: `/skywalking` - Queries SkyWalking native traces and converts to OTLP format
+### Span Kind Mapping
+Zipkin span kinds are mapped to OTLP span kinds:
 
-Configuration in `application.yml`:
-```yaml
-tempo-query:
-  zipkinContextPath: /zipkin
-  skyWalkingContextPath: /skywalking
+| Zipkin Span Kind | OTLP Span Kind          |
+|------------------|-------------------------|
+| `CLIENT`         | `SPAN_KIND_CLIENT`      |
+| `SERVER`         | `SPAN_KIND_SERVER`      |
+| `PRODUCER`       | `SPAN_KIND_PRODUCER`    |
+| `CONSUMER`       | `SPAN_KIND_CONSUMER`    |
+| (absent)         | `SPAN_KIND_UNSPECIFIED` |
+| (other)          | `SPAN_KIND_INTERNAL`    |
+
+### Status Mapping
+Zipkin tags are used to derive the OTLP span status in the following priority order:
+
+1. If the `otel.status_code` tag is present, it is parsed directly as the OTLP `StatusCode` (e.g. `STATUS_CODE_OK`, `STATUS_CODE_ERROR`).
+2. Otherwise, if the `error` tag equals `true` (case-insensitive), the status is set to `STATUS_CODE_ERROR`.
+3. If neither tag is present, the status defaults to `STATUS_CODE_UNSET`.
+
+The `otel.status_description` tag, if present, is used as the status message.
+
+### Endpoint Mapping
+Zipkin endpoint fields are mapped to OTLP span attributes:
+
+| Zipkin Field                 | OTLP Attribute                  |
+|------------------------------|---------------------------------|
+| `localEndpoint.ipv4`         | `net.host.ip`                   |
+| `localEndpoint.ipv6`         | `net.host.ip`                   |
+| `localEndpoint.port`         | `net.host.port`                 |
+| `remoteEndpoint.serviceName` | `net.peer.name`, `peer.service` |
+| `remoteEndpoint.ipv4`        | `net.peer.ip`                   |
+| `remoteEndpoint.ipv6`        | `net.peer.ip`                   |
+| `remoteEndpoint.port`        | `net.peer.port`                 |
+
+### Annotations
+Zipkin annotations are converted to OTLP span events. Each annotation becomes a `Span.Event` with `timeUnixNano` (converted from microseconds) and `name` set to the annotation value.
+
+### Instrumentation Scope
+All spans within a Zipkin trace carry the instrumentation scope:
+```
+name: "zipkin-tracer"
+version: "0.1.0"
 ```
 
-Both backends convert their respective trace formats to OpenTelemetry Protocol (OTLP) format for TraceQL compatibility.
+## SkyWalking Native Trace Conversion
+
+When using the SkyWalking native backend, the following conversions are applied:
+
+### Trace ID Encoding
+
+SkyWalking native trace IDs are arbitrary strings that may contain characters outside the hexadecimal alphabet
+(for example, `2a2e04e8d1114b14925c04a6321ca26c.38.17739924187687539` includes `.` separators).
+OTLP and Grafana Tempo require trace IDs to be pure hex strings.
+
+To satisfy this constraint, every SkyWalking trace ID is encoded by converting each UTF-8 byte of the
+original string to two lowercase hex characters:
+
+```
+Original: 2a2e04e8d1114b14925c04a6321ca26c.38.17739924187687539
+Encoded:  32613265303465386431313134623134393235633034613633323163613236632e33382e3137373339393234313837363837353339
+```
+
+- **Encoding**: `traceId.getBytes(UTF-8)` → each byte formatted as `%02x` → concatenated lowercase hex string.
+- **Decoding**: hex string → byte array → `new String(bytes, UTF-8)` → original SkyWalking trace ID.
+
+The encoded trace ID is what appears in all API responses (e.g., the `traceID` field in [Search Traces](#search-traces)).
+When calling [Query Trace by ID](#query-trace-by-id-v1), use the encoded hex form as the `{traceId}` path parameter.
+
+### Span Kind Mapping
+SkyWalking span types are mapped to OTLP span kinds:
+
+| SkyWalking Span Type | OTLP Span Kind          |
+|----------------------|-------------------------|
+| `Entry`              | `SPAN_KIND_SERVER`      |
+| `Exit`               | `SPAN_KIND_CLIENT`      |
+| `Local`              | `SPAN_KIND_INTERNAL`    |
+| (absent)             | `SPAN_KIND_UNSPECIFIED` |
+| (other)              | `SPAN_KIND_INTERNAL`    |
+
+### Status Mapping
+The SkyWalking `isError` flag is mapped to OTLP span status:
+
+| SkyWalking `isError` | OTLP Status Code      | OTLP Status Message |
+|----------------------|-----------------------|---------------------|
+| `true`               | `STATUS_CODE_ERROR`   | `"Error occurred"`  |
+| `false`              | `STATUS_CODE_OK`      | (empty)             |
+
+### Span Logs
+SkyWalking span logs are converted to OTLP span events. Each `LogEntity` produces one `Span.Event` with:
+- `timeUnixNano` converted from the log timestamp (milliseconds → nanoseconds)
+- `name` fixed as `"log"`
+- `attributes` populated from `log.data` key-value pairs as string attributes
+
+### SpanAttachedEvents
+SkyWalking [SpanAttachedEvents](../concepts-and-designs/event.md) are converted to OTLP span events.
+Each `SpanAttachedEvent` produces one OTLP `Span.Event` with:
+- `timeUnixNano` from `attachedEvent.startTime`
+- `name` from `attachedEvent.event`
+- `attributes` populated from both `attachedEvent.tags` (string key-value pairs) and `attachedEvent.summary` (numeric key-value pairs, serialised as strings)
+
+### Instrumentation Scope
+All spans within a SkyWalking native trace carry the instrumentation scope:
+```
+name: "skywalking-tracer"
+version: "0.1.0"
+```
+
+## Configuration
+
+### Enabling Backends
+TraceQL Service supports two backends that can be independently enabled or disabled:
+
+| Configuration Field        | Env Variable                             | Default | Description                         |
+|----------------------------|------------------------------------------|---------|-------------------------------------|
+| `enableDatasourceZipkin`   | `SW_TRACEQL_ENABLE_DATASOURCE_ZIPKIN`    | `false` | Enable Zipkin-compatible backend    |
+| `enableDatasourceSkywalking` | `SW_TRACEQL_ENABLE_DATASOURCE_SKYWALKING` | `false` | Enable SkyWalking native backend    |
+
+### Context Path
+Each backend is served under a separate context path:
+
+| Configuration Field           | Env Variable                              | Default       | Description                        |
+|-------------------------------|-------------------------------------------|---------------|------------------------------------|
+| `restContextPathZipkin`       | `SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN`     | `/zipkin`     | Context path for Zipkin backend    |
+| `restContextPathSkywalking`   | `SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING` | `/skywalking` | Context path for SkyWalking backend |
+
+### Traces List Result Tags
+The tags included in the search result spans can be configured. Only listed tags are returned in `Search Traces` responses.
+`service.name` and `span.kind` are always included regardless of this setting.
+
+| Configuration Field              | Env Variable                                     | Default                                                                              |
+|----------------------------------|--------------------------------------------------|--------------------------------------------------------------------------------------|
+| `zipkinTracesListResultTags`     | `SW_TRACEQL_ZIPKIN_TRACES_LIST_RESULT_TAGS`      | `http.method,error`                                                                  |
+| `skywalkingTracesListResultTags` | `SW_TRACEQL_SKYWALKING_TRACES_LIST_RESULT_TAGS`  | `http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker` |
+
+### Other Settings
+
+| Configuration Field    | Env Variable                    | Default    | Description                                                                                        |
+|------------------------|---------------------------------|------------|----------------------------------------------------------------------------------------------------|
+| `restHost`             | `SW_TRACEQL_REST_HOST`          | `0.0.0.0`  | Bind host                                                                                          |
+| `restPort`             | `SW_TRACEQL_REST_PORT`          | `3200`     | Bind port                                                                                          |
+| `restIdleTimeOut`      | `SW_TRACEQL_REST_IDLE_TIMEOUT`  | `30000`    | HTTP idle timeout in milliseconds                                                                  |
+| `restAcceptQueueSize`  | `SW_TRACEQL_REST_QUEUE_SIZE`    | `0`        | HTTP accept queue size (0 = unlimited)                                                             |
+| `lookback`             | `SW_TRACEQL_LOOKBACK`           | `86400000` | Default look-back window in milliseconds when no `start` is given, the default end time is current |
+
+Full example in `application.yml`:
+```yaml
+traceQL:
+  selector: ${SW_TRACEQL:default}
+  default:
+    restHost: ${SW_TRACEQL_REST_HOST:0.0.0.0}
+    restPort: ${SW_TRACEQL_REST_PORT:3200}
+    enableDatasourceZipkin: ${SW_TRACEQL_ENABLE_DATASOURCE_ZIPKIN:true}
+    enableDatasourceSkywalking: ${SW_TRACEQL_ENABLE_DATASOURCE_SKYWALKING:true}
+    restContextPathZipkin: ${SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN:/zipkin}
+    restContextPathSkywalking: ${SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING:/skywalking}
+    restIdleTimeOut: ${SW_TRACEQL_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_TRACEQL_REST_QUEUE_SIZE:0}
+    lookback: ${SW_TRACEQL_LOOKBACK:86400000}
+    zipkinTracesListResultTags: ${SW_TRACEQL_ZIPKIN_TRACES_LIST_RESULT_TAGS:http.method,error}
+    skywalkingTracesListResultTags: ${SW_TRACEQL_SKYWALKING_TRACES_LIST_RESULT_TAGS:http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
+```
 
 ## Integration with Grafana
 
@@ -706,5 +859,5 @@ Both backends convert their respective trace formats to OpenTelemetry Protocol (
 ## See Also
 - [Grafana Tempo TraceQL Documentation](https://grafana.com/docs/tempo/latest/traceql/)
 - [OpenTelemetry Protocol Specification](https://opentelemetry.io/docs/reference/specification/protocol/)
-- [SkyWalking Trace Query](https://skywalking.apache.org/docs/main/next/en/api/query-protocol/)
+- [SkyWalking Trace Query](https://skywalking.apache.org/docs/main/next/en/api/query-protocol/#trace)
 

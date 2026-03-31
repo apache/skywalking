@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.query.traceql.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -59,6 +60,7 @@ public class SearchResponse extends QueryResponse {
     }
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Value {
         private String stringValue;
     }
