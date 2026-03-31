@@ -15,28 +15,11 @@
 
 import socketserver
 from http.server import BaseHTTPRequestHandler
-
 from openai import OpenAI
-from opentelemetry import trace
-from opentelemetry.exporter.zipkin.json import ZipkinExporter
-from opentelemetry.instrumentation.openai import OpenAIInstrumentor
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-
-provider = TracerProvider()
-
-zipkin_exporter = ZipkinExporter()
-
-processor = BatchSpanProcessor(zipkin_exporter)
-provider.add_span_processor(processor)
-trace.set_tracer_provider(provider)
-
-OpenAIInstrumentor().instrument()
 
 client = OpenAI(
     timeout=120.0,
 )
-
 
 class AIRequestHandler(BaseHTTPRequestHandler):
 
@@ -59,7 +42,6 @@ class AIRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         self.do_GET()
-
 
 PORT = 9091
 

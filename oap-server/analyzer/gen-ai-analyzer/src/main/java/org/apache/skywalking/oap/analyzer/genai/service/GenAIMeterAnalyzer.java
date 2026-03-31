@@ -79,6 +79,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
             return null;
         }
         String provider = tags.get(GenAITagKeys.PROVIDER_NAME);
+
         GenAIProviderPrefixMatcher.MatchResult matchResult = matcher.match(modelName);
 
         if (StringUtil.isBlank(provider)) {
@@ -121,6 +122,11 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
 
         String modelName = element.getAsString();
         String provider = getZipkinSpanTagValue(tags, GenAITagKeys.PROVIDER_NAME);
+
+        if (StringUtil.isBlank(provider)) {
+            // Support legacy tags for OTLP or Zipkin traces.
+            provider = getZipkinSpanTagValue(tags, GenAITagKeys.SYSTEM_NAME);
+        }
 
         GenAIProviderPrefixMatcher.MatchResult matchResult = matcher.match(modelName);
         if (StringUtil.isBlank(provider)) {

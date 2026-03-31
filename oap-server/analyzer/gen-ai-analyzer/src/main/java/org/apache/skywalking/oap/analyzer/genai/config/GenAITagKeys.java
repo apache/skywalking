@@ -27,4 +27,6 @@ public class GenAITagKeys {
     public static final String SERVER_TIME_TO_FIRST_TOKEN = "gen_ai.server.time_to_first_token";
 
     public static final String ESTIMATED_COST = "gen_ai.estimated.cost";
+
+    public static final String SYSTEM_NAME = "gen_ai.system";
 }

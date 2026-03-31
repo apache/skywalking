@@ -49,8 +49,8 @@ services:
 
   provider-py:
     build:
-      context: .
-      dockerfile: Dockerfile.python
+      context: ../../script/
+      dockerfile: dockerfile/Dockerfile-openai.python
     networks:
       - e2e
     ports:
@@ -58,6 +58,7 @@ services:
     environment:
       OPENAI_BASE_URL: http://provider:9090/llm/otlp/v1
       OPENAI_API_KEY: xxxxxxxxxxxxxxxxxxxxxxxx
+      OTEL_TRACES_EXPORTER: zipkin
       OTEL_EXPORTER_ZIPKIN_ENDPOINT: http://oap:9411/api/v2/spans
     depends_on:
       oap:
@@ -67,7 +68,7 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
-    entrypoint: ['python3', '/openai-call.py']
+    command: ["opentelemetry-instrument", "python3", "/openai-call.py"]
 
 networks:
   e2e:
