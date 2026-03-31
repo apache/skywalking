@@ -486,7 +486,37 @@
                     "type": "InstanceList",
                     "dashboardName": "Envoy-AI-Gateway-Instance",
                     "fontSize": 12
-                  }
+                  },
+                  "expressions": [
+                    "avg(meter_envoy_ai_gw_instance_request_cpm)",
+                    "avg(meter_envoy_ai_gw_instance_request_latency_avg)",
+                    "avg(meter_envoy_ai_gw_instance_input_token_rate)",
+                    "avg(meter_envoy_ai_gw_instance_output_token_rate)"
+                  ],
+                  "subExpressions": [
+                    "meter_envoy_ai_gw_instance_request_cpm",
+                    "meter_envoy_ai_gw_instance_request_latency_avg",
+                    "meter_envoy_ai_gw_instance_input_token_rate",
+                    "meter_envoy_ai_gw_instance_output_token_rate"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "CPM",
+                      "unit": "calls/min"
+                    },
+                    {
+                      "label": "Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "Input Tokens",
+                      "unit": "tokens/min"
+                    },
+                    {
+                      "label": "Output Tokens",
+                      "unit": "tokens/min"
+                    }
+                  ]
                 }
               ]
             }
