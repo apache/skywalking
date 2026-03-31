@@ -106,7 +106,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                 // First pass: collect all resource attributes with dots replaced by underscores
                 final Map<String, String> nodeLabels = new HashMap<>();
                 for (final var it : request.getResource().getAttributesList()) {
-                    final String key = it.getKey().replaceAll("\\.", "_");
+                    final String key = it.getKey().replace('.', '_');
                     final String value = anyValueToString(it.getValue());
                     nodeLabels.putIfAbsent(key, value);
                 }
@@ -160,8 +160,9 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         return kvs
             .stream()
             .collect(toMap(
-                it -> it.getKey().replaceAll("\\.", "_"),
-                it -> anyValueToString(it.getValue())
+                it -> it.getKey().replace('.', '_'),
+                it -> anyValueToString(it.getValue()),
+                (v1, v2) -> v1
             ));
     }
 

@@ -62,20 +62,16 @@ This is a **normal** layer (`isNormal=true`) because the AI Gateway is a real, i
 
 #### `job_name` — Routing Tag for MAL/LAL Rules
 
-SkyWalking's OTel receiver maps the OTLP resource attribute `service.name` to the internal tag `job_name`.
-This tag is used by MAL rule filters to route metrics to the correct rule set. All Envoy AI Gateway
-deployments must use a fixed `OTEL_SERVICE_NAME` value so that SkyWalking can identify the traffic:
+The `job_name` resource attribute is set explicitly in `OTEL_RESOURCE_ATTRIBUTES` to a fixed value
+for all AI Gateway deployments. MAL rule filters use it to route metrics to the correct rule set:
 
-```bash
-OTEL_SERVICE_NAME=envoy-ai-gateway
-```
-
-This becomes `job_name=envoy-ai-gateway` in MAL, and the rules filter on it:
 ```yaml
 filter: "{ tags -> tags.job_name == 'envoy-ai-gateway' }"
 ```
 
-`job_name` is NOT the SkyWalking service name — it is only used for metric/log routing.
+`job_name` is NOT the SkyWalking service name — it is only used for metric/log routing. The
+SkyWalking service name comes from `OTEL_SERVICE_NAME` (standard OTel env var), which is set
+per deployment.
 
 #### Service and Instance Mapping
 
@@ -406,7 +402,7 @@ Each access log record is pushed as an OTLP LogRecord with the following structu
 |---|---|---|
 | `job_name` | `envoy-ai-gateway` | From `OTEL_RESOURCE_ATTRIBUTES` — MAL/LAL routing tag |
 | `service.instance.id` | `aigw-pod-7b9f4d8c5` | From `OTEL_RESOURCE_ATTRIBUTES` — SkyWalking instance name |
-| `service.name` | `envoy-ai-gateway` | From `OTEL_SERVICE_NAME` — mapped to `job_name` for rule routing |
+| `service.name` | `envoy-ai-gateway` | From `OTEL_SERVICE_NAME` — SkyWalking service name for logs |
 | `node_name` | `default-aigw-run-85f8cf28` | Envoy node identifier |
 | `cluster_name` | `default/aigw-run` | Envoy cluster name |
 

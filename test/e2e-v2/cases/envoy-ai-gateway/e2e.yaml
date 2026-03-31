@@ -38,6 +38,15 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
     - name: Pull Ollama model
       command: docker compose -f test/e2e-v2/cases/envoy-ai-gateway/docker-compose.yml exec ollama ollama pull qwen2.5:0.5b
+    - name: Send error requests for log sampling verification
+      command: |
+        for i in 1 2 3; do
+          curl -s --max-time 15 -o /dev/null -w "%{http_code} " \
+            http://${aigw_host}:${aigw_1975}/v1/chat/completions \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"nonexistent-model","messages":[{"role":"user","content":"Hi"}]}'
+          sleep 1
+        done
 
 trigger:
   action: http

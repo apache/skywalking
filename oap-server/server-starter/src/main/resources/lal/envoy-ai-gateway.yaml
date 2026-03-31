@@ -24,10 +24,15 @@ rules:
     dsl: |
       filter {
         // Drop normal logs: response < 400, no upstream failure, low token count
-        if (tag("response_code") as Integer < 400) {
-          if (tag("upstream_transport_failure_reason") == "" || tag("upstream_transport_failure_reason") == "-") {
-            if ((tag("gen_ai.usage.input_tokens") as Integer) + (tag("gen_ai.usage.output_tokens") as Integer) < 10000) {
-              abort {}
+        if (tag("response_code") != "" && tag("response_code") != "-") {
+          if (tag("response_code") as Integer < 400) {
+            if (tag("upstream_transport_failure_reason") == "" || tag("upstream_transport_failure_reason") == "-") {
+              if (tag("gen_ai.usage.input_tokens") != "" && tag("gen_ai.usage.input_tokens") != "-"
+                  && tag("gen_ai.usage.output_tokens") != "" && tag("gen_ai.usage.output_tokens") != "-") {
+                if ((tag("gen_ai.usage.input_tokens") as Integer) + (tag("gen_ai.usage.output_tokens") as Integer) < 10000) {
+                  abort {}
+                }
+              }
             }
           }
         }

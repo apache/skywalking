@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Envoy AI Gateway e2e verification cases
-# Service name = "e2e-ai-gateway" (from OTEL_RESOURCE_ATTRIBUTES aigw.service)
+# Service name = "e2e-ai-gateway" (from OTEL_SERVICE_NAME)
 
 cases:
   # Service exists in ENVOY_AI_GATEWAY layer
@@ -44,3 +44,7 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_envoy_ai_gw_model_latency_avg --service-name=e2e-ai-gateway
     expected: expected/metrics-has-value.yml
+
+  # Access logs — error requests (404) should be persisted by LAL sampling
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs ls --service-name=e2e-ai-gateway
+    expected: expected/logs.yml
