@@ -168,6 +168,7 @@
 * Update Istio E2E test versions: remove EOL 1.20.0, add 1.25.0–1.29.0 for ALS/Metrics/Ambient tests. Update Rover with Istio Process test from 1.15.0 to 1.28.0 with Kubernetes 1.28.
 * Support Virtual-GenAI monitoring.
 * Fix on-demand pod log parsing failure by replacing invalid `DateTimeFormatter` pattern with `ISO_OFFSET_DATE_TIME`.
+* Fix Zipkin receiver compatibility with application/x-protobuf Content-Type.
 
 
 #### UI

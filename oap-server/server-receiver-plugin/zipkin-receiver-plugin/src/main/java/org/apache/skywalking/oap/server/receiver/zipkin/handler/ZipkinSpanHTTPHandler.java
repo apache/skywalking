@@ -22,6 +22,7 @@ import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.server.annotation.Consumes;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
 import com.linecorp.armeria.server.annotation.ConsumesProtobuf;
 import com.linecorp.armeria.server.annotation.Post;
@@ -79,6 +80,12 @@ public class ZipkinSpanHTTPHandler {
     @Post("/api/v2/spans")
     @ConsumesProtobuf
     public HttpResponse collectV2ProtobufSpans(HttpRequest req) {
+        return doCollectSpans(SpanBytesDecoder.PROTO3, req);
+    }
+
+    @Post("/api/v2/spans")
+    @Consumes("application/x-protobuf")
+    public HttpResponse collectV2XProtobufSpans(HttpRequest req) {
         return doCollectSpans(SpanBytesDecoder.PROTO3, req);
     }
 
