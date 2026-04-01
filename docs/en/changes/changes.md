@@ -3,6 +3,7 @@
 #### Project
 
 #### OAP Server
+* Add the Zipkin Virtual GenAI e2e
 
 #### UI
 
