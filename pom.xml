@@ -147,7 +147,7 @@
     </profiles>
 
     <properties>
-        <revision>10.4.0-SNAPSHOT</revision>
+        <revision>10.4.0</revision>
 
         <!-- Built in properties -->
         <maven.compiler.release>11</maven.compiler.release>
