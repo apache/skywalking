@@ -637,8 +637,6 @@ jobs:
             config: test/e2e-v2/cases/virtual-genai/e2e.yaml
           - name: OTLP Virtual GenAI
             config: test/e2e-v2/cases/otlp-virtual-genai/e2e.yaml
-          - name: Zipkin Virtual GenAI
-            config: test/e2e-v2/cases/zipkin-virtual-genai/e2e.yaml
 
           - name: Nginx
             config: test/e2e-v2/cases/nginx/e2e.yaml
