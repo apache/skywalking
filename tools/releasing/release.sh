@@ -79,7 +79,14 @@ build_release_artifacts() {
 
     log_file=$(mktemp)
     echo "Building the release binary artifacts, log file: ${log_file}"
-    ${MVN} install package -DskipTests > ${log_file} 2>&1
+    if ! ${MVN} install package -DskipTests -Dcheckstyle.skip > ${log_file} 2>&1; then
+        echo ""
+        echo "ERROR: Maven build failed. Last 30 lines of log:"
+        tail -30 "${log_file}"
+        echo ""
+        echo "Full log: ${log_file}"
+        exit 1
+    fi
     mv dist/${PRODUCT_NAME}-bin.tar.gz "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
 
     cd "${SCRIPT_DIR}"
@@ -124,8 +131,10 @@ prepare_next_version() {
     echo "Pushing the changes to the remote repository..."
     git push --set-upstream origin ${RELEASE_VERSION}-release
 
-    echo "Opening the PR..."
-    open https://github.com/apache/skywalking/pull/new/${RELEASE_VERSION}-release
+    echo "Creating the PR..."
+    gh pr create --title "Prepare for next release ${NEXT_RELEASE_VERSION}" \
+        --body "Update version to ${NEXT_RELEASE_VERSION}-SNAPSHOT and rotate changelog for ${RELEASE_VERSION} release." \
+        --base master
 }
 
 upload_to_svn() {
@@ -189,7 +198,7 @@ This is a call for vote to release Apache SkyWalking version ${RELEASE_VERSION}.
 
 Release notes:
 
- * https://github.com/apache/skywalking/blob/master/docs/en/changes/changes-${RELEASE_VERSION}.md
+ * https://github.com/apache/skywalking/blob/${TAG}/docs/en/changes/changes.md
 
 Release Candidate:
 
@@ -261,12 +270,30 @@ if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     exit 1
 fi
 
+# Ensure GPG can prompt for passphrase in the current terminal
+export GPG_TTY=$(tty)
+
+echo "Verifying GPG signing works (you may be prompted for your passphrase)..."
+TEST_FILE=$(mktemp)
+echo "test" > "${TEST_FILE}"
+if ! gpg --armor --detach-sig "${TEST_FILE}" 2>/dev/null; then
+    rm -f "${TEST_FILE}" "${TEST_FILE}.asc"
+    echo ""
+    echo "ERROR: GPG signing failed. Common fixes:"
+    echo "  1. Run 'export GPG_TTY=\$(tty)' and retry"
+    echo "  2. Start gpg-agent: 'gpgconf --launch gpg-agent'"
+    echo "  3. Pre-cache passphrase: 'echo test | gpg --clearsign > /dev/null'"
+    exit 1
+fi
+rm -f "${TEST_FILE}" "${TEST_FILE}.asc"
+echo "GPG signing verified successfully."
+
 # Step 2: Check required tools
 echo ""
 echo "=== Step 2: Checking required tools ==="
 
 MISSING_TOOLS=()
-for tool in gpg svn shasum git yq; do
+for tool in gpg svn shasum git yq gh; do
     if ! command -v "$tool" &>/dev/null; then
         MISSING_TOOLS+=("$tool")
     fi

@@ -12,13 +12,13 @@ Add your GPG public key into the [SkyWalking GPG KEYS](https://dist.apache.org/r
 
 The release script [`tools/releasing/release.sh`](https://github.com/apache/skywalking/blob/master/tools/releasing/release.sh) automates the following steps:
 
-1. Verify GPG signer (`@apache.org` email required)
-2. Check required tools (`gpg`, `svn`, `shasum`, `git`, `yq`)
+1. Verify GPG signer (`@apache.org` email required) and test GPG signing upfront
+2. Check required tools (`gpg`, `svn`, `shasum`, `git`, `yq`, `gh`)
 3. Detect current version from `pom.xml`
 4. Calculate release version (strip `-SNAPSHOT`) and next version (bump minor)
 5. Clone the repository, build source and binary tarballs, GPG sign, SHA512 checksum
 6. Upload artifacts to SVN staging (`https://dist.apache.org/repos/dist/dev/skywalking/{version}`)
-7. Generate the vote email (with sha512 checksums and submodule commit IDs filled in)
+7. Generate the vote email (with sha512 checksums, submodule commit IDs, and release tag link filled in)
 8. Prepare next version PR (bump version, rotate changelog, update `menu.yml`, push branch)
 
 ```bash
@@ -27,6 +27,8 @@ bash release.sh
 ```
 
 The script is interactive — it confirms the GPG signer and version numbers before proceeding.
+The GPG signing is verified before the build starts, so passphrase or agent issues are caught early.
+If the Maven build fails, the last 30 lines of the build log are printed for diagnosis.
 
 After the script completes, copy the generated vote email and send it to `dev@skywalking.apache.org`.
 
@@ -44,7 +46,6 @@ are found in `https://dist.apache.org/repos/dist/dev/skywalking/x.y.z` with `.as
 1. Check `gpg --verify apache-skywalking-apm-x.y.z-src.tgz.asc apache-skywalking-apm-x.y.z-src.tgz`
 1. Build a distribution package from the source code package (`apache-skywalking-x.y.z-src.tar.gz`) by following this [doc](https://github.com/apache/skywalking/blob/master/docs/en/guides/How-to-build.md#build-from-apache-source-code-release).
 1. Check the Apache License Header. Run `docker run --rm -v $(pwd):/github/workspace apache/skywalking-eyes header check`. (No binaries in source codes)
-
 
 The voting process is as follows:
 1. All PMC member votes are +1 binding, and all other votes are +1 but non-binding.
