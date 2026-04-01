@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
 import org.apache.skywalking.oap.analyzer.genai.service.GenAIMeterAnalyzer;
 import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -36,6 +37,8 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 public class GenAIAnalyzerModuleProvider extends ModuleProvider {
 
     private GenAIConfig config;
+
+    private GenAIMeterAnalyzer analyzer;
 
     @Override
     public String name() {
@@ -67,10 +70,11 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
         GenAIConfigLoader loader = new GenAIConfigLoader(config);
         config = loader.loadConfig();
         GenAIProviderPrefixMatcher matcher = GenAIProviderPrefixMatcher.build();
+
+        this.analyzer = new GenAIMeterAnalyzer(matcher);
         this.registerServiceImplementation(
                 IGenAIMeterAnalyzerService.class,
-                new GenAIMeterAnalyzer(matcher)
-        );
+                analyzer);
     }
 
     @Override
@@ -79,6 +83,12 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
                 .provider()
                 .getService(OALEngineLoaderService.class)
                 .load(GenAIOALDefine.INSTANCE);
+
+        NamingControl namingControl = getManager().find(CoreModule.NAME)
+                .provider()
+                .getService(NamingControl.class);
+
+        this.analyzer.setNamingControl(namingControl);
     }
 
     @Override
@@ -88,7 +98,7 @@ public class GenAIAnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {
+        return new String[]{
                 CoreModule.NAME
         };
     }

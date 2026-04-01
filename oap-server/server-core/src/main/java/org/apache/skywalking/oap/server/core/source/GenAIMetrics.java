@@ -35,10 +35,11 @@ public class GenAIMetrics {
 
     /**
      * The total estimated cost of GenAI model calls.
-     * This value is amplified by 10^6 (multiplied by 1,000,000) to be stored as a long
-     * and to avoid precision issues with double in SumMetrics.
+     * The unit is 1*10^-6 of the currency (e.g. micro-USD).
+     * * This is stored as a double to maintain precision during calculation and
+     * when passing the value to callers (e.g. for Zipkin tags).
      */
-    private long totalEstimatedCost;
+    private double totalEstimatedCost;
 
     private int timeToFirstToken;
 

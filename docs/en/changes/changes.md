@@ -176,6 +176,7 @@
   precedence over the `service.name` fallback.
 * OTel log handler: prefer `service.instance.id` (OTel spec) over `service.instance` with fallback.
 * Add `SampleFamily.debugDump()` for MAL debugging.
+* Support virtual GenAI analysis for otlp and zipkin traces.
 
 #### UI
 * Fix the missing icon in new native trace view.

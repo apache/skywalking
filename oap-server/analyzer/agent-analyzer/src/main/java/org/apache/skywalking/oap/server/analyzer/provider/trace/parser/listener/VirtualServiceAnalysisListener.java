@@ -95,7 +95,7 @@ public class VirtualServiceAnalysisListener implements ExitAnalysisListener, Loc
                             new VirtualCacheProcessor(namingControl, config),
                             new VirtualDatabaseProcessor(namingControl, config),
                             new VirtualMQProcessor(namingControl),
-                            new VirtualGenAIProcessor(namingControl, genAIMeterAnalyzerService)
+                            new VirtualGenAIProcessor(genAIMeterAnalyzerService)
                     )
             );
         }
