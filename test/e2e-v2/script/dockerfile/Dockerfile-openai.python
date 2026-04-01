@@ -21,19 +21,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
-    openai \
-    opentelemetry-api \
-    opentelemetry-sdk \
-    opentelemetry-instrumentation-openai \
-    opentelemetry-exporter-otlp-proto-grpc \
-    opentelemetry-exporter-zipkin \
-    opentelemetry-exporter-zipkin-json \
-    opentelemetry-exporter-zipkin-proto-http \
-    opentelemetry-distro
+RUN pip install --no-cache-dir --upgrade pip
 
+RUN pip install --no-cache-dir openai
+RUN pip install --no-cache-dir opentelemetry-api
+RUN pip install --no-cache-dir opentelemetry-sdk
+RUN pip install --no-cache-dir opentelemetry-instrumentation-openai
+RUN pip install --no-cache-dir opentelemetry-exporter-otlp-proto-grpc
+RUN pip install --no-cache-dir opentelemetry-exporter-zipkin
+RUN pip install --no-cache-dir opentelemetry-exporter-zipkin-json
+RUN pip install --no-cache-dir opentelemetry-exporter-zipkin-proto-http
+
+RUN pip install --no-cache-dir opentelemetry-distro
 RUN opentelemetry-bootstrap --action=install
 
 COPY python/openai-call.py /openai-call.py
-
