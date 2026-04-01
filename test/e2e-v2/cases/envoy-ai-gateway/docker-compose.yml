@@ -1,0 +1,85 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Envoy AI Gateway e2e — ai-gateway-cli + Ollama + SkyWalking OAP
+#
+# Architecture:
+#   trigger → ai-gateway-cli (port 1975) → ollama (port 11434)
+#                  ↓ OTLP gRPC
+#             oap (port 11800) → banyandb
+
+services:
+  banyandb:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: banyandb
+    networks:
+      - e2e
+
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+    ports:
+      - 12800
+    depends_on:
+      banyandb:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:0.6.2
+    networks:
+      - e2e
+    expose:
+      - 11434
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  aigw:
+    # TODO: pin to a release version once ai-gateway-cli HTTP listener is available in a release
+    image: envoyproxy/ai-gateway-cli:latest
+    command: run --run-id=0
+    environment:
+      OPENAI_API_KEY: "dummy-key-not-used"
+      OPENAI_BASE_URL: "http://ollama:11434/v1"
+      OTEL_SERVICE_NAME: e2e-ai-gateway
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
+      OTEL_RESOURCE_ATTRIBUTES: "job_name=envoy-ai-gateway,service.instance.id=aigw-1,service.layer=ENVOY_AI_GATEWAY"
+    ports:
+      - 1975
+    networks:
+      - e2e
+    healthcheck:
+      test: ["CMD", "aigw", "healthcheck"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+
+networks:
+  e2e:

@@ -62,43 +62,42 @@ This is a **normal** layer (`isNormal=true`) because the AI Gateway is a real, i
 
 #### `job_name` — Routing Tag for MAL/LAL Rules
 
-SkyWalking's OTel receiver maps the OTLP resource attribute `service.name` to the internal tag `job_name`.
-This tag is used by MAL rule filters to route metrics to the correct rule set. All Envoy AI Gateway
-deployments must use a fixed `OTEL_SERVICE_NAME` value so that SkyWalking can identify the traffic:
+The `job_name` resource attribute is set explicitly in `OTEL_RESOURCE_ATTRIBUTES` to a fixed value
+for all AI Gateway deployments. MAL rule filters use it to route metrics to the correct rule set:
 
-```bash
-OTEL_SERVICE_NAME=envoy-ai-gateway
-```
-
-This becomes `job_name=envoy-ai-gateway` in MAL, and the rules filter on it:
 ```yaml
 filter: "{ tags -> tags.job_name == 'envoy-ai-gateway' }"
 ```
 
-`job_name` is NOT the SkyWalking service name — it is only used for metric/log routing.
+`job_name` is NOT the SkyWalking service name — it is only used for metric/log routing. The
+SkyWalking service name comes from `OTEL_SERVICE_NAME` (standard OTel env var), which is set
+per deployment.
 
 #### Service and Instance Mapping
 
 | SkyWalking Entity | Source | Example |
 |---|---|---|
-| **Service** | `aigw.service` resource attribute (K8s Deployment/Service name, set via CRD) | `envoy-ai-gateway-basic` |
-| **Service Instance** | `service.instance.id` resource attribute (pod name, set via CRD + Downward API) | `aigw-pod-7b9f4d8c5` |
+| **Service** | `OTEL_SERVICE_NAME` / `service.name` (per-deployment gateway name) | `my-ai-gateway` |
+| **Service Instance** | `service.instance.id` resource attribute (pod name, set via Downward API) | `aigw-pod-7b9f4d8c5` |
 
-Each Kubernetes Gateway deployment is a separate SkyWalking **service**. Each pod (ext_proc replica) is a
-**service instance**. Neither attribute is emitted by the AI Gateway by default — both must be explicitly
-set via `OTEL_RESOURCE_ATTRIBUTES` in the `GatewayConfig` CRD (see below).
+Each Kubernetes Gateway deployment sets its own `OTEL_SERVICE_NAME` (the standard OTel env var) as the
+SkyWalking **service** name. Each pod is a **service instance** identified by `service.instance.id`.
 
-The **layer** (`ENVOY_AI_GATEWAY`) is set by MAL/LAL rules based on the `job_name` filter, not by the
-client. This follows the same pattern as other SkyWalking OTel integrations (e.g., ActiveMQ, K8s).
+The `job_name` resource attribute is set explicitly to the fixed value `envoy-ai-gateway` for MAL/LAL
+rule routing. This is separate from `service.name` — all AI Gateway deployments share the same
+`job_name` for routing, but each has its own `service.name` for entity identity.
+
+The **layer** (`ENVOY_AI_GATEWAY`) is set via `service.layer` resource attribute and used by LAL for
+log routing. MAL rules use `job_name` for metric routing.
 
 Provider and model are **metric-level labels**, not separate entities in this layer. They are used for
 fine-grained metric breakdowns within the gateway service dashboards rather than being modeled as separate
 services (unlike the agent-based `VIRTUAL_GENAI` layer where provider=service, model=instance).
 
-The MAL `expSuffix` uses the `aigw_service` tag (dots converted to underscores by OTel receiver) as the
-SkyWalking service name and `service_instance_id` as the instance name:
+The MAL `expSuffix` uses the `service_name` tag as the SkyWalking service name and `service_instance_id`
+as the instance name:
 ```yaml
-expSuffix: service(['aigw_service'], Layer.ENVOY_AI_GATEWAY).instance(['aigw_service', 'service_instance_id'])
+expSuffix: service(['service_name'], Layer.ENVOY_AI_GATEWAY).instance(['service_name', 'service_instance_id'])
 ```
 
 #### Complete Kubernetes Setup Example
@@ -127,36 +126,33 @@ spec:
   extProc:
     kubernetes:
       env:
-        # job_name — fixed value for MAL/LAL rule routing (same for ALL AI Gateway deployments)
+        # SkyWalking service name = Gateway CRD name (auto-resolved from pod label)
+        # OTEL_SERVICE_NAME is the standard OTel env var for service.name
+        - name: GATEWAY_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['gateway.envoyproxy.io/owning-gateway-name']
         - name: OTEL_SERVICE_NAME
-          value: "envoy-ai-gateway"
+          value: "$(GATEWAY_NAME)"
         # OTLP endpoint — SkyWalking OAP gRPC receiver
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://skywalking-oap.skywalking:11800"
         - name: OTEL_EXPORTER_OTLP_PROTOCOL
           value: "grpc"
-        # Enable OTLP for both metrics and access logs
         - name: OTEL_METRICS_EXPORTER
           value: "otlp"
         - name: OTEL_LOGS_EXPORTER
           value: "otlp"
-        # Gateway name = Gateway CRD metadata.name (e.g., "my-ai-gateway")
-        # Read from pod label gateway.envoyproxy.io/owning-gateway-name,
-        # which is auto-set by the Envoy Gateway controller on every envoy pod.
-        - name: GATEWAY_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.labels['gateway.envoyproxy.io/owning-gateway-name']
-        # Pod name (e.g., "envoy-default-my-ai-gateway-76d02f2b-xxx")
+        # Pod name for instance identity
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        # aigw.service → SkyWalking service name (= Gateway CRD name, auto-resolved)
-        # service.instance.id → SkyWalking instance name (= pod name, auto-resolved)
-        # $(VAR) substitution references the valueFrom env vars defined above.
+        # job_name — fixed routing tag for MAL/LAL rules (same for ALL AI Gateway deployments)
+        # service.instance.id — SkyWalking instance name (= pod name)
+        # service.layer — routes logs to ENVOY_AI_GATEWAY LAL rules
         - name: OTEL_RESOURCE_ATTRIBUTES
-          value: "aigw.service=$(GATEWAY_NAME),service.instance.id=$(POD_NAME)"
+          value: "job_name=envoy-ai-gateway,service.instance.id=$(POD_NAME),service.layer=ENVOY_AI_GATEWAY"
 ---
 # 3. Gateway — references the GatewayConfig via annotation
 apiVersion: gateway.networking.k8s.io/v1
@@ -227,15 +223,16 @@ spec:
 
 | Env Var / Resource Attribute | SkyWalking Concept | Example Value |
 |---|---|---|
-| `OTEL_SERVICE_NAME` | `job_name` (MAL/LAL rule routing) | `envoy-ai-gateway` (fixed for all deployments) |
-| `aigw.service` | Service name | `my-ai-gateway` (auto-resolved from gateway name label) |
-| `service.instance.id` | Instance name | `envoy-default-my-ai-gateway-...` (auto-resolved from pod name) |
+| `OTEL_SERVICE_NAME` | Service name | `my-ai-gateway` (auto-resolved from Gateway CRD name) |
+| `job_name` (in `OTEL_RESOURCE_ATTRIBUTES`) | MAL/LAL rule routing | `envoy-ai-gateway` (fixed for all deployments) |
+| `service.instance.id` (in `OTEL_RESOURCE_ATTRIBUTES`) | Instance name | `envoy-default-my-ai-gateway-...` (auto-resolved from pod name) |
+| `service.layer` (in `OTEL_RESOURCE_ATTRIBUTES`) | LAL log routing | `ENVOY_AI_GATEWAY` (fixed) |
 
 **No manual per-gateway configuration needed** for service and instance names:
 - `GATEWAY_NAME` is auto-resolved from the pod label `gateway.envoyproxy.io/owning-gateway-name`,
   which is set automatically by the Envoy Gateway controller on every envoy pod.
+- `OTEL_SERVICE_NAME` uses `$(GATEWAY_NAME)` substitution to set the per-deployment service name.
 - `POD_NAME` is auto-resolved from the pod name via the Downward API.
-- Both are injected into `OTEL_RESOURCE_ATTRIBUTES` via standard Kubernetes `$(VAR)` substitution.
 
 The `GatewayConfig.spec.extProc.kubernetes.env` field accepts full `corev1.EnvVar` objects (including
 `valueFrom`), merged into the ext_proc container by the gateway mutator webhook. Verified on Kind
@@ -247,8 +244,15 @@ The ext_proc runs in-process (not as a subprocess), so there is no env var propa
 
 ### 3. MAL Rules for OTLP Metrics
 
-Create `oap-server/server-starter/src/main/resources/otel-rules/envoy-ai-gateway/` with MAL rules consuming
-the 4 GenAI metrics from Envoy AI Gateway.
+Create `oap-server/server-starter/src/main/resources/otel-rules/envoy-ai-gateway/` with 2 MAL rule files
+consuming the 4 GenAI metrics from Envoy AI Gateway. Since `expSuffix` is file-level, service and
+instance scopes need separate files. Provider and model breakdowns share the same `expSuffix` as their
+parent scope, so they are included in the same file.
+
+| File | `expSuffix` | Contains |
+|---|---|---|
+| `gateway-service.yaml` | `service(['service_name'], Layer.ENVOY_AI_GATEWAY)` | Service aggregates + per-provider breakdown + per-model breakdown |
+| `gateway-instance.yaml` | `instance(['service_name'], ['service_instance_id'], Layer.ENVOY_AI_GATEWAY)` | Instance aggregates + per-provider breakdown + per-model breakdown |
 
 All MAL rule files use the `job_name` filter to match only AI Gateway traffic:
 ```yaml
@@ -282,7 +286,7 @@ filter: "{ tags -> tags.job_name == 'envoy-ai-gateway' }"
 | Time Per Output Token Percentile | ms | `meter_envoy_ai_gw_tpot_percentile` | P50/P75/P90/P95/P99 inter-token latency |
 | Estimated Cost | cost/min | `meter_envoy_ai_gw_estimated_cost` | Estimated cost per minute (from token counts × config pricing) |
 
-**Per-provider breakdown metrics (labeled, within gateway service):**
+**Per-provider breakdown metrics (service scope):**
 
 | Monitoring Panel | Unit | Metric Name | Description |
 |---|---|---|---|
@@ -290,7 +294,7 @@ filter: "{ tags -> tags.job_name == 'envoy-ai-gateway' }"
 | Provider Token Usage | tokens/min | `meter_envoy_ai_gw_provider_token_rate` | Token rate by provider and token type |
 | Provider Latency Avg | ms | `meter_envoy_ai_gw_provider_latency_avg` | Average latency by provider |
 
-**Per-model breakdown metrics (labeled, within gateway service):**
+**Per-model breakdown metrics (service scope):**
 
 | Monitoring Panel | Unit | Metric Name | Description |
 |---|---|---|---|
@@ -299,6 +303,42 @@ filter: "{ tags -> tags.job_name == 'envoy-ai-gateway' }"
 | Model Latency Avg | ms | `meter_envoy_ai_gw_model_latency_avg` | Average latency by model |
 | Model TTFT Avg | ms | `meter_envoy_ai_gw_model_ttft_avg` | Average TTFT by model |
 | Model TPOT Avg | ms | `meter_envoy_ai_gw_model_tpot_avg` | Average inter-token latency by model |
+
+**Instance-level (per-pod) aggregate metrics:**
+
+Same metrics as service-level but scoped to individual pods via `expSuffix: service([...]).instance([...])`.
+
+| Monitoring Panel | Unit | Metric Name | Description |
+|---|---|---|---|
+| Request CPM | count/min | `meter_envoy_ai_gw_instance_request_cpm` | Requests per minute per pod |
+| Request Latency Avg | ms | `meter_envoy_ai_gw_instance_request_latency_avg` | Average request duration per pod |
+| Request Latency Percentile | ms | `meter_envoy_ai_gw_instance_request_latency_percentile` | P50/P75/P90/P95/P99 per pod |
+| Input Tokens Rate | tokens/min | `meter_envoy_ai_gw_instance_input_token_rate` | Input tokens per minute per pod |
+| Output Tokens Rate | tokens/min | `meter_envoy_ai_gw_instance_output_token_rate` | Output tokens per minute per pod |
+| Total Tokens Rate | tokens/min | `meter_envoy_ai_gw_instance_total_token_rate` | Total tokens per minute per pod |
+| TTFT Avg | ms | `meter_envoy_ai_gw_instance_ttft_avg` | Average TTFT per pod |
+| TTFT Percentile | ms | `meter_envoy_ai_gw_instance_ttft_percentile` | P50/P75/P90/P95/P99 TTFT per pod |
+| TPOT Avg | ms | `meter_envoy_ai_gw_instance_tpot_avg` | Average inter-token latency per pod |
+| TPOT Percentile | ms | `meter_envoy_ai_gw_instance_tpot_percentile` | P50/P75/P90/P95/P99 TPOT per pod |
+| Estimated Cost | cost/min | `meter_envoy_ai_gw_instance_estimated_cost` | Estimated cost per minute per pod |
+
+**Per-provider breakdown metrics (instance scope):**
+
+| Monitoring Panel | Unit | Metric Name | Description |
+|---|---|---|---|
+| Provider Request CPM | count/min | `meter_envoy_ai_gw_instance_provider_request_cpm` | Requests per minute by provider per pod |
+| Provider Token Usage | tokens/min | `meter_envoy_ai_gw_instance_provider_token_rate` | Token rate by provider per pod |
+| Provider Latency Avg | ms | `meter_envoy_ai_gw_instance_provider_latency_avg` | Average latency by provider per pod |
+
+**Per-model breakdown metrics (instance scope):**
+
+| Monitoring Panel | Unit | Metric Name | Description |
+|---|---|---|---|
+| Model Request CPM | count/min | `meter_envoy_ai_gw_instance_model_request_cpm` | Requests per minute by model per pod |
+| Model Token Usage | tokens/min | `meter_envoy_ai_gw_instance_model_token_rate` | Token rate by model per pod |
+| Model Latency Avg | ms | `meter_envoy_ai_gw_instance_model_latency_avg` | Average latency by model per pod |
+| Model TTFT Avg | ms | `meter_envoy_ai_gw_instance_model_ttft_avg` | Average TTFT by model per pod |
+| Model TPOT Avg | ms | `meter_envoy_ai_gw_instance_model_tpot_avg` | Average inter-token latency by model per pod |
 
 #### Cost Estimation
 
@@ -335,7 +375,7 @@ OTLP gRPC to the same endpoint as metrics. No FluentBit or external log collecto
 
 The OTLP log sink shares the same `GatewayConfig` CRD env vars as metrics (see Section 2).
 `OTEL_LOGS_EXPORTER=otlp` and `OTEL_EXPORTER_OTLP_ENDPOINT` enable the log sink. The
-`OTEL_RESOURCE_ATTRIBUTES` (including `aigw.service` and `service.instance.id`) are injected as
+`OTEL_RESOURCE_ATTRIBUTES` (including `job_name`, `service.instance.id`, and `service.layer`) are injected as
 resource attributes on each OTLP log record, ensuring consistency between metrics and access logs.
 
 Additionally, enable token metadata population in `AIGatewayRoute` so token counts appear in access logs:
@@ -360,9 +400,9 @@ Each access log record is pushed as an OTLP LogRecord with the following structu
 
 | Attribute | Example | Notes |
 |---|---|---|
-| `aigw.service` | `envoy-ai-gateway-basic` | From `OTEL_RESOURCE_ATTRIBUTES` — SkyWalking service name |
+| `job_name` | `envoy-ai-gateway` | From `OTEL_RESOURCE_ATTRIBUTES` — MAL/LAL routing tag |
 | `service.instance.id` | `aigw-pod-7b9f4d8c5` | From `OTEL_RESOURCE_ATTRIBUTES` — SkyWalking instance name |
-| `service.name` | `envoy-ai-gateway` | From `OTEL_SERVICE_NAME` — mapped to `job_name` for rule routing |
+| `service.name` | `envoy-ai-gateway` | From `OTEL_SERVICE_NAME` — SkyWalking service name for logs |
 | `node_name` | `default-aigw-run-85f8cf28` | Envoy node identifier |
 | `cluster_name` | `default/aigw-run` | Envoy cluster name |
 
@@ -450,7 +490,8 @@ The LAL rules would:
 - `envoy-ai-gateway-root.json` — Root list view of all AI Gateway services.
 - `envoy-ai-gateway-service.json` — Service dashboard: Request CPM, latency, token rates, TTFT, TPOT,
   estimated cost, with provider and model breakdown panels.
-- `envoy-ai-gateway-instance.json` — Instance (pod) level dashboard.
+- `envoy-ai-gateway-instance.json` — Instance (pod) level dashboard: Same aggregate metrics as service
+  dashboard but scoped to a single pod, plus per-provider and per-model breakdown panels for that pod.
 
 **UI side** — A separate PR in [skywalking-booster-ui](https://github.com/apache/skywalking-booster-ui)
 is needed for i18n menu entries (similar to
@@ -481,14 +522,14 @@ Apply the `GatewayConfig` CRD from Section 2 to your AI Gateway deployment. Key 
 
 | Env Var | Value | Purpose |
 |---|---|---|
-| `OTEL_SERVICE_NAME` | `envoy-ai-gateway` | Routes metrics/logs to correct MAL/LAL rules via `job_name` (fixed for all deployments) |
+| `OTEL_SERVICE_NAME` | `$(GATEWAY_NAME)` | SkyWalking service name (per-deployment, auto-resolved from Gateway CRD name) |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://skywalking-oap:11800` | SkyWalking OAP OTLP receiver |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | `grpc` | OTLP transport |
 | `OTEL_METRICS_EXPORTER` | `otlp` | Enable OTLP metrics push |
 | `OTEL_LOGS_EXPORTER` | `otlp` | Enable OTLP access log push |
 | `GATEWAY_NAME` | (auto from label) | Auto-resolved from pod label `gateway.envoyproxy.io/owning-gateway-name` |
 | `POD_NAME` | (auto from Downward API) | Auto-resolved from pod name |
-| `OTEL_RESOURCE_ATTRIBUTES` | `aigw.service=$(GATEWAY_NAME),service.instance.id=$(POD_NAME)` | SkyWalking service name (auto) + instance ID (auto) |
+| `OTEL_RESOURCE_ATTRIBUTES` | `job_name=envoy-ai-gateway,service.instance.id=$(POD_NAME),service.layer=ENVOY_AI_GATEWAY` | Routing tag (fixed) + instance ID (auto) + layer for LAL routing |
 
 ### Step 2: Configure SkyWalking OAP
 
@@ -529,7 +570,7 @@ With `OTEL_RESOURCE_ATTRIBUTES=service.instance.id=test-instance-456` and
 | `telemetry.sdk.name` | `opentelemetry` | SDK metadata |
 | `telemetry.sdk.version` | `1.40.0` | SDK metadata |
 
-**Not present by default (without explicit env config):** `service.instance.id`, `aigw.service`, `host.name`.
+**Not present by default (without explicit env config):** `service.instance.id`, `job_name`, `service.layer`, `host.name`.
 These must be explicitly set via `OTEL_RESOURCE_ATTRIBUTES` in the `GatewayConfig` CRD (see Section 2).
 
 `resource.WithFromEnv()` (source: `internal/metrics/metrics.go:35-94`) is called inside a conditional

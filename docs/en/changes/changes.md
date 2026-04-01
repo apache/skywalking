@@ -169,6 +169,13 @@
 * Support Virtual-GenAI monitoring.
 * Fix on-demand pod log parsing failure by replacing invalid `DateTimeFormatter` pattern with `ISO_OFFSET_DATE_TIME`.
 * Fix Zipkin receiver compatibility with application/x-protobuf Content-Type.
+* Support Envoy AI Gateway observability (SWIP-10): new `ENVOY_AI_GATEWAY` layer with MAL/LAL rules
+  for GenAI metrics (token usage, latency, TTFT, TPOT) and access log sampling via OTLP.
+* OTel metric receiver: convert data point attribute dots to underscores (consistent with resource attributes
+  and metric names). Label mappings are now fallback-only — explicit `job_name` in resource attributes takes
+  precedence over the `service.name` fallback.
+* OTel log handler: prefer `service.instance.id` (OTel spec) over `service.instance` with fallback.
+* Add `SampleFamily.debugDump()` for MAL debugging.
 * Support virtual GenAI analysis for otlp and zipkin traces.
 
 #### UI

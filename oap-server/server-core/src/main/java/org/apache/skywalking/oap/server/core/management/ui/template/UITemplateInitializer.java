@@ -82,6 +82,7 @@ public class UITemplateInitializer {
         Layer.FLINK.name(),
         Layer.BANYANDB.name(),
         Layer.VIRTUAL_GENAI.name(),
+        Layer.ENVOY_AI_GATEWAY.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

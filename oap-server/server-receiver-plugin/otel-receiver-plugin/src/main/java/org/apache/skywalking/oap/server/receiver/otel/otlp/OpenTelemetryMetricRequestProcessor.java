@@ -70,12 +70,33 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
 
     private final OtelMetricReceiverConfig config;
 
-    private static final Map<String, String> LABEL_MAPPINGS =
+    /**
+     * Fallback label mappings: if the target label (value) is absent in resource attributes,
+     * copy the source label (key) value as the target. The source label is always kept as-is
+     * (with dots converted to underscores by the first pass).
+     *
+     * <p>The {@code service.name → job_name} mapping is required because the
+     * <a href="https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/prometheusreceiver/README.md">
+     * OTel Collector Prometheus Receiver</a> automatically converts the Prometheus {@code job}
+     * label to the {@code service.name} resource attribute. All Prometheus-based monitoring
+     * integrations (VM, Nginx, Redis, etc.) depend on this being available as {@code job_name}
+     * in MAL rules. When {@code job_name} is set explicitly in resource attributes (e.g., by
+     * Envoy AI Gateway), it takes precedence via {@code putIfAbsent}.
+     *
+     * <p><b>Legacy:</b> The {@code net.host.name} and {@code host.name} mappings to
+     * {@code node_identifier_host_name} are kept for backward compatibility with existing
+     * VM/Windows MAL rules. New integrations should NOT add entries here — use the natural
+     * dot-to-underscore conversion instead (e.g., {@code host.name} becomes {@code host_name}).
+     */
+    private static final Map<String, String> FALLBACK_LABEL_MAPPINGS =
         ImmutableMap
             .<String, String>builder()
+            // Legacy: use host_name (dot-to-underscore) for new integrations instead
             .put("net.host.name", "node_identifier_host_name")
             .put("host.name", "node_identifier_host_name")
-            .put("job", "job_name")
+            // OTel Collector Prometheus Receiver converts Prometheus `job` to `service.name`.
+            // All Prometheus-based MAL rules filter by job_name. When job_name is set explicitly
+            // in resource attributes (e.g., Envoy AI Gateway), it takes precedence via putIfAbsent.
             .put("service.name", "job_name")
             .build();
     private List<MetricConvert> converters;
@@ -99,18 +120,20 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                     log.debug("Resource attributes: {}", request.getResource().getAttributesList());
                 }
 
-                final Map<String, String> nodeLabels =
-                    request
-                        .getResource()
-                        .getAttributesList()
-                        .stream()
-                        .collect(toMap(
-                            it -> LABEL_MAPPINGS
-                                .getOrDefault(it.getKey(), it.getKey())
-                                .replaceAll("\\.", "_"),
-                                it -> anyValueToString(it.getValue()),
-                        (v1, v2) -> v1
-                        ));
+                // First pass: collect all resource attributes with dots replaced by underscores
+                final Map<String, String> nodeLabels = new HashMap<>();
+                for (final var it : request.getResource().getAttributesList()) {
+                    final String key = it.getKey().replace('.', '_');
+                    final String value = anyValueToString(it.getValue());
+                    nodeLabels.putIfAbsent(key, value);
+                }
+                // Second pass: apply fallback mappings — only if the target key is absent
+                for (final var it : request.getResource().getAttributesList()) {
+                    final String targetKey = FALLBACK_LABEL_MAPPINGS.get(it.getKey());
+                    if (targetKey != null) {
+                        nodeLabels.putIfAbsent(targetKey, anyValueToString(it.getValue()));
+                    }
+                }
 
                 ImmutableMap<String, SampleFamily> sampleFamilies = PrometheusMetricConverter.convertPromMetricToSampleFamily(
                     request.getScopeMetricsList().stream()
@@ -154,8 +177,9 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         return kvs
             .stream()
             .collect(toMap(
-                KeyValue::getKey,
-                it -> anyValueToString(it.getValue())
+                it -> it.getKey().replace('.', '_'),
+                it -> anyValueToString(it.getValue()),
+                (v1, v2) -> v1
             ));
     }
 

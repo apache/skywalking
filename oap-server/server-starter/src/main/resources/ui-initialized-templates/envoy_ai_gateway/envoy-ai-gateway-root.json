@@ -1,0 +1,79 @@
+[
+  {
+    "id": "Envoy-AI-Gateway-Root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "1",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Observe Envoy AI Gateway via OTLP metrics and access logs",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-envoy-ai-gateway-monitoring/"
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "Envoy AI Gateway"
+          },
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "Envoy-AI-Gateway-Service",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": false
+          },
+          "expressions": [
+            "avg(meter_envoy_ai_gw_request_cpm)",
+            "avg(meter_envoy_ai_gw_request_latency_avg)",
+            "avg(meter_envoy_ai_gw_input_token_rate)",
+            "avg(meter_envoy_ai_gw_output_token_rate)"
+          ],
+          "subExpressions": [
+            "meter_envoy_ai_gw_request_cpm",
+            "meter_envoy_ai_gw_request_latency_avg",
+            "meter_envoy_ai_gw_input_token_rate",
+            "meter_envoy_ai_gw_output_token_rate"
+          ],
+          "metricConfig": [
+            {
+              "label": "CPM",
+              "unit": "calls/min"
+            },
+            {
+              "unit": "ms",
+              "label": "Latency"
+            },
+            {
+              "label": "Input Tokens",
+              "unit": "tokens/min"
+            },
+            {
+              "label": "Output Tokens",
+              "unit": "tokens/min"
+            }
+          ]
+        }
+      ],
+      "id": "Envoy-AI-Gateway-Root",
+      "layer": "ENVOY_AI_GATEWAY",
+      "entity": "All",
+      "name": "Envoy-AI-Gateway-Root",
+      "isRoot": true
+    }
+  }
+]
