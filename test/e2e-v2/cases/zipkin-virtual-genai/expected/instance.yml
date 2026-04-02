@@ -13,25 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.10-slim
-
-WORKDIR /app
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
-    openai \
-    opentelemetry-api \
-    opentelemetry-sdk \
-    opentelemetry-instrumentation-openai \
-    opentelemetry-exporter-otlp-proto-grpc \
-    opentelemetry-exporter-zipkin-json \
-    opentelemetry-distro
-
-RUN opentelemetry-bootstrap --action=install
-
-COPY python/openai-call.py /openai-call.py
-
+{{- contains . }}
+- id: {{ notEmpty .id }}
+  name: gpt-4.1-mini-2025-04-14
+  instanceuuid: {{ notEmpty .instanceuuid }}
+  attributes: []
+  language: UNKNOWN
+{{- end }}
