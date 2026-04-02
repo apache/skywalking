@@ -43,3 +43,4 @@ test/script-cases/scripts/**/*.generated-classes/
 
 # Claude Code local settings
 .claude/settings.local.json
+*.generated-classes/

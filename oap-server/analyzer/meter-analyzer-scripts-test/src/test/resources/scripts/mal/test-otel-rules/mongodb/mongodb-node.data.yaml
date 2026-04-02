@@ -1,0 +1,548 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/otel-rules/mongodb/mongodb-node.yaml
+input:
+  mongodb_ss_uptime:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_opcounters:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        legacy_op_type: test-value
+      value: 100.0
+  mongodb_ss_opLatencies_ops:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        op_type: test-value
+      value: 100.0
+  mongodb_ss_opLatencies_latency:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        op_type: test-value
+      value: 100.0
+  mongodb_sys_memory_MemTotal_kb:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_memory_MemAvailable_kb:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_version_info:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        edition: test-value
+        mongodb: test-value
+      value: 100.0
+  mongodb_members_self:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        member_state: test-value
+      value: 100.0
+  mongodb_sys_cpu_user_ms:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_cpu_iowait_ms:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_cpu_system_ms:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_cpu_irq_ms:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_cpu_softirq_ms:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_cpu_nice_ms:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_cpu_steal_ms:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_network_bytesIn:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_network_bytesOut:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_memory_MemFree_kb:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_sys_memory_SwapFree_kb:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_dbstats_fsUsedSize:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_dbstats_fsTotalSize:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+      value: 100.0
+  mongodb_ss_connections:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        conn_type: current
+      value: 100.0
+  mongodb_ss_globalLock_activeClients_total:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_globalLock_activeClients_readers:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_globalLock_activeClients_writers:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_transactions_currentActive:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_transactions_currentInactive:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_metrics_document:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        doc_op_type: test-value
+      value: 100.0
+  mongodb_ss_opcountersRepl:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        legacy_op_type: test-value
+      value: 100.0
+  mongodb_ss_metrics_cursor_open:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        csr_type: test-value
+      value: 100.0
+  mongodb_ss_mem_virtual:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_mem_resident:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_asserts:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        assert_type: test-value
+      value: 100.0
+  mongodb_ss_metrics_repl_buffer_count:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_metrics_repl_buffer_sizeBytes:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_metrics_repl_buffer_maxSizeBytes:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_globalLock_currentQueue:
+    - labels:
+        cluster: test-cluster
+        service_instance_id: test-instance
+        count_type: test-value
+      value: 100.0
+  mongodb_ss_metrics_getLastError_wtime_num:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_metrics_getLastError_wtimeouts:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+  mongodb_ss_metrics_getLastError_wtime_totalMillis:
+    - labels:
+        cluster: test-cluster
+      value: 100.0
+expected:
+  meter_mongodb_node_uptime:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_qps:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 25.0
+  meter_mongodb_node_op_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+          op_type: test-value
+        value: 25.0
+  meter_mongodb_node_latency_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+          op_type: test-value
+        value: 25.0
+  meter_mongodb_node_memory_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 0.0
+  meter_mongodb_node_version:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          edition: test-value
+          service_instance_id: test-instance
+          mongodb: test-value
+        value: 100.0
+  meter_mongodb_node_rs_state:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          member_state: test-value
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_node_cpu_total_percentage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 17.5
+  meter_mongodb_node_network_bytes_in:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 0.0
+  meter_mongodb_node_network_bytes_out:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 0.0
+  meter_mongodb_node_memory_free_kb:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_swap_memory_free_kb:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_fs_used_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_node_fs_total_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_node_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_node_active_total_num:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_active_reader_num:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_active_writer_num:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_transactions_active:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_transactions_inactive:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_document_qps:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          doc_op_type: test-value
+          service_instance_id: test-instance
+        value: 25.0
+  meter_mongodb_node_operation_qps:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          legacy_op_type: test-value
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 25.0
+  meter_mongodb_node_repl_operation_qps:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          legacy_op_type: test-value
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 25.0
+  meter_mongodb_node_cursor:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          csr_type: test-value
+          service_instance_id: test-instance
+        value: 100.0
+  meter_mongodb_node_mem_virtual:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_mem_resident:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_asserts:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          assert_type: test-value
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+        value: 50.0
+  meter_mongodb_node_repl_buffer_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_repl_buffer_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_repl_buffer_size_max:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 100.0
+  meter_mongodb_node_queued_operation:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        instance: test-instance
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+          service_instance_id: test-instance
+          count_type: test-value
+        value: 100.0
+  meter_mongodb_node_write_wait_num:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 25.0
+  meter_mongodb_node_write_wait_timeout_num:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 25.0
+  meter_mongodb_node_write_wait_time:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'mongodb::test-cluster'
+        layer: MONGODB
+    samples:
+      - labels:
+          cluster: 'mongodb::test-cluster'
+        value: 25.0

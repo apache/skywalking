@@ -1,0 +1,82 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/otel-rules/rocketmq/rocketmq-broker.yaml
+input:
+  rocketmq_broker_tps:
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+      value: 100.0
+  rocketmq_broker_qps:
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+      value: 100.0
+  rocketmq_producer_message_size:
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+      value: 100.0
+  rocketmq_consumer_message_size:
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+      value: 100.0
+expected:
+  meter_rocketmq_broker_produce_tps:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rocketmq::test-cluster'
+        instance: test-broker
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_broker_consume_qps:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rocketmq::test-cluster'
+        instance: test-broker
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_broker_producer_message_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rocketmq::test-cluster'
+        instance: test-broker
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0
+  meter_rocketmq_broker_consumer_message_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'rocketmq::test-cluster'
+        instance: test-broker
+        layer: ROCKETMQ
+    samples:
+      - labels:
+          broker: test-broker
+          cluster: 'rocketmq::test-cluster'
+        value: 100.0

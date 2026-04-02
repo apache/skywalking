@@ -1,0 +1,182 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/meter-analyzer-config/java-agent.yaml
+input:
+  created_tracing_context_counter:
+    - labels:
+        created_by: test-creator
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  finished_tracing_context_counter:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  created_ignored_context_counter:
+    - labels:
+        created_by: test-creator
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  finished_ignored_context_counter:
+    - labels:
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  possible_leaked_context_counter:
+    - labels:
+        source: test-source
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  interceptor_error_counter:
+    - labels:
+        plugin_name: test-plugin
+        inter_type: test-type
+        service: test-service
+        instance: test-instance
+      value: 100.0
+  tracing_context_performance:
+    - labels:
+        le: '50'
+        service: test-service
+        instance: test-instance
+      value: 10.0
+    - labels:
+        le: '100'
+        service: test-service
+        instance: test-instance
+      value: 20.0
+    - labels:
+        le: '250'
+        service: test-service
+        instance: test-instance
+      value: 30.0
+    - labels:
+        le: '500'
+        service: test-service
+        instance: test-instance
+      value: 40.0
+    - labels:
+        le: '1000'
+        service: test-service
+        instance: test-instance
+      value: 50.0
+expected:
+  meter_java_agent_created_tracing_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_JAVA_AGENT
+    samples:
+      - labels:
+          created_by: test-creator
+          service: test-service
+          instance: test-instance
+        value: 50.0
+  meter_java_agent_finished_tracing_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_JAVA_AGENT
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+        value: 50.0
+  meter_java_agent_created_ignored_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_JAVA_AGENT
+    samples:
+      - labels:
+          created_by: test-creator
+          service: test-service
+          instance: test-instance
+        value: 50.0
+  meter_java_agent_finished_ignored_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_JAVA_AGENT
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+        value: 50.0
+  meter_java_agent_possible_leaked_context_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_JAVA_AGENT
+    samples:
+      - labels:
+          source: test-source
+          service: test-service
+          instance: test-instance
+        value: 50.0
+  meter_java_agent_interceptor_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_JAVA_AGENT
+    samples:
+      - labels:
+          plugin_name: test-plugin
+          inter_type: test-type
+          service: test-service
+          instance: test-instance
+        value: 50.0
+  meter_java_agent_tracing_context_execution_time_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-instance
+        layer: SO11Y_JAVA_AGENT
+    samples:
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: '1000000'
+        value: 50.0
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: '100000'
+        value: 20.0
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: '250000'
+        value: 30.0
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: '500000'
+        value: 40.0
+      - labels:
+          service: test-service
+          instance: test-instance
+          le: '50000'
+        value: 10.0
