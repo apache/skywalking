@@ -35,6 +35,7 @@
         <module>log-analyzer</module>
         <module>hierarchy</module>
         <module>gen-ai-analyzer</module>
+        <module>meter-analyzer-scripts-test</module>
     </modules>
 
     <dependencies>

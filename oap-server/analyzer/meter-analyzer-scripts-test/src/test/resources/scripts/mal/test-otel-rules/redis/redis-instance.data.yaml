@@ -1,0 +1,213 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/otel-rules/redis/redis-instance.yaml
+input:
+  redis_uptime_in_seconds:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_connected_clients:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_memory_max_bytes:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_memory_used_bytes:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_commands_total:
+    - labels:
+        cmd: get
+        host_name: test-host
+        service_instance_id: test-instance
+      value: 100.0
+  redis_keyspace_hits_total:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_keyspace_misses_total:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_net_input_bytes_total:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_net_output_bytes_total:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_db_keys:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_expired_keys_total:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_evicted_keys_total:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_blocked_clients:
+    - labels:
+        host_name: test-host
+      value: 100.0
+  redis_commands_duration_seconds_total:
+    - labels:
+        host_name: test-host
+        cmd: get
+        service_instance_id: test-instance
+      value: 100.0
+expected:
+  meter_redis_instance_uptime:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 100.0
+  meter_redis_instance_connected_clients:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 100.0
+  meter_redis_instance_memory_max_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 100.0
+  meter_redis_instance_memory_usage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 100.0
+  meter_redis_instance_total_commands_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        instance: test-instance
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          cmd: get
+          service_instance_id: test-instance
+        value: 25.0
+  meter_redis_instance_hit_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 50.0
+  meter_redis_instance_net_input_bytes_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 25.0
+  meter_redis_instance_net_output_bytes_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 25.0
+  meter_redis_instance_db_keys:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 100.0
+  meter_redis_instance_expired_keys_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 100.0
+  meter_redis_instance_evicted_keys_total:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 100.0
+  meter_redis_instance_redis_blocked_clients:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+        value: 100.0
+  meter_redis_instance_average_time_spent_by_command:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        instance: test-instance
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          cmd: get
+          service_instance_id: test-instance
+        value: 0.0
+  meter_redis_instance_commands_duration_seconds_total_rate:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'redis::test-host'
+        instance: test-instance
+        layer: REDIS
+    samples:
+      - labels:
+          host_name: 'redis::test-host'
+          cmd: get
+          service_instance_id: test-instance
+        value: 25.0

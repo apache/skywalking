@@ -83,7 +83,6 @@
             <modules>
                 <module>oap-server</module>
                 <module>oap-server-bom</module>
-                <module>test/script-cases/script-runtime-with-groovy</module>
             </modules>
         </profile>
         <profile>
@@ -520,7 +519,6 @@
                         **/.github/**
                     </resourceExcludes>
                     <excludes>
-                        **/target/generated-test-sources/**,
                         org/apache/skywalking/apm/network/register/v2/**/*.java,
                         org/apache/skywalking/apm/network/common/**/*.java,
                         org/apache/skywalking/apm/network/servicemesh/**/*.java,
@@ -529,8 +527,7 @@
                         org/apache/skywalking/oal/rt/grammar/*.java,
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
                         org/apache/skywalking/oap/server/configuration/service/*.java,
-                        **/generated/*_jmhType*.java,
-                        **/generated/*_jmhTest.java,
+                        **/jmh_generated/*.java,
                         org/junit/**/*.java
                     </excludes>
                 </configuration>

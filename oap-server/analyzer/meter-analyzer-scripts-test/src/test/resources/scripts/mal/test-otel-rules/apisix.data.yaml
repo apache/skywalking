@@ -1,0 +1,550 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/otel-rules/apisix.yaml
+input:
+  apisix_nginx_http_current_connections:
+    - labels:
+        route: test-route
+        node: test-node
+        state: active
+      value: 100.0
+  apisix_http_requests_total:
+    - labels:
+        route: test-route
+        node: test-node
+        service_instance_id: test-inst
+      value: 100.0
+  apisix_bandwidth:
+    # matched: non-empty route and node
+    - labels:
+        route: test-route
+        node: test-node
+        type: ingress
+      value: 100.0
+    # unmatched: empty route and node (for tagEqual('route','','node',''))
+    - labels:
+        route: ''
+        node: ''
+        type: ingress
+      value: 50.0
+  apisix_http_status:
+    # matched
+    - labels:
+        route: test-route
+        node: test-node
+        code: '200'
+      value: 100.0
+    # unmatched
+    - labels:
+        route: ''
+        node: ''
+        code: '200'
+      value: 50.0
+  apisix_http_latency:
+    # matched histogram buckets (non-empty route and node)
+    - labels: {route: test-route, node: test-node, type: request, le: '50'}
+      value: 10.0
+    - labels: {route: test-route, node: test-node, type: request, le: '100'}
+      value: 20.0
+    - labels: {route: test-route, node: test-node, type: request, le: '250'}
+      value: 30.0
+    - labels: {route: test-route, node: test-node, type: request, le: '500'}
+      value: 40.0
+    - labels: {route: test-route, node: test-node, type: request, le: '1000'}
+      value: 50.0
+    # unmatched histogram buckets (empty route and node)
+    - labels: {route: '', node: '', type: request, le: '50'}
+      value: 5.0
+    - labels: {route: '', node: '', type: request, le: '100'}
+      value: 10.0
+    - labels: {route: '', node: '', type: request, le: '250'}
+      value: 15.0
+    - labels: {route: '', node: '', type: request, le: '500'}
+      value: 20.0
+    - labels: {route: '', node: '', type: request, le: '1000'}
+      value: 25.0
+  apisix_shared_dict_capacity_bytes:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_shared_dict_free_space_bytes:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_etcd_modify_indexes:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+  apisix_etcd_reachable:
+    - labels:
+        route: test-route
+        node: test-node
+      value: 100.0
+expected:
+  meter_apisix_sv_http_connections:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          state: active
+          service_name: 'APISIX::APISIX'
+          node: test-node
+        value: 100.0
+  meter_apisix_sv_http_requests:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          service_instance_id: test-inst
+          service_name: 'APISIX::APISIX'
+          node: test-node
+        value: 25.0
+  meter_apisix_sv_bandwidth_unmatched:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: ingress
+          service_name: 'APISIX::APISIX'
+          node: 
+        value: 12.5
+  meter_apisix_sv_http_status_unmatched:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          code: '200'
+          service_name: 'APISIX::APISIX'
+          node: 
+        value: 12.5
+  meter_apisix_sv_http_latency_unmatched:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: 
+          le: '1000000'
+        value: 25.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: 
+          le: '100000'
+        value: 10.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: 
+          le: '250000'
+        value: 15.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: 
+          le: '500000'
+        value: 20.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: 
+          le: '50000'
+        value: 5.0
+  meter_apisix_sv_bandwidth_matched:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: ingress
+          service_name: 'APISIX::APISIX'
+          node: test-node
+        value: 25.0
+  meter_apisix_sv_http_status_matched:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          code: '200'
+          service_name: 'APISIX::APISIX'
+          node: test-node
+        value: 25.0
+  meter_apisix_sv_http_latency_matched:
+    entities:
+      - scope: SERVICE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: test-node
+          le: '1000000'
+        value: 50.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: test-node
+          le: '100000'
+        value: 20.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: test-node
+          le: '250000'
+        value: 30.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: test-node
+          le: '500000'
+        value: 40.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: test-node
+          le: '50000'
+        value: 10.0
+  meter_apisix_instance_shared_dict_capacity_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          name: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 100.0
+  meter_apisix_instance_shared_dict_free_space_bytes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          name: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 100.0
+  meter_apisix_instance_etcd_indexes:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          key: 
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 100.0
+  meter_apisix_instance_etcd_reachable:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          node: test-node
+          service_name: 'APISIX::APISIX'
+          route: test-route
+        value: 100.0
+  meter_apisix_instance_http_connections:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          state: active
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 100.0
+  meter_apisix_instance_http_requests:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        instance: test-inst
+        layer: APISIX
+    samples:
+      - labels:
+          node: test-node
+          route: test-route
+          service_instance_id: test-inst
+          service_name: 'APISIX::APISIX'
+        value: 25.0
+  meter_apisix_instance_bandwidth_matched:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: ingress
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 25.0
+  meter_apisix_instance_http_status_matched:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          code: '200'
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 25.0
+  meter_apisix_instance_http_latency_matched:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '1000000'
+        value: 50.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '100000'
+        value: 20.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '250000'
+        value: 30.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '500000'
+        value: 40.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '50000'
+        value: 10.0
+  meter_apisix_instance_bandwidth_unmatched:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: ingress
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 12.5
+  meter_apisix_instance_http_status_unmatched:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          code: '200'
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+        value: 12.5
+  meter_apisix_instance_http_latency_unmatched:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'APISIX::APISIX'
+        layer: APISIX
+    samples:
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '1000000'
+        value: 25.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '100000'
+        value: 10.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '250000'
+        value: 15.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '500000'
+        value: 20.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          service_instance_id: 
+          le: '50000'
+        value: 5.0
+  meter_apisix_endpoint_http_status:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: route/test-route
+        layer: APISIX
+    samples:
+      - labels:
+          code: '200'
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+        value: 25.0
+  meter_apisix_endpoint_bandwidth:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: route/test-route
+        layer: APISIX
+    samples:
+      - labels:
+          type: ingress
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+        value: 25.0
+  meter_apisix_endpoint_http_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: route/test-route
+        layer: APISIX
+    samples:
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+          le: '1000000'
+        value: 50.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+          le: '100000'
+        value: 20.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+          le: '250000'
+        value: 30.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+          le: '500000'
+        value: 40.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          route: route/test-route
+          node: test-node
+          le: '50000'
+        value: 10.0
+  meter_apisix_endpoint_http_status_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: upstream/test-node
+        layer: APISIX
+    samples:
+      - labels:
+          code: '200'
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+        value: 25.0
+  meter_apisix_endpoint_bandwidth_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: upstream/test-node
+        layer: APISIX
+    samples:
+      - labels:
+          type: ingress
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+        value: 25.0
+  meter_apisix_endpoint_http_latency_2:
+    entities:
+      - scope: ENDPOINT
+        service: 'APISIX::APISIX'
+        endpoint: upstream/test-node
+        layer: APISIX
+    samples:
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+          le: '1000000'
+        value: 50.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+          le: '100000'
+        value: 20.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+          le: '250000'
+        value: 30.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+          le: '500000'
+        value: 40.0
+      - labels:
+          type: request
+          service_name: 'APISIX::APISIX'
+          node: upstream/test-node
+          le: '50000'
+        value: 10.0
