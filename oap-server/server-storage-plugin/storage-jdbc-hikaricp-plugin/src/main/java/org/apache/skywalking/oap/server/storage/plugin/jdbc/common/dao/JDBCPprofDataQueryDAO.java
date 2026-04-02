@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -56,10 +57,13 @@ public class JDBCPprofDataQueryDAO implements IPprofDataQueryDAO {
                 .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(PprofProfilingDataRecord.INDEX_NAME);
 
+            sql.append(" and ").append(PprofProfilingDataRecord.TASK_ID).append(" = ?");
+            condition.add(taskId);
+
             if (CollectionUtils.isNotEmpty(instanceIds)) {
-                sql.append(" and ").append(PprofProfilingDataRecord.INSTANCE_ID).append(" in (?) ");
-                String joinedInstanceIds = String.join(",", instanceIds);
-                condition.add(joinedInstanceIds);
+                sql.append(" and ").append(PprofProfilingDataRecord.INSTANCE_ID)
+                   .append(" in (").append(String.join(",", Collections.nCopies(instanceIds.size(), "?"))).append(")");
+                condition.addAll(instanceIds);
             }
 
             results.addAll(
