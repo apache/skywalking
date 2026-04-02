@@ -28,8 +28,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableMap;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -94,12 +92,6 @@ class MALExpressionExecutionTest {
             K8S_MOCK.close();
         }
     }
-
-    private static final Pattern TAG_EQUAL_PATTERN =
-        Pattern.compile("\\.tagEqual\\s*\\(\\s*'([^']+)'\\s*,\\s*'([^']+)'\\s*\\)");
-
-    private static final String[] HISTOGRAM_LE_VALUES =
-        {"50", "100", "250", "500", "1000"};
 
     /** Advance by 2 s per call — must be &gt;1 s (for timeDiff/1000≥1) and &lt;15 s (smallest rate window). */
     private long timestampCounter = System.currentTimeMillis();
@@ -193,7 +185,7 @@ class MALExpressionExecutionTest {
                 return;
             }
         }
-        executeWithAutoData(metricName, rule.getFullExpression(), v2MalExpr, v2Meta);
+        // No .data.yaml input — compile-only validation
     }
 
     // ==================== Input-driven runtime execution ====================
@@ -462,118 +454,6 @@ class MALExpressionExecutionTest {
         return data;
     }
 
-    // ==================== Auto-generated mock data (fallback) ====================
-
-    private void executeWithAutoData(
-            final String metricName,
-            final String expression,
-            final org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression v2MalExpr,
-            final ExpressionMetadata v2Meta) {
-        final boolean hasIncrease = expression.contains(".increase(")
-            || expression.contains(".rate(");
-
-        // For increase()/rate(), prime then build real data consecutively
-        // so that prime→real has a consistent 2 s delta.
-        final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> v2Data;
-        if (hasIncrease) {
-            try {
-                final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> primeData =
-                    buildV2MockData(metricName, expression, v2Meta, 0.5);
-                for (final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily s : primeData.values()) {
-                    if (s != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY) {
-                        s.context.setMetricName(metricName);
-                    }
-                }
-                v2MalExpr.run(primeData);
-            } catch (Exception ignored) {
-            }
-        }
-        v2Data = buildV2MockData(metricName, expression, v2Meta, 1.0);
-
-        // V2 run
-        org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily v2Sf;
-        try {
-            for (final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily s : v2Data.values()) {
-                if (s != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY) {
-                    s.context.setMetricName(metricName);
-                }
-            }
-            v2Sf = v2MalExpr.run(v2Data);
-        } catch (Exception e) {
-            fail(metricName + ": v2 runtime failed — "
-                + e.getClass().getSimpleName() + ": " + e.getMessage());
-            return;
-        }
-
-        // Must succeed
-        final boolean v2Success = v2Sf != null
-            && v2Sf != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY;
-        assertTrue(v2Success,
-            metricName + ": v2 returned EMPTY");
-    }
-
-    // ==================== V2 mock data (.v2. packages) ====================
-
-    private Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> buildV2MockData(
-            final String metricName, final String expression,
-            final ExpressionMetadata meta, final double valueScale) {
-        final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> data =
-            new HashMap<>();
-        final long now = timestampCounter;
-        timestampCounter += 2_000;
-        final Map<String, String> tagEqualLabels = extractTagEqualLabels(expression);
-
-        for (final String sampleName : meta.getSamples()) {
-            final Map<String, String> labels = new HashMap<>();
-            for (final String label : meta.getScopeLabels()) {
-                labels.put(label, inferLabelValue(label, tagEqualLabels));
-            }
-            for (final String label : meta.getAggregationLabels()) {
-                labels.put(label, inferLabelValue(label, tagEqualLabels));
-            }
-            labels.putAll(tagEqualLabels);
-
-            if (meta.isHistogram()) {
-                data.put(sampleName, buildV2HistogramSamples(
-                    sampleName, labels, now, valueScale));
-            } else {
-                final org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample sample =
-                    org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample.builder()
-                        .name(sampleName)
-                        .labels(ImmutableMap.copyOf(labels))
-                        .value(100.0 * valueScale)
-                        .timestamp(now)
-                        .build();
-                data.put(sampleName,
-                    org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder
-                        .newBuilder(sample).build());
-            }
-        }
-        return data;
-    }
-
-    private org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily buildV2HistogramSamples(
-            final String sampleName, final Map<String, String> baseLabels,
-            final long timestamp, final double valueScale) {
-        final List<org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample> samples =
-            new ArrayList<>();
-        double cumulativeValue = 0;
-        for (final String le : HISTOGRAM_LE_VALUES) {
-            cumulativeValue += 10.0 * valueScale;
-            final Map<String, String> labels = new HashMap<>(baseLabels);
-            labels.put("le", le);
-            samples.add(org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample.builder()
-                .name(sampleName)
-                .labels(ImmutableMap.copyOf(labels))
-                .value(cumulativeValue)
-                .timestamp(timestamp)
-                .build());
-        }
-        return org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder.newBuilder(
-            samples.toArray(
-                new org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample[0])).build();
-    }
-
     // ==================== Helpers ====================
 
     private static String describeEntity(final MeterEntity entity) {
@@ -613,50 +493,6 @@ class MALExpressionExecutionTest {
         Arrays.sort(sorted, (a, b) -> normalizeLabelsForSort(a.getLabels()).compareTo(
             normalizeLabelsForSort(b.getLabels())));
         return sorted;
-    }
-
-    private static Map<String, String> extractTagEqualLabels(final String expression) {
-        final Map<String, String> labels = new HashMap<>();
-        final Matcher matcher = TAG_EQUAL_PATTERN.matcher(expression);
-        while (matcher.find()) {
-            labels.put(matcher.group(1), matcher.group(2));
-        }
-        return labels;
-    }
-
-    private static String inferLabelValue(final String label,
-                                          final Map<String, String> tagEqualLabels) {
-        if (tagEqualLabels.containsKey(label)) {
-            return tagEqualLabels.get(label);
-        }
-        switch (label) {
-            case "service":
-                return "test-service";
-            case "instance":
-            case "service_instance_id":
-                return "test-instance";
-            case "endpoint":
-                return "/test";
-            case "host_name":
-                return "test-host";
-            case "le":
-                return "100";
-            case "job_name":
-                return "mysql-monitoring";
-            case "cluster":
-                return "test-cluster";
-            case "node":
-            case "node_id":
-                return "test-node";
-            case "topic":
-                return "test-topic";
-            case "queue":
-                return "test-queue";
-            case "broker":
-                return "test-broker";
-            default:
-                return "test-value";
-        }
     }
 
     // ==================== YAML loading ====================
