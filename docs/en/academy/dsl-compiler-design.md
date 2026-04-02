@@ -123,41 +123,23 @@ work exactly as before. Only the internal compilation engine was replaced.
 
 ### Verification: Groovy v1 Checker
 
-To ensure the new Java compilers produce identical results to the original Groovy implementation,
-a **dual-path comparison test suite** is maintained under `test/script-cases/`:
+DSL script execution tests are maintained under `oap-server/analyzer/dsl-scripts-test/`:
 
 ```
-test/script-cases/
-  scripts/
-    mal/                      # Copies of shipped MAL configs (test-otel-rules, test-meter-analyzer-config, etc.)
-    lal/                      # Copies of shipped LAL scripts (test-lal/)
-    hierarchy-rule/           # Copy of shipped hierarchy-definition.yml
-  script-runtime-with-groovy/
-    mal-v1-with-groovy/       # MAL v1: original Groovy-based implementation
-    lal-v1-with-groovy/       # LAL v1: original Groovy-based implementation
-    hierarchy-v1-with-groovy/ # Hierarchy v1: original Groovy-based implementation
-    mal-lal-v1-v2-checker/    # Runs every MAL/LAL expression through BOTH v1 and v2, compares results
-    hierarchy-v1-v2-checker/  # Runs every hierarchy rule through BOTH v1 and v2, compares results
+oap-server/analyzer/dsl-scripts-test/
+  src/test/resources/scripts/
+    mal/                      # MAL configs with companion .data.yaml (test-otel-rules, test-meter-analyzer-config, etc.)
+    lal/                      # LAL scripts with companion .data.yaml/.input.data (test-lal/)
+    hierarchy-rule/           # Hierarchy definition with companion .data.yaml
+  src/test/java/.../dsl/tester/
+    mal/                      # MALExpressionExecutionTest, MALFilterExecutionTest
+    lal/                      # LALExpressionExecutionTest
+    hierarchy/                # HierarchyRuleExecutionTest
 ```
 
-The checker mechanism:
+For each DSL expression, the test:
 
-1. Loads all test copies of production YAML config files from `test/script-cases/scripts/`
-2. For each DSL expression, compiles with **both** v1 (Groovy) and v2 (ANTLR4 + Javassist)
-3. Compares the results:
-   - **MAL**: Two-level comparison for each expression:
-     1. **Metadata comparison** -- sample names, aggregation labels, downsampling type, percentile config
-     2. **Runtime execution comparison** -- builds mock `SampleFamily` input data from `ExpressionMetadata`,
-        executes with both v1 and v2, compares output samples (count, labels, values with epsilon).
-        For `increase()`/`rate()` expressions, the `CounterWindow` is primed with an initial run before
-        comparing the second run's output.
-   - **LAL**: Runtime execution comparison -- both v1 and v2 execute with mock LogData,
-     then compare execution state (service, layer, tags, abort/save flags).
-     For rules requiring extraLog (e.g., envoy-als), mock proto data is built from `.input.data` files
-     and the `LALSourceTypeProvider` SPI resolves the proto type per layer.
-     Test scripts include both copies of production configs (`oap-cases/`) and
-     dedicated feature-coverage rules (`feature-cases/`).
-   - **Hierarchy**: Compare `BiFunction` evaluation with test Service pairs
-
-This ensures 100% behavioral parity. The Groovy v1 modules are **test-only dependencies** -- they are not
-included in the OAP distribution.
+1. Loads test copies of production YAML config files from `scripts/`
+2. Compiles with the ANTLR4 + Javassist compiler
+3. Executes with mock input data from companion `.data.yaml` files
+4. Validates output against expected sections in `.data.yaml` (entities, samples, labels, values)

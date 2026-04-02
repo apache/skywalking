@@ -253,7 +253,7 @@ This is the same env variable used by OAL. Useful for debugging code generation 
 
 ## MAL Input Data Mock Principles
 
-MAL test data lives in `.data.yaml` companion files alongside rule YAML files under `test/script-cases/scripts/mal/`. Each `.data.yaml` has two sections: `input` (mock samples) and `expected` (v1-verified output assertions).
+MAL test data lives in `.data.yaml` companion files alongside rule YAML files under `oap-server/analyzer/dsl-scripts-test/src/test/resources/scripts/mal/`. Each `.data.yaml` has two sections: `input` (mock samples) and `expected` (v1-verified output assertions).
 
 ### Input Section Principles
 

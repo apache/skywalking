@@ -1,0 +1,414 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/otel-rules/flink/flink-taskManager.yaml
+input:
+  flink_taskmanager_Status_JVM_CPU_Load:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_JVM_CPU_Time:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_JVM_Memory_Heap_Used:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_JVM_Memory_Heap_Max:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_JVM_Threads_Count:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_JVM_Memory_Metaspace_Max:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_JVM_Memory_Metaspace_Used:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_JVM_Memory_NonHeap_Used:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_JVM_Memory_NonHeap_Max:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_job_task_numRecordsIn:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_numRecordsOut:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_numBytesInPerSecond:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_numBytesOutPerSecond:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_Status_Shuffle_Netty_UsedMemory:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_Status_Shuffle_Netty_AvailableMemory:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+      value: 100.0
+  flink_taskmanager_job_task_Shuffle_Netty_Input_Buffers_inPoolUsage:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_Shuffle_Netty_Output_Buffers_outPoolUsage:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_isBackPressured:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_idleTimeMsPerSecond:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_busyTimeMsPerSecond:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_softBackPressuredTimeMsPerSecond:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+  flink_taskmanager_job_task_hardBackPressuredTimeMsPerSecond:
+    - labels:
+        cluster: test-cluster
+        taskManager_node: test-value
+        flink_job_name: test-value
+        task_name: test-value
+      value: 100.0
+expected:
+  meter_flink_taskManager_jvm_cpu_load:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100000.0
+  meter_flink_taskManager_jvm_cpu_time:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 50.0
+  meter_flink_taskManager_jvm_memory_heap_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_taskManager_jvm_memory_heap_available:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_taskManager_jvm_thread_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_taskManager_jvm_memory_metaspace_available:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_taskManager_jvm_memory_metaspace_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_taskManager_jvm_memory_nonHeap_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_taskManager_jvm_memory_nonHeap_available:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 0.0
+  meter_flink_taskManager_numRecordsIn:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 50.0
+  meter_flink_taskManager_numRecordsOut:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 50.0
+  meter_flink_taskManager_numBytesInPerSecond:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_taskManager_numBytesOutPerSecond:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_taskManager_netty_usedMemory:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_taskManager_netty_availableMemory:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          cluster: 'flink::test-cluster'
+        value: 100.0
+  meter_flink_taskManager_inPoolUsage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 10000.0
+  meter_flink_taskManager_outPoolUsage:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 10000.0
+  meter_flink_taskManager_isBackPressured:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_taskManager_idleTimeMsPerSecond:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_taskManager_busyTimeMsPerSecond:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_taskManager_softBackPressuredTimeMsPerSecond:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0
+  meter_flink_taskManager_hardBackPressuredTimeMsPerSecond:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'flink::test-cluster'
+        instance: test-value
+        layer: FLINK
+    samples:
+      - labels:
+          taskManager_node: test-value
+          task_name: test-value
+          cluster: 'flink::test-cluster'
+          flink_job_name: test-value
+        value: 100.0

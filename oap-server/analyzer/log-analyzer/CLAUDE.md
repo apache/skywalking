@@ -304,7 +304,7 @@ whereas `String.valueOf(null)` would produce the string `"null"`.
 `LALExpressionExecutionTest` loads LAL rules from YAML and mock input from `.input.data` files:
 
 ```
-test/script-cases/scripts/lal/test-lal/
+oap-server/analyzer/dsl-scripts-test/src/test/resources/scripts/lal/test-lal/
   oap-cases/                     — copies of shipped LAL configs (each with .input.data)
   feature-cases/
     execution-basic.yaml         — 16 LAL feature-coverage rules
@@ -316,7 +316,7 @@ Each `.input.data` entry specifies `body-type`, `body`, optional `tags`, and `ex
 
 ## LAL Input Data Mock Principles
 
-LAL test data lives in `.input.data` files alongside rule YAML files under `test/script-cases/scripts/lal/`. Each entry describes one log to process and the expected output.
+LAL test data lives in `.input.data` files alongside rule YAML files under `oap-server/analyzer/dsl-scripts-test/src/test/resources/scripts/lal/`. Each entry describes one log to process and the expected output.
 
 ### Input Entry Structure
 
@@ -352,7 +352,7 @@ rule-name:
 ### Directory Structure
 
 ```
-test/script-cases/scripts/lal/test-lal/
+oap-server/analyzer/dsl-scripts-test/src/test/resources/scripts/lal/test-lal/
   oap-cases/                     — copies of shipped LAL configs
     default.yaml / default.input.data
     envoy-als.yaml / envoy-als.input.data

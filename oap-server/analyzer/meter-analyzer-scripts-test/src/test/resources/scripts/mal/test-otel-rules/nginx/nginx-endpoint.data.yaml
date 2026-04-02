@@ -1,0 +1,159 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/otel-rules/nginx/nginx-endpoint.yaml
+input:
+  nginx_http_requests_total:
+    - labels:
+        service: test-service
+        route: /test-route
+      value: 100.0
+    - labels:
+        service: test-service
+        route: /test-route
+        status: '404'
+      value: 10.0
+    - labels:
+        service: test-service
+        route: /test-route
+        status: '500'
+      value: 5.0
+  nginx_http_latency:
+    - labels: {service: test-service, route: /test-route, le: '50'}
+      value: 10.0
+    - labels: {service: test-service, route: /test-route, le: '100'}
+      value: 20.0
+    - labels: {service: test-service, route: /test-route, le: '250'}
+      value: 30.0
+    - labels: {service: test-service, route: /test-route, le: '500'}
+      value: 40.0
+    - labels: {service: test-service, route: /test-route, le: '1000'}
+      value: 50.0
+  nginx_http_size_bytes:
+    - labels:
+        service: test-service
+        route: /test-route
+      value: 100.0
+expected:
+  meter_nginx_endpoint_http_requests:
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 28.75
+  meter_nginx_endpoint_http_latency:
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '1000000'
+        value: 50.0
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '100000'
+        value: 20.0
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '250000'
+        value: 30.0
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '500000'
+        value: 40.0
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+          le: '50000'
+        value: 10.0
+  meter_nginx_endpoint_http_bandwidth:
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          type: 
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 25.0
+  meter_nginx_endpoint_http_status:
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          status: 
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 25.0
+      - labels:
+          status: '404'
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 2.5
+      - labels:
+          status: '500'
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 1.25
+  meter_nginx_endpoint_http_requests_increment:
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 57.5
+  meter_nginx_endpoint_http_4xx_requests_increment:
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 5.0
+  meter_nginx_endpoint_http_5xx_requests_increment:
+    entities:
+      - scope: ENDPOINT
+        service: 'nginx::test-service'
+        endpoint: /test-route
+        layer: NGINX
+    samples:
+      - labels:
+          service: 'nginx::test-service'
+          route: /test-route
+        value: 2.5
