@@ -26,14 +26,13 @@ RUN pip install --no-cache-dir --upgrade pip && \
     openai==2.30.0 \
     opentelemetry-api==1.40.0 \
     opentelemetry-sdk==1.40.0 \
-    opentelemetry-distro==0.61b0 \
     opentelemetry-instrumentation-openai==0.57.0 \
     opentelemetry-exporter-otlp-proto-grpc==1.40.0 \
     opentelemetry-exporter-zipkin==1.40.0 \
     opentelemetry-exporter-zipkin-json==1.40.0 \
-    opentelemetry-exporter-zipkin-proto-http==1.40.0
+    opentelemetry-exporter-zipkin-proto-http==1.40.0 \
+    opentelemetry-distro==0.61b0
 
-RUN pip install --no-cache-dir opentelemetry-distro==0.61b0
 RUN opentelemetry-bootstrap --action=install
 
 COPY python/openai-call.py /openai-call.py
