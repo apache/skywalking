@@ -3,9 +3,8 @@
 #### Project
 
 #### OAP Server
-* Remove Groovy v1-v2 checker modules. Replace with v2-only DSL script execution tests in their
-  respective analyzer modules (hierarchy, log-analyzer) and a separate `meter-analyzer-scripts-test`
-  module for MAL tests requiring ProcessRegistry FQCN isolation. Delete `test/script-cases/` directory.
+* Add Zipkin Virtual GenAI e2e test. Use `zipkin_json` exporter to avoid protobuf dependency conflict
+  between `opentelemetry-exporter-zipkin-proto-http` (protobuf~=3.12) and `opentelemetry-proto` (protobuf>=5.0).
 
 #### UI
 
