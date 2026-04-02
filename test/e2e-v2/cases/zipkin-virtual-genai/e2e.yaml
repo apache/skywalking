@@ -13,25 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM python:3.10-slim
+# This file is used to show how to write configuration files and can be used to test.
 
-WORKDIR /app
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+trigger:
+  action: http
+  interval: 3s
+  times: 5
+  url: http://localhost:9091/
+  method: GET
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
-    openai \
-    opentelemetry-api \
-    opentelemetry-sdk \
-    opentelemetry-instrumentation-openai \
-    opentelemetry-exporter-otlp-proto-grpc \
-    opentelemetry-exporter-zipkin-json \
-    opentelemetry-distro
-
-RUN opentelemetry-bootstrap --action=install
-
-COPY python/openai-call.py /openai-call.py
-
+verify:
+  retry:
+    count: 60
+    interval: 3s
+  cases:
+    - includes:
+        - ./zipkin-virtual-genai.yaml
