@@ -28,5 +28,5 @@ public interface IAsyncProfilerTaskLogQueryDAO extends DAO {
     /**
      * search all task log list in appoint task id
      */
-    List<AsyncProfilerTaskLog> getTaskLogList() throws IOException;
+    List<AsyncProfilerTaskLog> getTaskLogList(String taskId) throws IOException;
 }
