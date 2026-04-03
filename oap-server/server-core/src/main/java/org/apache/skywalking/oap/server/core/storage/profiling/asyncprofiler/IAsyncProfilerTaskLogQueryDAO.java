@@ -26,7 +26,11 @@ import java.util.List;
 
 public interface IAsyncProfilerTaskLogQueryDAO extends DAO {
     /**
-     * search all task log list in appoint task id
+     * Search task logs by the given task id.
+     *
+     * @param taskId the task id to filter by, must not be null or blank
+     * @return the task logs associated with the given task id
+     * @throws IOException if the query fails
      */
     List<AsyncProfilerTaskLog> getTaskLogList(String taskId) throws IOException;
 }
