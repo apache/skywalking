@@ -126,7 +126,7 @@ public class JDBCEBPFProfilingTaskDAO extends JDBCSQLExecutor implements IEBPFPr
         final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
         for (final var table : tables) {
             String sql = "select * from " + table +
-                " where " + JDBCTableInstaller.TABLE_COLUMN + " = ?" +
+                " where " + JDBCTableInstaller.TABLE_COLUMN + " = ? and " +
                 EBPFProfilingTaskRecord.LOGICAL_ID + " = ?";
 
             results.addAll(jdbcClient.executeQuery(
