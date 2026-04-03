@@ -47,13 +47,14 @@ public class AsyncProfilerTaskLogQueryEsDAO extends EsDAO implements IAsyncProfi
     }
 
     @Override
-    public List<AsyncProfilerTaskLog> getTaskLogList() throws IOException {
+    public List<AsyncProfilerTaskLog> getTaskLogList(String taskId) throws IOException {
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
                 AsyncProfilerTaskLogRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(AsyncProfilerTaskLogRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, AsyncProfilerTaskLogRecord.INDEX_NAME));
         }
+        query.must(Query.term(AsyncProfilerTaskLogRecord.TASK_ID, taskId));
         final SearchBuilder search =
                 Search.builder().query(query)
                         .sort(AsyncProfilerTaskLogRecord.OPERATION_TIME, Sort.Order.DESC)

@@ -102,13 +102,7 @@ public class AsyncProfilerQueryService implements Service {
     }
 
     public List<AsyncProfilerTaskLog> queryAsyncProfilerTaskLogs(String taskId) throws IOException {
-        List<AsyncProfilerTaskLog> taskLogList = getTaskLogQueryDAO().getTaskLogList();
-        return findMatchedLogs(taskId, taskLogList);
-    }
-
-    private List<AsyncProfilerTaskLog> findMatchedLogs(final String taskID, final List<AsyncProfilerTaskLog> allLogs) {
-        return allLogs.stream()
-                .filter(l -> Objects.equals(l.getId(), taskID))
+        return getTaskLogQueryDAO().getTaskLogList(taskId).stream()
                 .map(this::extendTaskLog)
                 .collect(Collectors.toList());
     }

@@ -42,11 +42,11 @@ public class JDBCAsyncProfilerTaskLogQueryDAO implements IAsyncProfilerTaskLogQu
 
     @Override
     @SneakyThrows
-    public List<AsyncProfilerTaskLog> getTaskLogList() {
+    public List<AsyncProfilerTaskLog> getTaskLogList(String taskId) {
         List<String> tables = tableHelper.getTablesWithinTTL(AsyncProfilerTaskLogRecord.INDEX_NAME);
         final List<AsyncProfilerTaskLog> results = new ArrayList<AsyncProfilerTaskLog>();
         for (String table : tables) {
-            SQLAndParameters sqlAndParameters = buildSQL(table);
+            SQLAndParameters sqlAndParameters = buildSQL(table, taskId);
             List<AsyncProfilerTaskLog> logs = jdbcClient.executeQuery(
                     sqlAndParameters.sql(),
                     resultSet -> {
@@ -62,12 +62,14 @@ public class JDBCAsyncProfilerTaskLogQueryDAO implements IAsyncProfilerTaskLogQu
         return results;
     }
 
-    private SQLAndParameters buildSQL(String table) {
+    private SQLAndParameters buildSQL(String table, String taskId) {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(2);
         sql.append("select * from ").append(table)
                 .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
         parameters.add(AsyncProfilerTaskLogRecord.INDEX_NAME);
+        sql.append(" and ").append(AsyncProfilerTaskLogRecord.TASK_ID).append(" = ?");
+        parameters.add(taskId);
         sql.append(" order by ").append(AsyncProfilerTaskLogRecord.OPERATION_TIME).append(" desc");
         return new SQLAndParameters(sql.toString(), parameters);
     }
