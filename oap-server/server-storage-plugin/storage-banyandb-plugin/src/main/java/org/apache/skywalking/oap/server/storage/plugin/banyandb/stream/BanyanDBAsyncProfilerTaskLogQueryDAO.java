@@ -53,11 +53,12 @@ public class BanyanDBAsyncProfilerTaskLogQueryDAO extends AbstractBanyanDBDAO im
     }
 
     @Override
-    public List<AsyncProfilerTaskLog> getTaskLogList() throws IOException {
+    public List<AsyncProfilerTaskLog> getTaskLogList(String taskId) throws IOException {
         StreamQueryResponse resp = query(false, AsyncProfilerTaskLogRecord.INDEX_NAME, TAGS,
                 new QueryBuilder<StreamQuery>() {
                     @Override
                     public void apply(StreamQuery query) {
+                        query.and(eq(AsyncProfilerTaskLogRecord.TASK_ID, taskId));
                         query.setLimit(BanyanDBAsyncProfilerTaskLogQueryDAO.this.queryMaxSize);
                     }
                 });
