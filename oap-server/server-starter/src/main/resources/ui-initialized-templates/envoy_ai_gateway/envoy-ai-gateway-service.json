@@ -460,6 +460,240 @@
               ]
             },
             {
+              "name": "MCP",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "0",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_envoy_ai_gw_mcp_request_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "MCP Request CPM",
+                      "unit": "calls/min"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Request CPM",
+                    "tips": "Total MCP requests per minute"
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "1",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_envoy_ai_gw_mcp_request_latency_avg"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Avg Latency",
+                      "unit": "ms"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Request Latency Avg"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "2",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_envoy_ai_gw_mcp_request_latency_percentile"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Latency Percentile",
+                      "unit": "ms"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Request Latency Percentile",
+                    "tips": "P50 / P75 / P90 / P95 / P99"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "3",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_envoy_ai_gw_mcp_error_cpm"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Error CPM",
+                      "unit": "calls/min"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Error CPM"
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_envoy_ai_gw_mcp_method_cpm,sum(mcp_method_name))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Method CPM",
+                      "unit": "calls/min"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Method CPM",
+                    "tips": "Requests per minute by MCP method (initialize, tools/list, tools/call, etc.)"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_envoy_ai_gw_mcp_initialization_latency_avg"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Init Latency",
+                      "unit": "ms"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Initialization Latency Avg",
+                    "tips": "Average time to initialize MCP session with backend"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_envoy_ai_gw_mcp_backend_request_cpm,sum(mcp_backend))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Backend CPM",
+                      "unit": "calls/min"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Request CPM by Backend"
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "7",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_envoy_ai_gw_mcp_backend_request_latency_avg,avg(mcp_backend))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Backend Latency",
+                      "unit": "ms"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Latency Avg by Backend"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 26,
+                  "w": 8,
+                  "h": 13,
+                  "i": "8",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_envoy_ai_gw_mcp_backend_error_cpm,sum(mcp_backend))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Backend Error CPM",
+                      "unit": "calls/min"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Error CPM by Backend"
+                  }
+                }
+              ]
+            },
+            {
               "name": "Log",
               "children": [
                 {

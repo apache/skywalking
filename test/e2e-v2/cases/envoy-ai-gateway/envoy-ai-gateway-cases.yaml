@@ -45,6 +45,26 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_envoy_ai_gw_model_latency_avg --service-name=e2e-ai-gateway
     expected: expected/metrics-has-value.yml
 
-  # Access logs — error requests (404) should be persisted by LAL sampling
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs ls --service-name=e2e-ai-gateway
+  # ===================== MCP metrics =====================
+
+  # MCP aggregate metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_envoy_ai_gw_mcp_request_cpm --service-name=e2e-ai-gateway
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_envoy_ai_gw_mcp_request_latency_avg --service-name=e2e-ai-gateway
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_envoy_ai_gw_mcp_request_latency_percentile --service-name=e2e-ai-gateway
+    expected: expected/metrics-has-value-label.yml
+
+  # MCP method breakdown
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_envoy_ai_gw_mcp_method_cpm --service-name=e2e-ai-gateway
+    expected: expected/metrics-has-value.yml
+
+  # MCP backend breakdown
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_envoy_ai_gw_mcp_backend_request_cpm --service-name=e2e-ai-gateway
+    expected: expected/metrics-has-value.yml
+
+  # ===================== Access logs =====================
+
+  # LLM error requests (404) should be persisted with ai_route_type=llm
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs ls --service-name=e2e-ai-gateway --tags=ai_route_type=llm
     expected: expected/logs.yml
