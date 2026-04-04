@@ -42,6 +42,7 @@ import zipkin2.storage.QueryRequest;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -286,16 +287,9 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(ZipkinSpanRecord.INDEX_NAME);
 
-            int i = 0;
-            sql.append(" and ");
-            for (final String traceId : traceIds) {
-                sql.append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
-                condition.add(traceId);
-                if (i != traceIds.size() - 1) {
-                    sql.append(" or ");
-                }
-                i++;
-            }
+            sql.append(" and ").append(ZipkinSpanRecord.TRACE_ID)
+               .append(" in (").append(String.join(",", Collections.nCopies(traceIds.size(), "?"))).append(")");
+            condition.addAll(traceIds);
 
             sql.append(" order by ").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" desc");
 
