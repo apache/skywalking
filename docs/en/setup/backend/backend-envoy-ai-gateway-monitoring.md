@@ -4,8 +4,9 @@
 
 [Envoy AI Gateway](https://aigateway.envoyproxy.io/) is a gateway/proxy for AI/LLM API traffic
 (OpenAI, Anthropic, AWS Bedrock, Azure OpenAI, Google Gemini, etc.) built on top of Envoy Proxy.
-It natively emits GenAI metrics, MCP (Model Context Protocol) metrics, and access logs via OTLP,
-following [OpenTelemetry GenAI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/).
+It natively emits GenAI metrics following
+[OpenTelemetry GenAI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/),
+and also emits MCP (Model Context Protocol) metrics and access logs via OTLP.
 
 SkyWalking receives OTLP metrics and logs directly on its gRPC port (11800) — no OpenTelemetry
 Collector is needed between the AI Gateway and SkyWalking OAP.

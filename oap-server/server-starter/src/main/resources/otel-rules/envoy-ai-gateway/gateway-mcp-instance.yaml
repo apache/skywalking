@@ -73,7 +73,7 @@ metricsRules:
 
   # Backend error CPM
   - name: backend_error_cpm
-    exp: mcp_method_count.tagEqual('status', 'error').sum(['service_name', 'service_instance_id']).increase('PT1M')
+    exp: mcp_method_count.tagEqual('status', 'error').sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M')
 
   # Backend initialization latency average (ms)
   - name: backend_initialization_latency_avg

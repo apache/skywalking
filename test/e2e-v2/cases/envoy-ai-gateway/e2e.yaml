@@ -51,11 +51,15 @@ setup:
     - name: Send MCP requests for metric verification
       command: |
         # Initialize MCP session and capture session ID
-        SESSION_ID=$(curl -s -D- --max-time 15 \
+        SESSION_ID=$(curl -sS -f -D- --max-time 15 \
           http://${aigw_host}:${aigw_1975}/mcp \
           -H 'Content-Type: application/json' \
           -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"e2e-test","version":"1.0"}}}' \
-          2>&1 | grep -i 'Mcp-Session-Id' | tr -d '\r' | sed 's/Mcp-Session-Id: //')
+          2>&1 | grep -i '^Mcp-Session-Id:' | tr -d '\r' | sed 's/^[Mm]cp-[Ss]ession-[Ii]d: *//')
+        if [ -z "$SESSION_ID" ]; then
+          echo "Failed to capture MCP session ID" >&2
+          exit 1
+        fi
         sleep 2
         # tools/list
         curl -s --max-time 15 -o /dev/null \

@@ -16,8 +16,8 @@
 # Envoy AI Gateway access log processing via OTLP.
 #
 # Two rules: one for LLM route logs, one for MCP route logs.
-# LLM sampling: only persist abnormal or expensive requests.
-# MCP sampling: only persist error responses.
+# LLM sampling: only persist error responses (>= 400) and upstream failures.
+# MCP sampling: only persist error responses (>= 400).
 # Both tag ai_route_type for searchable filtering in the UI.
 
 rules:
@@ -30,8 +30,7 @@ rules:
           abort {}
         }
 
-        // Drop normal logs: response < 400, no upstream failure, low token count
-        // Keep only: error responses (>= 400), upstream failures, or high-token requests (>= 10000)
+        // Keep only: error responses (>= 400) and upstream failures
         if (tag("response_code") != "" && tag("response_code") != "-") {
           if (tag("response_code") as Integer < 400) {
             if (tag("upstream_transport_failure_reason") == "" || tag("upstream_transport_failure_reason") == "-") {
@@ -64,11 +63,12 @@ rules:
           abort {}
         }
 
-        // Only persist error responses
-        if (tag("response_code") != "" && tag("response_code") != "-") {
-          if (tag("response_code") as Integer < 400) {
-            abort {}
-          }
+        // Only persist error responses (>= 400)
+        if (tag("response_code") == "" || tag("response_code") == "-") {
+          abort {}
+        }
+        if (tag("response_code") as Integer < 400) {
+          abort {}
         }
 
         extractor {
