@@ -202,8 +202,9 @@
                     "gen_ai_model_latency_percentile"
                   ],
                   "graph": {
-                    "type": "Bar",
-                    "showBackground": true
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
                   "widget": {
                     "name": "LatencyPercentile",
@@ -267,8 +268,9 @@
                     }
                   ],
                   "graph": {
-                    "type": "Bar",
-                    "showBackground": true
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
                   "id": "0-0-21",
                   "moved": false,
