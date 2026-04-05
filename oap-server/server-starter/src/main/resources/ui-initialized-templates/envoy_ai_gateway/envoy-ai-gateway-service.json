@@ -690,6 +690,107 @@
                   "widget": {
                     "title": "MCP Error CPM by Backend (calls / min)"
                   }
+                },
+                {
+                  "x": 0,
+                  "y": 39,
+                  "w": 8,
+                  "h": 13,
+                  "i": "9",
+                  "type": "Widget",
+                  "expressions": [
+                    "meter_envoy_ai_gw_mcp_initialization_latency_percentile"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Init Latency Percentile",
+                      "unit": "ms"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Initialization Latency Percentile (ms)",
+                    "tips": "P50 / P75 / P90 / P95 / P99"
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 39,
+                  "w": 8,
+                  "h": 13,
+                  "i": "10",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_envoy_ai_gw_mcp_capabilities_cpm,sum(capability_type))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Capabilities CPM",
+                      "unit": "calls/min"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Capabilities Negotiated (calls / min)"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 39,
+                  "w": 8,
+                  "h": 13,
+                  "i": "11",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_envoy_ai_gw_mcp_backend_method_cpm,sum(mcp_backend,mcp_method_name))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Backend Method CPM",
+                      "unit": "calls/min"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Method CPM by Backend (calls / min)"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 52,
+                  "w": 8,
+                  "h": 13,
+                  "i": "12",
+                  "type": "Widget",
+                  "expressions": [
+                    "aggregate_labels(meter_envoy_ai_gw_mcp_backend_initialization_latency_avg,avg(mcp_backend))"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Backend Init Latency",
+                      "unit": "ms"
+                    }
+                  ],
+                  "widget": {
+                    "title": "MCP Init Latency Avg by Backend (ms)"
+                  }
                 }
               ]
             },

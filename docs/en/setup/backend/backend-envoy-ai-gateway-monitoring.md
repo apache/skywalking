@@ -134,7 +134,8 @@ The `ai_route_type` tag is searchable by default.
 **LLM route logs:**
 - **Error responses** (HTTP status >= 400) — always persisted.
 - **Upstream failures** — always persisted.
-- Normal successful responses are dropped.
+- **High token cost** (>= 10,000 total tokens) — persisted for cost anomaly detection.
+- Normal successful responses with low token counts are dropped.
 
 **MCP route logs:**
 - **Error responses** (HTTP status >= 400) — always persisted.

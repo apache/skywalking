@@ -16,7 +16,7 @@
 # Envoy AI Gateway access log processing via OTLP.
 #
 # Two rules: one for LLM route logs, one for MCP route logs.
-# LLM sampling: only persist error responses (>= 400) and upstream failures.
+# LLM sampling: persist error responses (>= 400), upstream failures, or high-token requests (>= 10000).
 # MCP sampling: only persist error responses (>= 400).
 # Both tag ai_route_type for searchable filtering in the UI.
 
@@ -30,17 +30,31 @@ rules:
           abort {}
         }
 
-        // Keep only: error responses (>= 400) and upstream failures
+        // Keep: error responses (>= 400), upstream failures, or high-token requests (>= 10000 total tokens)
         // Abort logs without response_code unless there is an upstream failure
         if (tag("response_code") == "" || tag("response_code") == "-") {
           if (tag("upstream_transport_failure_reason") == "" || tag("upstream_transport_failure_reason") == "-") {
             abort {}
           }
         }
+        // For normal responses (< 400), check upstream failure and token cost
         if (tag("response_code") != "" && tag("response_code") != "-") {
           if (tag("response_code") as Integer < 400) {
+            if (tag("upstream_transport_failure_reason") != "" && tag("upstream_transport_failure_reason") != "-") {
+              // upstream failure — keep
+            }
             if (tag("upstream_transport_failure_reason") == "" || tag("upstream_transport_failure_reason") == "-") {
-              abort {}
+              // no upstream failure — check token cost
+              if (tag("gen_ai.usage.input_tokens") != "" && tag("gen_ai.usage.input_tokens") != "-"
+                  && tag("gen_ai.usage.output_tokens") != "" && tag("gen_ai.usage.output_tokens") != "-") {
+                if ((tag("gen_ai.usage.input_tokens") as Integer) + (tag("gen_ai.usage.output_tokens") as Integer) < 10000) {
+                  abort {}
+                }
+              }
+              if (tag("gen_ai.usage.input_tokens") == "" || tag("gen_ai.usage.input_tokens") == "-"
+                  || tag("gen_ai.usage.output_tokens") == "" || tag("gen_ai.usage.output_tokens") == "-") {
+                abort {}
+              }
             }
           }
         }
