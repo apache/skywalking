@@ -31,6 +31,12 @@ rules:
         }
 
         // Keep only: error responses (>= 400) and upstream failures
+        // Abort logs without response_code unless there is an upstream failure
+        if (tag("response_code") == "" || tag("response_code") == "-") {
+          if (tag("upstream_transport_failure_reason") == "" || tag("upstream_transport_failure_reason") == "-") {
+            abort {}
+          }
+        }
         if (tag("response_code") != "" && tag("response_code") != "-") {
           if (tag("response_code") as Integer < 400) {
             if (tag("upstream_transport_failure_reason") == "" || tag("upstream_transport_failure_reason") == "-") {

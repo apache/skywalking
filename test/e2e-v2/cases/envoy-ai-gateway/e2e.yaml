@@ -62,14 +62,14 @@ setup:
         fi
         sleep 2
         # tools/list
-        curl -s --max-time 15 -o /dev/null \
+        curl -sS -f --max-time 15 -o /dev/null \
           http://${aigw_host}:${aigw_1975}/mcp \
           -H 'Content-Type: application/json' \
           -H "Mcp-Session-Id: $SESSION_ID" \
           -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
         sleep 1
-        # tools/call — call a nonexistent tool to generate an error
-        curl -s --max-time 15 -o /dev/null \
+        # tools/call — call a nonexistent tool to generate an error (no -f, expects 4xx)
+        curl -sS --max-time 15 -o /dev/null \
           http://${aigw_host}:${aigw_1975}/mcp \
           -H 'Content-Type: application/json' \
           -H "Mcp-Session-Id: $SESSION_ID" \
