@@ -76,9 +76,8 @@
                     "meter_envoy_ai_gw_instance_request_latency_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
@@ -180,9 +179,8 @@
                     "meter_envoy_ai_gw_instance_ttft_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
@@ -232,9 +230,8 @@
                     "meter_envoy_ai_gw_instance_tpot_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
@@ -523,9 +520,8 @@
                     "meter_envoy_ai_gw_mcp_instance_request_latency_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
@@ -699,9 +695,8 @@
                     "meter_envoy_ai_gw_mcp_instance_initialization_latency_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {

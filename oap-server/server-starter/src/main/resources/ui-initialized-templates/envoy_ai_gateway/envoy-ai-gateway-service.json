@@ -76,9 +76,8 @@
                     "meter_envoy_ai_gw_request_latency_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
@@ -180,9 +179,8 @@
                     "meter_envoy_ai_gw_ttft_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
@@ -232,9 +230,8 @@
                     "meter_envoy_ai_gw_tpot_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
@@ -524,9 +521,8 @@
                     "meter_envoy_ai_gw_mcp_request_latency_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
@@ -702,9 +698,8 @@
                     "meter_envoy_ai_gw_mcp_initialization_latency_percentile"
                   ],
                   "graph": {
-                    "type": "Line",
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricConfig": [
                     {
